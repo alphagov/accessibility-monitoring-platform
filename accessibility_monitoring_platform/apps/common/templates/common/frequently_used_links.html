@@ -2,7 +2,7 @@
 <ul class="govuk-list">
     <li>
         {% if case.audit %}
-            <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+            <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">
                 View test
             </a>
         {% else %}
@@ -31,10 +31,10 @@
     <li>
         {% if case.report.latest_s3_report %}
             <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View published report
+                View final HTML report
             </a>
         {% else %}
-            No published report
+            No report has been published
         {% endif %}
     </li>
     <li>
@@ -44,7 +44,7 @@
     </li>
     {% if in_testing_ui %}
         <li>
-            <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+            <a href="{{ case.get_absolute_url }}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                 Link to case view
             </a>
         </li>

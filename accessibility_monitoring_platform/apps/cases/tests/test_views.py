@@ -23,11 +23,15 @@ from ...audits.models import (
     Audit,
     CheckResult,
     Page,
+    StatementCheck,
+    StatementCheckResult,
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_CONTACT,
     PAGE_TYPE_HOME,
     RETEST_CHECK_RESULT_FIXED,
     SCOPE_STATE_VALID,
+    STATEMENT_CHECK_YES,
+    STATEMENT_CHECK_NO,
 )
 from ...audits.tests.test_models import create_audit_and_check_results, ERROR_NOTES
 
@@ -2937,6 +2941,62 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
     )
 
 
+def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
+    """
+    Test that the status workflow page provides a link to the statement overview
+    page when the case test uses statement checks. Checkmark set when overview
+    statement checks have been entered.
+    """
+    case: Case = Case.objects.create()
+    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    audit: Audit = Audit.objects.create(case=case)
+    audit_pk_kwargs: Dict[str, int] = {"pk": audit.id}
+
+    for statement_check in StatementCheck.objects.all():
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    overview_url: str = reverse(
+        "audits:edit-statement-overview", kwargs=audit_pk_kwargs
+    )
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
+                Statement overview not filled in
+            </a></li>""",
+        html=True,
+    )
+
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
+                Statement overview not filled in
+            </a>&check;</li>""",
+        html=True,
+    )
+
+
 def test_case_steps_shown_when_platform_testing(admin_client):
     """
     Test case steps shown when testing methodology is platform.
@@ -3355,6 +3415,56 @@ def test_outstanding_issues_new_case(admin_client):
 
 
 @pytest.mark.parametrize(
+    "type, label",
+    [
+        ("overview", "Statement overview"),
+        ("website", "Statement information"),
+        ("compliance", "Compliance status"),
+        ("non-accessible", "Non-accessible content overview"),
+        ("preparation", "Preparation"),
+        ("feedback", "Feedback"),
+        ("custom", "Custom statement issues"),
+    ],
+)
+def test_outstanding_issues_statement_checks(type, label, admin_client):
+    """Test that outstanding issues shows expected statement checks"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=type,
+        statement_check=statement_check,
+    )
+    edit_url: str = f"edit-retest-statement-{type}"
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+    assertNotContains(response, label)
+    assertNotContains(response, edit_url)
+
+    statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+    assertContains(response, label)
+    assertContains(response, edit_url)
+
+    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+    assertNotContains(response, label)
+    assertNotContains(response, edit_url)
+
+
+@pytest.mark.parametrize(
     "url_name",
     ["cases:case-detail", "cases:edit-case-details"],
 )
@@ -3373,7 +3483,7 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
     assertContains(response, "View email template")
-    assertContains(response, "No published report")
+    assertContains(response, "No report has been published")
     assertContains(response, "View website")
 
 

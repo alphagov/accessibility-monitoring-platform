@@ -13,7 +13,6 @@ PAGE_TITLES_BY_URL = {
     "/audits/[id]/detail/": "View test",
     "/audits/[id]/edit-audit-metadata/": "Test metadata",
     "/audits/[id]/edit-audit-report-options/": "Report options",
-    "/audits/[id]/edit-audit-report-text/": "Report text",
     "/audits/[id]/edit-audit-retest-metadata/": "12-week test metadata",
     "/audits/[id]/edit-audit-retest-pages/": "12-week pages comparison",
     "/audits/[id]/edit-audit-retest-statement-decision/": "12-week accessibility statement compliance decision",
@@ -27,6 +26,20 @@ PAGE_TITLES_BY_URL = {
     "/audits/[id]/edit-audit-retest-statement-2/": "12-week accessibility statement Pt. 2",
     "/audits/[id]/edit-statement-decision/": "Accessibility statement compliance decision",
     "/audits/[id]/edit-website-decision/": "Website compliance decision",
+    "/audits/[id]/edit-statement-overview/": "Statement overview",
+    "/audits/[id]/edit-statement-website/": "Statement information",
+    "/audits/[id]/edit-statement-compliance/": "Compliance status",
+    "/audits/[id]/edit-statement-non-accessible/": "Non-accessible content",
+    "/audits/[id]/edit-statement-preparation/": "Statement preparation",
+    "/audits/[id]/edit-statement-feedback/": "Feedback and enforcement procedure",
+    "/audits/[id]/edit-statement-custom/": "Custom statement issues",
+    "/audits/[id]/edit-retest-statement-overview/": "12-week statement overview",
+    "/audits/[id]/edit-retest-statement-website/": "12-week statement website",
+    "/audits/[id]/edit-retest-statement-compliance/": "12-week statement compliance",
+    "/audits/[id]/edit-retest-statement-non-accessible/": "12-week non-accessible content",
+    "/audits/[id]/edit-retest-statement-preparation/": "12-week statement preparation",
+    "/audits/[id]/edit-retest-statement-feedback/": "12-week statement feedback",
+    "/audits/[id]/edit-retest-statement-custom/": "12-week custom statement issues",
     "/audits/create-for-case/[id]/": "Create test",
     "/audits/pages/[id]/edit-audit-page-checks/": "Testing",
     "/audits/pages/[id]/edit-audit-retest-page-checks/": "Retesting",
@@ -88,13 +101,13 @@ def get_page_title(path: str) -> str:  # noqa: C901
             case: Case = Case.objects.get(id=path.split("/")[2])
             page_title: str = f"{case.organisation_name} | {page_heading}"
         except Case.DoesNotExist:
-            pass
+            page_title: str = f"Case does not exist: {path}"
     elif path_without_id.startswith("/audits/[id]/"):
         try:
             audit: Audit = Audit.objects.get(id=path.split("/")[2])
             page_title: str = f"{audit.case.organisation_name} | {page_heading}"
         except Audit.DoesNotExist:
-            pass
+            page_title: str = f"Audit does not exist: {path}"
     elif path_without_id.startswith("/audits/pages/[id]/"):
         try:
             page: Page = Page.objects.get(id=path.split("/")[3])
@@ -102,17 +115,17 @@ def get_page_title(path: str) -> str:  # noqa: C901
                 f"{page.audit.case.organisation_name} | {page_heading} {page}"
             )
         except Page.DoesNotExist:
-            pass
+            page_title: str = f"Page does not exist: {path}"
     elif path_without_id == "/reminders/cases/[id]/reminder-create/":
         try:
             case: Case = Case.objects.get(id=path.split("/")[3])
             page_title: str = f"{case.organisation_name} | {page_heading}"
         except Case.DoesNotExist:
-            pass
+            page_title: str = f"Case does not exist: {path}"
     elif path_without_id == "/audits/create-for-case/[id]/":
         try:
             case: Case = Case.objects.get(id=path.split("/")[3])
             page_title: str = f"{case.organisation_name} | {page_heading}"
         except Case.DoesNotExist:
-            pass
+            page_title: str = f"Case does not exist: {path}"
     return page_title

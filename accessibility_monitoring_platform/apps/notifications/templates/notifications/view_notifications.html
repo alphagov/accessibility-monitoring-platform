@@ -8,12 +8,8 @@
 <div class="govuk-width-container">
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                Comments ({{ unread_notifications }})
-            </li>
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">Comments ({{ unread_notifications }})</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">

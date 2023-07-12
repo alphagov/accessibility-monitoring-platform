@@ -12,7 +12,11 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from ..common.utils import extract_domain_from_url, format_outstanding_issues
+from ..common.utils import (
+    extract_domain_from_url,
+    format_outstanding_issues,
+    format_statement_check_overview,
+)
 from ..common.models import (
     BOOLEAN_FALSE,
     BOOLEAN_TRUE,
@@ -24,7 +28,8 @@ from ..common.models import (
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"
 STATUS_QA_IN_PROGRESS: str = "qa-in-progress"
-STATUS_DEFAULT: str = "unassigned-case"
+STATUS_UNASSIGNED: str = "unassigned-case"
+STATUS_DEFAULT: str = STATUS_UNASSIGNED
 STATUS_DEACTIVATED: str = "deactivated"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     (
@@ -483,6 +488,7 @@ class Case(VersionModel):
         choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
         default=ENFORCEMENT_BODY_PURSUING_NO,
     )
+    enforcement_body_finished_date = models.DateField(null=True, blank=True)
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_retest_document_url = models.TextField(default="", blank=True)
     is_feedback_requested = models.CharField(
@@ -598,14 +604,12 @@ class Case(VersionModel):
             return "unassigned-case"
         elif (
             self.website_compliance_state_initial == WEBSITE_INITIAL_COMPLIANCE_DEFAULT
-            or self.accessibility_statement_state
-            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            or self.statement_checks_still_initial
         ):
             return "test-in-progress"
         elif (
             self.website_compliance_state_initial != WEBSITE_INITIAL_COMPLIANCE_DEFAULT
-            and self.accessibility_statement_state
-            != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            and not self.statement_checks_still_initial
             and self.report_review_status != BOOLEAN_TRUE
         ):
             return "report-in-progress"
@@ -831,6 +835,16 @@ class Case(VersionModel):
         return self.get_accessibility_statement_state_final_display()
 
     @property
+    def percentage_website_issues_fixed(self) -> int:
+        if self.audit is None:
+            return "n/a"
+        failed_checks_count: int = self.audit.failed_check_results.count()
+        if failed_checks_count == 0:
+            return "n/a"
+        fixed_checks_count: int = self.audit.fixed_check_results.count()
+        return int(fixed_checks_count * 100 / failed_checks_count)
+
+    @property
     def overview_issues_website(self) -> str:
         if self.audit is None:
             return "No test exists"
@@ -843,9 +857,25 @@ class Case(VersionModel):
     def overview_issues_statement(self) -> str:
         if self.audit is None:
             return "No test exists"
+        if self.audit.uses_statement_checks:
+            return format_statement_check_overview(
+                tests_passed=self.audit.passed_statement_check_results.count(),
+                tests_failed=self.audit.failed_statement_check_results.count(),
+                retests_passed=self.audit.passed_retest_statement_check_results.count(),
+                retests_failed=self.audit.failed_retest_statement_check_results.count(),
+            )
         return format_outstanding_issues(
             failed_checks_count=self.audit.accessibility_statement_initially_invalid_checks_count,
             fixed_checks_count=self.audit.fixed_accessibility_statement_checks_count,
+        )
+
+    @property
+    def statement_checks_still_initial(self):
+        if self.audit and self.audit.uses_statement_checks:
+            return not self.audit.overview_statement_checks_complete
+        return (
+            self.accessibility_statement_state
+            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
         )
 
 
@@ -864,7 +894,6 @@ class Contact(models.Model):
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
-    notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
@@ -872,6 +901,9 @@ class Contact(models.Model):
 
     def __str__(self) -> str:
         return str(f"Contact {self.name} {self.email}")
+
+    def get_absolute_url(self) -> str:
+        return reverse("cases:edit-contact-details", kwargs={"pk": self.case.id})
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
