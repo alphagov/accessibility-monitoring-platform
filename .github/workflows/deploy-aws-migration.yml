@@ -63,7 +63,9 @@ jobs:
         echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
 
     # sample use
-    - run: copilot help
+    - run: |
+        ls 
+        pwd
 
     - name: Deploy to AWS
       run: |
