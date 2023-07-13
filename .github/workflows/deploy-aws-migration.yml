@@ -62,7 +62,7 @@ jobs:
         # add to PATH
         echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
         # move out of path
-        cd ..
+        cd .. && cd ..
 
     # sample use
     - run: |
