@@ -1,0 +1,65 @@
+name: Deploy to AWS
+on:
+  push:
+    branches:
+      - aws-migration
+jobs:
+  # test:
+  #   name: Unit tests
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Set up Python 3.x
+  #     uses: actions/setup-python@v3
+  #     with:
+  #       python-version: '3.9'
+  #   - uses: actions/setup-node@v3
+  #     with:
+  #       node-version: '17'
+  #   - name: Unit tests
+  #     run: |
+  #       python3 -m venv venv
+  #       source venv/bin/activate
+  #       pip install --upgrade pip
+  #       pip install -r requirements_for_test.txt
+  #       export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
+  #       export SECRET_KEY=1234
+  #       export DEBUG=TRUE
+  #       export INTEGRATION_TEST=FALSE
+  #       npm i
+  #       make static_files_process
+  #       make test
+
+  # int-test:
+  #   needs: test
+  #   name: Integration tests
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Set up Python 3.x
+  #     uses: actions/setup-python@v3
+  #     with:
+  #       python-version: '3.9'
+  #   - name: Integration tests
+  #     run: |
+  #       cd stack_tests/integration_tests
+  #       docker-compose up --abort-on-container-exit
+
+  deploy:
+    # needs: int-test
+    name: Deploy to test
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install AWS Copilot
+      run: |
+        curl -Lo copilot https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && chmod +x copilot && sudo mv copilot /usr/local/bin/copilot && copilot --help
+
+    - name: Deploy to AWS
+      run: |
+        copilot svc deploy --name viewer-svc --env test-env
+        copilot svc deploy --name amp-svc --env test-env
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
