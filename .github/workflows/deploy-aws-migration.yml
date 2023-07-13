@@ -61,6 +61,8 @@ jobs:
         mv copilot-linux $GITHUB_WORKSPACE/bin/copilot && \
         # add to PATH
         echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
+        # move out of path
+        cd ..
 
     # sample use
     - run: |
