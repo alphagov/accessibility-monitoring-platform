@@ -62,6 +62,9 @@ jobs:
         # add to PATH
         echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
 
+    # sample use
+    - run: copilot help
+
     - name: Deploy to AWS
       run: |
         copilot svc deploy --name viewer-svc --env test-env
