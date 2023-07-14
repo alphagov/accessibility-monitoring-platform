@@ -13,6 +13,7 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/bin
           # download copilot
+          # curl -Lo copilot https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && chmod +x copilot && sudo mv copilot /usr/local/bin/copilot && copilot --help
           curl -Lo copilot-linux https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && \
           # make copilot bin executable
           chmod +x copilot && \
@@ -23,8 +24,10 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          copilot svc deploy --name viewer-svc --env test-env
-          copilot svc deploy --name amp-svc --env test-env
+          copilot help
+          copilot app ls
+          # copilot svc deploy --name viewer-svc --env test-env
+          # copilot svc deploy --name amp-svc --env test-env
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
