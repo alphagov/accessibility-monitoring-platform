@@ -16,9 +16,9 @@ jobs:
           # curl -Lo copilot https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && chmod +x copilot && sudo mv copilot /usr/local/bin/copilot && copilot --help
           curl -Lo copilot-linux https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && \
           # make copilot bin executable
-          chmod +x copilot && \
+          sudo chmod +x copilot && \
           # move to path
-          mv copilot-linux $GITHUB_WORKSPACE/bin/copilot && \
+          sudo mv copilot-linux $GITHUB_WORKSPACE/bin/copilot && \
           # add to PATH
           echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
 
