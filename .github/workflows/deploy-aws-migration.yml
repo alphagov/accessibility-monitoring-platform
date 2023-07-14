@@ -16,7 +16,8 @@ jobs:
           # curl -Lo copilot https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && chmod +x copilot && sudo mv copilot /usr/local/bin/copilot && copilot --help
           curl -Lo copilot-linux https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && \
           # make copilot bin executable
-          sudo chmod +x copilot && \
+          chmod +x copilot && \
+          git update-index --chmod=+x copilot
           # move to path
           sudo mv copilot-linux $GITHUB_WORKSPACE/bin/copilot && \
           # add to PATH
@@ -25,8 +26,8 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          sudo copilot help
-          sudo copilot app ls
+          copilot help
+          copilot app ls
           # copilot svc deploy --name viewer-svc --env test-env
           # copilot svc deploy --name amp-svc --env test-env
         env:
