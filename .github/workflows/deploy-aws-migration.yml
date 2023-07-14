@@ -23,7 +23,7 @@ jobs:
 
     - name: Deploy to AWS
       run: |
-        copilot svc deploy --name viewer-svc --env test-env
+        copilot app init amp-app-2
         copilot svc deploy --name viewer-svc --env test-env
         copilot svc deploy --name amp-svc --env test-env
       env:
