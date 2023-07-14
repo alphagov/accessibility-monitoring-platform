@@ -24,10 +24,9 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          copilot help
           copilot app ls
-          # copilot svc deploy --name viewer-svc --env test-env
-          # copilot svc deploy --name amp-svc --env test-env
+          copilot svc deploy --name viewer-svc --env test-env
+          copilot svc deploy --name amp-svc --env test-env
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
