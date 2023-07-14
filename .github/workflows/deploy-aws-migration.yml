@@ -13,9 +13,9 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/bin
           # download copilot
-          curl -Lo copilot-linux https://github.com/aws/copilot-cli/releases/download/v1.8.3/copilot-linux && \
+          curl -Lo copilot-linux https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && \
           # make copilot bin executable
-          chmod +x copilot-linux && \
+          chmod +x copilot && \
           # move to path
           mv copilot-linux $GITHUB_WORKSPACE/bin/copilot && \
           # add to PATH
@@ -23,8 +23,6 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          copilot help
-          copilot app ls
           copilot svc deploy --name viewer-svc --env test-env
           copilot svc deploy --name amp-svc --env test-env
         env:
