@@ -21,10 +21,10 @@ jobs:
           sudo mv copilot-linux $GITHUB_WORKSPACE/bin/copilot && \
           # add to PATH
           echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
+          copilot help
 
       - name: Deploy to AWS
         run: |
-          copilot help
           copilot app ls
           # copilot svc deploy --name viewer-svc --env test-env
           # copilot svc deploy --name amp-svc --env test-env
