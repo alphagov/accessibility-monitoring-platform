@@ -47,7 +47,7 @@ jobs:
 
   deploy:
     # needs: int-test
-    name: Deploy to test
+    name: Deploy to AWS
     runs-on: ubuntu-latest
     steps:
     - name: Install AWS Copilot
@@ -63,7 +63,7 @@ jobs:
         echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
 
     - run: |
-        cd  ${{ inputs.working_directory }}
+        # cd  ${{ inputs.working_directory }}
         ls 
         pwd
 
