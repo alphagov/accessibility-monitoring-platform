@@ -4,7 +4,49 @@ on:
     branches:
       - aws-migration
 jobs:
+  test:
+    name: Unit tests
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '17'
+    - name: Unit tests
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements_for_test.txt
+        export VCAP_SERVICES="{  'aws-s3-bucket': [    {      'binding_guid': '00000000-0000-0000-0000-000000000000',      'binding_name': null,      'credentials': {      'aws_access_key_id': 'key',      'aws_region': 'us-east-1',      'aws_secret_access_key': 'secret',      'bucket_name': 'bucketname',      'deploy_env': ''    },    'instance_guid': '00000000-0000-0000-0000-000000000000',    'instance_name': 'instance_name',    'label': 'aws-s3-bucket',    'name': 'instance_name',    'plan': 'default',    'provider': null,    'syslog_drain_url': null,    'tags': [      's3'    ],    'volume_mounts': []    }  ],  'postgres':[    {      'credentials': {        'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'      },      'name': 'monitoring-platform-default-db'    }  ]}"
+        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
+        export SECRET_KEY=1234
+        export DEBUG=TRUE
+        npm i
+        make static_files_process
+        make test
+
+  int-test:
+    needs: test
+    name: Integration tests
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+    - name: Integration tests
+      run: |
+        cd stack_tests/integration_tests
+        docker-compose up --abort-on-container-exit
+
   deploy:
+    needs: int-test
     name: Deploy to AWS
     runs-on: ubuntu-latest
     steps:
@@ -24,7 +66,6 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          copilot app ls
           copilot svc deploy --name viewer-svc --env test-env
           copilot svc deploy --name amp-svc --env test-env
         env:
