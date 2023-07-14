@@ -63,7 +63,10 @@ jobs:
         echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
 
     - run: |
-        # cd  ${{ inputs.working_directory }}
+        cd $GITHUB_WORKSPACE
+        ls 
+        pwd
+        cd $GITHUB_PATH
         ls 
         pwd
 
