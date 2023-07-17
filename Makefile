@@ -120,3 +120,9 @@ build_viewer:
 
 run_stack:
 	docker compose -f docker-compose-full-stack.yml up
+
+backup_db:
+	copilot svc exec -a amp-app-2 -e prod-env -n amp-svc --command "python aws_tools/dump_rds_to_s3_as_sql.py"
+
+sync_s3:
+	aws s3 sync s3://amp-app-2-prod-env-addonsstac-reportstoragebucket-ieda2c374sq7/ s3://aurora-backup-test-tb/

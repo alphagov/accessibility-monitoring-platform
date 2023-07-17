@@ -106,7 +106,9 @@ def setup() -> None:
     os.system(
         f"""copilot app init {SETTINGS["copilot_app_name"]} --domain {SETTINGS["copilot-domain"]}"""
     )
-    os.system(f"""copilot env init --name {SETTINGS["copilot_env_name"]} --profile mfa --region eu-west-2 --default-config""")
+    os.system(
+        f"""copilot env init --name {SETTINGS["copilot_env_name"]} --profile mfa --region eu-west-2 --default-config"""
+    )
     os.system(f"""copilot env deploy --name {SETTINGS["copilot_env_name"]}""")
     os.system(
         f"copilot secret init "
@@ -156,7 +158,7 @@ def breakdown() -> None:
                 print(">>> Executing deletion")
                 break
             print("Please input yes or no...")
- 
+
     bucket = get_copilot_s3_bucket()
     session = boto3.Session()
     s3 = session.resource("s3")
