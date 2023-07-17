@@ -64,12 +64,6 @@ jobs:
           # add to PATH
           echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
 
-      - name: Install AWS CLI
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
-
       - name: Deploy to AWS
         run: |
           copilot svc exec -a amp-app-2 -e prod-env -n amp-svc --command "python aws_tools/dump_rds_to_s3_as_sql.py"
