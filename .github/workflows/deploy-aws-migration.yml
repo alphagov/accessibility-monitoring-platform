@@ -66,10 +66,10 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          bash aws_tools/make_db_snapshot.sh
-          copilot svc exec -a amp-app-2 -e prod-env -n amp-svc --command "python aws_tools/dump_rds_to_s3_as_sql.py"
-          aws s3 sync s3://amp-app-2-prod-env-addonsstac-reportstoragebucket-ieda2c374sq7/ s3://aurora-backup-test-tb/
-          copilot svc deploy --name viewer-svc --env test-env
+          bash aws_tools/make_db_snapshot.sh && \
+          copilot svc exec -a amp-app-2 -e prod-env -n amp-svc --command "python aws_tools/dump_rds_to_s3_as_sql.py" && \
+          aws s3 sync s3://amp-app-2-prod-env-addonsstac-reportstoragebucket-ieda2c374sq7/ s3://aurora-backup-test-tb/ && \
+          copilot svc deploy --name viewer-svc --env test-env && \
           copilot svc deploy --name amp-svc --env test-env
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
