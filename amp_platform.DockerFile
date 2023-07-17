@@ -1,10 +1,11 @@
-FROM --platform=linux/amd64 python:3.9.12
+FROM --platform=linux/amd64 python:3.11
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-RUN apt-get update
+RUN apt update && apt upgrade -y
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash
 RUN apt-get install -y nodejs
 RUN apt-get install postgresql -y
+RUN psql --version
 WORKDIR /code
 COPY . /code/
 RUN pip install -r requirements_for_test.txt
