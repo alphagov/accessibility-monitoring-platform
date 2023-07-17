@@ -1,3 +1,5 @@
+#!/bin/bash
+
 now=$(date)
 a="$now prod-env-amp-app2"
 a=${a// /}
