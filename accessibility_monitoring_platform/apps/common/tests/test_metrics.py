@@ -343,7 +343,7 @@ def test_calculate_metric_progress(
     ],
 )
 def test_count_statement_issues(audits: List[Audit], expected_result: Tuple[int, int]):
-    """Test counting issues and fixed issues for accessibility statments"""
+    """Test counting issues and fixed issues for accessibility statements"""
     assert count_statement_issues(audits=audits) == expected_result
 
 
