@@ -11,9 +11,6 @@ from ..utils import S3ReadWriteReport
 
 def correct_spelling(apps, schema_editor):  # pylint: disable=unused-argument
     S3Report = apps.get_model("s3_read_write", "S3Report")
-    import pdb
-
-    pdb.set_trace()
     bucket_name: str = DATABASES["aws-s3-bucket"]["bucket_name"]
     s3_client = boto3.client(
         "s3",
