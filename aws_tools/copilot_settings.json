@@ -1,10 +1,53 @@
 {
-    "copilot_app_name": "amp-app-2",
-    "copilot_env_name": "test-env",
-    "copilot_svc_exec_name": "amp-svc",
-    "pass_space_name": "monitoring-platform-production",
-    "pass_db_name": "monitoring-platform-default-db",
-    "path": "./backup_for_AWS.sql",
-    "s3_db_filename": "backup_for_AWS.sql",
-    "copilot-domain": "aws.accessibility-monitoring.service.gov.uk"
+    "global": {
+        "copilot_app_name": "amp-app",
+        "pass_space_name": "monitoring-platform-production",
+        "pass_db_name": "monitoring-platform-default-db",
+        "path": "./backup_for_AWS.sql",
+        "s3_db_filename": "backup_for_AWS.sql",
+        "copilot-domain": "accessibility-monitoring.service.gov.uk",
+        "aws-tags": {
+            "Product": "Accessibility Monitoring Platform",
+            "Owner": "a11y-monitoring-cicd-mgmt@digital.cabinet-office.gov.uk",
+            "Source": "https://github.com/alphagov/accessibility-monitoring-platform"
+        }
+    },
+    "environment": {
+        "prod": {
+            "copilot_env_name": "prod-env",
+            "aws-tags": {
+                "Environment": "Production"
+            }
+        },
+        "test": {
+            "copilot_env_name": "test-env",
+            "aws-tags": {
+                "Environment": "Testing"
+            }
+        },
+        "john": {
+            "copilot_env_name": "john-env",
+            "aws-tags": {
+                "Environment": "JK sandpit"
+            }
+        }
+    },
+    "service": {
+        "platform": {
+            "copilot_svc_exec_name": "amp-svc",
+            "aws-tags": {
+                "platform": {
+                    "System": "Auditing Platform"
+                }
+            }
+        },
+        "viewer": {
+            "copilot_svc_exec_name": "viewer-svc",
+            "aws-tags": {
+                "platform": {
+                    "System": "Report Viewer"
+                }
+            }
+        }
+    }
 }

@@ -22,6 +22,8 @@ parser.add_argument(
     "--deletion-mode",
     help="deletion-mode - hard or soft. Hard deletes the app and soft deletes the environment."
 )
+parser.add_argument("-e", "--environment", help="environment to work in - test or prod", default="test")
+parser.add_argument("-s", "--service", help="which service - platform or viewer or all", default="all")
 
 args = parser.parse_args()
 config = vars(args)
@@ -38,14 +40,14 @@ def get_copilot_s3_bucket() -> str:
     response = s3.list_buckets()
     all_buckets = [x["Name"] for x in response["Buckets"]]
 
-    target_bucket = f"""{SETTINGS["copilot_app_name"]}-{SETTINGS["copilot_env_name"]}"""
+    target_bucket = f"""{SETTINGS["global"]["copilot_app_name"]}-{SETTINGS[config["environment"]]["copilot_env_name"]}"""
     filtered_buckets = [s for s in all_buckets if target_bucket in s]
 
     if filtered_buckets is None:
-        raise Exception("No bucket found")
+        raise Exception("No bucket found matching " + target_bucket)
 
     if len(filtered_buckets) != 1:
-        raise Exception("Multiple buckets found - script can only handle one matching bucket")
+        raise Exception("Multiple buckets found (" + len(filtered_buckets) + ") matching '" + target_bucket + "' - script can only handle one matching bucket")
 
     return filtered_buckets[0]
 
@@ -61,6 +63,14 @@ def check_if_logged_into_cf() -> None:
     if "FAILED" in output[0].decode("utf-8"):
         raise Exception("Not logged into Cloud Foundry. Ensure you are logged in before continuing")
     print(">>> User is logged into CF")
+
+
+def convert_dict_to_string(dictionary):
+    pairs = []
+    for key, value in dictionary.items():
+        pair = f'"{key}"="{value}"'
+        pairs.append(pair)
+    return ','.join(pairs)
 
 
 def check_and_switch_app() -> None:
@@ -103,44 +113,43 @@ def check_and_switch_app() -> None:
 
 def setup() -> None:
     print(">>> Setting up new environment")
+    global_tags = convert_dict_to_string(SETTINGS["global"]["aws-tags"])
     os.system(
-        f"""copilot app init {SETTINGS["copilot_app_name"]} --domain {SETTINGS["copilot-domain"]}"""
+        f"""copilot app init {SETTINGS["global"]["copilot_app_name"]} --domain {SETTINGS["global"]["copilot-domain"]}  --resource-tags {global_tags}"""
     )
-    os.system(
-        f"""copilot env init --name {SETTINGS["copilot_env_name"]} --profile mfa --region eu-west-2 --default-config"""
-    )
-    os.system(f"""copilot env deploy --name {SETTINGS["copilot_env_name"]}""")
+    os.system(f"""copilot env init --name {SETTINGS["environment"][config["environment"]]["copilot_env_name"]} --profile mfa --region eu-west-2 --default-config""")
+    os.system(f"""copilot env deploy --name {SETTINGS["environment"][config["environment"]]["copilot_env_name"]}""")
     os.system(
         f"copilot secret init "
         "--name SECRET_KEY "
-        f"--values {SETTINGS['copilot_env_name']}='{SECRET_KEY}' "
+        f"--values {SETTINGS['environment'][config['environment']]['copilot_env_name']}='{SECRET_KEY}' "
         "--overwrite"
     )
     os.system(
         f"copilot secret init "
         "--name NOTIFY_API_KEY "
-        f"--values {SETTINGS['copilot_env_name']}={NOTIFY_API_KEY} "
+        f"--values {SETTINGS['environment'][config['environment']]['copilot_env_name']}={NOTIFY_API_KEY} "
         "--overwrite"
     )
     os.system(
         "copilot secret init "
         "--name EMAIL_NOTIFY_BASIC_TEMPLATE "
-        f"--values {SETTINGS['copilot_env_name']}={EMAIL_NOTIFY_BASIC_TEMPLATE} "
+        f"--values {SETTINGS['environment'][config['environment']]['copilot_env_name']}={EMAIL_NOTIFY_BASIC_TEMPLATE} "
         "--overwrite"
     )
     os.system("copilot svc init --name viewer-svc")
     os.system("copilot svc init --name amp-svc")
-    os.system(f"""copilot svc deploy --name viewer-svc --env {SETTINGS["copilot_env_name"]}""")
-    os.system(f"""copilot svc deploy --name amp-svc --env {SETTINGS["copilot_env_name"]}""")
+    os.system(f"""copilot svc deploy --name viewer-svc --env {SETTINGS['environment'][config['environment']]['copilot_env_name']}""")
+    os.system(f"""copilot svc deploy --name amp-svc --env {SETTINGS['environment'][config['environment']]['copilot_env_name']}""")
     os.system(
         """copilot svc exec """
-        f"""-a {SETTINGS["copilot_app_name"]} """
-        f"""-e {SETTINGS["copilot_env_name"]} """
+        f"""-a {SETTINGS["global"]["copilot_app_name"]} """
+        f"""-e {SETTINGS['environment'][config['environment']]['copilot_env_name']} """
         """-n amp-svc """
         """--command "python aws_tools/aws_reset_db.py" """
     )
-    os.system("python aws_tools/restore_db_aws.py")
-    os.system("python aws_tools/transfer_s3_contents.py")
+    os.system(f"python3 aws_tools/restore_db_aws.py -e {config['environment']}""")
+    os.system(f"""python3 aws_tools/transfer_s3_contents.py -e {config['environment']}""")
     end = time.time()
     print(f"Process took {end - start} seconds")
 
@@ -182,9 +191,9 @@ def breakdown() -> None:
         os.system("copilot app delete --yes")
     else:
         print(">>> Removing environment found in copilot_settings.json")
-        os.system(f"""copilot svc delete --env {SETTINGS['copilot_env_name']} --name amp-svc --yes""")
-        os.system(f"""copilot svc delete --env {SETTINGS['copilot_env_name']} --name viewer-svc --yes""")
-        os.system(f"""copilot env delete --name {SETTINGS['copilot_env_name']} --yes""")
+        os.system(f"""copilot svc delete --env {SETTINGS['environment'][config['environment']]['copilot_env_name']} --name amp-svc --yes""")
+        os.system(f"""copilot svc delete --env {SETTINGS['environment'][config['environment']]['copilot_env_name']} --name viewer-svc --yes""")
+        os.system(f"""copilot env delete --name {SETTINGS['environment'][config['environment']]['copilot_env_name']} --yes""")
     end = time.time()
     print(f"Process took {end - start} seconds")
 
