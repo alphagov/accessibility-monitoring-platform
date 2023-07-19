@@ -4,12 +4,14 @@ import boto3
 
 from django.db import migrations
 
-from ....settings.base import DATABASES, S3_MOCK_ENDPOINT
+from ....settings.base import DATABASES, S3_MOCK_ENDPOINT, UNDER_TEST, INTEGRATION_TEST
 
 from ..utils import S3ReadWriteReport
 
 
 def correct_spelling(apps, schema_editor):  # pylint: disable=unused-argument
+    if UNDER_TEST or INTEGRATION_TEST:  # Skip cleanup if in automated test run
+        return
     S3Report = apps.get_model("s3_read_write", "S3Report")
     bucket_name: str = DATABASES["aws-s3-bucket"]["bucket_name"]
     s3_client = boto3.client(
