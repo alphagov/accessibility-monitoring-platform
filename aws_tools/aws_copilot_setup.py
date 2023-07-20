@@ -87,7 +87,7 @@ def check_and_switch_app() -> None:
             value = line.split(":")[1].strip()
             contents_as_d[key] = value
 
-    if contents_as_d["application"] == SETTINGS["copilot_app_name"]:
+    if contents_as_d["application"] == SETTINGS["global"]["copilot_app_name"]:
         return
 
     print("The app name in copilot/.workspace is different to the copilot_settings.json")
@@ -99,11 +99,11 @@ def check_and_switch_app() -> None:
             print(">>> Change copilot_app_name in copilot_settings.json to the same name in .workspace")
             sys.exit()
         elif x.lower() == "y" or x.lower() == "yes":
-            print(f""">>> Replacing .workspace with {SETTINGS["copilot_app_name"]}""")
+            print(f""">>> Replacing .workspace with {SETTINGS["global"]["copilot_app_name"]}""")
             break
         print("Please input yes or no...")
 
-    lines = [f"""application: {SETTINGS["copilot_app_name"]}""", ""]
+    lines = [f"""application: {SETTINGS["global"]["copilot_app_name"]}""", ""]
     with open(workspace_file, "w", encoding="UTF-8") as f:
         for line in lines:
             f.write(line)
@@ -139,7 +139,7 @@ def setup() -> None:
     )
     os.system("copilot svc init --name viewer-svc")
     os.system("copilot svc init --name amp-svc")
-    os.system(f"""copilot svc deploy --name viewer-svc --env {SETTINGS['environment'][config['environment']]['copilot_env_name']}""")
+    # os.system(f"""copilot svc deploy --name viewer-svc --env {SETTINGS['environment'][config['environment']]['copilot_env_name']}""")
     os.system(f"""copilot svc deploy --name amp-svc --env {SETTINGS['environment'][config['environment']]['copilot_env_name']}""")
     os.system(
         """copilot svc exec """

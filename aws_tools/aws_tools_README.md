@@ -60,7 +60,7 @@ N.B. Starting a new Copilot app can take over 60 minutes and breaking down a Cop
 
 A script made to execute inside an ECS instance to wipe and create a clean db inside Aurora Postgres. Not to be used locally.
 
-Can either use `copilot svc exec -a amp-app -e prod-env -n amp-svc --command "python aws_tools/aws_reset_db.py"` or `make wipe_aurora_db` to start it
+Can either use `copilot svc exec -a amp-app -e prodenv -n amp-svc --command "python aws_tools/aws_reset_db.py"` or `make wipe_aurora_db` to start it
 
 ---
 
@@ -121,7 +121,7 @@ One way to gracefully stop the process is to reduce the `Desired tasks` from 1 t
 
 To do this: 
 - Navigate to ECS in the AWS console. 
-- Open the Copilot cluster (e.g. amp-app-prod-env-Cluster-Ld6qaysMDEXk)
+- Open the Copilot cluster (e.g. amp-app-prodenv-Cluster-Ld6qaysMDEXk)
 - Select the service that is 'stuck.'
 - Click the `Update service` button in the top right corner
 - Change desired tasks from 1 to 0

@@ -71,12 +71,15 @@ variables:
   AWS_REGION: 'eu-west-2'
   DB_NAME:
     from_cfn: ${COPILOT_APPLICATION_NAME}-${COPILOT_ENVIRONMENT_NAME}-reportstorageBucketName
-  ALLOWED_HOSTS: '* reports.aws.accessibility-monitoring.service.gov.uk reports.accessibility-monitoring.service.gov.uk'
+  ALLOWED_HOSTS: '* *.accessibility-monitoring.service.gov.uk reports.accessibility-monitoring.service.gov.uk reports.aws.accessibility-monitoring.service.gov.uk'
 
 environments:
-  prod-env:
+  prodenv:
     http:
-      alias: reports.aws.accessibility-monitoring.service.gov.uk
+      alias: reports.accessibility-monitoring.service.gov.uk
+  testenv:
+    http:
+      alias: reports-test.accessibility-monitoring.service.gov.uk
 
 network:
   connect: true # Enable Service Connect for intra-environment traffic between services.

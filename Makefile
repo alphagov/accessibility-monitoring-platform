@@ -94,7 +94,7 @@ breakdown_prototype:
 ## WIP
 
 wipe_aurora_db:
-	copilot svc exec -a amp-app-r -e prod-env -n amp-svc --command "python aws_tools/aws_reset_db.py"
+	copilot svc exec -a amp-app-r -e prodenv -n amp-svc --command "python aws_tools/aws_reset_db.py"
 
 restore_db_aws:
 	python aws_tools/restore_db_aws.py

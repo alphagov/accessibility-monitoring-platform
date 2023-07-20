@@ -1,6 +1,6 @@
 {
     "global": {
-        "copilot_app_name": "amp-app",
+        "copilot_app_name": "ampapp",
         "pass_space_name": "monitoring-platform-production",
         "pass_db_name": "monitoring-platform-default-db",
         "path": "./backup_for_AWS.sql",
@@ -14,21 +14,15 @@
     },
     "environment": {
         "prod": {
-            "copilot_env_name": "prod-env",
+            "copilot_env_name": "prodenv",
             "aws-tags": {
                 "Environment": "Production"
             }
         },
         "test": {
-            "copilot_env_name": "test-env",
+            "copilot_env_name": "testenv",
             "aws-tags": {
                 "Environment": "Testing"
-            }
-        },
-        "john": {
-            "copilot_env_name": "john-env",
-            "aws-tags": {
-                "Environment": "JK sandpit"
             }
         }
     },
