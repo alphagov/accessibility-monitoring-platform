@@ -67,19 +67,9 @@ jobs:
 
       - name: Backup databases
         run: |
-          copilot svc exec -a amp-app-2 -e prodenv -n amp-svc --command "python aws_tools/dump_rds_to_s3_as_sql.py" && \
+          copilot svc exec -a ampapp -e prodenv -n amp-svc --command "python aws_tools/dump_rds_to_s3_as_sql.py" && \
           sleep 30 && \
-          aws s3 sync s3://amp-app-2-prodenv-addonsstac-reportstoragebucket-ieda2c374sq7/ s3://aurora-backup-test-tb/ && \
-          bash aws_tools/make_db_snapshot.sh
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
-
-      - name: Deploy to AWS
-        run: |
-          copilot svc deploy --name viewer-svc --env test-env && \
-          copilot svc deploy --name amp-svc --env test-env
+          aws s3 sync s3://ampapp-prodenv-addonsstack-yu-reportstoragebucket-18zkdeyu0it3u/ s3://amp-aurora-backup-prod/ && \
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
