@@ -54,7 +54,7 @@ def cleanup(path: str) -> None:
 
 start = time.time()
 
-s3_db_backup = "db-backup-amp"
+s3_db_backup = "db-backup-amp-prod"
 all_objects = get_list_of_objs_from_paas_s3()
 number_of_objects = len(all_objects)
 
