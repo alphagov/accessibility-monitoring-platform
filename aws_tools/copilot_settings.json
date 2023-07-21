@@ -14,13 +14,19 @@
     },
     "environment": {
         "prod": {
-            "copilot_env_name": "prodenv",
+            "copilot_env_name": "prod-env",
             "aws-tags": {
                 "Environment": "Production"
             }
         },
         "test": {
-            "copilot_env_name": "testenv",
+            "copilot_env_name": "test-env",
+            "aws-tags": {
+                "Environment": "Testing"
+            }
+        },
+        "rich": {
+            "copilot_env_name": "rich-env",
             "aws-tags": {
                 "Environment": "Testing"
             }

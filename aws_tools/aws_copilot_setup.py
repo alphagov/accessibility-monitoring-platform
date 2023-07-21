@@ -40,7 +40,7 @@ def get_copilot_s3_bucket() -> str:
     response = s3.list_buckets()
     all_buckets = [x["Name"] for x in response["Buckets"]]
 
-    target_bucket = f"""{SETTINGS["global"]["copilot_app_name"]}-{SETTINGS[config["environment"]]["copilot_env_name"]}"""
+    target_bucket = f"""{SETTINGS["global"]["copilot_app_name"]}-{SETTINGS["environment"][config["environment"]]["copilot_env_name"]}"""
     filtered_buckets = [s for s in all_buckets if target_bucket in s]
 
     if filtered_buckets is None:
