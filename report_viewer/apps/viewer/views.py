@@ -1,4 +1,5 @@
 """Views for report viewer"""
+import os
 from typing import Any, Dict, Type
 
 import logging
@@ -34,6 +35,20 @@ class MoreInformationTemplateView(PlatformTemplateView):
 
 class PrivacyNoticeTemplateView(PlatformTemplateView):
     template_name: str = "viewer/privacy_notice.html"
+
+
+class StatusTemplateView(PlatformTemplateView):
+    template_name: str = "viewer/status.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """
+        Add environmental variables to context to determine if application is
+        running on PaaS or AWS.
+        """
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["vcap_services"] = os.getenv("VCAP_SERVICES", "")
+        context["copilot_application_name"] = os.getenv("COPILOT_APPLICATION_NAME", "")
+        return context
 
 
 class ViewReport(FormView):
