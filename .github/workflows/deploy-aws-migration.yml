@@ -4,50 +4,50 @@ on:
     branches:
       - aws-migration
 jobs:
-  # test:
-  #   name: Unit tests
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Set up Python 3.x
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: '3.9'
-  #   - uses: actions/setup-node@v3
-  #     with:
-  #       node-version: '17'
-  #   - name: Unit tests
-  #     run: |
-  #       python3 -m venv venv
-  #       source venv/bin/activate
-  #       pip install --upgrade pip
-  #       pip install -r requirements_for_test.txt
-  #       export DB_SECRET="{'dbClusterIdentifier':'none','password':'secret','dbname':'accessibility_monitoring_app','engine':'postgres','port':5432,'host':'localhost','username':'admin'}"
-  #       export DB_NAME=bucket-name
-  #       export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
-  #       export SECRET_KEY=1234
-  #       export DEBUG=TRUE
-  #       npm i
-  #       make static_files_process
-  #       make test
+  test:
+    name: Unit tests
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '17'
+    - name: Unit tests
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements_for_test.txt
+        export DB_SECRET="{'dbClusterIdentifier':'none','password':'secret','dbname':'accessibility_monitoring_app','engine':'postgres','port':5432,'host':'localhost','username':'admin'}"
+        export DB_NAME=bucket-name
+        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
+        export SECRET_KEY=1234
+        export DEBUG=TRUE
+        npm i
+        make static_files_process
+        make test
 
-  # int-test:
-  #   needs: test
-  #   name: Integration tests
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Set up Python 3.x
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: '3.9'
-  #   - name: Integration tests
-  #     run: |
-  #       cd stack_tests/integration_tests
-  #       docker-compose up --abort-on-container-exit
+  int-test:
+    needs: test
+    name: Integration tests
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+    - name: Integration tests
+      run: |
+        cd stack_tests/integration_tests
+        docker-compose up --abort-on-container-exit
 
   deploy:
-    # needs: int-test
+    needs: int-test
     name: Deploy to AWS
     runs-on: ubuntu-latest
     steps:
