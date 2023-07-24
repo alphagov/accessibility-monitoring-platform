@@ -22,7 +22,8 @@ jobs:
         source venv/bin/activate
         pip install --upgrade pip
         pip install -r requirements_for_test.txt
-        export VCAP_SERVICES="{  'aws-s3-bucket': [    {      'binding_guid': '00000000-0000-0000-0000-000000000000',      'binding_name': null,      'credentials': {      'aws_access_key_id': 'key',      'aws_region': 'us-east-1',      'aws_secret_access_key': 'secret',      'bucket_name': 'bucketname',      'deploy_env': ''    },    'instance_guid': '00000000-0000-0000-0000-000000000000',    'instance_name': 'instance_name',    'label': 'aws-s3-bucket',    'name': 'instance_name',    'plan': 'default',    'provider': null,    'syslog_drain_url': null,    'tags': [      's3'    ],    'volume_mounts': []    }  ],  'postgres':[    {      'credentials': {        'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'      },      'name': 'monitoring-platform-default-db'    }  ]}"
+        export DB_SECRET="{'dbClusterIdentifier':'none','password':'secret','dbname':'accessibility_monitoring_app','engine':'postgres','port':5432,'host':'localhost','username':'admin'}"
+        export DB_NAME=bucket-name
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE
@@ -44,74 +45,51 @@ jobs:
       run: |
         cd stack_tests/integration_tests
         docker-compose up --abort-on-container-exit
-      env:
-        AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
-        AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}
-        AWS_DEFAULT_REGION_S3_STORE: ${{ secrets.AWS_DEFAULT_REGION_S3_STORE }}
 
   deploy:
     needs: int-test
-    name: Deploy to production
-    runs-on: ubuntu-20.04
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.x
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '17'
-    - name: Install python dependencies and create static files
-      run: |
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install -r requirements.txt
-        export VCAP_SERVICES="{  'aws-s3-bucket': [    {      'binding_guid': '00000000-0000-0000-0000-000000000000',      'binding_name': null,      'credentials': {      'aws_access_key_id': 'key',      'aws_region': 'us-east-1',      'aws_secret_access_key': 'secret',      'bucket_name': 'bucketname',      'deploy_env': ''    },    'instance_guid': '00000000-0000-0000-0000-000000000000',    'instance_name': 'instance_name',    'label': 'aws-s3-bucket',    'name': 'instance_name',    'plan': 'default',    'provider': null,    'syslog_drain_url': null,    'tags': [      's3'    ],    'volume_mounts': []    }  ],  'postgres':[    {      'credentials': {        'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'      },      'name': 'monitoring-platform-default-db'    }  ]}"
-        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
-        export SECRET_KEY=1234
-        export DEBUG=FALSE
-        npm i
-        make static_files_process
+      - uses: actions/checkout@v2
+      - name: Install AWS Copilot
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/bin
+          # download copilot
+          # curl -Lo copilot https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && chmod +x copilot && sudo mv copilot /usr/local/bin/copilot && copilot --help
+          curl -Lo copilot-linux https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && \
+          # make copilot bin executable
+          sudo chmod +x copilot-linux && \
+          # move to path
+          sudo mv copilot-linux $GITHUB_WORKSPACE/bin/copilot && \
+          # add to PATH
+          echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
 
-    - name: Installing cloud foundry
-      run: |
-        sudo apt-get update
-        sudo apt install wget -y
-        sudo apt-get install gnupg2 -y
-        wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-        echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-        sudo apt-get update
-        sudo apt-get install cf7-cli
+      - name: Backup databases
+        run: |
+          copilot svc exec -a ampapp -e prodenv -n amp-svc --command "python aws_tools/dump_rds_to_s3_as_sql.py" && \
+          sleep 30 && \
+          aws s3 sync s3://ampapp-prodenv-addonsstack-yu-reportstoragebucket-18zkdeyu0it3u/ s3://amp-aurora-backup-prod/
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
 
-    - name: Staging
-      run: |
-        source venv/bin/activate
-        cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-production
-        export VCAP_SERVICES="{  'aws-s3-bucket': [    {      'binding_guid': '00000000-0000-0000-0000-000000000000',      'binding_name': null,      'credentials': {      'aws_access_key_id': 'key',      'aws_region': 'us-east-1',      'aws_secret_access_key': 'secret',      'bucket_name': 'bucketname',      'deploy_env': ''    },    'instance_guid': '00000000-0000-0000-0000-000000000000',    'instance_name': 'instance_name',    'label': 'aws-s3-bucket',    'name': 'instance_name',    'plan': 'default',    'provider': null,    'syslog_drain_url': null,    'tags': [      's3'    ],    'volume_mounts': []    }  ],  'postgres':[    {      'credentials': {        'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'      },      'name': 'monitoring-platform-default-db'    }  ]}"
-        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
-        export SECRET_KEY=1234
-        export DEBUG=FALSE
-        make staging_env
-      env:
-        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
-        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
-        AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
-        AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}
-        AWS_DEFAULT_REGION_S3_STORE: ${{ secrets.AWS_DEFAULT_REGION_S3_STORE }}
+      - name: Deploy to AWS
+        run: |
+          copilot svc deploy --name viewer-svc --env prodenv && \
+          copilot svc deploy --name amp-svc --env prodenv
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
 
-    - name: Push to cf
-      run: |
-        cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-production
-        cf push -f cf_manifest/manifest-prod.yml
-
-    - name: Smoke tests
-      run: |
-        cd stack_tests/smoke_tests
-        docker-compose up --abort-on-container-exit
-        cd ../smoke_tests_viewer
-        docker-compose up --abort-on-container-exit
-      env:
-        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
-        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
+      - name: Smoke tests
+        run: |
+          cd stack_tests/smoke_tests
+          docker-compose up --abort-on-container-exit
+          cd ../smoke_tests_viewer
+          docker-compose up --abort-on-container-exit
+        env:
+          SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
+          SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}

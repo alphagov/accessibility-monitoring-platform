@@ -56,7 +56,9 @@
             <a href="/" class="govuk-header__link govuk-header__link--homepage">
               <span class="govuk-header__link--service-name">
                 Accessibility monitoring platform
-                {% if 'localhost' in request.build_absolute_uri %}
+                {% if django_settings.COPILOT_APPLICATION_NAME != None %}
+                    - AWS
+                {% elif 'localhost' in request.build_absolute_uri %}
                     - local
                 {% elif django_settings.AMP_PROTOTYPE_NAME == 'TEST' %}
                     - test

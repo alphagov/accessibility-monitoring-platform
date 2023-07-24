@@ -8,7 +8,6 @@ const loggedInUrls = [
   '/audits/1/detail/',
   '/audits/1/edit-audit-metadata/',
   '/audits/1/edit-audit-report-options/',
-  '/audits/1/edit-audit-report-text/',
   '/audits/1/edit-audit-retest-metadata/',
   '/audits/1/edit-audit-retest-pages/',
   '/audits/1/edit-audit-retest-statement-decision/',

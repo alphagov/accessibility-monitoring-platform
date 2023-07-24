@@ -18,7 +18,6 @@ from ...cases.models import (
     WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    REPORT_METHODOLOGY_ODT,
 )
 from ...cases.views import calculate_report_followup_dates
 from ...notifications.models import Notification

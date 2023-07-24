@@ -13,7 +13,6 @@ PAGE_TITLES_BY_URL = {
     "/audits/[id]/detail/": "View test",
     "/audits/[id]/edit-audit-metadata/": "Test metadata",
     "/audits/[id]/edit-audit-report-options/": "Report options",
-    "/audits/[id]/edit-audit-report-text/": "Report text",
     "/audits/[id]/edit-audit-retest-metadata/": "12-week test metadata",
     "/audits/[id]/edit-audit-retest-pages/": "12-week pages comparison",
     "/audits/[id]/edit-audit-retest-statement-decision/": "12-week accessibility statement compliance decision",

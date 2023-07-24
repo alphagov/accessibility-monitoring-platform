@@ -7,6 +7,7 @@ from .views import (
     AccessibilityStatementTemplateView,
     MoreInformationTemplateView,
     PrivacyNoticeTemplateView,
+    StatusTemplateView,
     ViewReport,
 )
 
@@ -28,5 +29,6 @@ urlpatterns = [
         MoreInformationTemplateView.as_view(),
         name="more-information",
     ),
+    path("status", StatusTemplateView.as_view(), name="status"),
     path("<str:guid>", ViewReport.as_view(), name="viewreport"),
 ]
