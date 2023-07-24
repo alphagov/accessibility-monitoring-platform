@@ -90,33 +90,3 @@ deploy_prototype:
 
 breakdown_prototype:
 	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_feature_settings.json
-
-## WIP
-
-wipe_aurora_db:
-	copilot svc exec -a amp-app-r -e prodenv -n amp-svc --command "python aws_tools/aws_reset_db.py"
-
-restore_db_aws:
-	python aws_tools/restore_db_aws.py
-	python aws_tools/transfer_s3_contents.py
-
-deploy_amp:
-	copilot deploy --name amp-svc
-
-deploy_viewer:
-	copilot deploy --name viewer-svc
-
-delete_amp:
-	copilot svc delete --name amp-svc
-
-delete_viewer:
-	copilot svc delete --name viewer-svc
-
-build_amp:
-	docker build -t amp_platform:latest -f - . < ./amp_platform.Dockerfile
-
-build_viewer:
-	docker build -t amp_viewer:latest -f - . < ./amp_viewer.Dockerfile
-
-run_stack:
-	docker compose -f docker-compose-full-stack.yml up
