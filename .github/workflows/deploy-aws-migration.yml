@@ -1,8 +1,8 @@
-name: Deploy to production
+name: Deploy to AWS
 on:
   push:
     branches:
-      - main
+      - aws-migration
 jobs:
   test:
     name: Unit tests
@@ -74,22 +74,3 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
-
-      - name: Deploy to AWS
-        run: |
-          copilot svc deploy --name viewer-svc --env prodenv && \
-          copilot svc deploy --name amp-svc --env prodenv
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
-
-      - name: Smoke tests
-        run: |
-          cd stack_tests/smoke_tests
-          docker-compose up --abort-on-container-exit
-          cd ../smoke_tests_viewer
-          docker-compose up --abort-on-container-exit
-        env:
-          SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
-          SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
