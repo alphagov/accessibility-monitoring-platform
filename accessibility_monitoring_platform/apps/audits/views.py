@@ -63,7 +63,6 @@ from .forms import (
     CustomStatementCheckResultFormsetOneExtra,
     AuditSummaryUpdateForm,
     AuditReportOptionsUpdateForm,
-    AuditReportTextUpdateForm,
     AuditRetestMetadataUpdateForm,
     AuditRetestPagesUpdateForm,
     AuditRetestPageChecksForm,
@@ -905,32 +904,6 @@ class AuditSummaryUpdateView(AuditUpdateView):
             form=AuditStatement1UpdateForm()
         ) + get_audit_rows(form=AuditStatement2UpdateForm())
 
-        return context
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            audit: Audit = self.object
-            case_pk: Dict[str, int] = {"pk": audit.case.id}
-            return reverse("cases:edit-test-results", kwargs=case_pk)
-        if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-audit-report-text", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class AuditReportTextUpdateView(AuditUpdateView):
-    """
-    View to update report text
-    """
-
-    form_class: Type[AuditReportTextUpdateForm] = AuditReportTextUpdateForm
-    template_name: str = "audits/forms/report_text.html"
-
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["wcag_definitions"] = WcagDefinition.objects.all()
         return context
 
     def get_success_url(self) -> str:

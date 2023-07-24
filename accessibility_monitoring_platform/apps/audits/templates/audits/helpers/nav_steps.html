@@ -35,9 +35,6 @@
             {% include './nav_step.html' with edit_name='audits:edit-audit-report-options' name='Report options' complete=audit.audit_report_options_complete_date %}
         {% endif %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}
-        {% if audit.case.report_methodology == 'odt' %}
-            {% include './nav_step.html' with edit_name='audits:edit-audit-report-text' name='Report text' complete=audit.audit_report_text_complete_date %}
-        {% endif %}
     </ul>
     {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=audit.case %}
 </nav>
