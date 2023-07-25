@@ -12,10 +12,10 @@ jobs:
     - name: Set up Python 3.x
       uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.11'
     - uses: actions/setup-node@v3
       with:
-        node-version: '17'
+        node-version: '18'
     - name: Unit tests
       run: |
         python3 -m venv venv
@@ -40,7 +40,7 @@ jobs:
     - name: Set up Python 3.x
       uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.11'
     - name: Integration tests
       run: |
         cd stack_tests/integration_tests
