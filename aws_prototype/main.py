@@ -30,8 +30,8 @@ git_branch_name: str = subprocess.check_output(
 
 git_branch_name: str = "".join(e for e in git_branch_name if e.isalnum())[:4]
 
-APP_NAME: str = f"{git_branch_name}-app"
-ENV_NAME: str = f"{git_branch_name}-env"
+APP_NAME: str = f"app-{git_branch_name}"
+ENV_NAME: str = f"env-{git_branch_name}"
 SECRET_KEY: str = get_random_secret_key()
 NOTIFY_SECRETS = get_notify_secret()
 NOTIFY_API_KEY: str = NOTIFY_SECRETS["EMAIL_NOTIFY_API_KEY"]
@@ -88,57 +88,56 @@ def up():
     app_exist: bool = does_copilot_app_already_exist(app_name=APP_NAME)
 
     if app_exist is False:
+        print(">>> creating app")
         os.system(
-            f"""copilot app init {APP_NAME} --domain prototype.accessibility-monitoring.service.gov.uk"""
+            f"""copilot app init {APP_NAME} --domain proto.accessibility-monitoring.service.gov.uk"""
         )
 
     env_exist: bool = does_copilot_env_already_exist(env_name=ENV_NAME)
-    if True:
+    print(">>> env_exist: ", env_exist)
+    if env_exist is False:
+        print(">>> creating env")
         os.system(
             f"""copilot env init --name {ENV_NAME} --profile mfa --region eu-west-2 --default-config"""
         )
         os.system(f"""copilot env deploy --name {ENV_NAME}""")
-    #     os.system(
-    #         f"copilot secret init "
-    #         "--name SECRET_KEY "
-    #         f"""--values {ENV_NAME}="{SECRET_KEY}" """
-    #         "--overwrite"
-    #     )
-    #     os.system(
-    #         f"copilot secret init "
-    #         "--name NOTIFY_API_KEY "
-    #         f"--values {ENV_NAME}={NOTIFY_API_KEY} "
-    #         "--overwrite"
-    #     )
-    #     os.system(
-    #         "copilot secret init "
-    #         "--name EMAIL_NOTIFY_BASIC_TEMPLATE "
-    #         f"--values {ENV_NAME}={EMAIL_NOTIFY_BASIC_TEMPLATE} "
-    #         "--overwrite"
-    #     )
-    #     os.system("copilot svc init --name viewer-svc")
-    #     os.system("copilot svc init --name amp-svc")
-
-    # os.system(f"""copilot svc deploy --name viewer-svc --env {ENV_NAME}""")
-    # os.system(f"""copilot svc deploy --name amp-svc --env {ENV_NAME}""")
-
-    if app_exist is False or env_exist is False:
-        # transfer sql database
-        bucket: str = get_copilot_s3_bucket()
-        sync_command = f"aws s3 sync s3://{BAKCUP_DB}/ s3://{bucket}/"
-        os.system(sync_command)
-        # wipe database
-        # restore database
-        # Start migrations
-        command = "python aws_prototype/ecs_prepare_db.py"
-        copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
-        os.system(copilot_exec_cmd)
-
-        # Make dummy account
-        create_dummy_account(
-            app_name=APP_NAME,
-            env_name=ENV_NAME,
+        os.system(
+            f"copilot secret init "
+            "--name SECRET_KEY "
+            f"""--values {ENV_NAME}="{SECRET_KEY}" """
+            "--overwrite"
         )
+        os.system(
+            f"copilot secret init "
+            "--name NOTIFY_API_KEY "
+            f"--values {ENV_NAME}={NOTIFY_API_KEY} "
+            "--overwrite"
+        )
+        os.system(
+            "copilot secret init "
+            "--name EMAIL_NOTIFY_BASIC_TEMPLATE "
+            f"--values {ENV_NAME}={EMAIL_NOTIFY_BASIC_TEMPLATE} "
+            "--overwrite"
+        )
+        os.system("copilot svc init --name viewer-svc")
+        os.system("copilot svc init --name amp-svc")
+
+    os.system(f"""copilot svc deploy --name viewer-svc --env {ENV_NAME}""")
+    os.system(f"""copilot svc deploy --name amp-svc --env {ENV_NAME}""")
+
+    # if env_exist is False:
+    #     bucket: str = get_copilot_s3_bucket()
+    #     sync_command = f"aws s3 sync s3://{BAKCUP_DB}/ s3://{bucket}/"
+    #     os.system(sync_command)
+    #     command = "python aws_prototype/ecs_prepare_db.py"
+    #     copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
+    #     os.system(copilot_exec_cmd)
+
+    #     # Make dummy account
+    #     create_dummy_account(
+    #         app_name=APP_NAME,
+    #         env_name=ENV_NAME,
+    #     )
 
 
 def down():
