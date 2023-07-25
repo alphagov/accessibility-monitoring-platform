@@ -75,6 +75,21 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
 
+      - name: Staging tests
+        run: |
+          aws s3 sync s3://ampapp-prodenv-addonsstack-yu-reportstoragebucket-18zkdeyu0it3u/ s3://ampapp-stageenv-addonsstack-u-reportstoragebucket-hms911jlrqzu/ && \
+          copilot svc exec -a ampapp -e stageenv -n amp-svc --command "python aws_tools/reset_staging_db.py" && \
+          copilot svc deploy --name viewer-svc --env stageenv && \
+          copilot svc deploy --name amp-svc --env stageenv && \
+          docker-compose --file stack_tests/smoke_tests/staging-platform.docker-compose.yml up --abort-on-container-exit && \
+          docker-compose --file stack_tests/smoke_tests_viewer/staging-viewer.docker-compose.yml up --abort-on-container-exit
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
+          SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
+          SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
+  
       - name: Deploy to AWS
         run: |
           copilot svc deploy --name viewer-svc --env prodenv && \
