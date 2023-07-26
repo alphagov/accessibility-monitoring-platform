@@ -77,6 +77,9 @@ environments:
   prodenv:
     http:
       alias: reports.accessibility-monitoring.service.gov.uk
+  stageenv:
+    http:
+      alias: reports-stage.accessibility-monitoring.service.gov.uk
   testenv:
     http:
       alias: reports-test.accessibility-monitoring.service.gov.uk

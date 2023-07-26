@@ -139,7 +139,7 @@ def setup() -> None:
     )
     os.system("copilot svc init --name viewer-svc")
     os.system("copilot svc init --name amp-svc")
-    # os.system(f"""copilot svc deploy --name viewer-svc --env {SETTINGS['environment'][config['environment']]['copilot_env_name']}""")
+    os.system(f"""copilot svc deploy --name viewer-svc --env {SETTINGS['environment'][config['environment']]['copilot_env_name']}""")
     os.system(f"""copilot svc deploy --name amp-svc --env {SETTINGS['environment'][config['environment']]['copilot_env_name']}""")
     os.system(
         """copilot svc exec """
