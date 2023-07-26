@@ -710,6 +710,11 @@ INSERT INTO public.common_changetoplatform VALUES (126, 'Friday 7 July 2023', '*
 * Update report viewer outage warning
 ([example](https://reports-test.accessibility-monitoring.service.gov.uk/reports/1466a08f-b18d-4e7b-bfb3-d4d75275c878))
 [#1278](https://trello.com/c/AKsaViPL/1278-update-report-viewer-outage-warning)', '2023-07-07 11:37:40.350457+00');
+INSERT INTO public.common_changetoplatform VALUES (129, 'Tuesday 25 July 2023', '* Upgrade Django to version 4.2.2.
+[#1238](https://trello.com/c/ghAr6uJF/1238-upgrade-django-to-422)
+* Upgrade GDS design system to 4.7.0.
+[#1277](https://trello.com/c/Pm03I2lR/1277-upgrade-gds-design-system-to-470)', '2023-07-25 15:56:39.790378+00');
+
 """
 ISSUE_SQL: str = """
 DELETE FROM public.common_issuereport;
