@@ -24,27 +24,33 @@ The report viewer is a public-facing application used for public service bodies 
 
 - [Root dir files explainer](#Root-dir-files-explainer)
 
----
 ## Requirements
 
 - Docker
-- Python 3.9
+- Python 3.11
 - PostgreSQL
 - Node and NPM
 - Standard JS Globally installed (if using VSCode)
 - AWS CLI version 2
-- Cloud Foundry and a PaaS login (if using prototypes)
 
----
 ## How to get started
+
+To setup AWS access, follow the instructions below.
+
+1. Ensure you have an account on the production AWS account
+2. Add your AWS credentials under the `default` profile in `~/.aws/credentials`
+3. Enter `export AWS_PROFILE=mfa` in the command line
+4. Alternatively, permanently add it to .zshrc with `echo -e "\nexport AWS_PROFILE=mfa" >> ~/.zshrc`
+5. Set the `mfa` profile using the `python aws_tools/aws_2fa.py default 123456` and replace 123456 with your 6-digit MFA code
+
+You should now be able to access AWS services. You can test you have the right access with `aws s3 ls`
 
 To set up your local sandbox, follow the instructions below.
 
 1. Create a virtual environment
 2. Activate the virtual environment
 3. Copy .env.example as .env
-4. Fill in AWS_ACCESS_KEY_ID_S3_STORE and AWS_SECRET_ACCESS_KEY_S3_STORE in .env
-5. Run `make init`
+4. Run `make init`
 
 For example:
 
@@ -52,10 +58,9 @@ For example:
 python3 -m venv venv
 source venv/bin/activate
 cp .env.example .env
-nano .env
 make init
 ```
----
+
 ## Start local development environment
 
 To start the accessibility monitoring platform environment:
@@ -68,7 +73,7 @@ To start the accessibility monitoring platform environment:
 For example
 
 ```
-docker-compose up -d
+docker compose up -d
 make start
 make static_files_process_watch
 make sync_accessibility_monitoring_platform
@@ -84,13 +89,12 @@ To start the report viewer platform:
 For example
 
 ```
-docker-compose up -d
+docker compose up -d
 make start_report_viewer
 make static_files_process_watch
 make sync_report_viewer
 ```
 
----
 
 ## Testing
 
@@ -120,7 +124,6 @@ To run these tests interactively in the local sandbox:
 
 Ensure your tests work with `make int_test` before creating a pull request.
 
----
 
 ## Pulp
 
@@ -133,7 +136,6 @@ It currently
 
 To trigger a build, simply use `make static_files_process`
 
----
 ## Deploying prototypes
 
 To deploy a temporary prototype onto PaaS, you will need Cloud Foundry installed locally and a PaaS account.
@@ -154,26 +156,29 @@ Once you are finished with the prototype, it can be broken down with,
 make breakdown_prototype
 ```
 
----
 ## Root dir files explainer
 
-- `.adir-dir` : Shows the adr where to write the new records
-- `.cfignore` : Ignores files for Cloud Foundry
 - `.coveragerc` : Settings for Coverage
+- `.dockerignore` : Tells which files Docker should ignore when building images
 - `.env.example` : Example settings for .env
 - `.flake8` : Lints Python code to PEP8 standard
 - `.gitignore` : Ignores files for git
+- `.htmlhintrc` : Lints HTML
+- `.pre-commit-config.yaml` : Lints the code with Black prior to commiting
 - `.pylintrc` : Lints Python code to Google's style guide
-- `docker-compose.yml` : Contains the dockerised setup for PostgreSQL and PGAdmin
+- `amp_platform.DockerFile` : The Dockerfile for AMP. Used in Copilot.
+- `amp_viewer.DockerFile` : The Dockerfile for the viewer. Used in Copilot.
+- `docker-compose-full-stack.yml` : Sets up a full working stack using and `amp_platform.DockerFile` and `amp_viewer.DockerFile`.
+- `docker-compose.yml` : Contains the dockerised setup for PostgreSQL and PGAdmin. Used for local development.
 - `Makefile` : Automation tool for the repo
-- `manage.py` : Root access for Django
-- `manifest-prod.yml` : Cloud Foundry deployment settings for production environment
-- `manifest-test.yml` : Cloud Foundry deployment settings for test environment
+- `manage_report_viewer.py` : Root access for Viewer Django app
+- `manage.py` : Root access for AMP Django app
 - `package-lock.json` : Locked dependencies for NPM
 - `package.json` : Tracks developer and production dependencies for Javascript
+- `prepare_local_db.py` : Script for downloading the latest production data and loading into the local Docker postgres instance
+- `pytest_report_viewer.ini` : Pytest settings for viewer unit tests
+- `pytest.ini` : Pytest settings for AMP unit tests
+- `README.md` : Documentation for the repo
+- `requirements_for_test.txt` : Tracks developer dependencies for Python
 - `requirements.in` : Tracks production dependencies for Python
 - `requirements.txt` : Derived from requirements.in by pip-compile.
-- `requirements_for_test.txt` : Tracks developer dependencies for Python
-- `Procfile` : Boot command for Cloud Foundry instance
-- `README.md` : Documentation for the repo
-- `runtime.txt` : Used for setting up environment for Cloud Foundry deployment
