@@ -1,6 +1,6 @@
 module.exports = {
   e2e: {
-    baseUrl: 'https://accessibility-monitoring-platform-staging.london.cloudapps.digital',
+    baseUrl: 'https://platform-stage.accessibility-monitoring.service.gov.uk',
     chromeWebSecurity: false
   }
 }

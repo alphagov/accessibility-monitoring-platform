@@ -63,6 +63,12 @@ environments:
     variables:
       AMP_VIEWER_DOMAIN: reports.accessibility-monitoring.service.gov.uk
       AMP_PROTOCOL: 'https://'
+  stageenv:
+    http:
+      alias: platform-stage.accessibility-monitoring.service.gov.uk
+    variables:
+      AMP_VIEWER_DOMAIN: reports-stage.accessibility-monitoring.service.gov.uk
+      AMP_PROTOCOL: 'https://'
   testenv:
     http:
       alias: platform-test.accessibility-monitoring.service.gov.uk

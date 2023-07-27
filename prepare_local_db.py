@@ -10,9 +10,6 @@ if __name__ == "__main__":
     load_dotenv()
     s3_bucket: str = "amp-aurora-backup-prod"
     s3_client = boto3.client("s3")
-
-    file_name: str = ""
-    s3_path: str = ""
     db_backups: List[Any] = []
     for key in s3_client.list_objects(Bucket=s3_bucket)["Contents"]:
         if (
@@ -21,8 +18,8 @@ if __name__ == "__main__":
         ):
             db_backups.append(key)
     db_backups.sort(key=lambda x: x["LastModified"])
-    file_name = db_backups[-1]["Key"].split("/")[-1]
-    s3_path = db_backups[-1]["Key"]
+    file_name: str = db_backups[-1]["Key"].split("/")[-1]
+    s3_path: str = db_backups[-1]["Key"]
     Path("./data/s3_files/").mkdir(parents=True, exist_ok=True)
     local_path: str = f"./data/s3_files/{file_name}"
 
