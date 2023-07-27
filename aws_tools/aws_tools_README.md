@@ -7,7 +7,7 @@
 - [aws_2fa.py](#aws_2fa.py)
 - [dump_rds_to_s3_as_sql.py](#dump_rds_to_s3_as_sql.py)
 - [reset_staging_db.py](#reset_staging_db.py)
-- [How to gain access Copilot database](#How-to-gain-access-Copilot-database)
+- [How to gain access to Copilot database](#How-to-gain-access-to-Copilot-database)
 
 ## Requirements
 
@@ -37,7 +37,7 @@ Used internally in ECS to backup the database to S3. Triggered during the deploy
 
 Used internally in ECS to load the production database into the staging database. Triggered during the deployment to production.
 
-## How to gain access Copilot database
+## How to gain access to Copilot database
 
 To gain access to a Copilot DB, you have to exec into an ECS instance. The command for doing this is:
 
