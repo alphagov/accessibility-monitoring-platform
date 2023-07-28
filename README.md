@@ -138,7 +138,9 @@ To trigger a build, simply use `make static_files_process`
 
 ## Deploying prototypes
 
-To deploy a temporary prototype onto PaaS, you will need Cloud Foundry installed locally and a PaaS account.
+WARNING: THIS FEATURE IS NEW AND HIGHlY EXPERIMENTAL. YOU ARE LIKELY TO FACE ISSUES WHEN DEPLOYING PROTOTYPES.
+
+Deploying prototypes runs in AWS Copilot and you will need access to the AWS test account. 
 
 To deploy a prototype, simply enter
 
@@ -146,14 +148,22 @@ To deploy a prototype, simply enter
 make deploy_prototype
 ```
 
-This will deploy your local branch to a brand new space in PaaS with data copied over from the testing environment. Users can then log in using their testing environment login details.
+This will deploy your local branch to a brand new Copilot app in AWS with a backup of the production data. Users can then log in using their testing environment login details or be given a burner account with new login details.
 
-Running `make deploy_prototype` repeatedly updates a running prototype application.
+Running `make deploy_prototype` updates an existing prototype.
 
 Once you are finished with the prototype, it can be broken down with,
 
 ```
 make breakdown_prototype
+```
+
+The deployment process can take a while. A new app take upwards of an hour and an update can take around 30mins. Breaking down an app takes around 30 minutes.
+
+A new burner account can be made at any time using:
+
+```
+make new_account_prototype
 ```
 
 ## Root dir files explainer

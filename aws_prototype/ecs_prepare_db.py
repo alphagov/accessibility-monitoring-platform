@@ -44,10 +44,7 @@ def most_recent_db_s3_path(bucket: str):
     s3_client = boto3.client("s3")
     db_backups: List[Any] = []
     for key in s3_client.list_objects(Bucket=bucket)["Contents"]:
-        if (
-            "aws_aurora_backup/" in key["Key"]
-            and "prod-env" in key["Key"]
-        ):
+        if ".sql" in key["Key"]:
             db_backups.append(key)
     db_backups.sort(key=lambda x: x["LastModified"])
     s3_path = db_backups[-1]["Key"]
