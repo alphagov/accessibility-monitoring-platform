@@ -12,6 +12,8 @@ from django.core.management.utils import get_random_secret_key
 
 from aws_secrets import get_notify_secret
 
+AWS_ACCOUNT_ID: str = "144664177605"
+
 parser = argparse.ArgumentParser(description="Deploy feature branch to PaaS")
 
 parser.add_argument(
@@ -80,7 +82,9 @@ def get_copilot_s3_bucket() -> str:
         raise Exception("No bucket found")
 
     if len(filtered_buckets) != 1:
-        raise Exception("Multiple buckets found - script can only handle one matching bucket")
+        raise Exception(
+            "Multiple buckets found - script can only handle one matching bucket"
+        )
 
     return filtered_buckets[0]
 
@@ -108,8 +112,13 @@ def restore_copilot_prod_settings() -> None:
 
 def restore_prototype_env_file() -> None:
     print(">>> Restoring env in copilot")
-    os.makedirs(os.path.dirname(f"{os.getcwd()}/copilot/environments/{ENV_NAME}/"), exist_ok=True)
-    os.system(f"copilot env show -n {ENV_NAME} --manifest > copilot/environments/{ENV_NAME}/manifest.yml")
+    os.makedirs(
+        os.path.dirname(f"{os.getcwd()}/copilot/environments/{ENV_NAME}/"),
+        exist_ok=True,
+    )
+    os.system(
+        f"copilot env show -n {ENV_NAME} --manifest > copilot/environments/{ENV_NAME}/manifest.yml"
+    )
 
 
 def create_burner_account() -> None:
@@ -119,8 +128,12 @@ def create_burner_account() -> None:
     command: str = f"python aws_prototype/create_dummy_account.py {email} {password}"
     copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
     os.system(copilot_exec_cmd)
-    print(f"The platform can be accessed from https://amp-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk")
-    print(f"The viewer can be accessed from https://viewer-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk")
+    print(
+        f"The platform can be accessed from https://amp-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk"
+    )
+    print(
+        f"The viewer can be accessed from https://viewer-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk"
+    )
     print(f"email: {email}")
     print(f"password: {password}")
 
@@ -202,7 +215,7 @@ def down():
 if __name__ == "__main__":
     client = boto3.client("sts")
     account_id = client.get_caller_identity()["Account"]
-    if account_id != "144664177605":
+    if account_id != AWS_ACCOUNT_ID:
         raise Exception("AWS credentials is not running in AWS test account")
 
     if APP_NAME == "ampapp":
