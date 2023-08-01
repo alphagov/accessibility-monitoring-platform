@@ -53,6 +53,7 @@ def test_thirty_day_metric_progress_label(
 ):
     """Test progress label derived correctly"""
     thirty_day_metric: ThirtyDayMetric = ThirtyDayMetric(
+        label=METRIC_LABEL,
         last_30_day_count=last_30_day_count,
         previous_30_day_count=previous_30_day_count,
     )
@@ -68,6 +69,7 @@ def test_thirty_day_metric_progress_percentage(
 ):
     """Test progress percentage derived correctly"""
     thirty_day_metric: ThirtyDayMetric = ThirtyDayMetric(
+        label=METRIC_LABEL,
         last_30_day_count=last_30_day_count,
         previous_30_day_count=previous_30_day_count,
     )

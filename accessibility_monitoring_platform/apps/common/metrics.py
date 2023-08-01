@@ -35,9 +35,9 @@ FIRST_COLUMN_HEADER: str = "Month"
 
 @dataclass
 class ThirtyDayMetric:
-    label: str = ""
-    last_30_day_count: int = 0
-    previous_30_day_count: int = 0
+    label: str
+    last_30_day_count: int
+    previous_30_day_count: int
 
     @property
     def progress_label(self) -> str:
