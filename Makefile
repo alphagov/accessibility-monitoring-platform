@@ -80,7 +80,10 @@ int_test:
 	docker-compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
 
 deploy_prototype:
-	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_feature_settings.json
+	python aws_prototype/main.py -b up
 
 breakdown_prototype:
-	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_feature_settings.json
+	python aws_prototype/main.py -b down
+
+new_account_prototype:
+	python aws_prototype/main.py -b newaccount
