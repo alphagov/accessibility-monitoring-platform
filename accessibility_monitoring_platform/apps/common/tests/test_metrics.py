@@ -10,6 +10,7 @@ from ...audits.models import Audit
 from ...cases.models import Case
 
 from ..metrics import (
+    ThirtyDayMetric,
     Timeseries,
     TimeseriesDatapoint,
     TimeseriesHtmlTable,
@@ -29,6 +30,48 @@ COLUMN_NAMES: List[str] = [FIRST_COLUMN_HEADER] + [
     FIRST_COLUMN_NAME,
     SECOND_COLUMN_NAME,
 ]
+
+
+def test_thirty_day_metric():
+    """Test thirty day metric class"""
+    thirty_day_metric: ThirtyDayMetric = ThirtyDayMetric(
+        label=METRIC_LABEL,
+        last_30_day_count=30,
+        previous_30_day_count=15,
+    )
+    assert thirty_day_metric.label == METRIC_LABEL
+    assert thirty_day_metric.last_30_day_count == 30
+    assert thirty_day_metric.previous_30_day_count == 15
+
+
+@pytest.mark.parametrize(
+    "last_30_day_count, previous_30_day_count, expected_progress_label",
+    [(10, 20, "under"), (2, 1, "over"), (2, 2, "over")],
+)
+def test_thirty_day_metric_progress_label(
+    last_30_day_count, previous_30_day_count, expected_progress_label
+):
+    """Test progress label derived correctly"""
+    thirty_day_metric: ThirtyDayMetric = ThirtyDayMetric(
+        last_30_day_count=last_30_day_count,
+        previous_30_day_count=previous_30_day_count,
+    )
+    assert thirty_day_metric.progress_label == expected_progress_label
+
+
+@pytest.mark.parametrize(
+    "last_30_day_count, previous_30_day_count, expected_progress_percentage",
+    [(6, 9, 34), (10, 8, 25), (2, 1, 100), (2, 2, 0)],
+)
+def test_thirty_day_metric_progress_percentage(
+    last_30_day_count, previous_30_day_count, expected_progress_percentage
+):
+    """Test progress percentage derived correctly"""
+    thirty_day_metric: ThirtyDayMetric = ThirtyDayMetric(
+        last_30_day_count=last_30_day_count,
+        previous_30_day_count=previous_30_day_count,
+    )
+    assert thirty_day_metric.progress_percentage == expected_progress_percentage
 
 
 @pytest.mark.parametrize(

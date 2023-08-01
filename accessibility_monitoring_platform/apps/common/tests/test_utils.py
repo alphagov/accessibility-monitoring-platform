@@ -411,12 +411,12 @@ def test_get_url_parameters_for_pagination(get_parameters, expected_result, rf):
 
 
 def test_get_days_ago_timestamp():
-    """Test timestamp for a number of days ago is returned"""
+    """Test timestamp for a number of days ago is calculated"""
     with patch("accessibility_monitoring_platform.apps.common.utils.date") as mock_date:
         mock_date.today.return_value = date(2023, 2, 1)
         assert get_days_ago_timestamp() == datetime(
             2023, 1, 2, 0, 0, tzinfo=datetime_timezone.utc
-        )
+        )  # 30 days before
         assert get_days_ago_timestamp(days=31) == datetime(
             2023, 1, 1, 0, 0, tzinfo=datetime_timezone.utc
-        )
+        )  # 31 days before

@@ -35,9 +35,9 @@ FIRST_COLUMN_HEADER: str = "Month"
 
 @dataclass
 class ThirtyDayMetric:
-    label: str
-    last_30_day_count: int
-    previous_30_day_count: int
+    label: str = ""
+    last_30_day_count: int = 0
+    previous_30_day_count: int = 0
 
     @property
     def progress_label(self) -> str:
@@ -48,9 +48,12 @@ class ThirtyDayMetric:
     @property
     def progress_percentage(self) -> Optional[int]:
         if self.previous_30_day_count > 0:
-            return abs(
-                100 - int((self.last_30_day_count * 100) / self.previous_30_day_count)
+            percentage: int = int(
+                (self.last_30_day_count * 100) / self.previous_30_day_count
             )
+            if percentage >= 100:
+                return percentage - 100
+            return 100 - percentage
         return None
 
 
