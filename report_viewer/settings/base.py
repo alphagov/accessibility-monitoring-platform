@@ -142,7 +142,7 @@ if UNDER_TEST or INTEGRATION_TEST:
     }
 elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
     db_secrets: str = os.environ["DB_SECRET"]
-    json_acceptable_string: str = db_secrets.replace("'", "\"")
+    json_acceptable_string: str = db_secrets.replace("'", '"')
     db_secrets_dict = json.loads(json_acceptable_string)
     DATABASES["default"] = {
         "NAME": db_secrets_dict["dbname"],
@@ -151,7 +151,7 @@ elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
         "HOST": db_secrets_dict["host"],
         "PORT": db_secrets_dict["port"],
         "CONN_MAX_AGE": 0,
-        "ENGINE": "django.db.backends.postgresql"
+        "ENGINE": "django.db.backends.postgresql",
     }
     bucket_name: str = os.environ["DB_NAME"]
     DATABASES["aws-s3-bucket"] = {

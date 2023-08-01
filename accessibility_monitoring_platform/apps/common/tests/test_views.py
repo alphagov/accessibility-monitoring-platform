@@ -34,8 +34,8 @@ EMAIL_MESSAGE: str = "Email message"
 ISSUE_REPORT_LINK: str = """<a href="/common/report-issue/?page_url=/"
 target="_blank"
 class="govuk-link govuk-link--no-visited-state">report</a>"""
-METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
-    <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
+METRIC_OVER_LAST_30_DAYS: str = """<p id="{metric_id}" class="govuk-body-m">
+    <span class="govuk-!-font-size-48"><b>{number_last_30_days}</b></span>
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
     <svg alt="Up arrow" version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
         xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
@@ -48,10 +48,10 @@ METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
                 style="stroke-width:897.871" />
         </g>
     </svg>
-    Projected {percentage_difference}% over December ({number_last_month} {lowercase_label})
+    {progress_percentage}% over previous 30 days ({number_previous_30_days} {lowercase_label})
 </p>"""
-METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
-    <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
+METRIC_UNDER_LAST_30_DAYS: str = """<p id="{metric_id}" class="govuk-body-m">
+    <span class="govuk-!-font-size-48"><b>{number_last_30_days}</b></span>
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
     <svg alt="Down arrow" version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
         xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
@@ -65,7 +65,7 @@ METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
                         style="stroke-width:897.871" />
         </g>
     </svg>
-    Projected {percentage_difference}% under December ({number_last_month} {lowercase_label})
+    {progress_percentage}% under previous 30 days ({number_previous_30_days} {lowercase_label})
 </p>"""
 METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
     <thead class="govuk-table__head">
@@ -273,18 +273,20 @@ def test_issue_report_link(prototype_name, issue_report_link_expected, admin_cli
     ],
 )
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.utils.date")
 def test_case_progress_metric_over(
-    mock_timezone, case_field, metric_id, lowercase_label, admin_client
+    mock_date, mock_timezone, case_field, metric_id, lowercase_label, admin_client
 ):
     """
-    Test case progress metric, which is over this month, is calculated and
+    Test case progress metric, which is over in last 30 days, is calculated and
     displayed correctly.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+    mock_date.today.return_value = date(2022, 1, 10)
 
     Case.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)})
     Case.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2021, 12, 16, tzinfo=timezone.utc)})
     Case.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)})
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
@@ -292,11 +294,11 @@ def test_case_progress_metric_over(
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_OVER_THIS_MONTH.format(
+        METRIC_OVER_LAST_30_DAYS.format(
             metric_id=metric_id,
-            number_this_month=1,
-            percentage_difference=55,
-            number_last_month=2,
+            number_last_30_days=2,
+            progress_percentage=100,
+            number_previous_30_days=1,
             lowercase_label=lowercase_label,
         ),
         html=True,
@@ -313,14 +315,16 @@ def test_case_progress_metric_over(
     ],
 )
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.utils.date")
 def test_case_progress_metric_under(
-    mock_timezone, case_field, metric_id, lowercase_label, admin_client
+    mock_date, mock_timezone, case_field, metric_id, lowercase_label, admin_client
 ):
     """
-    Test case progress metric, which is under this month, is calculated and
+    Test case progress metric, which is under in last 30 days, is calculated and
     displayed correctly.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_date.today.return_value = date(2022, 1, 20)
 
     Case.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)})
     Case.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)})
@@ -332,11 +336,11 @@ def test_case_progress_metric_under(
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_UNDER_THIS_MONTH.format(
+        METRIC_UNDER_LAST_30_DAYS.format(
             metric_id=metric_id,
-            number_this_month=1,
-            percentage_difference=23,
-            number_last_month=2,
+            number_last_30_days=1,
+            progress_percentage=50,
+            number_previous_30_days=2,
             lowercase_label=lowercase_label,
         ),
         html=True,
@@ -673,17 +677,19 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_published_progress_metric_over(mock_timezone, admin_client):
+@patch("accessibility_monitoring_platform.apps.common.utils.date")
+def test_report_published_progress_metric_over(mock_date, mock_timezone, admin_client):
     """
-    Test published reports progress metric, which is over this month, is calculated and
+    Test published reports progress metric, which is over in last 30 days, is calculated and
     displayed correctly.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+    mock_date.today.return_value = date(2022, 1, 29)
 
     for created_date in [
         datetime(2021, 12, 5, tzinfo=timezone.utc),
-        datetime(2021, 12, 6, tzinfo=timezone.utc),
         datetime(2022, 1, 1, tzinfo=timezone.utc),
+        datetime(2022, 1, 2, tzinfo=timezone.utc),
     ]:
         with patch(
             "django.utils.timezone.now",
@@ -697,11 +703,11 @@ def test_report_published_progress_metric_over(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_OVER_THIS_MONTH.format(
+        METRIC_OVER_LAST_30_DAYS.format(
             metric_id="published-reports",
-            number_this_month=1,
-            percentage_difference=55,
-            number_last_month=2,
+            number_last_30_days=2,
+            progress_percentage=100,
+            number_previous_30_days=1,
             lowercase_label="published reports",
         ),
         html=True,
@@ -709,12 +715,14 @@ def test_report_published_progress_metric_over(mock_timezone, admin_client):
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_published_progress_metric_under(mock_timezone, admin_client):
+@patch("accessibility_monitoring_platform.apps.common.utils.date")
+def test_report_published_progress_metric_under(mock_date, mock_timezone, admin_client):
     """
-    Test published reports progress metric, which is under this month, is calculated and
+    Test published reports progress metric, which is under in last 30 days, is calculated and
     displayed correctly.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_date.today.return_value = date(2022, 1, 29)
 
     for created_date in [
         datetime(2021, 11, 5, tzinfo=timezone.utc),
@@ -734,11 +742,11 @@ def test_report_published_progress_metric_under(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_UNDER_THIS_MONTH.format(
+        METRIC_UNDER_LAST_30_DAYS.format(
             metric_id="published-reports",
-            number_this_month=1,
-            percentage_difference=23,
-            number_last_month=2,
+            number_last_30_days=1,
+            progress_percentage=50,
+            number_previous_30_days=2,
             lowercase_label="published reports",
         ),
         html=True,
@@ -746,12 +754,14 @@ def test_report_published_progress_metric_under(mock_timezone, admin_client):
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_viewed_progress_metric_over(mock_timezone, admin_client):
+@patch("accessibility_monitoring_platform.apps.common.utils.date")
+def test_report_viewed_progress_metric_under(mock_date, mock_timezone, admin_client):
     """
-    Test reports viewed progress metric, which is over this month, is calculated and
+    Test reports viewed progress metric, which is under in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 29, tzinfo=timezone.utc)
+    mock_date.today.return_value = date(2022, 1, 29)
 
     case: Case = Case.objects.create()
 
@@ -769,11 +779,11 @@ def test_report_viewed_progress_metric_over(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_OVER_THIS_MONTH.format(
+        METRIC_UNDER_LAST_30_DAYS.format(
             metric_id="report-views",
-            number_this_month=1,
-            percentage_difference=55,
-            number_last_month=2,
+            number_last_30_days=1,
+            progress_percentage=50,
+            number_previous_30_days=2,
             lowercase_label="report views",
         ),
         html=True,
@@ -781,12 +791,16 @@ def test_report_viewed_progress_metric_over(mock_timezone, admin_client):
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_acknowledged_progress_metric_over(mock_timezone, admin_client):
+@patch("accessibility_monitoring_platform.apps.common.utils.date")
+def test_report_acknowledged_progress_metric_under(
+    mock_date, mock_timezone, admin_client
+):
     """
-    Test report acknowledged progress metric, which is over this month, is calculated and
+    Test report acknowledged progress metric, which is under in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 29, tzinfo=timezone.utc)
+    mock_date.today.return_value = date(2022, 1, 29)
 
     for acknowledged_date in [
         datetime(2021, 12, 5, tzinfo=timezone.utc),
@@ -800,11 +814,11 @@ def test_report_acknowledged_progress_metric_over(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_OVER_THIS_MONTH.format(
+        METRIC_UNDER_LAST_30_DAYS.format(
             metric_id="reports-acknowledged",
-            number_this_month=1,
-            percentage_difference=55,
-            number_last_month=2,
+            number_last_30_days=1,
+            progress_percentage=50,
+            number_previous_30_days=2,
             lowercase_label="reports acknowledged",
         ),
         html=True,

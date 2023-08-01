@@ -5,13 +5,14 @@ import os
 from typing import Any, List
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
 POSTGRES_CRED = os.getenv("DB_SECRET", "")
 if POSTGRES_CRED == "":
     raise TypeError("DB_SECRET is empty")
-json_acceptable_string: str = POSTGRES_CRED.replace("'", "\"")
+json_acceptable_string: str = POSTGRES_CRED.replace("'", '"')
 DB_SECRETS_DICT = json.loads(json_acceptable_string)
 
 
@@ -31,10 +32,7 @@ def download_db_backup() -> str:
     s3_client = boto3.client("s3")
     db_backups: List[Any] = []
     for key in s3_client.list_objects(Bucket=s3_bucket)["Contents"]:
-        if (
-            "aws_aurora_backup/" in key["Key"]
-            and "prodenv" in key["Key"]
-        ):
+        if "aws_aurora_backup/" in key["Key"] and "prodenv" in key["Key"]:
             db_backups.append(key)
     db_backups.sort(key=lambda x: x["LastModified"])
     file_name: str = db_backups[-1]["Key"].split("/")[-1]
@@ -85,7 +83,8 @@ def load_db_backup(db_path: str) -> bool:
         f"-U {DB_SECRETS_DICT['username']} "
         f"-p {DB_SECRETS_DICT['port']} "
         f"-d {DB_SECRETS_DICT['dbname']} "
-        f"< {db_path}")
+        f"< {db_path}"
+    )
     os.system(psql_command)
     return True
 

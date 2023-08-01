@@ -13,7 +13,6 @@ from ..metrics import (
     Timeseries,
     TimeseriesDatapoint,
     TimeseriesHtmlTable,
-    calculate_current_month_progress,
     calculate_metric_progress,
     count_statement_issues,
     group_timeseries_data_by_month,
@@ -30,65 +29,6 @@ COLUMN_NAMES: List[str] = [FIRST_COLUMN_HEADER] + [
     FIRST_COLUMN_NAME,
     SECOND_COLUMN_NAME,
 ]
-
-
-@pytest.mark.parametrize(
-    "day_of_month, this_month_value, last_month_value, expected_metric",
-    [
-        (
-            31,
-            15,
-            30,
-            {
-                "expected_progress_difference": 50,
-                "expected_progress_difference_label": "under",
-            },
-        ),
-        (
-            31,
-            45,
-            30,
-            {
-                "expected_progress_difference": 50,
-                "expected_progress_difference_label": "over",
-            },
-        ),
-        (
-            1,
-            5,
-            30,
-            {
-                "expected_progress_difference": 416,
-                "expected_progress_difference_label": "over",
-            },
-        ),
-        (
-            31,
-            45,
-            0,
-            {},
-        ),
-    ],
-)
-def test_calculate_current_month_progress(
-    day_of_month,
-    this_month_value,
-    last_month_value,
-    expected_metric,
-):
-    """
-    Test calculation of progress through current month
-    """
-    expected_metric["label"] = METRIC_LABEL
-    expected_metric["this_month_value"] = this_month_value
-    expected_metric["last_month_value"] = last_month_value
-
-    assert expected_metric == calculate_current_month_progress(
-        now=datetime(2022, 12, day_of_month),
-        label=METRIC_LABEL,
-        this_month_value=this_month_value,
-        last_month_value=last_month_value,
-    )
 
 
 @pytest.mark.parametrize(

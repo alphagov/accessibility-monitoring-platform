@@ -17,7 +17,7 @@ def download_db_backup() -> None:
     if POSTGRES_CRED is None:
         raise TypeError("DB_SECRET is None")
 
-    json_acceptable_string: str = POSTGRES_CRED.replace("'", "\"")
+    json_acceptable_string: str = POSTGRES_CRED.replace("'", '"')
     db_secrets_dict = json.loads(json_acceptable_string)
     psql_command = (
         f"PGPASSWORD={db_secrets_dict['password']} "
@@ -26,17 +26,14 @@ def download_db_backup() -> None:
         f"-U {db_secrets_dict['username']} "
         f"-p {db_secrets_dict['port']} "
         f" {db_secrets_dict['dbname']} "
-        f"> {TEMP_DB_NAME}")
+        f"> {TEMP_DB_NAME}"
+    )
     os.system(psql_command)
 
 
 def upload_file(local_path, s3_path, aws_bucket) -> None:
     s3 = boto3.resource("s3")
-    s3.meta.client.upload_file(
-        local_path,
-        aws_bucket,
-        s3_path
-    )
+    s3.meta.client.upload_file(local_path, aws_bucket, s3_path)
 
 
 def cleanup(path: str) -> None:
@@ -53,10 +50,6 @@ if __name__ == "__main__":
         f"""_{COPILOT_ENVIRONMENT_NAME}.sql"""
     )
     print(">>> Uploading file to s3 bucket")
-    upload_file(
-        local_path=TEMP_DB_NAME,
-        s3_path=object_name,
-        aws_bucket=BUCKET_NAME
-    )
+    upload_file(local_path=TEMP_DB_NAME, s3_path=object_name, aws_bucket=BUCKET_NAME)
     print(">>> Cleaning up")
     cleanup(TEMP_DB_NAME)

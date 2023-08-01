@@ -15,24 +15,7 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
-                <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
-                {% for progress_metric in progress_metrics %}
-                    <h2 class="govuk-heading-m">{{ progress_metric.label }} in {% now "F" %}</h2>
-                    <p id="{{ progress_metric.label|slugify }}" class="govuk-body-m">
-                        <span class="govuk-!-font-size-48"><b>{{ progress_metric.this_month_value }}</b></span>
-                        {% if progress_metric.expected_progress_difference_label == 'under' %}
-                            {% include 'common/metrics/arrow_down.svgt' %}
-                        {% else %}
-                            {% include 'common/metrics/arrow_up.svgt' %}
-                        {% endif %}
-                        {% if progress_metric.expected_progress_difference_label %}
-                            Projected {{ progress_metric.expected_progress_difference }}%
-                            {{ progress_metric.expected_progress_difference_label }}
-                        {% endif %}
-                        {{ first_of_last_month|date:"F" }}
-                        ({{ progress_metric.last_month_value }} {{ progress_metric.label|lower }})
-                    </p>
-                {% endfor %}
+                {% include 'common/metrics/progress.html' %}
                 {% for yearly_metric in yearly_metrics %}
                     <h2 class="govuk-heading-m">{{ yearly_metric.label }}</h2>
                     {% include 'common/metrics/chart.svgt' with chart=yearly_metric.chart %}

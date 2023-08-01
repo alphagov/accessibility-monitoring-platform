@@ -76,7 +76,9 @@ def get_copilot_s3_bucket() -> str:
         raise Exception("No bucket found")
 
     if len(filtered_buckets) != 1:
-        raise Exception("Multiple buckets found - script can only handle one matching bucket")
+        raise Exception(
+            "Multiple buckets found - script can only handle one matching bucket"
+        )
 
     return filtered_buckets[0]
 
