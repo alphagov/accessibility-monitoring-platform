@@ -1,0 +1,19 @@
+{% load humanize %}
+<p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
+{% for progress_metric in progress_metrics %}
+    <h2 class="govuk-heading-m">{{ progress_metric.label }} in last 30 days</h2>
+    <p id="{{ progress_metric.label|slugify }}" class="govuk-body-m">
+        <span class="govuk-!-font-size-48"><b>{{ progress_metric.last_30_day_count|intcomma }}</b></span>
+        {% if progress_metric.progress_label == 'under' %}
+            {% include 'common/metrics/helpers/arrow_down.svgt' %}
+        {% else %}
+            {% include 'common/metrics/helpers/arrow_up.svgt' %}
+        {% endif %}
+        {% if progress_metric.previous_30_day_count > 0 %}
+            {{ progress_metric.progress_percentage }}%
+        {% endif %}
+        {{ progress_metric.progress_label }}
+        previous 30 days
+        ({{ progress_metric.previous_30_day_count|intcomma }} {{ progress_metric.label|lower }})
+    </p>
+{% endfor %}

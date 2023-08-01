@@ -1,5 +1,5 @@
 """ Common utility functions """
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone as datetime_timezone
 
 import re
 import json
@@ -105,6 +105,18 @@ def get_recent_changes_to_platform() -> QuerySet[ChangeToPlatform]:
     """Find platform changes made in last 24 hours"""
     twenty_four_hours_ago: datetime = timezone.now() - timedelta(hours=24)
     return ChangeToPlatform.objects.filter(created__gte=twenty_four_hours_ago)
+
+
+def get_days_ago_timestamp(days: int = 30) -> datetime:
+    """
+    Subtract number of days from today's date and return a timezone-aware
+    timestamp of midnight on that date.
+    """
+    today: date = date.today()
+    days_ago_date: date = today - timedelta(days=days)
+    return datetime.combine(
+        days_ago_date, datetime.min.time(), tzinfo=datetime_timezone.utc
+    )
 
 
 def record_model_update_event(user: User, model_object: models.Model) -> None:

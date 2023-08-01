@@ -10,10 +10,10 @@ from ...audits.models import Audit
 from ...cases.models import Case
 
 from ..metrics import (
+    ThirtyDayMetric,
     Timeseries,
     TimeseriesDatapoint,
     TimeseriesHtmlTable,
-    calculate_current_month_progress,
     calculate_metric_progress,
     count_statement_issues,
     group_timeseries_data_by_month,
@@ -32,63 +32,48 @@ COLUMN_NAMES: List[str] = [FIRST_COLUMN_HEADER] + [
 ]
 
 
-@pytest.mark.parametrize(
-    "day_of_month, this_month_value, last_month_value, expected_metric",
-    [
-        (
-            31,
-            15,
-            30,
-            {
-                "expected_progress_difference": 50,
-                "expected_progress_difference_label": "under",
-            },
-        ),
-        (
-            31,
-            45,
-            30,
-            {
-                "expected_progress_difference": 50,
-                "expected_progress_difference_label": "over",
-            },
-        ),
-        (
-            1,
-            5,
-            30,
-            {
-                "expected_progress_difference": 416,
-                "expected_progress_difference_label": "over",
-            },
-        ),
-        (
-            31,
-            45,
-            0,
-            {},
-        ),
-    ],
-)
-def test_calculate_current_month_progress(
-    day_of_month,
-    this_month_value,
-    last_month_value,
-    expected_metric,
-):
-    """
-    Test calculation of progress through current month
-    """
-    expected_metric["label"] = METRIC_LABEL
-    expected_metric["this_month_value"] = this_month_value
-    expected_metric["last_month_value"] = last_month_value
-
-    assert expected_metric == calculate_current_month_progress(
-        now=datetime(2022, 12, day_of_month),
+def test_thirty_day_metric():
+    """Test thirty day metric class"""
+    thirty_day_metric: ThirtyDayMetric = ThirtyDayMetric(
         label=METRIC_LABEL,
-        this_month_value=this_month_value,
-        last_month_value=last_month_value,
+        last_30_day_count=30,
+        previous_30_day_count=15,
     )
+    assert thirty_day_metric.label == METRIC_LABEL
+    assert thirty_day_metric.last_30_day_count == 30
+    assert thirty_day_metric.previous_30_day_count == 15
+
+
+@pytest.mark.parametrize(
+    "last_30_day_count, previous_30_day_count, expected_progress_label",
+    [(10, 20, "under"), (2, 1, "over"), (2, 2, "over")],
+)
+def test_thirty_day_metric_progress_label(
+    last_30_day_count, previous_30_day_count, expected_progress_label
+):
+    """Test progress label derived correctly"""
+    thirty_day_metric: ThirtyDayMetric = ThirtyDayMetric(
+        label=METRIC_LABEL,
+        last_30_day_count=last_30_day_count,
+        previous_30_day_count=previous_30_day_count,
+    )
+    assert thirty_day_metric.progress_label == expected_progress_label
+
+
+@pytest.mark.parametrize(
+    "last_30_day_count, previous_30_day_count, expected_progress_percentage",
+    [(6, 9, 34), (10, 8, 25), (2, 1, 100), (2, 2, 0)],
+)
+def test_thirty_day_metric_progress_percentage(
+    last_30_day_count, previous_30_day_count, expected_progress_percentage
+):
+    """Test progress percentage derived correctly"""
+    thirty_day_metric: ThirtyDayMetric = ThirtyDayMetric(
+        label=METRIC_LABEL,
+        last_30_day_count=last_30_day_count,
+        previous_30_day_count=previous_30_day_count,
+    )
+    assert thirty_day_metric.progress_percentage == expected_progress_percentage
 
 
 @pytest.mark.parametrize(

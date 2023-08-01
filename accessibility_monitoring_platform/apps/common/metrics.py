@@ -1,6 +1,5 @@
 """ Utility functions for calculating metrics and charts """
 
-import calendar
 from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -8,8 +7,8 @@ from typing import (
     Any,
     Dict,
     List,
+    Optional,
     Tuple,
-    Union,
 )
 
 from django.contrib.humanize.templatetags.humanize import intcomma
@@ -35,6 +34,30 @@ FIRST_COLUMN_HEADER: str = "Month"
 
 
 @dataclass
+class ThirtyDayMetric:
+    label: str
+    last_30_day_count: int
+    previous_30_day_count: int
+
+    @property
+    def progress_label(self) -> str:
+        if self.last_30_day_count < self.previous_30_day_count:
+            return "under"
+        return "over"
+
+    @property
+    def progress_percentage(self) -> Optional[int]:
+        if self.previous_30_day_count > 0:
+            percentage: int = int(
+                (self.last_30_day_count * 100) / self.previous_30_day_count
+            )
+            if percentage >= 100:
+                return percentage - 100
+            return 100 - percentage
+        return None
+
+
+@dataclass
 class TimeseriesDatapoint:
     datetime: datetime
     value: int
@@ -50,37 +73,6 @@ class Timeseries:
 class TimeseriesHtmlTable:
     column_names: List[str]
     rows: List[List[str]]
-
-
-def calculate_current_month_progress(
-    now: datetime, label: str, this_month_value: int, last_month_value: int
-) -> Dict[str, Union[str, int]]:
-    """
-    Given the current day of the month compare a number of things done
-    to date in the current month to the total done in the previous month
-    and express that as a percentage above or below.
-    """
-    _, days_in_current_month = calendar.monthrange(now.year, now.month)
-    metric: Dict[str, Union[str, int]] = {
-        "label": label,
-        "this_month_value": this_month_value,
-        "last_month_value": last_month_value,
-    }
-    if last_month_value == 0:
-        return metric
-
-    percentage_progress: int = int(
-        ((this_month_value / (now.day / days_in_current_month)) / last_month_value)
-        * 100
-    )
-    expected_progress_difference: int = percentage_progress - 100
-    expected_progress_difference_label: str = (
-        "under" if expected_progress_difference < 0 else "over"
-    )
-    metric["expected_progress_difference"] = abs(expected_progress_difference)
-    metric["expected_progress_difference_label"] = expected_progress_difference_label
-
-    return metric
 
 
 def calculate_metric_progress(

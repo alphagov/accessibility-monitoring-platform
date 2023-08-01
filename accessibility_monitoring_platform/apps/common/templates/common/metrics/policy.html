@@ -7,11 +7,11 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'common/metrics/breadcrumbs.html' with page_heading='Policy metrics' %}
+    {% include 'common/metrics/helpers/breadcrumbs.html' with page_heading='Policy metrics' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include 'common/metrics/nav_steps.html' with current='common:metrics-policy' %}
+                {% include 'common/metrics/helpers/nav_steps.html' with current='common:metrics-policy' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Policy metrics</h1>
@@ -30,8 +30,8 @@
                 </p>
                 {% for yearly_metric in yearly_metrics %}
                     <h2 class="govuk-heading-m">{{ yearly_metric.label }}</h2>
-                    {% include 'common/metrics/chart.svgt' with chart=yearly_metric.chart %}
-                    {% include 'common/metrics/table.html' %}
+                    {% include 'common/metrics/helpers/chart.svgt' with chart=yearly_metric.chart %}
+                    {% include 'common/metrics/helpers/table.html' %}
                 {% endfor %}
             </div>
         </div>

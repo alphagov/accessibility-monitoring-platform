@@ -18,7 +18,7 @@ def main(user: str, mfa_token: str):
         "iam",
         aws_access_key_id=config[user]["aws_access_key_id"],
         aws_secret_access_key=config[user]["aws_secret_access_key"],
-        region_name="eu-west-2"
+        region_name="eu-west-2",
     )
 
     iam_response = iam_client.list_mfa_devices()
@@ -28,12 +28,11 @@ def main(user: str, mfa_token: str):
         "sts",
         aws_access_key_id=config[user]["aws_access_key_id"],
         aws_secret_access_key=config[user]["aws_secret_access_key"],
-        region_name="eu-west-2"
+        region_name="eu-west-2",
     )
 
     sts_response = sts_client.get_session_token(
-        SerialNumber=serial_number,
-        TokenCode=mfa_token
+        SerialNumber=serial_number, TokenCode=mfa_token
     )
 
     config["mfa"] = {
