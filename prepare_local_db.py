@@ -1,21 +1,16 @@
 """ Prepare Local DB - Downloads the latest db backup and uploads to local postgres instance """
 from typing import Any, List
 import os
-from dotenv import load_dotenv
 import boto3
 from pathlib import Path
 
 
 if __name__ == "__main__":
-    load_dotenv()
     s3_bucket: str = "amp-aurora-backup-prod"
     s3_client = boto3.client("s3")
     db_backups: List[Any] = []
     for key in s3_client.list_objects(Bucket=s3_bucket)["Contents"]:
-        if (
-            "aws_aurora_backup/" in key["Key"]
-            and "prodenv" in key["Key"]
-        ):
+        if "aws_aurora_backup/" in key["Key"] and "prodenv" in key["Key"]:
             db_backups.append(key)
     db_backups.sort(key=lambda x: x["LastModified"])
     file_name: str = db_backups[-1]["Key"].split("/")[-1]

@@ -36,10 +36,10 @@ from .forms import (
     FrequentlyUsedLinkOneExtraFormset,
 )
 from .metrics import (
+    ThirtyDayMetric,
     Timeseries,
     TimeseriesDatapoint,
     TimeseriesHtmlTable,
-    calculate_current_month_progress,
     group_timeseries_data_by_month,
     calculate_metric_progress,
     count_statement_issues,
@@ -54,6 +54,7 @@ from .utils import (
     get_platform_settings,
     record_model_update_event,
     record_model_create_event,
+    get_days_ago_timestamp,
 )
 
 
@@ -203,61 +204,50 @@ class MetricsCaseTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        now: datetime = django_timezone.now()
-        first_of_this_month: datetime = datetime(
-            now.year, now.month, 1, tzinfo=timezone.utc
-        )
-        first_of_last_month: datetime = (
-            datetime(now.year, now.month - 1, 1, tzinfo=timezone.utc)
-            if now.month > 1
-            else datetime(now.year - 1, 12, 1, tzinfo=timezone.utc)
-        )
+        thirty_days_ago: datetime = get_days_ago_timestamp()
+        sixty_days_ago: datetime = get_days_ago_timestamp(days=60)
 
-        progress_metrics: List[Dict[str, Union[str, int]]] = [
-            calculate_current_month_progress(
-                now=now,
+        progress_metrics: List[ThirtyDayMetric] = [
+            ThirtyDayMetric(
                 label="Cases created",
-                this_month_value=Case.objects.filter(
-                    created__gte=first_of_this_month
+                last_30_day_count=Case.objects.filter(
+                    created__gte=thirty_days_ago
                 ).count(),
-                last_month_value=Case.objects.filter(created__gte=first_of_last_month)
-                .filter(created__lt=first_of_this_month)
+                previous_30_day_count=Case.objects.filter(created__gte=sixty_days_ago)
+                .filter(created__lt=thirty_days_ago)
                 .count(),
             ),
-            calculate_current_month_progress(
-                now=now,
+            ThirtyDayMetric(
                 label="Tests completed",
-                this_month_value=Case.objects.filter(
-                    testing_details_complete_date__gte=first_of_this_month
+                last_30_day_count=Case.objects.filter(
+                    testing_details_complete_date__gte=thirty_days_ago
                 ).count(),
-                last_month_value=Case.objects.filter(
-                    testing_details_complete_date__gte=first_of_last_month
+                previous_30_day_count=Case.objects.filter(
+                    testing_details_complete_date__gte=sixty_days_ago
                 )
-                .filter(testing_details_complete_date__lt=first_of_this_month)
+                .filter(testing_details_complete_date__lt=thirty_days_ago)
                 .count(),
             ),
-            calculate_current_month_progress(
-                now=now,
+            ThirtyDayMetric(
                 label="Reports sent",
-                this_month_value=Case.objects.filter(
-                    report_sent_date__gte=first_of_this_month
+                last_30_day_count=Case.objects.filter(
+                    report_sent_date__gte=thirty_days_ago
                 ).count(),
-                last_month_value=Case.objects.filter(
-                    report_sent_date__gte=first_of_last_month
+                previous_30_day_count=Case.objects.filter(
+                    report_sent_date__gte=sixty_days_ago
                 )
-                .filter(report_sent_date__lt=first_of_this_month)
+                .filter(report_sent_date__lt=thirty_days_ago)
                 .count(),
             ),
-            calculate_current_month_progress(
-                now=now,
+            ThirtyDayMetric(
                 label="Cases closed",
-                this_month_value=Case.objects.filter(
-                    completed_date__gte=first_of_this_month
+                last_30_day_count=Case.objects.filter(
+                    completed_date__gte=thirty_days_ago
                 ).count(),
-                last_month_value=Case.objects.filter(
-                    completed_date__gte=first_of_last_month
+                previous_30_day_count=Case.objects.filter(
+                    completed_date__gte=sixty_days_ago
                 )
-                .filter(completed_date__lt=first_of_this_month)
+                .filter(completed_date__lt=thirty_days_ago)
                 .count(),
             ),
         ]
@@ -268,6 +258,7 @@ class MetricsCaseTemplateView(TemplateView):
                 Union[str, TimeseriesHtmlTable, List[TimeseriesDatapoint], LineChart],
             ]
         ] = []
+        now: datetime = django_timezone.now()
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
         for label, date_column_name in [
             ("Cases created", "created"),
@@ -292,7 +283,6 @@ class MetricsCaseTemplateView(TemplateView):
             )
 
         extra_context: Dict[str, Any] = {
-            "first_of_last_month": first_of_last_month,
             "progress_metrics": progress_metrics,
             "yearly_metrics": yearly_metrics,
         }
@@ -521,58 +511,47 @@ class MetricsReportTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        now: datetime = django_timezone.now()
-        first_of_this_month: datetime = datetime(
-            now.year, now.month, 1, tzinfo=timezone.utc
-        )
-        first_of_last_month: datetime = (
-            datetime(now.year, now.month - 1, 1, tzinfo=timezone.utc)
-            if now.month > 1
-            else datetime(now.year - 1, 12, 1, tzinfo=timezone.utc)
-        )
+        thirty_days_ago: datetime = get_days_ago_timestamp()
+        sixty_days_ago: datetime = get_days_ago_timestamp(days=60)
 
-        progress_metrics: List[Dict[str, Union[str, int]]] = [
-            calculate_current_month_progress(
-                now=now,
+        progress_metrics: List[ThirtyDayMetric] = [
+            ThirtyDayMetric(
                 label="Published reports",
-                this_month_value=S3Report.objects.filter(
-                    created__gte=first_of_this_month
-                )
+                last_30_day_count=S3Report.objects.filter(created__gte=thirty_days_ago)
                 .filter(latest_published=True)
                 .count(),
-                last_month_value=S3Report.objects.filter(
-                    created__gte=first_of_last_month,
+                previous_30_day_count=S3Report.objects.filter(
+                    created__gte=sixty_days_ago,
                 )
-                .filter(created__lt=first_of_this_month)
+                .filter(created__lt=thirty_days_ago)
                 .filter(latest_published=True)
                 .count(),
             ),
-            calculate_current_month_progress(
-                now=now,
+            ThirtyDayMetric(
                 label="Report views",
-                this_month_value=ReportVisitsMetrics.objects.filter(
-                    created__gte=first_of_this_month
+                last_30_day_count=ReportVisitsMetrics.objects.filter(
+                    created__gte=thirty_days_ago
                 ).count(),
-                last_month_value=ReportVisitsMetrics.objects.filter(
-                    created__gte=first_of_last_month,
+                previous_30_day_count=ReportVisitsMetrics.objects.filter(
+                    created__gte=sixty_days_ago,
                 )
-                .filter(created__lt=first_of_this_month)
+                .filter(created__lt=thirty_days_ago)
                 .count(),
             ),
-            calculate_current_month_progress(
-                now=now,
+            ThirtyDayMetric(
                 label="Reports acknowledged",
-                this_month_value=Case.objects.filter(
-                    report_acknowledged_date__gte=first_of_this_month
+                last_30_day_count=Case.objects.filter(
+                    report_acknowledged_date__gte=thirty_days_ago
                 ).count(),
-                last_month_value=Case.objects.filter(
-                    report_acknowledged_date__gte=first_of_last_month,
+                previous_30_day_count=Case.objects.filter(
+                    report_acknowledged_date__gte=sixty_days_ago,
                 )
-                .filter(report_acknowledged_date__lt=first_of_this_month)
+                .filter(report_acknowledged_date__lt=thirty_days_ago)
                 .count(),
             ),
         ]
 
+        now: datetime = django_timezone.now()
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
         published_reports_by_month: Timeseries = Timeseries(
             label="Published reports",
@@ -607,7 +586,6 @@ class MetricsReportTemplateView(TemplateView):
         ]
 
         extra_context: Dict[str, Any] = {
-            "first_of_last_month": first_of_last_month,
             "progress_metrics": progress_metrics,
             "yearly_metrics": yearly_metrics,
         }

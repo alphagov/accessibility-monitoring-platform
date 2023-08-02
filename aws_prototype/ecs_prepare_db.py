@@ -9,7 +9,7 @@ from typing import List, Any
 POSTGRES_CRED = os.getenv("DB_SECRET")
 TEMP_DB_NAME = "temp_db.sql"
 S3_BUCKET = os.getenv("DB_NAME")
-json_acceptable_string: str = POSTGRES_CRED.replace("'", "\"")
+json_acceptable_string: str = POSTGRES_CRED.replace("'", '"')
 db_secrets_dict = json.loads(json_acceptable_string)
 
 
@@ -44,10 +44,7 @@ def most_recent_db_s3_path(bucket: str):
     s3_client = boto3.client("s3")
     db_backups: List[Any] = []
     for key in s3_client.list_objects(Bucket=bucket)["Contents"]:
-        if (
-            "aws_aurora_backup/" in key["Key"]
-            and "prod-env" in key["Key"]
-        ):
+        if ".sql" in key["Key"]:
             db_backups.append(key)
     db_backups.sort(key=lambda x: x["LastModified"])
     s3_path = db_backups[-1]["Key"]
@@ -76,7 +73,8 @@ def upload_db_backup(local_path: str) -> None:
         f"-U {db_secrets_dict['username']} "
         f"-p {db_secrets_dict['port']} "
         f"-d {db_secrets_dict['dbname']} "
-        f"< {local_path}")
+        f"< {local_path}"
+    )
     os.system(psql_command)
 
 
@@ -96,10 +94,6 @@ if __name__ == "__main__":
     delete_db()
     create_db()
     db_s3_path: str = most_recent_db_s3_path(bucket=S3_BUCKET)
-    download_sql_file(
-        bucket=S3_BUCKET,
-        s3_object=db_s3_path,
-        local_path=TEMP_DB_NAME
-    )
+    download_sql_file(bucket=S3_BUCKET, s3_object=db_s3_path, local_path=TEMP_DB_NAME)
     upload_db_backup(local_path=TEMP_DB_NAME)
     redo_migrations()

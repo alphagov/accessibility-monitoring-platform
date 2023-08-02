@@ -3,8 +3,9 @@ Test - common utility functions
 """
 import pytest
 
+from datetime import date, datetime, timedelta, timezone as datetime_timezone
 from typing import Any, Dict, List, Tuple
-from datetime import date, datetime, timedelta
+from unittest.mock import patch, Mock
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -46,6 +47,7 @@ from ..utils import (
     format_statement_check_overview,
     get_dict_without_page_items,
     get_url_parameters_for_pagination,
+    get_days_ago_timestamp,
 )
 
 
@@ -406,3 +408,15 @@ def test_get_url_parameters_for_pagination(get_parameters, expected_result, rf):
     """Test get_url_parameters_for_pagination"""
     request: HttpRequest = rf.get(f"/{get_parameters}")
     assert get_url_parameters_for_pagination(request=request) == expected_result
+
+
+def test_get_days_ago_timestamp():
+    """Test timestamp for a number of days ago is calculated"""
+    with patch("accessibility_monitoring_platform.apps.common.utils.date") as mock_date:
+        mock_date.today.return_value = date(2023, 2, 1)
+        assert get_days_ago_timestamp() == datetime(
+            2023, 1, 2, 0, 0, tzinfo=datetime_timezone.utc
+        )  # 30 days before
+        assert get_days_ago_timestamp(days=31) == datetime(
+            2023, 1, 1, 0, 0, tzinfo=datetime_timezone.utc
+        )  # 31 days before
