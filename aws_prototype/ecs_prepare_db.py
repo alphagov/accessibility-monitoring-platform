@@ -10,7 +10,7 @@ POSTGRES_CRED = os.getenv("DB_SECRET", "")
 TEMP_DB_NAME = "temp_db.sql"
 S3_BUCKET = os.getenv("DB_NAME")
 json_acceptable_string: str = POSTGRES_CRED.replace("'", '"')
-db_secrets_dict = json.loads(json_acceptable_string)
+db_secrets_dict = json.loads(json_acceptable_string) if json_acceptable_string else {}
 
 
 def delete_db() -> None:
