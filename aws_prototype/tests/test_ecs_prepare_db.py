@@ -30,6 +30,7 @@ EXPECTED_CREATE_COMMAND: str = (
     """-c 'CREATE DATABASE accessibility_monitoring_app;'"""
 )
 BUCKET_NAME: str = "bucket-name"
+EXPECTED_PATH: str = "most_recent.sql"
 
 
 @patch("os.system")
@@ -72,7 +73,7 @@ def test_most_recent_db_s3_path_returns_path(mock_client, s3_client):
                     "LastModified": "2023-07-01",
                 },
                 {
-                    "Key": "recent.sql",
+                    "Key": EXPECTED_PATH,
                     "LastModified": "2023-07-02",
                 },
                 {
@@ -87,4 +88,7 @@ def test_most_recent_db_s3_path_returns_path(mock_client, s3_client):
 
     mock_client.return_value = s3_client
 
-    assert most_recent_db_s3_path(bucket=BUCKET_NAME) == "recent.sql"
+    with patch(
+        "aws_prototype.ecs_prepare_db.POSTGRES_CRED", TEST_POSTGRES_CREDENTIALS_STR
+    ), patch("aws_prototype.ecs_prepare_db.db_secrets_dict", TEST_POSTGRES_CREDENTIALS):
+        assert most_recent_db_s3_path(bucket=BUCKET_NAME) == EXPECTED_PATH
