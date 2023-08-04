@@ -29,6 +29,9 @@ def delete_db() -> None:
 
 
 def create_db() -> None:
+    if POSTGRES_CRED == "":
+        raise TypeError("DB_SECRET is missing")
+
     psql_command = (
         f"PGPASSWORD={db_secrets_dict['password']} "
         "psql "
