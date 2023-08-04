@@ -19,3 +19,6 @@ type: Environment
 # Configure observability for your environment resources.
 observability:
   container_insights: false
+
+variables:
+  AMP_PROTOTYPE_NAME: TEST
