@@ -16,6 +16,12 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Policy metrics</h1>
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
+                {% for total_metric in total_metrics %}
+                    <h2 class="govuk-heading-m">{{ total_metric.label }}</h2>
+                    <p id="{{ progress_metric.label|slugify }}" class="govuk-body-m">
+                        <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ total_metric.total|intcomma }}</b></span>
+                    </p>
+                {% endfor %}
                 {% for progress_metric in progress_metrics %}
                     <h2 class="govuk-heading-m">{{ progress_metric.label }}</h2>
                     <p id="{{ progress_metric.label|slugify }}" class="govuk-body-m">
