@@ -19,6 +19,7 @@ NOTIFY_SECRET_STR: str = json.dumps(NOTIFY_SECRET)
 
 @pytest.fixture
 def secretmanager_client():
+    """AWS client for use with stubber"""
     return boto3.client("secretsmanager", region_name="eu-west-2")
 
 

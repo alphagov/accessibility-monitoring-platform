@@ -90,7 +90,7 @@ def redo_migrations() -> None:
     os.system("python ./manage.py migrate")
 
 
-if __name__ == "__main__":
+def main():
     if POSTGRES_CRED == "":
         raise TypeError("DB_SECRET is missing")
 
@@ -100,3 +100,7 @@ if __name__ == "__main__":
     download_sql_file(bucket=S3_BUCKET, s3_object=db_s3_path, local_path=TEMP_DB_NAME)
     upload_db_backup(local_path=TEMP_DB_NAME)
     redo_migrations()
+
+
+if __name__ == "__main__":
+    main()
