@@ -208,7 +208,11 @@ STATICFILES_FINDERS = (
 STATICFILES_DIRS = [f"{Path(BASE_DIR).parent}/common/static/compiled"]
 STATIC_URL = os.path.join(BASE_DIR, "/static/")
 STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 CONTACT_ADMIN_EMAIL = (
     "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"

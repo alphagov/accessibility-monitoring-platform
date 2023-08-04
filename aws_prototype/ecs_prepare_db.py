@@ -6,16 +6,16 @@ from typing import List, Any
 
 # from main import get_copilot_s3_bucket
 
-POSTGRES_CRED = os.getenv("DB_SECRET")
+POSTGRES_CRED = os.getenv("DB_SECRET", "")
 TEMP_DB_NAME = "temp_db.sql"
 S3_BUCKET = os.getenv("DB_NAME")
 json_acceptable_string: str = POSTGRES_CRED.replace("'", '"')
-db_secrets_dict = json.loads(json_acceptable_string)
+db_secrets_dict = json.loads(json_acceptable_string) if json_acceptable_string else {}
 
 
 def delete_db() -> None:
-    if POSTGRES_CRED is None:
-        raise TypeError("DB_SECRET is None")
+    if POSTGRES_CRED == "":
+        raise TypeError("DB_SECRET is missing")
 
     psql_command = (
         f"PGPASSWORD={db_secrets_dict['password']} "
@@ -29,6 +29,9 @@ def delete_db() -> None:
 
 
 def create_db() -> None:
+    if POSTGRES_CRED == "":
+        raise TypeError("DB_SECRET is missing")
+
     psql_command = (
         f"PGPASSWORD={db_secrets_dict['password']} "
         "psql "
@@ -63,8 +66,8 @@ def download_sql_file(bucket: str, s3_object: str, local_path: str) -> None:
 
 
 def upload_db_backup(local_path: str) -> None:
-    if POSTGRES_CRED is None:
-        raise TypeError("DB_SECRET is None")
+    if POSTGRES_CRED == "":
+        raise TypeError("DB_SECRET is missing")
 
     psql_command = (
         f"PGPASSWORD={db_secrets_dict['password']} "
@@ -87,9 +90,9 @@ def redo_migrations() -> None:
     os.system("python ./manage.py migrate")
 
 
-if __name__ == "__main__":
-    if POSTGRES_CRED is None:
-        raise TypeError("DB_SECRET is None")
+def main():
+    if POSTGRES_CRED == "":
+        raise TypeError("DB_SECRET is missing")
 
     delete_db()
     create_db()
@@ -97,3 +100,7 @@ if __name__ == "__main__":
     download_sql_file(bucket=S3_BUCKET, s3_object=db_s3_path, local_path=TEMP_DB_NAME)
     upload_db_backup(local_path=TEMP_DB_NAME)
     redo_migrations()
+
+
+if __name__ == "__main__":
+    main()
