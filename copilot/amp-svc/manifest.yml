@@ -14,7 +14,7 @@ http:
   # To match all requests you can use the "/" path.
   path: '/'
   # You can specify a custom health check path. The default is "/".
-  healthcheck: 
+  healthcheck:
     path: '/healthcheck/'
     healthy_threshold: 2
     unhealthy_threshold: 4
@@ -47,7 +47,7 @@ exec: true     # Enable running commands in your container.
 
 #secrets:                      # Pass secrets from AWS Systems Manager (SSM) Parameter Store.
 #  GITHUB_TOKEN: GITHUB_TOKEN  # The key is the name of the environment variable, the value is the name of the SSM parameter.
-variables:                    
+variables:
   PORT: 8001
   DEBUG: FALSE
   INTEGRATION_TEST: FALSE
@@ -75,6 +75,7 @@ environments:
     variables:
       AMP_VIEWER_DOMAIN: reports-test.accessibility-monitoring.service.gov.uk
       AMP_PROTOCOL: 'https://'
+      AMP_PROTOTYPE_NAME: 'TEST'
 
 
 network:
