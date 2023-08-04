@@ -17,12 +17,18 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
-from ..audits.models import Audit, CheckResult
+from ..audits.models import (
+    Audit,
+    CheckResult,
+    CHECK_RESULT_ERROR,
+    RETEST_CHECK_RESULT_FIXED,
+)
 from ..cases.models import (
     Case,
     WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    CLOSED_CASE_STATUSES,
 )
 from ..s3_read_write.models import S3Report
 from ..reports.models import ReportVisitsMetrics
@@ -299,6 +305,28 @@ class MetricsPolicyTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+        total_metrics: List[Dict[str, int]] = [
+            {
+                "label": "Total reports sent",
+                "total": Case.objects.exclude(report_sent_date=None).count(),
+            },
+            {
+                "label": "Total cases closed",
+                "total": Case.objects.filter(status__in=CLOSED_CASE_STATUSES).count(),
+            },
+            {
+                "label": "Total number of accessibility issues found",
+                "total": CheckResult.objects.filter(
+                    check_result_state=CHECK_RESULT_ERROR
+                ).count(),
+            },
+            {
+                "label": "Total number of accessibility issues fixed",
+                "total": CheckResult.objects.filter(
+                    retest_state=RETEST_CHECK_RESULT_FIXED
+                ).count(),
+            },
+        ]
         now: datetime = django_timezone.now()
         start_date: datetime = now - timedelta(days=90)
         retested_audits: QuerySet[Audit] = Audit.objects.filter(
@@ -493,6 +521,7 @@ class MetricsPolicyTemplateView(TemplateView):
         ]
 
         extra_context: Dict[str, Any] = {
+            "total_metrics": total_metrics,
             "progress_metrics": progress_metrics,
             "equality_body_cases_completed_count": equality_body_cases_completed_count,
             "equality_body_cases_in_progress_count": equality_body_cases_in_progress_count,
