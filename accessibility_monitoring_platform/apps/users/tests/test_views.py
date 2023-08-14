@@ -152,6 +152,20 @@ def test_edit_user_loads_correctly_with_auth(client):
 
 
 @pytest.mark.django_db
+def test_edit_user_returns_403_for_other_users(client):
+    """Tests logged user cannot edit other account details"""
+    user: User = create_user()
+    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
+    other_user: User = User.objects.create()
+
+    response: HttpResponse = client.get(
+        reverse("users:edit-user", kwargs={"pk": other_user.id})
+    )
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
 def test_edit_user_loads_correctly_no_auth(client):
     """Tests if a unauthenticated user returns a 302 response"""
     user: User = create_user()
