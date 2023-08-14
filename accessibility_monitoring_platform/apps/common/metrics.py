@@ -13,9 +13,25 @@ from typing import (
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
-
+from django.utils import timezone as django_timezone
 
 from ..audits.models import Audit
+from ..cases.models import (
+    Case,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+    RECOMMENDATION_NO_ACTION,
+    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+)
+from ..s3_read_write.models import S3Report
+from ..reports.models import ReportVisitsMetrics
+
+from .chart import (
+    LineChart,
+    Timeseries,
+    TimeseriesDatapoint,
+    build_yearly_metric_chart,
+)
+from .utils import get_days_ago_timestamp
 
 ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: Dict[str, str] = {
     "declaration_state": "present",
@@ -58,21 +74,16 @@ class ThirtyDayMetric:
 
 
 @dataclass
-class TimeseriesDatapoint:
-    datetime: datetime
-    value: int
-
-
-@dataclass
-class Timeseries:
-    datapoints: List[TimeseriesDatapoint]
-    label: str = ""
-
-
-@dataclass
 class TimeseriesHtmlTable:
     column_names: List[str]
     rows: List[List[str]]
+
+
+@dataclass
+class YearlyMetric:
+    label: str
+    html_table: TimeseriesHtmlTable
+    chart: LineChart
 
 
 def calculate_metric_progress(
@@ -197,3 +208,284 @@ def convert_timeseries_to_cumulative(timeseries: Timeseries) -> Timeseries:
         )
     timeseries.datapoints = cumulative_datapoints
     return timeseries
+
+
+def get_case_progress_metrics() -> List[ThirtyDayMetric]:
+    """Return case progress metrics"""
+    thirty_days_ago: datetime = get_days_ago_timestamp(days=30)
+    sixty_days_ago: datetime = get_days_ago_timestamp(days=60)
+    return [
+        ThirtyDayMetric(
+            label="Cases created",
+            last_30_day_count=Case.objects.filter(created__gte=thirty_days_ago).count(),
+            previous_30_day_count=Case.objects.filter(created__gte=sixty_days_ago)
+            .filter(created__lt=thirty_days_ago)
+            .count(),
+        ),
+        ThirtyDayMetric(
+            label="Tests completed",
+            last_30_day_count=Case.objects.filter(
+                testing_details_complete_date__gte=thirty_days_ago
+            ).count(),
+            previous_30_day_count=Case.objects.filter(
+                testing_details_complete_date__gte=sixty_days_ago
+            )
+            .filter(testing_details_complete_date__lt=thirty_days_ago)
+            .count(),
+        ),
+        ThirtyDayMetric(
+            label="Reports sent",
+            last_30_day_count=Case.objects.filter(
+                report_sent_date__gte=thirty_days_ago
+            ).count(),
+            previous_30_day_count=Case.objects.filter(
+                report_sent_date__gte=sixty_days_ago
+            )
+            .filter(report_sent_date__lt=thirty_days_ago)
+            .count(),
+        ),
+        ThirtyDayMetric(
+            label="Cases closed",
+            last_30_day_count=Case.objects.filter(
+                completed_date__gte=thirty_days_ago
+            ).count(),
+            previous_30_day_count=Case.objects.filter(
+                completed_date__gte=sixty_days_ago
+            )
+            .filter(completed_date__lt=thirty_days_ago)
+            .count(),
+        ),
+    ]
+
+
+def get_case_yearly_metrics() -> List[YearlyMetric]:
+    """Return case yearly metrics"""
+    yearly_metrics: List[YearlyMetric] = []
+    now: datetime = django_timezone.now()
+    start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
+    for label, date_column_name in [
+        ("Cases created", "created"),
+        ("Tests completed", "testing_details_complete_date"),
+        ("Reports sent", "report_sent_date"),
+        ("Cases completed", "completed_date"),
+    ]:
+        timeseries: Timeseries = Timeseries(
+            label=label,
+            datapoints=group_timeseries_data_by_month(
+                queryset=Case.objects,
+                date_column_name=date_column_name,
+                start_date=start_date,
+            ),
+        )
+        yearly_metrics.append(
+            YearlyMetric(
+                label=f"{label} over the last year",
+                html_table=build_html_table(columns=[timeseries]),
+                chart=build_yearly_metric_chart(lines=[timeseries]),
+            )
+        )
+
+
+def get_policy_yearly_metrics() -> List[YearlyMetric]:
+    now: datetime = django_timezone.now()
+
+    thirteen_month_start_date: datetime = datetime(
+        now.year - 1, now.month, 1, tzinfo=timezone.utc
+    )
+
+    thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
+        retest_date__gte=thirteen_month_start_date
+    )
+    thirteen_month_website_initial_compliant: QuerySet[
+        Audit
+    ] = thirteen_month_retested_audits.filter(
+        case__website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
+    )
+    thirteen_month_statement_initial_compliant: QuerySet[
+        Audit
+    ] = thirteen_month_retested_audits.filter(
+        case__accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+    )
+    thirteen_month_final_no_action: QuerySet[
+        Audit
+    ] = thirteen_month_retested_audits.filter(
+        case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+    )
+    thirteen_month_statement_final_compliant: QuerySet[
+        Audit
+    ] = thirteen_month_retested_audits.filter(
+        case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+    )
+
+    retested_by_month: Timeseries = Timeseries(
+        label="Cases",
+        datapoints=group_timeseries_data_by_month(
+            queryset=thirteen_month_retested_audits,
+            date_column_name="retest_date",
+            start_date=thirteen_month_start_date,
+        ),
+    )
+    website_initial_compliant_by_month: Timeseries = Timeseries(
+        label="Initially acceptable",
+        datapoints=group_timeseries_data_by_month(
+            queryset=thirteen_month_website_initial_compliant,
+            date_column_name="retest_date",
+            start_date=thirteen_month_start_date,
+        ),
+    )
+    statement_initial_compliant_by_month: Timeseries = Timeseries(
+        label="Initially compliant",
+        datapoints=group_timeseries_data_by_month(
+            queryset=thirteen_month_statement_initial_compliant,
+            date_column_name="retest_date",
+            start_date=thirteen_month_start_date,
+        ),
+    )
+    final_no_action_by_month: Timeseries = Timeseries(
+        label="Finally acceptable",
+        datapoints=group_timeseries_data_by_month(
+            queryset=thirteen_month_final_no_action,
+            date_column_name="retest_date",
+            start_date=thirteen_month_start_date,
+        ),
+    )
+    statement_final_compliant_by_month: Timeseries = Timeseries(
+        label="Finally compliant",
+        datapoints=group_timeseries_data_by_month(
+            queryset=thirteen_month_statement_final_compliant,
+            date_column_name="retest_date",
+            start_date=thirteen_month_start_date,
+        ),
+    )
+
+    website_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+        label="Initial",
+        partial_timeseries=website_initial_compliant_by_month,
+        total_timeseries=retested_by_month,
+    )
+    website_final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+        label="Final",
+        partial_timeseries=final_no_action_by_month,
+        total_timeseries=retested_by_month,
+    )
+    statement_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+        label="Initial",
+        partial_timeseries=statement_initial_compliant_by_month,
+        total_timeseries=retested_by_month,
+    )
+    statement_final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+        label="Final",
+        partial_timeseries=statement_final_compliant_by_month,
+        total_timeseries=retested_by_month,
+    )
+
+    return [
+        YearlyMetric(
+            label="Proportion of websites which are acceptable",
+            html_table=build_html_table(
+                columns=[
+                    retested_by_month,
+                    website_initial_compliant_by_month,
+                    final_no_action_by_month,
+                ],
+            ),
+            chart=build_yearly_metric_chart(
+                lines=[website_initial_ratio, website_final_ratio],
+                y_axis_percent=True,
+            ),
+        ),
+        YearlyMetric(
+            label="Proportion of accessibility statements which are compliant",
+            html_table=build_html_table(
+                columns=[
+                    retested_by_month,
+                    statement_initial_compliant_by_month,
+                    statement_final_compliant_by_month,
+                ],
+            ),
+            chart=build_yearly_metric_chart(
+                lines=[statement_initial_ratio, statement_final_ratio],
+                y_axis_percent=True,
+            ),
+        ),
+    ]
+
+
+def get_report_progress_metrics() -> List[ThirtyDayMetric]:
+    """Return report progress metrics"""
+    thirty_days_ago: datetime = get_days_ago_timestamp()
+    sixty_days_ago: datetime = get_days_ago_timestamp(days=60)
+
+    return [
+        ThirtyDayMetric(
+            label="Published reports",
+            last_30_day_count=S3Report.objects.filter(created__gte=thirty_days_ago)
+            .filter(latest_published=True)
+            .count(),
+            previous_30_day_count=S3Report.objects.filter(
+                created__gte=sixty_days_ago,
+            )
+            .filter(created__lt=thirty_days_ago)
+            .filter(latest_published=True)
+            .count(),
+        ),
+        ThirtyDayMetric(
+            label="Report views",
+            last_30_day_count=ReportVisitsMetrics.objects.filter(
+                created__gte=thirty_days_ago
+            ).count(),
+            previous_30_day_count=ReportVisitsMetrics.objects.filter(
+                created__gte=sixty_days_ago,
+            )
+            .filter(created__lt=thirty_days_ago)
+            .count(),
+        ),
+        ThirtyDayMetric(
+            label="Reports acknowledged",
+            last_30_day_count=Case.objects.filter(
+                report_acknowledged_date__gte=thirty_days_ago
+            ).count(),
+            previous_30_day_count=Case.objects.filter(
+                report_acknowledged_date__gte=sixty_days_ago,
+            )
+            .filter(report_acknowledged_date__lt=thirty_days_ago)
+            .count(),
+        ),
+    ]
+
+
+def get_report_yearly_metrics() -> List[YearlyMetric]:
+    """Get report yearly metrics"""
+    now: datetime = django_timezone.now()
+    start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
+    published_reports_by_month: Timeseries = Timeseries(
+        label="Published reports",
+        datapoints=group_timeseries_data_by_month(
+            queryset=S3Report.objects.filter(latest_published=True),
+            date_column_name="created",
+            start_date=start_date,
+        ),
+    )
+    report_views_by_month: Timeseries = Timeseries(
+        label="Report views",
+        datapoints=group_timeseries_data_by_month(
+            queryset=ReportVisitsMetrics.objects,
+            date_column_name="created",
+            start_date=start_date,
+        ),
+    )
+
+    return [
+        YearlyMetric(
+            label="Reports published over the last year",
+            html_table=build_html_table(columns=[published_reports_by_month]),
+            chart=build_yearly_metric_chart(
+                lines=[convert_timeseries_to_cumulative(published_reports_by_month)]
+            ),
+        ),
+        YearlyMetric(
+            label="Reports views over the last year",
+            html_table=build_html_table(columns=[report_views_by_month]),
+            chart=build_yearly_metric_chart(lines=[report_views_by_month]),
+        ),
+    ]
