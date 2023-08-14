@@ -236,3 +236,9 @@ def get_dict_without_page_items(items: Iterable[Tuple[str, str]]) -> Dict[str, s
 def get_url_parameters_for_pagination(request: HttpRequest):
     """Get URL parameters from GET removing existing 'page' parameter"""
     return urllib.parse.urlencode(get_dict_without_page_items(request.GET.items()))
+
+
+def get_first_of_this_month_last_year() -> datetime:
+    """Calculate and return the first of this month last year"""
+    now: datetime = timezone.now()
+    return datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)

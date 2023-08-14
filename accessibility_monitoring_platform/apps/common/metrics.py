@@ -37,7 +37,7 @@ from .chart import (
     TimeseriesDatapoint,
     build_yearly_metric_chart,
 )
-from .utils import get_days_ago_timestamp
+from .utils import get_days_ago_timestamp, get_first_of_this_month_last_year
 
 ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: Dict[str, str] = {
     "declaration_state": "present",
@@ -283,8 +283,7 @@ def get_case_progress_metrics() -> List[ThirtyDayMetric]:
 def get_case_yearly_metrics() -> List[YearlyMetric]:
     """Return case yearly metrics"""
     yearly_metrics: List[YearlyMetric] = []
-    now: datetime = django_timezone.now()
-    start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
+    start_date: datetime = get_first_of_this_month_last_year()
     for label, date_column_name in [
         ("Cases created", "created"),
         ("Tests completed", "testing_details_complete_date"),
@@ -306,6 +305,7 @@ def get_case_yearly_metrics() -> List[YearlyMetric]:
                 chart=build_yearly_metric_chart(lines=[timeseries]),
             )
         )
+    return yearly_metrics
 
 
 def get_policy_total_metrics() -> List[TotalMetric]:
@@ -421,11 +421,7 @@ def get_equality_body_cases_metric() -> EqualityBodyCasesMetric:
 
 def get_policy_yearly_metrics() -> List[YearlyMetric]:
     """Return policy yearly metrics"""
-    now: datetime = django_timezone.now()
-
-    thirteen_month_start_date: datetime = datetime(
-        now.year - 1, now.month, 1, tzinfo=timezone.utc
-    )
+    thirteen_month_start_date: datetime = get_first_of_this_month_last_year()
 
     thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
         retest_date__gte=thirteen_month_start_date
@@ -547,7 +543,7 @@ def get_policy_yearly_metrics() -> List[YearlyMetric]:
 
 def get_report_progress_metrics() -> List[ThirtyDayMetric]:
     """Return report progress metrics"""
-    thirty_days_ago: datetime = get_days_ago_timestamp()
+    thirty_days_ago: datetime = get_days_ago_timestamp(days=30)
     sixty_days_ago: datetime = get_days_ago_timestamp(days=60)
 
     return [
@@ -590,8 +586,7 @@ def get_report_progress_metrics() -> List[ThirtyDayMetric]:
 
 def get_report_yearly_metrics() -> List[YearlyMetric]:
     """Return report yearly metrics"""
-    now: datetime = django_timezone.now()
-    start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
+    start_date: datetime = get_first_of_this_month_last_year()
     published_reports_by_month: Timeseries = Timeseries(
         label="Published reports",
         datapoints=group_timeseries_data_by_month(
