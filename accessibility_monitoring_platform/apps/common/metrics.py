@@ -2,9 +2,8 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import (
-    Any,
     Dict,
     List,
     Optional,
@@ -12,15 +11,22 @@ from typing import (
 )
 
 from django.contrib.humanize.templatetags.humanize import intcomma
+from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.utils import timezone as django_timezone
 
-from ..audits.models import Audit
+from ..audits.models import (
+    Audit,
+    CheckResult,
+    CHECK_RESULT_ERROR,
+    RETEST_CHECK_RESULT_FIXED,
+)
 from ..cases.models import (
     Case,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    CLOSED_CASE_STATUSES,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
 )
 from ..s3_read_write.models import S3Report
 from ..reports.models import ReportVisitsMetrics
@@ -80,23 +86,39 @@ class TimeseriesHtmlTable:
 
 
 @dataclass
+class ProgressMetric:
+    label: str
+    partial_count: int
+    total_count: int
+
+    @property
+    def percentage(self) -> int:
+        """Given a number done and a total return a percentage metric"""
+        return (
+            int(100 * self.partial_count / self.total_count)
+            if self.total_count > 0
+            else 0
+        )
+
+
+@dataclass
 class YearlyMetric:
     label: str
     html_table: TimeseriesHtmlTable
     chart: LineChart
 
 
-def calculate_metric_progress(
-    label: str, partial_count: int, total_count: int
-) -> Dict[str, Any]:
-    """Given a number done and a total return a percentage metric"""
-    percentage: int = int(100 * partial_count / total_count) if total_count > 0 else 0
-    return {
-        "label": label,
-        "partial_count": partial_count,
-        "total_count": total_count,
-        "percentage": percentage,
-    }
+@dataclass
+class TotalMetric:
+    label: str
+    total: int
+
+
+@dataclass
+class EqualityBodyCasesMetric:
+    label: str
+    completed_count: int
+    in_progress_count: int
 
 
 def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
@@ -286,7 +308,119 @@ def get_case_yearly_metrics() -> List[YearlyMetric]:
         )
 
 
+def get_policy_total_metrics() -> List[TotalMetric]:
+    """Return policy total metrics"""
+    return [
+        TotalMetric(
+            label="Total reports sent",
+            total=Case.objects.exclude(report_sent_date=None).count(),
+        ),
+        TotalMetric(
+            label="Total cases closed",
+            total=Case.objects.filter(status__in=CLOSED_CASE_STATUSES).count(),
+        ),
+        TotalMetric(
+            label="Total number of accessibility issues found",
+            total=CheckResult.objects.filter(
+                check_result_state=CHECK_RESULT_ERROR
+            ).count(),
+        ),
+        TotalMetric(
+            label="Total number of accessibility issues fixed",
+            total=CheckResult.objects.filter(
+                retest_state=RETEST_CHECK_RESULT_FIXED
+            ).count(),
+        ),
+    ]
+
+
+def get_policy_progress_metrics() -> List[ProgressMetric]:
+    """Return policy progress metrics"""
+    now: datetime = django_timezone.now()
+    start_date: datetime = now - timedelta(days=90)
+    retested_audits: QuerySet[Audit] = Audit.objects.filter(retest_date__gte=start_date)
+    fixed_audits: QuerySet[Audit] = retested_audits.filter(
+        case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+    )
+    fixed_audits_count: int = fixed_audits.count()
+    closed_audits: QuerySet[Audit] = retested_audits.filter(
+        Q(  # pylint: disable=unsupported-binary-operation
+            case__status="case-closed-sent-to-equalities-body"
+        )
+        | Q(case__status="complete")
+        | Q(case__status="case-closed-waiting-to-be-sent")
+        | Q(case__status="in-correspondence-with-equalities-body")
+    )
+    closed_audits_count: int = closed_audits.count()
+    compliant_audits: QuerySet[Audit] = retested_audits.filter(
+        case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+    )
+    compliant_audits_count: int = compliant_audits.count()
+    check_results_of_last_90_days: QuerySet[CheckResult] = CheckResult.objects.filter(
+        audit__retest_date__gte=start_date
+    )
+    fixed_check_results_count: int = (
+        check_results_of_last_90_days.filter(check_result_state="error")
+        .filter(retest_state="fixed")
+        .count()
+    )
+    total_check_results_count: int = (
+        check_results_of_last_90_days.filter(check_result_state="error")
+        .exclude(retest_state="not-retested")
+        .count()
+    )
+
+    fixed_statement_issues_count, statement_issues_count = count_statement_issues(
+        retested_audits
+    )
+
+    return [
+        ProgressMetric(
+            label="Websites compliant after retest in the last 90 days",
+            partial_count=fixed_audits_count,
+            total_count=closed_audits_count,
+        ),
+        ProgressMetric(
+            label="Statements compliant after retest in the last 90 days",
+            partial_count=compliant_audits_count,
+            total_count=closed_audits_count,
+        ),
+        ProgressMetric(
+            label="Website accessibility issues fixed in the last 90 days",
+            partial_count=fixed_check_results_count,
+            total_count=total_check_results_count,
+        ),
+        ProgressMetric(
+            label="Statement issues fixed in the last 90 days",
+            partial_count=fixed_statement_issues_count,
+            total_count=statement_issues_count,
+        ),
+    ]
+
+
+def get_equality_body_cases_metric() -> EqualityBodyCasesMetric:
+    """Return numbers of cases completed or in progress with equality body"""
+    now: datetime = django_timezone.now()
+
+    thirteen_month_start_date: datetime = datetime(
+        now.year - 1, now.month, 1, tzinfo=timezone.utc
+    )
+    last_year_cases: QuerySet[Case] = Case.objects.filter(
+        created__gte=thirteen_month_start_date
+    )
+    return EqualityBodyCasesMetric(
+        label="Cases completed with equalities bodies in last year",
+        completed_count=last_year_cases.filter(
+            enforcement_body_pursuing="yes-completed"
+        ).count(),
+        in_progress_count=last_year_cases.filter(
+            enforcement_body_pursuing="yes-in-progress"
+        ).count(),
+    )
+
+
 def get_policy_yearly_metrics() -> List[YearlyMetric]:
+    """Return policy yearly metrics"""
     now: datetime = django_timezone.now()
 
     thirteen_month_start_date: datetime = datetime(
@@ -455,7 +589,7 @@ def get_report_progress_metrics() -> List[ThirtyDayMetric]:
 
 
 def get_report_yearly_metrics() -> List[YearlyMetric]:
-    """Get report yearly metrics"""
+    """Return report yearly metrics"""
     now: datetime = django_timezone.now()
     start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
     published_reports_by_month: Timeseries = Timeseries(
