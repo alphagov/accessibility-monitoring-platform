@@ -11,7 +11,6 @@ from typing import (
 )
 
 from django.contrib.humanize.templatetags.humanize import intcomma
-from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
@@ -126,11 +125,20 @@ def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
     statement_issues_count: int = 0
     fixed_statement_issues_count: int = 0
     for audit in audits:
-        for fieldname, good_value in ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE.items():
-            if getattr(audit, fieldname) != good_value:
-                statement_issues_count += 1
-                if getattr(audit, f"audit_retest_{fieldname}") == good_value:
-                    fixed_statement_issues_count += 1
+        if audit.uses_statement_checks:
+            statement_issues_count += audit.failed_statement_check_results.count()
+            fixed_statement_issues_count += (
+                audit.passed_retest_statement_check_results.count()
+            )
+        else:
+            for (
+                fieldname,
+                good_value,
+            ) in ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE.items():
+                if getattr(audit, fieldname) != good_value:
+                    statement_issues_count += 1
+                    if getattr(audit, f"audit_retest_{fieldname}") == good_value:
+                        fixed_statement_issues_count += 1
     return (fixed_statement_issues_count, statement_issues_count)
 
 
@@ -339,19 +347,11 @@ def get_policy_progress_metrics() -> List[ProgressMetric]:
     now: datetime = timezone.now()
     start_date: datetime = now - timedelta(days=90)
     retested_audits: QuerySet[Audit] = Audit.objects.filter(retest_date__gte=start_date)
+    retested_audits_count: int = retested_audits.count()
     fixed_audits: QuerySet[Audit] = retested_audits.filter(
         case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
     )
     fixed_audits_count: int = fixed_audits.count()
-    closed_audits: QuerySet[Audit] = retested_audits.filter(
-        Q(  # pylint: disable=unsupported-binary-operation
-            case__status="case-closed-sent-to-equalities-body"
-        )
-        | Q(case__status="complete")
-        | Q(case__status="case-closed-waiting-to-be-sent")
-        | Q(case__status="in-correspondence-with-equalities-body")
-    )
-    closed_audits_count: int = closed_audits.count()
     compliant_audits: QuerySet[Audit] = retested_audits.filter(
         case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
     )
@@ -378,12 +378,12 @@ def get_policy_progress_metrics() -> List[ProgressMetric]:
         ProgressMetric(
             label="Websites compliant after retest in the last 90 days",
             partial_count=fixed_audits_count,
-            total_count=closed_audits_count,
+            total_count=retested_audits_count,
         ),
         ProgressMetric(
             label="Statements compliant after retest in the last 90 days",
             partial_count=compliant_audits_count,
-            total_count=closed_audits_count,
+            total_count=retested_audits_count,
         ),
         ProgressMetric(
             label="Website accessibility issues fixed in the last 90 days",
@@ -400,11 +400,7 @@ def get_policy_progress_metrics() -> List[ProgressMetric]:
 
 def get_equality_body_cases_metric() -> EqualityBodyCasesMetric:
     """Return numbers of cases completed or in progress with equality body"""
-    now: datetime = timezone.now()
-
-    thirteen_month_start_date: datetime = datetime(
-        now.year - 1, now.month, 1, tzinfo=datetime_timezone.utc
-    )
+    thirteen_month_start_date: datetime = get_first_of_this_month_last_year()
     last_year_cases: QuerySet[Case] = Case.objects.filter(
         created__gte=thirteen_month_start_date
     )
