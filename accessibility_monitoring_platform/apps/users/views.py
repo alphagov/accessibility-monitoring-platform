@@ -4,6 +4,7 @@ Views - users
 from typing import Type
 
 from django.contrib.auth import login
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -24,6 +25,14 @@ from ..common.utils import (
 from ..notifications.models import NotificationSetting
 
 from .forms import UserCreateForm, UserUpdateForm
+
+
+class SameUserTestMixin(UserPassesTestMixin):
+    """Logged in user can only get or update their own account"""
+
+    def test_func(self):
+        user: User = self.get_object()
+        return self.request.user.id == user.id
 
 
 class UserCreateView(CreateView):
@@ -55,7 +64,7 @@ class UserCreateView(CreateView):
         return HttpResponseRedirect(reverse("dashboard:home"))
 
 
-class UserUpdateView(UpdateView):
+class UserUpdateView(SameUserTestMixin, UpdateView):
     """
     View to update a user
     """
