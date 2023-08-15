@@ -1,7 +1,7 @@
 """
 Test - common utility functions
 """
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple
 import pytest
 
 from datetime import date, datetime, timezone
@@ -14,7 +14,6 @@ from ..metrics import (
     Timeseries,
     TimeseriesDatapoint,
     TimeseriesHtmlTable,
-    calculate_metric_progress,
     count_statement_issues,
     group_timeseries_data_by_month,
     build_html_table,
@@ -74,53 +73,6 @@ def test_thirty_day_metric_progress_percentage(
         previous_30_day_count=previous_30_day_count,
     )
     assert thirty_day_metric.progress_percentage == expected_progress_percentage
-
-
-@pytest.mark.parametrize(
-    "partial_count, total_count, expected_result",
-    [
-        (
-            500,
-            1000,
-            {
-                "label": METRIC_LABEL,
-                "partial_count": 500,
-                "total_count": 1000,
-                "percentage": 50,
-            },
-        ),
-        (
-            333,
-            1000,
-            {
-                "label": METRIC_LABEL,
-                "partial_count": 333,
-                "total_count": 1000,
-                "percentage": 33,
-            },
-        ),
-        (
-            0,
-            7,
-            {
-                "label": METRIC_LABEL,
-                "partial_count": 0,
-                "total_count": 7,
-                "percentage": 0,
-            },
-        ),
-    ],
-)
-def test_calculate_metric_progress(
-    partial_count: int, total_count: int, expected_result: Dict[str, Union[str, int]]
-):
-    """Test the calculation of metric progress returns the correct values"""
-    assert (
-        calculate_metric_progress(
-            label=METRIC_LABEL, partial_count=partial_count, total_count=total_count
-        )
-        == expected_result
-    )
 
 
 @pytest.mark.parametrize(

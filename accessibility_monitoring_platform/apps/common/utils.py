@@ -241,4 +241,4 @@ def get_url_parameters_for_pagination(request: HttpRequest):
 def get_first_of_this_month_last_year() -> datetime:
     """Calculate and return the first of this month last year"""
     now: datetime = timezone.now()
-    return datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
+    return datetime(now.year - 1, now.month, 1, tzinfo=datetime_timezone.utc)
