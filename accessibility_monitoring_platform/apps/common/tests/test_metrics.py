@@ -1,16 +1,24 @@
 """
 Test - common utility functions
 """
-from typing import List, Tuple
 import pytest
+from typing import List, Tuple
+from unittest.mock import patch
 
 from datetime import date, datetime, timezone
 
-from ...audits.models import Audit
-from ...cases.models import Case
+from ...audits.models import (
+    Audit,
+    Page,
+    WcagDefinition,
+    CheckResult,
+    CHECK_RESULT_ERROR,
+    RETEST_CHECK_RESULT_FIXED,
+    TEST_TYPE_AXE,
+)
+from ...cases.models import Case, CASE_COMPLETED_NO_SEND
 
 from ..metrics import (
-    ThirtyDayMetric,
     Timeseries,
     TimeseriesDatapoint,
     TimeseriesHtmlTable,
@@ -20,6 +28,12 @@ from ..metrics import (
     convert_timeseries_pair_to_ratio,
     convert_timeseries_to_cumulative,
     FIRST_COLUMN_HEADER,
+    get_case_progress_metrics,
+    ThirtyDayMetric,
+    get_case_yearly_metrics,
+    YearlyMetric,
+    get_policy_total_metrics,
+    TotalMetric,
 )
 
 METRIC_LABEL: str = "Metric label"
@@ -464,3 +478,200 @@ def test_convert_timeseries_to_cumulative():
             TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=9),
         ],
     )
+
+
+@pytest.mark.django_db
+@patch("accessibility_monitoring_platform.apps.common.utils.date")
+def test_get_case_progress_metrics(mock_date):
+    """Test case progress metrics returned"""
+    mock_date.today.return_value = date(2022, 1, 20)
+
+    Case.objects.create(
+        created=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        completed_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+    )
+    Case.objects.create(
+        created=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        completed_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
+    Case.objects.create(
+        created=datetime(2021, 12, 6, tzinfo=timezone.utc),
+        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
+        completed_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
+    )
+    Case.objects.create(
+        created=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
+        completed_date=datetime(2021, 12, 16, tzinfo=timezone.utc),
+    )
+
+    case_progress_metrics: List[ThirtyDayMetric] = get_case_progress_metrics()
+
+    assert len(case_progress_metrics) == 4
+    assert case_progress_metrics == [
+        ThirtyDayMetric(
+            label="Cases created", last_30_day_count=1, previous_30_day_count=2
+        ),
+        ThirtyDayMetric(
+            label="Tests completed", last_30_day_count=4, previous_30_day_count=0
+        ),
+        ThirtyDayMetric(
+            label="Reports sent", last_30_day_count=2, previous_30_day_count=2
+        ),
+        ThirtyDayMetric(
+            label="Cases closed", last_30_day_count=1, previous_30_day_count=3
+        ),
+    ]
+
+
+@pytest.mark.django_db
+@patch("accessibility_monitoring_platform.apps.common.utils.timezone")
+def test_get_case_yearly_metrics(mock_datetime):
+    """Test case yearly metrics returned"""
+    mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    Case.objects.create(
+        created=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        completed_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+    )
+    Case.objects.create(
+        created=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        completed_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
+    Case.objects.create(
+        created=datetime(2021, 12, 6, tzinfo=timezone.utc),
+        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
+        completed_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
+    )
+    Case.objects.create(
+        created=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
+        completed_date=datetime(2021, 12, 16, tzinfo=timezone.utc),
+    )
+
+    case_yearly_metrics: List[YearlyMetric] = get_case_yearly_metrics()
+
+    assert len(case_yearly_metrics)
+    assert case_yearly_metrics[0].label == "Cases created over the last year"
+    assert case_yearly_metrics[0].html_table == TimeseriesHtmlTable(
+        column_names=["Month", "Cases created"],
+        rows=[
+            ["January 2021", "0"],
+            ["February 2021", "0"],
+            ["March 2021", "0"],
+            ["April 2021", "0"],
+            ["May 2021", "0"],
+            ["June 2021", "0"],
+            ["July 2021", "0"],
+            ["August 2021", "0"],
+            ["September 2021", "0"],
+            ["October 2021", "0"],
+            ["November 2021", "1"],
+            ["December 2021", "2"],
+            ["January 2022", "1"],
+        ],
+    )
+    assert case_yearly_metrics[1].label == "Tests completed over the last year"
+    assert case_yearly_metrics[1].html_table == TimeseriesHtmlTable(
+        column_names=["Month", "Tests completed"],
+        rows=[
+            ["January 2021", "0"],
+            ["February 2021", "0"],
+            ["March 2021", "0"],
+            ["April 2021", "0"],
+            ["May 2021", "0"],
+            ["June 2021", "0"],
+            ["July 2021", "0"],
+            ["August 2021", "0"],
+            ["September 2021", "0"],
+            ["October 2021", "0"],
+            ["November 2021", "0"],
+            ["December 2021", "0"],
+            ["January 2022", "4"],
+        ],
+    )
+    assert case_yearly_metrics[2].label == "Reports sent over the last year"
+    assert case_yearly_metrics[2].html_table == TimeseriesHtmlTable(
+        column_names=["Month", "Reports sent"],
+        rows=[
+            ["January 2021", "0"],
+            ["February 2021", "0"],
+            ["March 2021", "0"],
+            ["April 2021", "0"],
+            ["May 2021", "0"],
+            ["June 2021", "0"],
+            ["July 2021", "0"],
+            ["August 2021", "0"],
+            ["September 2021", "0"],
+            ["October 2021", "0"],
+            ["November 2021", "0"],
+            ["December 2021", "2"],
+            ["January 2022", "2"],
+        ],
+    )
+    assert case_yearly_metrics[3].label == "Cases completed over the last year"
+    assert case_yearly_metrics[3].html_table == TimeseriesHtmlTable(
+        column_names=["Month", "Cases completed"],
+        rows=[
+            ["January 2021", "0"],
+            ["February 2021", "0"],
+            ["March 2021", "0"],
+            ["April 2021", "0"],
+            ["May 2021", "0"],
+            ["June 2021", "0"],
+            ["July 2021", "0"],
+            ["August 2021", "0"],
+            ["September 2021", "0"],
+            ["October 2021", "0"],
+            ["November 2021", "0"],
+            ["December 2021", "3"],
+            ["January 2022", "1"],
+        ],
+    )
+
+
+@pytest.mark.django_db
+def test_get_policy_total_metrics():
+    """Test policy total metrics returned"""
+    case: Case = Case.objects.create(
+        report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+    )
+    Case.objects.create(
+        report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        case_completed=CASE_COMPLETED_NO_SEND,
+    )
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+        retest_state=RETEST_CHECK_RESULT_FIXED,
+    )
+
+    assert get_policy_total_metrics() == [
+        TotalMetric(label="Total reports sent", total=2),
+        TotalMetric(label="Total cases closed", total=1),
+        TotalMetric(label="Total number of accessibility issues found", total=2),
+        TotalMetric(label="Total number of accessibility issues fixed", total=1),
+    ]

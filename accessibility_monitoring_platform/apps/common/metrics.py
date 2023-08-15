@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone as datetime_timezone, timedelta
 from typing import (
     Dict,
     List,
@@ -13,7 +13,7 @@ from typing import (
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models import Q
 from django.db.models.query import QuerySet
-from django.utils import timezone as django_timezone
+from django.utils import timezone
 
 from ..audits.models import (
     Audit,
@@ -149,7 +149,7 @@ def group_timeseries_data_by_month(
     month_dates: List[datetime] = []
     for _ in range(13):
         month_dates.append(
-            datetime(current_year, current_month, 1, tzinfo=timezone.utc)
+            datetime(current_year, current_month, 1, tzinfo=datetime_timezone.utc)
         )
         if current_month < 12:
             current_month += 1
@@ -336,7 +336,7 @@ def get_policy_total_metrics() -> List[TotalMetric]:
 
 def get_policy_progress_metrics() -> List[ProgressMetric]:
     """Return policy progress metrics"""
-    now: datetime = django_timezone.now()
+    now: datetime = timezone.now()
     start_date: datetime = now - timedelta(days=90)
     retested_audits: QuerySet[Audit] = Audit.objects.filter(retest_date__gte=start_date)
     fixed_audits: QuerySet[Audit] = retested_audits.filter(
@@ -400,10 +400,10 @@ def get_policy_progress_metrics() -> List[ProgressMetric]:
 
 def get_equality_body_cases_metric() -> EqualityBodyCasesMetric:
     """Return numbers of cases completed or in progress with equality body"""
-    now: datetime = django_timezone.now()
+    now: datetime = timezone.now()
 
     thirteen_month_start_date: datetime = datetime(
-        now.year - 1, now.month, 1, tzinfo=timezone.utc
+        now.year - 1, now.month, 1, tzinfo=datetime_timezone.utc
     )
     last_year_cases: QuerySet[Case] = Case.objects.filter(
         created__gte=thirteen_month_start_date

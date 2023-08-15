@@ -272,7 +272,7 @@ def test_issue_report_link(prototype_name, issue_report_link_expected, admin_cli
         ("completed_date", "cases-closed", "cases closed"),
     ],
 )
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 @patch("accessibility_monitoring_platform.apps.common.utils.date")
 def test_case_progress_metric_over(
     mock_date, mock_timezone, case_field, metric_id, lowercase_label, admin_client
@@ -314,7 +314,7 @@ def test_case_progress_metric_over(
         ("completed_date", "cases-closed", "cases closed"),
     ],
 )
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 @patch("accessibility_monitoring_platform.apps.common.utils.date")
 def test_case_progress_metric_under(
     mock_date, mock_timezone, case_field, metric_id, lowercase_label, admin_client
@@ -382,7 +382,7 @@ def test_case_yearly_metric(mock_timezone, label, table_id, case_field, admin_cl
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 def test_policy_progress_metric_website_compliance(mock_timezone, admin_client):
     """
     Test policy progress metric for website compliance is calculated correctly.
@@ -416,7 +416,7 @@ def test_policy_progress_metric_website_compliance(mock_timezone, admin_client):
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client):
     """
     Test policy progress metric for website compliance is calculated correctly.
@@ -450,7 +450,7 @@ def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 def test_policy_progress_metric_website_issues(mock_timezone, admin_client):
     """
     Test policy progress metric for website accessibility issues is calculated correctly.
@@ -493,7 +493,7 @@ def test_policy_progress_metric_website_issues(mock_timezone, admin_client):
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
     """
     Test policy progress metric for accessibility statement issues is calculated correctly.
@@ -524,7 +524,7 @@ def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 def test_policy_metric_completed_with_equalities_bodies(mock_timezone, admin_client):
     """
     Test policy metric for completed cases with equalities bodies.
@@ -676,7 +676,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 @patch("accessibility_monitoring_platform.apps.common.utils.date")
 def test_report_published_progress_metric_over(mock_date, mock_timezone, admin_client):
     """
@@ -714,7 +714,7 @@ def test_report_published_progress_metric_over(mock_date, mock_timezone, admin_c
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 @patch("accessibility_monitoring_platform.apps.common.utils.date")
 def test_report_published_progress_metric_under(mock_date, mock_timezone, admin_client):
     """
@@ -753,7 +753,7 @@ def test_report_published_progress_metric_under(mock_date, mock_timezone, admin_
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 @patch("accessibility_monitoring_platform.apps.common.utils.date")
 def test_report_viewed_progress_metric_under(mock_date, mock_timezone, admin_client):
     """
@@ -790,7 +790,7 @@ def test_report_viewed_progress_metric_under(mock_date, mock_timezone, admin_cli
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.django_timezone")
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 @patch("accessibility_monitoring_platform.apps.common.utils.date")
 def test_report_acknowledged_progress_metric_under(
     mock_date, mock_timezone, admin_client
