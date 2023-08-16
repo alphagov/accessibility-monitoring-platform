@@ -12,6 +12,8 @@ from ...audits.models import (
     Page,
     WcagDefinition,
     CheckResult,
+    StatementCheck,
+    StatementCheckResult,
     CHECK_RESULT_ERROR,
     RETEST_CHECK_RESULT_FIXED,
     TEST_TYPE_AXE,
@@ -106,225 +108,60 @@ def test_thirty_day_metric_progress_percentage(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "audit_params, expected_result",
+    "audit_params, expected_fixed, expected_total",
     [
-        ([{}], (0, 11)),
-        ([{"declaration_state": "not-present"}], (0, 11)),
-        ([{"declaration_state": "present"}], (0, 10)),
-        (
-            [
-                {
-                    "declaration_state": "present",
-                    "audit_retest_declaration_state": "present",
-                }
-            ],
-            (0, 10),
-        ),
-        (
-            [
-                {
-                    "declaration_state": "not-present",
-                    "audit_retest_declaration_state": "present",
-                }
-            ],
-            (1, 11),
-        ),
-        ([{"scope_state": "not-present"}], (0, 11)),
-        ([{"scope_state": "present"}], (0, 10)),
-        ([{"scope_state": "present", "audit_retest_scope_state": "present"}], (0, 10)),
-        (
-            [{"scope_state": "not-present", "audit_retest_scope_state": "present"}],
-            (1, 11),
-        ),
-        ([{"compliance_state": "not-present"}], (0, 11)),
-        ([{"compliance_state": "present"}], (0, 10)),
-        (
-            [
-                {
-                    "compliance_state": "present",
-                    "audit_retest_compliance_state": "present",
-                }
-            ],
-            (0, 10),
-        ),
-        (
-            [
-                {
-                    "compliance_state": "not-present",
-                    "audit_retest_compliance_state": "present",
-                }
-            ],
-            (1, 11),
-        ),
-        ([{"non_regulation_state": "not-present"}], (0, 11)),
-        ([{"non_regulation_state": "present"}], (0, 10)),
-        (
-            [
-                {
-                    "non_regulation_state": "present",
-                    "audit_retest_non_regulation_state": "present",
-                }
-            ],
-            (0, 10),
-        ),
-        (
-            [
-                {
-                    "non_regulation_state": "not-present",
-                    "audit_retest_non_regulation_state": "present",
-                }
-            ],
-            (1, 11),
-        ),
-        ([{"preparation_date_state": "not-present"}], (0, 11)),
-        ([{"preparation_date_state": "present"}], (0, 10)),
-        (
-            [
-                {
-                    "preparation_date_state": "present",
-                    "audit_retest_preparation_date_state": "present",
-                }
-            ],
-            (0, 10),
-        ),
-        (
-            [
-                {
-                    "preparation_date_state": "not-present",
-                    "audit_retest_preparation_date_state": "present",
-                }
-            ],
-            (1, 11),
-        ),
-        ([{"method_state": "not-present"}], (0, 11)),
-        ([{"method_state": "present"}], (0, 10)),
-        (
-            [{"method_state": "present", "audit_retest_method_state": "present"}],
-            (0, 10),
-        ),
-        (
-            [{"method_state": "not-present", "audit_retest_method_state": "present"}],
-            (1, 11),
-        ),
-        ([{"review_state": "not-present"}], (0, 11)),
-        ([{"review_state": "present"}], (0, 10)),
-        (
-            [{"review_state": "present", "audit_retest_review_state": "present"}],
-            (0, 10),
-        ),
-        (
-            [{"review_state": "not-present", "audit_retest_review_state": "present"}],
-            (1, 11),
-        ),
-        ([{"feedback_state": "not-present"}], (0, 11)),
-        ([{"feedback_state": "present"}], (0, 10)),
-        (
-            [{"feedback_state": "present", "audit_retest_feedback_state": "present"}],
-            (0, 10),
-        ),
-        (
-            [
-                {
-                    "feedback_state": "not-present",
-                    "audit_retest_feedback_state": "present",
-                }
-            ],
-            (1, 11),
-        ),
-        ([{"contact_information_state": "not-present"}], (0, 11)),
-        ([{"contact_information_state": "present"}], (0, 10)),
-        (
-            [
-                {
-                    "contact_information_state": "present",
-                    "audit_retest_contact_information_state": "present",
-                }
-            ],
-            (0, 10),
-        ),
-        (
-            [
-                {
-                    "contact_information_state": "not-present",
-                    "audit_retest_contact_information_state": "present",
-                }
-            ],
-            (1, 11),
-        ),
-        ([{"enforcement_procedure_state": "not-present"}], (0, 11)),
-        ([{"enforcement_procedure_state": "present"}], (0, 10)),
-        (
-            [
-                {
-                    "enforcement_procedure_state": "present",
-                    "audit_retest_enforcement_procedure_state": "present",
-                }
-            ],
-            (0, 10),
-        ),
-        (
-            [
-                {
-                    "enforcement_procedure_state": "not-present",
-                    "audit_retest_enforcement_procedure_state": "present",
-                }
-            ],
-            (1, 11),
-        ),
-        ([{"access_requirements_state": "req-not-met"}], (0, 11)),
-        ([{"access_requirements_state": "req-met"}], (0, 10)),
-        (
-            [
-                {
-                    "access_requirements_state": "req-met",
-                    "audit_retest_access_requirements_state": "req-met",
-                }
-            ],
-            (0, 10),
-        ),
-        (
-            [
-                {
-                    "access_requirements_state": "req-not-met",
-                    "audit_retest_access_requirements_state": "req-met",
-                }
-            ],
-            (1, 11),
-        ),
-        (
-            [
-                {
-                    "access_requirements_state": "req-not-met",
-                    "audit_retest_access_requirements_state": "req-met",
-                },
-                {"scope_state": "not-present", "audit_retest_scope_state": "present"},
-                {"scope_state": "not-present", "audit_retest_scope_state": "present"},
-            ],
-            (3, 33),
-        ),
-        (
-            [
-                {
-                    "access_requirements_state": "req-not-met",
-                    "audit_retest_access_requirements_state": "req-met",
-                    "scope_state": "not-present",
-                    "audit_retest_scope_state": "present",
-                    "compliance_state": "not-present",
-                    "audit_retest_compliance_state": "present",
-                },
-            ],
-            (3, 11),
-        ),
+        ({"declaration_state": "present"}, 0, 10),
+        ({"declaration_state": "not-present"}, 0, 11),
+        ({"audit_retest_declaration_state": "present"}, 1, 11),
+        ({"audit_retest_declaration_state": "not-present"}, 0, 11),
+    ],
+)
+def test_count_statement_issues_old_style(
+    audit_params: Dict[str, str], expected_fixed: int, expected_total: int
+):
+    """
+    Test counting issues and fixed issues for accessibility statements
+    prior to the introduction of statement check results.
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(**audit_params, case=case)
+    assert count_statement_issues(audits=Audit.objects.all()) == (
+        expected_fixed,
+        expected_total,
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "statement_check_result_params, expected_fixed, expected_total",
+    [
+        ({}, 0, 0),
+        ({"check_result_state": "yes"}, 0, 0),
+        ({"check_result_state": "no"}, 0, 1),
+        ({"check_result_state": "no", "retest_state": "yes"}, 1, 1),
+        ({"check_result_state": "no", "retest_state": "no"}, 0, 1),
     ],
 )
 def test_count_statement_issues(
-    audit_params: Dict[str, str], expected_result: Tuple[int, int]
+    statement_check_result_params: Dict[str, str],
+    expected_fixed: int,
+    expected_total: int,
 ):
     """Test counting issues and fixed issues for accessibility statements"""
-    for audit_param in audit_params:
-        case: Case = Case.objects.create()
-        Audit.objects.create(**audit_param, case=case)
-    assert count_statement_issues(audits=Audit.objects.all()) == expected_result
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    StatementCheckResult.objects.create(
+        **statement_check_result_params,
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+    )
+
+    assert count_statement_issues(audits=Audit.objects.all()) == (
+        expected_fixed,
+        expected_total,
+    )
 
 
 @pytest.mark.django_db

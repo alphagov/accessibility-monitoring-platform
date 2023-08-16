@@ -524,7 +524,7 @@ def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
+@patch("accessibility_monitoring_platform.apps.common.utils.timezone")
 def test_policy_metric_completed_with_equalities_bodies(mock_timezone, admin_client):
     """
     Test policy metric for completed cases with equalities bodies.
