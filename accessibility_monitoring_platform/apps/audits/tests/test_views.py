@@ -1857,7 +1857,7 @@ def test_retest_pages_shows_missing_pages(admin_client):
     """Test that user is shown if page was marked as missing on retest"""
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    Page.objects.create(audit=audit, url="https://example.com")
 
     url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
 

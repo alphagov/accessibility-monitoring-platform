@@ -5,7 +5,6 @@ from typing import List, Union
 
 from django.utils import timezone
 
-from .metrics import Timeseries, TimeseriesDatapoint
 
 GRAPH_HEIGHT: int = 250
 GRAPH_WIDTH: int = 600
@@ -22,6 +21,18 @@ LINE_LABEL_STROKE_Y: int = -15
 LINE_LABEL_STROKE_LENGTH: int = 20
 LINE_LABEL_X_OFFSET: int = LINE_LABEL_STROKE_LENGTH + 10
 Y_AXIS_NUMBER_OF_TICKS: int = 5
+
+
+@dataclass
+class TimeseriesDatapoint:
+    datetime: datetime
+    value: int
+
+
+@dataclass
+class Timeseries:
+    datapoints: List[TimeseriesDatapoint]
+    label: str = ""
 
 
 @dataclass
