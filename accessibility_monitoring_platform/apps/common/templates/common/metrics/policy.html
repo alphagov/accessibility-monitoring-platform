@@ -29,10 +29,10 @@
                         {{ progress_metric.partial_count|intcomma }} out of {{ progress_metric.total_count|intcomma }}
                     </p>
                 {% endfor %}
-                <h2 class="govuk-heading-m">Cases completed with equalities bodies in last year</h2>
+                <h2 class="govuk-heading-m">{{ equality_body_cases_metric.label }}</h2>
                 <p id="cases-completed-with-equalities-bodies" class="govuk-body-m">
-                    <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ equality_body_cases_completed_count|intcomma }}</b></span>
-                    with {{ equality_body_cases_in_progress_count|intcomma }} in progress
+                    <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ equality_body_cases_metric.completed_count|intcomma }}</b></span>
+                    with {{ equality_body_cases_metric.in_progress_count|intcomma }} in progress
                 </p>
                 {% for yearly_metric in yearly_metrics %}
                     <h2 class="govuk-heading-m">{{ yearly_metric.label }}</h2>
