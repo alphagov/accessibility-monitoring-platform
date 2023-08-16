@@ -2,7 +2,7 @@
 Test - common utility functions
 """
 import pytest
-from typing import Dict, List, Tuple
+from typing import Dict, List
 from unittest.mock import patch
 
 from datetime import date, datetime, timezone
@@ -28,29 +28,28 @@ from ...cases.models import (
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 
+from ..chart import Timeseries, TimeseriesDatapoint
 from ..metrics import (
-    Timeseries,
-    TimeseriesDatapoint,
     TimeseriesHtmlTable,
+    ThirtyDayMetric,
+    YearlyMetric,
+    TotalMetric,
+    ProgressMetric,
+    EqualityBodyCasesMetric,
     count_statement_issues,
     group_timeseries_data_by_month,
     build_html_table,
     convert_timeseries_pair_to_ratio,
     convert_timeseries_to_cumulative,
-    FIRST_COLUMN_HEADER,
     get_case_progress_metrics,
-    ThirtyDayMetric,
     get_case_yearly_metrics,
-    YearlyMetric,
     get_policy_total_metrics,
-    TotalMetric,
     get_policy_progress_metrics,
-    ProgressMetric,
     get_equality_body_cases_metric,
-    EqualityBodyCasesMetric,
     get_policy_yearly_metrics,
     get_report_progress_metrics,
     get_report_yearly_metrics,
+    FIRST_COLUMN_HEADER,
 )
 
 METRIC_LABEL: str = "Metric label"
@@ -541,6 +540,28 @@ def test_get_policy_total_metrics():
         TotalMetric(label="Total number of accessibility issues found", total=2),
         TotalMetric(label="Total number of accessibility issues fixed", total=1),
     ]
+
+
+@pytest.mark.parametrize(
+    "partial_count, total_count, expected_percentage",
+    [
+        (5, 10, 50),
+        (0, 10, 0),
+        (5, 0, 0),
+        (5, 1, 500),
+    ],
+)
+def test_progress_metric_percentage(
+    partial_count: int, total_count: int, expected_percentage: int
+):
+    """iTest progress metric calculates percentage"""
+    progress_metric: ProgressMetric = ProgressMetric(
+        label="label",
+        partial_count=partial_count,
+        total_count=total_count,
+    )
+
+    assert progress_metric.percentage == expected_percentage
 
 
 @pytest.mark.django_db

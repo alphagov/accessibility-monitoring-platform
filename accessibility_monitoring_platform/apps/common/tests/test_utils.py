@@ -5,7 +5,7 @@ import pytest
 
 from datetime import date, datetime, timedelta, timezone as datetime_timezone
 from typing import Any, Dict, List, Tuple
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -48,6 +48,7 @@ from ..utils import (
     get_dict_without_page_items,
     get_url_parameters_for_pagination,
     get_days_ago_timestamp,
+    get_first_of_this_month_last_year,
 )
 
 
@@ -420,3 +421,25 @@ def test_get_days_ago_timestamp():
         assert get_days_ago_timestamp(days=31) == datetime(
             2023, 1, 1, 0, 0, tzinfo=datetime_timezone.utc
         )  # 31 days before
+
+
+@pytest.mark.parametrize(
+    "now, expected_result",
+    [
+        (
+            datetime(2023, 8, 25, 0, 0, tzinfo=datetime_timezone.utc),
+            datetime(2022, 8, 1, 0, 0, tzinfo=datetime_timezone.utc),
+        ),
+        (
+            datetime(2022, 1, 2, 0, 0, tzinfo=datetime_timezone.utc),
+            datetime(2021, 1, 1, 0, 0, tzinfo=datetime_timezone.utc),
+        ),
+    ],
+)
+def test_get_first_of_this_month_last_year(now, expected_result):
+    """Test first of this month last year is calculated"""
+    with patch(
+        "accessibility_monitoring_platform.apps.common.utils.timezone"
+    ) as mock_timezone:
+        mock_timezone.now.return_value = now
+        assert get_first_of_this_month_last_year() == expected_result
