@@ -10,19 +10,19 @@ The report viewer is a public-facing application used for public service bodies 
 
 ## Index
 
-- [Requirements](#Requirements)
+- [Requirements](#requirements)
 
-- [How to get started](#How-to-get-started)
+- [How to get started](#how-to-get-started)
 
-- [Start local development environment](#Start-local-development-environment)
+- [Start local development environment](#start-local-development-environment)
 
-- [Testing](#Testing)
+- [Testing](#testing)
 
-- [Pulp](#Pulp)
+- [Pulp](#pulp)
 
-- [Deploying prototypes](#Deploying-prototypes)
+- [Deploying prototypes](#deploying-prototypes)
 
-- [Root dir files explainer](#Root-dir-files-explainer)
+- [Root dir files explainer](#root-dir-files-explainer)
 
 ## Requirements
 
@@ -50,7 +50,9 @@ To set up your local sandbox, follow the instructions below.
 1. Create a virtual environment
 2. Activate the virtual environment
 3. Copy .env.example as .env
-4. Run `make init`
+4. Run `pip install pre-commit` (enables pre-commit checks in
+[.pre-commit-config.yaml](https://github.com/alphagov/accessibility-monitoring-platform/blob/dev/.pre-commit-config.yaml))
+5. Run `make init`
 
 For example:
 
