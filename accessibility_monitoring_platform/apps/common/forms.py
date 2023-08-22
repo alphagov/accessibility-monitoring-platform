@@ -389,7 +389,7 @@ class AMPContactAdminForm(forms.Form):
     message = AMPTextField(label="Message")
 
 
-class CheckLoggingForm(forms.Form):
+class PlatformCheckingForm(forms.Form):
     """
     Form used to write a log message.
     """

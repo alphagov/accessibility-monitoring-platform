@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import logging
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied, BadRequest
 from django.core.mail import EmailMessage
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -21,7 +22,7 @@ from .forms import (
     ActiveQAAuditorUpdateForm,
     FrequentlyUsedLinkFormset,
     FrequentlyUsedLinkOneExtraFormset,
-    CheckLoggingForm,
+    PlatformCheckingForm,
 )
 from .metrics import (
     get_case_progress_metrics,
@@ -299,16 +300,22 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
         return url
 
 
-class CheckLoggingView(FormView):
+class PlatformCheckingView(FormView):
     """
     Write log message
     """
 
-    form_class = CheckLoggingForm
-    template_name: str = "common/check_logging.html"
-    success_url: str = reverse_lazy("common:check-logging")
+    form_class = PlatformCheckingForm
+    template_name: str = "common/platform_checking.html"
+    success_url: str = reverse_lazy("common:platform-checking")
 
     def form_valid(self, form):
+        if "trigger_400" in self.request.POST:
+            raise BadRequest
+        if "trigger_403" in self.request.POST:
+            raise PermissionDenied
+        if "trigger_500" in self.request.POST:
+            1 / 0
         logger.log(
             level=int(form.cleaned_data["level"]), msg=form.cleaned_data["message"]
         )
