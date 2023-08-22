@@ -2,6 +2,7 @@
 Tests for common views
 """
 from datetime import date, datetime, timedelta, timezone
+import logging
 import pytest
 from unittest.mock import patch, Mock
 
@@ -147,6 +148,7 @@ COMPLIANT_STATEMENTS_ROW: str = """<tr class="govuk-table__row">
 </tr>"""
 LINK_LABEL: str = "Custom frequently used link"
 LINK_URL: str = "https://example.com/custom-link"
+LOG_MESSAGE: str = "Hello"
 
 
 @pytest.mark.parametrize(
@@ -156,6 +158,7 @@ LINK_URL: str = "https://example.com/custom-link"
         ("common:edit-active-qa-auditor", ">Active QA auditor</h1>"),
         ("common:platform-history", ">Platform version history</h1>"),
         ("common:issue-report", ">Report an issue</h1>"),
+        ("common:check-logging", ">Check logging</h1>"),
         ("common:accessibility-statement", ">Accessibility statement</h1>"),
         ("common:privacy-notice", ">Privacy notice</h1>"),
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
@@ -1086,3 +1089,20 @@ def test_navbar_overdue_emboldened(admin_client, admin_user):
         </li>""",
         html=True,
     )
+
+
+def test_check_logging_writes_log(admin_client, caplog):
+    """Test check logging writes to log"""
+    response: HttpResponse = admin_client.post(
+        reverse("common:check-logging"),
+        {
+            "level": logging.WARNING,
+            "message": LOG_MESSAGE,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("common:check-logging")
+    assert caplog.record_tuples == [
+        ("accessibility_monitoring_platform.apps.common.views", 30, LOG_MESSAGE)
+    ]
