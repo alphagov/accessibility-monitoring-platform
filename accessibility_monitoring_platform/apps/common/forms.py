@@ -17,8 +17,6 @@ DEFAULT_START_DATE: datetime = datetime(
 )
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=ZoneInfo("UTC"))
 LOG_LEVEL_CHOICES: List[Tuple[int, str]] = [
-    (logging.DEBUG, "Debug"),
-    (logging.INFO, "Information"),
     (logging.WARNING, "Warning"),
     (logging.ERROR, "Error"),
     (logging.CRITICAL, "Critical"),

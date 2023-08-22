@@ -161,6 +161,29 @@ elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
         "aws_region": None,
     }
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
+    },
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {levelname} {name} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "WARNING",
+        },
+    },
+}
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
