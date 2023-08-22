@@ -2,7 +2,8 @@
 Common widgets and form fields
 """
 from datetime import date, datetime
-from typing import Any, Dict, Iterable, List, Mapping, Union
+import logging
+from typing import Any, Dict, Iterable, List, Mapping, Tuple, Union
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -15,6 +16,13 @@ DEFAULT_START_DATE: datetime = datetime(
     year=1900, month=1, day=1, tzinfo=ZoneInfo("UTC")
 )
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=ZoneInfo("UTC"))
+LOG_LEVEL_CHOICES: List[Tuple[int, str]] = [
+    (logging.DEBUG, "Debug"),
+    (logging.INFO, "Information"),
+    (logging.WARNING, "Warning"),
+    (logging.ERROR, "Error"),
+    (logging.CRITICAL, "Critical"),
+]
 
 
 class VersionForm(forms.ModelForm):
@@ -381,6 +389,15 @@ class AMPContactAdminForm(forms.Form):
 
     subject = AMPCharFieldWide(label="Subject")
     message = AMPTextField(label="Message")
+
+
+class CheckLoggingForm(forms.Form):
+    """
+    Form used to write a log message.
+    """
+
+    level = AMPChoiceField(label="Level", choices=LOG_LEVEL_CHOICES)
+    message = AMPCharFieldWide(label="Message", initial="Test log message")
 
 
 class AMPIssueReportForm(forms.ModelForm):

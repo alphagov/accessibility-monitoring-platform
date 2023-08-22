@@ -2,6 +2,7 @@
 Common views
 """
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
+import logging
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -20,6 +21,7 @@ from .forms import (
     ActiveQAAuditorUpdateForm,
     FrequentlyUsedLinkFormset,
     FrequentlyUsedLinkOneExtraFormset,
+    CheckLoggingForm,
 )
 from .metrics import (
     get_case_progress_metrics,
@@ -39,6 +41,8 @@ from .utils import (
     record_model_update_event,
     record_model_create_event,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ContactAdminView(FormView):
@@ -293,3 +297,19 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
         if "add_link" in self.request.POST:
             return f"{url}?add_link=true#link-None"
         return url
+
+
+class CheckLoggingView(FormView):
+    """
+    Write log message
+    """
+
+    form_class = CheckLoggingForm
+    template_name: str = "common/check_logging.html"
+    success_url: str = reverse_lazy("common:check-logging")
+
+    def form_valid(self, form):
+        logger.log(
+            level=int(form.cleaned_data["level"]), msg=form.cleaned_data["message"]
+        )
+        return super().form_valid(form)
