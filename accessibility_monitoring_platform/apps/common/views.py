@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import logging
 
 from django.conf import settings
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied, BadRequest
 from django.core.mail import EmailMessage
 from django.db.models.query import QuerySet
@@ -300,7 +301,7 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
         return url
 
 
-class PlatformCheckingView(FormView):
+class PlatformCheckingView(UserPassesTestMixin, FormView):
     """
     Write log message
     """
@@ -308,6 +309,10 @@ class PlatformCheckingView(FormView):
     form_class = PlatformCheckingForm
     template_name: str = "common/platform_checking.html"
     success_url: str = reverse_lazy("common:platform-checking")
+
+    def test_func(self):
+        """Only staff users have access to this view"""
+        return self.request.user.is_staff
 
     def form_valid(self, form):
         if "trigger_400" in self.request.POST:
