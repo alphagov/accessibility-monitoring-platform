@@ -2,11 +2,13 @@
 Tests for common views
 """
 from datetime import date, datetime, timedelta, timezone
+import logging
 import pytest
 from unittest.mock import patch, Mock
 
 from pytest_django.asserts import assertContains, assertNotContains
 
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
@@ -25,6 +27,7 @@ from ...overdue.tests import create_case
 from ...reminders.models import Reminder
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
+from ...users.tests.test_views import create_user, VALID_USER_EMAIL, VALID_PASSWORD
 
 from ..models import FrequentlyUsedLink, Platform
 from ..utils import get_platform_settings
@@ -147,6 +150,7 @@ COMPLIANT_STATEMENTS_ROW: str = """<tr class="govuk-table__row">
 </tr>"""
 LINK_LABEL: str = "Custom frequently used link"
 LINK_URL: str = "https://example.com/custom-link"
+LOG_MESSAGE: str = "Hello"
 
 
 @pytest.mark.parametrize(
@@ -156,6 +160,7 @@ LINK_URL: str = "https://example.com/custom-link"
         ("common:edit-active-qa-auditor", ">Active QA auditor</h1>"),
         ("common:platform-history", ">Platform version history</h1>"),
         ("common:issue-report", ">Report an issue</h1>"),
+        ("common:platform-checking", ">Platform checking</h1>"),
         ("common:accessibility-statement", ">Accessibility statement</h1>"),
         ("common:privacy-notice", ">Privacy notice</h1>"),
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
@@ -1086,3 +1091,45 @@ def test_navbar_overdue_emboldened(admin_client, admin_user):
         </li>""",
         html=True,
     )
+
+
+def test_platform_checking_writes_log(admin_client, caplog):
+    """Test platform checking writes to log"""
+    response: HttpResponse = admin_client.post(
+        reverse("common:platform-checking"),
+        {
+            "level": logging.WARNING,
+            "message": LOG_MESSAGE,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("common:platform-checking")
+    assert caplog.record_tuples == [
+        ("accessibility_monitoring_platform.apps.common.views", 30, LOG_MESSAGE)
+    ]
+
+
+@pytest.mark.django_db
+def test_platform_checking_staff_access(client):
+    """Tests if staff users can access platform checking"""
+    user: User = create_user()
+    user.is_staff = True
+    user.save()
+    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
+
+    response: HttpResponse = client.get(reverse("common:platform-checking"))
+
+    assert response.status_code == 200
+    assertContains(response, "Platform checking")
+
+
+@pytest.mark.django_db
+def test_platform_checking_non_staff_access(client):
+    """Tests non-staff users cannot access platform checking"""
+    create_user()
+    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
+
+    response: HttpResponse = client.get(reverse("common:platform-checking"))
+
+    assert response.status_code == 403
