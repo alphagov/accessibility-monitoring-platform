@@ -11,8 +11,7 @@ import boto3
 from django.core.management.utils import get_random_secret_key
 
 from aws_secrets import get_notify_secret
-
-AWS_ACCOUNT_ID: str = "144664177605"
+from .utils import get_aws_resource_tags
 
 parser = argparse.ArgumentParser(description="Deploy feature branch to PaaS")
 
@@ -36,6 +35,7 @@ git_branch_name: str = "".join(e for e in git_branch_name if e.isalnum())[:4]
 first_letter_of_profile: str = os.getenv("USER", "u")[0]
 prototype_name = f"{git_branch_name}{first_letter_of_profile}"
 
+AWS_ACCOUNT_ID: str = "144664177605"
 APP_NAME: str = f"app{prototype_name}"
 ENV_NAME: str = f"env{prototype_name}"
 SECRET_KEY: str = get_random_secret_key()
@@ -149,7 +149,7 @@ def up():
     else:
         print(">>> creating app")
         os.system(
-            f"""copilot app init {APP_NAME} --domain proto.accessibility-monitoring.service.gov.uk"""
+            f"""copilot app init {APP_NAME} --domain proto.accessibility-monitoring.service.gov.uk {get_aws_resource_tags()}"""
         )
 
     env_exist: bool = does_copilot_env_already_exist(env_name=ENV_NAME)
@@ -184,8 +184,12 @@ def up():
         os.system("copilot svc init --name viewer-svc")
         os.system("copilot svc init --name amp-svc")
 
-    os.system(f"""copilot svc deploy --name viewer-svc --env {ENV_NAME}""")
-    os.system(f"""copilot svc deploy --name amp-svc --env {ENV_NAME}""")
+    os.system(
+        f"""copilot svc deploy --name viewer-svc --env {ENV_NAME} {get_aws_resource_tags(system='Viewer')}"""
+    )
+    os.system(
+        f"""copilot svc deploy --name amp-svc --env {ENV_NAME} {get_aws_resource_tags()}"""
+    )
 
     if env_exist is False:
         bucket: str = get_copilot_s3_bucket()
