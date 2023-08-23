@@ -1,3 +1,6 @@
+"""
+Check production and test platforms are working. Non-destructive checks only!
+"""
 import requests
 
 
@@ -21,6 +24,7 @@ def main():
         "https://platform.accessibility-monitoring.service.gov.uk/",
         "https://platform.accessibility-monitoring.service.gov.uk/admin/",
     ]:
+        print(f"Checking {url}")
         response = requests.get(url)
         check_response(response)
 

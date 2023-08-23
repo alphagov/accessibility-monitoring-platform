@@ -20,4 +20,4 @@ jobs:
         source venv/bin/activate
         pip install --upgrade pip
         pip install requests
-        python3 check_headers.py
+        python3 check_platforms.py
