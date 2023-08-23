@@ -176,6 +176,30 @@ elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
+    },
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {levelname} {name} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "WARNING",
+        },
+    },
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
