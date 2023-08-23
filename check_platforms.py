@@ -1,5 +1,5 @@
 """
-Check production and test platforms are working. Non-destructive checks only!
+Check test and test platforms are working. Non-destructive checks only!
 """
 import requests
 
@@ -21,7 +21,7 @@ def check_url(url: str):
 def main():
     for url in [
         "https://platform-test.accessibility-monitoring.service.gov.uk/",
-        "https://platform-test.accessibility-monitoring.service.gov.uk/admin/",
+        "https://platform-test.accessibility-monitoring.service.gov.uk/platform-admin/",
         "https://platform.accessibility-monitoring.service.gov.uk/",
         "https://platform.accessibility-monitoring.service.gov.uk/admin/",
     ]:
