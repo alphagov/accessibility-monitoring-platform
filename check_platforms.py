@@ -23,7 +23,7 @@ def main():
         "https://platform-test.accessibility-monitoring.service.gov.uk/",
         "https://platform-test.accessibility-monitoring.service.gov.uk/platform-admin/",
         "https://platform.accessibility-monitoring.service.gov.uk/",
-        "https://platform.accessibility-monitoring.service.gov.uk/admin/",
+        "https://platform.accessibility-monitoring.service.gov.uk/platform-admin/",
     ]:
         check_url(url)
 

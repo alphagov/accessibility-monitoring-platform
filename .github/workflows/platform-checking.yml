@@ -1,9 +1,7 @@
 name: Check test and production platforms
-on: pull_request
-# on:
-#   schedule:
-#     - cron: '10 9 * * *'  # At 9:10am
-#     # - cron: '0 9 * * 1-5'  # Mon-Fri at 9am
+on:
+  schedule:
+    - cron: '0 9 * * 1-5'  # Mon-Fri at 9am
 jobs:
   check:
     name: Check test and production platforms
