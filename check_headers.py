@@ -23,3 +23,7 @@ def main():
     ]:
         response = requests.get(url)
         check_response(response)
+
+
+if __name__ == "__main__":
+    main()
