@@ -45,7 +45,7 @@ urlpatterns = [
         include("accessibility_monitoring_platform.apps.notifications.urls"),
     ),
     path("accounts/", include("django.contrib.auth.urls")),
-    path(r"admin/", admin.site.urls),
+    path(r"platform-admin/", admin.site.urls),
     path(r"favicon.ico", RedirectView.as_view(url="/static/images/favicon.ico")),
     path("security.txt", get_security_txt),
     path(".well-known/security.txt", get_security_txt),

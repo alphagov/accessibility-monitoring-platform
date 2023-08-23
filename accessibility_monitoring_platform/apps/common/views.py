@@ -2,8 +2,11 @@
 Common views
 """
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
+import logging
 
 from django.conf import settings
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.exceptions import PermissionDenied, BadRequest
 from django.core.mail import EmailMessage
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -20,6 +23,7 @@ from .forms import (
     ActiveQAAuditorUpdateForm,
     FrequentlyUsedLinkFormset,
     FrequentlyUsedLinkOneExtraFormset,
+    PlatformCheckingForm,
 )
 from .metrics import (
     get_case_progress_metrics,
@@ -39,6 +43,8 @@ from .utils import (
     record_model_update_event,
     record_model_create_event,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ContactAdminView(FormView):
@@ -293,3 +299,29 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
         if "add_link" in self.request.POST:
             return f"{url}?add_link=true#link-None"
         return url
+
+
+class PlatformCheckingView(UserPassesTestMixin, FormView):
+    """
+    Write log message
+    """
+
+    form_class = PlatformCheckingForm
+    template_name: str = "common/platform_checking.html"
+    success_url: str = reverse_lazy("common:platform-checking")
+
+    def test_func(self):
+        """Only staff users have access to this view"""
+        return self.request.user.is_staff
+
+    def form_valid(self, form):
+        if "trigger_400" in self.request.POST:
+            raise BadRequest
+        if "trigger_403" in self.request.POST:
+            raise PermissionDenied
+        if "trigger_500" in self.request.POST:
+            1 / 0
+        logger.log(
+            level=int(form.cleaned_data["level"]), msg=form.cleaned_data["message"]
+        )
+        return super().form_valid(form)
