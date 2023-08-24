@@ -1,0 +1,21 @@
+name: Check test and production platforms
+on:
+  schedule:
+    - cron: '0 9 * * 1-5'  # Mon-Fri at 9am
+jobs:
+  check:
+    name: Check test and production platforms
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.11'
+    - name: Check response headers
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install requests
+        python3 check_platforms.py
