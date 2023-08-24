@@ -4,7 +4,7 @@ Utilities for aws prototype
 from typing import Dict, List, Tuple
 
 AWS_RESOURCE_TAGS = {
-    "Product": "Accessibility Monitoring Platform",
+    "Product": "Accessibility-Monitoring-Platform",
     "System": "Platform | Viewer",
     "Environment": "Prototype",
     "Owner": "a11y-monitoring-cicd-mgmt@digital.cabinet-office.gov.uk",

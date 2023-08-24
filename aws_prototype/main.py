@@ -235,4 +235,4 @@ if __name__ == "__main__":
     elif args.build_direction == "newaccount":
         create_burner_account()
     else:
-        raise Exception("Build direction needs to be up or down")
+        raise Exception("Build direction needs to be up or down or newaccount")
