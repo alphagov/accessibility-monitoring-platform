@@ -70,7 +70,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
         field_name="recommendation_for_enforcement",
     ),
     ColumnAndFieldNames(
-        column_name="Enforcement recommendation notes",
+        column_name="Enforcement recommendation notes including exemptions",
         field_name="recommendation_notes",
     ),
     ColumnAndFieldNames(
@@ -358,7 +358,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         field_name="recommendation_for_enforcement",
     ),
     ColumnAndFieldNames(
-        column_name="Enforcement recommendation notes",
+        column_name="Enforcement recommendation notes including exemptions",
         field_name="recommendation_notes",
     ),
     ColumnAndFieldNames(
@@ -433,7 +433,7 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         column_name="Closing the case date", field_name="compliance_email_sent_date"
     ),
     ColumnAndFieldNames(
-        column_name="Enforcement recommendation notes",
+        column_name="Enforcement recommendation notes including exemptions",
         field_name="recommendation_notes",
     ),
     ColumnAndFieldNames(column_name="Contact notes", field_name="contact_notes"),

@@ -1,19 +1,19 @@
 /*
-Allow user to populate Enforcement recommendation notes input field.
+Allow user to populate Enforcement recommendation notes including exemptions input field.
 */
 
 const controlId = 'amp-copy-text-control'
 const sourceId = 'copy-summary-source'
 const targetId = 'id_recommendation_notes'
 
-function copyTextToInput (event) {
+function copyTextToInput(event) {
   event.preventDefault()
   const sourceValue = document.getElementById(sourceId).value
   const target = document.getElementById(targetId)
   target.value = sourceValue
 }
 
-function keyboardCopyTextToInput (event) {
+function keyboardCopyTextToInput(event) {
   event.preventDefault()
   if (event.code === 'Enter' || event.code === 'Space') {
     copyTextToInput(event)
