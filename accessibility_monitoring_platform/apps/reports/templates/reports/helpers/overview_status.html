@@ -23,18 +23,18 @@
             The platform has identified changes to the test since publishing the report.
             <a href="{% url 'reports:report-confirm-publish' report.id %}" class="govuk-link govuk-link--no-visited-state">
                 Republish the report</a>
-            to update the final report.
+            to update the published report.
         </p>
         <p class="govuk-body">
             View the
             <a href="{{ report.case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                final HTML report</a>
+                published HTML report</a>
         </p>
     {% else %}
         <p class="govuk-body amp-margin-bottom-10">
             The report has been published. View the
             <a href="{{ report.case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                final HTML report</a>
+                published HTML report</a>
         </p>
         <p class="govuk-body">
             <a href="{% url 'cases:edit-report-details' report.case.id %}" class="govuk-link govuk-link--no-visited-state">

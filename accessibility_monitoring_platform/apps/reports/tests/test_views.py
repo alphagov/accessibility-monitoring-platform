@@ -308,7 +308,7 @@ def test_button_to_published_report_shown(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "View final HTML report")
+    assertContains(response, "View published HTML report")
     assertContains(response, "Republish HTML report")
     assertNotContains(response, "Publish HTML report")
 
@@ -328,7 +328,7 @@ def test_button_to_published_report_not_shown(admin_client):
 
     assert response.status_code == 200
 
-    assertNotContains(response, "View final HTML report")
+    assertNotContains(response, "View published HTML report")
     assertNotContains(response, "Republish HTML report")
     assertContains(response, "Publish HTML report")
 
