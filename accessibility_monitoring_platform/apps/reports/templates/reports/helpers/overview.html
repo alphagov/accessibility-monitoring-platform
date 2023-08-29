@@ -3,6 +3,14 @@
 <h2 class="govuk-heading-m">Overview</h2>
 <div class="amp-left-border">
     {% include 'reports/helpers/overview_status.html' %}
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Version number and date published</h2>
+    <p class="govuk-body amp-margin-bottom-10">
+        {% if report.latest_s3_report %}
+            {{ report.latest_s3_report }}
+        {% else %}
+            None
+        {% endif %}
+    </p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Auditor</h2>
     <p class="govuk-body amp-margin-bottom-10">
         {% if report.case.auditor %}

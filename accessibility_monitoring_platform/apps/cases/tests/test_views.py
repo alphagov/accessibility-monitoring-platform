@@ -1343,7 +1343,7 @@ def test_report_details_shows_link_to_create_report_when_no_report_exists_and_re
     [
         ("Preview report"),
         ("Notes"),
-        ("View final HTML report"),
+        ("View published HTML report"),
         ("Report views"),
         ("Unique visitors to report"),
     ],
@@ -2647,7 +2647,7 @@ def test_platform_qa_process_shows_link_to_s3_report(admin_client):
             <div class="govuk-hint">
                 <a href="{s3_report_url}" rel="noreferrer noopener"
                     target="_blank" class="govuk-link">
-                    View final HTML report
+                    View published HTML report
                 </a>
             </div>
         </div>""",
@@ -2657,7 +2657,7 @@ def test_platform_qa_process_shows_link_to_s3_report(admin_client):
 
 def test_non_platform_qa_process_shows_final_report_fields(admin_client):
     """
-    Test that the QA process page shows the final report fields
+    Test that the QA process page shows the published report fields
     when the report methodology is not platform.
     """
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
@@ -2673,7 +2673,7 @@ def test_non_platform_qa_process_shows_final_report_fields(admin_client):
 
 def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     """
-    Test that the QA process page does not show the final report fields
+    Test that the QA process page does not show the published report fields
     when the report methodology is platform.
     """
     case: Case = Case.objects.create()

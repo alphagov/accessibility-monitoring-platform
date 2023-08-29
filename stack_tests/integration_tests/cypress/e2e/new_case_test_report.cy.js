@@ -115,7 +115,7 @@ describe('Create case, tests and report', () => {
 
     cy.title().should('eq', `${newOrganisationName} | Report publisher`)
     cy.contains('HTML report successfully created!')
-    cy.contains('final HTML report')
+    cy.contains('published HTML report')
 
     cy.contains('Case').click()
     cy.contains('View case').click()
