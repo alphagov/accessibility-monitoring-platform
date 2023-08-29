@@ -325,3 +325,14 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
             level=int(form.cleaned_data["level"]), msg=form.cleaned_data["message"]
         )
         return super().form_valid(form)
+
+
+class IssueReportListView(ListView):
+    """
+    View of list of issue reports.
+    """
+
+    model: Type[IssueReport] = IssueReport
+    template_name: str = "common/issue_report_list.html"
+    context_object_name: str = "issue_reports"
+    paginate_by: int = 10

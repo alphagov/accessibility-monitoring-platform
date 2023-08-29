@@ -20,6 +20,7 @@ from .views import (
     MetricsReportTemplateView,
     FrequentlyUsedLinkFormsetTemplateView,
     PlatformCheckingView,
+    IssueReportListView,
 )
 
 app_name: str = "common"
@@ -82,5 +83,10 @@ urlpatterns: List[URLPattern] = [
         "platform-checking/",
         login_required(PlatformCheckingView.as_view()),
         name="platform-checking",
+    ),
+    path(
+        "issue-reports-list/",
+        login_required(IssueReportListView.as_view()),
+        name="issue-reports-list",
     ),
 ]
