@@ -82,7 +82,14 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     readonly_fields = ["page_url", "page_title", "description", "created", "created_by"]
     search_fields = ["page_url", "page_title", "description", "trello_ticket"]
-    list_display = ["page_title", "created_by", "created", "complete", "description"]
+    list_display = [
+        "id",
+        "page_title",
+        "created_by",
+        "created",
+        "complete",
+        "description",
+    ]
     list_filter = ["complete", "created_by"]
     fieldsets = (
         (

@@ -216,7 +216,18 @@ def down():
     restore_copilot_prod_settings()
 
 
+def write_prototype_name():
+    """
+    Write git branch name to file for use in prototype watermark in UI
+    """
+    aws_prototype_filename: str = "amp_prototype_name.txt"
+    aws_prototype_file = open(aws_prototype_filename, "w")
+    aws_prototype_file.write(git_branch_name)
+    aws_prototype_file.close()
+
+
 if __name__ == "__main__":
+    write_prototype_name()
     client = boto3.client("sts")
     account_id = client.get_caller_identity()["Account"]
     if account_id != AWS_ACCOUNT_ID:
