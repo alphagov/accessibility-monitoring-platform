@@ -18,7 +18,6 @@ omit =
         */admin.py
         */pulp/*
         */stack_tests/*
-        */deploy_feature_to_paas/*
         prepare_local_db.py
         */report_viewer/asgi.py
         */report_viewer/settings.py

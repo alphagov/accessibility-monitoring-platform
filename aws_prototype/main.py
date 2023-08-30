@@ -13,7 +13,7 @@ from django.core.management.utils import get_random_secret_key
 from aws_secrets import get_notify_secret
 from utils import get_aws_resource_tags
 
-parser = argparse.ArgumentParser(description="Deploy feature branch to PaaS")
+parser = argparse.ArgumentParser(description="Deploy feature branch to AWS")
 
 parser.add_argument(
     "-b" "--build_direction",
