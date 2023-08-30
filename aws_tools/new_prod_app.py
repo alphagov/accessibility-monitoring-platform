@@ -1,11 +1,13 @@
 """main - main function for deploy feature to AWS Copilot"""
 import argparse
 import os
+import sys
 
 import boto3
 from django.core.management.utils import get_random_secret_key
 
-from aws_secrets import get_notify_secret
+sys.path.append(".")
+from aws_prototype.aws_secrets import get_notify_secret
 
 parser = argparse.ArgumentParser(description="Deploy feature branch to PaaS")
 
@@ -23,8 +25,8 @@ SECRET_KEY: str = get_random_secret_key()
 NOTIFY_SECRETS = get_notify_secret()
 NOTIFY_API_KEY: str = NOTIFY_SECRETS["EMAIL_NOTIFY_API_KEY"]
 EMAIL_NOTIFY_BASIC_TEMPLATE: str = NOTIFY_SECRETS["EMAIL_NOTIFY_BASIC_TEMPLATE"]
-BACKUP_DB: str = "amp-aurora-backup-test"
-URL = "proto.accessibility-monitoring.service.gov.uk"
+BACKUP_DB: str = "amp-aurora-backup-prod"
+URL = "accessibility-monitoring.service.gov.uk"
 
 
 def get_copilot_s3_bucket() -> str:

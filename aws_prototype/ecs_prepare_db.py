@@ -100,7 +100,6 @@ def main():
     download_sql_file(bucket=S3_BUCKET, s3_object=db_s3_path, local_path=TEMP_DB_NAME)
     upload_db_backup(local_path=TEMP_DB_NAME)
     redo_migrations()
-    clean_up(local_path=TEMP_DB_NAME)
 
 
 if __name__ == "__main__":
