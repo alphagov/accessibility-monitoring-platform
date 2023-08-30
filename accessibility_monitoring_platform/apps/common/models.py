@@ -69,6 +69,9 @@ class IssueReport(models.Model):
     trello_ticket = models.CharField(max_length=200, default="", blank=True)
     notes = models.TextField(default="", blank=True)
 
+    class Meta:
+        ordering = ["-id"]
+
     def __str__(self):
         return f"#{self.id} {self.page_title}"
 
