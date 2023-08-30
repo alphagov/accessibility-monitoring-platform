@@ -12,14 +12,21 @@
                 </li>
               </ul>
               <h2 class="govuk-footer__heading govuk-heading-m">Support</h2>
-              <ul class="govuk-footer__list">
-                <li class="govuk-footer__list-item">
+              <ul class="govuk-footer__inline-list">
+                <li class="govuk-footer__inline-list-item">
                   {% if django_settings.AMP_PROTOTYPE_NAME %}
                     Contact Admin
                   {% else %}
                     <a class="govuk-footer__link" href="{% url 'common:contact-admin' %}">Contact admin</a>
                   {% endif %}
                 </li>
+                {% for custom_footer_link in custom_footer_links %}
+                  <li class="govuk-footer__inline-list-item">
+                    <a class="govuk-footer__link" href="{{ custom_footer_link.url }}" target="_blank">
+                      {{ custom_footer_link.label }}
+                    </a>
+                  </li>
+                {% endfor %}
               </ul>
             </div>
         </div>

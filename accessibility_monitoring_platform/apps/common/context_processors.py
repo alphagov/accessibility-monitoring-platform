@@ -7,7 +7,7 @@ from django.conf import settings
 from django.http import HttpRequest
 from django.utils import timezone
 
-from ..common.models import FrequentlyUsedLink, Platform
+from ..common.models import FooterLink, FrequentlyUsedLink, Platform
 from ..common.utils import get_platform_settings
 from ..notifications.utils import get_number_of_unread_notifications
 from ..reminders.utils import get_number_of_reminders_for_user
@@ -37,4 +37,5 @@ def platform_page(
         "custom_frequently_used_links": FrequentlyUsedLink.objects.filter(
             is_deleted=False
         ),
+        "custom_footer_links": FooterLink.objects.filter(is_deleted=False),
     }

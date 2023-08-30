@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from django.contrib.auth.models import User
 from django import forms
 
-from .models import FrequentlyUsedLink, IssueReport, Platform
+from .models import FooterLink, FrequentlyUsedLink, IssueReport, Platform
 from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(
@@ -466,4 +466,28 @@ FrequentlyUsedLinkFormset: Any = forms.modelformset_factory(
 )
 FrequentlyUsedLinkOneExtraFormset: Any = forms.modelformset_factory(
     FrequentlyUsedLink, FrequentlyUsedLinkUpdateForm, extra=1
+)
+
+
+class FooterLinkUpdateForm(forms.ModelForm):
+    """
+    Form for updating a footer link
+    """
+
+    label = AMPCharFieldWide(label="Label")
+    url = AMPURLField(label="URL")
+
+    class Meta:
+        model = FooterLink
+        fields = [
+            "label",
+            "url",
+        ]
+
+
+FooterLinkFormset: Any = forms.modelformset_factory(
+    FooterLink, FooterLinkUpdateForm, extra=0
+)
+FooterLinkOneExtraFormset: Any = forms.modelformset_factory(
+    FooterLink, FooterLinkUpdateForm, extra=1
 )

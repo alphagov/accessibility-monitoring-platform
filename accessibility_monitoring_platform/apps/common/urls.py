@@ -19,6 +19,7 @@ from .views import (
     MetricsPolicyTemplateView,
     MetricsReportTemplateView,
     FrequentlyUsedLinkFormsetTemplateView,
+    FooterLinkFormsetTemplateView,
     PlatformCheckingView,
     IssueReportListView,
 )
@@ -63,6 +64,11 @@ urlpatterns: List[URLPattern] = [
         "edit-frequently-used-links/",
         login_required(FrequentlyUsedLinkFormsetTemplateView.as_view()),
         name="edit-frequently-used-links",
+    ),
+    path(
+        "edit-footer-links/",
+        login_required(FooterLinkFormsetTemplateView.as_view()),
+        name="edit-footer-links",
     ),
     path(
         "metrics-case/",
