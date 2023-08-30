@@ -382,20 +382,3 @@ def test_show_warning(today, expected_result):
     with mock.patch("report_viewer.apps.viewer.utils.date") as mock_date:
         mock_date.today.return_value = today
         assert show_warning() is expected_result
-
-
-def test_status_page(admin_client):
-    """Tests status content reflects environment variables"""
-    os.environ["VCAP_SERVICES"] = "vcap"
-    os.environ["COPILOT_APPLICATION_NAME"] = "appname"
-
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "viewer:status",
-        )
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Served by PaaS")
-    assertContains(response, "Served by AWS")

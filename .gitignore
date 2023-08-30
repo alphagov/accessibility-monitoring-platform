@@ -8,7 +8,6 @@ db.sqlite3
 /report_viewer/static/CACHE/
 /report_viewer/static/compiled/*
 data/s3_files/*
-deploy_feature_to_paas/manifest.yml
 *.pyc
 ./docker/data/
 chromedriver**
