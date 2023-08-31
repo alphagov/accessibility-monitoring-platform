@@ -14,6 +14,7 @@ from .models import (
     Sector,
     UserCacheUniqueHash,
     FrequentlyUsedLink,
+    FooterLink,
 )
 
 
@@ -130,6 +131,12 @@ class FrequentlyUsedLinksAdmin(admin.ModelAdmin):
     list_display = ["label", "url", "is_deleted"]
 
 
+class FooterLinksAdmin(admin.ModelAdmin):
+    """ "Django admin configuration for FooterLink model"""
+
+    list_display = ["label", "url", "is_deleted"]
+
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
@@ -137,3 +144,4 @@ admin.site.register(ChangeToPlatform, ChangeToPlatformAdmin)
 admin.site.register(Sector)
 admin.site.register(UserCacheUniqueHash, UserCacheUniqueHashAdmin)
 admin.site.register(FrequentlyUsedLink, FrequentlyUsedLinksAdmin)
+admin.site.register(FooterLink, FooterLinksAdmin)

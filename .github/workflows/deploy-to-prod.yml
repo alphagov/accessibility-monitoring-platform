@@ -51,7 +51,7 @@ jobs:
     name: Deploy to AWS
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install AWS Copilot
         run: |
           mkdir -p $GITHUB_WORKSPACE/bin
@@ -89,7 +89,7 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
           SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
           SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
-  
+
       - name: Deploy to AWS
         run: |
           copilot svc deploy --name viewer-svc --env prodenv && \

@@ -226,3 +226,19 @@ class FrequentlyUsedLink(models.Model):
 
     def get_absolute_url(self) -> str:
         return self.url
+
+
+class FooterLink(models.Model):
+    """
+    Model for links in footer
+    """
+
+    label = models.TextField(default="", blank=True)
+    url = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return str(f"{self.label}: {self.url}")
+
+    def get_absolute_url(self) -> str:
+        return self.url

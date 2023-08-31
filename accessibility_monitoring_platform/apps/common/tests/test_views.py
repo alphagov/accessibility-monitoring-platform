@@ -29,7 +29,7 @@ from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 from ...users.tests.test_views import create_user, VALID_USER_EMAIL, VALID_PASSWORD
 
-from ..models import FrequentlyUsedLink, Platform
+from ..models import FooterLink, FrequentlyUsedLink, Platform
 from ..utils import get_platform_settings
 
 EMAIL_SUBJECT: str = "Email subject"
@@ -150,6 +150,8 @@ COMPLIANT_STATEMENTS_ROW: str = """<tr class="govuk-table__row">
 </tr>"""
 LINK_LABEL: str = "Custom frequently used link"
 LINK_URL: str = "https://example.com/custom-link"
+FOOTER_LINK_LABEL: str = "Custom footer link"
+FOOTER_LINK_URL: str = "https://example.com/footer-link"
 LOG_MESSAGE: str = "Hello"
 
 
@@ -972,6 +974,88 @@ def test_delete_frequently_used_link(admin_client):
     assertContains(response, "No frequently used links have been entered")
 
     link_on_database = FrequentlyUsedLink.objects.get(pk=link.id)
+    assert link_on_database.is_deleted is True
+
+
+@pytest.mark.django_db
+def test_footer_link_shown(admin_client):
+    """Test custom footer link is displayed"""
+    case: Case = Case.objects.create()
+    FooterLink.objects.create(label=FOOTER_LINK_LABEL, url=FOOTER_LINK_URL)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(response, FOOTER_LINK_LABEL)
+    assertContains(response, FOOTER_LINK_URL)
+
+
+def test_add_footer_link_form_appears(admin_client):
+    """Test that pressing the add link button adds a new link form"""
+
+    response: HttpResponse = admin_client.post(
+        reverse("common:edit-footer-links"),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "add_link": "Button value",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "Footer link 1")
+
+
+def test_add_footer_link(admin_client):
+    """Test adding a footer link"""
+
+    response: HttpResponse = admin_client.post(
+        reverse("common:edit-footer-links"),
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "",
+            "form-0-label": FOOTER_LINK_LABEL,
+            "form-0-url": FOOTER_LINK_URL,
+            "save": "Save",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    links: QuerySet[FooterLink] = FooterLink.objects.all()
+    assert links.count() == 1
+    assert links[0].label == FOOTER_LINK_LABEL
+    assert links[0].url == FOOTER_LINK_URL
+
+
+def test_delete_footer_link(admin_client):
+    """Test that pressing the remove link button deletes the link"""
+    link: FooterLink = FooterLink.objects.create(
+        label=FOOTER_LINK_LABEL, url=FOOTER_LINK_URL
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("common:edit-footer-links"),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            f"remove_link_{link.id}": "Button value",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "No footer links have been entered")
+
+    link_on_database = FooterLink.objects.get(pk=link.id)
     assert link_on_database.is_deleted is True
 
 
