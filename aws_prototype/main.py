@@ -10,7 +10,6 @@ from typing import List
 import boto3
 from django.core.management.utils import get_random_secret_key
 
-from aws_secrets import get_notify_secret
 from utils import get_aws_resource_tags
 
 parser = argparse.ArgumentParser(description="Deploy feature branch to AWS")
@@ -39,9 +38,8 @@ AWS_ACCOUNT_ID: str = "144664177605"
 APP_NAME: str = f"app{prototype_name}"
 ENV_NAME: str = f"env{prototype_name}"
 SECRET_KEY: str = get_random_secret_key()
-NOTIFY_SECRETS = get_notify_secret()
-NOTIFY_API_KEY: str = NOTIFY_SECRETS["EMAIL_NOTIFY_API_KEY"]
-EMAIL_NOTIFY_BASIC_TEMPLATE: str = NOTIFY_SECRETS["EMAIL_NOTIFY_BASIC_TEMPLATE"]
+NOTIFY_API_KEY: str = "NO_API_KEY"
+EMAIL_NOTIFY_BASIC_TEMPLATE: str = "NO_TEMPLATE"
 BACKUP_DB: str = "db-store-for-prototypes"
 
 
