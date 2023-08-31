@@ -11,7 +11,7 @@ from django.http.response import HttpResponse
 
 from ..context_processors import platform_page
 from ..forms import AMPTopMenuForm
-from ...common.models import FrequentlyUsedLink, Platform
+from ...common.models import FooterLink, FrequentlyUsedLink, Platform
 from ...common.utils import get_platform_settings
 
 ORGANISATION_NAME: str = "Organisation name two"
@@ -70,6 +70,7 @@ def test_platform_page_template_context():
     """
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
     FrequentlyUsedLink.objects.create(label=LINK_LABEL, url=LINK_URL)
+    FooterLink.objects.create(label=LINK_LABEL, url=LINK_URL)
     mock_request = MockRequest(
         path="/",
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
@@ -88,3 +89,10 @@ def test_platform_page_template_context():
     ][0]
     assert custom_frequently_used_links.label == LINK_LABEL
     assert custom_frequently_used_links.url == LINK_URL
+
+    assert len(platform_page_context["custom_footer_links"]) == 1
+    custom_footer_links: List[FooterLink] = platform_page_context[
+        "custom_footer_links"
+    ][0]
+    assert custom_footer_links.label == LINK_LABEL
+    assert custom_footer_links.url == LINK_URL

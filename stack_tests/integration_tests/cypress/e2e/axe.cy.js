@@ -61,7 +61,8 @@ const loggedInUrls = [
   '/cases/create/',
   '/common/contact/',
   '/common/edit-active-qa-auditor/',
-  '/common/edit-active-qa-auditor/',
+  '/common/edit-frequently-used-links/',
+  '/common/edit-footer-links/',
   '/common/markdown-cheatsheet/',
   '/common/more-information/',
   '/common/metrics-case/',
@@ -91,7 +92,7 @@ const axeConfig = {
 
 describe('Axe core checks', () => {
   it('logged in urls', () => {
-    cy.session('login', cy.login, {cacheAcrossSpecs: true})
+    cy.session('login', cy.login, { cacheAcrossSpecs: true })
     loggedInUrls.forEach(url => {
       cy.visit(url)
       cy.injectAxe()

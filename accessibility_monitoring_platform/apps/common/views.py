@@ -23,6 +23,8 @@ from .forms import (
     ActiveQAAuditorUpdateForm,
     FrequentlyUsedLinkFormset,
     FrequentlyUsedLinkOneExtraFormset,
+    FooterLinkFormset,
+    FooterLinkOneExtraFormset,
     PlatformCheckingForm,
 )
 from .metrics import (
@@ -35,7 +37,13 @@ from .metrics import (
     get_report_progress_metrics,
     get_report_yearly_metrics,
 )
-from .models import FrequentlyUsedLink, IssueReport, Platform, ChangeToPlatform
+from .models import (
+    FooterLink,
+    FrequentlyUsedLink,
+    IssueReport,
+    Platform,
+    ChangeToPlatform,
+)
 from .page_title_utils import get_page_title
 from .utils import (
     get_id_from_button_name,
@@ -296,6 +304,68 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
     def get_success_url(self) -> str:
         """Remain on current page on save"""
         url: str = reverse_lazy("common:edit-frequently-used-links")
+        if "add_link" in self.request.POST:
+            return f"{url}?add_link=true#link-None"
+        return url
+
+
+class FooterLinkFormsetTemplateView(TemplateView):
+    """
+    Update list of footer links
+    """
+
+    template_name: str = "common/settings/edit_footer_links.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            links_formset = FooterLinkFormset(self.request.POST)
+        else:
+            links: QuerySet[FooterLink] = FooterLink.objects.filter(is_deleted=False)
+            if "add_link" in self.request.GET:
+                links_formset = FooterLinkOneExtraFormset(queryset=links)
+            else:
+                links_formset = FooterLinkFormset(queryset=links)
+        context["links_formset"] = links_formset
+        return context
+
+    def post(
+        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
+    ) -> Union[HttpResponseRedirect, HttpResponse]:
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        links_formset = context["links_formset"]
+        if links_formset.is_valid():
+            links: List[FooterLink] = links_formset.save(commit=False)
+            for link in links:
+                if not link.id:
+                    link.save()
+                    record_model_create_event(user=self.request.user, model_object=link)
+                else:
+                    record_model_update_event(user=self.request.user, model_object=link)
+                    link.save()
+        else:
+            return self.render_to_response(
+                self.get_context_data(links_formset=links_formset)
+            )
+
+        link_id_to_delete: Optional[int] = get_id_from_button_name(
+            button_name_prefix="remove_link_",
+            querydict=request.POST,
+        )
+        if link_id_to_delete is not None:
+            link_to_delete: FooterLink = FooterLink.objects.get(id=link_id_to_delete)
+            link_to_delete.is_deleted = True
+            record_model_update_event(
+                user=self.request.user, model_object=link_to_delete
+            )
+            link_to_delete.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Remain on current page on save"""
+        url: str = reverse_lazy("common:edit-footer-links")
         if "add_link" in self.request.POST:
             return f"{url}?add_link=true#link-None"
         return url

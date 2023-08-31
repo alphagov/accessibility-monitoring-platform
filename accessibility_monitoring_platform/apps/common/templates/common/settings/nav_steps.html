@@ -65,6 +65,14 @@
                 Edit frequently used links</a>
         {% endif %}
     </p>
+    <p class="govuk-body-m">
+        {% if current == 'common:edit-footer-links' %}
+            Edit footer links
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:edit-footer-links' %}">
+                Edit footer links</a>
+        {% endif %}
+    </p>
     <h3 class="govuk-heading-m">Content settings</h3>
     <p class="govuk-body-m">
         {% if current == 'reports:edit-report-wrapper' %}
