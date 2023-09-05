@@ -15,4 +15,4 @@ CMD make static_files_process \
     && python manage.py collectstatic --noinput \
     && python manage.py migrate \
     && python manage.py recache_statuses \
-    && waitress-serve --port=8001 accessibility_monitoring_platform.wsgi:application
+    && waitress-serve --port=8001 --threads=10 accessibility_monitoring_platform.wsgi:application
