@@ -45,7 +45,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
-ALLOWED_HOSTS += [f"10.0.{i}.{j}" for i in range(256) for j in range(256)]
 
 CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
 CSRF_TRUSTED_ORIGINS.append("http://localhost:3000")
@@ -96,6 +95,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_otp.middleware.OTPMiddleware",
+    "accessibility_monitoring_platform.apps.common.middleware.validate_host_middleware.ValidateHostMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.permissions_policy_middleware.PermissionsPolicyMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.cache_user_id_middleware.CacheUserUniqueID",
     "csp.middleware.CSPMiddleware",
@@ -196,7 +196,7 @@ LOGGING = {
     "loggers": {
         "": {
             "handlers": ["console"],
-            "level": "WARNING",
+            "level": "INFO",
         },
     },
 }
