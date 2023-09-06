@@ -1,9 +1,14 @@
 """ Check requests are for valid hosts """
 import logging
+import re
 
-from django.core.exceptions import ValidationError
+from django.conf import settings
+from django.core.exceptions import DisallowedHost
+from django.http.request import split_domain_port, validate_host
 
 logger = logging.getLogger(__name__)
+
+IP_REGEX = re.compile(r"10.0\.[0-9]{1,3}\.[0-9]{1,3}")
 
 
 class ValidateHostMiddleware:
@@ -12,10 +17,11 @@ class ValidateHostMiddleware:
 
     def __call__(self, request):
         host: str = request.get_host()
-        if host.startswith("localhost") or host.startswith("10.0."):
-            logger.info("Expected host %s", host)
+        domain, _ = split_domain_port(host)
+        if validate_host(domain, settings.ALLOWED_HOSTS) or IP_REGEX.fullmatch(domain):
+            logger.info("Valid host found: %s", host)
         else:
-            raise ValidationError(f"Unexpected host in request: {host}")
+            raise DisallowedHost(f"Unexpected host in request: {host}")
 
         response = self.get_response(request)
 
