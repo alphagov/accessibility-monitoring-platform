@@ -36,6 +36,7 @@ def test_validate_host_middleware_valid_host(mock_logger, host):
     mock_request.get_host.return_value = host
     validate_host_middleware = ValidateHostMiddleware(Mock())
     validate_host_middleware(mock_request)
+
     mock_logger.assert_called_once_with("Valid host found: %s", host)
 
 

@@ -8,7 +8,7 @@ from django.http.request import split_domain_port, validate_host
 
 logger = logging.getLogger(__name__)
 
-IP_REGEX = re.compile(r"10.0\.[0-9]{1,3}\.[0-9]{1,3}")
+VALID_IP_REGEX = re.compile(r"10.0\.[0-9]{1,3}\.[0-9]{1,3}")
 
 
 class ValidateHostMiddleware:
@@ -18,7 +18,9 @@ class ValidateHostMiddleware:
     def __call__(self, request):
         host: str = request.get_host()
         domain, _ = split_domain_port(host)
-        if validate_host(domain, settings.ALLOWED_HOSTS) or IP_REGEX.fullmatch(domain):
+        if validate_host(domain, settings.ALLOWED_HOSTS) or VALID_IP_REGEX.fullmatch(
+            domain
+        ):
             logger.info("Valid host found: %s", host)
         else:
             raise DisallowedHost(f"Unexpected host in request: {host}")
