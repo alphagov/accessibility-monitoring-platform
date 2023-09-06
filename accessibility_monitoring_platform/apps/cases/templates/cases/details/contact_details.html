@@ -46,10 +46,6 @@
                         <td class="govuk-table__cell amp-width-one-half">{{ contact.get_preferred_display }}</td>
                     </tr>
                 {% endif %}
-                <tr class="govuk-table__row">
-                    <td class="govuk-table__cell amp-width-one-half">Contact {{ forloop.counter }} Notes</td>
-                    <td class="govuk-table__cell amp-width-one-half">{{ contact.notes|markdown_to_html }}</td>
-                </tr>
             {% endfor %}
         </tbody>
     </table>

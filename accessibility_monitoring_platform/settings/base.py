@@ -293,7 +293,14 @@ CSP_IMG_SRC = ("'self'", "data:")
 
 AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
 AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "localhost:8002")
-AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
+
+aws_prototype_filename: str = "aws_prototype_name.txt"
+if os.path.isfile(aws_prototype_filename):
+    aws_prototype_name_file = open(aws_prototype_filename, "r")
+    aws_prototype_name: str = aws_prototype_name_file.read()
+    AMP_PROTOTYPE_NAME = aws_prototype_name.strip()
+else:
+    AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
 
 COPILOT_APPLICATION_NAME = os.getenv("COPILOT_APPLICATION_NAME", None)
 
