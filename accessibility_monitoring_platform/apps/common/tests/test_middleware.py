@@ -2,6 +2,7 @@
 import pytest
 from unittest.mock import patch, Mock
 
+from django.conf import settings
 from django.core.exceptions import DisallowedHost
 from django.urls import reverse
 
@@ -19,10 +20,23 @@ def test_middleware_caches_user_unique_id(client, django_user_model):
     assert UserCacheUniqueHash.objects.all().count() == 1
 
 
+@patch(
+    "accessibility_monitoring_platform.apps.common.middleware.validate_host_middleware.logger.info"
+)
+def test_validate_host_middleware_valid_host(mock_logger):
+    """Tests host validation for valid host"""
+    host: str = settings.ALLOWED_HOSTS[0]
+    mock_request = Mock()
+    mock_request.get_host.return_value = host
+    validate_host_middleware = ValidateHostMiddleware(Mock())
+    validate_host_middleware(mock_request)
+
+    mock_logger.assert_called_once_with("Valid host found: %s", host)
+
+
 @pytest.mark.parametrize(
     "host",
     [
-        "localhost",
         "10.0.1.2",
         "10.0.3.4",
     ],
@@ -30,8 +44,8 @@ def test_middleware_caches_user_unique_id(client, django_user_model):
 @patch(
     "accessibility_monitoring_platform.apps.common.middleware.validate_host_middleware.logger.info"
 )
-def test_validate_host_middleware_valid_host(mock_logger, host):
-    """Tests host validation for valid host"""
+def test_validate_host_middleware_valid_host_ip(mock_logger, host):
+    """Tests host validation for valid host IP"""
     mock_request = Mock()
     mock_request.get_host.return_value = host
     validate_host_middleware = ValidateHostMiddleware(Mock())
