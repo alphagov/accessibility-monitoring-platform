@@ -1177,7 +1177,10 @@ def test_navbar_overdue_emboldened(admin_client, admin_user):
     )
 
 
-def test_platform_checking_writes_log(admin_client, caplog):
+@patch(
+    "accessibility_monitoring_platform.apps.common.middleware.validate_host_middleware.logger.info"
+)
+def test_platform_checking_writes_log(mock_logger, admin_client, caplog):
     """Test platform checking writes to log"""
     response: HttpResponse = admin_client.post(
         reverse("common:platform-checking"),
