@@ -39,6 +39,7 @@ def test_validate_host_middleware_valid_host(mock_logger):
     [
         "10.0.1.2",
         "10.0.3.4",
+        "10.0.0.122:8001",
     ],
 )
 @patch(
