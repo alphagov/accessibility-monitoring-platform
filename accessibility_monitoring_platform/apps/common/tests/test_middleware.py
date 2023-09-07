@@ -42,37 +42,3 @@ def test_healthcheck_middleware_non_healthcheck_request():
     healthcheck_middleware(mock_request)
 
     mock_get_response.assert_called_once()
-
-
-@pytest.mark.parametrize(
-    "host",
-    [
-        "10.0.1.2",
-        "10.0.3.4",
-        "10.0.0.122:8001",
-    ],
-)
-@patch(
-    "accessibility_monitoring_platform.apps.common.middleware.validate_host_middleware.logger.info"
-)
-def test_validate_host_middleware_valid_host_ip(mock_logger, host):
-    """Tests host validation for valid host IP"""
-    mock_request = Mock()
-    mock_request._get_raw_host.return_value = host
-    validate_host_middleware = ValidateHostMiddleware(Mock())
-    validate_host_middleware(mock_request)
-
-    mock_logger.assert_called_once_with("Valid host found: %s", host)
-
-
-def test_validate_host_middleware_invalid_host():
-    """Tests host validation for invalid host"""
-    host: str = "invalid.com"
-    mock_request = Mock()
-    mock_request._get_raw_host.return_value = host
-    validate_host_middleware = ValidateHostMiddleware(Mock())
-
-    with pytest.raises(DisallowedHost) as excinfo:
-        validate_host_middleware(mock_request)
-
-    assert f"Unexpected host in request: {host}" in str(excinfo.value)
