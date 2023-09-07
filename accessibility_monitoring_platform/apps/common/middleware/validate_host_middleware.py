@@ -16,7 +16,7 @@ class ValidateHostMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        host: str = request.get_host()
+        host: str = request._get_raw_host()
         domain, _ = split_domain_port(host)
         if validate_host(domain, settings.ALLOWED_HOSTS) or VALID_IP_REGEX.fullmatch(
             domain

@@ -27,7 +27,7 @@ def test_validate_host_middleware_valid_host(mock_logger):
     """Tests host validation for valid host"""
     host: str = settings.ALLOWED_HOSTS[0]
     mock_request = Mock()
-    mock_request.get_host.return_value = host
+    mock_request._get_raw_host.return_value = host
     validate_host_middleware = ValidateHostMiddleware(Mock())
     validate_host_middleware(mock_request)
 
@@ -47,7 +47,7 @@ def test_validate_host_middleware_valid_host(mock_logger):
 def test_validate_host_middleware_valid_host_ip(mock_logger, host):
     """Tests host validation for valid host IP"""
     mock_request = Mock()
-    mock_request.get_host.return_value = host
+    mock_request._get_raw_host.return_value = host
     validate_host_middleware = ValidateHostMiddleware(Mock())
     validate_host_middleware(mock_request)
 
@@ -58,7 +58,7 @@ def test_validate_host_middleware_invalid_host():
     """Tests host validation for invalid host"""
     host: str = "invalid.com"
     mock_request = Mock()
-    mock_request.get_host.return_value = host
+    mock_request._get_raw_host.return_value = host
     validate_host_middleware = ValidateHostMiddleware(Mock())
 
     with pytest.raises(DisallowedHost) as excinfo:
