@@ -87,6 +87,7 @@ AUTHENTICATION_BACKENDS = [
 
 MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "accessibility_monitoring_platform.apps.common.middleware.healthcheck_middleware.HealthcheckMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -95,7 +96,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_otp.middleware.OTPMiddleware",
-    "accessibility_monitoring_platform.apps.common.middleware.validate_host_middleware.ValidateHostMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.permissions_policy_middleware.PermissionsPolicyMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.cache_user_id_middleware.CacheUserUniqueID",
     "csp.middleware.CSPMiddleware",
