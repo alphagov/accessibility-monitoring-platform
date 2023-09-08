@@ -16,7 +16,7 @@ Including another URLconf
 import requests
 
 from django.conf.urls import include
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import StreamingHttpResponse
 from django.urls import path
 from django.views.defaults import page_not_found
 from django.views.generic.base import RedirectView
@@ -26,10 +26,6 @@ ROOT_REDIRECT_DESTINATION: str = "https://www.accessibility-monitoring.service.g
 
 def custom_page_not_found(request):
     return page_not_found(request, None)
-
-
-def healthcheck(request):  # pylint: disable=unused-argument
-    return JsonResponse({"healthcheck": "ok"})
 
 
 def get_security_txt(request):  # pylint: disable=unused-argument
@@ -48,7 +44,6 @@ urlpatterns = [
     path("", RedirectView.as_view(url=ROOT_REDIRECT_DESTINATION)),
     path("reports/", include("report_viewer.apps.viewer.urls")),
     path("404/", custom_page_not_found),
-    path("healthcheck/", healthcheck),
     path("security.txt", get_security_txt),
     path(".well-known/security.txt", get_security_txt),
 ]

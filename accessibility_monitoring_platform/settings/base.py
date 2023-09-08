@@ -87,6 +87,7 @@ AUTHENTICATION_BACKENDS = [
 
 MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "accessibility_monitoring_platform.apps.common.middleware.healthcheck_middleware.HealthcheckMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -195,7 +196,7 @@ LOGGING = {
     "loggers": {
         "": {
             "handlers": ["console"],
-            "level": "WARNING",
+            "level": "INFO",
         },
     },
 }
