@@ -2579,7 +2579,7 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Link to report draft</b></label>
             <div class="govuk-hint">
-                <a href="{report_publisher_url}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                <a href="{report_publisher_url}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                     Report publisher
                 </a>
             </div>

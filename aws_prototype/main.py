@@ -10,7 +10,6 @@ from typing import List
 import boto3
 from django.core.management.utils import get_random_secret_key
 
-from aws_secrets import get_notify_secret
 from utils import get_aws_resource_tags
 
 parser = argparse.ArgumentParser(description="Deploy feature branch to AWS")
@@ -31,17 +30,16 @@ git_branch_name: str = subprocess.check_output(
     ]
 ).decode("utf-8")
 
-git_branch_name: str = "".join(e for e in git_branch_name if e.isalnum())[:4]
+git_branch_prefix: str = "".join(e for e in git_branch_name if e.isalnum())[:4]
 first_letter_of_profile: str = os.getenv("USER", "u")[0]
-prototype_name = f"{git_branch_name}{first_letter_of_profile}"
+prototype_name = f"{git_branch_prefix}{first_letter_of_profile}"
 
 AWS_ACCOUNT_ID: str = "144664177605"
 APP_NAME: str = f"app{prototype_name}"
 ENV_NAME: str = f"env{prototype_name}"
 SECRET_KEY: str = get_random_secret_key()
-NOTIFY_SECRETS = get_notify_secret()
-NOTIFY_API_KEY: str = NOTIFY_SECRETS["EMAIL_NOTIFY_API_KEY"]
-EMAIL_NOTIFY_BASIC_TEMPLATE: str = NOTIFY_SECRETS["EMAIL_NOTIFY_BASIC_TEMPLATE"]
+NOTIFY_API_KEY: str = "NO_API_KEY"
+EMAIL_NOTIFY_BASIC_TEMPLATE: str = "NO_TEMPLATE"
 BACKUP_DB: str = "db-store-for-prototypes"
 
 
@@ -216,7 +214,18 @@ def down():
     restore_copilot_prod_settings()
 
 
+def write_prototype_name():
+    """
+    Write git branch name to file for use in prototype watermark in UI
+    """
+    aws_prototype_filename: str = "aws_prototype_name.txt"
+    aws_prototype_file = open(aws_prototype_filename, "w")
+    aws_prototype_file.write(git_branch_name)
+    aws_prototype_file.close()
+
+
 if __name__ == "__main__":
+    write_prototype_name()
     client = boto3.client("sts")
     account_id = client.get_caller_identity()["Account"]
     if account_id != AWS_ACCOUNT_ID:
