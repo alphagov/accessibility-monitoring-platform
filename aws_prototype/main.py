@@ -1,5 +1,6 @@
 """main - main function for deploy feature to AWS Copilot"""
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -214,18 +215,27 @@ def down():
     restore_copilot_prod_settings()
 
 
-def write_prototype_name():
+def write_prototype_file():
     """
-    Write git branch name to file for use in prototype watermark in UI
+    Write prototype details to file for use in platform
     """
-    aws_prototype_filename: str = "aws_prototype_name.txt"
-    aws_prototype_file = open(aws_prototype_filename, "w")
-    aws_prototype_file.write(git_branch_name)
-    aws_prototype_file.close()
+    aws_prototype_filename: str = "aws_prototype.json"
+    with open(aws_prototype_filename, "w") as aws_prototype_file:
+        aws_prototype_file.write(
+            json.dumps(
+                {
+                    "prototype_name": git_branch_name,
+                    "amp_protocol": "https://",
+                    "viewer_domain": f"viewer-svc.env{prototype_name}.app{prototype_name}"
+                    ".proto.accessibility-monitoring.service.gov.uk",
+                },
+                indent=4,
+            )
+        )
 
 
 if __name__ == "__main__":
-    write_prototype_name()
+    write_prototype_file()
     client = boto3.client("sts")
     account_id = client.get_caller_identity()["Account"]
     if account_id != AWS_ACCOUNT_ID:
