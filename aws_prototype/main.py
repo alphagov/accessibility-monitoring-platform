@@ -123,7 +123,7 @@ def restore_prototype_env_file() -> None:
 def create_burner_account() -> None:
     print(">>> Creating burner account")
     email: str = f"""{"".join(random.choice(string.ascii_lowercase) for x in range(7))}@email.com"""
-    password: str = "".join(random.choice(string.ascii_lowercase) for x in range(7))
+    password: str = "".join(random.choice(string.ascii_lowercase) for x in range(27))
     command: str = f"python aws_prototype/create_dummy_account.py {email} {password}"
     copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
     os.system(copilot_exec_cmd)
