@@ -272,8 +272,3 @@ CSP_STYLE_SRC = "'self'"
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_FONT_SRC = ("'self'",)
 CSP_IMG_SRC = ("'self'", "data:")
-
-
-aws_prototype_filename: str = "aws_prototype.json"
-if os.path.isfile(aws_prototype_filename):
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

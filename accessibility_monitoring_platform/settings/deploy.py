@@ -21,7 +21,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-if os.getenv("NOTIFY_API_KEY"):
+aws_prototype_filename: str = "aws_prototype.json"
+if os.path.isfile(aws_prototype_filename):
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+elif os.getenv("NOTIFY_API_KEY"):
     EMAIL_BACKEND = "accessibility_monitoring_platform.email.NotifyEmailBackend"
     EMAIL_NOTIFY_API_KEY = os.getenv("NOTIFY_API_KEY")
     EMAIL_NOTIFY_BASIC_TEMPLATE = os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE")
