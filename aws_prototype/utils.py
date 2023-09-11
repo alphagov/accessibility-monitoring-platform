@@ -2,6 +2,9 @@
 Utilities for aws prototype
 """
 import json
+import os
+import random
+import string
 from typing import Dict, List, Tuple
 
 AWS_RESOURCE_TAGS = {
@@ -40,3 +43,20 @@ def write_prototype_platform_metadata(git_branch_name: str, prototype_name: str)
                 indent=4,
             )
         )
+
+
+def create_burner_account(app_name: str, env_name: str) -> None:
+    print(">>> Creating burner account")
+    email: str = f"""{"".join(random.choice(string.ascii_lowercase) for x in range(7))}@email.com"""
+    password: str = "".join(random.choice(string.ascii_lowercase) for x in range(27))
+    command: str = f"python aws_prototype/create_dummy_account.py {email} {password}"
+    copilot_exec_cmd = f"""copilot svc exec -a {app_name} -e {env_name} -n amp-svc --command "{command}" """
+    os.system(copilot_exec_cmd)
+    print(
+        f"The platform can be accessed from https://amp-svc.{env_name}.{app_name}.proto.accessibility-monitoring.service.gov.uk"
+    )
+    print(
+        f"The viewer can be accessed from https://viewer-svc.{env_name}.{app_name}.proto.accessibility-monitoring.service.gov.uk"
+    )
+    print(f"email: {email}")
+    print(f"password: {password}")

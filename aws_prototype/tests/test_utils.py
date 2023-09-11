@@ -2,12 +2,23 @@
 Test aws prototype utilities
 """
 import pytest
+import re
 from unittest.mock import patch, mock_open
 
-from ..utils import get_aws_resource_tags, write_prototype_platform_metadata
+from ..utils import (
+    get_aws_resource_tags,
+    write_prototype_platform_metadata,
+    create_burner_account,
+)
 
 GIT_BRANCH_NAME: str = "0001-branch-name"
 PROTOTYPE_NAME: str = "0001r"
+APP_NAME: str = "app01"
+ENV_NAME: str = "env01"
+
+burner_account_regex = re.compile(
+    f'copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "python aws_prototype/create_dummy_account.py .......@email.com ..........................."'
+)
 
 
 @pytest.mark.parametrize("system", ["Platform", "Viewer"])
@@ -37,3 +48,12 @@ def test_write_prototype_platform_metadata():
             f'"viewer_domain": "viewer-svc.env{PROTOTYPE_NAME}.app{PROTOTYPE_NAME}'
             '.proto.accessibility-monitoring.service.gov.uk"\n}'
         )
+
+
+def test_create_burner_account():
+    """Test creation of temporary accounts"""
+    with patch("os.system") as mock_os_system:
+        create_burner_account(app_name=APP_NAME, env_name=ENV_NAME)
+
+        mock_os_system.assert_called_once()
+        assert burner_account_regex.match(mock_os_system.call_args[0][0]) is not None

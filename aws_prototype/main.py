@@ -1,17 +1,18 @@
 """main - main function for deploy feature to AWS Copilot"""
 import argparse
-import json
 import os
 import shutil
 import subprocess
-import random
-import string
 from typing import List
 
 import boto3
 from django.core.management.utils import get_random_secret_key
 
-from utils import get_aws_resource_tags, write_prototype_platform_metadata
+from utils import (
+    get_aws_resource_tags,
+    write_prototype_platform_metadata,
+    create_burner_account,
+)
 
 parser = argparse.ArgumentParser(description="Deploy feature branch to AWS")
 
@@ -120,23 +121,6 @@ def restore_prototype_env_file() -> None:
     )
 
 
-def create_burner_account() -> None:
-    print(">>> Creating burner account")
-    email: str = f"""{"".join(random.choice(string.ascii_lowercase) for x in range(7))}@email.com"""
-    password: str = "".join(random.choice(string.ascii_lowercase) for x in range(27))
-    command: str = f"python aws_prototype/create_dummy_account.py {email} {password}"
-    copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
-    os.system(copilot_exec_cmd)
-    print(
-        f"The platform can be accessed from https://amp-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk"
-    )
-    print(
-        f"The viewer can be accessed from https://viewer-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk"
-    )
-    print(f"email: {email}")
-    print(f"password: {password}")
-
-
 def up():
     print(">>> Setting up AWS Copilot prototype")
 
@@ -235,6 +219,6 @@ if __name__ == "__main__":
     elif args.build_direction == "down":
         down()
     elif args.build_direction == "newaccount":
-        create_burner_account()
+        create_burner_account(app_name=APP_NAME, env_name=ENV_NAME)
     else:
         raise Exception("Build direction needs to be up or down or newaccount")
