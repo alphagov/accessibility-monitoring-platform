@@ -298,6 +298,7 @@ if os.path.isfile(aws_prototype_filename):
     AMP_PROTOTYPE_NAME = aws_prototype_data["prototype_name"]
     AMP_PROTOCOL: str = aws_prototype_data["amp_protocol"]
     AMP_VIEWER_DOMAIN: str = aws_prototype_data["viewer_domain"]
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 else:
     AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
     AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
