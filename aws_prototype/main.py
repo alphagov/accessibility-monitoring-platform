@@ -11,7 +11,7 @@ from typing import List
 import boto3
 from django.core.management.utils import get_random_secret_key
 
-from utils import get_aws_resource_tags
+from utils import get_aws_resource_tags, write_prototype_platform_metadata
 
 parser = argparse.ArgumentParser(description="Deploy feature branch to AWS")
 
@@ -215,27 +215,10 @@ def down():
     restore_copilot_prod_settings()
 
 
-def write_prototype_file():
-    """
-    Write prototype details to file for use in platform
-    """
-    aws_prototype_filename: str = "aws_prototype.json"
-    with open(aws_prototype_filename, "w") as aws_prototype_file:
-        aws_prototype_file.write(
-            json.dumps(
-                {
-                    "prototype_name": git_branch_name,
-                    "amp_protocol": "https://",
-                    "viewer_domain": f"viewer-svc.env{prototype_name}.app{prototype_name}"
-                    ".proto.accessibility-monitoring.service.gov.uk",
-                },
-                indent=4,
-            )
-        )
-
-
 if __name__ == "__main__":
-    write_prototype_file()
+    write_prototype_platform_metadata(
+        git_branch_name=git_branch_name, prototype_name=prototype_name
+    )
     client = boto3.client("sts")
     account_id = client.get_caller_identity()["Account"]
     if account_id != AWS_ACCOUNT_ID:
