@@ -14,4 +14,4 @@ RUN npm install
 EXPOSE 8001
 CMD make static_files_process \
     && python manage_report_viewer.py collectstatic --noinput \
-    && waitress-serve --port=8001 report_viewer.wsgi:application
+    && waitress-serve --port=8001 --threads=10 report_viewer.wsgi:application

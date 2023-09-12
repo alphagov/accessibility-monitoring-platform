@@ -87,6 +87,7 @@ AUTHENTICATION_BACKENDS = [
 
 MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "accessibility_monitoring_platform.apps.common.middleware.healthcheck_middleware.HealthcheckMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -195,7 +196,7 @@ LOGGING = {
     "loggers": {
         "": {
             "handlers": ["console"],
-            "level": "WARNING",
+            "level": "INFO",
         },
     },
 }
@@ -290,16 +291,17 @@ CSP_SCRIPT_SRC = ("'self'",)
 CSP_FONT_SRC = ("'self'",)
 CSP_IMG_SRC = ("'self'", "data:")
 
-AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
-AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "localhost:8002")
-
-aws_prototype_filename: str = "aws_prototype_name.txt"
+aws_prototype_filename: str = "aws_prototype.json"
 if os.path.isfile(aws_prototype_filename):
-    aws_prototype_name_file = open(aws_prototype_filename, "r")
-    aws_prototype_name: str = aws_prototype_name_file.read()
-    AMP_PROTOTYPE_NAME = aws_prototype_name.strip()
+    aws_prototype_file = open(aws_prototype_filename, "r")
+    aws_prototype_data: str = json.load(aws_prototype_file)
+    AMP_PROTOTYPE_NAME = aws_prototype_data["prototype_name"]
+    AMP_PROTOCOL: str = aws_prototype_data["amp_protocol"]
+    AMP_VIEWER_DOMAIN: str = aws_prototype_data["viewer_domain"]
 else:
     AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
+    AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
+    AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "localhost:8002")
 
 COPILOT_APPLICATION_NAME = os.getenv("COPILOT_APPLICATION_NAME", None)
 

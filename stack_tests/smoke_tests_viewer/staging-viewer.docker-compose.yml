@@ -1,7 +1,7 @@
 version: "3.7"
 services:
     cypress:
-        image: "cypress/included:12.5.1"
+        image: "cypress/included:13.0.0"
         volumes:
             - ./cypress:/cypress
             - ./staging-viewer.cypress.config.js:/cypress.config.js
