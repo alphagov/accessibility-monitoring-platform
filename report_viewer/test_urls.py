@@ -23,3 +23,10 @@ def test_security_txt(url, client):
 
     assert response.status_code == 200
     assertContains(response, "Generated at: https://github.com/alphagov/security.txt")
+
+
+def test_custom_404(client):
+    response: HttpResponse = client.get("/404/")
+
+    assert response.status_code == 404
+    assertContains(response, "govuk-template", status_code=404)
