@@ -20,7 +20,11 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'audits/helpers/retest_statement_check_formset.html' %}
+                            {% if retest_statement_check_results_formset.forms %}
+                                {% include 'audits/helpers/retest_statement_check_formset.html' %}
+                            {% else %}
+                                <p class="govuk-body">No custom statement issues found in initial test.</p>
+                            {% endif %}
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
