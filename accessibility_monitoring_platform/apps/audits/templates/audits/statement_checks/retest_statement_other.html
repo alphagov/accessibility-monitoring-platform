@@ -20,6 +20,9 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
+                            {% if not retest_statement_check_results_formset.forms %}
+                                <p class="govuk-body">No custom statement issues found in initial test.</p>
+                            {% endif %}
                             {% include 'audits/helpers/retest_statement_check_formset.html' %}
                             {% include 'common/amp_form_snippet.html' %}
                         </div>

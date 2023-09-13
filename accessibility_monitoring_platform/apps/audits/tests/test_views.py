@@ -1959,6 +1959,33 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
     assertContains(response, "Statement missing during initial test")
 
 
+def test_retest_statement_custom_no_initial(admin_client):
+    """Test that a retest statement custom with no initial failure shows placeholder"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-retest-statement-custom", kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "No custom statement issues found in initial test.")
+
+
+def test_retest_statement_custom_with_initial(admin_client):
+    """Test that a retest statement custom with an initial failure shows it"""
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-retest-statement-custom", kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+    assertNotContains(response, "No custom statement issues found in initial test.")
+    assertContains(response, "Custom statement issue")
+
+
 def test_report_text_shown_when_odt_report(admin_client):
     """
     Test that report text is shown when case is using report methodology of ODT
