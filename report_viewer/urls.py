@@ -16,7 +16,7 @@ Including another URLconf
 import requests
 
 from django.conf.urls import include
-from django.http import StreamingHttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.urls import path
 from django.views.defaults import page_not_found
 from django.views.generic.base import RedirectView
@@ -39,11 +39,16 @@ def get_security_txt(request):  # pylint: disable=unused-argument
     )
 
 
+def robots_txt(request):  # pylint: disable=unused-argument
+    return HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")
+
+
 app_name = "apps"
 urlpatterns = [
     path("", RedirectView.as_view(url=ROOT_REDIRECT_DESTINATION)),
     path("reports/", include("report_viewer.apps.viewer.urls")),
     path("404/", custom_page_not_found),
     path("security.txt", get_security_txt),
+    path("robots.txt", robots_txt),
     path(".well-known/security.txt", get_security_txt),
 ]
