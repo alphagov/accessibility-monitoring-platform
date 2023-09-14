@@ -54,6 +54,7 @@ from .utils import (
     record_model_update_event,
     record_model_create_event,
     extract_domain_from_url,
+    sanitise_domain,
 )
 
 logger = logging.getLogger(__name__)
@@ -432,18 +433,15 @@ class BulkURLSearchView(FormView):
             url_results: List[Dict] = []
             for url in urls:
                 domain: str = extract_domain_from_url(url)
-                if domain.startswith("www."):
-                    domain = domain[4:]
-                dot_gov_position: int = domain.find(".gov.")
-                if dot_gov_position >= 0:
-                    domain = domain[:dot_gov_position]
+                sanitised_domain: str = sanitise_domain(domain)
+
                 found: bool = False
                 search: str = url
-                if domain:
+                if sanitised_domain:
                     cases: QuerySet[Case] = Case.objects.filter(
-                        home_page_url__icontains=domain
+                        home_page_url__icontains=sanitised_domain
                     )
-                    search: str = domain
+                    search: str = sanitised_domain
                     found = cases.count() > 0
                 url_results.append(
                     {

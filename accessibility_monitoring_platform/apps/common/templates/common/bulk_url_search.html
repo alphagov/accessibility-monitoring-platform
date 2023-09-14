@@ -52,7 +52,7 @@
                 {% for url_result in url_results %}
                     {% if url_result.found %}
                         <li>
-                            <a href="{% url 'cases:case-list' %}?search={{ url_result.search }}"
+                            <a href="https://platform.accessibility-monitoring.service.gov.uk/cases/?search={{ url_result.search }}"
                                 target="_blank" class="govuk-link govuk-link--no-visited-state">
                                 {{ url_result.url }}</a>
                         </li>

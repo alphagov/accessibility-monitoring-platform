@@ -29,6 +29,7 @@ from ..models import (
 from ..utils import (
     build_filters,
     extract_domain_from_url,
+    sanitise_domain,
     amp_format_date,
     amp_format_datetime,
     amp_format_time,
@@ -74,6 +75,30 @@ def test_extract_domain_from_url_http():
 def test_extract_domain_from_url_no_protocol():
     """Tests that the domain is not extracted from a url with no protocol"""
     assert extract_domain_from_url(url="example.com") == ""
+
+
+@pytest.mark.parametrize(
+    "domain, expected_result",
+    [
+        ("www.abc", "abc"),
+        ("abc", "abc"),
+        ("abc.gov.uk", "abc"),
+        ("abc.nhs.uk", "abc"),
+        ("abc.gov.uk", "abc"),
+        ("abc.gov.uk", "abc"),
+        ("abc.com", "abc"),
+        ("abc.wales", "abc"),
+        ("abc.cymru", "abc"),
+        ("abc.scot", "abc"),
+        ("abc.eu", "abc"),
+        ("abc.co.uk", "abc"),
+        ("abc.org.uk", "abc"),
+        ("abc.ac.uk", "abc"),
+    ],
+)
+def test_sanitise_domain(domain: str, expected_result: str):
+    """Tests that the domain is not extracted from a url with no protocol"""
+    assert sanitise_domain(domain) == expected_result
 
 
 def test_get_id_from_button_name():
