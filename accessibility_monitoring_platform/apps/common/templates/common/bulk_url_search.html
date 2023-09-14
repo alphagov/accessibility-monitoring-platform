@@ -45,10 +45,9 @@
                     {% for bulk_search_result in bulk_search_results %}
                         {% if bulk_search_result.found_flag %}
                             <li>
-                                <a href="{% url 'cases:case-list' %}?search={{ bulk_search_result.search_term }}"
-                                    target="_blank" class="govuk-link govuk-link--no-visited-state">
-                                    {{ bulk_search_result.url }}</a>
-                                ({{ bulk_search_result.search_term }})
+                                {{ bulk_search_result.url }}
+                                (<a href="{% url 'cases:case-list' %}?search={{ bulk_search_result.search_term }}"
+                                    target="_blank" class="govuk-link govuk-link--no-visited-state">{{ bulk_search_result.search_term }}</a>)
                             </li>
                         {% endif %}
                     {% endfor %}
