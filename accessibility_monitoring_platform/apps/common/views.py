@@ -421,16 +421,6 @@ class BulkURLSearchView(FormView):
     template_name: str = "common/bulk_url_search.html"
     success_url: str = reverse_lazy("common:bulk-url-search")
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            form = BulkURLSearchForm(self.request.POST)
-        else:
-            form = BulkURLSearchForm()
-        context["form"] = form
-        return context
-
     def post(
         self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
     ) -> HttpResponseRedirect:
@@ -438,18 +428,27 @@ class BulkURLSearchView(FormView):
         context: Dict[str, Any] = self.get_context_data()
         form = context["form"]
         if form.is_valid():
-            urls: List[str] = form.cleaned_data["urls"].split()
+            urls: List[str] = form.cleaned_data["urls"].split("\n")
             url_results: List[Dict] = []
             for url in urls:
                 domain: str = extract_domain_from_url(url)
-                cases: QuerySet[Case] = Case.objects.filter(
-                    home_page_url__icontains=domain
-                )
+                if domain.startswith("www."):
+                    domain = domain[4:]
+                dot_gov_position: int = domain.find(".gov.")
+                if dot_gov_position >= 0:
+                    domain = domain[:dot_gov_position]
+                found: bool = False
+                search: str = url
+                if domain:
+                    cases: QuerySet[Case] = Case.objects.filter(
+                        home_page_url__icontains=domain
+                    )
+                    search: str = domain
+                    found = cases.count() > 0
                 url_results.append(
                     {
-                        "domain": domain,
-                        "found": cases.count() > 0,
-                        "cases": cases,
+                        "search": search,
+                        "found": found,
                         "url": url,
                     }
                 )

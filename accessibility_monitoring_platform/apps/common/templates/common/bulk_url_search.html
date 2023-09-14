@@ -40,23 +40,25 @@
                     </div>
                 </form>
                 <h2 class="govuk-heading-l">No matching cases found</h2>
-                <p class="govuk-body">
+                <ol class="govuk-list govuk-list--number">
                 {% for url_result in url_results %}
                     {% if not url_result.found %}
-                        {{ url_result.url }}
+                        <li>{{ url_result.url }}</li>
                     {% endif %}
                 {% endfor %}
-                </p>
+                </ol>
                 <h2 class="govuk-heading-l">Matching cases found</h2>
-                <p class="govuk-body">
+                <ol class="govuk-list govuk-list--number">
                 {% for url_result in url_results %}
                     {% if url_result.found %}
-                        <a href="{% url 'cases:case-list' %}?search={{ url_result.domain }}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                        {{ url_result.url }}</a>
-                        ({{ url_result.cases.count }})
+                        <li>
+                            <a href="{% url 'cases:case-list' %}?search={{ url_result.search }}"
+                                target="_blank" class="govuk-link govuk-link--no-visited-state">
+                                {{ url_result.url }}</a>
+                        </li>
                     {% endif %}
                 {% endfor %}
-                </p>
+                </ol>
             </div>
             <div class="govuk-grid-column-one-third">
             </div>
