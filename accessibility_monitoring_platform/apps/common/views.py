@@ -430,27 +430,30 @@ class BulkURLSearchView(FormView):
         form = context["form"]
         if form.is_valid():
             urls: List[str] = form.cleaned_data["urls"].split("\n")
-            url_results: List[Dict] = []
+            bulk_search_results: List[Dict] = []
             for url in urls:
                 domain: str = extract_domain_from_url(url)
                 sanitised_domain: str = sanitise_domain(domain)
 
-                found: bool = False
-                search: str = url
                 if sanitised_domain:
                     cases: QuerySet[Case] = Case.objects.filter(
                         home_page_url__icontains=sanitised_domain
                     )
-                    search: str = sanitised_domain
-                    found = cases.count() > 0
-                url_results.append(
+                    search_term: str = sanitised_domain
+                else:
+                    cases: QuerySet[Case] = Case.objects.filter(
+                        home_page_url__icontains=url
+                    )
+                    search_term: str = url
+
+                bulk_search_results.append(
                     {
-                        "search": search,
-                        "found": found,
+                        "search_term": search_term,
+                        "found_flag": cases.count() > 0,
                         "url": url,
                     }
                 )
             return self.render_to_response(
-                self.get_context_data(url_results=url_results)
+                self.get_context_data(bulk_search_results=bulk_search_results)
             )
         return self.render_to_response()

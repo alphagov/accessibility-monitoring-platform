@@ -158,6 +158,7 @@ LOG_MESSAGE: str = "Hello"
 @pytest.mark.parametrize(
     "url_name,expected_header",
     [
+        ("common:bulk-url-search", "Bulk URL search"),
         ("common:contact-admin", "Contact admin"),
         ("common:edit-active-qa-auditor", ">Active QA auditor</h1>"),
         ("common:platform-history", ">Platform version history</h1>"),
@@ -178,6 +179,23 @@ def test_page_renders(url_name, expected_header, admin_client):
 
     assert response.status_code == 200
     assertContains(response, expected_header)
+
+
+def test_bulk_url_search_works(admin_client):
+    """
+    Test that submitting the bulk URL search form redisplays page
+    with results of search.
+    """
+
+    response: HttpResponse = admin_client.post(
+        reverse("common:bulk-url-search"),
+        {
+            "urls": "example.com",
+            "submit": "Search",
+        },
+    )
+    assert response.status_code == 200
+    assertContains(response, "<li>example.com (example.com)</li>")
 
 
 @pytest.mark.parametrize(
