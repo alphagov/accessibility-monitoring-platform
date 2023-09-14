@@ -48,6 +48,7 @@
                                 <a href="{% url 'cases:case-list' %}?search={{ bulk_search_result.search_term }}"
                                     target="_blank" class="govuk-link govuk-link--no-visited-state">
                                     {{ bulk_search_result.url }}</a>
+                                ({{ bulk_search_result.search_term }})
                             </li>
                         {% endif %}
                     {% endfor %}
