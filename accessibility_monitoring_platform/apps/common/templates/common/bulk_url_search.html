@@ -1,0 +1,66 @@
+
+
+{% extends 'base.html' %}
+
+{% block title %}Bulk URL search{% endblock %}
+
+{% block phase_banner %}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">Bulk URL search</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Bulk URL search</h1>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <form method="post" action="{% url 'common:bulk-url-search' %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Search"
+                                name="submit"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                        </div>
+                    </div>
+                </form>
+                <h2 class="govuk-heading-l">No matching cases found</h2>
+                <p class="govuk-body">
+                {% for url_result in url_results %}
+                    {% if not url_result.found %}
+                        {{ url_result.url }}
+                    {% endif %}
+                {% endfor %}
+                </p>
+                <h2 class="govuk-heading-l">Matching cases found</h2>
+                <p class="govuk-body">
+                {% for url_result in url_results %}
+                    {% if url_result.found %}
+                        <a href="{% url 'cases:case-list' %}?search={{ url_result.domain }}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                        {{ url_result.url }}</a>
+                        ({{ url_result.cases.count }})
+                    {% endif %}
+                {% endfor %}
+                </p>
+            </div>
+            <div class="govuk-grid-column-one-third">
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -17,6 +17,8 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
+from ..cases.models import Case
+
 from .forms import (
     AMPContactAdminForm,
     AMPIssueReportForm,
@@ -26,6 +28,7 @@ from .forms import (
     FooterLinkFormset,
     FooterLinkOneExtraFormset,
     PlatformCheckingForm,
+    BulkURLSearchForm,
 )
 from .metrics import (
     get_case_progress_metrics,
@@ -50,6 +53,7 @@ from .utils import (
     get_platform_settings,
     record_model_update_event,
     record_model_create_event,
+    extract_domain_from_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -406,3 +410,50 @@ class IssueReportListView(ListView):
     template_name: str = "common/issue_report_list.html"
     context_object_name: str = "issue_reports"
     paginate_by: int = 10
+
+
+class BulkURLSearchView(FormView):
+    """
+    Bulk search for cases matching URLs
+    """
+
+    form_class = BulkURLSearchForm
+    template_name: str = "common/bulk_url_search.html"
+    success_url: str = reverse_lazy("common:bulk-url-search")
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            form = BulkURLSearchForm(self.request.POST)
+        else:
+            form = BulkURLSearchForm()
+        context["form"] = form
+        return context
+
+    def post(
+        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
+    ) -> HttpResponseRedirect:
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        form = context["form"]
+        if form.is_valid():
+            urls: List[str] = form.cleaned_data["urls"].split()
+            url_results: List[Dict] = []
+            for url in urls:
+                domain: str = extract_domain_from_url(url)
+                cases: QuerySet[Case] = Case.objects.filter(
+                    home_page_url__icontains=domain
+                )
+                url_results.append(
+                    {
+                        "domain": domain,
+                        "found": cases.count() > 0,
+                        "cases": cases,
+                        "url": url,
+                    }
+                )
+            return self.render_to_response(
+                self.get_context_data(url_results=url_results)
+            )
+        return self.render_to_response()
