@@ -190,12 +190,12 @@ def test_bulk_url_search_works(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("common:bulk-url-search"),
         {
-            "urls": "example.com",
+            "urls": "https://example.com",
             "submit": "Search",
         },
     )
     assert response.status_code == 200
-    assertContains(response, "<li>example.com (example.com)</li>")
+    assertContains(response, "<li>https://example.com (example)</li>")
 
 
 @pytest.mark.parametrize(
