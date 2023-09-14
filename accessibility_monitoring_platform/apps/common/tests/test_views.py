@@ -32,6 +32,8 @@ from ...users.tests.test_views import create_user, VALID_USER_EMAIL, VALID_PASSW
 from ..models import FooterLink, FrequentlyUsedLink, Platform
 from ..utils import get_platform_settings
 
+NOT_FOUND_DOMAIN: str = "not-found"
+FOUND_DOMAIN: str = "found"
 EMAIL_SUBJECT: str = "Email subject"
 EMAIL_MESSAGE: str = "Email message"
 ISSUE_REPORT_LINK: str = """<a href="/common/report-issue/?page_url=/"
@@ -186,16 +188,27 @@ def test_bulk_url_search_works(admin_client):
     Test that submitting the bulk URL search form redisplays page
     with results of search.
     """
+    Case.objects.create(home_page_url=f"https://{FOUND_DOMAIN}.com")
 
     response: HttpResponse = admin_client.post(
         reverse("common:bulk-url-search"),
         {
-            "urls": "https://example.com",
+            "urls": f"https://{NOT_FOUND_DOMAIN}.com\nhttps://{FOUND_DOMAIN}.com",
             "submit": "Search",
         },
     )
     assert response.status_code == 200
-    assertContains(response, "<li>https://example.com (example)</li>")
+    assertContains(
+        response, f"<li>https://{NOT_FOUND_DOMAIN}.com ({NOT_FOUND_DOMAIN})</li>"
+    )
+    assertContains(
+        response,
+        f"""<li>
+            https://{FOUND_DOMAIN}.com
+            (<a href="/cases/?search={FOUND_DOMAIN}" target="_blank" class="govuk-link govuk-link--no-visited-state">{FOUND_DOMAIN}</a>)
+        </li>""",
+        html=True,
+    )
 
 
 @pytest.mark.parametrize(
