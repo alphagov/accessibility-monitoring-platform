@@ -106,4 +106,13 @@
                 More information</a>
         {% endif %}
     </p>
+    <h3 class="govuk-heading-m">Tool</h3>
+    <p class="govuk-body-m">
+        {% if current == 'common:bulk-url-search' %}
+            Bulk URL search
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:bulk-url-search' %}">
+                Bulk URL search</a>
+        {% endif %}
+    </p>
 </nav>

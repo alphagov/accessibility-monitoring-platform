@@ -17,6 +17,8 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
+from ..cases.models import Case
+
 from .forms import (
     AMPContactAdminForm,
     AMPIssueReportForm,
@@ -26,6 +28,7 @@ from .forms import (
     FooterLinkFormset,
     FooterLinkOneExtraFormset,
     PlatformCheckingForm,
+    BulkURLSearchForm,
 )
 from .metrics import (
     get_case_progress_metrics,
@@ -50,6 +53,8 @@ from .utils import (
     get_platform_settings,
     record_model_update_event,
     record_model_create_event,
+    extract_domain_from_url,
+    sanitise_domain,
 )
 
 logger = logging.getLogger(__name__)
@@ -406,3 +411,49 @@ class IssueReportListView(ListView):
     template_name: str = "common/issue_report_list.html"
     context_object_name: str = "issue_reports"
     paginate_by: int = 10
+
+
+class BulkURLSearchView(FormView):
+    """
+    Bulk search for cases matching URLs
+    """
+
+    form_class = BulkURLSearchForm
+    template_name: str = "common/bulk_url_search.html"
+    success_url: str = reverse_lazy("common:bulk-url-search")
+
+    def post(
+        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
+    ) -> HttpResponseRedirect:
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        form = context["form"]
+        if form.is_valid():
+            urls: List[str] = form.cleaned_data["urls"].split("\n")
+            bulk_search_results: List[Dict] = []
+            for url in urls:
+                domain: str = extract_domain_from_url(url)
+                sanitised_domain: str = sanitise_domain(domain)
+
+                if sanitised_domain:
+                    cases: QuerySet[Case] = Case.objects.filter(
+                        home_page_url__icontains=sanitised_domain
+                    )
+                    search_term: str = sanitised_domain
+                else:
+                    cases: QuerySet[Case] = Case.objects.filter(
+                        home_page_url__icontains=url
+                    )
+                    search_term: str = url
+
+                bulk_search_results.append(
+                    {
+                        "search_term": search_term,
+                        "found_flag": cases.count() > 0,
+                        "url": url,
+                    }
+                )
+            return self.render_to_response(
+                self.get_context_data(bulk_search_results=bulk_search_results)
+            )
+        return self.render_to_response()

@@ -181,7 +181,7 @@ def up():
         command = "python aws_prototype/ecs_prepare_db.py"
         copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
         os.system(copilot_exec_cmd)
-        create_burner_account()
+        create_burner_account(app_name=APP_NAME, env_name=ENV_NAME)
 
     restore_copilot_prod_settings()
 

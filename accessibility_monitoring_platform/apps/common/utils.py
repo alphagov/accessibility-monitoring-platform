@@ -38,6 +38,30 @@ def extract_domain_from_url(url: str) -> str:
     return domain_match.group(1) if domain_match else ""
 
 
+def sanitise_domain(domain: str) -> str:
+    """Remove common parts from domain to return unique bit"""
+    if domain.startswith("www."):
+        domain = domain[4:]
+
+    for dot_gov in [".gov.", ".nhs."]:
+        dot_gov_position: int = domain.find(dot_gov)
+        if dot_gov_position >= 0:
+            domain = domain[:dot_gov_position]
+    for suffix in [
+        ".com",
+        ".wales",
+        ".cymru",
+        ".scot",
+        ".eu",
+        ".co.uk",
+        ".org.uk",
+        ".ac.uk",
+    ]:
+        if domain.endswith(suffix):
+            domain = domain[: -len(suffix)]
+    return domain
+
+
 def get_id_from_button_name(
     button_name_prefix: str, querydict: QueryDict
 ) -> Optional[int]:

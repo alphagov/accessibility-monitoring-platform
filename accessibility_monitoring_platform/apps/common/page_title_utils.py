@@ -65,6 +65,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/edit-twelve-week-retest/": "12-week retest",
     "/cases/[id]/view/": "View case",
     "/cases/create/": "Create case",
+    "/common/bulk-url-search/": "Bulk URL search",
     "/common/contact/": "Contact admin",
     "/common/edit-active-qa-auditor/": "Active QA auditor",
     "/common/edit-frequently-used-links/": "Edit frequently used links",

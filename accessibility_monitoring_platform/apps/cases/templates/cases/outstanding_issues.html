@@ -131,22 +131,32 @@
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <h2 id="page-{{ page.id }}" class="govuk-heading-l">{{ page }}</h2>
+                                    <div class="govuk-button-group amp-margin-bottom-0">
+                                        <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}"
+                                            class="govuk-link govuk-link--no-visited-state">Edit retest</a>
+                                        <a href="{{ page.url }}"
+                                            class="govuk-link" target="_blank">Link to {{ page|lower }}</a>
+                                    </div>
                                     <table class="govuk-table amp-margin-bottom-5">
                                         <thead class="govuk-table__head">
                                             <tr class="govuk-table__row">
-                                                <th scope="col" class="govuk-table__header amp-width-one-half">Original test</th>
-                                                <th scope="col" class="govuk-table__header amp-width-one-half">12-week retest</th>
+                                                <th scope="col" class="govuk-table__header amp-width-one-third">WCAG issue</th>
+                                                <th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
+                                                <th scope="col" class="govuk-table__header amp-width-one-third">Retest</th>
                                             </tr>
                                         </thead>
                                         <tbody class="govuk-table__body">
                                             {% for failure in failures %}
                                                 <tr class="govuk-table__row ">
-                                                    <td scope="row" class="govuk-table__cell amp-width-one-half">
-                                                        <b>{{ failure.wcag_definition.name }}</b><br>
+                                                    <td scope="row" class="govuk-table__cell amp-width-one-third">
+                                                        {{ failure.wcag_definition.name }}
+                                                    </td>
+                                                    <td scope="row" class="govuk-table__cell amp-width-one-third amp-notes">
+                                                        {{ failure.get_check_result_state_display }}<br>
                                                         {{ failure.notes|markdown_to_html }}
                                                     </td>
-                                                    <td class="govuk-table__cell amp-width-one-half amp-notes">
-                                                        <b>{{ failure.get_retest_state_display }}</b><br>
+                                                    <td class="govuk-table__cell amp-width-one-third amp-notes">
+                                                        {{ failure.get_retest_state_display }}<br>
                                                         {{ failure.retest_notes|markdown_to_html }}
                                                     </td>
                                                 </tr>
@@ -174,19 +184,26 @@
                                     <table class="govuk-table">
                                         <thead class="govuk-table__head">
                                             <tr class="govuk-table__row">
-                                                <th scope="col" class="govuk-table__header amp-width-one-half">Original test</th>
-                                                <th scope="col" class="govuk-table__header amp-width-one-half">12-week retest</th>
+                                                <th scope="col" class="govuk-table__header amp-width-one-third">Page</th>
+                                                <th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
+                                                <th scope="col" class="govuk-table__header amp-width-one-third">Retest</th>
                                             </tr>
                                         </thead>
                                         <tbody class="govuk-table__body">
                                             {% for failure in failures %}
                                                 <tr class="govuk-table__row ">
-                                                    <td scope="row" class="govuk-table__cell amp-width-one-half">
-                                                        <b>{{ failure.page }}</b><br>
+                                                    <td scope="row" class="govuk-table__cell amp-width-one-third">
+                                                        {{ failure.page }}
+                                                        |
+                                                        <a href="{% url 'audits:edit-audit-retest-page-checks' failure.page.id %}"
+                                                            class="govuk-link govuk-link--no-visited-state">Edit retest</a>
+                                                    </td>
+                                                    <td class="govuk-table__cell amp-width-one-third amp-notes">
+                                                        {{ failure.get_check_result_state_display }}<br>
                                                         {{ failure.notes|markdown_to_html }}
                                                     </td>
-                                                    <td class="govuk-table__cell amp-width-one-half amp-notes">
-                                                        <b>{{ failure.get_retest_state_display }}</b><br>
+                                                    <td class="govuk-table__cell amp-width-one-third amp-notes">
+                                                        {{ failure.get_retest_state_display }}<br>
                                                         {{ failure.retest_notes|markdown_to_html }}
                                                     </td>
                                                 </tr>

@@ -22,6 +22,7 @@ from .views import (
     FooterLinkFormsetTemplateView,
     PlatformCheckingView,
     IssueReportListView,
+    BulkURLSearchView,
 )
 
 app_name: str = "common"
@@ -94,5 +95,10 @@ urlpatterns: List[URLPattern] = [
         "issue-reports-list/",
         login_required(IssueReportListView.as_view()),
         name="issue-reports-list",
+    ),
+    path(
+        "bulk-url-search/",
+        login_required(BulkURLSearchView.as_view()),
+        name="bulk-url-search",
     ),
 ]

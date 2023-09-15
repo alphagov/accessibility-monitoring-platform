@@ -491,3 +491,7 @@ FooterLinkFormset: Any = forms.modelformset_factory(
 FooterLinkOneExtraFormset: Any = forms.modelformset_factory(
     FooterLink, FooterLinkUpdateForm, extra=1
 )
+
+
+class BulkURLSearchForm(forms.Form):
+    urls = AMPTextField(label="URLs")

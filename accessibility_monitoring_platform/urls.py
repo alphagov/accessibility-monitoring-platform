@@ -6,7 +6,7 @@ import requests
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
-from django.http import StreamingHttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.views.generic import RedirectView
 from two_factor.urls import urlpatterns as tf_urls
 
@@ -20,6 +20,10 @@ def get_security_txt(request):  # pylint: disable=unused-argument
         status=response.status_code,
         reason=response.reason,
     )
+
+
+def robots_txt(request):  # pylint: disable=unused-argument
+    return HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")
 
 
 urlpatterns = [
@@ -44,5 +48,6 @@ urlpatterns = [
     path(r"platform-admin/", admin.site.urls),
     path(r"favicon.ico", RedirectView.as_view(url="/static/images/favicon.ico")),
     path("security.txt", get_security_txt),
+    path("robots.txt", robots_txt),
     path(".well-known/security.txt", get_security_txt),
 ]
