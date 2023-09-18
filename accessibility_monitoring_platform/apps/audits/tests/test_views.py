@@ -1331,10 +1331,6 @@ def test_statement_details_hidden_when_no_statement_page(
     "url_name, field_label",
     [
         (
-            "audits:audit-retest-detail",
-            "Non-accessible content - non compliance with regulations",
-        ),
-        (
             "audits:edit-audit-retest-statement-1",
             "Non-accessible Content - non compliance with regulations",
         ),
