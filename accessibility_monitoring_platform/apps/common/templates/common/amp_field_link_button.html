@@ -2,10 +2,7 @@
     <label id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
     {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
     {% include 'common/field_errors.html' with errors=field.errors %}
-    <div
-        style="display: flex; align-items: center; white-space: nowrap; overflow: hidden;"
-        id="open_link_input_div"
-    >
+    <div id="open_link_input_div">
         {{ field }}
         <a
             class="govuk-link govuk-link--no-visited-state amp-open-link-control"
