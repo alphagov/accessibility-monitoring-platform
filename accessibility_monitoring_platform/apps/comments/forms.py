@@ -9,7 +9,10 @@ class CommentCreateForm(forms.ModelForm):
     Form for creating a comment
     """
 
-    body: AMPTextField = AMPTextField(label="Add comment")
+    body: AMPTextField = AMPTextField(
+        label="Add comment",
+        widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "12"}),
+    )
 
     class Meta:
         model = Comment
@@ -21,7 +24,10 @@ class CommentUpdateForm(forms.ModelForm):
     Form for updating a comment
     """
 
-    body: AMPTextField = AMPTextField(label="Edit comment")
+    body: AMPTextField = AMPTextField(
+        label="Edit comment",
+        widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "12"}),
+    )
 
     class Meta:
         model = Comment
