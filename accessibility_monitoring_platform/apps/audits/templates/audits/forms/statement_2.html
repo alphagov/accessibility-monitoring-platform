@@ -28,7 +28,7 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% if audit.accessibility_statement_initially_found %}
-                                {% include 'common/amp_field_link_button.html' with field=form.accessibility_statement_backup_url %}
+                                {% include 'common/amp_field.html' with field=form.accessibility_statement_backup_url %}
                                 {% if audit.accessibility_statement_backup_url_date %}
                                     <p class="govuk-body amp-margin-top-minus-20"> Added {{audit.accessibility_statement_backup_url_date}} </p>
                                 {% endif %}
@@ -64,5 +64,4 @@
 {% endblock %}
 
 {% block extrascript %}
-<script src="{% static 'js/common_field_link_button.js' %}"></script>
 {% endblock %}

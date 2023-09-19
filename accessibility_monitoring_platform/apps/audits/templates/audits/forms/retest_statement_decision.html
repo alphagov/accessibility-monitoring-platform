@@ -32,7 +32,7 @@
                             {% endif %}
                             {% include 'audits/helpers/accessibility_statement_and_backup_link.html' with twelve_week_test=1 %}
                             {% if audit.accessibility_statement_initially_found %}
-                                {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
+                                {% include 'common/amp_field.html' with field=form.audit_retest_accessibility_statement_backup_url %}
                                 {% if audit.audit_retest_accessibility_statement_backup_url_date %}
                                     <p class="govuk-body amp-margin-top-minus-20">Added {{ audit.audit_retest_accessibility_statement_backup_url_date }}</p>
                                 {% endif %}
@@ -74,5 +74,4 @@
 {% endblock %}
 
 {% block extrascript %}
-<script src="{% static 'js/common_field_link_button.js' %}"></script>
 {% endblock %}
