@@ -760,3 +760,10 @@ svg {
 .amp-font-weight-normal {
     font-weight: 400;
 }
+
+#open_link_input_div {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
