@@ -19,10 +19,10 @@ const openLinkControlElements = document.getElementsByClassName('amp-open-link-c
 
 Array.from(openLinkControlElements).forEach(function(openLinkControlElement) {
   const openLinkControlId = openLinkControlElement.getAttribute('id')
-  const linkFieldId = openLinkControlElement.getAttribute('data-input-field-id')
-  const linkFieldElement = document.getElementById(linkFieldId)
-  updateOpenLinkControl(openLinkControlId, linkFieldElement.value)
-  linkFieldElement.addEventListener(
+  const inputFieldId = openLinkControlElement.dataset.inputFieldId
+  const inputFieldElement = document.getElementById(inputFieldId)
+  updateOpenLinkControl(openLinkControlId, inputFieldElement.value)
+  inputFieldElement.addEventListener(
     'input', (event) => updateOpenLinkControl(openLinkControlId, event.target.value)
   )
 })
