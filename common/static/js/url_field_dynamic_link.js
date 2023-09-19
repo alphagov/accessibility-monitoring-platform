@@ -3,7 +3,6 @@ Allow user to open link entered in URL field using dynamic link
 */
 
 function updateOpenLinkControl(openLinkControlId, value) {
-  console.log("updateOpenLinkControl", openLinkControlId, value)
   const openLinkControlElement = document.getElementById(openLinkControlId)
   if (value.includes('https://') === false && value.includes('http://') === false) {
     openLinkControlElement.classList.add('amp-open-link-control-disabled')
