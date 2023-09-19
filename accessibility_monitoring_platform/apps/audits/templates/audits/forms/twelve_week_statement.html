@@ -22,9 +22,7 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                            {% include 'common/amp_field.html' with field=form.twelve_week_accessibility_statement_url %}
-                            {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
+                            {% include 'common/amp_form_snippet.html' %}
                             {% if audit.audit_retest_accessibility_statement_backup_url_date %}
                                 <p class="govuk-body amp-margin-top-minus-20">Added {{ audit.audit_retest_accessibility_statement_backup_url_date }}</p>
                             {% endif %}
@@ -63,5 +61,4 @@
 {% endblock %}
 
 {% block extrascript %}
-<script src="{% static 'js/common_field_link_button.js' %}"></script>
 {% endblock %}

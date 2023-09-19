@@ -1,0 +1,18 @@
+<div class="open_link_input_div">
+    <input type="{{ widget.type }}" name="{{ widget.name }}"
+        {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}
+        {% for name, value in widget.attrs.items %}
+            {% if value is not False %}
+                {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}
+            {% endif %}
+        {% endfor %}
+    >
+    <a
+        class="govuk-link govuk-link--no-visited-state amp-open-link-control"
+        id="id_{{ widget.name }}-open-link-control"
+        data-input-field-id="id_{{ widget.name }}"
+        target="_blank"
+    >
+        Open link
+    </a>
+</div>

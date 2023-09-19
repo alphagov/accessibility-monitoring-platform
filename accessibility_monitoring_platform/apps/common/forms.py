@@ -41,6 +41,12 @@ class VersionForm(forms.ModelForm):
         return cleaned_data
 
 
+class AMPURLWidget(forms.TextInput):
+    """Widget for URL input field with dynamic clickable link"""
+
+    template_name = "common/amp_url_field_dynamic_link.html"
+
+
 class AMPRadioSelectWidget(forms.RadioSelect):
     """Widget for GDS design system radio button fields"""
 
@@ -203,7 +209,7 @@ class AMPURLField(forms.CharField):
         kwargs.setdefault("required", False)
         kwargs.setdefault(
             "widget",
-            forms.TextInput(attrs={"class": "govuk-input"}),
+            AMPURLWidget(attrs={"class": "govuk-input"}),
         )
         kwargs.setdefault("validators", [validate_url])
         super().__init__(*args, **kwargs)

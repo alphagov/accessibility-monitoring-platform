@@ -14,7 +14,7 @@ document.body.innerHTML = `
     id="${linkFieldId}">
 <a class="govuk-link govuk-link--no-visited-state amp-open-link-control"
     id="${openLinkControlId}"
-    fieldid="${linkFieldId}"
+    data-input-field-id="${linkFieldId}"
     target="_blank"
     href="">
     Open link
@@ -22,7 +22,7 @@ document.body.innerHTML = `
 
 const {
   updateOpenLinkControl
-} = require('../common/static/js/common_field_link_button')
+} = require('../common/static/js/url_field_dynamic_link')
 
 describe('test common field link button functions are present', () => {
   it.each([
