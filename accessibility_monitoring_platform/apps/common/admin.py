@@ -60,7 +60,11 @@ class EventAdmin(admin.ModelAdmin):
         "created_by",
         "diff",
     ]
-    list_filter = ["type", ("content_type", admin.RelatedOnlyFieldListFilter)]
+    list_filter = [
+        "type",
+        ("content_type", admin.RelatedOnlyFieldListFilter),
+        ("created_by", admin.RelatedOnlyFieldListFilter),
+    ]
     fieldsets = (
         (
             None,
@@ -91,7 +95,7 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
         "complete",
         "description",
     ]
-    list_filter = ["complete", "created_by"]
+    list_filter = ["complete", ("created_by", admin.RelatedOnlyFieldListFilter)]
     fieldsets = (
         (
             None,
