@@ -355,8 +355,12 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
     report_sent_date = AMPDateField(
         label="Report sent on", help_text="This field affects the case status"
     )
-    report_followup_week_1_sent_date = AMPDateSentField(label="1-week followup date")
-    report_followup_week_4_sent_date = AMPDateSentField(label="4-week followup date")
+    report_followup_week_1_sent_date = AMPDateSentField(
+        label="1-week followup to report date"
+    )
+    report_followup_week_4_sent_date = AMPDateSentField(
+        label="4-week followup to report date"
+    )
     report_acknowledged_date = AMPDateField(
         label="Report acknowledged", help_text="This field affects the case status"
     )
@@ -384,8 +388,8 @@ class CaseReportFollowupDueDatesUpdateForm(VersionForm):
     Form for updating report followup due dates
     """
 
-    report_followup_week_1_due_date = AMPDateField(label="1-week followup")
-    report_followup_week_4_due_date = AMPDateField(label="4-week followup")
+    report_followup_week_1_due_date = AMPDateField(label="1-week followup to report")
+    report_followup_week_4_due_date = AMPDateField(label="4-week followup to report")
     report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
 
     class Meta:

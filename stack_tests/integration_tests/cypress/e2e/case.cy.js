@@ -15,17 +15,17 @@ const psbAppealNote = 'PSB appeal note'
 
 describe('View case', () => {
   beforeEach(() => {
-    cy.session('login', cy.login, {cacheAcrossSpecs: true})
+    cy.session('login', cy.login, { cacheAcrossSpecs: true })
     cy.visit('/cases/1/view')
   })
 
   it('can search within case', () => {
     cy.get('[name="search_in_case"]').clear().type('report sent')
     cy.get('#search-in-case').click()
-    cy.contains('Found 1 result for report sent')
+    cy.contains('Found 3 results for report sent')
     cy.contains('Report sent')
     cy.get('#clear-search-in-case').click()
-    cy.contains('Found 1 result for report sent').should('not.exist')
+    cy.contains('Found 3 results for report sent').should('not.exist')
   })
 
   it('can edit case details', () => {
