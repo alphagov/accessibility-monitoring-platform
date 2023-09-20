@@ -91,7 +91,7 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
         "complete",
         "description",
     ]
-    list_filter = ["complete", "created_by"]
+    list_filter = ["complete", ("created_by", admin.RelatedOnlyFieldListFilter)]
     fieldsets = (
         (
             None,
