@@ -91,11 +91,11 @@
                     You do not need to provide information from your own audit.
                     <br>
                     <br>
-                    Please provide these by filling in the last column of the below tables
-                    and provide an update on the Accessibility statement.
-                    <br>
-                    <br>
                     {% if case.audit.unfixed_check_results %}
+                        Please provide these by filling in the last column of the below tables
+                        and provide an update on the Accessibility statement.
+                        <br>
+                        <br>
                         {% for issues_table in issues_tables %}
                             {% if issues_table.rows %}
                                 <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
@@ -122,7 +122,7 @@
                             {% endif %}
                         {% endfor %}
                     {% else %}
-                        No accessibilty issues found.
+                        No accessibility issues found.
                     {% endif %}
                     <h2>Accessibility statement comments</h2>
                     {% if case.audit.uses_statement_checks %}

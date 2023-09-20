@@ -3521,7 +3521,7 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "No accessibilty issues found.")
+    assertContains(response, "No accessibility issues found.")
 
 
 def test_outstanding_issues_email_template_contains_issues(admin_client):
@@ -3566,4 +3566,4 @@ def test_outstanding_issues_email_template_contains_no_issues(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "No accessibilty issues found.")
+    assertContains(response, "No accessibility issues found.")
