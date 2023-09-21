@@ -2413,3 +2413,33 @@ def test_summary_page_view(admin_client):
 
     assert response.status_code == 200
     assertContains(response, "Test summary | Page view", html=True)
+
+
+def test_audit_statement_comparison(admin_client):
+    """Test that the audit without statement checks-specific view comparison page loads"""
+    audit: Audit = create_audit()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Save and continue")
+    assertContains(response, "12-week accessibility statement compliance decision")
+
+
+def test_audit_statement_check_statment_comparison(admin_client):
+    """Test that the audit with statement checks-specific view comparison page loads"""
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Save and exit")
+    assertNotContains(response, "12-week accessibility statement compliance decision")
