@@ -1123,6 +1123,8 @@ class Page(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
+        if self.page_type == PAGE_TYPE_STATEMENT:
+            self.audit.case.set_accessibility_statement_states()
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
@@ -1304,6 +1306,10 @@ class StatementCheckResult(models.Model):
         if self.statement_check is None:
             return str(f"{self.audit} | Custom")
         return str(f"{self.audit} | {self.statement_check}")
+
+    def save(self, *args, **kwargs) -> None:
+        self.audit.case.set_accessibility_statement_states()
+        super().save(*args, **kwargs)
 
     @property
     def label(self):

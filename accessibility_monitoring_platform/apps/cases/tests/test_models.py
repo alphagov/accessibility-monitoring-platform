@@ -803,7 +803,7 @@ def test_set_accessibility_statement_state_no_audit(accessibility_statement_stat
 def test_set_accessibility_statement_state_no_statement_page(
     accessibility_statement_state,
 ):
-    """Test accessibility_statement_state unchanged in case with no statement page"""
+    """Test accessibility_statement_state not compliant in case with no statement page"""
     case: Case = Case.objects.create(
         accessibility_statement_state=accessibility_statement_state
     )
@@ -811,7 +811,10 @@ def test_set_accessibility_statement_state_no_statement_page(
 
     case.set_accessibility_statement_states()
 
-    assert case.accessibility_statement_state == accessibility_statement_state
+    assert (
+        case.accessibility_statement_state
+        == ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+    )
 
 
 @pytest.mark.parametrize(
@@ -949,10 +952,10 @@ def test_set_accessibility_statement_state_no_audit(
     ],
 )
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_no_statement_page(
+def test_set_accessibility_statement_state_final__no_statement_page(
     accessibility_statement_state_final,
 ):
-    """Test accessibility_statement_state_final unchanged in case with no statement page"""
+    """Test accessibility_statement_state_final not compliant in case with no statement page"""
     case: Case = Case.objects.create(
         accessibility_statement_state_final=accessibility_statement_state_final
     )
@@ -961,7 +964,8 @@ def test_set_accessibility_statement_state_no_statement_page(
     case.set_accessibility_statement_states()
 
     assert (
-        case.accessibility_statement_state_final == accessibility_statement_state_final
+        case.accessibility_statement_state_final
+        == ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
     )
 
 
