@@ -761,7 +761,7 @@ def test_set_accessibility_statement_state_default():
     """Test calculated accessibility statement state for new case"""
     case: Case = Case.objects.create()
 
-    case.set_accessibility_statement_state()
+    case.set_accessibility_statement_states()
 
     assert (
         case.accessibility_statement_state == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
@@ -784,7 +784,7 @@ def test_set_accessibility_statement_state_no_audit(accessibility_statement_stat
         accessibility_statement_state=accessibility_statement_state
     )
 
-    case.set_accessibility_statement_state()
+    case.set_accessibility_statement_states()
 
     assert case.accessibility_statement_state == accessibility_statement_state
 
@@ -809,7 +809,7 @@ def test_set_accessibility_statement_state_no_statement_page(
     )
     Audit.objects.create(case=case)
 
-    case.set_accessibility_statement_state()
+    case.set_accessibility_statement_states()
 
     assert case.accessibility_statement_state == accessibility_statement_state
 
@@ -840,7 +840,7 @@ def test_set_accessibility_statement_state_no_statement_checks(
         audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
     )
 
-    case.set_accessibility_statement_state()
+    case.set_accessibility_statement_states()
 
     assert case.accessibility_statement_state == accessibility_statement_state
 
@@ -865,7 +865,7 @@ def test_set_accessibility_statement_state_to_compliant():
             statement_check=statement_check,
         )
 
-    case.set_accessibility_statement_state()
+    case.set_accessibility_statement_states()
 
     assert (
         case.accessibility_statement_state == ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
@@ -893,7 +893,7 @@ def test_set_accessibility_statement_state_to_not_compliant():
             check_result_state=STATEMENT_CHECK_NO,
         )
 
-    case.set_accessibility_statement_state()
+    case.set_accessibility_statement_states()
     assert (
         case.accessibility_statement_state
         == ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
@@ -905,7 +905,7 @@ def test_set_accessibility_statement_state_final_default():
     """Test calculated final accessibility statement state for new case"""
     case: Case = Case.objects.create()
 
-    case.set_accessibility_statement_state_final()
+    case.set_accessibility_statement_states()
 
     assert (
         case.accessibility_statement_state_final
@@ -931,7 +931,7 @@ def test_set_accessibility_statement_state_no_audit(
         accessibility_statement_state_final=accessibility_statement_state_final
     )
 
-    case.set_accessibility_statement_state_final()
+    case.set_accessibility_statement_states()
 
     assert (
         case.accessibility_statement_state_final == accessibility_statement_state_final
@@ -958,7 +958,7 @@ def test_set_accessibility_statement_state_no_statement_page(
     )
     Audit.objects.create(case=case)
 
-    case.set_accessibility_statement_state_final()
+    case.set_accessibility_statement_states()
 
     assert (
         case.accessibility_statement_state_final == accessibility_statement_state_final
@@ -988,7 +988,7 @@ def test_set_accessibility_statement_state_no_statement_checks(
         audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
     )
 
-    case.set_accessibility_statement_state_final()
+    case.set_accessibility_statement_states()
 
     assert (
         case.accessibility_statement_state_final == accessibility_statement_state_final
@@ -1015,7 +1015,7 @@ def test_set_accessibility_statement_state_final_to_compliant():
             statement_check=statement_check,
         )
 
-    case.set_accessibility_statement_state_final()
+    case.set_accessibility_statement_states()
 
     assert (
         case.accessibility_statement_state_final
@@ -1044,7 +1044,7 @@ def test_set_accessibility_statement_state_final_to_not_compliant():
             retest_state=STATEMENT_CHECK_NO,
         )
 
-    case.set_accessibility_statement_state_final()
+    case.set_accessibility_statement_states()
 
     assert (
         case.accessibility_statement_state_final
