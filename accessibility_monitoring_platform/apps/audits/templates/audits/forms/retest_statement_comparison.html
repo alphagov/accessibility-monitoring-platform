@@ -31,13 +31,23 @@
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
-                            <input
-                                type="submit"
-                                value="Save and continue"
-                                name="save_continue"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
+                            {% if audit.uses_statement_checks %}
+                                <input
+                                        type="submit"
+                                        value="Save and exit"
+                                        name="save_exit"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    />
+                            {% else %}
+                                <input
+                                    type="submit"
+                                    value="Save and continue"
+                                    name="save_continue"
+                                    class="govuk-button govuk-button--secondary"
+                                    data-module="govuk-button"
+                                />
+                            {% endif %}
                             <a
                                 href="{{ audit.get_absolute_url }}"
                                 class="govuk-link govuk-link--no-visited-state"

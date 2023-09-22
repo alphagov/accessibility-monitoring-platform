@@ -1336,11 +1336,13 @@ class AuditRetestStatementComparisonUpdateView(AuditUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        audit_pk: Dict[str, int] = {"pk": self.object.id}
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse(
                 "audits:edit-audit-retest-statement-decision", kwargs=audit_pk
             )
+        elif "save_exit" in self.request.POST:
+            return reverse("audits:audit-retest-detail", kwargs=audit_pk)
         return super().get_success_url()
 
 
