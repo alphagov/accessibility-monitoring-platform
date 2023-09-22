@@ -926,7 +926,7 @@ def test_set_accessibility_statement_state_final_default():
     ],
 )
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_no_audit(
+def test_set_accessibility_statement_state_final_no_audit(
     accessibility_statement_state_final,
 ):
     """Test accessibility_statement_state_final unchanged in case with no audit"""
@@ -980,7 +980,7 @@ def test_set_accessibility_statement_state_final__no_statement_page(
     ],
 )
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_no_statement_checks(
+def test_set_accessibility_statement_state_final_no_statement_checks(
     accessibility_statement_state_final,
 ):
     """Test accessibility_statement_state_final unchanged in case with no statement page"""
