@@ -35,17 +35,19 @@
             </div>
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds metadata-container">
-                    <p class="amp-margin-bottom-0">From</p>
-                    {{ report.wrapper.sent_by|markdown_to_html }}
+                    <dl>
+                        <dt class="amp-margin-bottom-0">From</dt>
+                        <dd class="amp-margin-left-0">{{ report.wrapper.sent_by|markdown_to_html }}</dd>
 
-                    <p class="amp-margin-bottom-0">Contact</p>
-                    {{ report.wrapper.contact|markdown_to_html }}
+                        <dt class="amp-margin-bottom-0">Contact</dt>
+                        <dd class="amp-margin-left-0">{{ report.wrapper.contact|markdown_to_html }}</dd>
 
-                    {% if s3_report %}
-                        <p>Published {{ s3_report.created|amp_date }}</p>
-                    {% else %}
-                        <p>Report last updated {{ report.report_rebuilt|amp_datetime }}</p>
-                    {% endif %}
+                        {% if s3_report %}
+                            <dt class="metadata-term">Published</dt><dd>{{ s3_report.created|amp_date }}</dd>
+                        {% else %}
+                            <dt class="metadata-term">Report last updated</dt><dd>{{ report.report_rebuilt|amp_datetime }}</dd>
+                        {% endif %}
+                    </dl>
                     <span class="no-print">
                         <button id="print-button" class="govuk-link print-button">Print this page</button>
                     </span>

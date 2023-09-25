@@ -199,6 +199,10 @@ img, .amp-max-width-100 {
     margin-bottom: 40px;
 }
 
+.amp-margin-left-0 {
+    margin-left: 0;
+}
+
 .amp-margin-left-10 {
     margin-left: 10px;
 }
@@ -536,6 +540,14 @@ img, .amp-max-width-100 {
 .metadata-container {
     margin-top: 10px;
     margin-bottom: 25px;
+}
+
+.metadata-term {
+    box-sizing: border-box;
+    float: left;
+    clear: left;
+    padding-right: 5px;
+    margin-top: 0px;
 }
 
 .report-contents-v1_0_0__20220406, .amp-report-wrapper {
