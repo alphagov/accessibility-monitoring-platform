@@ -878,7 +878,7 @@ def test_set_accessibility_statement_state_to_compliant():
 @pytest.mark.django_db
 def test_set_accessibility_statement_state_to_not_compliant():
     """
-    Test accessibility_statement_state set to compliant when a statement check
+    Test accessibility_statement_state set to not compliant when a statement check
     has been answered 'no'.
     """
     case: Case = Case.objects.create()

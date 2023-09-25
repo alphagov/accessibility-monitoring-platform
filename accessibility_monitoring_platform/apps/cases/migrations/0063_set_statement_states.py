@@ -18,14 +18,13 @@ def populate_accessibility_statement_states(
             statement_page = Page.objects.filter(
                 audit=audit, page_type="statement"
             ).first()
-            failed_statement_checks = StatementCheckResult.objects.filter(
-                audit=audit, check_result_state="no"
-            )
-            failed_statement_retests = StatementCheckResult.objects.filter(
-                audit=audit, retest_state="no"
-            )
-
             if statement_page or case.twelve_week_accessibility_statement_url:
+                failed_statement_checks = StatementCheckResult.objects.filter(
+                    audit=audit, check_result_state="no"
+                )
+                failed_statement_retests = StatementCheckResult.objects.filter(
+                    audit=audit, retest_state="no"
+                )
                 if failed_statement_checks:
                     case.accessibility_statement_state = "not-compliant"
                 else:
