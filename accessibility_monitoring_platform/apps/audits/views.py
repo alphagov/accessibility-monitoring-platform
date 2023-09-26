@@ -48,10 +48,10 @@ from .forms import (
     CheckResultFormset,
     AuditWebsiteDecisionUpdateForm,
     CaseWebsiteDecisionUpdateForm,
-    AuditStatement1UpdateForm,
-    AuditStatement2UpdateForm,
-    AuditStatementDecisionUpdateForm,
-    CaseStatementDecisionUpdateForm,
+    ArchiveAuditStatement1UpdateForm,
+    ArchiveAuditStatement2UpdateForm,
+    ArchiveAuditStatementDecisionUpdateForm,
+    ArchiveCaseStatementDecisionUpdateForm,
     AuditStatementOverviewUpdateForm,
     AuditStatementWebsiteUpdateForm,
     AuditStatementComplianceUpdateForm,
@@ -62,7 +62,7 @@ from .forms import (
     CustomStatementCheckResultFormset,
     CustomStatementCheckResultFormsetOneExtra,
     AuditSummaryUpdateForm,
-    AuditReportOptionsUpdateForm,
+    ArchiveAuditReportOptionsUpdateForm,
     AuditRetestMetadataUpdateForm,
     AuditRetestPagesUpdateForm,
     AuditRetestPageChecksForm,
@@ -71,8 +71,8 @@ from .forms import (
     AuditRetestWebsiteDecisionUpdateForm,
     CaseFinalWebsiteDecisionUpdateForm,
     Audit12WeekStatementUpdateForm,
-    AuditRetestStatement1UpdateForm,
-    AuditRetestStatement2UpdateForm,
+    ArchiveAuditRetestStatement1UpdateForm,
+    ArchiveAuditRetestStatement2UpdateForm,
     RetestStatementCheckResultFormset,
     AuditRetestStatementOverviewUpdateForm,
     AuditRetestStatementWebsiteUpdateForm,
@@ -82,8 +82,8 @@ from .forms import (
     AuditRetestStatementFeedbackUpdateForm,
     AuditRetestStatementOtherUpdateForm,
     AuditRetestStatementComparisonUpdateForm,
-    AuditRetestStatementDecisionUpdateForm,
-    CaseFinalStatementDecisionUpdateForm,
+    ArchiveAuditRetestStatementDecisionUpdateForm,
+    ArchiveCaseFinalStatementDecisionUpdateForm,
     WcagDefinitionSearchForm,
     WcagDefinitionCreateUpdateForm,
     StatementCheckResultFormset,
@@ -785,7 +785,9 @@ class AuditStatement1UpdateView(AuditUpdateView):
     View to update accessibility statement 1 audit fields
     """
 
-    form_class: Type[AuditStatement1UpdateForm] = AuditStatement1UpdateForm
+    form_class: Type[
+        ArchiveAuditStatement1UpdateForm
+    ] = ArchiveAuditStatement1UpdateForm
     template_name: str = "audits/forms/statement_1.html"
 
     def form_valid(self, form: ModelForm):
@@ -812,7 +814,9 @@ class AuditStatement2UpdateView(AuditUpdateView):
     View to update accessibility statement 2 audit fields
     """
 
-    form_class: Type[AuditStatement2UpdateForm] = AuditStatement2UpdateForm
+    form_class: Type[
+        ArchiveAuditStatement2UpdateForm
+    ] = ArchiveAuditStatement2UpdateForm
     template_name: str = "audits/forms/statement_2.html"
 
     def get_success_url(self) -> str:
@@ -829,11 +833,11 @@ class AuditStatementDecisionUpdateView(AuditCaseUpdateView):
     """
 
     form_class: Type[
-        AuditStatementDecisionUpdateForm
-    ] = AuditStatementDecisionUpdateForm
+        ArchiveAuditStatementDecisionUpdateForm
+    ] = ArchiveAuditStatementDecisionUpdateForm
     case_form_class: Type[
-        CaseStatementDecisionUpdateForm
-    ] = CaseStatementDecisionUpdateForm
+        ArchiveCaseStatementDecisionUpdateForm
+    ] = ArchiveCaseStatementDecisionUpdateForm
     template_name: str = "audits/forms/statement_decision.html"
 
     def get_success_url(self) -> str:
@@ -849,7 +853,9 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
     View to update report options
     """
 
-    form_class: Type[AuditReportOptionsUpdateForm] = AuditReportOptionsUpdateForm
+    form_class: Type[
+        ArchiveAuditReportOptionsUpdateForm
+    ] = ArchiveAuditReportOptionsUpdateForm
     template_name: str = "audits/forms/report_options.html"
 
     def form_valid(self, form: ModelForm):
@@ -901,8 +907,8 @@ class AuditSummaryUpdateView(AuditUpdateView):
             extract_form_labels_and_values, instance=audit
         )
         context["audit_statement_rows"] = get_audit_rows(
-            form=AuditStatement1UpdateForm()
-        ) + get_audit_rows(form=AuditStatement2UpdateForm())
+            form=ArchiveAuditStatement1UpdateForm()
+        ) + get_audit_rows(form=ArchiveAuditStatement2UpdateForm())
 
         return context
 
@@ -1087,7 +1093,9 @@ class AuditRetestStatement1UpdateView(AuditUpdateView):
     View to retest accessibility statement part one
     """
 
-    form_class: Type[AuditRetestStatement1UpdateForm] = AuditRetestStatement1UpdateForm
+    form_class: Type[
+        ArchiveAuditRetestStatement1UpdateForm
+    ] = ArchiveAuditRetestStatement1UpdateForm
     template_name: str = "audits/forms/retest_statement_1.html"
 
     def get_success_url(self) -> str:
@@ -1119,7 +1127,9 @@ class AuditRetestStatement2UpdateView(AuditUpdateView):
     View to retest accessibility statement part two
     """
 
-    form_class: Type[AuditRetestStatement2UpdateForm] = AuditRetestStatement2UpdateForm
+    form_class: Type[
+        ArchiveAuditRetestStatement2UpdateForm
+    ] = ArchiveAuditRetestStatement2UpdateForm
     template_name: str = "audits/forms/retest_statement_2.html"
 
     def get_success_url(self) -> str:
@@ -1352,11 +1362,11 @@ class AuditRetestStatementDecisionUpdateView(AuditCaseUpdateView):
     """
 
     form_class: Type[
-        AuditRetestStatementDecisionUpdateForm
-    ] = AuditRetestStatementDecisionUpdateForm
+        ArchiveAuditRetestStatementDecisionUpdateForm
+    ] = ArchiveAuditRetestStatementDecisionUpdateForm
     case_form_class: Type[
-        CaseFinalStatementDecisionUpdateForm
-    ] = CaseFinalStatementDecisionUpdateForm
+        ArchiveCaseFinalStatementDecisionUpdateForm
+    ] = ArchiveCaseFinalStatementDecisionUpdateForm
     template_name: str = "audits/forms/retest_statement_decision.html"
 
     def get_success_url(self) -> str:

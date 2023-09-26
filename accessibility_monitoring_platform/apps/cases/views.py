@@ -21,8 +21,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from ..audits.forms import (
-    AuditStatement1UpdateForm,
-    AuditStatement2UpdateForm,
+    ArchiveAuditStatement1UpdateForm,
+    ArchiveAuditStatement2UpdateForm,
 )
 from ..audits.utils import get_test_view_tables_context, get_retest_view_tables_context
 
@@ -110,8 +110,8 @@ TRUTHY_SEARCH_FIELDS: List[str] = [
     "enforcement_body",
 ]
 statement_fields = {
-    **AuditStatement1UpdateForm().fields,
-    **AuditStatement2UpdateForm().fields,
+    **ArchiveAuditStatement1UpdateForm().fields,
+    **ArchiveAuditStatement2UpdateForm().fields,
 }
 
 

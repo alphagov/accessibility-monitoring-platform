@@ -78,22 +78,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_scope_state_display }}
+            {{ audit.get_archive_scope_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_scope_state_display }}
+            {{ audit.get_archive_audit_retest_scope_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.scope_notes %}
-                {{ audit.scope_notes|markdown_to_html }}
-            {% elif audit.audit_retest_scope_notes %}
+            {% if audit.archive_scope_notes %}
+                {{ audit.archive_scope_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_scope_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_scope_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_scope_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -104,22 +104,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_feedback_state_display }}
+            {{ audit.get_archive_feedback_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_feedback_state_display }}
+            {{ audit.get_archive_audit_retest_feedback_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.feedback_notes %}
-                {{ audit.feedback_notes|markdown_to_html }}
-            {% elif audit.audit_retest_feedback_notes %}
+            {% if audit.archive_feedback_notes %}
+                {{ audit.archive_feedback_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_feedback_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_feedback_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_feedback_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -130,22 +130,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_contact_information_state_display }}
+            {{ audit.get_archive_contact_information_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_contact_information_state_display }}
+            {{ audit.get_archive_audit_retest_contact_information_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.contact_information_notes %}
-                {{ audit.contact_information_notes|markdown_to_html }}
-            {% elif audit.audit_retest_contact_information_notes %}
+            {% if audit.archive_contact_information_notes %}
+                {{ audit.archive_contact_information_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_contact_information_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_contact_information_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_contact_information_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -156,22 +156,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_enforcement_procedure_state_display }}
+            {{ audit.get_archive_enforcement_procedure_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_enforcement_procedure_state_display }}
+            {{ audit.get_archive_audit_retest_enforcement_procedure_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.enforcement_procedure_notes %}
-                {{ audit.enforcement_procedure_notes|markdown_to_html }}
-            {% elif audit.audit_retest_enforcement_procedure_notes %}
+            {% if audit.archive_enforcement_procedure_notes %}
+                {{ audit.archive_enforcement_procedure_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_enforcement_procedure_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_enforcement_procedure_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_enforcement_procedure_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -182,22 +182,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_declaration_state_display }}
+            {{ audit.get_archive_declaration_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_declaration_state_display }}
+            {{ audit.get_archive_audit_retest_declaration_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.declaration_notes %}
-                {{ audit.declaration_notes|markdown_to_html }}
-            {% elif audit.audit_retest_declaration_notes %}
+            {% if audit.archive_declaration_notes %}
+                {{ audit.archive_declaration_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_declaration_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_declaration_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_declaration_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -208,22 +208,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_compliance_state_display }}
+            {{ audit.get_archive_compliance_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_compliance_state_display }}
+            {{ audit.get_archive_audit_retest_compliance_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.compliance_notes %}
-                {{ audit.compliance_notes|markdown_to_html }}
-            {% elif audit.audit_retest_compliance_notes %}
+            {% if audit.archive_compliance_notes %}
+                {{ audit.archive_compliance_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_compliance_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_compliance_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_compliance_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -234,22 +234,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_non_regulation_state_display }}
+            {{ audit.get_archive_non_regulation_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_non_regulation_state_display }}
+            {{ audit.get_archive_audit_retest_non_regulation_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.non_regulation_notes %}
-                {{ audit.non_regulation_notes|markdown_to_html }}
-            {% elif audit.audit_retest_non_regulation_notes %}
+            {% if audit.archive_non_regulation_notes %}
+                {{ audit.archive_non_regulation_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_non_regulation_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_non_regulation_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_non_regulation_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -260,22 +260,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_disproportionate_burden_state_display }}
+            {{ audit.get_archive_disproportionate_burden_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_disproportionate_burden_state_display }}
+            {{ audit.get_archive_audit_retest_disproportionate_burden_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.disproportionate_burden_notes %}
-                {{ audit.disproportionate_burden_notes|markdown_to_html }}
-            {% elif audit.audit_retest_disproportionate_burden_notes %}
+            {% if audit.archive_disproportionate_burden_notes %}
+                {{ audit.archive_disproportionate_burden_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_disproportionate_burden_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_disproportionate_burden_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_disproportionate_burden_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -286,22 +286,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_content_not_in_scope_state_display }}
+            {{ audit.get_archive_content_not_in_scope_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_content_not_in_scope_state_display }}
+            {{ audit.get_archive_audit_retest_content_not_in_scope_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.content_not_in_scope_notes %}
-                {{ audit.content_not_in_scope_notes|markdown_to_html }}
-            {% elif audit.audit_retest_content_not_in_scope_notes %}
+            {% if audit.archive_content_not_in_scope_notes %}
+                {{ audit.archive_content_not_in_scope_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_content_not_in_scope_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_content_not_in_scope_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_content_not_in_scope_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -312,22 +312,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_preparation_date_state_display }}
+            {{ audit.get_archive_preparation_date_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_preparation_date_state_display }}
+            {{ audit.get_archive_audit_retest_preparation_date_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.preparation_date_notes %}
-                {{ audit.preparation_date_notes|markdown_to_html }}
-            {% elif audit.audit_retest_preparation_date_notes %}
+            {% if audit.archive_preparation_date_notes %}
+                {{ audit.archive_preparation_date_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_preparation_date_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_preparation_date_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_preparation_date_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -338,22 +338,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_review_state_display }}
+            {{ audit.get_archive_review_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_review_state_display }}
+            {{ audit.get_archive_audit_retest_review_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.review_notes %}
-                {{ audit.review_notes|markdown_to_html }}
-            {% elif audit.audit_retest_review_notes %}
+            {% if audit.archive_review_notes %}
+                {{ audit.archive_review_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_review_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_review_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_review_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -364,22 +364,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_method_state_display }}
+            {{ audit.get_archive_method_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_method_state_display }}
+            {{ audit.get_archive_audit_retest_method_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5 amp-bottom-border">
         <div class="govuk-grid-column-one-half">
-            {% if audit.method_notes %}
-                {{ audit.method_notes|markdown_to_html }}
-            {% elif audit.audit_retest_method_notes %}
+            {% if audit.archive_method_notes %}
+                {{ audit.archive_method_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_method_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_method_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_method_notes|markdown_to_html }}
         </div>
     </div>
 
@@ -390,22 +390,22 @@
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-5">
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_access_requirements_state_display }}
+            {{ audit.get_archive_access_requirements_state_display }}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.get_audit_retest_access_requirements_state_display }}
+            {{ audit.get_archive_audit_retest_access_requirements_state_display }}
         </div>
     </div>
     <div class="govuk-grid-row govuk-body amp-margin-bottom-30{% if not in_accordion %} amp-bottom-border{% endif %}">
         <div class="govuk-grid-column-one-half">
-            {% if audit.access_requirements_notes %}
-                {{ audit.access_requirements_notes|markdown_to_html }}
-            {% elif audit.audit_retest_access_requirements_notes %}
+            {% if audit.archive_access_requirements_notes %}
+                {{ audit.archive_access_requirements_notes|markdown_to_html }}
+            {% elif audit.archive_audit_retest_access_requirements_notes %}
                 &nbsp;
             {% endif %}
         </div>
         <div class="govuk-grid-column-one-half">
-            {{ audit.audit_retest_access_requirements_notes|markdown_to_html }}
+            {{ audit.archive_audit_retest_access_requirements_notes|markdown_to_html }}
         </div>
     </div>
 {% endif %}

@@ -542,9 +542,9 @@ def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
     Audit.objects.create(
         case=case,
         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
-        audit_retest_declaration_state="present",
-        audit_retest_scope_state="present",
-        audit_retest_access_requirements_state="req-met",
+        archive_audit_retest_declaration_state="present",
+        archive_audit_retest_scope_state="present",
+        archive_audit_retest_access_requirements_state="req-met",
     )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))

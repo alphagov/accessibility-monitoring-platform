@@ -281,7 +281,7 @@ class CaseWebsiteDecisionUpdateForm(VersionForm):
         ]
 
 
-class AuditStatement1UpdateForm(VersionForm):
+class ArchiveAuditStatement1UpdateForm(VersionForm):
     """
     Form for editing accessibility statement 1 checks
     """
@@ -289,43 +289,42 @@ class AuditStatement1UpdateForm(VersionForm):
     accessibility_statement_backup_url = AMPURLField(
         label="Link to saved accessibility statement",
     )
-    scope_state = AMPChoiceRadioField(
+    archive_scope_state = AMPChoiceRadioField(
         label="Scope",
         choices=SCOPE_STATE_CHOICES,
     )
-    scope_notes = AMPTextField(label="Notes")
-    feedback_state = AMPChoiceRadioField(
+    archive_scope_notes = AMPTextField(label="Notes")
+    archive_feedback_state = AMPChoiceRadioField(
         label="Feedback",
         choices=FEEDBACK_STATE_CHOICES,
     )
-    feedback_notes = AMPTextField(label="Notes")
-    contact_information_state = AMPChoiceRadioField(
+    archive_feedback_notes = AMPTextField(label="Notes")
+    archive_contact_information_state = AMPChoiceRadioField(
         label="Contact Information",
         choices=CONTACT_INFORMATION_STATE_CHOICES,
     )
-    contact_information_notes = AMPTextField(label="Notes")
-    enforcement_procedure_state = AMPChoiceRadioField(
+    archive_contact_information_notes = AMPTextField(label="Notes")
+    archive_enforcement_procedure_state = AMPChoiceRadioField(
         label="Enforcement Procedure",
         choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
     )
-    enforcement_procedure_notes = AMPTextField(label="Notes")
-    declaration_state = AMPChoiceRadioField(
+    archive_enforcement_procedure_notes = AMPTextField(label="Notes")
+    archive_declaration_state = AMPChoiceRadioField(
         label="Declaration",
         choices=DECLARATION_STATE_CHOICES,
     )
-    declaration_notes = AMPTextField(label="Notes")
-
-    compliance_state = AMPChoiceRadioField(
+    archive_declaration_notes = AMPTextField(label="Notes")
+    archive_compliance_state = AMPChoiceRadioField(
         label="Compliance Status",
         choices=COMPLIANCE_STATE_CHOICES,
     )
-    compliance_notes = AMPTextField(label="Notes")
-    non_regulation_state = AMPChoiceRadioField(
+    archive_compliance_notes = AMPTextField(label="Notes")
+    archive_non_regulation_state = AMPChoiceRadioField(
         label="Non-accessible Content - non compliance with regulations",
         choices=NON_REGULATION_STATE_CHOICES,
     )
-    non_regulation_notes = AMPTextField(label="Notes")
-    audit_statement_1_complete_date = AMPDatePageCompleteField()
+    archive_non_regulation_notes = AMPTextField(label="Notes")
+    archive_audit_statement_1_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -336,25 +335,25 @@ class AuditStatement1UpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "accessibility_statement_backup_url",
-            "scope_state",
-            "scope_notes",
-            "feedback_state",
-            "feedback_notes",
-            "contact_information_state",
-            "contact_information_notes",
-            "enforcement_procedure_state",
-            "enforcement_procedure_notes",
-            "declaration_state",
-            "declaration_notes",
-            "compliance_state",
-            "compliance_notes",
-            "non_regulation_state",
-            "non_regulation_notes",
-            "audit_statement_1_complete_date",
+            "archive_scope_state",
+            "archive_scope_notes",
+            "archive_feedback_state",
+            "archive_feedback_notes",
+            "archive_contact_information_state",
+            "archive_contact_information_notes",
+            "archive_enforcement_procedure_state",
+            "archive_enforcement_procedure_notes",
+            "archive_declaration_state",
+            "archive_declaration_notes",
+            "archive_compliance_state",
+            "archive_compliance_notes",
+            "archive_non_regulation_state",
+            "archive_non_regulation_notes",
+            "archive_audit_statement_1_complete_date",
         ]
 
 
-class AuditStatement2UpdateForm(VersionForm):
+class ArchiveAuditStatement2UpdateForm(VersionForm):
     """
     Form for editing accessibility statement 2 checks
     """
@@ -362,71 +361,71 @@ class AuditStatement2UpdateForm(VersionForm):
     accessibility_statement_backup_url = AMPURLField(
         label="Link to saved accessibility statement",
     )
-    disproportionate_burden_state = AMPChoiceRadioField(
+    archive_disproportionate_burden_state = AMPChoiceRadioField(
         label="Non-accessible Content - disproportionate burden",
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
     )
-    disproportionate_burden_notes = AMPTextField(label="Notes")
-    content_not_in_scope_state = AMPChoiceRadioField(
+    archive_disproportionate_burden_notes = AMPTextField(label="Notes")
+    archive_content_not_in_scope_state = AMPChoiceRadioField(
         label="Non-accessible Content - the content is not within the scope of the applicable legislation",
         choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
     )
-    content_not_in_scope_notes = AMPTextField(label="Notes")
-    preparation_date_state = AMPChoiceRadioField(
+    archive_content_not_in_scope_notes = AMPTextField(label="Notes")
+    archive_preparation_date_state = AMPChoiceRadioField(
         label="Preparation Date",
         choices=PREPARATION_DATE_STATE_CHOICES,
     )
-    preparation_date_notes = AMPTextField(label="Notes")
-    review_state = AMPChoiceRadioField(
+    archive_preparation_date_notes = AMPTextField(label="Notes")
+    archive_review_state = AMPChoiceRadioField(
         label="Review",
         choices=REVIEW_STATE_CHOICES,
     )
-    review_notes = AMPTextField(label="Notes")
-    method_state = AMPChoiceRadioField(
+    archive_review_notes = AMPTextField(label="Notes")
+    archive_method_state = AMPChoiceRadioField(
         label="Method",
         choices=METHOD_STATE_CHOICES,
     )
-    method_notes = AMPTextField(label="Notes")
-    access_requirements_state = AMPChoiceRadioField(
+    archive_method_notes = AMPTextField(label="Notes")
+    archive_access_requirements_state = AMPChoiceRadioField(
         label="Access Requirements",
         choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
     )
-    access_requirements_notes = AMPTextField(label="Notes")
-    audit_statement_2_complete_date = AMPDatePageCompleteField()
+    archive_access_requirements_notes = AMPTextField(label="Notes")
+    archive_audit_statement_2_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
             "accessibility_statement_backup_url",
-            "disproportionate_burden_state",
-            "disproportionate_burden_notes",
-            "content_not_in_scope_state",
-            "content_not_in_scope_notes",
-            "preparation_date_state",
-            "preparation_date_notes",
-            "review_state",
-            "review_notes",
-            "method_state",
-            "method_notes",
-            "access_requirements_state",
-            "access_requirements_notes",
-            "audit_statement_2_complete_date",
+            "archive_disproportionate_burden_state",
+            "archive_disproportionate_burden_notes",
+            "archive_content_not_in_scope_state",
+            "archive_content_not_in_scope_notes",
+            "archive_preparation_date_state",
+            "archive_preparation_date_notes",
+            "archive_review_state",
+            "archive_review_notes",
+            "archive_method_state",
+            "archive_method_notes",
+            "archive_access_requirements_state",
+            "archive_access_requirements_notes",
+            "archive_audit_statement_2_complete_date",
         ]
 
 
-class AuditStatementDecisionUpdateForm(VersionForm):
+class ArchiveAuditStatementDecisionUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision completion
     """
 
-    audit_statement_decision_complete_date = AMPDatePageCompleteField()
+    archive_audit_statement_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_statement_decision_complete_date",
+            "archive_audit_statement_decision_complete_date",
         ]
 
 
@@ -585,7 +584,7 @@ CustomStatementCheckResultFormsetOneExtra: Any = forms.modelformset_factory(
 )
 
 
-class CaseStatementDecisionUpdateForm(VersionForm):
+class ArchiveCaseStatementDecisionUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision
     """
@@ -623,244 +622,260 @@ class AuditSummaryUpdateForm(VersionForm):
         ]
 
 
-class AuditReportOptionsUpdateForm(VersionForm):
+class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     """
     Form for editing report options
     """
 
-    accessibility_statement_state = AMPChoiceRadioField(
+    archive_accessibility_statement_state = AMPChoiceRadioField(
         label="Accessibility statement",
         choices=ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     )
-    accessibility_statement_not_correct_format = AMPChoiceCheckboxField(
+    archive_accessibility_statement_not_correct_format = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_not_correct_format"
+                    "archive_accessibility_statement_not_correct_format"
                 ]
             }
         ),
     )
-    accessibility_statement_not_specific_enough = AMPChoiceCheckboxField(
+    archive_accessibility_statement_not_specific_enough = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_not_specific_enough"
+                    "archive_accessibility_statement_not_specific_enough"
                 ]
             }
         ),
     )
-    accessibility_statement_missing_accessibility_issues = AMPChoiceCheckboxField(
+    archive_accessibility_statement_missing_accessibility_issues = (
+        AMPChoiceCheckboxField(
+            label="",
+            choices=BOOLEAN_CHOICES,
+            widget=AMPChoiceCheckboxWidget(
+                attrs={
+                    "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                        "archive_accessibility_statement_missing_accessibility_issues"
+                    ]
+                }
+            ),
+        )
+    )
+    archive_accessibility_statement_missing_mandatory_wording = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_missing_accessibility_issues"
+                    "archive_accessibility_statement_missing_mandatory_wording"
                 ]
             }
         ),
     )
-    accessibility_statement_missing_mandatory_wording = AMPChoiceCheckboxField(
-        label="",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_missing_mandatory_wording"
-                ]
-            }
-        ),
-    )
-    accessibility_statement_missing_mandatory_wording_notes = AMPTextField(
+    archive_accessibility_statement_missing_mandatory_wording_notes = AMPTextField(
         label="Additional text for mandatory wording"
     )
-    accessibility_statement_needs_more_re_disproportionate = AMPChoiceCheckboxField(
+    archive_accessibility_statement_needs_more_re_disproportionate = (
+        AMPChoiceCheckboxField(
+            label="",
+            choices=BOOLEAN_CHOICES,
+            widget=AMPChoiceCheckboxWidget(
+                attrs={
+                    "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                        "archive_accessibility_statement_needs_more_re_disproportionate"
+                    ]
+                }
+            ),
+        )
+    )
+    archive_accessibility_statement_needs_more_re_accessibility = (
+        AMPChoiceCheckboxField(
+            label="",
+            choices=BOOLEAN_CHOICES,
+            widget=AMPChoiceCheckboxWidget(
+                attrs={
+                    "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                        "archive_accessibility_statement_needs_more_re_accessibility"
+                    ]
+                }
+            ),
+        )
+    )
+    archive_accessibility_statement_deadline_not_complete = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_needs_more_re_disproportionate"
+                    "archive_accessibility_statement_deadline_not_complete"
                 ]
             }
         ),
     )
-    accessibility_statement_needs_more_re_accessibility = AMPChoiceCheckboxField(
-        label="",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_needs_more_re_accessibility"
-                ]
-            }
-        ),
-    )
-    accessibility_statement_deadline_not_complete = AMPChoiceCheckboxField(
-        label="",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_deadline_not_complete"
-                ]
-            }
-        ),
-    )
-    accessibility_statement_deadline_not_complete_wording = AMPTextField(
+    archive_accessibility_statement_deadline_not_complete_wording = AMPTextField(
         label="Wording for missed deadline"
     )
-    accessibility_statement_deadline_not_sufficient = AMPChoiceCheckboxField(
+    archive_accessibility_statement_deadline_not_sufficient = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_deadline_not_sufficient"
+                    "archive_accessibility_statement_deadline_not_sufficient"
                 ]
             }
         ),
     )
-    accessibility_statement_deadline_not_sufficient_wording = AMPTextField(
+    archive_accessibility_statement_deadline_not_sufficient_wording = AMPTextField(
         label="Wording for insufficient deadline"
     )
-    accessibility_statement_out_of_date = AMPChoiceCheckboxField(
+    archive_accessibility_statement_out_of_date = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_out_of_date"
+                    "archive_accessibility_statement_out_of_date"
                 ]
             }
         ),
     )
-    accessibility_statement_eass_link = AMPChoiceCheckboxField(
+    archive_accessibility_statement_eass_link = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_eass_link"
+                    "archive_accessibility_statement_eass_link"
                 ]
             }
         ),
     )
-    accessibility_statement_template_update = AMPChoiceCheckboxField(
+    archive_accessibility_statement_template_update = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_template_update"
+                    "archive_accessibility_statement_template_update"
                 ]
             }
         ),
     )
-    accessibility_statement_accessible = AMPChoiceCheckboxField(
+    archive_accessibility_statement_accessible = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_accessible"
+                    "archive_accessibility_statement_accessible"
                 ]
             }
         ),
     )
-    accessibility_statement_prominent = AMPChoiceCheckboxField(
+    archive_accessibility_statement_prominent = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
-                    "accessibility_statement_prominent"
+                    "archive_accessibility_statement_prominent"
                 ]
             }
         ),
     )
-    accessibility_statement_report_text_wording = AMPTextField(
+    archive_accessibility_statement_report_text_wording = AMPTextField(
         label="Extra wording for report"
     )
-    report_options_next = AMPChoiceRadioField(
+    archive_report_options_next = AMPChoiceRadioField(
         label="What to do next",
         choices=REPORT_OPTIONS_NEXT_CHOICES,
     )
-    report_next_change_statement = AMPChoiceCheckboxField(
-        label="",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": REPORT_NEXT_ISSUE_TEXT["report_next_change_statement"]}
-        ),
-    )
-    report_next_no_statement = AMPChoiceCheckboxField(
-        label="",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": REPORT_NEXT_ISSUE_TEXT["report_next_no_statement"]}
-        ),
-    )
-    report_next_statement_not_right = AMPChoiceCheckboxField(
-        label="",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": REPORT_NEXT_ISSUE_TEXT["report_next_statement_not_right"]}
-        ),
-    )
-    report_next_statement_matches = AMPChoiceCheckboxField(
-        label="",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": REPORT_NEXT_ISSUE_TEXT["report_next_statement_matches"]}
-        ),
-    )
-    report_next_disproportionate_burden = AMPChoiceCheckboxField(
+    archive_report_next_change_statement = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_NEXT_ISSUE_TEXT["report_next_disproportionate_burden"]
+                "label": REPORT_NEXT_ISSUE_TEXT["archive_report_next_change_statement"]
             }
         ),
     )
-    report_options_notes = AMPTextField(label="Notes")
-    audit_report_options_complete_date = AMPDatePageCompleteField()
+    archive_report_next_no_statement = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": REPORT_NEXT_ISSUE_TEXT["archive_report_next_no_statement"]}
+        ),
+    )
+    archive_report_next_statement_not_right = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={
+                "label": REPORT_NEXT_ISSUE_TEXT[
+                    "archive_report_next_statement_not_right"
+                ]
+            }
+        ),
+    )
+    archive_report_next_statement_matches = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={
+                "label": REPORT_NEXT_ISSUE_TEXT["archive_report_next_statement_matches"]
+            }
+        ),
+    )
+    archive_report_next_disproportionate_burden = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={
+                "label": REPORT_NEXT_ISSUE_TEXT[
+                    "archive_report_next_disproportionate_burden"
+                ]
+            }
+        ),
+    )
+    archive_report_options_notes = AMPTextField(label="Notes")
+    archive_audit_report_options_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
-            "accessibility_statement_state",
-            "accessibility_statement_not_correct_format",
-            "accessibility_statement_not_specific_enough",
-            "accessibility_statement_missing_accessibility_issues",
-            "accessibility_statement_missing_mandatory_wording",
-            "accessibility_statement_missing_mandatory_wording_notes",
-            "accessibility_statement_needs_more_re_disproportionate",
-            "accessibility_statement_needs_more_re_accessibility",
-            "accessibility_statement_deadline_not_complete",
-            "accessibility_statement_deadline_not_complete_wording",
-            "accessibility_statement_deadline_not_sufficient",
-            "accessibility_statement_deadline_not_sufficient_wording",
-            "accessibility_statement_out_of_date",
-            "accessibility_statement_eass_link",
-            "accessibility_statement_template_update",
-            "accessibility_statement_accessible",
-            "accessibility_statement_prominent",
-            "accessibility_statement_report_text_wording",
-            "report_options_next",
-            "report_next_change_statement",
-            "report_next_no_statement",
-            "report_next_statement_not_right",
-            "report_next_statement_matches",
-            "report_next_disproportionate_burden",
-            "report_options_notes",
-            "audit_report_options_complete_date",
+            "archive_accessibility_statement_state",
+            "archive_accessibility_statement_not_correct_format",
+            "archive_accessibility_statement_not_specific_enough",
+            "archive_accessibility_statement_missing_accessibility_issues",
+            "archive_accessibility_statement_missing_mandatory_wording",
+            "archive_accessibility_statement_missing_mandatory_wording_notes",
+            "archive_accessibility_statement_needs_more_re_disproportionate",
+            "archive_accessibility_statement_needs_more_re_accessibility",
+            "archive_accessibility_statement_deadline_not_complete",
+            "archive_accessibility_statement_deadline_not_complete_wording",
+            "archive_accessibility_statement_deadline_not_sufficient",
+            "archive_accessibility_statement_deadline_not_sufficient_wording",
+            "archive_accessibility_statement_out_of_date",
+            "archive_accessibility_statement_eass_link",
+            "archive_accessibility_statement_template_update",
+            "archive_accessibility_statement_accessible",
+            "archive_accessibility_statement_prominent",
+            "archive_accessibility_statement_report_text_wording",
+            "archive_report_options_next",
+            "archive_report_next_change_statement",
+            "archive_report_next_no_statement",
+            "archive_report_next_statement_not_right",
+            "archive_report_next_statement_matches",
+            "archive_report_next_disproportionate_burden",
+            "archive_report_options_notes",
+            "archive_audit_report_options_complete_date",
         ]
 
 
@@ -1033,124 +1048,124 @@ class Audit12WeekStatementUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestStatement1UpdateForm(VersionForm):
+class ArchiveAuditRetestStatement1UpdateForm(VersionForm):
     """
     Form for retesting accessibility statement 1 checks
     """
 
-    audit_retest_scope_state = AMPChoiceRadioField(
+    archive_audit_retest_scope_state = AMPChoiceRadioField(
         label="",
         choices=SCOPE_STATE_CHOICES,
     )
-    audit_retest_scope_notes = AMPTextField(label="Notes")
-    audit_retest_feedback_state = AMPChoiceRadioField(
+    archive_audit_retest_scope_notes = AMPTextField(label="Notes")
+    archive_audit_retest_feedback_state = AMPChoiceRadioField(
         label="",
         choices=FEEDBACK_STATE_CHOICES,
     )
-    audit_retest_feedback_notes = AMPTextField(label="Notes")
-    audit_retest_contact_information_state = AMPChoiceRadioField(
+    archive_audit_retest_feedback_notes = AMPTextField(label="Notes")
+    archive_audit_retest_contact_information_state = AMPChoiceRadioField(
         label="",
         choices=CONTACT_INFORMATION_STATE_CHOICES,
     )
-    audit_retest_contact_information_notes = AMPTextField(label="Notes")
-    audit_retest_enforcement_procedure_state = AMPChoiceRadioField(
+    archive_audit_retest_contact_information_notes = AMPTextField(label="Notes")
+    archive_audit_retest_enforcement_procedure_state = AMPChoiceRadioField(
         label="",
         choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
     )
-    audit_retest_enforcement_procedure_notes = AMPTextField(label="Notes")
-    audit_retest_declaration_state = AMPChoiceRadioField(
+    archive_audit_retest_enforcement_procedure_notes = AMPTextField(label="Notes")
+    archive_audit_retest_declaration_state = AMPChoiceRadioField(
         label="",
         choices=DECLARATION_STATE_CHOICES,
     )
-    audit_retest_declaration_notes = AMPTextField(label="Notes")
-    audit_retest_compliance_state = AMPChoiceRadioField(
+    archive_audit_retest_declaration_notes = AMPTextField(label="Notes")
+    archive_audit_retest_compliance_state = AMPChoiceRadioField(
         label="",
         choices=COMPLIANCE_STATE_CHOICES,
     )
-    audit_retest_compliance_notes = AMPTextField(label="Notes")
-    audit_retest_non_regulation_state = AMPChoiceRadioField(
+    archive_audit_retest_compliance_notes = AMPTextField(label="Notes")
+    archive_audit_retest_non_regulation_state = AMPChoiceRadioField(
         label="",
         choices=NON_REGULATION_STATE_CHOICES,
     )
-    audit_retest_non_regulation_notes = AMPTextField(label="Notes")
-    audit_retest_statement_1_complete_date = AMPDatePageCompleteField()
+    archive_audit_retest_non_regulation_notes = AMPTextField(label="Notes")
+    archive_audit_retest_statement_1_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_retest_scope_state",
-            "audit_retest_scope_notes",
-            "audit_retest_feedback_state",
-            "audit_retest_feedback_notes",
-            "audit_retest_contact_information_state",
-            "audit_retest_contact_information_notes",
-            "audit_retest_enforcement_procedure_state",
-            "audit_retest_enforcement_procedure_notes",
-            "audit_retest_declaration_state",
-            "audit_retest_declaration_notes",
-            "audit_retest_compliance_state",
-            "audit_retest_compliance_notes",
-            "audit_retest_non_regulation_state",
-            "audit_retest_non_regulation_notes",
-            "audit_retest_statement_1_complete_date",
+            "archive_audit_retest_scope_state",
+            "archive_audit_retest_scope_notes",
+            "archive_audit_retest_feedback_state",
+            "archive_audit_retest_feedback_notes",
+            "archive_audit_retest_contact_information_state",
+            "archive_audit_retest_contact_information_notes",
+            "archive_audit_retest_enforcement_procedure_state",
+            "archive_audit_retest_enforcement_procedure_notes",
+            "archive_audit_retest_declaration_state",
+            "archive_audit_retest_declaration_notes",
+            "archive_audit_retest_compliance_state",
+            "archive_audit_retest_compliance_notes",
+            "archive_audit_retest_non_regulation_state",
+            "archive_audit_retest_non_regulation_notes",
+            "archive_audit_retest_statement_1_complete_date",
         ]
 
 
-class AuditRetestStatement2UpdateForm(VersionForm):
+class ArchiveAuditRetestStatement2UpdateForm(VersionForm):
     """
     Form for retesting accessibility statement 2 checks
     """
 
-    audit_retest_disproportionate_burden_state = AMPChoiceRadioField(
+    archive_audit_retest_disproportionate_burden_state = AMPChoiceRadioField(
         label="",
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
     )
-    audit_retest_disproportionate_burden_notes = AMPTextField(label="Notes")
-    audit_retest_content_not_in_scope_state = AMPChoiceRadioField(
+    archive_audit_retest_disproportionate_burden_notes = AMPTextField(label="Notes")
+    archive_audit_retest_content_not_in_scope_state = AMPChoiceRadioField(
         label="",
         choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
     )
-    audit_retest_content_not_in_scope_notes = AMPTextField(label="Notes")
-    audit_retest_preparation_date_state = AMPChoiceRadioField(
+    archive_audit_retest_content_not_in_scope_notes = AMPTextField(label="Notes")
+    archive_audit_retest_preparation_date_state = AMPChoiceRadioField(
         label="",
         choices=PREPARATION_DATE_STATE_CHOICES,
     )
-    audit_retest_preparation_date_notes = AMPTextField(label="Notes")
-    audit_retest_review_state = AMPChoiceRadioField(
+    archive_audit_retest_preparation_date_notes = AMPTextField(label="Notes")
+    archive_audit_retest_review_state = AMPChoiceRadioField(
         label="",
         choices=REVIEW_STATE_CHOICES,
     )
-    audit_retest_review_notes = AMPTextField(label="Notes")
-    audit_retest_method_state = AMPChoiceRadioField(
+    archive_audit_retest_review_notes = AMPTextField(label="Notes")
+    archive_audit_retest_method_state = AMPChoiceRadioField(
         label="",
         choices=METHOD_STATE_CHOICES,
     )
-    audit_retest_method_notes = AMPTextField(label="Notes")
-    audit_retest_access_requirements_state = AMPChoiceRadioField(
+    archive_audit_retest_method_notes = AMPTextField(label="Notes")
+    archive_audit_retest_access_requirements_state = AMPChoiceRadioField(
         label="",
         choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
     )
-    audit_retest_access_requirements_notes = AMPTextField(label="Notes")
-    audit_retest_statement_2_complete_date = AMPDatePageCompleteField()
+    archive_audit_retest_access_requirements_notes = AMPTextField(label="Notes")
+    archive_audit_retest_statement_2_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_retest_disproportionate_burden_state",
-            "audit_retest_disproportionate_burden_notes",
-            "audit_retest_content_not_in_scope_state",
-            "audit_retest_content_not_in_scope_notes",
-            "audit_retest_preparation_date_state",
-            "audit_retest_preparation_date_notes",
-            "audit_retest_review_state",
-            "audit_retest_review_notes",
-            "audit_retest_method_state",
-            "audit_retest_method_notes",
-            "audit_retest_access_requirements_state",
-            "audit_retest_access_requirements_notes",
-            "audit_retest_statement_2_complete_date",
+            "archive_audit_retest_disproportionate_burden_state",
+            "archive_audit_retest_disproportionate_burden_notes",
+            "archive_audit_retest_content_not_in_scope_state",
+            "archive_audit_retest_content_not_in_scope_notes",
+            "archive_audit_retest_preparation_date_state",
+            "archive_audit_retest_preparation_date_notes",
+            "archive_audit_retest_review_state",
+            "archive_audit_retest_review_notes",
+            "archive_audit_retest_method_state",
+            "archive_audit_retest_method_notes",
+            "archive_audit_retest_access_requirements_state",
+            "archive_audit_retest_access_requirements_notes",
+            "archive_audit_retest_statement_2_complete_date",
         ]
 
 
@@ -1299,7 +1314,7 @@ class AuditRetestStatementComparisonUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestStatementDecisionUpdateForm(VersionForm):
+class ArchiveAuditRetestStatementDecisionUpdateForm(VersionForm):
     """
     Form for retesting statement decision
     """
@@ -1318,7 +1333,7 @@ class AuditRetestStatementDecisionUpdateForm(VersionForm):
         ]
 
 
-class CaseFinalStatementDecisionUpdateForm(VersionForm):
+class ArchiveCaseFinalStatementDecisionUpdateForm(VersionForm):
     """
     Form to record final accessibility statement compliance decision
     """
