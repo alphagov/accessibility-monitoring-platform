@@ -504,6 +504,14 @@ img, .amp-max-width-100 {
         color: map-get($_govuk-colour-palette-modern, "white");
         margin: 10px 0 0 20px;
         top: 50%;
+        text-align: center;
+    }
+
+    .report-a-problem-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
     }
 
     .report-a-problem-button {
@@ -514,7 +522,17 @@ img, .amp-max-width-100 {
         margin: 0 20px 0 10px;
         padding: 10px 10px 10px 10px;
         text-decoration: none;
-        float: right;
+        text-align: center;
+    }
+}
+
+.report-a-problem-wrapper {
+    padding-top: 10px;
+}
+
+@media (min-width: 40.0625em) {
+    .report-a-problem-wrapper {
+        padding-top: 0;
     }
 }
 
