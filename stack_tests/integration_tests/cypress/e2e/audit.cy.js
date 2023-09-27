@@ -10,7 +10,7 @@ const reportOptionsNote = 'Report options note'
 
 describe('View test', () => {
   beforeEach(() => {
-    cy.session('login', cy.login, {cacheAcrossSpecs: true})
+    cy.session('login', cy.login, { cacheAcrossSpecs: true })
     cy.visit('/audits/1/detail')
   })
 
@@ -58,11 +58,11 @@ describe('View test', () => {
   it('can edit accessibility statement', () => {
     cy.get('#edit-audit-statement-1').click()
     cy.get('[name="accessibility_statement_backup_url"]').clear().type(accessibilityStatementBackupURL)
-    cy.get('[name="scope_state"]').check('incomplete')
-    cy.get('[name="audit_statement_1_complete_date"]').click()
+    cy.get('[name="archive_scope_state"]').check('incomplete')
+    cy.get('[name="archive_audit_statement_1_complete_date"]').click()
     cy.contains('Save and continue').click()
-    cy.get('[name="disproportionate_burden_state"]').check('assessment')
-    cy.get('[name="audit_statement_2_complete_date"]').click()
+    cy.get('[name="archive_disproportionate_burden_state"]').check('assessment')
+    cy.get('[name="archive_audit_statement_2_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Test').click()
     cy.contains(accessibilityStatementBackupURL)
@@ -72,7 +72,7 @@ describe('View test', () => {
     cy.get('#edit-statement-decision').click()
     cy.get('[name="case-accessibility_statement_state"]').check('not-compliant')
     cy.get('[name="case-accessibility_statement_notes"]').clear().type(accessibilityStatementComplianceNote)
-    cy.get('[name="audit_statement_decision_complete_date"]').click()
+    cy.get('[name="archive_audit_statement_decision_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Test').click()
     cy.contains(accessibilityStatementComplianceNote)
@@ -80,11 +80,11 @@ describe('View test', () => {
 
   it('can edit report options', () => {
     cy.get('#edit-audit-report-options').click()
-    cy.get('[name="accessibility_statement_state"]').check('found-but')
-    cy.get('[name="accessibility_statement_not_correct_format"]').click()
-    cy.get('[name="report_next_change_statement"]').click()
-    cy.get('[name="report_options_notes"]').clear().type(reportOptionsNote)
-    cy.get('[name="audit_report_options_complete_date"]').click()
+    cy.get('[name="archive_accessibility_statement_state"]').check('found-but')
+    cy.get('[name="archive_accessibility_statement_not_correct_format"]').click()
+    cy.get('[name="archive_report_next_change_statement"]').click()
+    cy.get('[name="archive_report_options_notes"]').clear().type(reportOptionsNote)
+    cy.get('[name="archive_audit_report_options_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Test').click()
     cy.contains(reportOptionsNote)

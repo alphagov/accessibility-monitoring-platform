@@ -863,7 +863,7 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
         changed_report_data: List[str] = [
             field_name
             for field_name in form.changed_data
-            if field_name != "audit_report_options_complete_date"
+            if field_name != "archive_audit_report_options_complete_date"
         ]
         if changed_report_data:
             report_data_updated(audit=self.object)

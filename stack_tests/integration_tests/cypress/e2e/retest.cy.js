@@ -9,7 +9,7 @@ const statementComplianceNote = 'Accessibility statement compliance note'
 
 describe('View test', () => {
   beforeEach(() => {
-    cy.session('login', cy.login, {cacheAcrossSpecs: true})
+    cy.session('login', cy.login, { cacheAcrossSpecs: true })
     cy.visit('/audits/1/audit-retest-detail')
   })
 
@@ -52,13 +52,13 @@ describe('View test', () => {
 
   it('can edit 12-week accessibility statement', () => {
     cy.get('#edit-audit-retest-statement-1').click()
-    cy.get('[name="audit_retest_scope_state"]').check('present')
-    cy.get('[name="audit_retest_scope_notes"]').clear().type(scopeNote)
-    cy.get('[name="audit_retest_statement_1_complete_date"]').click()
+    cy.get('[name="archive_audit_retest_scope_state"]').check('present')
+    cy.get('[name="archive_audit_retest_scope_notes"]').clear().type(scopeNote)
+    cy.get('[name="archive_audit_retest_statement_1_complete_date"]').click()
     cy.contains('Save and continue').click()
-    cy.get('[name="audit_retest_disproportionate_burden_state"]').check('no-claim')
-    cy.get('[name="audit_retest_disproportionate_burden_notes"]').clear().type(disproportionateNote)
-    cy.get('[name="audit_retest_statement_2_complete_date"]').click()
+    cy.get('[name="archive_audit_retest_disproportionate_burden_state"]').check('no-claim')
+    cy.get('[name="archive_audit_retest_disproportionate_burden_notes"]').clear().type(disproportionateNote)
+    cy.get('[name="archive_audit_retest_statement_2_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('12-week test').click()
   })

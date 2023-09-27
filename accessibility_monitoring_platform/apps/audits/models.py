@@ -789,13 +789,13 @@ class Audit(VersionModel):
         issues: List[str] = []
         for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
             if getattr(self, key) == BOOLEAN_TRUE:
-                if key == "accessibility_statement_deadline_not_complete":
+                if key == "archive_accessibility_statement_deadline_not_complete":
                     issues.append(
-                        self.accessibility_statement_deadline_not_complete_wording
+                        self.archive_accessibility_statement_deadline_not_complete_wording
                     )
-                elif key == "accessibility_statement_deadline_not_sufficient":
+                elif key == "archive_accessibility_statement_deadline_not_sufficient":
                     issues.append(
-                        self.accessibility_statement_deadline_not_sufficient_wording
+                        self.archive_accessibility_statement_deadline_not_sufficient_wording
                     )
                 else:
                     issues.append(value)
@@ -889,7 +889,9 @@ class Audit(VersionModel):
         return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
 
     @property
-    def accessibility_statement_checks(self) -> List[AccessibilityStatementCheck]:
+    def accessibility_statement_checks(
+        self,
+    ) -> List[ArchiveAccessibilityStatementCheck]:
         return [
             ArchiveAccessibilityStatementCheck(
                 field_name_prefix=field_name_prefix, audit=self
