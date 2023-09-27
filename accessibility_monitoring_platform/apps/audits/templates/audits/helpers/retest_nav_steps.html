@@ -34,8 +34,8 @@
                 </li>
             {% endif %}
         {% else %}
-            {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
-            {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
+            {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.archive_audit_retest_statement_1_complete_date %}
+            {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.archive_audit_retest_statement_2_complete_date %}
         {% endif %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-comparison' name='12-week accessibility statement comparison' complete=audit.audit_retest_statement_comparison_complete_date %}
         {% if not audit.uses_statement_checks %}

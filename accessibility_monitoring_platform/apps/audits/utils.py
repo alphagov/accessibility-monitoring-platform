@@ -36,8 +36,8 @@ from .models import (
     StatementCheck,
     StatementCheckResult,
     CHECK_RESULT_NOT_TESTED,
-    REPORT_ACCESSIBILITY_ISSUE_TEXT,
-    REPORT_NEXT_ISSUE_TEXT,
+    ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
+    ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
     MANDATORY_PAGE_TYPES,
     PAGE_TYPE_HOME,
 )
@@ -53,20 +53,20 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
 
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit report options"""
-    accessibility_statement_state_row: FieldLabelAndValue = FieldLabelAndValue(
+    archive_accessibility_statement_state_row: FieldLabelAndValue = FieldLabelAndValue(
         label=ArchiveAuditReportOptionsUpdateForm.base_fields[
             "archive_accessibility_statement_state"
         ].label,
         value=audit.get_archive_accessibility_statement_state_display(),
     )
-    accessibility_statement_issues_rows: List[FieldLabelAndValue] = [
+    archive_accessibility_statement_issues_rows: List[FieldLabelAndValue] = [
         FieldLabelAndValue(
             label=label,
             value=getattr(audit, f"get_{field_name}_display")(),
         )
-        for field_name, label in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
+        for field_name, label in ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
     ]
-    accessibility_statement_report_text_wording_row: FieldLabelAndValue = (
+    archive_accessibility_statement_report_text_wording_row: FieldLabelAndValue = (
         FieldLabelAndValue(
             label=ArchiveAuditReportOptionsUpdateForm.base_fields[
                 "archive_accessibility_statement_report_text_wording"
@@ -75,20 +75,20 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
             type=FieldLabelAndValue.NOTES_TYPE,
         )
     )
-    report_options_next_row: FieldLabelAndValue = FieldLabelAndValue(
+    archive_report_options_next_row: FieldLabelAndValue = FieldLabelAndValue(
         label=ArchiveAuditReportOptionsUpdateForm.base_fields[
             "archive_report_options_next"
         ].label,
         value=audit.get_archive_report_options_next_display(),
     )
-    report_next_issues_rows: List[FieldLabelAndValue] = [
+    archive_report_next_issues_rows: List[FieldLabelAndValue] = [
         FieldLabelAndValue(
             label=label,
             value=getattr(audit, f"get_{field_name}_display")(),
         )
-        for field_name, label in REPORT_NEXT_ISSUE_TEXT.items()
+        for field_name, label in ARCHIVE_REPORT_NEXT_ISSUE_TEXT.items()
     ]
-    report_options_notes: FieldLabelAndValue = FieldLabelAndValue(
+    archive_report_options_notes: FieldLabelAndValue = FieldLabelAndValue(
         label=ArchiveAuditReportOptionsUpdateForm.base_fields[
             "archive_report_options_notes"
         ].label,
@@ -96,11 +96,14 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
         type=FieldLabelAndValue.NOTES_TYPE,
     )
     return (
-        [accessibility_statement_state_row]
-        + accessibility_statement_issues_rows
-        + [accessibility_statement_report_text_wording_row, report_options_next_row]
-        + report_next_issues_rows
-        + [report_options_notes]
+        [archive_accessibility_statement_state_row]
+        + archive_accessibility_statement_issues_rows
+        + [
+            archive_accessibility_statement_report_text_wording_row,
+            archive_report_options_next_row,
+        ]
+        + archive_report_next_issues_rows
+        + [archive_report_options_notes]
     )
 
 

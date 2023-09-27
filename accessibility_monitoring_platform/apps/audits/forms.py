@@ -49,8 +49,8 @@ from .models import (
     REPORT_OPTIONS_NEXT_CHOICES,
     CHECK_RESULT_STATE_CHOICES,
     RETEST_CHECK_RESULT_STATE_CHOICES,
-    REPORT_ACCESSIBILITY_ISSUE_TEXT,
-    REPORT_NEXT_ISSUE_TEXT,
+    ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
+    ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
     WcagDefinition,
     TEST_TYPE_CHOICES,
     StatementCheck,
@@ -636,7 +636,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_not_correct_format"
                 ]
             }
@@ -647,7 +647,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_not_specific_enough"
                 ]
             }
@@ -659,7 +659,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
             choices=BOOLEAN_CHOICES,
             widget=AMPChoiceCheckboxWidget(
                 attrs={
-                    "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                    "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                         "archive_accessibility_statement_missing_accessibility_issues"
                     ]
                 }
@@ -671,7 +671,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_missing_mandatory_wording"
                 ]
             }
@@ -686,7 +686,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
             choices=BOOLEAN_CHOICES,
             widget=AMPChoiceCheckboxWidget(
                 attrs={
-                    "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                    "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                         "archive_accessibility_statement_needs_more_re_disproportionate"
                     ]
                 }
@@ -699,7 +699,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
             choices=BOOLEAN_CHOICES,
             widget=AMPChoiceCheckboxWidget(
                 attrs={
-                    "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                    "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                         "archive_accessibility_statement_needs_more_re_accessibility"
                     ]
                 }
@@ -711,7 +711,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_deadline_not_complete"
                 ]
             }
@@ -725,7 +725,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_deadline_not_sufficient"
                 ]
             }
@@ -739,7 +739,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_out_of_date"
                 ]
             }
@@ -750,7 +750,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_eass_link"
                 ]
             }
@@ -761,7 +761,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_template_update"
                 ]
             }
@@ -772,7 +772,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_accessible"
                 ]
             }
@@ -783,7 +783,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
                     "archive_accessibility_statement_prominent"
                 ]
             }
@@ -801,7 +801,9 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_NEXT_ISSUE_TEXT["archive_report_next_change_statement"]
+                "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
+                    "archive_report_next_change_statement"
+                ]
             }
         ),
     )
@@ -809,7 +811,11 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
-            attrs={"label": REPORT_NEXT_ISSUE_TEXT["archive_report_next_no_statement"]}
+            attrs={
+                "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
+                    "archive_report_next_no_statement"
+                ]
+            }
         ),
     )
     archive_report_next_statement_not_right = AMPChoiceCheckboxField(
@@ -817,7 +823,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_NEXT_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
                     "archive_report_next_statement_not_right"
                 ]
             }
@@ -828,7 +834,9 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_NEXT_ISSUE_TEXT["archive_report_next_statement_matches"]
+                "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
+                    "archive_report_next_statement_matches"
+                ]
             }
         ),
     )
@@ -837,7 +845,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(
             attrs={
-                "label": REPORT_NEXT_ISSUE_TEXT[
+                "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
                     "archive_report_next_disproportionate_burden"
                 ]
             }

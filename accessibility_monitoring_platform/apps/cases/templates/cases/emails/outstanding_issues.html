@@ -88,8 +88,8 @@
                         {% endif %}
                     {% endfor %}
                     <h2>Your statement</h2>
-                    {{ case.audit.get_accessibility_statement_state_display }}
-                    {% if case.audit.accessibility_statement_state == 'found-but' %}
+                    {{ case.audit.get_archive_accessibility_statement_state_display }}
+                    {% if case.audit.archive_accessibility_statement_state == 'found-but' %}
                         <ul>
                             {% for issue in case.audit.report_accessibility_issues %}
                                 <li>{{ issue }}</li>

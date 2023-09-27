@@ -35,13 +35,13 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% if audit.accessibility_statement_initially_found or audit.twelve_week_accessibility_statement_found %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Scope' example='audits/statement_examples/scope_state.html' decision=audit.get_archive_scope_state_display notes=audit.archive_scope_notes %}
+                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Scope' example='audits/archive_statement_examples/scope_state.html' decision=audit.get_archive_scope_state_display notes=audit.archive_scope_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_scope_state %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_scope_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Feedback' example='audits/statement_examples/feedback_state.html' decision=audit.get_archive_feedback_state_display notes=audit.archive_feedback_notes %}
+                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Feedback' example='audits/archive_statement_examples/feedback_state.html' decision=audit.get_archive_feedback_state_display notes=audit.archive_feedback_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_feedback_state %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_feedback_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Contact Information' example='audits/statement_examples/contact_information_state.html' decision=audit.get_archive_contact_information_state_display notes=audit.archive_contact_information_notes %}
+                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Contact Information' example='audits/archive_statement_examples/contact_information_state.html' decision=audit.get_archive_contact_information_state_display notes=audit.archive_contact_information_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_contact_information_state %}
                                 <p class="govuk-body-m">
                                     <a href="{% url 'cases:edit-contact-details' audit.case.id %}"
@@ -49,16 +49,16 @@
                                         Open contact details page in new tab</a>
                                 </p>
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_contact_information_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Enforcement Procedure' example='audits/statement_examples/enforcement_procedure_state.html' decision=audit.get_archive_enforcement_procedure_state_display notes=audit.archive_enforcement_procedure_notes %}
+                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Enforcement Procedure' example='audits/archive_statement_examples/enforcement_procedure_state.html' decision=audit.get_archive_enforcement_procedure_state_display notes=audit.archive_enforcement_procedure_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_enforcement_procedure_state %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_enforcement_procedure_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Declaration' example='audits/statement_examples/declaration_state.html' decision=audit.get_archive_declaration_state_display notes=audit.archive_declaration_notes %}
+                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Declaration' example='audits/archive_statement_examples/declaration_state.html' decision=audit.get_archive_declaration_state_display notes=audit.archive_declaration_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_declaration_state %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_declaration_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Compliance Status' example='audits/statement_examples/compliance_state.html' decision=audit.get_archive_compliance_state_display notes=audit.archive_compliance_notes %}
+                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Compliance Status' example='audits/archive_statement_examples/compliance_state.html' decision=audit.get_archive_compliance_state_display notes=audit.archive_compliance_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_compliance_state %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_compliance_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Non-accessible Content - non compliance with regulations' example='audits/statement_examples/non_regulation_state.html' decision=audit.get_archive_non_regulation_state_display notes=audit.archive_non_regulation_notes %}
+                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Non-accessible Content - non compliance with regulations' example='audits/archive_statement_examples/non_regulation_state.html' decision=audit.get_archive_non_regulation_state_display notes=audit.archive_non_regulation_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_non_regulation_state %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_non_regulation_notes %}
                             {% else %}

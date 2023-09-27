@@ -199,7 +199,7 @@ RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
 
-REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
+ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
     "archive_accessibility_statement_not_correct_format": "it was not in the correct format",
     "archive_accessibility_statement_not_specific_enough": "it was not specific enough",
     "archive_accessibility_statement_missing_accessibility_issues": "accessibility issues were found during the test that"
@@ -226,7 +226,7 @@ REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
     " or made available on every web page, for example in a static header or footer, as per the legislative"
     " requirement.",
 }
-REPORT_NEXT_ISSUE_TEXT: Dict[str, str] = {
+ARCHIVE_REPORT_NEXT_ISSUE_TEXT: Dict[str, str] = {
     "archive_report_next_change_statement": "They have an acceptable statement but need to change it because of the"
     " errors we found",
     "archive_report_next_no_statement": "They don’t have a statement, or it is in the wrong format",
@@ -787,7 +787,7 @@ class Audit(VersionModel):
     @property
     def report_accessibility_issues(self) -> List[str]:
         issues: List[str] = []
-        for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
+        for key, value in ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
             if getattr(self, key) == BOOLEAN_TRUE:
                 if key == "archive_accessibility_statement_deadline_not_complete":
                     issues.append(
