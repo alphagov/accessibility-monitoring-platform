@@ -745,7 +745,7 @@ class Audit(VersionModel):
         null=True, blank=True
     )
     # Retest statement decision
-    audit_retest_statement_decision_complete_date = models.DateField(
+    archive_audit_retest_statement_decision_complete_date = models.DateField(
         null=True, blank=True
     )
 

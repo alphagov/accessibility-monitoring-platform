@@ -429,4 +429,9 @@ class Migration(migrations.Migration):
             old_name="scope_state",
             new_name="archive_scope_state",
         ),
+        migrations.RenameField(
+            model_name="audit",
+            old_name="audit_retest_statement_decision_complete_date",
+            new_name="archive_audit_retest_statement_decision_complete_date",
+        ),
     ]

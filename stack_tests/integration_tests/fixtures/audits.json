@@ -103,7 +103,7 @@
       "archive_audit_retest_access_requirements_state": "req-not-met",
       "archive_audit_retest_access_requirements_notes": "",
       "archive_audit_retest_statement_2_complete_date": null,
-      "audit_retest_statement_decision_complete_date": null,
+      "archive_audit_retest_statement_decision_complete_date": null,
       "twelve_week_accessibility_statement_url": "https://example.com/late-statement"
     }
   },

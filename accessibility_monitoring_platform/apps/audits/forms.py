@@ -1322,14 +1322,14 @@ class ArchiveAuditRetestStatementDecisionUpdateForm(VersionForm):
     audit_retest_accessibility_statement_backup_url = AMPURLField(
         label="Link to 12-week saved accessibility statement, only if not compliant",
     )
-    audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
+    archive_audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
             "audit_retest_accessibility_statement_backup_url",
-            "audit_retest_statement_decision_complete_date",
+            "archive_audit_retest_statement_decision_complete_date",
         ]
 
 
