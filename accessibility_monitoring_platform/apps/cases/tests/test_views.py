@@ -3507,6 +3507,23 @@ def test_twelve_week_email_template_contains_issues(admin_client):
     assertContains(response, ERROR_NOTES)
 
 
+def test_twelve_week_email_template_contains_no_issues(admin_client):
+    """
+    Test twelve week email template with no issues contains placeholder text.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    url: str = reverse(
+        "cases:twelve-week-correspondence-email", kwargs={"pk": audit.case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "We found no major issues.")
+
+
 def test_outstanding_issues_email_template_contains_issues(admin_client):
     """
     Test outstanding issues email template contains only unfixed issues.
@@ -3535,3 +3552,18 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     assert response.status_code == 200
 
     assertNotContains(response, ERROR_NOTES)
+
+
+def test_outstanding_issues_email_template_contains_no_issues(admin_client):
+    """
+    Test outstanding issues email template with no issues contains placeholder text.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "We found no major issues.")
