@@ -127,9 +127,7 @@ def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
     for audit in audits:
         if audit.uses_statement_checks:
             statement_issues_count += audit.failed_statement_check_results.count()
-            fixed_statement_issues_count += (
-                audit.passed_retest_statement_check_results.count()
-            )
+            fixed_statement_issues_count += audit.fixed_statement_check_results.count()
         else:
             for (
                 fieldname,
