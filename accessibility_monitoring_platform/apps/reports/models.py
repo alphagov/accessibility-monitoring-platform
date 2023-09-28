@@ -16,22 +16,7 @@ from ..common.models import VersionModel
 from ..s3_read_write.models import S3Report
 from ..common.utils import amp_format_datetime
 
-TEMPLATE_TYPE_DEFAULT = "markdown"
-TEMPLATE_TYPE_HTML = "html"
-TEMPLATE_TYPE_URLS = "urls"
-TEMPLATE_TYPE_ISSUES_INTRO = "issues-intro"
-TEMPLATE_TYPE_ISSUES_TABLE = "issues"
-TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (TEMPLATE_TYPE_DEFAULT, "Markdown"),
-    (TEMPLATE_TYPE_URLS, "Contains URL table"),
-    (TEMPLATE_TYPE_ISSUES_INTRO, "Markdown issues intro"),
-    (TEMPLATE_TYPE_ISSUES_TABLE, "Contains Issues table"),
-    (TEMPLATE_TYPE_HTML, "HTML"),
-]
 REPORT_VERSION_DEFAULT: str = "v1_2_0__20230523"
-REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_VERSION_DEFAULT, "Version 1.2"),
-]
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",
     "sent_by",
