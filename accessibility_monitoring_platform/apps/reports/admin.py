@@ -7,7 +7,6 @@ from .models import (
     Report,
     ReportWrapper,
     ReportVisitsMetrics,
-    ReportFeedback,
 )
 
 from ..common.admin import ExportCsvMixin
@@ -29,13 +28,6 @@ class ReportVisitsMetricsAdmin(admin.ModelAdmin):
     list_display = ["created", "case", "fingerprint_codename"]
 
 
-class ReportFeedbackAdmin(admin.ModelAdmin):
-    readonly_fields = ["created"]
-    search_fields = ["guid"]
-    list_display = ["created", "case", "what_were_you_trying_to_do", "what_went_wrong"]
-
-
 admin.site.register(Report, ReportAdmin)
 admin.site.register(ReportWrapper)
 admin.site.register(ReportVisitsMetrics, ReportVisitsMetricsAdmin)
-admin.site.register(ReportFeedback, ReportFeedbackAdmin)

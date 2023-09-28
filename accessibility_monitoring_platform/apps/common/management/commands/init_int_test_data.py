@@ -24,7 +24,6 @@ from ....notifications.models import Notification, NotificationSetting
 from ....reminders.models import Reminder
 from ....reports.models import (
     Report,
-    ReportFeedback,
     ReportVisitsMetrics,
     ReportWrapper,
 )
@@ -93,7 +92,6 @@ class Command(BaseCommand):
         delete_from_models(
             [
                 ReportWrapper,
-                ReportFeedback,
                 ReportVisitsMetrics,
                 Report,
             ]
