@@ -16,22 +16,7 @@ from ..common.models import VersionModel
 from ..s3_read_write.models import S3Report
 from ..common.utils import amp_format_datetime
 
-TEMPLATE_TYPE_DEFAULT = "markdown"
-TEMPLATE_TYPE_HTML = "html"
-TEMPLATE_TYPE_URLS = "urls"
-TEMPLATE_TYPE_ISSUES_INTRO = "issues-intro"
-TEMPLATE_TYPE_ISSUES_TABLE = "issues"
-TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (TEMPLATE_TYPE_DEFAULT, "Markdown"),
-    (TEMPLATE_TYPE_URLS, "Contains URL table"),
-    (TEMPLATE_TYPE_ISSUES_INTRO, "Markdown issues intro"),
-    (TEMPLATE_TYPE_ISSUES_TABLE, "Contains Issues table"),
-    (TEMPLATE_TYPE_HTML, "HTML"),
-]
 REPORT_VERSION_DEFAULT: str = "v1_2_0__20230523"
-REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_VERSION_DEFAULT, "Version 1.2"),
-]
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",
     "sent_by",
@@ -146,45 +131,3 @@ class ReportVisitsMetrics(models.Model):
         return reverse(
             "reports:report-metrics-view", kwargs={"pk": self.case.report.id}  # type: ignore
         )
-
-
-class ReportFeedback(models.Model):
-    """
-    Model for report feedback
-    """
-
-    created = models.DateTimeField(auto_now_add=True)
-    guid = models.TextField(
-        default="",
-        blank=True,
-    )
-    what_were_you_trying_to_do = models.TextField(
-        default="",
-        blank=True,
-    )
-    what_went_wrong = models.TextField(
-        default="",
-        blank=True,
-    )
-    case = models.ForeignKey(
-        Case,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
-
-    def __str__(self) -> str:
-        organisation_name: str = (
-            self.case.organisation_name if self.case is not None else ""
-        )
-        return str(
-            f"""Created: {self.created}, """
-            f"""guid: {self.guid}, """
-            f"""case: {organisation_name}, """
-            f"""What were you trying to do: {self.what_were_you_trying_to_do}, """
-            f"""What went wrong: {self.what_went_wrong}"""
-        )
-
-    def save(self, *args, **kwargs) -> None:
-        s3_report = get_object_or_404(S3Report, guid=self.guid)
-        self.case = s3_report.case
-        super().save(*args, **kwargs)

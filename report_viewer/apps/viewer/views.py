@@ -1,16 +1,13 @@
 """Views for report viewer"""
-import os
-from typing import Any, Dict, Type
+from typing import Any, Dict
 
 import logging
 
 from django.shortcuts import get_object_or_404
-from django.views.generic import FormView
-from django.contrib import messages
+from django.views.generic import TemplateView
 
 from accessibility_monitoring_platform.apps.common.views import PlatformTemplateView
-from accessibility_monitoring_platform.apps.reports.models import Report, ReportFeedback
-from accessibility_monitoring_platform.apps.reports.forms import ReportFeedbackForm
+from accessibility_monitoring_platform.apps.reports.models import Report
 
 from accessibility_monitoring_platform.apps.s3_read_write.utils import (
     S3ReadWriteReport,
@@ -37,13 +34,12 @@ class PrivacyNoticeTemplateView(PlatformTemplateView):
     template_name: str = "viewer/privacy_notice.html"
 
 
-class ViewReport(FormView):
+class ViewReport(TemplateView):
     """
     View of report on S3
     """
 
     template_name: str = "reports_common/accessibility_report_base.html"
-    form_class: Type[ReportFeedbackForm] = ReportFeedbackForm
 
     def get_context_data(
         self, *args, **kwargs  # pylint: disable=unused-argument
@@ -58,37 +54,17 @@ class ViewReport(FormView):
             logger.warning("Report %s not found on S3", guid)
         report: Report = s3_report.case.report
 
-        all_error_messages_content = [
-            msg.message for msg in list(messages.get_messages(self.request))
-        ]
-        form_submitted_successfully: bool = (
-            FORM_SUBMITTED_SUCCESSFULLY in all_error_messages_content
-        )
-
         context.update(
             {
                 "html_report": raw_html,
                 "report": report,
                 "s3_report": s3_report,
                 "guid": self.kwargs["guid"],
-                "form_submitted": form_submitted_successfully,
                 "report_viewer": True,
                 "show_warning": show_warning(),
             }
         )
         return context
-
-    def form_valid(self, form: ReportFeedbackForm):
-        """Process contents of valid form"""
-        report_feedback: ReportFeedback = form.save(commit=False)
-        report_feedback.guid = self.kwargs["guid"]
-        report_feedback.save()
-        messages.add_message(
-            self.request,
-            messages.SUCCESS,
-            FORM_SUBMITTED_SUCCESSFULLY,
-        )
-        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Remain on current page on save"""
