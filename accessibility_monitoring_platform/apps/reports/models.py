@@ -2,14 +2,13 @@
 Models - reports
 """
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 from django.contrib.auth.models import User
 from django.db import models
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils import timezone
-from django.shortcuts import get_object_or_404
 
 from ..cases.models import Case
 from ..common.models import VersionModel
