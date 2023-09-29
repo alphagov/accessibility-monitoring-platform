@@ -19,7 +19,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
             auditor_display = None
         archive = [
             {
-                "name": "Hidden",
+                "name": "Archived",
                 "complete": None,
                 "fields": [
                     {
@@ -35,6 +35,55 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         "label": "Report methodology",
                         "value": case.report_methodology,
                         "value_display": case.get_report_methodology_display(),
+                    },
+                    {
+                        "name": "test_results_url",
+                        "type": "link",
+                        "label": "Link to test results",
+                        "value": case.test_results_url,
+                        "value_display": case.test_results_url,
+                    },
+                    {
+                        "name": "test_status",
+                        "type": "str",
+                        "label": "Test status",
+                        "value": case.test_status,
+                        "value_display": case.get_test_status_display(),
+                    },
+                    {
+                        "name": "report_draft_url",
+                        "type": "link",
+                        "label": "Link to report draft",
+                        "value": case.report_draft_url,
+                        "value_display": "Report draft",
+                    },
+                    {
+                        "name": "report_notes",
+                        "type": "markdown",
+                        "label": "Report notes",
+                        "value": case.report_notes,
+                        "value_display": None,
+                    },
+                    {
+                        "name": "report_final_pdf_url",
+                        "type": "link",
+                        "label": "Link to test results",
+                        "value": case.report_final_pdf_url,
+                        "value_display": case.report_final_pdf_url,
+                    },
+                    {
+                        "name": "report_final_odt_url",
+                        "type": "link",
+                        "label": "Link to test results",
+                        "value": case.report_final_odt_url,
+                        "value_display": case.report_final_odt_url,
+                    },
+                    {
+                        "name": "notes",
+                        "type": "markdown",
+                        "label": "Notes",
+                        "value": case.notes,
+                        "value_display": None,
                     },
                 ],
             },
@@ -120,13 +169,6 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         "label": "Trello ticket URL",
                         "value": case.trello_url,
                         "value_display": case.trello_url,
-                    },
-                    {
-                        "name": "notes",
-                        "type": "markdown",
-                        "label": "Notes",
-                        "value": case.notes,
-                        "value_display": case.notes,
                     },
                 ],
             },
