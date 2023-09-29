@@ -2,6 +2,7 @@
 Models - cases
 """
 from datetime import date, datetime, timedelta, timezone as datetime_timezone
+import json
 import re
 from typing import List, Optional, Tuple
 
@@ -280,6 +281,7 @@ class Case(VersionModel):
     Model for Case
     """
 
+    archive = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -877,6 +879,10 @@ class Case(VersionModel):
             self.accessibility_statement_state
             == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
         )
+
+    @property
+    def archived_sections(self):
+        return json.loads(self.archive)
 
 
 class Contact(models.Model):

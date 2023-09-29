@@ -64,6 +64,55 @@
         {% include 'cases/details/search_in_case.html' %}
         <div id="search-scope" data-search-target-page-name="View case" data-search-target-label="View case" data-search-target-url="{{ case.get_absolute_url }}">
             <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
+                {% if case.archive %}
+                    {% for archived_section in case.archived_sections %}
+                        <div class="govuk-accordion__section"">
+                            <div class="govuk-accordion__section-header">
+                                <h2 id="case-details" class="govuk-accordion__section-heading">
+                                    <span class="govuk-accordion__section-button" id="accordion-heading-case-details">
+                                        {{ archived_section.name }}
+                                        {% if archived_section.complete %}
+                                            <span class="govuk-visually-hidden">complete</span>
+                                            &check;
+                                        {% endif %}
+                                    </span>
+                                </h2>
+                            </div>
+                            <div id="accordion-content-{{ archived_section.name|slugify }}" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-{{ archived_section.name|slugify }}">
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-full">
+                                        <p class="govuk-body-m"><b>{{ archived_section.name }}</b></p>
+                                    </div>
+                                </div>
+                                <table class="govuk-table amp-accordion-table">
+                                    <tbody class="govuk-table__body">
+                                        {% for archived_field in archived_section.fields %}
+                                            <tr class="govuk-table__row">
+                                                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ archived_field.label }}</th>
+                                                <td class="govuk-table__cell amp-width-one-half{% if archived_field.type == 'markdown' %} amp-notes{% endif %}">
+                                                    {% if archived_field.type == 'link' %}
+                                                        {% if archived_field.value %}
+                                                            <a href="{{ archived_field.value }}"
+                                                                rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                                                {{ archived_field.value_display }}
+                                                            </a>
+                                                        {% else %}
+                                                            None
+                                                        {% endif %}
+                                                    {% elif archived_field.type == 'markdown' %}
+                                                        {% if archived_field.value %}{{ archived_field.value|markdown_to_html }}{% endif %}
+                                                    {% else %}
+                                                        {{ archived_field.value_display }}
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
                 <div class="govuk-accordion__section" data-search-target-page-name="Case details" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-case-details' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="case-details" class="govuk-accordion__section-heading">
