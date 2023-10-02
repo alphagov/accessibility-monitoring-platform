@@ -10,6 +10,8 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
     Sector = apps.get_model("common", "Sector")
     sectors = {sector.id: sector for sector in Sector.objects.all()}
     Case = apps.get_model("cases", "Case")
+    Contact = apps.get_model("cases", "Contact")
+    Comment = apps.get_model("comments", "Comment")
     for case in Case.objects.filter(testing_methodology="spreadsheet"):
         if case.auditor:
             auditor = users.get(case.auditor.id)
@@ -17,76 +19,54 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
         else:
             auditor = None
             auditor_display = None
+        if case.reviewer:
+            reviewer = users.get(case.reviewer.id)
+            reviewer_display = f"{reviewer.first_name} {reviewer.last_name}"
+        else:
+            reviewer = None
+            reviewer_display = None
+        contacts = Contact.objects.filter(case=case)
+        contact_fields = []
+        for count, contact in enumerate(contacts, start=1):
+            contact_fields.append(
+                {
+                    "name": f"contact_{count}_name",
+                    "type": "str",
+                    "label": f"Contact {count} Name",
+                    "value": contact.name,
+                    "value_display": contact.name,
+                }
+            )
+            contact_fields.append(
+                {
+                    "name": f"contact_{count}_job_title",
+                    "type": "str",
+                    "label": f"Contact {count} Job title",
+                    "value": contact.job_title,
+                    "value_display": contact.job_title,
+                }
+            )
+            contact_fields.append(
+                {
+                    "name": f"contact_{count}_email",
+                    "type": "str",
+                    "label": f"Contact {count} Email",
+                    "value": contact.email,
+                    "value_display": contact.email,
+                }
+            )
+            if len(contacts) > 1:
+                contact_fields.append(
+                    {
+                        "name": f"contact_{count}_preferred",
+                        "type": "str",
+                        "label": f"Contact {count} Preferred contact",
+                        "value": contact.preferred,
+                        "value_display": contact.get_preferred_display(),
+                    }
+                )
+        comments = Comment.objects.filter(case=case)
         archive = [
-            {
-                "name": "Archived",
-                "complete": None,
-                "fields": [
-                    {
-                        "name": "testing_methodology",
-                        "type": "str",
-                        "label": "Testing methodology",
-                        "value": case.testing_methodology,
-                        "value_display": case.get_testing_methodology_display(),
-                    },
-                    {
-                        "name": "report_methodology",
-                        "type": "str",
-                        "label": "Report methodology",
-                        "value": case.report_methodology,
-                        "value_display": case.get_report_methodology_display(),
-                    },
-                    {
-                        "name": "test_results_url",
-                        "type": "link",
-                        "label": "Link to test results",
-                        "value": case.test_results_url,
-                        "value_display": case.test_results_url,
-                    },
-                    {
-                        "name": "test_status",
-                        "type": "str",
-                        "label": "Test status",
-                        "value": case.test_status,
-                        "value_display": case.get_test_status_display(),
-                    },
-                    {
-                        "name": "report_draft_url",
-                        "type": "link",
-                        "label": "Link to report draft",
-                        "value": case.report_draft_url,
-                        "value_display": "Report draft",
-                    },
-                    {
-                        "name": "report_notes",
-                        "type": "markdown",
-                        "label": "Report notes",
-                        "value": case.report_notes,
-                        "value_display": None,
-                    },
-                    {
-                        "name": "report_final_pdf_url",
-                        "type": "link",
-                        "label": "Link to test results",
-                        "value": case.report_final_pdf_url,
-                        "value_display": case.report_final_pdf_url,
-                    },
-                    {
-                        "name": "report_final_odt_url",
-                        "type": "link",
-                        "label": "Link to test results",
-                        "value": case.report_final_odt_url,
-                        "value_display": case.report_final_odt_url,
-                    },
-                    {
-                        "name": "notes",
-                        "type": "markdown",
-                        "label": "Notes",
-                        "value": case.notes,
-                        "value_display": None,
-                    },
-                ],
-            },
             {
                 "name": "Case details",
                 "complete": case.case_details_complete_date.isoformat()
@@ -169,6 +149,171 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         "label": "Trello ticket URL",
                         "value": case.trello_url,
                         "value_display": case.trello_url,
+                    },
+                ],
+            },
+            {
+                "name": "Testing details",
+                "complete": case.testing_details_complete_date.isoformat()
+                if case.testing_details_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "test_results_url",
+                        "type": "link",
+                        "label": "Link to test results",
+                        "value": case.test_results_url,
+                        "value_display": "Monitor document",
+                    },
+                    {
+                        "name": "test_status",
+                        "type": "str",
+                        "label": "Test status",
+                        "value": case.test_status,
+                        "value_display": case.get_test_status_display(),
+                    },
+                    {
+                        "name": "accessibility_statement_state",
+                        "type": "str",
+                        "label": "Initial accessibility statement decision",
+                        "value": case.accessibility_statement_state,
+                        "value_display": case.get_accessibility_statement_state_display(),
+                    },
+                    {
+                        "name": "accessibility_statement_notes",
+                        "type": "markdown",
+                        "label": "Accessibility statement notes",
+                        "value": case.accessibility_statement_notes,
+                        "value_display": None,
+                    },
+                    {
+                        "name": "website_compliance_state_initial",
+                        "type": "str",
+                        "label": "Initial compliance decision",
+                        "value": case.website_compliance_state_initial,
+                        "value_display": case.get_website_compliance_state_initial_display(),
+                    },
+                    {
+                        "name": "compliance_decision_notes",
+                        "type": "markdown",
+                        "label": "Initial website compliance notes",
+                        "value": case.compliance_decision_notes,
+                        "value_display": None,
+                    },
+                ],
+            },
+            {
+                "name": "Report details",
+                "complete": case.reporting_details_complete_date.isoformat()
+                if case.reporting_details_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "report_draft_url",
+                        "type": "link",
+                        "label": "Link to report draft",
+                        "value": case.report_draft_url,
+                        "value_display": "Report draft",
+                    },
+                    {
+                        "name": "report_notes",
+                        "type": "markdown",
+                        "label": "Report details notes",
+                        "value": case.report_notes,
+                        "value_display": None,
+                    },
+                ],
+            },
+            {
+                "name": "QA process",
+                "complete": case.qa_process_complete_date.isoformat()
+                if case.qa_process_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "report_review_status",
+                        "type": "str",
+                        "label": "Report ready to be reviewed",
+                        "value": case.report_review_status,
+                        "value_display": case.get_report_review_status_display(),
+                    },
+                    {
+                        "name": "reviewer",
+                        "type": "str",
+                        "label": "QA auditor",
+                        "value": case.reviewer_id,
+                        "value_display": reviewer_display,
+                    },
+                    {
+                        "name": "qa_comments",
+                        "type": "str",
+                        "label": "Comments",
+                        "value": comments.count(),
+                        "value_display": comments.count(),
+                    },
+                    {
+                        "name": "report_approved_status",
+                        "type": "str",
+                        "label": "Report approved?",
+                        "value": case.report_approved_status,
+                        "value_display": case.get_report_approved_status_display(),
+                    },
+                    {
+                        "name": "report_final_odt_url",
+                        "type": "link",
+                        "label": "Link to final ODT report",
+                        "value": case.report_final_odt_url,
+                        "value_display": "Final draft (ODT)",
+                    },
+                    {
+                        "name": "report_final_pdf_url",
+                        "type": "link",
+                        "label": "Link to final PDF report",
+                        "value": case.report_final_pdf_url,
+                        "value_display": "Final draft (PDF)",
+                    },
+                ],
+            },
+            {
+                "name": "Contact details",
+                "complete": case.contact_details_complete_date.isoformat()
+                if case.contact_details_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "contact_notes",
+                        "type": "markdown",
+                        "label": "Contact details notes",
+                        "value": case.contact_notes,
+                        "value_display": None,
+                    },
+                ]
+                + contact_fields,
+            },
+            {
+                "name": "Archived",
+                "complete": None,
+                "fields": [
+                    {
+                        "name": "testing_methodology",
+                        "type": "str",
+                        "label": "Testing methodology",
+                        "value": case.testing_methodology,
+                        "value_display": case.get_testing_methodology_display(),
+                    },
+                    {
+                        "name": "report_methodology",
+                        "type": "str",
+                        "label": "Report methodology",
+                        "value": case.report_methodology,
+                        "value_display": case.get_report_methodology_display(),
+                    },
+                    {
+                        "name": "notes",
+                        "type": "markdown",
+                        "label": "Notes",
+                        "value": case.notes,
+                        "value_display": None,
                     },
                 ],
             },
