@@ -950,3 +950,56 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
 
     assert getattr(audit, attr_name).exists() is False
     assert audit.outstanding_statement_check_results.count() == 0
+
+
+@pytest.mark.django_db
+def test_set_accessibility_statement_state_called_on_statement_page_update():
+    """
+    Test that saving a statement page triggers a setting of the statement
+    state on the case.
+    """
+    case: Case = Case.objects.create()
+    mock_set_accessibility_statement_states = Mock()
+    case.set_accessibility_statement_states = mock_set_accessibility_statement_states
+    audit: Audit = Audit.objects.create(case=case)
+
+    Page.objects.create(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+
+    mock_set_accessibility_statement_states.assert_called_once()
+
+
+@pytest.mark.django_db
+def test_set_accessibility_statement_state_not_called_on_non_statement_page_update():
+    """
+    Test that saving a non-statement page does not trigger a setting of the statement
+    state on the case.
+    """
+    case: Case = Case.objects.create()
+    mock_set_accessibility_statement_states = Mock()
+    case.set_accessibility_statement_states = mock_set_accessibility_statement_states
+    audit: Audit = Audit.objects.create(case=case)
+
+    Page.objects.create(audit=audit)
+
+    mock_set_accessibility_statement_states.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_set_accessibility_statement_state_called_on_statement_check_update():
+    """
+    Test that saving a statement check triggers a setting of the statement
+    state on the case.
+    """
+    case: Case = Case.objects.create()
+    mock_set_accessibility_statement_states = Mock()
+    case.set_accessibility_statement_states = mock_set_accessibility_statement_states
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
+
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=type,
+        statement_check=statement_check,
+    )
+
+    mock_set_accessibility_statement_states.assert_called_once()

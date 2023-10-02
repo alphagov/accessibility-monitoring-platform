@@ -1,53 +1,67 @@
 {% if audit.uses_statement_checks %}
-    <h2 id="statement-overview" class="govuk-heading-l">Statement overview</h2>
-    <div class="govuk-button-group amp-margin-bottom-0">
-        <a href="{% url 'audits:edit-retest-statement-overview' audit.id %}"
-            class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-        {% include 'audits/helpers/accessibility_statement_link.html' %}
-    </div>
-    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.overview_statement_check_results %}
-    <h2 id="statement-website" class="govuk-heading-l">Statement information</h2>
-    <div class="govuk-button-group amp-margin-bottom-0">
-        <a href="{% url 'audits:edit-retest-statement-website' audit.id %}"
-            class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-        {% include 'audits/helpers/accessibility_statement_link.html' %}
-    </div>
-    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.website_statement_check_results %}
-    <h2 id="statement-compliance" class="govuk-heading-l">Compliance status</h2>
-    <div class="govuk-button-group amp-margin-bottom-0">
-        <a href="{% url 'audits:edit-retest-statement-compliance' audit.id %}"
-            class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-        {% include 'audits/helpers/accessibility_statement_link.html' %}
-    </div>
-    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.compliance_statement_check_results %}
-    <h2 id="statement-non-accessible" class="govuk-heading-l">Non-accessible content overview</h2>
-    <div class="govuk-button-group amp-margin-bottom-0">
-        <a href="{% url 'audits:edit-retest-statement-non-accessible' audit.id %}"
-            class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-        {% include 'audits/helpers/accessibility_statement_link.html' %}
-    </div>
-    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.non_accessible_statement_check_results %}
-    <h2 id="statement-preparation" class="govuk-heading-l">Preparation</h2>
-    <div class="govuk-button-group amp-margin-bottom-0">
-        <a href="{% url 'audits:edit-retest-statement-preparation' audit.id %}"
-            class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-        {% include 'audits/helpers/accessibility_statement_link.html' %}
-    </div>
-    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.preparation_statement_check_results %}
-    <h2 id="statement-feedback" class="govuk-heading-l">Feedback and enforcement procedure</h2>
-    <div class="govuk-button-group amp-margin-bottom-0">
-        <a href="{% url 'audits:edit-retest-statement-feedback' audit.id %}"
-            class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-        {% include 'audits/helpers/accessibility_statement_link.html' %}
-    </div>
-    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.feedback_statement_check_results %}
-    <h2 id="statement-custom" class="govuk-heading-l">Custom statement issues</h2>
-    <div class="govuk-button-group amp-margin-bottom-0">
-        <a href="{% url 'audits:edit-retest-statement-custom' audit.id %}"
-            class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-        {% include 'audits/helpers/accessibility_statement_link.html' %}
-    </div>
-    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.custom_statement_check_results %}
+    {% if audit.overview_outstanding_statement_check_results %}
+        <h2 id="statement-overview" class="govuk-heading-l">Statement overview</h2>
+        <div class="govuk-button-group amp-margin-bottom-0">
+            <a href="{% url 'audits:edit-retest-statement-overview' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state">Edit retest</a>
+            {% include 'audits/helpers/accessibility_statement_link.html' %}
+        </div>
+        {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.overview_outstanding_statement_check_results %}
+    {% endif %}
+    {% if audit.website_outstanding_statement_check_results %}
+        <h2 id="statement-website" class="govuk-heading-l">Statement information</h2>
+        <div class="govuk-button-group amp-margin-bottom-0">
+            <a href="{% url 'audits:edit-retest-statement-website' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state">Edit retest</a>
+            {% include 'audits/helpers/accessibility_statement_link.html' %}
+        </div>
+        {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.website_outstanding_statement_check_results %}
+    {% endif %}
+    {% if audit.compliance_outstanding_statement_check_results %}
+        <h2 id="statement-compliance" class="govuk-heading-l">Compliance status</h2>
+        <div class="govuk-button-group amp-margin-bottom-0">
+            <a href="{% url 'audits:edit-retest-statement-compliance' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state">Edit retest</a>
+            {% include 'audits/helpers/accessibility_statement_link.html' %}
+        </div>
+        {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.compliance_outstanding_statement_check_results %}
+    {% endif %}
+    {% if audit.non_accessible_outstanding_statement_check_results %}
+        <h2 id="statement-non-accessible" class="govuk-heading-l">Non-accessible content overview</h2>
+        <div class="govuk-button-group amp-margin-bottom-0">
+            <a href="{% url 'audits:edit-retest-statement-non-accessible' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state">Edit retest</a>
+            {% include 'audits/helpers/accessibility_statement_link.html' %}
+        </div>
+        {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.non_accessible_outstanding_statement_check_results %}
+    {% endif %}
+    {% if audit.preparation_outstanding_statement_check_results %}
+        <h2 id="statement-preparation" class="govuk-heading-l">Preparation</h2>
+        <div class="govuk-button-group amp-margin-bottom-0">
+            <a href="{% url 'audits:edit-retest-statement-preparation' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state">Edit retest</a>
+            {% include 'audits/helpers/accessibility_statement_link.html' %}
+        </div>
+        {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.preparation_outstanding_statement_check_results %}
+    {% endif %}
+    {% if audit.feedback_outstanding_statement_check_results %}
+        <h2 id="statement-feedback" class="govuk-heading-l">Feedback and enforcement procedure</h2>
+        <div class="govuk-button-group amp-margin-bottom-0">
+            <a href="{% url 'audits:edit-retest-statement-feedback' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state">Edit retest</a>
+            {% include 'audits/helpers/accessibility_statement_link.html' %}
+        </div>
+        {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.feedback_outstanding_statement_check_results %}
+    {% endif %}
+    {% if audit.custom_outstanding_statement_check_results %}
+        <h2 id="statement-custom" class="govuk-heading-l">Custom statement issues</h2>
+        <div class="govuk-button-group amp-margin-bottom-0">
+            <a href="{% url 'audits:edit-retest-statement-custom' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state">Edit retest</a>
+            {% include 'audits/helpers/accessibility_statement_link.html' %}
+        </div>
+        {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.custom_outstanding_statement_check_results %}
+    {% endif %}
 {% else %}
     <div class="govuk-grid-row govuk-body amp-bottom-border">
         <div class="govuk-grid-column-one-half">
