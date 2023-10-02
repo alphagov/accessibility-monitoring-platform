@@ -123,19 +123,19 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
 EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Initial disproportionate burden claimed?",
-        field_name="disproportionate_burden_state",
+        field_name="archive_disproportionate_burden_state",
     ),
     ColumnAndFieldNames(
         column_name="Initial disproportionate notes",
-        field_name="disproportionate_burden_notes",
+        field_name="archive_disproportionate_burden_notes",
     ),
     ColumnAndFieldNames(
         column_name="Final disproportionate burden claimed?",
-        field_name="audit_retest_disproportionate_burden_state",
+        field_name="archive_audit_retest_disproportionate_burden_state",
     ),
     ColumnAndFieldNames(
         column_name="Final disproportionate notes",
-        field_name="audit_retest_disproportionate_burden_notes",
+        field_name="archive_audit_retest_disproportionate_burden_notes",
     ),
 ]
 

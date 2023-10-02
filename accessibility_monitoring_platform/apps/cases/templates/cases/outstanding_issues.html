@@ -236,7 +236,7 @@
                         </div>
                     {% endif %}
                     {% if case.audit.uses_statement_checks %}
-                        {% include 'audits/helpers/statement_comparison.html' with audit=case.audit %}
+                        {% include 'audits/helpers/statement_comparison_outstanding.html' with audit=case.audit %}
                     {% else %}
                         <h2 id="statement-comparison" class="govuk-heading-l">Statement comparison</h2>
                         <div class="govuk-grid-row">

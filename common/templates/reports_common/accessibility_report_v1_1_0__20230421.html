@@ -164,13 +164,13 @@
             <li>
                 {{ issue }}
                 {% if issue == 'mandatory wording is missing' %}
-                    <p class="amp-margin-bottom-0">{{ audit.accessibility_statement_missing_mandatory_wording_notes }}</p>
+                    <p class="amp-margin-bottom-0">{{ audit.archive_accessibility_statement_missing_mandatory_wording_notes }}</p>
                 {% endif %}
             </li>
         {% endfor %}
     </ul>
 {% endif %}
-{{ audit.accessibility_statement_report_text_wording|markdown_to_html }}
+{{ audit.archive_accessibility_statement_report_text_wording|markdown_to_html }}
 <p>
     More information about accessibility statements can be found at
     <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>.
@@ -188,7 +188,7 @@
     websites are accessible.
 </p>
 <p>
-    {% if audit.report_options_next == 'errors' %}
+    {% if audit.archive_report_options_next == 'errors' %}
         You should fix the issues that were found and do your own accessibility
         audit to check for issues that go beyond the scope of simple
         accessibility testing.
@@ -196,18 +196,18 @@
         You should do your own accessibility audit to check for issues that go beyond the scope of simple accessibility testing.
     {% endif %}
 </p>
-{% if audit.report_next_change_statement == 'yes' %}
+{% if audit.archive_report_next_change_statement == 'yes' %}
     <p>
         You need to review your accessibility statement to cover the issues
         found in this report and any others found during your own audit.
     </p>
 {% endif %}
-{% if audit.report_next_no_statement == 'yes' %}
+{% if audit.archive_report_next_no_statement == 'yes' %}
     <p>
         You need to write and publish an accessibility statement that meets the required legislative format.
     </p>
 {% endif %}
-{% if audit.report_next_statement_not_right == 'yes' %}
+{% if audit.archive_report_next_statement_not_right == 'yes' %}
     <p>
         You need to review your accessibility statement to cover the issues
         found in this report, including ones related to your accessibility
@@ -216,14 +216,14 @@
     </p>
 {% endif %}
 
-{% if audit.report_next_statement_matches == 'yes' %}
+{% if audit.archive_report_next_statement_matches == 'yes' %}
     <p>
         You need to review your accessibility statement to cover any other
         issues found during your own audit.
     </p>
 {% endif %}
 
-{% if audit.report_next_disproportionate_burden == 'yes' %}
+{% if audit.archive_report_next_disproportionate_burden == 'yes' %}
     <p>
         A disproportionate burden assessment must have been completed before
         adding this section to your accessibility statement. You need to send

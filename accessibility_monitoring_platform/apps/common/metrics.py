@@ -38,7 +38,7 @@ from .chart import (
 )
 from .utils import get_days_ago_timestamp, get_first_of_this_month_last_year
 
-ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: Dict[str, str] = {
+ARCHIVE_ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: Dict[str, str] = {
     "declaration_state": "present",
     "scope_state": "present",
     "compliance_state": "present",
@@ -127,17 +127,18 @@ def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
     for audit in audits:
         if audit.uses_statement_checks:
             statement_issues_count += audit.failed_statement_check_results.count()
-            fixed_statement_issues_count += (
-                audit.passed_retest_statement_check_results.count()
-            )
+            fixed_statement_issues_count += audit.fixed_statement_check_results.count()
         else:
             for (
                 fieldname,
                 good_value,
-            ) in ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE.items():
-                if getattr(audit, fieldname) != good_value:
+            ) in ARCHIVE_ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE.items():
+                if getattr(audit, f"archive_{fieldname}") != good_value:
                     statement_issues_count += 1
-                    if getattr(audit, f"audit_retest_{fieldname}") == good_value:
+                    if (
+                        getattr(audit, f"archive_audit_retest_{fieldname}")
+                        == good_value
+                    ):
                         fixed_statement_issues_count += 1
     return (fixed_statement_issues_count, statement_issues_count)
 

@@ -1621,9 +1621,9 @@ def test_statement_decision_saved_on_case(admin_client):
 @pytest.mark.parametrize(
     "field_name, new_value, report_content_update",
     [
-        ("accessibility_statement_state", "found", True),
-        ("report_options_next", "no-errors", True),
-        ("audit_report_options_complete_date", timezone.now(), False),
+        ("archive_accessibility_statement_state", "found", True),
+        ("archive_report_options_next", "no-errors", True),
+        ("archive_audit_report_options_complete_date", timezone.now(), False),
     ],
 )
 def test_report_options_field_updates_report_content(
@@ -1639,12 +1639,12 @@ def test_report_options_field_updates_report_content(
         reverse("audits:edit-audit-report-options", kwargs=audit_pk),
         {
             "version": audit.version,
-            "accessibility_statement_state": ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
-            "report_options_next": REPORT_OPTIONS_NEXT_DEFAULT,
+            "archive_accessibility_statement_state": ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
+            "archive_report_options_next": REPORT_OPTIONS_NEXT_DEFAULT,
             "save": "Button value",
             field_name: new_value,
-            "accessibility_statement_deadline_not_complete_wording": "it includes a deadline of XXX for fixing XXX issues and this has not been completed",
-            "accessibility_statement_deadline_not_sufficient_wording": "it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
+            "archive_accessibility_statement_deadline_not_complete_wording": "it includes a deadline of XXX for fixing XXX issues and this has not been completed",
+            "archive_accessibility_statement_deadline_not_sufficient_wording": "it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
         },
     )
 
@@ -2018,13 +2018,13 @@ def test_all_initial_statement_one_notes_included_on_retest(admin_client):
     Test that initial statement one notes all on retest page
     """
     audit: Audit = create_audit_and_wcag()
-    audit.scope_notes = "Initial scope notes"
-    audit.feedback_notes = "Initial feedback notes"
-    audit.contact_information_notes = "Initial contact information notes"
-    audit.enforcement_procedure_notes = "Initial enforcement procedure notes"
-    audit.declaration_notes = "Initial declaration notes"
-    audit.compliance_notes = "Initial compliance notes"
-    audit.non_regulation_notes = "Initial non-regulation notes"
+    audit.archive_scope_notes = "Initial scope notes"
+    audit.archive_feedback_notes = "Initial feedback notes"
+    audit.archive_contact_information_notes = "Initial contact information notes"
+    audit.archive_enforcement_procedure_notes = "Initial enforcement procedure notes"
+    audit.archive_declaration_notes = "Initial declaration notes"
+    audit.archive_compliance_notes = "Initial compliance notes"
+    audit.archive_non_regulation_notes = "Initial non-regulation notes"
     audit.save()
     statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
     statement_page.url = ACCESSIBILITY_STATEMENT_URL
@@ -2052,12 +2052,12 @@ def test_all_initial_statement_two_notes_included_on_retest(admin_client):
     Test that initial statement two notes all on retest page
     """
     audit: Audit = create_audit_and_wcag()
-    audit.disproportionate_burden_notes = "Initial disproportional burden notes"
-    audit.content_not_in_scope_notes = "Initial not in scope notes"
-    audit.preparation_date_notes = "Initial preperation date notes"
-    audit.review_notes = "Initial review notes"
-    audit.method_notes = "Initial method notes"
-    audit.access_requirements_notes = "Initial access requirements notes"
+    audit.archive_disproportionate_burden_notes = "Initial disproportional burden notes"
+    audit.archive_content_not_in_scope_notes = "Initial not in scope notes"
+    audit.archive_preparation_date_notes = "Initial preperation date notes"
+    audit.archive_review_notes = "Initial review notes"
+    audit.archive_method_notes = "Initial method notes"
+    audit.archive_access_requirements_notes = "Initial access requirements notes"
     audit.save()
     statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
     statement_page.url = ACCESSIBILITY_STATEMENT_URL
@@ -2443,3 +2443,24 @@ def test_audit_statement_check_statment_comparison(admin_client):
 
     assertContains(response, "Save and exit")
     assertNotContains(response, "12-week accessibility statement compliance decision")
+
+
+def test_audit_statement_check_statment_comparison_includes_fixed(admin_client):
+    """Test that the statement comparison page includes fixed issues"""
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    statement_check_result: StatementCheckResult = (
+        audit.overview_statement_check_results.first()
+    )
+    statement_check_result.check_result_state = STATEMENT_CHECK_YES
+    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, statement_check_result.statement_check.label)
