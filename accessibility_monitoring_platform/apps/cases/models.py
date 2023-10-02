@@ -142,10 +142,12 @@ TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
 
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
 ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT: str = "compliant"
+ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT: str = "not-compliant"
+ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND: str = "not-found"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     (ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT, "Compliant"),
-    ("not-compliant", "Not compliant"),
-    ("not-found", "Not found"),
+    (ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT, "Not compliant"),
+    (ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND, "Not found"),
     ("other", "Other"),
     (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not selected"),
 ]
@@ -665,6 +667,50 @@ class Case(VersionModel):
         ):
             return QA_STATUS_QA_APPROVED
         return QA_STATUS_UNKNOWN
+
+    def set_accessibility_statement_states(self) -> None:
+        if self.audit:
+            accessibility_statement_state: str = self.accessibility_statement_state
+            accessibility_statement_state_final: str = (
+                self.accessibility_statement_state_final
+            )
+            if self.audit.accessibility_statement_initially_found:
+                if self.audit.uses_statement_checks:
+                    if self.audit.failed_statement_check_results.count() > 0:
+                        self.accessibility_statement_state = (
+                            ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+                        )
+                    else:
+                        self.accessibility_statement_state = (
+                            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+                        )
+            else:
+                self.accessibility_statement_state = (
+                    ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+                )
+            if (
+                self.audit.accessibility_statement_initially_found
+                or self.audit.twelve_week_accessibility_statement_found
+            ):
+                if self.audit.uses_statement_checks:
+                    if self.audit.failed_retest_statement_check_results.count() > 0:
+                        self.accessibility_statement_state_final = (
+                            ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+                        )
+                    else:
+                        self.accessibility_statement_state_final = (
+                            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+                        )
+            else:
+                self.accessibility_statement_state_final = (
+                    ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+                )
+            if (
+                accessibility_statement_state != self.accessibility_statement_state
+                or accessibility_statement_state_final
+                != self.accessibility_statement_state_final
+            ):
+                self.save()
 
     @property
     def in_report_correspondence_progress(self) -> str:

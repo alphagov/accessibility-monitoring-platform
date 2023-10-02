@@ -374,7 +374,8 @@ def test_download_equality_body_cases():
     case: Case = Case.objects.create()
     cases: List[Case] = [case]
     Audit.objects.create(
-        case=case, audit_retest_disproportionate_burden_notes="Audit for CSV export"
+        case=case,
+        archive_audit_retest_disproportionate_burden_notes="Audit for CSV export",
     )
 
     response: HttpResponse = download_equality_body_cases(

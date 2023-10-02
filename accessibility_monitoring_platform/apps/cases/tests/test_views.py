@@ -3384,7 +3384,7 @@ def test_outstanding_issues_overview_percentage(admin_client):
     correctly.
     """
     audit: Audit = create_audit_and_check_results()
-    audit.audit_retest_scope_state = SCOPE_STATE_VALID
+    audit.archive_audit_retest_scope_state = SCOPE_STATE_VALID
     audit.save()
     home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
     check_result: CheckResult = home_page.all_check_results[0]

@@ -31,10 +31,10 @@
                     </li>
                 {% endif %}
             {% else %}
-                {% include './nav_content.html' with id='edit-audit-statement-1' anchor="audit-statement-1" edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.audit_statement_1_complete_date %}
-                {% include './nav_content.html' with id='edit-audit-statement-2' anchor="audit-statement-2" edit_name='audits:edit-audit-statement-2' name='Accessibility statement 2' complete=audit.audit_statement_2_complete_date %}
-                {% include './nav_content.html' with id='edit-statement-decision' anchor="statement-decision" edit_name='audits:edit-statement-decision' name='Accessibility statement compliance decision' complete=audit.audit_statement_decision_complete_date %}
-                {% include './nav_content.html' with id='edit-audit-report-options' anchor="audit-report-options" edit_name='audits:edit-audit-report-options' name='Report options' complete=audit.audit_report_options_complete_date %}
+                {% include './nav_content.html' with id='edit-audit-statement-1' anchor="audit-statement-1" edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.archive_audit_statement_1_complete_date %}
+                {% include './nav_content.html' with id='edit-audit-statement-2' anchor="audit-statement-2" edit_name='audits:edit-audit-statement-2' name='Accessibility statement 2' complete=audit.archive_audit_statement_2_complete_date %}
+                {% include './nav_content.html' with id='edit-statement-decision' anchor="statement-decision" edit_name='audits:edit-statement-decision' name='Accessibility statement compliance decision' complete=audit.archive_audit_statement_decision_complete_date %}
+                {% include './nav_content.html' with id='edit-audit-report-options' anchor="audit-report-options" edit_name='audits:edit-audit-report-options' name='Report options' complete=audit.archive_audit_report_options_complete_date %}
             {% endif %}
             {% if not on_view_case %}
                 {% include './nav_content.html' with id='edit-test-summary' anchor="" edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}
@@ -42,7 +42,7 @@
             {% if audit.case.report_methodology == 'odt' %}
                 <a href="#audit-report-text" class="govuk-link govuk-link--no-visited-state">
                     Report text
-                    {% if audit.audit_report_text_complete_date %}
+                    {% if audit.archive_audit_report_text_complete_date %}
                         <span class="govuk-visually-hidden">complete</span>
                     {% endif %}
                 </a>

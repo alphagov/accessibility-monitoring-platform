@@ -199,42 +199,42 @@ RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
 
-REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
-    "accessibility_statement_not_correct_format": "it was not in the correct format",
-    "accessibility_statement_not_specific_enough": "it was not specific enough",
-    "accessibility_statement_missing_accessibility_issues": "accessibility issues were found during the test that"
+ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
+    "archive_accessibility_statement_not_correct_format": "it was not in the correct format",
+    "archive_accessibility_statement_not_specific_enough": "it was not specific enough",
+    "archive_accessibility_statement_missing_accessibility_issues": "accessibility issues were found during the test that"
     " were not included in the statement",
-    "accessibility_statement_missing_mandatory_wording": "mandatory wording is missing",
-    "accessibility_statement_needs_more_re_disproportionate": "we require more information covering the"
+    "archive_accessibility_statement_missing_mandatory_wording": "mandatory wording is missing",
+    "archive_accessibility_statement_needs_more_re_disproportionate": "we require more information covering the"
     " disproportionate burden claim",
-    "accessibility_statement_needs_more_re_accessibility": "it required more information detailing the accessibility"
+    "archive_accessibility_statement_needs_more_re_accessibility": "it required more information detailing the accessibility"
     " issues",
-    "accessibility_statement_deadline_not_complete": "it includes a deadline of XXX for fixing XXX issues and this"
+    "archive_accessibility_statement_deadline_not_complete": "it includes a deadline of XXX for fixing XXX issues and this"
     " has not been completed",
-    "accessibility_statement_deadline_not_sufficient": "it includes a deadline of XXX for fixing XXX issues and"
+    "archive_accessibility_statement_deadline_not_sufficient": "it includes a deadline of XXX for fixing XXX issues and"
     " this is not sufficient",
-    "accessibility_statement_out_of_date": "it is out of date and needs to be reviewed",
-    "accessibility_statement_eass_link": "it must link directly to the Equality Advisory and"
+    "archive_accessibility_statement_out_of_date": "it is out of date and needs to be reviewed",
+    "archive_accessibility_statement_eass_link": "it must link directly to the Equality Advisory and"
     " Support Service (EASS) website",
-    "accessibility_statement_template_update": "it is a requirement that accessibility statements are accessible."
+    "archive_accessibility_statement_template_update": "it is a requirement that accessibility statements are accessible."
     " Some users may experience difficulties using PDF documents. It may be beneficial for users if there was a HTML"
     " version of your full accessibility statement.",
-    "accessibility_statement_accessible": "in 2020 the GOV.UK sample template was updated to include an extra"
+    "archive_accessibility_statement_accessible": "in 2020 the GOV.UK sample template was updated to include an extra"
     " mandatory piece of information to outline the scope of your accessibility statement. This needs to be added to"
     " your statement.",
-    "accessibility_statement_prominent": "your statement should be prominently placed on the homepage of the website"
+    "archive_accessibility_statement_prominent": "your statement should be prominently placed on the homepage of the website"
     " or made available on every web page, for example in a static header or footer, as per the legislative"
     " requirement.",
 }
-REPORT_NEXT_ISSUE_TEXT: Dict[str, str] = {
-    "report_next_change_statement": "They have an acceptable statement but need to change it because of the"
+ARCHIVE_REPORT_NEXT_ISSUE_TEXT: Dict[str, str] = {
+    "archive_report_next_change_statement": "They have an acceptable statement but need to change it because of the"
     " errors we found",
-    "report_next_no_statement": "They don’t have a statement, or it is in the wrong format",
-    "report_next_statement_not_right": "They have a statement but it is not quite right",
-    "report_next_statement_matches": "Their statement matches",
-    "report_next_disproportionate_burden": "Disproportionate burden",
+    "archive_report_next_no_statement": "They don’t have a statement, or it is in the wrong format",
+    "archive_report_next_statement_not_right": "They have a statement but it is not quite right",
+    "archive_report_next_statement_matches": "Their statement matches",
+    "archive_report_next_disproportionate_burden": "Disproportionate burden",
 }
-ACCESSIBILITY_STATEMENT_CHECK_PREFIXES: List[str] = [
+ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES: List[str] = [
     "scope",
     "feedback",
     "contact_information",
@@ -249,7 +249,7 @@ ACCESSIBILITY_STATEMENT_CHECK_PREFIXES: List[str] = [
     "method",
     "access_requirements",
 ]
-ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
+ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
     "scope": [SCOPE_STATE_VALID],
     "feedback": [FEEDBACK_STATE_VALID],
     "contact_information": [CONTACT_INFORMATION_VALID],
@@ -294,7 +294,7 @@ STATEMENT_CHECK_CHOICES: List[Tuple[str, str]] = [
 ]
 
 
-class AccessibilityStatementCheck:
+class ArchiveAccessibilityStatementCheck:
     """Accessibility statement check"""
 
     field_name_prefix: str
@@ -309,20 +309,26 @@ class AccessibilityStatementCheck:
 
     def __init__(self, field_name_prefix: str, audit: "Audit"):
         self.field_name_prefix = field_name_prefix
-        self.valid_values = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
+        self.valid_values = ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
             field_name_prefix, []
         )
-        self.label = Audit._meta.get_field(f"{field_name_prefix}_state").verbose_name
-        self.initial_state = getattr(audit, f"{field_name_prefix}_state")
+        self.label = Audit._meta.get_field(
+            f"archive_{field_name_prefix}_state"
+        ).verbose_name
+        self.initial_state = getattr(audit, f"archive_{field_name_prefix}_state")
         self.initial_state_display = getattr(
-            audit, f"get_{field_name_prefix}_state_display"
+            audit, f"get_archive_{field_name_prefix}_state_display"
         )()
-        self.initial_notes = getattr(audit, f"{field_name_prefix}_notes")
-        self.final_state = getattr(audit, f"audit_retest_{field_name_prefix}_state")
+        self.initial_notes = getattr(audit, f"archive_{field_name_prefix}_notes")
+        self.final_state = getattr(
+            audit, f"archive_audit_retest_{field_name_prefix}_state"
+        )
         self.final_state_display = getattr(
-            audit, f"get_audit_retest_{field_name_prefix}_state_display"
+            audit, f"get_archive_audit_retest_{field_name_prefix}_state_display"
         )()
-        self.final_notes = getattr(audit, f"audit_retest_{field_name_prefix}_notes")
+        self.final_notes = getattr(
+            audit, f"archive_audit_retest_{field_name_prefix}_notes"
+        )
 
     @property
     def initially_invalid(self):
@@ -372,190 +378,192 @@ class Audit(VersionModel):
     # Accessibility statement 1
     accessibility_statement_backup_url = models.TextField(default="", blank=True)
     accessibility_statement_backup_url_date = models.DateField(null=True, blank=True)
-    declaration_state = models.CharField(
+    archive_declaration_state = models.CharField(
         "Declaration",
         max_length=20,
         choices=DECLARATION_STATE_CHOICES,
         default=DECLARATION_STATE_DEFAULT,
     )
-    declaration_notes = models.TextField(default="", blank=True)
-    scope_state = models.CharField(
+    archive_declaration_notes = models.TextField(default="", blank=True)
+    archive_scope_state = models.CharField(
         verbose_name="Scope",
         max_length=20,
         choices=SCOPE_STATE_CHOICES,
         default=SCOPE_STATE_DEFAULT,
     )
-    scope_notes = models.TextField(default="", blank=True)
-    compliance_state = models.CharField(
+    archive_scope_notes = models.TextField(default="", blank=True)
+    archive_compliance_state = models.CharField(
         "Compliance Status",
         max_length=20,
         choices=COMPLIANCE_STATE_CHOICES,
         default=COMPLIANCE_STATE_DEFAULT,
     )
-    compliance_notes = models.TextField(default="", blank=True)
-    non_regulation_state = models.CharField(
+    archive_compliance_notes = models.TextField(default="", blank=True)
+    archive_non_regulation_state = models.CharField(
         "Non-accessible Content - non compliance with regulations",
         max_length=20,
         choices=NON_REGULATION_STATE_CHOICES,
         default=NON_REGULATION_STATE_DEFAULT,
     )
-    non_regulation_notes = models.TextField(default="", blank=True)
-    disproportionate_burden_state = models.CharField(
+    archive_non_regulation_notes = models.TextField(default="", blank=True)
+    archive_disproportionate_burden_state = models.CharField(
         "Non-accessible Content - disproportionate burden",
         max_length=20,
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
         default=DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM,
     )
-    disproportionate_burden_notes = models.TextField(default="", blank=True)
-    content_not_in_scope_state = models.CharField(
+    archive_disproportionate_burden_notes = models.TextField(default="", blank=True)
+    archive_content_not_in_scope_state = models.CharField(
         "Non-accessible Content - the content is not within the scope of the applicable legislation",
         max_length=20,
         choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
         default=CONTENT_NOT_IN_SCOPE_STATE_DEFAULT,
     )
-    content_not_in_scope_notes = models.TextField(default="", blank=True)
-    preparation_date_state = models.CharField(
+    archive_content_not_in_scope_notes = models.TextField(default="", blank=True)
+    archive_preparation_date_state = models.CharField(
         "Preparation Date",
         max_length=20,
         choices=PREPARATION_DATE_STATE_CHOICES,
         default=PREPARATION_DATE_STATE_DEFAULT,
     )
-    preparation_date_notes = models.TextField(default="", blank=True)
-    audit_statement_1_complete_date = models.DateField(null=True, blank=True)
+    archive_preparation_date_notes = models.TextField(default="", blank=True)
+    archive_audit_statement_1_complete_date = models.DateField(null=True, blank=True)
 
     # Accessibility statement 2
-    method_state = models.CharField(
+    archive_method_state = models.CharField(
         "Method",
         max_length=20,
         choices=METHOD_STATE_CHOICES,
         default=METHOD_STATE_DEFAULT,
     )
-    method_notes = models.TextField(default="", blank=True)
-    review_state = models.CharField(
+    archive_method_notes = models.TextField(default="", blank=True)
+    archive_review_state = models.CharField(
         "Review",
         max_length=20,
         choices=REVIEW_STATE_CHOICES,
         default=REVIEW_STATE_DEFAULT,
     )
-    review_notes = models.TextField(default="", blank=True)
-    feedback_state = models.CharField(
+    archive_review_notes = models.TextField(default="", blank=True)
+    archive_feedback_state = models.CharField(
         "Feedback",
         max_length=20,
         choices=FEEDBACK_STATE_CHOICES,
         default=FEEDBACK_STATE_DEFAULT,
     )
-    feedback_notes = models.TextField(default="", blank=True)
-    contact_information_state = models.CharField(
+    archive_feedback_notes = models.TextField(default="", blank=True)
+    archive_contact_information_state = models.CharField(
         "Contact Information",
         max_length=20,
         choices=CONTACT_INFORMATION_STATE_CHOICES,
         default=CONTACT_INFORMATION_STATE_DEFAULT,
     )
-    contact_information_notes = models.TextField(default="", blank=True)
-    enforcement_procedure_state = models.CharField(
+    archive_contact_information_notes = models.TextField(default="", blank=True)
+    archive_enforcement_procedure_state = models.CharField(
         "Enforcement Procedure",
         max_length=20,
         choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
         default=ENFORCEMENT_PROCEDURE_STATE_DEFAULT,
     )
-    enforcement_procedure_notes = models.TextField(default="", blank=True)
-    access_requirements_state = models.CharField(
+    archive_enforcement_procedure_notes = models.TextField(default="", blank=True)
+    archive_access_requirements_state = models.CharField(
         "Access Requirements",
         max_length=20,
         choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
         default=ACCESS_REQUIREMENTS_STATE_DEFAULT,
     )
-    access_requirements_notes = models.TextField(default="", blank=True)
-    audit_statement_2_complete_date = models.DateField(null=True, blank=True)
+    archive_access_requirements_notes = models.TextField(default="", blank=True)
+    archive_audit_statement_2_complete_date = models.DateField(null=True, blank=True)
 
     # Statement decision
-    audit_statement_decision_complete_date = models.DateField(null=True, blank=True)
+    archive_audit_statement_decision_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Summary
     audit_summary_complete_date = models.DateField(null=True, blank=True)
 
     # Report options
-    accessibility_statement_state = models.CharField(
+    archive_accessibility_statement_state = models.CharField(
         max_length=20,
         choices=ACCESSIBILITY_STATEMENT_STATE_CHOICES,
         default=ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     )
-    accessibility_statement_not_correct_format = models.CharField(
+    archive_accessibility_statement_not_correct_format = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_not_specific_enough = models.CharField(
+    archive_accessibility_statement_not_specific_enough = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_missing_accessibility_issues = models.CharField(
+    archive_accessibility_statement_missing_accessibility_issues = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_missing_mandatory_wording = models.CharField(
+    archive_accessibility_statement_missing_mandatory_wording = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_missing_mandatory_wording_notes = models.TextField(
+    archive_accessibility_statement_missing_mandatory_wording_notes = models.TextField(
         default="", blank=True
     )
-    accessibility_statement_needs_more_re_disproportionate = models.CharField(
+    archive_accessibility_statement_needs_more_re_disproportionate = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_needs_more_re_accessibility = models.CharField(
+    archive_accessibility_statement_needs_more_re_accessibility = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_deadline_not_complete = models.CharField(
+    archive_accessibility_statement_deadline_not_complete = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_deadline_not_complete_wording = models.TextField(
+    archive_accessibility_statement_deadline_not_complete_wording = models.TextField(
         default="it includes a deadline of XXX for fixing XXX issues and this has not been completed",
         blank=True,
     )
-    accessibility_statement_deadline_not_sufficient = models.CharField(
+    archive_accessibility_statement_deadline_not_sufficient = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_deadline_not_sufficient_wording = models.TextField(
+    archive_accessibility_statement_deadline_not_sufficient_wording = models.TextField(
         default="it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
         blank=True,
     )
-    accessibility_statement_out_of_date = models.CharField(
+    archive_accessibility_statement_out_of_date = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_eass_link = models.CharField(
+    archive_accessibility_statement_eass_link = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_template_update = models.CharField(
+    archive_accessibility_statement_template_update = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_accessible = models.CharField(
+    archive_accessibility_statement_accessible = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_prominent = models.CharField(
+    archive_accessibility_statement_prominent = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    report_options_next = models.CharField(
+    archive_report_options_next = models.CharField(
         max_length=20,
         choices=REPORT_OPTIONS_NEXT_CHOICES,
         default=REPORT_OPTIONS_NEXT_DEFAULT,
     )
-    report_next_change_statement = models.CharField(
+    archive_report_next_change_statement = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    report_next_no_statement = models.CharField(
+    archive_report_next_no_statement = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    report_next_statement_not_right = models.CharField(
+    archive_report_next_statement_not_right = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    report_next_statement_matches = models.CharField(
+    archive_report_next_statement_matches = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    report_next_disproportionate_burden = models.CharField(
+    archive_report_next_disproportionate_burden = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    accessibility_statement_report_text_wording = models.TextField(
+    archive_accessibility_statement_report_text_wording = models.TextField(
         default="",
         blank=True,
     )
-    report_options_notes = models.TextField(default="", blank=True)
-    audit_report_options_complete_date = models.DateField(null=True, blank=True)
+    archive_report_options_notes = models.TextField(default="", blank=True)
+    archive_audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking overview
     audit_statement_overview_complete_date = models.DateField(null=True, blank=True)
@@ -581,7 +589,7 @@ class Audit(VersionModel):
     audit_statement_custom_complete_date = models.DateField(null=True, blank=True)
 
     # Report text
-    audit_report_text_complete_date = models.DateField(null=True, blank=True)
+    archive_audit_report_text_complete_date = models.DateField(null=True, blank=True)
 
     # retest metadata page
     retest_date = models.DateField(null=True, blank=True)
@@ -606,82 +614,96 @@ class Audit(VersionModel):
     audit_retest_accessibility_statement_backup_url_date = models.DateField(
         null=True, blank=True
     )
-    audit_retest_declaration_state = models.CharField(
+    archive_audit_retest_declaration_state = models.CharField(
         max_length=20,
         choices=DECLARATION_STATE_CHOICES,
         default=DECLARATION_STATE_DEFAULT,
     )
-    audit_retest_declaration_notes = models.TextField(default="", blank=True)
-    audit_retest_scope_state = models.CharField(
+    archive_audit_retest_declaration_notes = models.TextField(default="", blank=True)
+    archive_audit_retest_scope_state = models.CharField(
         max_length=20, choices=SCOPE_STATE_CHOICES, default=SCOPE_STATE_DEFAULT
     )
-    audit_retest_scope_notes = models.TextField(default="", blank=True)
-    audit_retest_compliance_state = models.CharField(
+    archive_audit_retest_scope_notes = models.TextField(default="", blank=True)
+    archive_audit_retest_compliance_state = models.CharField(
         max_length=20,
         choices=COMPLIANCE_STATE_CHOICES,
         default=COMPLIANCE_STATE_DEFAULT,
     )
-    audit_retest_compliance_notes = models.TextField(default="", blank=True)
-    audit_retest_non_regulation_state = models.CharField(
+    archive_audit_retest_compliance_notes = models.TextField(default="", blank=True)
+    archive_audit_retest_non_regulation_state = models.CharField(
         max_length=20,
         choices=NON_REGULATION_STATE_CHOICES,
         default=NON_REGULATION_STATE_DEFAULT,
     )
-    audit_retest_non_regulation_notes = models.TextField(default="", blank=True)
-    audit_retest_disproportionate_burden_state = models.CharField(
+    archive_audit_retest_non_regulation_notes = models.TextField(default="", blank=True)
+    archive_audit_retest_disproportionate_burden_state = models.CharField(
         max_length=20,
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
         default=DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM,
     )
-    audit_retest_disproportionate_burden_notes = models.TextField(
+    archive_audit_retest_disproportionate_burden_notes = models.TextField(
         default="", blank=True
     )
-    audit_retest_content_not_in_scope_state = models.CharField(
+    archive_audit_retest_content_not_in_scope_state = models.CharField(
         max_length=20,
         choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
         default=CONTENT_NOT_IN_SCOPE_STATE_DEFAULT,
     )
-    audit_retest_content_not_in_scope_notes = models.TextField(default="", blank=True)
-    audit_retest_preparation_date_state = models.CharField(
+    archive_audit_retest_content_not_in_scope_notes = models.TextField(
+        default="", blank=True
+    )
+    archive_audit_retest_preparation_date_state = models.CharField(
         max_length=20,
         choices=PREPARATION_DATE_STATE_CHOICES,
         default=PREPARATION_DATE_STATE_DEFAULT,
     )
-    audit_retest_preparation_date_notes = models.TextField(default="", blank=True)
-    audit_retest_statement_1_complete_date = models.DateField(null=True, blank=True)
+    archive_audit_retest_preparation_date_notes = models.TextField(
+        default="", blank=True
+    )
+    archive_audit_retest_statement_1_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Retest accessibility statement 2
-    audit_retest_method_state = models.CharField(
+    archive_audit_retest_method_state = models.CharField(
         max_length=20, choices=METHOD_STATE_CHOICES, default=METHOD_STATE_DEFAULT
     )
-    audit_retest_method_notes = models.TextField(default="", blank=True)
-    audit_retest_review_state = models.CharField(
+    archive_audit_retest_method_notes = models.TextField(default="", blank=True)
+    archive_audit_retest_review_state = models.CharField(
         max_length=20, choices=REVIEW_STATE_CHOICES, default=REVIEW_STATE_DEFAULT
     )
-    audit_retest_review_notes = models.TextField(default="", blank=True)
-    audit_retest_feedback_state = models.CharField(
+    archive_audit_retest_review_notes = models.TextField(default="", blank=True)
+    archive_audit_retest_feedback_state = models.CharField(
         max_length=20, choices=FEEDBACK_STATE_CHOICES, default=FEEDBACK_STATE_DEFAULT
     )
-    audit_retest_feedback_notes = models.TextField(default="", blank=True)
-    audit_retest_contact_information_state = models.CharField(
+    archive_audit_retest_feedback_notes = models.TextField(default="", blank=True)
+    archive_audit_retest_contact_information_state = models.CharField(
         max_length=20,
         choices=CONTACT_INFORMATION_STATE_CHOICES,
         default=CONTACT_INFORMATION_STATE_DEFAULT,
     )
-    audit_retest_contact_information_notes = models.TextField(default="", blank=True)
-    audit_retest_enforcement_procedure_state = models.CharField(
+    archive_audit_retest_contact_information_notes = models.TextField(
+        default="", blank=True
+    )
+    archive_audit_retest_enforcement_procedure_state = models.CharField(
         max_length=20,
         choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
         default=ENFORCEMENT_PROCEDURE_STATE_DEFAULT,
     )
-    audit_retest_enforcement_procedure_notes = models.TextField(default="", blank=True)
-    audit_retest_access_requirements_state = models.CharField(
+    archive_audit_retest_enforcement_procedure_notes = models.TextField(
+        default="", blank=True
+    )
+    archive_audit_retest_access_requirements_state = models.CharField(
         max_length=20,
         choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
         default=ACCESS_REQUIREMENTS_STATE_DEFAULT,
     )
-    audit_retest_access_requirements_notes = models.TextField(default="", blank=True)
-    audit_retest_statement_2_complete_date = models.DateField(null=True, blank=True)
+    archive_audit_retest_access_requirements_notes = models.TextField(
+        default="", blank=True
+    )
+    archive_audit_retest_statement_2_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Retest statement checking overview
     audit_retest_statement_overview_complete_date = models.DateField(
@@ -723,7 +745,7 @@ class Audit(VersionModel):
         null=True, blank=True
     )
     # Retest statement decision
-    audit_retest_statement_decision_complete_date = models.DateField(
+    archive_audit_retest_statement_decision_complete_date = models.DateField(
         null=True, blank=True
     )
 
@@ -765,15 +787,15 @@ class Audit(VersionModel):
     @property
     def report_accessibility_issues(self) -> List[str]:
         issues: List[str] = []
-        for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
+        for key, value in ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
             if getattr(self, key) == BOOLEAN_TRUE:
-                if key == "accessibility_statement_deadline_not_complete":
+                if key == "archive_accessibility_statement_deadline_not_complete":
                     issues.append(
-                        self.accessibility_statement_deadline_not_complete_wording
+                        self.archive_accessibility_statement_deadline_not_complete_wording
                     )
-                elif key == "accessibility_statement_deadline_not_sufficient":
+                elif key == "archive_accessibility_statement_deadline_not_sufficient":
                     issues.append(
-                        self.accessibility_statement_deadline_not_sufficient_wording
+                        self.archive_accessibility_statement_deadline_not_sufficient_wording
                     )
                 else:
                     issues.append(value)
@@ -867,10 +889,14 @@ class Audit(VersionModel):
         return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
 
     @property
-    def accessibility_statement_checks(self) -> List[AccessibilityStatementCheck]:
+    def accessibility_statement_checks(
+        self,
+    ) -> List[ArchiveAccessibilityStatementCheck]:
         return [
-            AccessibilityStatementCheck(field_name_prefix=field_name_prefix, audit=self)
-            for field_name_prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
+            ArchiveAccessibilityStatementCheck(
+                field_name_prefix=field_name_prefix, audit=self
+            )
+            for field_name_prefix in ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
         ]
 
     @property
@@ -1130,6 +1156,8 @@ class Page(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
+        if self.page_type == PAGE_TYPE_STATEMENT:
+            self.audit.case.set_accessibility_statement_states()
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-page-checks", kwargs={"pk": self.pk})
@@ -1310,6 +1338,10 @@ class StatementCheckResult(models.Model):
         if self.statement_check is None:
             return str(f"{self.audit} | Custom")
         return str(f"{self.audit} | {self.statement_check}")
+
+    def save(self, *args, **kwargs) -> None:
+        super().save(*args, **kwargs)
+        self.audit.case.set_accessibility_statement_states()
 
     @property
     def label(self):

@@ -12,7 +12,6 @@ from ...cases.models import Case
 
 from ..models import (
     Report,
-    ReportFeedback,
 )
 
 DOMAIN: str = "example.com"
@@ -83,33 +82,6 @@ def test_latest_s3_report_returned():
     )
 
     assert report.latest_s3_report == second_s3_report
-
-
-@pytest.mark.django_db
-def test_report_feedback_returns_string():
-    """Test Report Feedback returns the correct string"""
-    sample_guid: str = "12345678"
-    case: Case = Case.objects.create(organisation_name="org_name")
-    Report.objects.create(case=case)
-    S3Report.objects.create(
-        guid=sample_guid,
-        version=1,
-        case=case,
-    )
-    report_feedback: ReportFeedback = ReportFeedback.objects.create(
-        guid=sample_guid,
-        what_were_you_trying_to_do="text",
-        what_went_wrong="text",
-        case=case,
-    )
-    expected_result: str = (
-        f"Created: {report_feedback.created}, "
-        "guid: 12345678, "
-        "case: org_name, "
-        "What were you trying to do: text, "
-        "What went wrong: text"
-    )
-    assert str(report_feedback) == expected_result
 
 
 @pytest.mark.django_db
