@@ -43,7 +43,10 @@ class S3ReadWriteReport:
             bucket_names = [bucket["Name"] for bucket in response["Buckets"]]
             if DATABASES["aws-s3-bucket"]["bucket_name"] not in bucket_names:
                 self.s3_client.create_bucket(
-                    Bucket=DATABASES["aws-s3-bucket"]["bucket_name"]
+                    Bucket=DATABASES["aws-s3-bucket"]["bucket_name"],
+                    CreateBucketConfiguration={
+                        "LocationConstraint": "us-west-1"
+                    },
                 )
 
         self.bucket: str = DATABASES["aws-s3-bucket"]["bucket_name"]
