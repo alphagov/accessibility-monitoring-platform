@@ -1112,6 +1112,12 @@ class Audit(VersionModel):
     def passed_retest_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(retest_state=STATEMENT_CHECK_YES)
 
+    @property
+    def fixed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            retest_state=STATEMENT_CHECK_YES
+        )
+
 
 class Page(models.Model):
     """

@@ -137,6 +137,7 @@ def test_count_statement_issues_old_style(
         ({}, 0, 0),
         ({"check_result_state": "yes"}, 0, 0),
         ({"check_result_state": "no"}, 0, 1),
+        ({"check_result_state": "yes", "retest_state": "yes"}, 0, 0),
         ({"check_result_state": "no", "retest_state": "yes"}, 1, 1),
         ({"check_result_state": "no", "retest_state": "no"}, 0, 1),
     ],

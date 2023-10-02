@@ -955,6 +955,37 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
 
 
 @pytest.mark.django_db
+def test_fixed_statement_checks_are_returned():
+    """
+    Tests fixed statement checks are those which initially failed but
+    passed on a retest.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    statement_check_results: QuerySet[
+        StatementCheckResult
+    ] = StatementCheckResult.objects.filter(
+        audit=audit,
+    )
+
+    assert statement_check_results.count() > 2
+
+    passed_statement_check_result: StatementCheckResult = (
+        statement_check_results.first()
+    )
+    passed_statement_check_result.check_result_state = STATEMENT_CHECK_YES
+    passed_statement_check_result.retest_state = STATEMENT_CHECK_YES
+    passed_statement_check_result.save()
+
+    fixed_statement_check_result: StatementCheckResult = statement_check_results.last()
+    fixed_statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    fixed_statement_check_result.retest_state = STATEMENT_CHECK_YES
+    fixed_statement_check_result.save()
+
+    assert audit.passed_statement_check_results.first() == passed_statement_check_result
+    assert audit.fixed_statement_check_results.first() == fixed_statement_check_result
+
+
+@pytest.mark.django_db
 def test_set_accessibility_statement_state_called_on_statement_page_update():
     """
     Test that saving a statement page triggers a setting of the statement
