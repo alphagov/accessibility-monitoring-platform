@@ -2443,3 +2443,24 @@ def test_audit_statement_check_statment_comparison(admin_client):
 
     assertContains(response, "Save and exit")
     assertNotContains(response, "12-week accessibility statement compliance decision")
+
+
+def test_audit_statement_check_statment_comparison_includes_fixed(admin_client):
+    """Test that the statement comparison page includes fixed issues"""
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    statement_check_result: StatementCheckResult = (
+        audit.overview_statement_check_results.first()
+    )
+    statement_check_result.check_result_state = STATEMENT_CHECK_YES
+    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, statement_check_result.statement_check.label)
