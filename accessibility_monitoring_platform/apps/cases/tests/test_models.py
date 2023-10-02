@@ -722,7 +722,7 @@ def test_overview_issues_statement_with_audit():
 
     assert case.overview_issues_statement == "0 of 12 fixed (0%)"
 
-    audit.audit_retest_content_not_in_scope_state = CONTENT_NOT_IN_SCOPE_VALID
+    audit.archive_audit_retest_content_not_in_scope_state = CONTENT_NOT_IN_SCOPE_VALID
     audit.save()
 
     assert case.overview_issues_statement == "1 of 12 fixed (8%)"

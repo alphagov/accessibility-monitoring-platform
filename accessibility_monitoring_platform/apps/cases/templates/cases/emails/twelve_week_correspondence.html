@@ -162,10 +162,10 @@
                             An accessibility statement for the website was not found.
                         {% endif %}
                     {% else %}
-                        {{ case.audit.get_accessibility_statement_state_display }}
+                        {{ case.audit.get_archive_accessibility_statement_state_display }}
                         <br>
                         <br>
-                        {% if case.audit.accessibility_statement_state == 'found-but' %}
+                        {% if case.audit.archive_accessibility_statement_state == 'found-but' %}
                             <ul>
                                 {% for issue in case.audit.report_accessibility_issues %}
                                     <li>{{ issue }}</li>
