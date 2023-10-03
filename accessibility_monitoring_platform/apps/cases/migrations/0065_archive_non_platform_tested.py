@@ -291,6 +291,348 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                 + contact_fields,
             },
             {
+                "name": "Report correspondence",
+                "complete": case.reporting_details_complete_date.isoformat()
+                if case.reporting_details_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "no_psb_contact",
+                        "type": "str",
+                        "label": "Public sector body is unresponsive",
+                        "value": case.no_psb_contact,
+                        "value_display": case.get_no_psb_contact_display(),
+                    },
+                    {
+                        "name": "seven_day_no_contact_email_sent_date",
+                        "type": "date",
+                        "label": "Seven day 'no contact details' email sent",
+                        "value": case.seven_day_no_contact_email_sent_date.isoformat()
+                        if case.seven_day_no_contact_email_sent_date
+                        else "None",
+                        "value_display": f"{case.seven_day_no_contact_email_sent_date:%-d %B %Y}"
+                        if case.seven_day_no_contact_email_sent_date
+                        else "None",
+                    },
+                    {
+                        "name": "report_sent_date",
+                        "type": "date",
+                        "label": "Report sent on",
+                        "value": case.report_sent_date.isoformat()
+                        if case.report_sent_date
+                        else "None",
+                        "value_display": f"{case.report_sent_date:%-d %B %Y}"
+                        if case.report_sent_date
+                        else "None",
+                    },
+                    {
+                        "name": "report_visits",
+                        "type": "str",
+                        "label": "Report visits",
+                        "value": "None",
+                        "value_display": "None",
+                    },
+                    {
+                        "name": "unique_report_visits",
+                        "type": "str",
+                        "label": "Unique report visits",
+                        "value": "None",
+                        "value_display": "None",
+                    },
+                    {
+                        "name": "report_followup_week_1_due_date",
+                        "type": "date",
+                        "label": "1-week followup to report due",
+                        "value": case.report_followup_week_1_due_date.isoformat()
+                        if case.report_followup_week_1_due_date
+                        else "None",
+                        "value_display": f"{case.report_followup_week_1_due_date:%-d %B %Y}"
+                        if case.report_followup_week_1_due_date
+                        else "None",
+                    },
+                    {
+                        "name": "report_followup_week_1_sent_date",
+                        "type": "date",
+                        "label": "1-week followup to report sent",
+                        "value": case.report_followup_week_1_sent_date.isoformat()
+                        if case.report_followup_week_1_sent_date
+                        else "None",
+                        "value_display": f"{case.report_followup_week_1_sent_date:%-d %B %Y}"
+                        if case.report_followup_week_1_sent_date
+                        else "None",
+                    },
+                    {
+                        "name": "report_followup_week_4_due_date",
+                        "type": "date",
+                        "label": "4-week followup to report due",
+                        "value": case.report_followup_week_4_due_date.isoformat()
+                        if case.report_followup_week_4_due_date
+                        else "None",
+                        "value_display": f"{case.report_followup_week_4_due_date:%-d %B %Y}"
+                        if case.report_followup_week_4_due_date
+                        else "None",
+                    },
+                    {
+                        "name": "report_followup_week_4_sent_date",
+                        "type": "date",
+                        "label": "4-week followup to report sent",
+                        "value": case.report_followup_week_4_sent_date.isoformat()
+                        if case.report_followup_week_4_sent_date
+                        else "None",
+                        "value_display": f"{case.report_followup_week_4_sent_date:%-d %B %Y}"
+                        if case.report_followup_week_4_sent_date
+                        else "None",
+                    },
+                    {
+                        "name": "report_acknowledged_date",
+                        "type": "date",
+                        "label": "Report acknowledged",
+                        "value": case.report_acknowledged_date.isoformat()
+                        if case.report_acknowledged_date
+                        else "None",
+                        "value_display": f"{case.report_acknowledged_date:%-d %B %Y}"
+                        if case.report_acknowledged_date
+                        else "None",
+                    },
+                    {
+                        "name": "zendesk_url",
+                        "type": "link",
+                        "label": "Zendesk ticket URL",
+                        "value": case.zendesk_url,
+                        "value_display": case.zendesk_url,
+                    },
+                    {
+                        "name": "correspondence_notes",
+                        "type": "markdown",
+                        "label": "Correspondence notes",
+                        "value": case.correspondence_notes,
+                        "value_display": None,
+                    },
+                ],
+            },
+            {
+                "name": "12-week correspondence",
+                "complete": case.twelve_week_correspondence_complete_date.isoformat()
+                if case.twelve_week_correspondence_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "email_template_link",
+                        "type": "link",
+                        "label": "Email template",
+                        "value": f"/cases/{case.id}/twelve-week-correspondence-email/",
+                        "value_display": "View email template",
+                    },
+                    {
+                        "name": "report_followup_week_12_due_date",
+                        "type": "date",
+                        "label": "12-week deadline due",
+                        "value": case.report_followup_week_12_due_date.isoformat()
+                        if case.report_followup_week_12_due_date
+                        else "None",
+                        "value_display": f"{case.report_followup_week_12_due_date:%-d %B %Y}"
+                        if case.report_followup_week_12_due_date
+                        else "None",
+                    },
+                    {
+                        "name": "twelve_week_update_requested_date",
+                        "type": "date",
+                        "label": "12-week update requested",
+                        "value": case.twelve_week_update_requested_date.isoformat()
+                        if case.twelve_week_update_requested_date
+                        else "None",
+                        "value_display": f"{case.twelve_week_update_requested_date:%-d %B %Y}"
+                        if case.twelve_week_update_requested_date
+                        else "None",
+                    },
+                    {
+                        "name": "twelve_week_1_week_chaser_due_date",
+                        "type": "date",
+                        "label": "1-week followup due",
+                        "value": case.twelve_week_1_week_chaser_due_date.isoformat()
+                        if case.twelve_week_1_week_chaser_due_date
+                        else "None",
+                        "value_display": f"{case.twelve_week_1_week_chaser_due_date:%-d %B %Y}"
+                        if case.twelve_week_1_week_chaser_due_date
+                        else "None",
+                    },
+                    {
+                        "name": "twelve_week_1_week_chaser_sent_date",
+                        "type": "date",
+                        "label": "1-week followup sent",
+                        "value": case.twelve_week_1_week_chaser_sent_date.isoformat()
+                        if case.twelve_week_1_week_chaser_sent_date
+                        else "None",
+                        "value_display": f"{case.twelve_week_1_week_chaser_sent_date:%-d %B %Y}"
+                        if case.twelve_week_1_week_chaser_sent_date
+                        else "None",
+                    },
+                    {
+                        "name": "twelve_week_correspondence_acknowledged_date",
+                        "type": "date",
+                        "label": "12-week update received",
+                        "value": case.twelve_week_correspondence_acknowledged_date.isoformat()
+                        if case.twelve_week_correspondence_acknowledged_date
+                        else "None",
+                        "value_display": f"{case.twelve_week_correspondence_acknowledged_date:%-d %B %Y}"
+                        if case.twelve_week_correspondence_acknowledged_date
+                        else "None",
+                    },
+                    {
+                        "name": "twelve_week_response_state",
+                        "type": "str",
+                        "label": "No response to 12-week deadline",
+                        "value": case.twelve_week_response_state,
+                        "value_display": case.get_twelve_week_response_state_display(),
+                    },
+                    {
+                        "name": "twelve_week_correspondence_notes",
+                        "type": "markdown",
+                        "label": "12-week Correspondence notes",
+                        "value": case.twelve_week_correspondence_notes,
+                        "value_display": None,
+                    },
+                ],
+            },
+            {
+                "name": "Reviewing changes",
+                "complete": case.review_changes_complete_date.isoformat()
+                if case.review_changes_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "retested_website_date",
+                        "type": "date",
+                        "label": "Retested website?",
+                        "value": case.retested_website_date.isoformat()
+                        if case.retested_website_date
+                        else "None",
+                        "value_display": f"{case.retested_website_date:%-d %B %Y}"
+                        if case.retested_website_date
+                        else "None",
+                    },
+                    {
+                        "name": "psb_progress_notes",
+                        "type": "markdown",
+                        "label": "Summary of progress made from public sector body",
+                        "value": case.psb_progress_notes,
+                        "value_display": None,
+                    },
+                    {
+                        "name": "is_ready_for_final_decision",
+                        "type": "str",
+                        "label": "Is this case ready for final decision?",
+                        "value": case.is_ready_for_final_decision,
+                        "value_display": case.get_is_ready_for_final_decision_display(),
+                    },
+                ],
+            },
+            {
+                "name": "Final website compliance decision",
+                "complete": case.final_website_complete_date.isoformat()
+                if case.final_website_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "website_state_final",
+                        "type": "str",
+                        "label": "Final website compliance decision",
+                        "value": case.website_state_final,
+                        "value_display": case.get_website_state_final_display(),
+                    },
+                    {
+                        "name": "website_state_notes_final",
+                        "type": "markdown",
+                        "label": "Final website compliance decision notes",
+                        "value": case.website_state_notes_final,
+                        "value_display": None,
+                    },
+                ],
+            },
+            {
+                "name": "Final accessibility statement compliance decision",
+                "complete": case.final_statement_complete_date.isoformat()
+                if case.final_statement_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "is_disproportionate_claimed",
+                        "type": "str",
+                        "label": "Disproportionate burden claimed?",
+                        "value": case.is_disproportionate_claimed,
+                        "value_display": case.get_is_disproportionate_claimed_display(),
+                    },
+                    {
+                        "name": "disproportionate_notes",
+                        "type": "markdown",
+                        "label": "Disproportionate burden notes",
+                        "value": case.disproportionate_notes,
+                        "value_display": None,
+                    },
+                    {
+                        "name": "accessibility_statement_screenshot_url",
+                        "type": "link",
+                        "label": "Link to accessibility statement screenshot",
+                        "value": case.accessibility_statement_screenshot_url,
+                        "value_display": case.accessibility_statement_screenshot_url,
+                    },
+                    {
+                        "name": "accessibility_statement_state_final",
+                        "type": "str",
+                        "label": "Final accessibility statement decision",
+                        "value": case.accessibility_statement_state_final,
+                        "value_display": case.get_accessibility_statement_state_final_display(),
+                    },
+                    {
+                        "name": "accessibility_statement_notes_final",
+                        "type": "markdown",
+                        "label": "Final accessibility statement notes",
+                        "value": case.accessibility_statement_notes_final,
+                        "value_display": None,
+                    },
+                ],
+            },
+            {
+                "name": "Closing the case",
+                "complete": case.case_close_complete_date.isoformat()
+                if case.case_close_complete_date
+                else None,
+                "fields": [
+                    {
+                        "name": "compliance_email_sent_date",
+                        "type": "date",
+                        "label": "Date when compliance decision email sent to public sector body",
+                        "value": case.compliance_email_sent_date.isoformat()
+                        if case.compliance_email_sent_date
+                        else "None",
+                        "value_display": f"{case.compliance_email_sent_date:%-d %B %Y}"
+                        if case.compliance_email_sent_date
+                        else "None",
+                    },
+                    {
+                        "name": "recommendation_for_enforcement",
+                        "type": "str",
+                        "label": "Recommendation for equality body",
+                        "value": case.recommendation_for_enforcement,
+                        "value_display": case.get_recommendation_for_enforcement_display(),
+                    },
+                    {
+                        "name": "recommendation_notes",
+                        "type": "markdown",
+                        "label": "Enforcement recommendation notes including exemptions",
+                        "value": case.recommendation_notes,
+                        "value_display": None,
+                    },
+                    {
+                        "name": "case_completed",
+                        "type": "str",
+                        "label": "Case completed",
+                        "value": case.case_completed,
+                        "value_display": case.get_case_completed_display(),
+                    },
+                ],
+            },
+            {
                 "name": "Archived",
                 "complete": None,
                 "fields": [
