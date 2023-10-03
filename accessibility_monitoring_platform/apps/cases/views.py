@@ -13,7 +13,6 @@ from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
@@ -55,7 +54,6 @@ from .models import (
     Case,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
-    TESTING_METHODOLOGY_PLATFORM,
     REPORT_METHODOLOGY_PLATFORM,
 )
 from .forms import (
@@ -702,9 +700,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}
-            if case.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
-                return reverse("cases:edit-twelve-week-retest", kwargs=case_pk)
-            return reverse("cases:edit-review-changes", kwargs=case_pk)
+            return reverse("cases:edit-twelve-week-retest", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -795,19 +791,6 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
 
     form_class: Type[CaseReviewChangesUpdateForm] = CaseReviewChangesUpdateForm
     template_name: str = "cases/forms/review_changes.html"
-
-    def get_form(self):
-        """Populate retested_website_date help text with link to test results for this case"""
-        form = super().get_form()
-        if form.instance.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
-            form.fields["retested_website_date"].help_text = ""
-        else:
-            if form.instance.test_results_url:
-                form.fields["retested_website_date"].help_text = mark_safe(
-                    f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
-                    ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
-                )
-        return form
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

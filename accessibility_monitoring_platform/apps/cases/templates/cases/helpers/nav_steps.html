@@ -14,7 +14,9 @@
         {% endif %}
         </p>
     {% endif %}
-    {% if case.testing_methodology == 'platform' %}
+    {% if case.archive %}
+        <h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>
+    {% else %}
         <h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>
         <ul class="govuk-list">
             {% include './nav_step.html' with edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
@@ -29,8 +31,6 @@
             {% include './nav_step.html' with edit_name='cases:edit-case-close' name='Closing the case' complete=case.case_close_complete_date %}
         </ul>
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
-    {% else %}
-        <h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>
     {% endif %}
     <ul class="govuk-list">
         {% include './nav_step.html' with edit_name='cases:edit-enforcement-body-correspondence' name='Equality body summary' complete=case.enforcement_correspondence_complete_date %}

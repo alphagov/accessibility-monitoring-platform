@@ -142,14 +142,10 @@
                             </h2>
                         </div>
                         <div id="accordion-content-test-results" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-test-results">
-                            {% if case.testing_methodology == "platform" %}
-                                {% if case.audit %}
-                                    {% include 'cases/details/testing_details.html' with audit=case.audit %}
-                                {% else %}
-                                    <p class="govuk-body-m">No test exists</p>
-                                {% endif %}
+                            {% if case.audit %}
+                                {% include 'cases/details/testing_details.html' with audit=case.audit %}
                             {% else %}
-                                {% include 'cases/details/spreadsheet_test.html' %}
+                                <p class="govuk-body-m">No test exists</p>
                             {% endif %}
                         </div>
                     </div>
@@ -233,28 +229,26 @@
                             {% include 'cases/details/twelve_week_correspondence.html' %}
                         </div>
                     </div>
-                    {% if case.testing_methodology == 'platform' %}
-                        <div class="govuk-accordion__section"{% if case.audit %} data-search-target-page-name="View 12-week test" data-search-target-label="View 12-week test" data-search-target-url="{% url 'audits:audit-retest-detail' case.audit.id %}"{% endif %}>
-                            <div class="govuk-accordion__section-header">
-                                <h2 id="twelve-week-retest" class="govuk-accordion__section-heading">
-                                    <span class="govuk-accordion__section-button" id="accordion-heading-twelve-week-retest">
-                                        12-week retest
-                                        {% if case.twelve_week_retest_complete_date %}
-                                            <span class="govuk-visually-hidden">complete</span>
-                                            &check;
-                                        {% endif %}
-                                    </span>
-                                </h2>
-                            </div>
-                            <div id="accordion-content-twelve-week-retest" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-retest">
-                                {% if case.audit %}
-                                    {% include 'cases/details/retesting_details.html' with audit=case.audit %}
-                                {% else %}
-                                    <p class="govuk-body-m">No test exists</p>
-                                {% endif %}
-                            </div>
+                    <div class="govuk-accordion__section"{% if case.audit %} data-search-target-page-name="View 12-week test" data-search-target-label="View 12-week test" data-search-target-url="{% url 'audits:audit-retest-detail' case.audit.id %}"{% endif %}>
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="twelve-week-retest" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-twelve-week-retest">
+                                    12-week retest
+                                    {% if case.twelve_week_retest_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
                         </div>
-                    {% endif %}
+                        <div id="accordion-content-twelve-week-retest" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-retest">
+                            {% if case.audit %}
+                                {% include 'cases/details/retesting_details.html' with audit=case.audit %}
+                            {% else %}
+                                <p class="govuk-body-m">No test exists</p>
+                            {% endif %}
+                        </div>
+                    </div>
                     <div class="govuk-accordion__section" data-search-target-page-name="Reviewing changes" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-review-changes' case.id %}">
                         <div class="govuk-accordion__section-header">
                             <h2 id="review-changes" class="govuk-accordion__section-heading">
@@ -271,40 +265,6 @@
                             {% include 'cases/details/review_changes.html' %}
                         </div>
                     </div>
-                    {% if case.testing_methodology != 'platform' %}
-                        <div class="govuk-accordion__section">
-                            <div class="govuk-accordion__section-header">
-                                <h2 id="final-website" class="govuk-accordion__section-heading">
-                                    <span class="govuk-accordion__section-button" id="accordion-heading-final-website">
-                                        Final website compliance decision
-                                        {% if case.final_website_complete_date %}
-                                            <span class="govuk-visually-hidden">complete</span>
-                                            &check;
-                                        {% endif %}
-                                    </span>
-                                </h2>
-                            </div>
-                            <div id="accordion-content-final-website" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-final-website">
-                                {% include 'cases/details/final_website.html' %}
-                            </div>
-                        </div>
-                        <div class="govuk-accordion__section">
-                            <div class="govuk-accordion__section-header">
-                                <h2 id="final-statement" class="govuk-accordion__section-heading">
-                                    <span class="govuk-accordion__section-button" id="accordion-heading-final-statement">
-                                        Final accessibility statement compliance decision
-                                        {% if case.final_statement_complete_date %}
-                                            <span class="govuk-visually-hidden">complete</span>
-                                            &check;
-                                        {% endif %}
-                                    </span>
-                                </h2>
-                            </div>
-                            <div id="accordion-content-final-statement" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-final-statement">
-                                {% include 'cases/details/final_statement.html' %}
-                            </div>
-                        </div>
-                    {% endif %}
                     <div class="govuk-accordion__section" data-search-target-page-name="Closing the case" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-case-close' case.id %}">
                         <div class="govuk-accordion__section-header">
                             <h2 id="case-close" class="govuk-accordion__section-heading">
