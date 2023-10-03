@@ -20,13 +20,13 @@ from ..common.form_extract_utils import (
 from .forms import (
     AuditMetadataUpdateForm,
     CaseWebsiteDecisionUpdateForm,
-    AuditStatement1UpdateForm,
-    AuditStatement2UpdateForm,
-    CaseStatementDecisionUpdateForm,
-    AuditReportOptionsUpdateForm,
+    ArchiveAuditStatement1UpdateForm,
+    ArchiveAuditStatement2UpdateForm,
+    ArchiveCaseStatementDecisionUpdateForm,
+    ArchiveAuditReportOptionsUpdateForm,
     CheckResultForm,
     CaseFinalWebsiteDecisionUpdateForm,
-    CaseFinalStatementDecisionUpdateForm,
+    ArchiveCaseFinalStatementDecisionUpdateForm,
 )
 from .models import (
     Audit,
@@ -36,8 +36,8 @@ from .models import (
     StatementCheck,
     StatementCheckResult,
     CHECK_RESULT_NOT_TESTED,
-    REPORT_ACCESSIBILITY_ISSUE_TEXT,
-    REPORT_NEXT_ISSUE_TEXT,
+    ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
+    ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
     MANDATORY_PAGE_TYPES,
     PAGE_TYPE_HOME,
 )
@@ -53,50 +53,57 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
 
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit report options"""
-    accessibility_statement_state_row: FieldLabelAndValue = FieldLabelAndValue(
-        label=AuditReportOptionsUpdateForm.base_fields[
-            "accessibility_statement_state"
+    archive_accessibility_statement_state_row: FieldLabelAndValue = FieldLabelAndValue(
+        label=ArchiveAuditReportOptionsUpdateForm.base_fields[
+            "archive_accessibility_statement_state"
         ].label,
-        value=audit.get_accessibility_statement_state_display(),
+        value=audit.get_archive_accessibility_statement_state_display(),
     )
-    accessibility_statement_issues_rows: List[FieldLabelAndValue] = [
+    archive_accessibility_statement_issues_rows: List[FieldLabelAndValue] = [
         FieldLabelAndValue(
             label=label,
             value=getattr(audit, f"get_{field_name}_display")(),
         )
-        for field_name, label in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
+        for field_name, label in ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
     ]
-    accessibility_statement_report_text_wording_row: FieldLabelAndValue = (
+    archive_accessibility_statement_report_text_wording_row: FieldLabelAndValue = (
         FieldLabelAndValue(
-            label=AuditReportOptionsUpdateForm.base_fields[
-                "accessibility_statement_report_text_wording"
+            label=ArchiveAuditReportOptionsUpdateForm.base_fields[
+                "archive_accessibility_statement_report_text_wording"
             ].label,
-            value=audit.accessibility_statement_report_text_wording,
+            value=audit.archive_accessibility_statement_report_text_wording,
             type=FieldLabelAndValue.NOTES_TYPE,
         )
     )
-    report_options_next_row: FieldLabelAndValue = FieldLabelAndValue(
-        label=AuditReportOptionsUpdateForm.base_fields["report_options_next"].label,
-        value=audit.get_report_options_next_display(),
+    archive_report_options_next_row: FieldLabelAndValue = FieldLabelAndValue(
+        label=ArchiveAuditReportOptionsUpdateForm.base_fields[
+            "archive_report_options_next"
+        ].label,
+        value=audit.get_archive_report_options_next_display(),
     )
-    report_next_issues_rows: List[FieldLabelAndValue] = [
+    archive_report_next_issues_rows: List[FieldLabelAndValue] = [
         FieldLabelAndValue(
             label=label,
             value=getattr(audit, f"get_{field_name}_display")(),
         )
-        for field_name, label in REPORT_NEXT_ISSUE_TEXT.items()
+        for field_name, label in ARCHIVE_REPORT_NEXT_ISSUE_TEXT.items()
     ]
-    report_options_notes: FieldLabelAndValue = FieldLabelAndValue(
-        label=AuditReportOptionsUpdateForm.base_fields["report_options_notes"].label,
-        value=audit.report_options_notes,
+    archive_report_options_notes: FieldLabelAndValue = FieldLabelAndValue(
+        label=ArchiveAuditReportOptionsUpdateForm.base_fields[
+            "archive_report_options_notes"
+        ].label,
+        value=audit.archive_report_options_notes,
         type=FieldLabelAndValue.NOTES_TYPE,
     )
     return (
-        [accessibility_statement_state_row]
-        + accessibility_statement_issues_rows
-        + [accessibility_statement_report_text_wording_row, report_options_next_row]
-        + report_next_issues_rows
-        + [report_options_notes]
+        [archive_accessibility_statement_state_row]
+        + archive_accessibility_statement_issues_rows
+        + [
+            archive_accessibility_statement_report_text_wording_row,
+            archive_report_options_next_row,
+        ]
+        + archive_report_next_issues_rows
+        + [archive_report_options_notes]
     )
 
 
@@ -109,10 +116,14 @@ def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndVa
     return {
         "audit_metadata_rows": get_audit_rows(form=AuditMetadataUpdateForm()),
         "website_decision_rows": get_case_rows(form=CaseWebsiteDecisionUpdateForm()),
-        "audit_statement_1_rows": get_audit_rows(form=AuditStatement1UpdateForm()),
-        "audit_statement_2_rows": get_audit_rows(form=AuditStatement2UpdateForm()),
+        "audit_statement_1_rows": get_audit_rows(
+            form=ArchiveAuditStatement1UpdateForm()
+        ),
+        "audit_statement_2_rows": get_audit_rows(
+            form=ArchiveAuditStatement2UpdateForm()
+        ),
         "statement_decision_rows": get_case_rows(
-            form=CaseStatementDecisionUpdateForm()
+            form=ArchiveCaseStatementDecisionUpdateForm()
         ),
         "audit_report_options_rows": get_audit_report_options_rows(audit=audit),
     }
@@ -126,7 +137,7 @@ def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndVa
             form=CaseFinalWebsiteDecisionUpdateForm()
         ),
         "audit_retest_statement_decision_rows": get_case_rows(
-            form=CaseFinalStatementDecisionUpdateForm()
+            form=ArchiveCaseFinalStatementDecisionUpdateForm()
         ),
     }
 

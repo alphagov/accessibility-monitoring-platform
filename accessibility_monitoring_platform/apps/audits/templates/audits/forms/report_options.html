@@ -23,46 +23,46 @@
                         <div class="govuk-grid-column-full">
                             {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_state %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_not_correct_format %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_not_specific_enough %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_accessibility_issues %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_mandatory_wording %}
-                            <details class="govuk-details" data-module="govuk-details" {% if form.accessibility_statement_missing_mandatory_wording_notes.value %}open{% endif %}>
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_state %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_not_correct_format %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_not_specific_enough %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_missing_accessibility_issues %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_missing_mandatory_wording %}
+                            <details class="govuk-details" data-module="govuk-details" {% if form.archive_accessibility_statement_missing_mandatory_wording_notes.value %}open{% endif %}>
                                 <summary class="govuk-details__summary">
                                     <span class="govuk-details__summary-text">Add additional text for mandatory wording</span>
                                 </summary>
                                 <div class="govuk-details__text">
-                                    {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_mandatory_wording_notes %}
+                                    {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_missing_mandatory_wording_notes %}
                                 </div>
                             </details>
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_needs_more_re_disproportionate %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_needs_more_re_accessibility %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_complete %}
-                            <details class="govuk-details" data-module="govuk-details" {% if form.accessibility_statement_deadline_not_complete.value == 'yes' %}open{% endif %}>
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_needs_more_re_disproportionate %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_needs_more_re_accessibility %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_deadline_not_complete %}
+                            <details class="govuk-details" data-module="govuk-details" {% if form.archive_accessibility_statement_deadline_not_complete.value == 'yes' %}open{% endif %}>
                                 <summary class="govuk-details__summary">
                                     <span class="govuk-details__summary-text">Amend wording for missed deadline</span>
                                 </summary>
                                 <div class="govuk-details__text">
-                                    {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_complete_wording %}
+                                    {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_deadline_not_complete_wording %}
                                 </div>
                             </details>
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_sufficient %}
-                            <details class="govuk-details" data-module="govuk-details" {% if form.accessibility_statement_deadline_not_sufficient.value == 'yes' %}open{% endif %}>
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_deadline_not_sufficient %}
+                            <details class="govuk-details" data-module="govuk-details" {% if form.archive_accessibility_statement_deadline_not_sufficient.value == 'yes' %}open{% endif %}>
                                 <summary class="govuk-details__summary">
                                     <span class="govuk-details__summary-text">Amend wording for insufficient deadline</span>
                                 </summary>
                                 <div class="govuk-details__text">
-                                    {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_sufficient_wording %}
+                                    {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_deadline_not_sufficient_wording %}
                                 </div>
                             </details>
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_out_of_date %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_eass_link %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_template_update %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_accessible %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_prominent %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_report_text_wording %}
-                            {% include 'common/amp_field.html' with field=form.report_options_next %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_out_of_date %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_eass_link %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_template_update %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_accessible %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_prominent %}
+                            {% include 'common/amp_field.html' with field=form.archive_accessibility_statement_report_text_wording %}
+                            {% include 'common/amp_field.html' with field=form.archive_report_options_next %}
                             <details class="govuk-details" data-module="govuk-details">
                                 <summary class="govuk-details__summary">
                                     <span class="govuk-details__summary-text">
@@ -85,7 +85,7 @@
                             <p class="govuk-body">Then choose all options which apply</p>
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-one-half">
-                                    {% include 'common/amp_field.html' with field=form.report_next_change_statement %}
+                                    {% include 'common/amp_field.html' with field=form.archive_report_next_change_statement %}
                                 </div>
                                 <div class="govuk-grid-column-one-half">
                                     <details class="govuk-details" data-module="govuk-details">
@@ -103,7 +103,7 @@
                             </div>
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-one-half">
-                                    {% include 'common/amp_field.html' with field=form.report_next_no_statement %}
+                                    {% include 'common/amp_field.html' with field=form.archive_report_next_no_statement %}
                                 </div>
                                 <div class="govuk-grid-column-one-half">
                                     <details class="govuk-details" data-module="govuk-details">
@@ -121,7 +121,7 @@
                             </div>
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-one-half">
-                                    {% include 'common/amp_field.html' with field=form.report_next_statement_not_right %}
+                                    {% include 'common/amp_field.html' with field=form.archive_report_next_statement_not_right %}
                                 </div>
                                 <div class="govuk-grid-column-one-half">
                                     <details class="govuk-details" data-module="govuk-details">
@@ -141,7 +141,7 @@
                             </div>
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-one-half">
-                                    {% include 'common/amp_field.html' with field=form.report_next_statement_matches %}
+                                    {% include 'common/amp_field.html' with field=form.archive_report_next_statement_matches %}
                                 </div>
                                 <div class="govuk-grid-column-one-half">
                                     <details class="govuk-details" data-module="govuk-details">
@@ -159,7 +159,7 @@
                             </div>
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-one-half">
-                                    {% include 'common/amp_field.html' with field=form.report_next_disproportionate_burden %}
+                                    {% include 'common/amp_field.html' with field=form.archive_report_next_disproportionate_burden %}
                                 </div>
                                 <div class="govuk-grid-column-one-half">
                                     <details class="govuk-details" data-module="govuk-details">
@@ -177,8 +177,8 @@
                                 </div>
                             </div>
 
-                            {% include 'common/amp_field.html' with field=form.report_options_notes %}
-                            {% include 'common/amp_field.html' with field=form.audit_report_options_complete_date %}
+                            {% include 'common/amp_field.html' with field=form.archive_report_options_notes %}
+                            {% include 'common/amp_field.html' with field=form.archive_audit_report_options_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'audits/helpers/save_continue_cancel.html' %}

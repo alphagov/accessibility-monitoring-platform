@@ -213,7 +213,7 @@ def test_old_published_report_includes_errors(admin_client):
     report.report_version = "v1_1_0__20230421"
     report.save()
     audit: Audit = report.case.audit
-    audit.accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
+    audit.archive_accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
     audit.save()
     page: Page = Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_STATEMENT, url=HOME_PAGE_URL

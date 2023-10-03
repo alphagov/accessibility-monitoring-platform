@@ -109,10 +109,10 @@ def test_thirty_day_metric_progress_percentage(
 @pytest.mark.parametrize(
     "audit_params, expected_fixed, expected_total",
     [
-        ({"declaration_state": "present"}, 0, 10),
-        ({"declaration_state": "not-present"}, 0, 11),
-        ({"audit_retest_declaration_state": "present"}, 1, 11),
-        ({"audit_retest_declaration_state": "not-present"}, 0, 11),
+        ({"archive_declaration_state": "present"}, 0, 10),
+        ({"archive_declaration_state": "not-present"}, 0, 11),
+        ({"archive_audit_retest_declaration_state": "present"}, 1, 11),
+        ({"archive_audit_retest_declaration_state": "not-present"}, 0, 11),
     ],
 )
 def test_count_statement_issues_old_style(
@@ -137,6 +137,7 @@ def test_count_statement_issues_old_style(
         ({}, 0, 0),
         ({"check_result_state": "yes"}, 0, 0),
         ({"check_result_state": "no"}, 0, 1),
+        ({"check_result_state": "yes", "retest_state": "yes"}, 0, 0),
         ({"check_result_state": "no", "retest_state": "yes"}, 1, 1),
         ({"check_result_state": "no", "retest_state": "no"}, 0, 1),
     ],
