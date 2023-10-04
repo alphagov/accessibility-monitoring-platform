@@ -6,7 +6,7 @@
                 {% for archived_section in case.archived_sections %}
                     <li>
                         <a href="#{{ archived_section.name|slugify }}" class="govuk-link govuk-link--no-visited-state">
-                            {{ archived_section.name }}{% if archived_section.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                            {{ archived_section.name }}{% if archived_section.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                         {% if archived_section.complete %}&check;{% endif %}
                     </li>
                 {% endfor %}

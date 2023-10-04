@@ -69,7 +69,7 @@
                         <div class="govuk-accordion__section"">
                             <div class="govuk-accordion__section-header">
                                 <h2 id="{{ archived_section.name|slugify }}" class="govuk-accordion__section-heading">
-                                    <span class="govuk-accordion__section-button" id="accordion-heading-case-details">
+                                    <span class="govuk-accordion__section-button" id="accordion-heading-{{ archived_section.name|slugify }}">
                                         {{ archived_section.name }}
                                         {% if archived_section.complete %}
                                             <span class="govuk-visually-hidden">complete</span>

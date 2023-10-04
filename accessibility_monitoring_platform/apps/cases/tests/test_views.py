@@ -2,6 +2,7 @@
 Tests for cases views
 """
 from datetime import date, datetime, timedelta
+import json
 import pytest
 from typing import Dict, List, Optional
 from zoneinfo import ZoneInfo
@@ -117,6 +118,48 @@ ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
 QA_COMMENT_BODY: str = "QA comment body"
+CASE_ARCHIVE: List[Dict] = [
+    {
+        "name": "Archived section one",
+        "complete": "2021-10-21",
+        "fields": [
+            {
+                "name": "archived_date_field_one",
+                "type": "date",
+                "label": "Date field",
+                "value": "2021-04-19T00:00:00+00:00",
+                "value_display": "19 April 2021",
+            },
+            {
+                "name": "archived_choice_field",
+                "type": "str",
+                "label": "Status field",
+                "value": "case-closed-sent-to-equalities-body",
+                "value_display": "Case closed and sent to equalities body",
+            },
+        ],
+    },
+    {
+        "name": "Archived section two",
+        "complete": None,
+        "fields": [
+            {
+                "name": "archived_url",
+                "type": "link",
+                "label": "Archived URL",
+                "value": "https://www.example.com",
+                "value_display": "www.example.com",
+            },
+            {
+                "name": "archived_notes",
+                "type": "markdown",
+                "label": "Archived notes",
+                "value": "Monitoring suspended - private practice",
+                "value_display": None,
+            },
+        ],
+    },
+]
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -126,6 +169,109 @@ def add_user_to_auditor_groups(user: User) -> None:
     auditor_group.user_set.add(user)
     historic_auditor_group.user_set.add(user)
     qa_auditor_group.user_set.add(user)
+
+
+def test_archived_case_view_case_includes_contents(admin_client):
+    """
+    Test that the View case page for an archived case shows links to sections
+    """
+    case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assertContains(
+        response,
+        """<a href="#archived-section-one" class="govuk-link govuk-link--no-visited-state">
+        Archived section one <span class="govuk-visually-hidden">complete</span></a>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<a href="#archived-section-two" class="govuk-link govuk-link--no-visited-state">
+        Archived section two</a>""",
+        html=True,
+    )
+
+
+def test_archived_case_view_case_includes_sections(admin_client):
+    """
+    Test that the View case page for an archived case shows sections
+    """
+    case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assertContains(
+        response,
+        """<span class="govuk-accordion__section-button" id="accordion-heading-archived-section-one">
+            Archived section one
+            <span class="govuk-visually-hidden">complete</span>
+            ✓
+        </span>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<span class="govuk-accordion__section-button" id="accordion-heading-archived-section-two">
+            Archived section two
+        </span>""",
+        html=True,
+    )
+
+
+def test_archived_case_view_case_includes_fields(admin_client):
+    """
+    Test that the View case page for an archived case shows fields
+    """
+    case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Date field</th>
+            <td class="govuk-table__cell amp-width-one-half">19 April 2021</td>
+        </tr>
+        """,
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Status field</th>
+            <td class="govuk-table__cell amp-width-one-half">Case closed and sent to equalities body</td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Archived URL</th>
+            <td class="govuk-table__cell amp-width-one-half">
+                <a href="https://www.example.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    www.example.com
+                </a>
+            </td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Archived notes</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                 <p>Monitoring suspended - private practice</p>
+            </td>
+        </tr>""",
+        html=True,
+    )
 
 
 def test_view_case_includes_tests(admin_client):
