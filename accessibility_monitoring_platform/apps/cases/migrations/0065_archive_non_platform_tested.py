@@ -668,6 +668,7 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
     Case = apps.get_model("cases", "Case")
     for case in Case.objects.exclude(archive=""):
         case.archive = ""
+        case.testing_methodology = "spreadsheet"
         case.save()
 
 
