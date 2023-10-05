@@ -2,12 +2,55 @@
     Build object from all the data shown on View case page and store as a JSON string
     in Case.archive.
 """
+from datetime import datetime
 import json
 
 from django.db import migrations
 
 from ...common.archive_utils import build_field, build_section
 from ...common.templatetags.common_tags import amp_datetime
+
+
+def get_contact_subsections(contacts):
+    """Find case contacts and return data as subsections"""
+    contact_subsections = []
+    for count, contact in enumerate(contacts, start=1):
+        fields = [
+            build_field(contact, field_name="name", label="Name"),
+            build_field(contact, field_name="job_title", label="Job title"),
+            build_field(contact, field_name="email", label="Email"),
+        ]
+        if len(contacts) > 1:
+            fields.append(
+                build_field(contact, field_name="preferred", label="Preferred contact")
+            )
+            contact_subsections.append(
+                build_section(f"Contact {count}", complete_date=None, fields=fields)
+            )
+        else:
+            contact_subsections.append(
+                build_section(name="Contact", complete_date=None, fields=fields)
+            )
+    return contact_subsections
+
+
+def get_comment_subsections(comments, users):
+    """Find case comments and return data as subsections"""
+    return [
+        build_section(
+            name=f"Comment by {users.get(comment.user_id, 'None')} on {amp_datetime(comment.created_date)}",
+            complete_date=None,
+            fields=[
+                build_field(
+                    comment,
+                    field_name="body",
+                    label="Comment",
+                    data_type="markdown",
+                ),
+            ],
+        )
+        for count, comment in enumerate(comments, start=1)
+    ]
 
 
 def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
@@ -21,42 +64,8 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
     Contact = apps.get_model("cases", "Contact")
     Comment = apps.get_model("comments", "Comment")
     for case in Case.objects.filter(testing_methodology="spreadsheet"):
-        contacts = Contact.objects.filter(case=case)
-        contact_subsections = []
-        for count, contact in enumerate(contacts, start=1):
-            fields = [
-                build_field(contact, field_name="name", label="Name"),
-                build_field(contact, field_name="job_title", label="Job title"),
-                build_field(contact, field_name="email", label="Email"),
-            ]
-            if len(contacts) > 1:
-                fields.append(
-                    build_field(
-                        contact, field_name="preferred", label="Preferred contact"
-                    )
-                )
-            contact_subsections.append(
-                build_section(
-                    name=f"Contact {count}", complete_date=None, fields=fields
-                )
-            )
         comments = Comment.objects.filter(case=case).order_by("-created_date")
-        comment_subsections = [
-            build_section(
-                name=f"Comment by {users.get(comment.user_id, 'None')} on {amp_datetime(comment.created_date)}",
-                complete_date=None,
-                fields=[
-                    build_field(
-                        comment,
-                        field_name="body",
-                        label="Comment",
-                        data_type="markdown",
-                    ),
-                ],
-            )
-            for count, comment in enumerate(comments, start=1)
-        ]
-        archive = [
+        sections = [
             build_section(
                 name="Case details",
                 complete_date=case.case_details_complete_date,
@@ -214,7 +223,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         display_value="Final draft (PDF)",
                     ),
                 ],
-                subsections=comment_subsections,
+                subsections=get_comment_subsections(comments, users),
             ),
             build_section(
                 name="Contact details",
@@ -227,7 +236,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         data_type="markdown",
                     )
                 ],
-                subsections=contact_subsections,
+                subsections=get_contact_subsections(Contact.objects.filter(case=case)),
             ),
             build_section(
                 name="Report correspondence",
@@ -445,7 +454,9 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                 ],
             ),
         ]
-        case.archive = json.dumps(archive)
+        case.archive = json.dumps(
+            {"version": 1, "archived": datetime.now().isoformat(), "sections": sections}
+        )
         case.save()
 
 
@@ -455,8 +466,8 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
         archive = json.loads(case.archive)
         case.archive = ""
         case.testing_methodology = "spreadsheet"
-        case.test_results_url = archive[1]["fields"][0]["value"]
-        case.test_status = archive[1]["fields"][1]["value"]
+        case.test_results_url = archive["sections"][1]["fields"][0]["value"]
+        case.test_status = archive["sections"][1]["fields"][1]["value"]
         case.save()
 
 

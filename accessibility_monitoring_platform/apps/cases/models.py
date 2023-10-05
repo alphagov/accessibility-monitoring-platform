@@ -904,7 +904,8 @@ class Case(VersionModel):
 
     @property
     def archived_sections(self):
-        return json.loads(self.archive)
+        archive = json.loads(self.archive)
+        return archive["sections"]
 
 
 class Contact(models.Model):
