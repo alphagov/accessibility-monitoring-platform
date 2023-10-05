@@ -27,7 +27,7 @@
                                     {% if archived_field.value %}
                                         <a href="{{ archived_field.value }}"
                                             rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                            {{ archived_field.value_display }}
+                                            {% if archived_field.value_display %}{{ archived_field.value_display }}{% else %}{{ archived_field.value }}{% endif %}
                                         </a>
                                     {% else %}
                                         None
@@ -35,13 +35,41 @@
                                 {% elif archived_field.type == 'markdown' %}
                                     {% if archived_field.value %}{{ archived_field.value|markdown_to_html }}{% endif %}
                                 {% else %}
-                                    {{ archived_field.value_display }}
+                                    {% if archived_field.value_display %}{{ archived_field.value_display }}{% else %}{{ archived_field.value }}{% endif %}
                                 {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            {% for subsection in archived_section.subsections %}
+                <p class="govuk-body-m"><b>{{ subsection.name }}</b></p>
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                        {% for archived_field in subsection.fields %}
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ archived_field.label }}</th>
+                                <td class="govuk-table__cell amp-width-one-half{% if archived_field.type == 'markdown' %} amp-notes{% endif %}">
+                                    {% if archived_field.type == 'link' %}
+                                        {% if archived_field.value %}
+                                            <a href="{{ archived_field.value }}"
+                                                rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                                {% if archived_field.value_display %}{{ archived_field.value_display }}{% else %}{{ archived_field.value }}{% endif %}
+                                            </a>
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                    {% elif archived_field.type == 'markdown' %}
+                                        {% if archived_field.value %}{{ archived_field.value|markdown_to_html }}{% endif %}
+                                    {% else %}
+                                        {% if archived_field.value_display %}{{ archived_field.value_display }}{% else %}{{ archived_field.value }}{% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
         </div>
     </div>
 {% endfor %}
