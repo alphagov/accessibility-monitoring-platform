@@ -28,7 +28,7 @@ def test_build_field_date():
     ) == {
         "label": "Datetime label",
         "name": "datetime_field",
-        "type": "datetime",
+        "data_type": "datetime",
         "value": "2020-02-28T12:00:01",
-        "value_display": "28 February 2020 12:00PM",
+        "display_value": "28 February 2020 12:00PM",
     }

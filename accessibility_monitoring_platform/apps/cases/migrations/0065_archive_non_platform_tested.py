@@ -7,6 +7,7 @@ import json
 from django.db import migrations
 
 from ...common.archive_utils import build_field, build_section
+from ...common.templatetags.common_tags import amp_datetime
 
 
 def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
@@ -39,24 +40,45 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                     name=f"Contact {count}", complete_date=None, fields=fields
                 )
             )
-        comments = Comment.objects.filter(case=case)
+        comments = Comment.objects.filter(case=case).order_by("-created_date")
+        comment_subsections = [
+            build_section(
+                name=f"Comment by {users.get(comment.user_id, 'None')} on {amp_datetime(comment.created_date)}",
+                complete_date=None,
+                fields=[
+                    build_field(
+                        comment,
+                        field_name="body",
+                        label="Comment",
+                        data_type="markdown",
+                    ),
+                ],
+            )
+            for count, comment in enumerate(comments, start=1)
+        ]
         archive = [
             build_section(
                 name="Case details",
                 complete_date=case.case_details_complete_date,
                 fields=[
                     build_field(
-                        case, field_name="created", label="Date created", type="date"
+                        case,
+                        field_name="created",
+                        label="Date created",
+                        data_type="date",
                     ),
                     build_field(case, field_name="status", label="Status"),
                     build_field(
                         case,
                         field_name="auditor_id",
                         label="Auditor",
-                        value_display=users.get(case.auditor_id, "None"),
+                        display_value=users.get(case.auditor_id, "None"),
                     ),
                     build_field(
-                        case, field_name="home_page_url", label="Full URL", type="link"
+                        case,
+                        field_name="home_page_url",
+                        label="Full URL",
+                        data_type="link",
                     ),
                     build_field(
                         case, field_name="organisation_name", label="Organisation name"
@@ -75,23 +97,23 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="sector_id",
                         label="Sector",
-                        type="str",
-                        value_display=sectors.get(case.sector_id).name,
+                        data_type="str",
+                        display_value=sectors.get(case.sector_id).name,
                     ),
                     build_field(case, field_name="is_complaint", label="Complaint?"),
                     build_field(
                         case,
                         field_name="previous_case_url",
                         label="URL to previous case",
-                        type="link",
-                        value_display=case.previous_case_url,
+                        data_type="link",
+                        display_value=case.previous_case_url,
                     ),
                     build_field(
                         case,
                         field_name="trello_url",
                         label="Trello ticket URL",
-                        type="link",
-                        value_display=case.trello_url,
+                        data_type="link",
+                        display_value=case.trello_url,
                     ),
                 ],
             ),
@@ -103,8 +125,8 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="test_results_url",
                         label="Link to test results",
-                        type="link",
-                        value_display="Monitor document",
+                        data_type="link",
+                        display_value="Monitor document",
                     ),
                     build_field(case, field_name="test_status", label="Test status"),
                     build_field(
@@ -116,7 +138,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="accessibility_statement_notes",
                         label="Accessibility statement notes",
-                        type="markdown",
+                        data_type="markdown",
                     ),
                     build_field(
                         case,
@@ -127,7 +149,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="compliance_decision_notes",
                         label="Initial website compliance notes",
-                        type="markdown",
+                        data_type="markdown",
                     ),
                 ],
             ),
@@ -139,14 +161,14 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="report_draft_url",
                         label="Link to report draft",
-                        type="link",
-                        value_display="Report draft",
+                        data_type="link",
+                        display_value="Report draft",
                     ),
                     build_field(
                         case,
                         field_name="report_notes",
                         label="Report details notes",
-                        type="markdown",
+                        data_type="markdown",
                     ),
                 ],
             ),
@@ -163,14 +185,14 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="reviewer_id",
                         label="QA auditor",
-                        value_display=users.get(case.reviewer_id, "None"),
+                        display_value=users.get(case.reviewer_id, "None"),
                     ),
                     {
                         "name": "qa_comments",
-                        "type": "str",
+                        "data_type": "str",
                         "label": "Comments",
                         "value": comments.count(),
-                        "value_display": comments.count(),
+                        "display_value": comments.count(),
                     },
                     build_field(
                         case,
@@ -181,17 +203,18 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="report_final_odt_url",
                         label="Link to final ODT report",
-                        type="link",
-                        value_display="Final draft (ODT)",
+                        data_type="link",
+                        display_value="Final draft (ODT)",
                     ),
                     build_field(
                         case,
                         field_name="report_final_pdf_url",
                         label="Link to final PDF report",
-                        type="link",
-                        value_display="Final draft (PDF)",
+                        data_type="link",
+                        display_value="Final draft (PDF)",
                     ),
                 ],
+                subsections=comment_subsections,
             ),
             build_section(
                 name="Contact details",
@@ -201,7 +224,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="contact_notes",
                         label="Contact details notes",
-                        type="markdown",
+                        data_type="markdown",
                     )
                 ],
                 subsections=contact_subsections,
@@ -252,14 +275,14 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="zendesk_url",
                         label="Zendesk ticket URL",
-                        type="link",
-                        value_display=case.zendesk_url,
+                        data_type="link",
+                        display_value=case.zendesk_url,
                     ),
                     build_field(
                         case,
                         field_name="correspondence_notes",
                         label="Correspondence notes",
-                        type="markdown",
+                        data_type="markdown",
                     ),
                 ],
             ),
@@ -317,7 +340,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="psb_progress_notes",
                         label="Summary of progress made from public sector body",
-                        type="markdown",
+                        data_type="markdown",
                     ),
                     build_field(
                         case,
@@ -339,7 +362,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="website_state_notes_final",
                         label="Final website compliance decision notes",
-                        type="markdown",
+                        data_type="markdown",
                     ),
                 ],
             ),
@@ -356,13 +379,13 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="disproportionate_notes",
                         label="Disproportionate burden notes",
-                        type="markdown",
+                        data_type="markdown",
                     ),
                     build_field(
                         case,
                         field_name="accessibility_statement_screenshot_url",
                         label="Link to accessibility statement screenshot",
-                        type="link",
+                        data_type="link",
                     ),
                     build_field(
                         case,
@@ -373,7 +396,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="accessibility_statement_notes_final",
                         label="Final accessibility statement notes",
-                        type="markdown",
+                        data_type="markdown",
                     ),
                 ],
             ),
@@ -395,7 +418,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="recommendation_notes",
                         label="Enforcement recommendation notes including exemptions",
-                        type="markdown",
+                        data_type="markdown",
                     ),
                     build_field(
                         case, field_name="case_completed", label="Case completed"
@@ -417,7 +440,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         label="Report methodology",
                     ),
                     build_field(
-                        case, field_name="notes", label="Notes", type="markdown"
+                        case, field_name="notes", label="Notes", data_type="markdown"
                     ),
                 ],
             ),

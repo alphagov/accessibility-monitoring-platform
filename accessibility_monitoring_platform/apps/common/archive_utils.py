@@ -1,6 +1,8 @@
 """Utilities to build JSON serialisable data to store in Case.archive"""
 from datetime import date, datetime
 
+from .templatetags.common_tags import amp_date, amp_datetime
+
 
 def build_section(name, complete_date, fields, subsections=None):
     complete_flag = complete_date.isoformat() if complete_date else None
@@ -12,37 +14,37 @@ def build_section(name, complete_date, fields, subsections=None):
     }
 
 
-def build_field(object, field_name, label, type=None, value_display=None):
+def build_field(object, field_name, label, data_type=None, display_value=None):
     field = getattr(object, field_name)
-    if type is None:
+    if data_type is None:
         if isinstance(field, datetime):
-            type = "datetime"
+            data_type = "datetime"
         elif isinstance(field, date):
-            type = "date"
+            data_type = "date"
         else:
-            type = "str"
+            data_type = "str"
 
-    if type == "date":
+    if data_type == "date":
         value = field.isoformat()
-        value_display = f"{field:%-d %B %Y}"
-    elif type == "datetime":
+        display_value = amp_date(field)
+    elif data_type == "datetime":
         value = field.isoformat()
-        value_display = f"{field:%-d %B %Y %-I:%M%p}"
-    elif type == "link":
+        display_value = amp_datetime(field)
+    elif data_type == "link":
         value = field
-    elif type == "str":
+    elif data_type == "str":
         value = field
         if hasattr(object, f"get_{field_name}_display"):
-            value_display = getattr(object, f"get_{field_name}_display")()
-    elif type == "markdown":
+            display_value = getattr(object, f"get_{field_name}_display")()
+    elif data_type == "markdown":
         value = field
     else:
-        raise ValueError("Unknown type", type)
+        raise ValueError("Unknown data_type", data_type)
 
     return {
         "name": field_name,
-        "type": type,
+        "data_type": data_type,
         "label": label,
         "value": value,
-        "value_display": value_display,
+        "display_value": display_value,
     }
