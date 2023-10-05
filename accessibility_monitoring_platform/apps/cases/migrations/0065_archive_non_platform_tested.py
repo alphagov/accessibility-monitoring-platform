@@ -34,11 +34,11 @@ def get_contact_subsections(contacts):
     return contact_subsections
 
 
-def get_comment_subsections(comments, users):
+def get_comment_subsections(comments, user_names):
     """Find case comments and return data as subsections"""
     return [
         build_section(
-            name=f"Comment by {users.get(comment.user_id, 'None')} on {amp_datetime(comment.created_date)}",
+            name=f"Comment by {user_names.get(comment.user_id, 'None')} on {amp_datetime(comment.created_date)}",
             complete_date=None,
             fields=[
                 build_field(
@@ -55,11 +55,11 @@ def get_comment_subsections(comments, users):
 
 def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
     User = apps.get_model("auth", "User")
-    users = {
+    user_names = {
         user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
     }
     Sector = apps.get_model("common", "Sector")
-    sectors = {sector.id: sector for sector in Sector.objects.all()}
+    sector_names = {sector.id: sector.name for sector in Sector.objects.all()}
     Case = apps.get_model("cases", "Case")
     Contact = apps.get_model("cases", "Contact")
     Comment = apps.get_model("comments", "Comment")
@@ -81,7 +81,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="auditor_id",
                         label="Auditor",
-                        display_value=users.get(case.auditor_id, "None"),
+                        display_value=user_names.get(case.auditor_id, "None"),
                     ),
                     build_field(
                         case,
@@ -107,7 +107,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         field_name="sector_id",
                         label="Sector",
                         data_type="str",
-                        display_value=sectors.get(case.sector_id).name,
+                        display_value=sector_names.get(case.sector_id, "None"),
                     ),
                     build_field(case, field_name="is_complaint", label="Complaint?"),
                     build_field(
@@ -194,7 +194,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         case,
                         field_name="reviewer_id",
                         label="QA auditor",
-                        display_value=users.get(case.reviewer_id, "None"),
+                        display_value=user_names.get(case.reviewer_id, "None"),
                     ),
                     {
                         "name": "qa_comments",
@@ -223,7 +223,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                         display_value="Final draft (PDF)",
                     ),
                 ],
-                subsections=get_comment_subsections(comments, users),
+                subsections=get_comment_subsections(comments, user_names),
             ),
             build_section(
                 name="Contact details",
