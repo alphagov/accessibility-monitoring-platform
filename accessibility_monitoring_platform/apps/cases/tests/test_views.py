@@ -118,48 +118,50 @@ ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
 QA_COMMENT_BODY: str = "QA comment body"
-CASE_ARCHIVE: List[Dict] = [
-    {
-        "name": "Archived section one",
-        "complete": "2021-10-21",
-        "fields": [
-            {
-                "name": "archived_date_field_one",
-                "data_type": "date",
-                "label": "Date field",
-                "value": "2021-04-19",
-                "display_value": "19 April 2021",
-            },
-            {
-                "name": "archived_choice_field",
-                "data_type": "str",
-                "label": "Status field",
-                "value": "case-closed-sent-to-equalities-body",
-                "display_value": "Case closed and sent to equalities body",
-            },
-        ],
-    },
-    {
-        "name": "Archived section two",
-        "complete": None,
-        "fields": [
-            {
-                "name": "archived_url",
-                "data_type": "link",
-                "label": "Archived URL",
-                "value": "https://www.example.com",
-                "display_value": "www.example.com",
-            },
-            {
-                "name": "archived_notes",
-                "data_type": "markdown",
-                "label": "Archived notes",
-                "value": "Monitoring suspended - private practice",
-                "display_value": None,
-            },
-        ],
-    },
-]
+CASE_ARCHIVE: List[Dict] = {
+    "sections": [
+        {
+            "name": "Archived section one",
+            "complete": "2021-10-21",
+            "fields": [
+                {
+                    "name": "archived_date_field_one",
+                    "data_type": "date",
+                    "label": "Date field",
+                    "value": "2021-04-19",
+                    "display_value": "19 April 2021",
+                },
+                {
+                    "name": "archived_choice_field",
+                    "data_type": "str",
+                    "label": "Status field",
+                    "value": "case-closed-sent-to-equalities-body",
+                    "display_value": "Case closed and sent to equalities body",
+                },
+            ],
+        },
+        {
+            "name": "Archived section two",
+            "complete": None,
+            "fields": [
+                {
+                    "name": "archived_url",
+                    "data_type": "link",
+                    "label": "Archived URL",
+                    "value": "https://www.example.com",
+                    "display_value": "www.example.com",
+                },
+                {
+                    "name": "archived_notes",
+                    "data_type": "markdown",
+                    "label": "Archived notes",
+                    "value": "Monitoring suspended - private practice",
+                    "display_value": None,
+                },
+            ],
+        },
+    ]
+}
 
 
 def add_user_to_auditor_groups(user: User) -> None:
