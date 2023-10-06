@@ -29,6 +29,7 @@ services:
 
   localstack:
     image: localstack/localstack
+    restart: always
     hostname: localstack
     ports:
       - "4566:4566"

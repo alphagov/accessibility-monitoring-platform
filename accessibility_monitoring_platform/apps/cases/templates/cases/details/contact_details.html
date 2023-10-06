@@ -2,14 +2,12 @@
     <div class="govuk-grid-column-full">
         <p class="govuk-body-m">
             <b>Contact details</b>
-            {% if case.testing_methodology == "platform" %}
-                |
-                <a href="{% url 'cases:edit-contact-details' case.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit
-                </a>
-            {% endif %}
+            |
+            <a href="{% url 'cases:edit-contact-details' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit
+            </a>
         </p>
     </div>
 </div>

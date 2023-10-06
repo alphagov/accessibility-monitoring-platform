@@ -57,7 +57,6 @@ class CaseAdmin(admin.ModelAdmin):
     list_display = ["organisation_name", "domain", "auditor", "created", "status"]
     list_filter = [
         MetaStatusCaseListFilter,
-        "testing_methodology",
         "report_methodology",
         ("auditor", admin.RelatedOnlyFieldListFilter),
     ]

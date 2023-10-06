@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 
 from ..cases.models import (
     Case,
-    TEST_STATUS_COMPLETE,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     REPORT_APPROVED_STATUS_APPROVED,
@@ -39,8 +38,6 @@ def create_case(user: User) -> Case:
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_results_url="https://www.test-results.com",
-        test_status=TEST_STATUS_COMPLETE,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         report_draft_url="https://www.report-draft.com",
