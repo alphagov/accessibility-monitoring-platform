@@ -321,6 +321,7 @@ class Case(VersionModel):
     case_details_complete_date = models.DateField(null=True, blank=True)
 
     # Historic testing details page
+    test_results_url = models.TextField(default="", blank=True)
     accessibility_statement_state = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
