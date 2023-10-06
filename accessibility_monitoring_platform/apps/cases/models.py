@@ -904,7 +904,10 @@ class Case(VersionModel):
 
     @property
     def archived_sections(self):
-        archive = json.loads(self.archive)
+        if self.archive:
+            archive = json.loads(self.archive)
+        else:
+            return None
         return archive["sections"] if "sections" in archive else None
 
 

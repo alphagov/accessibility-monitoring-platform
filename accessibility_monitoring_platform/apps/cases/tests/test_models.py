@@ -2,6 +2,8 @@
 Tests for cases models
 """
 import pytest
+
+import json
 from datetime import date, datetime, timedelta, timezone
 from typing import List
 from unittest.mock import patch, Mock
@@ -1054,3 +1056,15 @@ def test_set_accessibility_statement_state_final_to_not_compliant():
         case.accessibility_statement_state_final
         == ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
     )
+
+
+def test_archived_sections():
+    """Test archived sections"""
+    case: Case = Case()
+
+    assert case.archived_sections is None
+
+    case.archive = json.dumps({"sections": ["section_one"]})
+
+    assert len(case.archived_sections) == 1
+    assert case.archived_sections[0] == "section_one"

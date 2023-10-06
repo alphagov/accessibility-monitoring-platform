@@ -139,6 +139,21 @@ CASE_ARCHIVE: List[Dict] = {
                     "display_value": "Case closed and sent to equalities body",
                 },
             ],
+            "subsections": [
+                {
+                    "name": "Archived subsection a",
+                    "complete": None,
+                    "fields": [
+                        {
+                            "name": "archived_datetime_field_one",
+                            "data_type": "datetime",
+                            "label": "Datetime field",
+                            "value": "2023-03-01T13:01:17+00:00",
+                            "display_value": "1 March 2023 1:17pm",
+                        },
+                    ],
+                },
+            ],
         },
         {
             "name": "Archived section two",
@@ -159,6 +174,7 @@ CASE_ARCHIVE: List[Dict] = {
                     "display_value": None,
                 },
             ],
+            "subsections": None,
         },
     ]
 }
@@ -199,7 +215,7 @@ def test_archived_case_view_case_includes_contents(admin_client):
 
 def test_archived_case_view_case_includes_sections(admin_client):
     """
-    Test that the View case page for an archived case shows sections
+    Test that the View case page for an archived case shows sections and subsections.
     """
     case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
 
@@ -214,6 +230,11 @@ def test_archived_case_view_case_includes_sections(admin_client):
             <span class="govuk-visually-hidden">complete</span>
             ✓
         </span>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-m"><b>Archived subsection a</b></p>""",
         html=True,
     )
     assertContains(
@@ -249,6 +270,14 @@ def test_archived_case_view_case_includes_fields(admin_client):
         """<tr class="govuk-table__row">
             <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Status field</th>
             <td class="govuk-table__cell amp-width-one-half">Case closed and sent to equalities body</td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Datetime field</th>
+            <td class="govuk-table__cell amp-width-one-half">1 March 2023 1:17pm</td>
         </tr>""",
         html=True,
     )

@@ -1,4 +1,4 @@
-"""Utilities to build JSON serialisable data to store in Case.archive"""
+"""Utilities to build JSON serialisable object to store in Case.archive"""
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Union
 
