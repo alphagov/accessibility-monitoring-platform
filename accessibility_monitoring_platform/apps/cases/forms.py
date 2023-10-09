@@ -497,10 +497,7 @@ class CaseReviewChangesUpdateForm(VersionForm):
     Form to record review of changes made by PSB
     """
 
-    retested_website_date = AMPDateField(
-        label="Retested website?",
-        help_text="There is no test spreadsheet for this case",
-    )
+    retested_website_date = AMPDateField(label="Retested website?")
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )

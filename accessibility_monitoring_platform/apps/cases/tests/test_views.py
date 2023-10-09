@@ -2,6 +2,7 @@
 Tests for cases views
 """
 from datetime import date, datetime, timedelta
+import json
 import pytest
 from typing import Dict, List, Optional
 from zoneinfo import ZoneInfo
@@ -50,7 +51,6 @@ from ...reports.models import Report
 from ..models import (
     REPORT_METHODOLOGY_ODT,
     REPORT_METHODOLOGY_PLATFORM,
-    TESTING_METHODOLOGY_SPREADSHEET,
     Case,
     CaseEvent,
     Contact,
@@ -118,6 +118,66 @@ ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
 QA_COMMENT_BODY: str = "QA comment body"
+CASE_ARCHIVE: List[Dict] = {
+    "sections": [
+        {
+            "name": "Archived section one",
+            "complete": "2021-10-21",
+            "fields": [
+                {
+                    "name": "archived_date_field_one",
+                    "data_type": "date",
+                    "label": "Date field",
+                    "value": "2021-04-19",
+                    "display_value": "19 April 2021",
+                },
+                {
+                    "name": "archived_choice_field",
+                    "data_type": "str",
+                    "label": "Status field",
+                    "value": "case-closed-sent-to-equalities-body",
+                    "display_value": "Case closed and sent to equalities body",
+                },
+            ],
+            "subsections": [
+                {
+                    "name": "Archived subsection a",
+                    "complete": None,
+                    "fields": [
+                        {
+                            "name": "archived_datetime_field_one",
+                            "data_type": "datetime",
+                            "label": "Datetime field",
+                            "value": "2023-03-01T13:01:17+00:00",
+                            "display_value": "1 March 2023 1:17pm",
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "name": "Archived section two",
+            "complete": None,
+            "fields": [
+                {
+                    "name": "archived_url",
+                    "data_type": "link",
+                    "label": "Archived URL",
+                    "value": "https://www.example.com",
+                    "display_value": "www.example.com",
+                },
+                {
+                    "name": "archived_notes",
+                    "data_type": "markdown",
+                    "label": "Archived notes",
+                    "value": "Monitoring suspended - private practice",
+                    "display_value": None,
+                },
+            ],
+            "subsections": None,
+        },
+    ]
+}
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -127,6 +187,122 @@ def add_user_to_auditor_groups(user: User) -> None:
     auditor_group.user_set.add(user)
     historic_auditor_group.user_set.add(user)
     qa_auditor_group.user_set.add(user)
+
+
+def test_archived_case_view_case_includes_contents(admin_client):
+    """
+    Test that the View case page for an archived case shows links to sections
+    """
+    case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assertContains(
+        response,
+        """<a href="#archived-section-one" class="govuk-link govuk-link--no-visited-state">
+        Archived section one <span class="govuk-visually-hidden">complete</span></a>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<a href="#archived-section-two" class="govuk-link govuk-link--no-visited-state">
+        Archived section two</a>""",
+        html=True,
+    )
+
+
+def test_archived_case_view_case_includes_sections(admin_client):
+    """
+    Test that the View case page for an archived case shows sections and subsections.
+    """
+    case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assertContains(
+        response,
+        """<span class="govuk-accordion__section-button" id="accordion-heading-archived-section-one">
+            Archived section one
+            <span class="govuk-visually-hidden">complete</span>
+            ✓
+        </span>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-m"><b>Archived subsection a</b></p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<span class="govuk-accordion__section-button" id="accordion-heading-archived-section-two">
+            Archived section two
+        </span>""",
+        html=True,
+    )
+
+
+def test_archived_case_view_case_includes_fields(admin_client):
+    """
+    Test that the View case page for an archived case shows fields
+    """
+    case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Date field</th>
+            <td class="govuk-table__cell amp-width-one-half">19 April 2021</td>
+        </tr>
+        """,
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Status field</th>
+            <td class="govuk-table__cell amp-width-one-half">Case closed and sent to equalities body</td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Datetime field</th>
+            <td class="govuk-table__cell amp-width-one-half">1 March 2023 1:17pm</td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Archived URL</th>
+            <td class="govuk-table__cell amp-width-one-half">
+                <a href="https://www.example.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    www.example.com
+                </a>
+            </td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Archived notes</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                 <p>Monitoring suspended - private practice</p>
+            </td>
+        </tr>""",
+        html=True,
+    )
 
 
 def test_view_case_includes_tests(admin_client):
@@ -1393,12 +1569,11 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ("post_case_complete_date", "Post case summary", "edit-post-case"),
     ],
 )
-def test_section_complete_check_displayed_in_platform_testing_methodology(
+def test_section_complete_check_displayed(
     flag_name, section_name, edit_url_name, admin_client
 ):
     """
     Test that the section complete tick is displayed in contents
-    when case testing methodology is platform
     """
     case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
@@ -1420,76 +1595,6 @@ def test_section_complete_check_displayed_in_platform_testing_methodology(
             <a id="{edit_url_name}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden">complete</span>
             </a>
-            &check;
-        </li>""",
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "flag_name, section_name, section_id",
-    [
-        ("case_details_complete_date", "Case details", "case-details"),
-        ("testing_details_complete_date", "Testing details", "test-results"),
-        ("reporting_details_complete_date", "Report details", "report-details"),
-        ("qa_process_complete_date", "QA process", "qa-process"),
-        ("contact_details_complete_date", "Contact details", "contact-details"),
-        (
-            "report_correspondence_complete_date",
-            "Report correspondence",
-            "report-correspondence",
-        ),
-        (
-            "twelve_week_correspondence_complete_date",
-            "12-week correspondence",
-            "twelve-week-correspondence",
-        ),
-        (
-            "review_changes_complete_date",
-            "Reviewing changes",
-            "review-changes",
-        ),
-        (
-            "final_website_complete_date",
-            "Final website compliance decision",
-            "final-website",
-        ),
-        (
-            "final_statement_complete_date",
-            "Final accessibility statement compliance decision",
-            "final-statement",
-        ),
-        (
-            "case_close_complete_date",
-            "Closing the case",
-            "case-close",
-        ),
-    ],
-)
-def test_section_complete_check_displayed_in_testing_spreadsheet_methodology(
-    flag_name, section_name, section_id, admin_client
-):
-    """
-    Test that the section complete tick is displayed in contents
-    when case testing methodology is spreadsheet
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
-    setattr(case, flag_name, TODAY)
-    case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<li>
-            <a href="#{section_id}" class="govuk-link govuk-link--no-visited-state">
-            {section_name}<span class="govuk-visually-hidden">complete</span></a>
             &check;
         </li>""",
         html=True,
@@ -1616,7 +1721,7 @@ def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
     Test that the twelve week retest page shows the link to the test results page
     when no test exists on the case.
     """
-    case: Case = Case.objects.create(testing_methodology="platform")
+    case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
@@ -1646,7 +1751,7 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     Test that the twelve week retest page shows start retest button when a
     test exists with no retest.
     """
-    case: Case = Case.objects.create(testing_methodology="platform")
+    case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
@@ -1679,7 +1784,7 @@ def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
     Test that the twelve week retest page shows view retest button when a
     test with a retest exists.
     """
-    case: Case = Case.objects.create(testing_methodology="platform")
+    case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case, retest_date=date.today())
 
     response: HttpResponse = admin_client.get(
@@ -1708,7 +1813,7 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
     """
     Test that the twelve week retest page shows if statement exists.
     """
-    case: Case = Case.objects.create(testing_methodology="platform")
+    case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case, retest_date=date.today())
 
     response: HttpResponse = admin_client.get(
@@ -1742,49 +1847,6 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
             <td class="govuk-table__cell amp-width-one-half">Yes</td>
         </tr>""",
         html=True,
-    )
-
-
-def test_case_review_changes_view_contains_link_to_test_results_url(admin_client):
-    """Test that the case review changes view contains the link to the test results"""
-    test_results_url: str = "https://test-results-url"
-    case: Case = Case.objects.create(
-        test_results_url=test_results_url,
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-review-changes", kwargs={"pk": case.id})
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        '<div class="govuk-hint">'
-        f'The retest form can be found in the <a href="{test_results_url}"'
-        ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
-        "</div>",
-    )
-
-
-def test_case_review_changes_view_contains_no_link_to_test_results_url(admin_client):
-    """
-    Test that the case review changes view contains no link to the test results if none is on case
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-review-changes", kwargs={"pk": case.id})
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        '<div class="govuk-hint">'
-        "There is no test spreadsheet for this case"
-        "</div>",
     )
 
 
@@ -1981,67 +2043,6 @@ def test_case_details_shows_edit_links(
     assert response.status_code == 200
 
     assertContains(response, edit_link_label)
-
-
-@pytest.mark.parametrize(
-    "edit_link_label",
-    [
-        "edit-enforcement-body-correspondence",
-        "edit-post-case",
-    ],
-)
-def test_case_details_shows_edit_links_when_spreadsheet(
-    edit_link_label,
-    admin_client,
-):
-    """
-    Test case details show edit links when testing methodology is spreadsheet.
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertContains(response, edit_link_label)
-
-
-@pytest.mark.parametrize(
-    "edit_link_label",
-    [
-        "Edit case details",
-        "Edit testing details",
-        "Edit report details",
-        "Edit QA process",
-        "Edit contact details",
-        "Edit report correspondence",
-        "Edit 12-week correspondence",
-        "Edit 12-week retest",
-        "Edit reviewing changes",
-        "Edit closing the case",
-    ],
-)
-def test_case_details_hides_edit_links_when_spreadsheet(
-    edit_link_label,
-    admin_client,
-):
-    """
-    Test case details does not show edit links when testing methodology is
-    spreadsheet.
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertNotContains(response, edit_link_label)
 
 
 def test_status_change_message_shown(admin_client):
@@ -3020,31 +3021,6 @@ def test_case_steps_shown_when_platform_testing(admin_client):
     )
 
 
-def test_case_steps_hidden_when_testing_spreadsheet(admin_client):
-    """
-    Test case details not showm edit links when testing methodology is spreadsheet.
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-enforcement-body-correspondence", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>""",
-        html=True,
-    )
-    assertNotContains(
-        response,
-        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>""",
-        html=True,
-    )
-
-
 @pytest.mark.parametrize(
     "edit_case_url_name, nav_link_name,nav_link_label",
     [
@@ -3131,193 +3107,6 @@ def test_navigation_links_shown_when_platform_testing(
     assertContains(
         response,
         f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "edit_case_url_name, nav_link_name,nav_link_label",
-    [
-        (
-            "cases:edit-post-case",
-            "cases:edit-enforcement-body-correspondence",
-            "Equality body summary",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-post-case",
-            "Post case summary",
-        ),
-    ],
-)
-def test_navigation_links_shown_when_spreadsheet_testing(
-    edit_case_url_name,
-    nav_link_name,
-    nav_link_label,
-    admin_client,
-):
-    """
-    Test correct case steps' navigation links are shown when testing methodology
-    is spreadsheet.
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
-    nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
-
-    response: HttpResponse = admin_client.get(
-        reverse(edit_case_url_name, kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "edit_case_url_name, nav_link_name,nav_link_label",
-    [
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-case-details",
-            "Case details",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-test-results",
-            "Testing details",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-report-details",
-            "Report details",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-qa-process",
-            "QA process",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-contact-details",
-            "Contact details",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-report-correspondence",
-            "Report correspondence",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-twelve-week-correspondence",
-            "12-week correspondence",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-twelve-week-retest",
-            "12-week retest",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-review-changes",
-            "Reviewing changes",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-case-close",
-            "Closing the case",
-        ),
-    ],
-)
-def test_navigation_links_hidden_when_spreadsheet_testing(
-    edit_case_url_name,
-    nav_link_name,
-    nav_link_label,
-    admin_client,
-):
-    """
-    Test correct case steps' navigation links are not hodden when testing
-    methodology is spreadsheet.
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
-    nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
-
-    response: HttpResponse = admin_client.get(
-        reverse(edit_case_url_name, kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertNotContains(
-        response,
-        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
-        html=True,
-    )
-
-
-def test_case_details_hides_link_to_test_results_when_not_present(admin_client):
-    """
-    Test case details hides link to test results when URL not present
-    when testing methodology is spreadsheet.
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                Link to test results
-            </th>
-            <td class="govuk-table__cell amp-width-one-half">None</td>
-        </tr>""",
-        html=True,
-    )
-
-
-def test_case_details_contents_hides_link_to_12_week_retest_when_testing_methodology_spreadsheet(
-    admin_client,
-):
-    """
-    Test case details hides contents link to 12-week retest
-    when testing methodology is spreadsheet.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<a href="#twelve-week-retest" class="govuk-link govuk-link--no-visited-state">
-            12-week retest</a>""",
-        html=True,
-    )
-
-    case.testing_methodology = TESTING_METHODOLOGY_SPREADSHEET
-    case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertNotContains(
-        response,
-        """<a href="#twelve-week-retest" class="govuk-link govuk-link--no-visited-state">
-            12-week retest</a>""",
         html=True,
     )
 

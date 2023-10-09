@@ -2,6 +2,7 @@
 Models - cases
 """
 from datetime import date, datetime, timedelta, timezone as datetime_timezone
+import json
 import re
 from typing import List, Optional, Tuple
 
@@ -115,29 +116,14 @@ ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
     ("ecni", "Equality Commission Northern Ireland"),
 ]
 
-TESTING_METHODOLOGY_PLATFORM: str = "platform"
-TESTING_METHODOLOGY_SPREADSHEET: str = "spreadsheet"
-TESTING_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
-    (TESTING_METHODOLOGY_PLATFORM, "Platform"),
-    (TESTING_METHODOLOGY_SPREADSHEET, "Testing spreadsheet"),
-]
-
 REPORT_METHODOLOGY_PLATFORM: str = "platform"
 REPORT_METHODOLOGY_ODT: str = "odt"
 REPORT_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
     (
         REPORT_METHODOLOGY_PLATFORM,
-        "Platform (requires Platform in testing methodology)",
+        "Platform",
     ),
     (REPORT_METHODOLOGY_ODT, "ODT templates"),
-]
-
-TEST_STATUS_DEFAULT: str = "not-started"
-TEST_STATUS_COMPLETE: str = "complete"
-TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (TEST_STATUS_COMPLETE, "Complete"),
-    ("in-progress", "In progress"),
-    (TEST_STATUS_DEFAULT, "Not started"),
 ]
 
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
@@ -282,6 +268,7 @@ class Case(VersionModel):
     Model for Case
     """
 
+    archive = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -320,11 +307,6 @@ class Case(VersionModel):
         choices=ENFORCEMENT_BODY_CHOICES,
         default=ENFORCEMENT_BODY_DEFAULT,
     )
-    testing_methodology = models.CharField(
-        max_length=20,
-        choices=TESTING_METHODOLOGY_CHOICES,
-        default=TESTING_METHODOLOGY_PLATFORM,
-    )
     report_methodology = models.CharField(
         max_length=20,
         choices=REPORT_METHODOLOGY_CHOICES,
@@ -340,9 +322,6 @@ class Case(VersionModel):
 
     # Historic testing details page
     test_results_url = models.TextField(default="", blank=True)
-    test_status = models.CharField(
-        max_length=200, choices=TEST_STATUS_CHOICES, default=TEST_STATUS_DEFAULT
-    )
     accessibility_statement_state = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
@@ -923,6 +902,14 @@ class Case(VersionModel):
             self.accessibility_statement_state
             == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
         )
+
+    @property
+    def archived_sections(self):
+        if self.archive:
+            archive = json.loads(self.archive)
+        else:
+            return None
+        return archive["sections"] if "sections" in archive else None
 
 
 class Contact(models.Model):

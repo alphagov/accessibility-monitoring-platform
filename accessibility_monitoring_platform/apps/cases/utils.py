@@ -161,9 +161,6 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         field_name="enforcement_body",
     ),
     ColumnAndFieldNames(
-        column_name="Testing methodology", field_name="testing_methodology"
-    ),
-    ColumnAndFieldNames(
         column_name="Report methodology", field_name="report_methodology"
     ),
     ColumnAndFieldNames(column_name="Complaint?", field_name="is_complaint"),
@@ -175,12 +172,6 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Case details page complete",
         field_name="case_details_complete_date",
-    ),
-    ColumnAndFieldNames(
-        column_name="Link to test results spreadsheet", field_name="test_results_url"
-    ),
-    ColumnAndFieldNames(
-        column_name="Spreadsheet test status", field_name="test_status"
     ),
     ColumnAndFieldNames(
         column_name="Initial accessibility statement compliance decision",

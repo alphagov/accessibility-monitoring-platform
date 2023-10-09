@@ -2,14 +2,12 @@
     <div class="govuk-grid-column-full">
         <p class="govuk-body-m">
             <b>Report details</b>
-            {% if case.testing_methodology == "platform" %}
-                |
-                <a href="{% url 'cases:edit-report-details' case.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit
-                </a>
-            {% endif %}
+            |
+            <a href="{% url 'cases:edit-report-details' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit
+            </a>
         </p>
     </div>
 </div>
@@ -39,7 +37,7 @@
                         {% endif %}
                     </td>
                 </tr>
-                {% if case.report and case.testing_methodology == "platform" %}
+                {% if case.report %}
                     <tr class="govuk-table__row">
                         <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Report views</th>
                         <td class="govuk-table__cell amp-width-one-half">

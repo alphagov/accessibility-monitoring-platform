@@ -2,7 +2,15 @@
     <h2 class="govuk-heading-m">Contents</h2>
     <div class="amp-left-border">
         <ul class="govuk-list amp-margin-bottom-5">
-            {% if case.testing_methodology == "platform" %}
+            {% if case.archive %}
+                {% for archived_section in case.archived_sections %}
+                    <li>
+                        <a href="#{{ archived_section.name|slugify }}" class="govuk-link govuk-link--no-visited-state">
+                            {{ archived_section.name }}{% if archived_section.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                        {% if archived_section.complete %}&check;{% endif %}
+                    </li>
+                {% endfor %}
+            {% else %}
                 {% include './nav_content.html' with id='case-details' edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
                 {% include './nav_content.html' with id='test-results' edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
                 {% include './nav_content.html' with id='report-details' edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
@@ -13,18 +21,6 @@
                 {% include './nav_content.html' with id='twelve-week-retest' edit_name='cases:edit-twelve-week-retest' name='12-week retest' complete=case.twelve_week_retest_complete_date %}
                 {% include './nav_content.html' with id='review-changes' edit_name='cases:edit-review-changes' name='Reviewing changes' complete=case.review_changes_complete_date %}
                 {% include './nav_content.html' with id='case-close' edit_name='cases:edit-case-close' name='Closing the case' complete=case.case_close_complete_date %}
-            {% else %}
-                {% include './nav_content.html' with id='case-details' name='Case details' complete=case.case_details_complete_date %}
-                {% include './nav_content.html' with id='test-results' name='Testing details' complete=case.testing_details_complete_date %}
-                {% include './nav_content.html' with id='report-details' name='Report details' complete=case.reporting_details_complete_date %}
-                {% include './nav_content.html' with id='qa-process' name='QA process' complete=case.qa_process_complete_date %}
-                {% include './nav_content.html' with id='contact-details' name='Contact details' complete=case.contact_details_complete_date %}
-                {% include './nav_content.html' with id='report-correspondence' name='Report correspondence' complete=case.report_correspondence_complete_date %}
-                {% include './nav_content.html' with id='twelve-week-correspondence' name='12-week correspondence' complete=case.twelve_week_correspondence_complete_date %}
-                {% include './nav_content.html' with id='review-changes' name='Reviewing changes' complete=case.review_changes_complete_date %}
-                {% include './nav_content.html' with id='final-website' name='Final website compliance decision' complete=case.final_website_complete_date %}
-                {% include './nav_content.html' with id='final-statement' name='Final accessibility statement compliance decision' complete=case.final_statement_complete_date %}
-                {% include './nav_content.html' with id='case-close' name='Closing the case' complete=case.case_close_complete_date %}
             {% endif %}
         </ul>
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
