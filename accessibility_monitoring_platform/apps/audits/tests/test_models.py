@@ -813,6 +813,24 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
 
 
 @pytest.mark.django_db
+def test_audit_outstanding_statement_check_results_includes_new_failures():
+    """
+    Tests specific audit outstanding_statement_check_results property contains any
+    errors found for the first time on 12-week retest.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    untested_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit, check_result_state=STATEMENT_CHECK_NOT_TESTED
+        ).first()
+    )
+    untested_statement_check_result.retest_state = STATEMENT_CHECK_NO
+    untested_statement_check_result.save()
+
+    assert untested_statement_check_result in audit.outstanding_statement_check_results
+
+
+@pytest.mark.django_db
 def test_audit_statement_check_result_statement_found():
     """
     Tests an audit.statement_check_result_statement_found shows if all
