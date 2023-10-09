@@ -5,7 +5,7 @@ from datetime import date
 from typing import Dict, List, Tuple
 
 from django.db import models
-from django.db.models import Case as DjangoCase, When
+from django.db.models import Case as DjangoCase, Q, When
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
@@ -1001,87 +1001,52 @@ class Audit(VersionModel):
         )
 
     @property
-    def overview_failed_statement_check_results(self) -> bool:
-        return self.failed_statement_check_results.filter(
+    def outstanding_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(
+            Q(check_result_state=STATEMENT_CHECK_NO)
+            | Q(retest_state=STATEMENT_CHECK_NO)
+        ).exclude(retest_state=STATEMENT_CHECK_YES)
+
+    @property
+    def overview_outstanding_statement_check_results(self) -> bool:
+        return self.outstanding_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_OVERVIEW
         )
 
     @property
-    def overview_outstanding_statement_check_results(self) -> bool:
-        return self.overview_failed_statement_check_results.exclude(
-            retest_state=STATEMENT_CHECK_YES
-        )
-
-    @property
-    def website_failed_statement_check_results(self) -> bool:
-        return self.failed_statement_check_results.filter(
+    def website_outstanding_statement_check_results(self) -> bool:
+        return self.outstanding_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_WEBSITE
         )
 
     @property
-    def website_outstanding_statement_check_results(self) -> bool:
-        return self.website_failed_statement_check_results.exclude(
-            retest_state=STATEMENT_CHECK_YES
-        )
-
-    @property
-    def compliance_failed_statement_check_results(self) -> bool:
-        return self.failed_statement_check_results.filter(
+    def compliance_outstanding_statement_check_results(self) -> bool:
+        return self.outstanding_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_COMPLIANCE
         )
 
     @property
-    def compliance_outstanding_statement_check_results(self) -> bool:
-        return self.compliance_failed_statement_check_results.exclude(
-            retest_state=STATEMENT_CHECK_YES
-        )
-
-    @property
-    def non_accessible_failed_statement_check_results(self) -> bool:
-        return self.failed_statement_check_results.filter(
+    def non_accessible_outstanding_statement_check_results(self) -> bool:
+        return self.outstanding_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
         )
 
     @property
-    def non_accessible_outstanding_statement_check_results(self) -> bool:
-        return self.non_accessible_failed_statement_check_results.exclude(
-            retest_state=STATEMENT_CHECK_YES
-        )
-
-    @property
-    def preparation_failed_statement_check_results(self) -> bool:
-        return self.failed_statement_check_results.filter(
+    def preparation_outstanding_statement_check_results(self) -> bool:
+        return self.outstanding_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_PREPARATION
         )
 
     @property
-    def preparation_outstanding_statement_check_results(self) -> bool:
-        return self.preparation_failed_statement_check_results.exclude(
-            retest_state=STATEMENT_CHECK_YES
-        )
-
-    @property
-    def feedback_failed_statement_check_results(self) -> bool:
-        return self.failed_statement_check_results.filter(
+    def feedback_outstanding_statement_check_results(self) -> bool:
+        return self.outstanding_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_FEEDBACK
         )
 
     @property
-    def feedback_outstanding_statement_check_results(self) -> bool:
-        return self.feedback_failed_statement_check_results.exclude(
-            retest_state=STATEMENT_CHECK_YES
-        )
-
-    @property
-    def custom_failed_statement_check_results(self) -> bool:
-        return self.failed_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_CUSTOM
-        )
-
-    @property
     def custom_outstanding_statement_check_results(self) -> bool:
-        return self.custom_failed_statement_check_results.exclude(
-            retest_state=STATEMENT_CHECK_YES
+        return self.outstanding_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_CUSTOM
         )
 
     @property
@@ -1096,12 +1061,6 @@ class Audit(VersionModel):
                 retest_state=STATEMENT_CHECK_YES
             ).count()
             == 0
-        )
-
-    @property
-    def outstanding_statement_check_results(self) -> bool:
-        return self.failed_statement_check_results.exclude(
-            retest_state=STATEMENT_CHECK_YES
         )
 
     @property
