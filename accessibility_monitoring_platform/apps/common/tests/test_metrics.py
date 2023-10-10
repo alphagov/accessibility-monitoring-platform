@@ -619,6 +619,61 @@ def test_get_policy_progress_metrics(mock_datetime):
 
 
 @pytest.mark.django_db
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
+def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
+    """Test policy progress metrics excludes missing pages"""
+    mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create(
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+    )
+    audit: Audit = Audit.objects.create(
+        case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
+    )
+    page: Page = Page.objects.create(
+        audit=audit, retest_page_missing_date=datetime(2022, 1, 2, tzinfo=timezone.utc)
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+        retest_state="not-fixed",
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+        retest_state=RETEST_CHECK_RESULT_FIXED,
+    )
+
+    assert get_policy_progress_metrics() == [
+        ProgressMetric(
+            label="Websites compliant after retest in the last 90 days",
+            partial_count=1,
+            total_count=1,
+        ),
+        ProgressMetric(
+            label="Statements compliant after retest in the last 90 days",
+            partial_count=0,
+            total_count=1,
+        ),
+        ProgressMetric(
+            label="Website accessibility issues fixed in the last 90 days",
+            partial_count=0,
+            total_count=0,
+        ),
+        ProgressMetric(
+            label="Statement issues fixed in the last 90 days",
+            partial_count=0,
+            total_count=11,
+        ),
+    ]
+
+
+@pytest.mark.django_db
 @patch("accessibility_monitoring_platform.apps.common.utils.timezone")
 def test_get_equality_body_cases_metric(mock_datetime):
     """Test equality body cases metric"""

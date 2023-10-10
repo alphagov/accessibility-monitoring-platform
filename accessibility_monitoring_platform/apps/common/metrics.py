@@ -358,7 +358,9 @@ def get_policy_progress_metrics() -> List[ProgressMetric]:
     )
     compliant_audits_count: int = compliant_audits.count()
     check_results_of_last_90_days: QuerySet[CheckResult] = CheckResult.objects.filter(
-        audit__retest_date__gte=start_date
+        audit__retest_date__gte=start_date,
+        page__retest_page_missing_date=None,
+        page__is_deleted=False,
     )
     fixed_check_results_count: int = (
         check_results_of_last_90_days.filter(check_result_state="error")
