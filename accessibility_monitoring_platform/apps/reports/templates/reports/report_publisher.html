@@ -18,7 +18,7 @@
                         <a href="{{ report.case.published_report_url }}"
                             role="button"
                             draggable="false"
-                            class="govuk-button govuk-button--secondary"
+                            class="govuk-button"
                             data-module="govuk-button"
                             target="_blank"
                         >
@@ -28,7 +28,7 @@
                     <a href="{% url 'reports:report-confirm-publish' report.id %}"
                         role="button"
                         draggable="false"
-                        class="govuk-button"
+                        class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
                     >
                         {% if report.case.published_report_url %}Republish{% else %}Publish{% endif%} HTML report
