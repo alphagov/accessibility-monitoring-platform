@@ -12,16 +12,33 @@ from ...common.archive_utils import build_field, build_section
 from ...common.templatetags.common_tags import amp_datetime
 
 
-def get_audit_subsections(audit):
+def get_audit_subsections(audit, pages):
     """Find audit and return data as subsections"""
+    page_fields = [
+        build_field(
+            page,
+            field_name="url",
+            label=page.name if page.name else page.get_page_type_display(),
+            data_type="link",
+        )
+        for page in pages
+    ]
     audit_subsections = [
         build_section(
             name="Test metadata",
             complete_date=audit.audit_metadata_complete_date,
             fields=[
-                build_field(audit, field_name="date_of_test", label="Date of test")
+                build_field(audit, field_name="date_of_test", label="Date of test"),
+                build_field(audit, field_name="screen_size", label="Screen size"),
+                build_field(audit, field_name="exemptions_state", label="Exemptions?"),
+                build_field(audit, field_name="exemptions_notes", label="Notes"),
             ],
-        )
+        ),
+        build_section(
+            name="Pages",
+            complete_date=audit.audit_pages_complete_date,
+            fields=page_fields,
+        ),
     ]
     return audit_subsections
 
@@ -85,6 +102,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
     for case in Case.objects.filter(archive="").filter(report_methodology="odt"):
         comments = Comment.objects.filter(case=case).order_by("-created_date")
         audit = Audit.objects.filter(case=case).first()
+        pages = Page.objects.filter(audit=audit).exclude(url="")
         if audit is None:
             print(f"{case} has no audit")
         sections = [
@@ -152,7 +170,9 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                 name="Testing details",
                 complete_date=case.testing_details_complete_date,
                 fields=[],
-                subsections=get_audit_subsections(audit) if audit is not None else [],
+                subsections=get_audit_subsections(audit, pages)
+                if audit is not None
+                else [],
             ),
             build_section(
                 name="Report details",
