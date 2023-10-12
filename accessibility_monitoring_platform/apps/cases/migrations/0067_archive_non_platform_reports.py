@@ -12,7 +12,7 @@ from ...common.archive_utils import build_field, build_section
 from ...common.templatetags.common_tags import amp_datetime
 
 
-def get_audit_subsections(audit, pages):
+def get_audit_subsections(audit, pages, error_check_results, wcag_definitions):
     """Find audit and return data as subsections"""
     page_fields = [
         build_field(
@@ -20,6 +20,23 @@ def get_audit_subsections(audit, pages):
             field_name="url",
             label=page.name if page.name else page.get_page_type_display(),
             data_type="link",
+        )
+        for page in pages
+    ]
+    page_subsections = [
+        build_section(
+            name=page.name if page.name else page.get_page_type_display(),
+            complete_date=page.complete_date,
+            fields=[
+                {
+                    "name": "CheckResult",
+                    "data_type": "markdown",
+                    "label": f"{wcag_definitions[check_result.wcag_definition_id].name}: {wcag_definitions[check_result.wcag_definition_id].description} ({wcag_definitions[check_result.wcag_definition_id].get_type_display()})",
+                    "value": check_result.notes,
+                    "display_value": None,
+                }
+                for check_result in error_check_results[page.id]
+            ],
         )
         for page in pages
     ]
@@ -38,6 +55,7 @@ def get_audit_subsections(audit, pages):
             name="Pages",
             complete_date=audit.audit_pages_complete_date,
             fields=page_fields,
+            subsections=page_subsections,
         ),
     ]
     return audit_subsections
@@ -97,12 +115,23 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
     Comment = apps.get_model("comments", "Comment")
     Audit = apps.get_model("audits", "Audit")
     Page = apps.get_model("audits", "Page")
+    WcagDefinition = apps.get_model("audits", "WcagDefinition")
+    wcag_definitions = {
+        wcag_definition.id: wcag_definition
+        for wcag_definition in WcagDefinition.objects.all()
+    }
     CheckResult = apps.get_model("audits", "CheckResult")
     StatementCheckResult = apps.get_model("audits", "StatementCheckResult")
     for case in Case.objects.filter(archive="").filter(report_methodology="odt"):
         comments = Comment.objects.filter(case=case).order_by("-created_date")
         audit = Audit.objects.filter(case=case).first()
         pages = Page.objects.filter(audit=audit).exclude(url="")
+        error_check_results = {
+            page.id: CheckResult.objects.filter(page=page).filter(
+                check_result_state="error"
+            )
+            for page in pages
+        }
         if audit is None:
             print(f"{case} has no audit")
         sections = [
@@ -170,7 +199,9 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                 name="Testing details",
                 complete_date=case.testing_details_complete_date,
                 fields=[],
-                subsections=get_audit_subsections(audit, pages)
+                subsections=get_audit_subsections(
+                    audit, pages, error_check_results, wcag_definitions
+                )
                 if audit is not None
                 else [],
             ),

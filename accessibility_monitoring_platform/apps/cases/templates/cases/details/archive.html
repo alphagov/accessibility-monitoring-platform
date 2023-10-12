@@ -17,6 +17,32 @@
                     <p class="govuk-body-m"><b>{{ archived_section.name }}</b></p>
                 </div>
             </div>
+            {% if archived_section.subsections %}
+                <div class="amp-left-border">
+                    <ul class="govuk-list amp-margin-bottom-5">
+                        {% for subsection in archived_section.subsections %}
+                            <li>
+                                <a href="#{{ subsection.name|slugify }}" class="govuk-link govuk-link--no-visited-state">
+                                    {{ subsection.name }}{% if subsection.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                                {% if subsection.complete %}&check;{% endif %}
+                            </li>
+                            {% if subsection.subsections %}
+                                <li>
+                                    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                                        {% for subsubsection in subsection.subsections %}
+                                            <li>
+                                                <a href="#{{ subsubsection.name|slugify }}" class="govuk-link govuk-link--no-visited-state">
+                                                    {{ subsubsection.name }}{% if subsubsection.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                                                {% if subsubsection.complete %}&check;{% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
             <table class="govuk-table amp-accordion-table">
                 <tbody class="govuk-table__body">
                     {% for archived_field in archived_section.fields %}
@@ -43,7 +69,7 @@
                 </tbody>
             </table>
             {% for subsection in archived_section.subsections %}
-                <p class="govuk-body-m"><b>{{ subsection.name }}</b></p>
+                <p id="{{ subsection.name|slugify }}" class="govuk-body-m"><b>{{ subsection.name }}</b></p>
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
                         {% for archived_field in subsection.fields %}
@@ -69,6 +95,34 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                {% for subsubsection in subsection.subsections %}
+                    <p id="{{ subsubsection.name|slugify }}" class="govuk-body-m"><b>{{ subsubsection.name }}</b></p>
+                    <table class="govuk-table">
+                        <tbody class="govuk-table__body">
+                            {% for archived_field in subsubsection.fields %}
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ archived_field.label }}</th>
+                                    <td class="govuk-table__cell amp-width-one-half{% if archived_field.data_type == 'markdown' %} amp-notes{% endif %}">
+                                        {% if archived_field.data_type == 'link' %}
+                                            {% if archived_field.value %}
+                                                <a href="{{ archived_field.value }}"
+                                                    rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                                    {% if archived_field.display_value %}{{ archived_field.display_value }}{% else %}{{ archived_field.value }}{% endif %}
+                                                </a>
+                                            {% else %}
+                                                None
+                                            {% endif %}
+                                        {% elif archived_field.data_type == 'markdown' %}
+                                            {% if archived_field.value %}{{ archived_field.value|markdown_to_html }}{% endif %}
+                                        {% else %}
+                                            {% if archived_field.display_value %}{{ archived_field.display_value }}{% else %}{{ archived_field.value }}{% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
             {% endfor %}
         </div>
     </div>
