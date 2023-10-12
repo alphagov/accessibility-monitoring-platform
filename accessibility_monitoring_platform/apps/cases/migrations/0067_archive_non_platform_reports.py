@@ -12,7 +12,7 @@ from ...common.archive_utils import build_field, build_section
 from ...common.templatetags.common_tags import amp_datetime
 
 
-def get_audit_subsections(audit, pages, error_check_results, wcag_definitions):
+def get_audit_subsections(case, audit, pages, error_check_results, wcag_definitions):
     """Find audit and return data as subsections"""
     page_fields = [
         build_field(
@@ -56,6 +56,86 @@ def get_audit_subsections(audit, pages, error_check_results, wcag_definitions):
             complete_date=audit.audit_pages_complete_date,
             fields=page_fields,
             subsections=page_subsections,
+        ),
+        build_section(
+            name="Website compliance decision",
+            complete_date=audit.audit_website_decision_complete_date,
+            fields=[
+                build_field(
+                    case,
+                    field_name="website_compliance_state_initial",
+                    label="Initial website compliance decision",
+                ),
+                build_field(
+                    case,
+                    field_name="compliance_decision_notes",
+                    label="Initial website compliance notes",
+                    data_type="markdown",
+                ),
+            ],
+        ),
+        build_section(
+            name="Accessibility statement Pt. 1",
+            complete_date=audit.archive_audit_statement_1_complete_date,
+            fields=[
+                build_field(
+                    audit,
+                    field_name="accessibility_statement_backup_url",
+                    label="Link to saved accessibility statement",
+                    data_type="link",
+                ),
+                build_field(audit, field_name="archive_scope_state", label="Scope"),
+                build_field(
+                    audit,
+                    field_name="archive_scope_notes",
+                    label="Notes",
+                    data_type="markdown",
+                ),
+                build_field(
+                    audit, field_name="archive_feedback_state", label="Feedback"
+                ),
+                build_field(audit, field_name="archive_feedback_notes", label="Notes"),
+                build_field(
+                    audit,
+                    field_name="archive_contact_information_state",
+                    label="Contact Information",
+                ),
+                build_field(
+                    audit, field_name="archive_contact_information_notes", label="Notes"
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_enforcement_procedure_state",
+                    label="Enforcement Procedure",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_enforcement_procedure_notes",
+                    label="Notes",
+                ),
+                build_field(
+                    audit, field_name="archive_declaration_state", label="Declaration"
+                ),
+                build_field(
+                    audit, field_name="archive_declaration_notes", label="Notes"
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_compliance_state",
+                    label="Compliance Status",
+                ),
+                build_field(
+                    audit, field_name="archive_compliance_notes", label="Notes"
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_non_regulation_state",
+                    label="Non-accessible Content - non compliance with regulations",
+                ),
+                build_field(
+                    audit, field_name="archive_non_regulation_notes", label="Notes"
+                ),
+            ],
         ),
     ]
     return audit_subsections
@@ -200,7 +280,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                 complete_date=case.testing_details_complete_date,
                 fields=[],
                 subsections=get_audit_subsections(
-                    audit, pages, error_check_results, wcag_definitions
+                    case, audit, pages, error_check_results, wcag_definitions
                 )
                 if audit is not None
                 else [],

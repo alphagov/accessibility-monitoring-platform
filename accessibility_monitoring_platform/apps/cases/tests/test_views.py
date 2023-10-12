@@ -234,7 +234,7 @@ def test_archived_case_view_case_includes_sections(admin_client):
     )
     assertContains(
         response,
-        """<p class="govuk-body-m"><b>Archived subsection a</b></p>""",
+        """<p id="archived-subsection-a" class="govuk-body-m"><b>Archived subsection a</b></p>""",
         html=True,
     )
     assertContains(
