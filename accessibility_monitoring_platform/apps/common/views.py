@@ -1,6 +1,7 @@
 """
 Common views
 """
+from datetime import date, datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import logging
 
@@ -18,6 +19,7 @@ from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
+from ..common.models import Event
 
 from .forms import (
     AMPContactAdminForm,
@@ -55,6 +57,7 @@ from .utils import (
     record_model_create_event,
     extract_domain_from_url,
     sanitise_domain,
+    get_one_year_ago,
 )
 
 logger = logging.getLogger(__name__)
@@ -389,7 +392,26 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
         """Only staff users have access to this view"""
         return self.request.user.is_staff
 
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        number_of_old_events: int = Event.objects.filter(
+            created__lte=get_one_year_ago()
+        ).count()
+        context["number_of_old_events"] = number_of_old_events
+        return context
+
     def form_valid(self, form):
+        if "delete_old_events" in self.request.POST:
+            one_year_ago: datetime = get_one_year_ago()
+            number_of_old_events: int = Event.objects.filter(
+                created__lte=one_year_ago
+            ).count()
+            Event.objects.filter(created__lte=one_year_ago).delete()
+            logger.warn(
+                f"{self.request.user.email} deleted {number_of_old_events:,} old events",
+            )
+            return super().form_valid(form)
         if "trigger_400" in self.request.POST:
             raise BadRequest
         if "trigger_403" in self.request.POST:
