@@ -19,11 +19,6 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <p class="govuk-body-m">
-                    <a href="{% url 'cases:edit-contact-details' audit.case.id %}"
-                        rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                        Open contact details page in new tab</a>
-                </p>
                 <form method="post" action="{% url 'audits:edit-statement-feedback' audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
