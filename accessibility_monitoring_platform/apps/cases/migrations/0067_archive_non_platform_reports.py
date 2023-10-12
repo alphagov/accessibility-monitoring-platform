@@ -137,6 +137,204 @@ def get_audit_subsections(case, audit, pages, error_check_results, wcag_definiti
                 ),
             ],
         ),
+        build_section(
+            name="Accessibility statement Pt. 2",
+            complete_date=audit.archive_audit_statement_2_complete_date,
+            fields=[
+                build_field(
+                    audit,
+                    field_name="accessibility_statement_backup_url",
+                    label="Link to saved accessibility statement",
+                    data_type="link",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_disproportionate_burden_state",
+                    label="Non-accessible Content - disproportionate burden",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_disproportionate_burden_notes",
+                    label="Notes",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_content_not_in_scope_state",
+                    label="Non-accessible Content - the content is not within the scope of the applicable legislation",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_content_not_in_scope_notes",
+                    label="Notes",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_preparation_date_state",
+                    label="Preparation Date",
+                ),
+                build_field(
+                    audit, field_name="archive_preparation_date_notes", label="Notes"
+                ),
+                build_field(audit, field_name="archive_review_state", label="Review"),
+                build_field(audit, field_name="archive_review_notes", label="Notes"),
+                build_field(audit, field_name="archive_method_state", label="Method"),
+                build_field(audit, field_name="archive_method_notes", label="Notes"),
+                build_field(
+                    audit,
+                    field_name="archive_access_requirements_state",
+                    label="Access Requirements",
+                ),
+                build_field(
+                    audit, field_name="archive_access_requirements_notes", label="Notes"
+                ),
+            ],
+        ),
+        build_section(
+            name="Accessibility statement compliance decision",
+            complete_date=audit.archive_audit_statement_decision_complete_date,
+            fields=[
+                build_field(
+                    case,
+                    field_name="accessibility_statement_state",
+                    label="Initial accessibility statement compliance decision",
+                ),
+                build_field(
+                    case,
+                    field_name="accessibility_statement_notes",
+                    label="Initial accessibility statement compliance notes",
+                    data_type="markdown",
+                ),
+            ],
+        ),
+        build_section(
+            name="Report options",
+            complete_date=audit.archive_audit_report_options_complete_date,
+            fields=[
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_state",
+                    label="Accessibility statement",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_not_correct_format",
+                    label="it was not in the correct format",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_not_specific_enough",
+                    label="it was not specific enough",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_missing_accessibility_issues",
+                    label="accessibility issues were found during the test that were not included in the statement",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_missing_mandatory_wording",
+                    label="mandatory wording is missing",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_missing_mandatory_wording_notes",
+                    label="Additional text for mandatory wording",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_needs_more_re_disproportionate",
+                    label="we require more information covering the disproportionate burden claim",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_needs_more_re_accessibility",
+                    label="it required more information detailing the accessibility issues",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_deadline_not_complete",
+                    label="it includes a deadline of XXX for fixing XXX issues and this has not been completed",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_deadline_not_complete_wording",
+                    label="Wording for missed deadline",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_deadline_not_sufficient",
+                    label="it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_deadline_not_sufficient_wording",
+                    label="Wording for insufficient deadline",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_out_of_date",
+                    label="it is out of date and needs to be reviewed",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_eass_link",
+                    label="it must link directly to the Equality Advisory and Support Service (EASS) website",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_template_update",
+                    label="it is a requirement that accessibility statements are accessible. Some users may experience difficulties using PDF documents. It may be beneficial for users if there was a HTML version of your full accessibility statement.",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_accessible",
+                    label="in 2020 the GOV.UK sample template was updated to include an extra  mandatory piece of information to outline the scope of your accessibility statement. This needs to be added to your statement.",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_prominent",
+                    label="your statement should be prominently placed on the homepage of the website  or made available on every web page, for example in a static header or footer, as per the legislative requirement.",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_accessibility_statement_report_text_wording",
+                    label="Extra wording for report",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_report_options_next",
+                    label="What to do next",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_report_next_change_statement",
+                    label="They have an acceptable statement but need to change it because of the errors we found",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_report_next_no_statement",
+                    label="They don’t have a statement, or it is in the wrong format",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_report_next_statement_not_right",
+                    label="They have a statement but it is not quite right",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_report_next_statement_matches",
+                    label="Their statement matches",
+                ),
+                build_field(
+                    audit,
+                    field_name="archive_report_next_disproportionate_burden",
+                    label="Disproportionate burden",
+                ),
+                build_field(
+                    audit, field_name="archive_report_options_notes", label="Notes"
+                ),
+            ],
+        ),
     ]
     return audit_subsections
 
