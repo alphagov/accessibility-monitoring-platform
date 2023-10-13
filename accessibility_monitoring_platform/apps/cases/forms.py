@@ -635,3 +635,15 @@ class CaseDeactivateForm(VersionForm):
             "version",
             "deactivate_notes",
         ]
+
+
+class CaseStatementEnforcementUpdateForm(VersionForm):
+    """
+    Form to update statement enforcement
+    """
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+        ]

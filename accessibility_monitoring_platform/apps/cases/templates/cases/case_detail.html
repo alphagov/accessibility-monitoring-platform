@@ -236,15 +236,11 @@
                         </div>
                     </div>
                 {% endif %}
-                <div class="govuk-accordion__section" data-search-target-page-name="Equality body summary" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-enforcement-body-correspondence' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="Equality body metadata" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-equality-body-metadata' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="enforcement-body-correspondence" class="govuk-accordion__section-heading">
-                            <span class="govuk-accordion__section-button" id="accordion-heading-enforcement-body-correspondence">
-                                Equality body summary
-                                {% if case.enforcement_correspondence_complete_date %}
-                                    <span class="govuk-visually-hidden">complete</span>
-                                    &check;
-                                {% endif %}
+                            <span class="govuk-accordion__section-button" id="accordion-heading-equality-body-metadata">
+                                Equality body metadata
                             </span>
                         </h2>
                     </div>

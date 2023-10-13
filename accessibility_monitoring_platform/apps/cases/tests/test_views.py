@@ -982,28 +982,6 @@ def test_updating_case_creates_case_event(admin_client):
             "save_continue",
             "cases:edit-case-close",
         ),
-        ("cases:edit-case-close", "save", "cases:edit-case-close"),
-        (
-            "cases:edit-case-close",
-            "save_continue",
-            "cases:edit-enforcement-body-correspondence",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "save",
-            "cases:edit-enforcement-body-correspondence",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "save_continue",
-            "cases:edit-post-case",
-        ),
-        ("cases:edit-post-case", "save", "cases:edit-post-case"),
-        (
-            "cases:edit-post-case",
-            "save_exit",
-            "cases:case-detail",
-        ),
     ],
 )
 def test_platform_case_edit_redirects_based_on_button_pressed(
@@ -1561,12 +1539,6 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "edit-twelve-week-retest",
         ),
         ("case_close_complete_date", "Closing the case", "edit-case-close"),
-        (
-            "enforcement_correspondence_complete_date",
-            "Equality body summary",
-            "edit-enforcement-body-correspondence",
-        ),
-        ("post_case_complete_date", "Post case summary", "edit-post-case"),
     ],
 )
 def test_section_complete_check_displayed(
@@ -1638,12 +1610,6 @@ def test_section_complete_check_displayed(
             "Reviewing changes",
         ),
         ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "enforcement_correspondence_complete_date",
-            "Equality body summary",
-        ),
-        ("cases:edit-post-case", "post_case_complete_date", "Post case summary"),
     ],
 )
 def test_section_complete_check_displayed_in_steps_platform_methodology(
@@ -2024,8 +1990,6 @@ def test_case_details_includes_no_link_to_report(admin_client):
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
-        "edit-enforcement-body-correspondence",
-        "edit-post-case",
     ],
 )
 def test_case_details_shows_edit_links(
@@ -2119,8 +2083,6 @@ def test_qa_process_approval_notifies_auditor(rf):
         ("trello_url", "edit-twelve-week-correspondence"),
         ("zendesk_url", "edit-review-changes"),
         ("zendesk_url", "edit-case-close"),
-        ("trello_url", "edit-enforcement-body-correspondence"),
-        ("zendesk_url", "edit-post-case"),
     ],
 )
 def test_frequently_used_links_displayed_in_edit(
@@ -2380,8 +2342,6 @@ def test_update_case_checks_version(admin_client):
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
-        "edit-enforcement-body-correspondence",
-        "edit-post-case",
     ],
 )
 def test_platform_shows_notification_if_fully_compliant(
@@ -2880,24 +2840,6 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "case_completed",
             CASE_COMPLETED_SEND,
         ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "Date sent to equality body requires a date",
-            "sent_to_enforcement_body_sent_date",
-            TODAY,
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "Equality body pursuing this case? should either be 'Yes, completed' or 'Yes, in progress'",
-            "enforcement_body_pursuing",
-            ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "Equality body pursuing this case? should be 'Yes, completed'",
-            "enforcement_body_pursuing",
-            ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
-        ),
     ],
 )
 def test_status_workflow_page(path_name, label, field_name, field_value, admin_client):
@@ -2998,103 +2940,59 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     )
 
 
-def test_case_steps_shown_when_platform_testing(admin_client):
-    """
-    Test case steps shown when testing methodology is platform.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-enforcement-body-correspondence", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>""",
-        html=True,
-    )
-    assertNotContains(
-        response,
-        """<h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>""",
-        html=True,
-    )
-
-
 @pytest.mark.parametrize(
     "edit_case_url_name, nav_link_name,nav_link_label",
     [
         (
-            "cases:edit-enforcement-body-correspondence",
             "cases:edit-case-details",
-            "Case details",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
             "cases:edit-test-results",
             "Testing details",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-report-details",
             "Report details",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-qa-process",
             "QA process",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-contact-details",
             "Contact details",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-report-correspondence",
             "Report correspondence",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-twelve-week-correspondence",
             "12-week correspondence",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-twelve-week-retest",
             "12-week retest",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-review-changes",
             "Reviewing changes",
         ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-case-close",
-            "Closing the case",
-        ),
-        (
-            "cases:edit-post-case",
-            "cases:edit-enforcement-body-correspondence",
-            "Equality body summary",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-post-case",
-            "Post case summary",
-        ),
     ],
 )
-def test_navigation_links_shown_when_platform_testing(
+def test_navigation_links_shown(
     edit_case_url_name,
     nav_link_name,
     nav_link_label,
     admin_client,
 ):
     """
-    Test case steps' navigation links are shown when testing methodology is
-    platform.
+    Test case steps' navigation links are shown
     """
     case: Case = Case.objects.create()
     nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})

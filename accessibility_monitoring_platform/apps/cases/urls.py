@@ -29,12 +29,16 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseReviewChangesUpdateView,
     CaseCloseUpdateView,
     PostCaseUpdateView,
-    CaseEnforcementBodyCorrespondenceUpdateView,
+    CaseLegacyEndOfCaseUpdateView,
     CaseDeactivateUpdateView,
     CaseReactivateUpdateView,
     CaseStatusWorkflowDetailView,
     CaseOutstandingIssuesDetailView,
     CaseOutstandingIssuesEmailTemplateView,
+    CaseStatementEnforcementUpdateView,
+    CaseEqualityBodyMetadataUpdateView,
+    CaseEqualityBodyCorrespondenceUpdateView,
+    CaseRetestOverviewUpdateView,
 )
 
 app_name: str = "cases"
@@ -131,11 +135,6 @@ urlpatterns: List[URLPattern] = [
         name="edit-case-close",
     ),
     path(
-        "<int:pk>/edit-enforcement-body-correspondence/",
-        login_required(CaseEnforcementBodyCorrespondenceUpdateView.as_view()),
-        name="edit-enforcement-body-correspondence",
-    ),
-    path(
         "<int:pk>/edit-post-case/",
         login_required(PostCaseUpdateView.as_view()),
         name="edit-post-case",
@@ -164,5 +163,30 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/outstanding-issues-email/",
         login_required(CaseOutstandingIssuesEmailTemplateView.as_view()),
         name="outstanding-issues-email",
+    ),
+    path(
+        "<int:pk>/statement-enforcement/",
+        login_required(CaseStatementEnforcementUpdateView.as_view()),
+        name="edit-statement-enforcement",
+    ),
+    path(
+        "<int:pk>/equality-body-metadata/",
+        login_required(CaseEqualityBodyMetadataUpdateView.as_view()),
+        name="edit-equality-body-metadata",
+    ),
+    path(
+        "<int:pk>/equality-body-correspondence/",
+        login_required(CaseEqualityBodyCorrespondenceUpdateView.as_view()),
+        name="edit-equality-body-correspondence",
+    ),
+    path(
+        "<int:pk>/retest-overview/",
+        login_required(CaseRetestOverviewUpdateView.as_view()),
+        name="edit-retest-overview",
+    ),
+    path(
+        "<int:pk>/legacy-end-of-case/",
+        login_required(CaseLegacyEndOfCaseUpdateView.as_view()),
+        name="legacy-end-of-case",
     ),
 ]

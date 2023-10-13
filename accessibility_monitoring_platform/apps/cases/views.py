@@ -77,6 +77,7 @@ from .forms import (
     PostCaseUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
     CaseDeactivateForm,
+    CaseStatementEnforcementUpdateForm,
 )
 from .utils import (
     get_sent_date,
@@ -813,25 +814,7 @@ class CaseCloseUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-enforcement-body-correspondence", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
-    """
-    View to note correspondence with enforcement body
-    """
-
-    form_class: Type[
-        CaseEnforcementBodyCorrespondenceUpdateForm
-    ] = CaseEnforcementBodyCorrespondenceUpdateForm
-    template_name: str = "cases/forms/enforcement_body_correspondence.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-post-case", kwargs=case_pk)
+            return reverse("cases:edit-equality-body-summary", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -947,3 +930,65 @@ def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:
     )
     case_search_form.is_valid()
     return download_feedback_survey_cases(cases=filter_cases(form=case_search_form))
+
+
+class CaseStatementEnforcementUpdateView(CaseUpdateView):
+    """
+    View of statement enforcement
+    """
+
+    form_class: Type[
+        CaseStatementEnforcementUpdateForm
+    ] = CaseStatementEnforcementUpdateForm
+    template_name: str = "cases/forms/statement_enforcement.html"
+
+
+class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
+    """
+    View of equality body metadata
+    """
+
+    form_class: Type[
+        CaseStatementEnforcementUpdateForm
+    ] = CaseStatementEnforcementUpdateForm
+    template_name: str = "cases/forms/equality_body_metadata.html"
+
+
+class CaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
+    """
+    View of equality body metadata
+    """
+
+    form_class: Type[
+        CaseStatementEnforcementUpdateForm
+    ] = CaseStatementEnforcementUpdateForm
+    template_name: str = "cases/forms/equality_body_correspondence.html"
+
+
+class CaseRetestOverviewUpdateView(CaseUpdateView):
+    """
+    View of equality body metadata
+    """
+
+    form_class: Type[
+        CaseStatementEnforcementUpdateForm
+    ] = CaseStatementEnforcementUpdateForm
+    template_name: str = "cases/forms/retest_overview.html"
+
+
+class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
+    """
+    View to note correspondence with enforcement body
+    """
+
+    form_class: Type[
+        CaseStatementEnforcementUpdateForm
+    ] = CaseStatementEnforcementUpdateForm
+    template_name: str = "cases/forms/legacy_end_of_case.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("cases:edit-post-case", kwargs=case_pk)
+        return super().get_success_url()
