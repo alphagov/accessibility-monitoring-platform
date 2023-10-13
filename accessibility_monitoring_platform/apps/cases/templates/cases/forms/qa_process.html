@@ -59,7 +59,7 @@
                             </details>
                             {% include 'common/amp_field.html' with field=form.reviewer %}
                             {% include 'common/amp_field.html' with field=form.report_approved_status %}
-                            {% if case.report_methodology == 'platform' and case.report %}
+                            {% if case.report %}
                                 <div class="govuk-form-group">
                                     <label class="govuk-label"><b>Published report</b></label>
                                     <div class="govuk-hint">
@@ -74,10 +74,6 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                            {% endif %}
-                            {% if case.report_methodology != 'platform' %}
-                                {% include 'common/amp_field.html' with field=form.report_final_odt_url %}
-                                {% include 'common/amp_field.html' with field=form.report_final_pdf_url %}
                             {% endif %}
                             {% include 'common/amp_field.html' with field=form.qa_process_complete_date %}
                         </div>

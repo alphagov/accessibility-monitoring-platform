@@ -13,64 +13,58 @@
 </div>
 <table class="govuk-table amp-accordion-table">
     <tbody class="govuk-table__body">
-        {% if case.report_methodology == 'platform' %}
+        {% if case.report %}
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Preview report</th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {% if case.report %}
+                        {% include 'cases/helpers/report_link_draft.html' %}
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">View published HTML report</th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {% if case.report.latest_s3_report %}
+                        <a id="latest_s3_report" href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                            {{ case.report.latest_s3_report }}
+                        </a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+            </tr>
             {% if case.report %}
                 <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Preview report</th>
+                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Report views</th>
                     <td class="govuk-table__cell amp-width-one-half">
-                        {% if case.report %}
-                            {% include 'cases/helpers/report_link_draft.html' %}
-                        {% else %}
-                            None
-                        {% endif %}
+                        {{ number_of_visits  }}
+                        (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
                     </td>
                 </tr>
                 <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">View published HTML report</th>
+                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Unique visitors to report</th>
                     <td class="govuk-table__cell amp-width-one-half">
-                        {% if case.report.latest_s3_report %}
-                            <a id="latest_s3_report" href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                {{ case.report.latest_s3_report }}
-                            </a>
-                        {% else %}
-                            None
-                        {% endif %}
+                        {{ number_of_unique_visitors  }}
+                        (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
                     </td>
                 </tr>
-                {% if case.report %}
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Report views</th>
-                        <td class="govuk-table__cell amp-width-one-half">
-                            {{ number_of_visits  }}
-                            (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
-                        </td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Unique visitors to report</th>
-                        <td class="govuk-table__cell amp-width-one-half">
-                            {{ number_of_unique_visitors  }}
-                            (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
-                        </td>
-                    </tr>
-                {% endif %}
-                <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Notes</th>
-                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.report.notes|markdown_to_html }}</td>
-                </tr>
-            {% else %}
-                <p class="govuk-body">
-                    A report does not exist for this case. Create a report in
-                    <a href="{% url 'cases:edit-report-details' case.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                        report details.
-                    </a>
-                </p>
             {% endif %}
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Notes</th>
+                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.report.notes|markdown_to_html }}</td>
+            </tr>
         {% else %}
-            {% for row in report_details_rows %}
-                {% include 'cases/helpers/detail_row.html' with row=row %}
-            {% endfor %}
+            <p class="govuk-body">
+                A report does not exist for this case. Create a report in
+                <a href="{% url 'cases:edit-report-details' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                    report details.
+                </a>
+            </p>
         {% endif %}
     </tbody>
 </table>
