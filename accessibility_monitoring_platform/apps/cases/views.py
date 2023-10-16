@@ -78,6 +78,7 @@ from .forms import (
     CaseEnforcementBodyCorrespondenceUpdateForm,
     CaseDeactivateForm,
     CaseStatementEnforcementUpdateForm,
+    CaseEqualityBodyMetadataUpdateForm,
 )
 from .utils import (
     get_sent_date,
@@ -949,8 +950,8 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
     """
 
     form_class: Type[
-        CaseStatementEnforcementUpdateForm
-    ] = CaseStatementEnforcementUpdateForm
+        CaseEqualityBodyMetadataUpdateForm
+    ] = CaseEqualityBodyMetadataUpdateForm
     template_name: str = "cases/forms/equality_body_metadata.html"
 
 

@@ -211,6 +211,12 @@ ENFORCEMENT_BODY_PURSUING_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS, "Yes, in progress"),
     (ENFORCEMENT_BODY_PURSUING_NO, "No"),
 ]
+ENFORCEMENT_BODY_CLOSED_NO: str = "no"
+ENFORCEMENT_BODY_CLOSED_YES: str = "yes"
+ENFORCEMENT_BODY_CLOSED_CHOICES: List[Tuple[str, str]] = [
+    (ENFORCEMENT_BODY_CLOSED_YES, "Yes"),
+    (ENFORCEMENT_BODY_CLOSED_NO, "No (or don't know)"),
+]
 
 PREFERRED_DEFAULT: str = "unknown"
 PREFERRED_CHOICES: List[Tuple[str, str]] = [
@@ -456,26 +462,34 @@ class Case(VersionModel):
     completed_date = models.DateTimeField(null=True, blank=True)
     case_close_complete_date = models.DateField(null=True, blank=True)
 
-    # Post case
+    # Post case/Statement enforcement
     psb_appeal_notes = models.TextField(default="", blank=True)
     post_case_notes = models.TextField(default="", blank=True)
     post_case_complete_date = models.DateField(null=True, blank=True)
 
     # Equality body pursuit page
     case_updated_date = models.DateField(null=True, blank=True)
-    sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
     enforcement_body_pursuing = models.CharField(
         max_length=20,
         choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
         default=ENFORCEMENT_BODY_PURSUING_NO,
     )
-    enforcement_body_finished_date = models.DateField(null=True, blank=True)
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_retest_document_url = models.TextField(default="", blank=True)
     is_feedback_requested = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
+
+    # Equality body metadata
+    sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
+    enforcement_body_case_owner = models.TextField(default="", blank=True)
+    enforcement_body_closed_case = models.CharField(
+        max_length=20,
+        choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
+        default=ENFORCEMENT_BODY_CLOSED_NO,
+    )
+    enforcement_body_finished_date = models.DateField(null=True, blank=True)
 
     # Deactivate case page
     is_deactivated = models.BooleanField(default=False)

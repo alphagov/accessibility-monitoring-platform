@@ -40,6 +40,7 @@ from .models import (
     TWELVE_WEEK_RESPONSE_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     ENFORCEMENT_BODY_PURSUING_CHOICES,
+    ENFORCEMENT_BODY_CLOSED_CHOICES,
     PSB_LOCATION_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
     RECOMMENDATION_CHOICES,
@@ -642,8 +643,48 @@ class CaseStatementEnforcementUpdateForm(VersionForm):
     Form to update statement enforcement
     """
 
+    post_case_notes = AMPTextField(label="Summary of events after the case was closed")
+    psb_appeal_notes = AMPTextField(label="Public sector body appeal notes")
+
     class Meta:
         model = Case
         fields = [
             "version",
+            "post_case_notes",
+            "psb_appeal_notes",
+        ]
+
+
+class CaseEqualityBodyMetadataUpdateForm(VersionForm):
+    """
+    Form to update equality body metadata
+    """
+
+    sent_to_enforcement_body_sent_date = AMPDateField(
+        label="Date sent to equality body",
+    )
+    enforcement_body_case_owner = AMPCharFieldWide(
+        label="EB case owner (first name only)",
+    )
+    enforcement_body_pursuing = AMPChoiceRadioField(
+        label="Equality body pursuing this case? (OLD)",
+        choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
+    )
+    enforcement_body_closed_case = AMPChoiceRadioField(
+        label="Enforcement body has officially closed the case? (NEW)",
+        choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
+    )
+    enforcement_body_finished_date = AMPDateField(
+        label="Date equality body completed the case",
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "sent_to_enforcement_body_sent_date",
+            "enforcement_body_case_owner",
+            "enforcement_body_pursuing",
+            "enforcement_body_closed_case",
+            "enforcement_body_finished_date",
         ]
