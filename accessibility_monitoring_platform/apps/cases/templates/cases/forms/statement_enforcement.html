@@ -27,9 +27,9 @@
                                 </div>
                             </div>
                             <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Date case was closed</b></label>
+                                <label class="govuk-label"><b>Case completed</b></label>
                                 <div class="govuk-hint">
-                                    <p class="govuk-body-m amp-margin-bottom-10">Unknown</p>
+                                    <p class="govuk-body-m amp-margin-bottom-10">{{ case.completed_date|amp_date }}</p>
                                 </div>
                             </div>
                             {% include 'common/amp_field.html' with field=form.post_case_notes %}

@@ -1,20 +1,30 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ case.organisation_name }} | Equality body correspondence{% endblock %}
+{% block title %}{{ case.organisation_name }} | Add Zendesk ticket{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading='Equality body correspondence' %}
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            {% include 'cases/helpers/breadcrumb_case.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:list-equality-body-correspondence' case.id %}">
+                    Equality body correspondence</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">Add Zendesk ticket</li>
+        </ol>
+    </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Equality body correspondence' %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Add Zendesk ticket' %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'cases:edit-equality-body-correspondence' case.id %}">
+                <form method="post" action="{% url 'cases:create-equality-body-correspondence' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
@@ -28,18 +38,25 @@
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
+                            <input
+                                type="submit"
+                                value="Save and return"
+                                name="save_return"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
                             <a
-                                href="{{ case.get_absolute_url }}"
+                                href="{% url 'cases:list-equality-body-correspondence' case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
-                                Cancel and return to case view
+                                Cancel
                             </a>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-equality-body-correspondence' %}
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:create-equality-body-correspondence' %}
             </div>
         </div>
     </main>

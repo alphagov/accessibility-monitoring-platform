@@ -268,6 +268,17 @@ CLOSED_CASE_STATUSES: List[str] = [
     "deactivated",
 ]
 
+EQUALITY_BODY_CORRESPONDENCE_QUESTION: str = "question"
+EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (EQUALITY_BODY_CORRESPONDENCE_QUESTION, "Question"),
+    ("request-retest", "Retest request"),
+]
+EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED: str = "outstanding"
+EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES: List[Tuple[str, str]] = [
+    (EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED, "Unresolved"),
+    ("resolved", "Resolved"),
+]
+
 
 class Case(VersionModel):
     """
@@ -939,7 +950,6 @@ class Contact(models.Model):
         max_length=20, choices=PREFERRED_CHOICES, default=PREFERRED_DEFAULT
     )
     created = models.DateTimeField()
-    created_by = models.CharField(max_length=200, default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
 
@@ -981,3 +991,44 @@ class CaseEvent(models.Model):
 
     def __str__(self) -> str:
         return str(f"{self.case.organisation_name}: {self.message}")
+
+
+class EqualityBodyCorrespondence(models.Model):
+    """
+    Model for cases equality body correspondence
+    """
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    type = models.CharField(
+        max_length=20,
+        choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
+        default=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+    )
+    message = models.TextField(default="", blank=True)
+    notes = models.TextField(default="", blank=True)
+    zendesk_url = models.TextField(default="", blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES,
+        default=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+    )
+    created = models.DateTimeField()
+    updated = models.DateTimeField()
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return self.message[:100]
+
+    def get_absolute_url(self) -> str:
+        return reverse(
+            "cases:list-equality-body-correspondence", kwargs={"pk": self.case.id}
+        )
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        if not self.id:
+            self.created = timezone.now()
+        super().save(*args, **kwargs)

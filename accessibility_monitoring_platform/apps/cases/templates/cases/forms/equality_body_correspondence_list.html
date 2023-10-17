@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ case.organisation_name }} | Equality body correspondence{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading='Equality body correspondence' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Equality body correspondence' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'cases:list-equality-body-correspondence' case.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <a
+                                href="{% url 'cases:create-equality-body-correspondence' case.id %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            >
+                                Add Zendesk ticket
+                            </a>
+                            <input
+                                type="submit"
+                                value="View unresolved correspondence"
+                                name="view_unresolved"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                        </div>
+                        <div class="govuk-grid-column-full">
+                            <hr class="amp-width-100 amp-margin-bottom-30" />
+                            {% for equality_body_correspondence in case.equalitybodycorrespondence_set.all %}
+                                <h2 class="govuk-heading-m">Zendesk correspondence #{{ forloop.counter }}</h2>
+                                <p class="govuk-body-m">
+                                    <a href="{% url 'cases:edit-equality-body-correspondence' equality_body_correspondence.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        Edit ticket</a>
+                                </p>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Time added to platform</b></p>
+                                <p class="govuk-body-m">{{ equality_body_correspondence.created|amp_datetime }}</p>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Type</b></p>
+                                <p class="govuk-body-m">{{ equality_body_correspondence.get_type_display }}</p>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Zendesk nessage</b></p>
+                                <div class="amp-report-wrapper">{{ equality_body_correspondence.message|markdown_to_html }}</div>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Auditor notes</b></p>
+                                <div class="amp-report-wrapper">{{ equality_body_correspondence.notes|markdown_to_html }}</div>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Link to Zendesk ticket</b></p>
+                                <p class="govuk-body-m">
+                                    <a href="{{ equality_body_correspondence.zendesk_url }}" class="govuk-link govuk-link--no-visited-state">
+                                        {{ equality_body_correspondence.zendesk_url }}</a>
+                                </p>
+                                <div class="govuk-button-group">
+                                    <input
+                                        type="submit"
+                                        value="Mark as unresolved"
+                                        name="mark_unresolved_{{ equality_body_correspondence.id }}"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    />
+                                </div>
+                                <hr class="amp-width-100 amp-margin-bottom-30" />
+                            {% endfor %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:list-equality-body-correspondence' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

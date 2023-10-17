@@ -38,7 +38,9 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseStatementEnforcementUpdateView,
     CaseEqualityBodyMetadataUpdateView,
     CaseEqualityBodyCorrespondenceUpdateView,
+    ListCaseEqualityBodyCorrespondenceUpdateView,
     CaseRetestOverviewUpdateView,
+    EqualityBodyCorrespondenceCreateView,
 )
 
 app_name: str = "cases"
@@ -175,7 +177,17 @@ urlpatterns: List[URLPattern] = [
         name="edit-equality-body-metadata",
     ),
     path(
-        "<int:pk>/equality-body-correspondence/",
+        "<int:pk>/list-equality-body-correspondence/",
+        login_required(ListCaseEqualityBodyCorrespondenceUpdateView.as_view()),
+        name="list-equality-body-correspondence",
+    ),
+    path(
+        "<int:case_id>/create-equality-body-correspondence/",
+        login_required(EqualityBodyCorrespondenceCreateView.as_view()),
+        name="create-equality-body-correspondence",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-correspondence/",
         login_required(CaseEqualityBodyCorrespondenceUpdateView.as_view()),
         name="edit-equality-body-correspondence",
     ),

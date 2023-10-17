@@ -33,6 +33,7 @@ from ..common.models import Sector
 from .models import (
     Case,
     Contact,
+    EqualityBodyCorrespondence,
     STATUS_CHOICES,
     CASE_COMPLETED_CHOICES,
     BOOLEAN_CHOICES,
@@ -44,6 +45,7 @@ from .models import (
     PSB_LOCATION_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
     RECOMMENDATION_CHOICES,
+    EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
 )
 
 status_choices = STATUS_CHOICES
@@ -687,4 +689,39 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
             "enforcement_body_pursuing",
             "enforcement_body_closed_case",
             "enforcement_body_finished_date",
+        ]
+
+
+class ListCaseEqualityBodyCorrespondenceUpdateForm(VersionForm):
+    """
+    Form for list equality body correspondence page
+    """
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+        ]
+
+
+class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
+    """
+    Form for creating an EqualityBodyCorrespondence
+    """
+
+    type = AMPChoiceRadioField(
+        label="Type",
+        choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
+    )
+    message = AMPTextField(label="Message/content")
+    notes = AMPTextField(label="Notes")
+    zendesk_url = AMPURLField(label="Link to Zendesk ticket")
+
+    class Meta:
+        model = EqualityBodyCorrespondence
+        fields = [
+            "type",
+            "message",
+            "notes",
+            "zendesk_url",
         ]

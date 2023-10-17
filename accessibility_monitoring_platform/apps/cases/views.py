@@ -53,6 +53,7 @@ from ..reports.utils import build_issues_tables
 from .models import (
     Case,
     Contact,
+    EqualityBodyCorrespondence,
     REPORT_APPROVED_STATUS_APPROVED,
     REPORT_METHODOLOGY_PLATFORM,
 )
@@ -79,6 +80,8 @@ from .forms import (
     CaseDeactivateForm,
     CaseStatementEnforcementUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
+    ListCaseEqualityBodyCorrespondenceUpdateForm,
+    EqualityBodyCorrespondenceCreateForm,
 )
 from .utils import (
     get_sent_date,
@@ -969,15 +972,85 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
+class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
+    """
+    View of equality body correspondence list
+    """
+
+    form_class: Type[
+        ListCaseEqualityBodyCorrespondenceUpdateForm
+    ] = ListCaseEqualityBodyCorrespondenceUpdateForm
+    template_name: str = "cases/forms/equality_body_correspondence_list.html"
+
+
+class EqualityBodyCorrespondenceCreateView(CreateView):
+    """
+    View to create a case
+    """
+
+    model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
+    form_class: Type[
+        EqualityBodyCorrespondenceCreateForm
+    ] = EqualityBodyCorrespondenceCreateForm
+    context_object_name: str = "equality_body_correspondence"
+    template_name: str = "cases/forms/equality_body_correspondence_create.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = self.case
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        equality_body_correspondence: EqualityBodyCorrespondence = form.save(
+            commit=False
+        )
+        case: Case = Case.objects.get(pk=self.kwargs["case_id"])
+        equality_body_correspondence.case = case
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Record creation of object and return to equality body correspondence page"""
+        record_model_create_event(user=self.request.user, model_object=self.object)
+        case_pk: Dict[str, int] = {"pk": self.object.case.id}  # type: ignore
+        if "save_return" in self.request.POST:
+            return reverse("cases:list-equality-body-correspondence", kwargs=case_pk)
+        return reverse("cases:edit-equality-body-correspondence", kwargs=case_pk)
+
+
+class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
     """
     View of equality body metadata
     """
 
+    model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
     form_class: Type[
-        CaseStatementEnforcementUpdateForm
-    ] = CaseStatementEnforcementUpdateForm
-    template_name: str = "cases/forms/equality_body_correspondence.html"
+        EqualityBodyCorrespondenceCreateForm
+    ] = EqualityBodyCorrespondenceCreateForm
+    context_object_name: str = "equality_body_correspondence"
+    template_name: str = "cases/forms/equality_body_correspondence_update.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        equality_body_correspondence: EqualityBodyCorrespondence = form.save(
+            commit=False
+        )
+        record_model_update_event(
+            user=self.request.user, model_object=equality_body_correspondence
+        )
+        equality_body_correspondence.save()
+        if "save_return" in self.request.POST:
+            url: str = reverse(
+                "cases:list-equality-body-correspondence",
+                kwargs={"pk": self.object.case.id},
+            )
+        else:
+            url: str = reverse(
+                "cases:edit-equality-body-correspondence", kwargs={"pk": self.object.id}
+            )
+        return HttpResponseRedirect(url)
 
 
 class CaseRetestOverviewUpdateView(CaseUpdateView):
