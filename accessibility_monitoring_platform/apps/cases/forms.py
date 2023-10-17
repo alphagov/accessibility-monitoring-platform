@@ -664,14 +664,14 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
         label="Date sent to equality body",
     )
     enforcement_body_case_owner = AMPCharFieldWide(
-        label="EB case owner (first name only)",
+        label="Equality body case owner (first name only)",
     )
     enforcement_body_pursuing = AMPChoiceRadioField(
         label="Equality body pursuing this case? (OLD)",
         choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
     )
     enforcement_body_closed_case = AMPChoiceRadioField(
-        label="Enforcement body has officially closed the case? (NEW)",
+        label="Equality body has officially closed the case? (NEW)",
         choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
     )
     enforcement_body_finished_date = AMPDateField(

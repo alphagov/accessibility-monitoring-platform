@@ -815,7 +815,7 @@ class CaseCloseUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-equality-body-summary", kwargs=case_pk)
+            return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -943,6 +943,13 @@ class CaseStatementEnforcementUpdateView(CaseUpdateView):
     ] = CaseStatementEnforcementUpdateForm
     template_name: str = "cases/forms/statement_enforcement.html"
 
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("cases:edit-equality-body-metadata", kwargs=case_pk)
+        return super().get_success_url()
+
 
 class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
     """
@@ -953,6 +960,13 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
         CaseEqualityBodyMetadataUpdateForm
     ] = CaseEqualityBodyMetadataUpdateForm
     template_name: str = "cases/forms/equality_body_metadata.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("cases:edit-equality-body-correspondence", kwargs=case_pk)
+        return super().get_success_url()
 
 
 class CaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
