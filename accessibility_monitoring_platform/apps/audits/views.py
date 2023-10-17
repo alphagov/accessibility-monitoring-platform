@@ -796,7 +796,6 @@ class AuditStatement1UpdateView(AuditUpdateView):
             contact: Contact = Contact.objects.create(
                 case=self.object.case,
                 email=form.cleaned_data["add_contact_email"],
-                created_by=self.request.user,
             )
             record_model_create_event(user=self.request.user, model_object=contact)
         return super().form_valid(form)
