@@ -274,9 +274,10 @@ EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("request-retest", "Retest request"),
 ]
 EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED: str = "outstanding"
+EQUALITY_BODY_CORRESPONDENCE_RESOLVED: str = "resolved"
 EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES: List[Tuple[str, str]] = [
     (EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED, "Unresolved"),
-    ("resolved", "Resolved"),
+    (EQUALITY_BODY_CORRESPONDENCE_RESOLVED, "Resolved"),
 ]
 
 

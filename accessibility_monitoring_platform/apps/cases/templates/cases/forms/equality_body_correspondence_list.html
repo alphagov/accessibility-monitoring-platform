@@ -16,6 +16,7 @@
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:list-equality-body-correspondence' case.id %}">
                     {% csrf_token %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <a
@@ -27,17 +28,19 @@
                             >
                                 Add Zendesk ticket
                             </a>
-                            <input
-                                type="submit"
-                                value="View unresolved correspondence"
-                                name="view_unresolved"
+                            <a
+                                href="{% url 'cases:list-equality-body-correspondence' case.id %}{% if not show_resolved %}?view=resolved{% endif %}"
+                                role="button"
+                                draggable="false"
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
-                            />
+                            >
+                                View {% if show_resolved %}unresolved{% else %}resolved{% endif %} correspondence
+                            </a>
                         </div>
                         <div class="govuk-grid-column-full">
                             <hr class="amp-width-100 amp-margin-bottom-30" />
-                            {% for equality_body_correspondence in case.equalitybodycorrespondence_set.all %}
+                            {% for equality_body_correspondence in equality_body_correspondences %}
                                 <h2 class="govuk-heading-m">Zendesk correspondence #{{ forloop.counter }}</h2>
                                 <p class="govuk-body-m">
                                     <a href="{% url 'cases:edit-equality-body-correspondence' equality_body_correspondence.id %}" class="govuk-link govuk-link--no-visited-state">
@@ -59,8 +62,8 @@
                                 <div class="govuk-button-group">
                                     <input
                                         type="submit"
-                                        value="Mark as unresolved"
-                                        name="mark_unresolved_{{ equality_body_correspondence.id }}"
+                                        value="Mark as {% if show_resolved %}resolved{% else %}unresolved{% endif %}"
+                                        name="toggle_status_{{ equality_body_correspondence.id }}"
                                         class="govuk-button govuk-button--secondary"
                                         data-module="govuk-button"
                                     />

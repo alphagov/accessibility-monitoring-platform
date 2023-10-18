@@ -56,6 +56,8 @@ from .models import (
     EqualityBodyCorrespondence,
     REPORT_APPROVED_STATUS_APPROVED,
     REPORT_METHODOLOGY_PLATFORM,
+    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
+    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
 )
 from .forms import (
     CaseCreateForm,
@@ -981,6 +983,53 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
         ListCaseEqualityBodyCorrespondenceUpdateForm
     ] = ListCaseEqualityBodyCorrespondenceUpdateForm
     template_name: str = "cases/forms/equality_body_correspondence_list.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        view_url_param: Union[str, None] = self.request.GET.get("view")
+        show_resolved = view_url_param == "resolved"
+        context["show_resolved"] = show_resolved
+        status: str = (
+            EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+            if show_resolved
+            else EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+        )
+        context[
+            "equality_body_correspondences"
+        ] = EqualityBodyCorrespondence.objects.filter(status=status)
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        equality_body_correspondence_id_to_toggle: Optional[
+            int
+        ] = get_id_from_button_name(
+            button_name_prefix="toggle_status_",
+            querydict=self.request.POST,
+        )
+        if equality_body_correspondence_id_to_toggle is not None:
+            equality_body_correspondence: EqualityBodyCorrespondence = (
+                EqualityBodyCorrespondence.objects.get(
+                    id=equality_body_correspondence_id_to_toggle
+                )
+            )
+            if (
+                equality_body_correspondence.status
+                == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+            ):
+                equality_body_correspondence.status = (
+                    EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+                )
+            else:
+                equality_body_correspondence.status = (
+                    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                )
+            record_model_update_event(
+                user=self.request.user, model_object=equality_body_correspondence
+            )
+            equality_body_correspondence.save()
+        return super().form_valid(form)
 
 
 class EqualityBodyCorrespondenceCreateView(CreateView):
