@@ -986,18 +986,21 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add case to context"""
+        case: Case = self.object
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         view_url_param: Union[str, None] = self.request.GET.get("view")
-        show_resolved = view_url_param == "resolved"
-        context["show_resolved"] = show_resolved
-        status: str = (
-            EQUALITY_BODY_CORRESPONDENCE_RESOLVED
-            if show_resolved
-            else EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
-        )
-        context[
-            "equality_body_correspondences"
-        ] = EqualityBodyCorrespondence.objects.filter(status=status)
+        show_unresolved = view_url_param == "unresolved"
+        context["show_unresolved"] = show_unresolved
+        if show_unresolved:
+            context[
+                "equality_body_correspondences"
+            ] = case.equalitybodycorrespondence_set.filter(
+                status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+            )
+        else:
+            context[
+                "equality_body_correspondences"
+            ] = case.equalitybodycorrespondence_set.all()
         return context
 
     def form_valid(self, form: ModelForm):
@@ -1063,10 +1066,14 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
     def get_success_url(self) -> str:
         """Record creation of object and return to equality body correspondence page"""
         record_model_create_event(user=self.request.user, model_object=self.object)
-        case_pk: Dict[str, int] = {"pk": self.object.case.id}  # type: ignore
         if "save_return" in self.request.POST:
-            return reverse("cases:list-equality-body-correspondence", kwargs=case_pk)
-        return reverse("cases:edit-equality-body-correspondence", kwargs=case_pk)
+            return reverse(
+                "cases:list-equality-body-correspondence",
+                kwargs={"pk": self.object.case.id},
+            )
+        return reverse(
+            "cases:edit-equality-body-correspondence", kwargs={"pk": self.object.id}
+        )
 
 
 class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):

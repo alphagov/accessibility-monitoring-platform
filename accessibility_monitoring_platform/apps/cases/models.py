@@ -1000,6 +1000,7 @@ class EqualityBodyCorrespondence(models.Model):
     """
 
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=1, blank=True)
     type = models.CharField(
         max_length=20,
         choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
@@ -1032,4 +1033,7 @@ class EqualityBodyCorrespondence(models.Model):
         self.updated = timezone.now()
         if not self.id:
             self.created = timezone.now()
+            self.id_within_case = (
+                self.case.equalitybodycorrespondence_set.all().count() + 1
+            )
         super().save(*args, **kwargs)
