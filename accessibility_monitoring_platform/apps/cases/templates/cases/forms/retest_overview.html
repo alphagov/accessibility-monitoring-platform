@@ -38,7 +38,7 @@
                         {% for equality_body_retest in equality_body_retests %}
                             <h2 class="govuk-heading-m">Retest #{{ equality_body_retest.id_within_case }}</h2>
                             <p class="govuk-body-m">
-                                <a href="{% url 'cases:edit-equality-body-correspondence' equality_body_retest.id %}" class="govuk-link govuk-link--no-visited-state">
+                                <a href="{% url 'audits:retest-metadata-update' equality_body_retest.id %}" class="govuk-link govuk-link--no-visited-state">
                                     Edit retest</a>
                             </p>
                             <p class="govuk-body-m amp-margin-bottom-5"><b>Date of retest</b></p>

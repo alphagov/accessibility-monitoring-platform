@@ -1321,7 +1321,7 @@ class Retest(VersionModel):
 
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     id_within_case = models.IntegerField(default=1, blank=True)
-    created = models.DateField(null=True, blank=True)
+    date_of_retest = models.DateField(default=date.today)
     retest_notes = models.TextField(default="", blank=True)
     retest_compliance_state = models.CharField(
         max_length=20,
@@ -1330,6 +1330,7 @@ class Retest(VersionModel):
     )
     compliance_notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
+    complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]
@@ -1362,6 +1363,15 @@ class Retest(VersionModel):
                 .count()
             )
         return fixed_checks_count
+
+    @property
+    def previous_retest(self):
+        """Return previous retest"""
+        if self.id_within_case > 1:
+            return Retest.objects.get(
+                case=self.case, id_within_case=self.id_within_case - 1
+            )
+        return None
 
 
 class RetestPage(models.Model):

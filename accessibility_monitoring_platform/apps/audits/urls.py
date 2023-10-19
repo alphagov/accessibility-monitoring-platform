@@ -48,6 +48,7 @@ from .views import (
     StatementCheckListView,
     StatementCheckCreateView,
     StatementCheckUpdateView,
+    RetestMetadataUpdateView,
     create_audit,
     delete_page,
     restore_page,
@@ -292,5 +293,10 @@ urlpatterns: List[URLPattern] = [
         "create-equality-body-retest/<int:case_id>/",
         login_required(create_equality_body_retest),
         name="create-equality-body-retest",
+    ),
+    path(
+        "<int:pk>/retest-metadata-update/",
+        login_required(RetestMetadataUpdateView.as_view()),
+        name="retest-metadata-update",
     ),
 ]

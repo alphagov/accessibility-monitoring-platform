@@ -1,0 +1,8 @@
+<nav role="navigation">
+    {% include "cases/helpers/status_requirements.html" with case=retest.case %}
+    <h2 class="govuk-heading-m amp-margin-bottom-5">Retest steps</h2>
+    <ul class="govuk-list">
+        {% include './nav_step.html' with edit_name='audits:retest-metadata-update' name='Retest metadata' complete=retest.complete_date %}
+    </ul>
+    {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=retest.case %}
+</nav>

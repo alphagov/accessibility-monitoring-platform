@@ -57,6 +57,7 @@ from .models import (
     StatementCheckResult,
     STATEMENT_CHECK_CHOICES,
     STATEMENT_CHECK_TYPE_CHOICES,
+    Retest,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
@@ -1434,4 +1435,22 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
             "type",
             "success_criteria",
             "report_text",
+        ]
+
+
+class RetestUpdateForm(forms.ModelForm):
+    """
+    Form for updating equality body retest metadata
+    """
+
+    date_of_retest = AMPDateField(label="Date of retest")
+    retest_notes = AMPTextField(label="Retest notes")
+    complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: List[str] = [
+            "date_of_retest",
+            "retest_notes",
+            "complete_date",
         ]
