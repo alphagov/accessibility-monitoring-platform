@@ -54,6 +54,7 @@ def reset_accessibility_statement_states(
 
 class Migration(migrations.Migration):
     dependencies = [
+        ("audits", "0031_alter_statementcheckresult_options"),
         ("cases", "0062_remove_contact_notes"),
     ]
 
