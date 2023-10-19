@@ -1022,7 +1022,7 @@ class EqualityBodyCorrespondence(models.Model):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return self.message[:100]
+        return str(f"Equality body correspondence #{self.id_within_case}")
 
     def get_absolute_url(self) -> str:
         return reverse(

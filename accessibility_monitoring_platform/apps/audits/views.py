@@ -106,6 +106,7 @@ from .models import (
     STATEMENT_CHECK_TYPE_FEEDBACK,
     STATEMENT_CHECK_TYPE_CUSTOM,
     STATEMENT_CHECK_NO,
+    Retest,
 )
 from .utils import (
     create_or_update_check_results_for_page,
@@ -118,6 +119,7 @@ from .utils import (
     report_data_updated,
     get_test_view_tables_context,
     get_retest_view_tables_context,
+    create_checkresults_for_retest,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -1613,3 +1615,22 @@ class StatementCheckUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Return to list of statement checks"""
         return reverse("audits:statement-check-list")
+
+
+def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpResponse:
+    """
+    Create equality body retest.
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        case_id (int): Id of parent case
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    case: Case = get_object_or_404(Case, id=case_id)
+    id_within_case: int = case.retest_set.all().count() + 1
+    retest: Retest = Retest.objects.create(case=case, id_within_case=id_within_case)
+    record_model_create_event(user=request.user, model_object=retest)
+    create_checkresults_for_retest(retest=retest)
+    return redirect(reverse("cases:edit-retest-overview", kwargs={"pk": case.id}))

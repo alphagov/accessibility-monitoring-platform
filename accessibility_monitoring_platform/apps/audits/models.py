@@ -292,6 +292,13 @@ STATEMENT_CHECK_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_CHECK_NO, "No"),
     (STATEMENT_CHECK_NOT_TESTED, "Not tested"),
 ]
+RETEST_INITIAL_COMPLIANCE_DEFAULT: str = "not-known"
+RETEST_INITIAL_COMPLIANCE_COMPLIANT: str = "compliant"
+RETEST_INITIAL_COMPLIANCE_CHOICES: List[Tuple[str, str]] = [
+    (RETEST_INITIAL_COMPLIANCE_COMPLIANT, "Compliant"),
+    ("partially-compliant", "Partially compliant"),
+    (RETEST_INITIAL_COMPLIANCE_DEFAULT, "Not known"),
+]
 
 
 class ArchiveAccessibilityStatementCheck:
@@ -1305,3 +1312,82 @@ class StatementCheckResult(models.Model):
     @property
     def label(self):
         return self.statement_check.label if self.statement_check else "Custom"
+
+
+class Retest(VersionModel):
+    """
+    Model for retest of outstanding issues requested by an equality body
+    """
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=1, blank=True)
+    created = models.DateField(null=True, blank=True)
+    retest_notes = models.TextField(default="", blank=True)
+    retest_compliance_state = models.CharField(
+        max_length=20,
+        choices=RETEST_INITIAL_COMPLIANCE_CHOICES,
+        default=RETEST_INITIAL_COMPLIANCE_DEFAULT,
+    )
+    compliance_notes = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return str(f"Retest #{self.id_within_case}")
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.created = timezone.now()
+        super().save(*args, **kwargs)
+
+
+class RetestPage(models.Model):
+    """
+    Model for equality body requested retest page
+    """
+
+    retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
+    page = models.ForeignKey(Page, on_delete=models.PROTECT)
+    missing = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    complete_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
+        return f"{self.retest} | {self.page}"
+
+    def get_absolute_url(self) -> str:
+        return reverse("audits:edit-retest-page-checks", kwargs={"pk": self.pk})
+
+
+class RetestCheckResult(models.Model):
+    """
+    Model for equality body requested retest result
+    """
+
+    retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
+    retest_page = models.ForeignKey(RetestPage, on_delete=models.PROTECT)
+    check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
+    is_deleted = models.BooleanField(default=False)
+    retest_state = models.CharField(
+        max_length=20,
+        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        default=RETEST_CHECK_RESULT_DEFAULT,
+    )
+    retest_notes = models.TextField(default="", blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self) -> str:
+        return str(f"{self.retest_page} | {self.wcag_definition}")
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)

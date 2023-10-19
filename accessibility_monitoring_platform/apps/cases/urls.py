@@ -39,7 +39,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseEqualityBodyMetadataUpdateView,
     CaseEqualityBodyCorrespondenceUpdateView,
     ListCaseEqualityBodyCorrespondenceUpdateView,
-    CaseRetestOverviewUpdateView,
+    CaseRetestOverviewTemplateView,
     EqualityBodyCorrespondenceCreateView,
 )
 
@@ -193,7 +193,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/retest-overview/",
-        login_required(CaseRetestOverviewUpdateView.as_view()),
+        login_required(CaseRetestOverviewTemplateView.as_view()),
         name="edit-retest-overview",
     ),
     path(

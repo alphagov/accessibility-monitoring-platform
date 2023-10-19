@@ -13,30 +13,52 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'cases:edit-retest-overview' case.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{{ case.get_absolute_url }}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel and return to case view
-                            </a>
-                        </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full govuk-button-group">
+                        <a
+                            href="{% url 'audits:create-equality-body-retest' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button"
+                            data-module="govuk-button"
+                        >
+                            New retest
+                        </a>
+                        <a
+                            href="{{ case.get_absolute_url }}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            EHRC email template
+                        </a>
                     </div>
-                </form>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <hr class="amp-width-100 amp-margin-bottom-30" />
+                        {% for equality_body_retest in equality_body_retests %}
+                            <h2 class="govuk-heading-m">Retest #{{ equality_body_retest.id_within_case }}</h2>
+                            <p class="govuk-body-m">
+                                <a href="{% url 'cases:edit-equality-body-correspondence' equality_body_retest.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    Edit retest</a>
+                            </p>
+                            <p class="govuk-body-m amp-margin-bottom-5"><b>Date of retest</b></p>
+                            <p class="govuk-body-m">{{ equality_body_retest.created|amp_date }}</p>
+                            <p class="govuk-body-m amp-margin-bottom-5"><b>Outcome</b></p>
+                            <p class="govuk-body-m">{{ equality_body_retest.get_retest_compliance_state_display }}</p>
+                            <p class="govuk-body-m amp-margin-bottom-5"><b>WCAG issues</b></p>
+                            <p class="govuk-body-m">Placeholder</p>
+                            <p class="govuk-body-m amp-margin-bottom-5"><b>Retest notes</b></p>
+                            <div class="amp-report-wrapper">
+                                {% if equality_body_retest.retest_notes %}
+                                    {{ equality_body_retest.retest_notes|markdown_to_html }}
+                                {% else %}
+                                    <p>None</p>
+                                {% endif %}
+                            </div>
+                            <hr class="amp-width-100 amp-margin-bottom-30" />
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-retest-overview' %}

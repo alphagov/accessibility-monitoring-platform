@@ -35,6 +35,9 @@ from .models import (
     CheckResult,
     StatementCheck,
     StatementCheckResult,
+    Retest,
+    RetestPage,
+    RetestCheckResult,
     CHECK_RESULT_NOT_TESTED,
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
     ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
@@ -329,3 +332,39 @@ def report_data_updated(audit: Audit) -> None:
     now: datetime = timezone.now()
     audit.published_report_data_updated_time = now
     audit.save()
+
+
+def create_checkresults_for_retest(retest: Retest) -> None:
+    """
+    Create pages and checkresults for restest from outstanding issues of previous test.
+    """
+
+    audit: Audit = retest.case.audit
+    if retest.id_within_case == 1:
+        # Create fake retest from 12-week results for first retest to compare itself to
+        retest_0: Retest = Retest.objects.create(case=retest.case, id_within_case=0)
+        for page in audit.every_page:
+            retest_page: RetestPage = RetestPage.objects.create(
+                retest=retest_0, page=page
+            )
+            for check_result in page.unfixed_check_results:
+                RetestCheckResult.objects.create(
+                    retest=retest_0, retest_page=retest_page, check_result=check_result
+                )
+
+    previous_retest: Retest = Retest.objects.get(
+        case=retest.case, id_within_case=retest.id_within_case - 1
+    )
+
+    for previous_retest_page in RetestPage.objects.filter(retest=previous_retest):
+        retest_page: RetestPage = RetestPage.objects.create(
+            retest=retest, page=previous_retest_page.page
+        )
+        for previous_retest_check_result in RetestCheckResult.objects.filter(
+            retest_page=previous_retest_page
+        ):
+            RetestCheckResult.objects.create(
+                retest=retest,
+                retest_page=retest_page,
+                check_result=previous_retest_check_result.check_result,
+            )

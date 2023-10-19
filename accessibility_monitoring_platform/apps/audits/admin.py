@@ -12,6 +12,9 @@ from .models import (
     WcagDefinition,
     StatementCheck,
     StatementCheckResult,
+    Retest,
+    RetestPage,
+    RetestCheckResult,
 )
 
 
@@ -102,9 +105,49 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
     )
 
 
+class RetestAdmin(admin.ModelAdmin):
+    """Django admin configuration for Retest model"""
+
+    search_fields = [
+        "case__organisation_name",
+        "case__id",
+        "retest_notes",
+        "compliance_notes",
+    ]
+    list_display = ["id", "case", "__str__", "retest_compliance_state"]
+    list_filter = ["retest_compliance_state"]
+
+
+class RetestPageAdmin(admin.ModelAdmin):
+    """Django admin configuration for RetestPage model"""
+
+    search_fields = ["page__name", "page__url", "retest__case__organisation_name"]
+    list_display = ["page", "retest"]
+    list_filter = ["page__page_type"]
+
+
+class RetestCheckResultAdmin(admin.ModelAdmin):
+    """Django admin configuration for RetestCheckResult model"""
+
+    search_fields = [
+        "check_result__wcag_definition__name",
+        "retest__case__organisation_name",
+        "retest_page__page__name",
+        "retest_page__page__url",
+    ]
+    list_display = [
+        "check_result",
+        "retest",
+        "retest_page",
+    ]
+
+
 admin.site.register(Audit, AuditAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(CheckResult, CheckResultAdmin)
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)
 admin.site.register(StatementCheck, StatementCheckAdmin)
 admin.site.register(StatementCheckResult, StatementCheckResultAdmin)
+admin.site.register(Retest, RetestAdmin)
+admin.site.register(RetestPage, RetestPageAdmin)
+admin.site.register(RetestCheckResult, RetestCheckResultAdmin)

@@ -1109,15 +1109,18 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
         return HttpResponseRedirect(url)
 
 
-class CaseRetestOverviewUpdateView(CaseUpdateView):
-    """
-    View of equality body metadata
-    """
-
-    form_class: Type[
-        CaseStatementEnforcementUpdateForm
-    ] = CaseStatementEnforcementUpdateForm
+class CaseRetestOverviewTemplateView(TemplateView):
     template_name: str = "cases/forms/retest_overview.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        context["equality_body_retests"] = case.retest_set.filter(
+            is_deleted=False
+        ).filter(id_within_case__gt=0)
+        return context
 
 
 class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):

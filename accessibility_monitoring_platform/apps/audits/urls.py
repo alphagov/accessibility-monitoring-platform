@@ -53,6 +53,7 @@ from .views import (
     restore_page,
     start_retest,
     clear_published_report_data_updated_time,
+    create_equality_body_retest,
 )
 
 app_name: str = "audits"
@@ -286,5 +287,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-statement-check/",
         login_required(StatementCheckUpdateView.as_view()),
         name="statement-check-update",
+    ),
+    path(
+        "create-equality-body-retest/<int:case_id>/",
+        login_required(create_equality_body_retest),
+        name="create-equality-body-retest",
     ),
 ]
