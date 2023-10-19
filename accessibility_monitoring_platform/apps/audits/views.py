@@ -1629,7 +1629,7 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
         HttpResponse: Django HttpResponse
     """
     case: Case = get_object_or_404(Case, id=case_id)
-    id_within_case: int = case.retest_set.all().count() + 1
+    id_within_case: int = case.retest_set.all().count()
     retest: Retest = Retest.objects.create(case=case, id_within_case=id_within_case)
     record_model_create_event(user=request.user, model_object=retest)
     create_checkresults_for_retest(retest=retest)

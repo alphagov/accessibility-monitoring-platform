@@ -140,6 +140,7 @@ class RetestCheckResultAdmin(admin.ModelAdmin):
         "retest",
         "retest_page",
     ]
+    readonly_fields = ["check_result", "retest_page", "retest"]
 
 
 admin.site.register(Audit, AuditAdmin)

@@ -1407,7 +1407,7 @@ class RetestCheckResult(models.Model):
         ordering = ["id"]
 
     def __str__(self) -> str:
-        return str(f"{self.retest_page} | {self.wcag_definition}")
+        return str(f"{self.retest_page} | {self.check_result}")
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
