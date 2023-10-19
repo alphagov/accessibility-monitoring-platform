@@ -1342,6 +1342,27 @@ class Retest(VersionModel):
             self.created = timezone.now()
         super().save(*args, **kwargs)
 
+    @property
+    def fixed_checks_count(self):
+        """
+        Add the numbers of check fixed in the 12-week retest and all equality body requested retests
+        up to this one.
+        """
+        fixed_checks_count: int = (
+            CheckResult.objects.filter(audit=self.case.audit)
+            .filter(retest_state=RETEST_CHECK_RESULT_FIXED)
+            .count()
+        )
+        for previous_retest in Retest.objects.filter(case=self.case).exclude(
+            id_within_case__gt=self.id_within_case
+        ):
+            fixed_checks_count += (
+                RetestCheckResult.objects.filter(retest=previous_retest)
+                .filter(retest_state=RETEST_CHECK_RESULT_FIXED)
+                .count()
+            )
+        return fixed_checks_count
+
 
 class RetestPage(models.Model):
     """
