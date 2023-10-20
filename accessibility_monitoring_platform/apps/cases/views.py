@@ -519,7 +519,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
         contact_formset = context["contacts_formset"]
-        case: Case = form.save()
+        case: Case = form.save(commit=False)
         if contact_formset.is_valid():
             contacts: List[Contact] = contact_formset.save(commit=False)
             for contact in contacts:
