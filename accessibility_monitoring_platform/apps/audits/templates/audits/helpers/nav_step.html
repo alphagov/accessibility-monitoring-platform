@@ -1,5 +1,5 @@
             <li>
-                {% if edit_name == 'audits:edit-audit-page-checks' or edit_name == 'audits:edit-audit-retest-page-checks' %}
+                {% if edit_name == 'audits:edit-audit-page-checks' or edit_name == 'audits:edit-audit-retest-page-checks' or edit_name == 'audits:edit-retest-page-checks' %}
                     {% if current_page == edit_name and page_id == page.id %}
                         {{ page }}
                         {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
@@ -12,6 +12,9 @@
                     {% if current_page == edit_name %}
                         {{ name }}
                         {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+                    {% elif retest %}
+                        <a href="{% url edit_name retest.id %}" class="govuk-link govuk-link--no-visited-state"  data-cy="nav-step">
+                            {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                     {% else %}
                         <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state"  data-cy="nav-step">
                             {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>

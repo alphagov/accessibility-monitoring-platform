@@ -1381,19 +1381,21 @@ class RetestPage(models.Model):
 
     retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
     page = models.ForeignKey(Page, on_delete=models.PROTECT)
-    missing = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
-    )
+    missing_date = models.DateField(null=True, blank=True)
     complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
-        return f"{self.retest} | {self.page}"
+        return f"{self.page}"
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-retest-page-checks", kwargs={"pk": self.pk})
+
+    @property
+    def heading(self):
+        return f"{self.retest} {self.page}"
 
 
 class RetestCheckResult(models.Model):

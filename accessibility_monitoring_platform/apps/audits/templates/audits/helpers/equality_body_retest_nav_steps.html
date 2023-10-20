@@ -3,6 +3,14 @@
     <h2 class="govuk-heading-m amp-margin-bottom-5">Retest steps</h2>
     <ul class="govuk-list">
         {% include './nav_step.html' with edit_name='audits:retest-metadata-update' name='Retest metadata' complete=retest.complete_date %}
+        <li>
+            Pages:
+            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                {% for page in retest.retestpage_set.all %}
+                    {% include './nav_step.html' with edit_name='audits:edit-retest-page-checks' complete=page.complete_date %}
+                {% endfor %}
+            </ul>
+        </li>
     </ul>
     {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=retest.case %}
 </nav>

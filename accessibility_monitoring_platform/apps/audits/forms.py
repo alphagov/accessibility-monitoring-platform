@@ -58,6 +58,8 @@ from .models import (
     STATEMENT_CHECK_CHOICES,
     STATEMENT_CHECK_TYPE_CHOICES,
     Retest,
+    RetestPage,
+    RetestCheckResult,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
@@ -1456,3 +1458,49 @@ class RetestUpdateForm(forms.ModelForm):
             "retest_notes",
             "complete_date",
         ]
+
+
+class RetestPageChecksForm(forms.Form):
+    """
+    Form for equality body retesting checks for a page
+    """
+
+    complete_date = AMPDatePageCompleteField(
+        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+    )
+    missing_date = AMPDatePageCompleteField(
+        label="",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
+    )
+
+    class Meta:
+        model = RetestPage
+        fields: List[str] = [
+            "complete_date",
+            "missing_date",
+        ]
+
+
+class RetestCheckResultForm(forms.ModelForm):
+    """
+    Form for updating a single check test on equality body requested retest
+    """
+
+    id = forms.IntegerField(widget=forms.HiddenInput())
+    retest_state = AMPChoiceRadioField(
+        label="Issue fixed?",
+        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+    )
+    retest_notes = AMPTextField(label="Notes")
+
+    class Meta:
+        model = RetestCheckResult
+        fields = [
+            "id",
+            "retest_state",
+            "retest_notes",
+        ]
+
+
+RetestCheckResultFormset: Any = forms.formset_factory(RetestCheckResultForm, extra=0)
