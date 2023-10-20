@@ -944,7 +944,7 @@ class AuditRetestPageChecksForm(forms.Form):
         ]
 
 
-class RetestCheckResultFilterForm(forms.Form):
+class AuditRetestCheckResultFilterForm(forms.Form):
     """
     Form for filtering check results on retest
     """
@@ -972,7 +972,7 @@ class RetestCheckResultFilterForm(forms.Form):
         ]
 
 
-class RetestCheckResultForm(forms.ModelForm):
+class AuditRetestCheckResultForm(forms.ModelForm):
     """
     Form for updating a single check test on retest
     """
@@ -994,7 +994,9 @@ class RetestCheckResultForm(forms.ModelForm):
         ]
 
 
-RetestCheckResultFormset: Any = forms.formset_factory(RetestCheckResultForm, extra=0)
+AuditRetestCheckResultFormset: Any = forms.formset_factory(
+    AuditRetestCheckResultForm, extra=0
+)
 
 
 class AuditRetestWebsiteDecisionUpdateForm(VersionForm):
@@ -1178,7 +1180,7 @@ class ArchiveAuditRetestStatement2UpdateForm(VersionForm):
         ]
 
 
-class RetestStatementCheckResultForm(forms.ModelForm):
+class AuditRetestStatementCheckResultForm(forms.ModelForm):
     """
     Form for updating a single statement check retest
     """
@@ -1198,8 +1200,8 @@ class RetestStatementCheckResultForm(forms.ModelForm):
         ]
 
 
-RetestStatementCheckResultFormset: Any = forms.modelformset_factory(
-    StatementCheckResult, RetestStatementCheckResultForm, extra=0
+AuditRetestStatementCheckResultFormset: Any = forms.modelformset_factory(
+    StatementCheckResult, AuditRetestStatementCheckResultForm, extra=0
 )
 
 

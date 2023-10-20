@@ -66,14 +66,14 @@ from .forms import (
     AuditRetestMetadataUpdateForm,
     AuditRetestPagesUpdateForm,
     AuditRetestPageChecksForm,
-    RetestCheckResultFilterForm,
-    RetestCheckResultFormset,
+    AuditRetestCheckResultFilterForm,
+    AuditRetestCheckResultFormset,
     AuditRetestWebsiteDecisionUpdateForm,
     CaseFinalWebsiteDecisionUpdateForm,
     Audit12WeekStatementUpdateForm,
     ArchiveAuditRetestStatement1UpdateForm,
     ArchiveAuditRetestStatement2UpdateForm,
-    RetestStatementCheckResultFormset,
+    AuditRetestStatementCheckResultFormset,
     AuditRetestStatementOverviewUpdateForm,
     AuditRetestStatementWebsiteUpdateForm,
     AuditRetestStatementComplianceUpdateForm,
@@ -1007,7 +1007,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
-        context["filter_form"] = RetestCheckResultFilterForm(
+        context["filter_form"] = AuditRetestCheckResultFilterForm(
             initial={
                 "fixed": False,
                 "not-fixed": False,
@@ -1015,15 +1015,17 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
             }
         )
         if self.request.POST:
-            check_results_formset: RetestCheckResultFormset = RetestCheckResultFormset(
-                self.request.POST
+            check_results_formset: AuditRetestCheckResultFormset = (
+                AuditRetestCheckResultFormset(self.request.POST)
             )
         else:
-            check_results_formset: RetestCheckResultFormset = RetestCheckResultFormset(
-                initial=[
-                    check_result.dict_for_retest
-                    for check_result in self.page.failed_check_results
-                ]
+            check_results_formset: AuditRetestCheckResultFormset = (
+                AuditRetestCheckResultFormset(
+                    initial=[
+                        check_result.dict_for_retest
+                        for check_result in self.page.failed_check_results
+                    ]
+                )
             )
         check_results_and_forms: List[Tuple[CheckResult, CheckResultForm]] = list(
             zip(self.page.failed_check_results, check_results_formset.forms)
@@ -1154,11 +1156,11 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
         if self.request.POST:
-            retest_statement_check_results_formset: RetestStatementCheckResultFormset = RetestStatementCheckResultFormset(
+            retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = AuditRetestStatementCheckResultFormset(
                 self.request.POST
             )
         else:
-            retest_statement_check_results_formset: RetestStatementCheckResultFormset = RetestStatementCheckResultFormset(
+            retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = AuditRetestStatementCheckResultFormset(
                 queryset=StatementCheckResult.objects.filter(
                     audit=self.object, type=self.statement_check_type
                 )
@@ -1174,9 +1176,9 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
 
-        retest_statement_check_results_formset: RetestStatementCheckResultFormset = (
-            context["retest_statement_check_results_formset"]
-        )
+        retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = context[
+            "retest_statement_check_results_formset"
+        ]
         if retest_statement_check_results_formset.is_valid():
             for (
                 retest_statement_check_results_form
@@ -1646,7 +1648,7 @@ class RetestMetadataUpdateView(UpdateView):
 
     model: Type[Retest] = Retest
     form_class: Type[RetestUpdateForm] = RetestUpdateForm
-    template_name: str = "audits/forms/retest_metadata_update.html"
+    template_name: str = "audits/forms/equality_body_retest_metadata_update.html"
     context_object_name: str = "retest"
 
     def get_success_url(self) -> str:

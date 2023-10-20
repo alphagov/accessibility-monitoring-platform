@@ -48,13 +48,13 @@ from .views import (
     StatementCheckListView,
     StatementCheckCreateView,
     StatementCheckUpdateView,
-    RetestMetadataUpdateView,
     create_audit,
     delete_page,
     restore_page,
     start_retest,
     clear_published_report_data_updated_time,
     create_equality_body_retest,
+    RetestMetadataUpdateView,
 )
 
 app_name: str = "audits"

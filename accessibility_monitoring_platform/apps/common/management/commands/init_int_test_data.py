@@ -9,7 +9,10 @@ from django.core.management.base import BaseCommand
 from django.db import connection, models
 from django.db.utils import OperationalError
 
-from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
+from accessibility_monitoring_platform.apps.common.models import (
+    UserCacheUniqueHash,
+    FrequentlyUsedLink,
+)
 
 from ....audits.models import (
     Audit,
@@ -17,8 +20,11 @@ from ....audits.models import (
     Page,
     WcagDefinition,
     StatementCheckResult,
+    Retest,
+    RetestPage,
+    RetestCheckResult,
 )
-from ....cases.models import Case, CaseEvent, Contact
+from ....cases.models import Case, CaseEvent, Contact, EqualityBodyCorrespondence
 from ....comments.models import Comment
 from ....notifications.models import Notification, NotificationSetting
 from ....reminders.models import Reminder
@@ -67,6 +73,11 @@ class Command(BaseCommand):
 
         delete_from_models(
             [
+                FrequentlyUsedLink,
+                EqualityBodyCorrespondence,
+                RetestCheckResult,
+                RetestPage,
+                Retest,
                 StatementCheckResult,
                 CheckResult,
                 Page,
