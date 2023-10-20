@@ -34,12 +34,71 @@
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:retest-metadata-update' retest.id %}">
                     {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            {% include 'common/amp_field.html' with field=form.date_of_retest %}
+                            {% include 'common/amp_field.html' with field=form.retest_notes %}
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Date of test (initial test)</b></label>
+                                <div class="govuk-hint">{{ retest.case.audit.date_of_test|amp_date }}</div>
+                            </div>
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Screen size (initial test)</b></label>
+                                <div class="govuk-hint">{{ retest.case.audit.get_screen_size_display }}</div>
+                            </div>
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Exemptions (initial test)</b></label>
+                                <div class="govuk-hint">{{ retest.case.audit.get_exemptions_state_display }}</div>
+                            </div>
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Notes (initial test)</b></label>
+                                <div class="govuk-hint amp-notes">
+                                    {% if retest.case.audit.exemptions_notes %}
+                                        {{ retest.case.audit.exemptions_notes|markdown_to_html }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Date of retest (12-week retest)</b></label>
+                                <div class="govuk-hint">{{ retest.case.audit.date_of_test|amp_date }}</div>
+                            </div>
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Notes (12-week retest)</b></label>
+                                <div class="govuk-hint amp-notes">
+                                    {% if retest.case.audit.audit_retest_metadata_notes %}
+                                        {{ retest.case.audit.audit_retest_metadata_notes|markdown_to_html }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% include 'common/amp_field.html' with field=form.complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'audits/helpers/save_continue_cancel.html' %}
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and continue"
+                                name="save_continue"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'cases:edit-retest-overview' retest.case.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return to retest overview
+                            </a>
                         </div>
                     </div>
                 </form>

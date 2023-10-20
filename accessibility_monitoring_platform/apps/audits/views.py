@@ -949,7 +949,7 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditRetestMetadataUpdateForm] = AuditRetestMetadataUpdateForm
-    template_name: str = "audits/forms/retest_metadata.html"
+    template_name: str = "audits/forms/twelve_week_retest_metadata.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -1651,6 +1651,17 @@ class RetestMetadataUpdateView(UpdateView):
     template_name: str = "audits/forms/equality_body_retest_metadata_update.html"
     context_object_name: str = "retest"
 
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add record event on change"""
+        if form.changed_data:
+            self.object: StatementCheck = form.save(commit=False)
+            record_model_update_event(user=self.request.user, model_object=self.object)
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """Return to list of equality body retests"""
-        return reverse("cases:edit-retest-overview")
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-retest-overview", kwargs={"pk": self.object.case.id}
+            )
+        return reverse("audits:retest-metadata-update", kwargs={"pk": self.object.id})
