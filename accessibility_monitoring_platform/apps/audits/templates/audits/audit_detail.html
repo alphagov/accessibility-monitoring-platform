@@ -415,24 +415,6 @@
                     </div>
                 </div>
             {% endif %}
-            {% if audit.case.report_methodology == 'odt' %}
-                <div class="govuk-accordion__section">
-                    <div class="govuk-accordion__section-header">
-                        <h2 id="audit-report-text" class="govuk-accordion__section-heading">
-                            <span class="govuk-accordion__section-button" id="accordion-heading-audit-report-text">
-                                Report text
-                                {% if audit.archive_audit_report_text_complete_date %}
-                                    <span class="govuk-visually-hidden">complete</span>
-                                    &check;
-                                {% endif %}
-                            </span>
-                        </h2>
-                    </div>
-                    <div id="accordion-content-audit-report-text" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-report-text">
-                        {% include 'audits/details/report_text.html' %}
-                    </div>
-                </div>
-            {% endif%}
         </div>
     </main>
 </div>
