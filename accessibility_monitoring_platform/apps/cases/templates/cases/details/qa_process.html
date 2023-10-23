@@ -45,35 +45,5 @@
                 {{ case.get_report_approved_status_display }}
             </td>
         </tr>
-        {% if case.report_methodology != 'platform' %}
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                    Link to final ODT report
-                </th>
-                <td class="govuk-table__cell amp-width-one-half">
-                    {% if case.report_final_odt_url %}
-                        <a href="{{ case.report_final_odt_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                            Final draft (ODT)
-                        </a>
-                    {% else %}
-                        None
-                    {% endif %}
-                </td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                    Link to final PDF report
-                </th>
-                <td class="govuk-table__cell amp-width-one-half">
-                    {% if case.report_final_pdf_url %}
-                        <a href="{{ case.report_final_pdf_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                            Final draft (PDF)
-                        </a>
-                    {% else %}
-                        None
-                    {% endif %}
-                </td>
-            </tr>
-    {% endif %}
     </tbody>
 </table>

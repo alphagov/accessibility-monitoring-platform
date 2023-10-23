@@ -477,7 +477,6 @@ def test_download_cases():
         "Unknown",
         "",
         "EHRC",
-        "Platform",
         "No",
         "",
         "",

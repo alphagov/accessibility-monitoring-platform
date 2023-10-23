@@ -23,7 +23,7 @@
                         Unable to send report or no response from public sector body?
                     </a>
                 </p>
-                {% if case.report_methodology == 'platform' and case.s3report_set.count == 0 %}
+                {% if case.s3report_set.count == 0 %}
                     <p class="govuk-body-m">
                         A published report does not exist for this case.
                         {% if case.report %}
@@ -54,7 +54,7 @@
                             <hr class="amp-width-100">
                             {% include 'common/amp_field_two_column.html' with field=form.report_sent_date %}
                             <hr class="amp-width-100">
-                            {% if case.report and case.report_methodology == "platform" %}
+                            {% if case.report %}
                                 <div class="govuk-grid-row">
                                     <div class="govuk-grid-column-one-half">
                                         <label class="govuk-label"><b>Report visits</b></label>

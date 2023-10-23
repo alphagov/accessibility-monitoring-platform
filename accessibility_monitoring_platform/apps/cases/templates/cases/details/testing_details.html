@@ -44,8 +44,5 @@
                 {% include 'audits/details/report_options.html' with on_view_case=True %}
             </div>
         {% endif%}
-        {% if audit.case.report_methodology == 'odt' %}
-            {% include 'audits/details/report_text.html' %}
-        {% endif %}
     </div>
 </div>

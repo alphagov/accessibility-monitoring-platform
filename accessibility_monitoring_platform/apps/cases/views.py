@@ -54,7 +54,6 @@ from .models import (
     Case,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
-    REPORT_METHODOLOGY_PLATFORM,
 )
 from .forms import (
     CaseCreateForm,
@@ -174,22 +173,20 @@ class CaseDetailView(DetailView):
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        context["contacts"] = self.object.contact_set.filter(is_deleted=False)
+        context["contacts"] = case.contact_set.filter(is_deleted=False)
         case_details_prefix: List[FieldLabelAndValue] = [
             FieldLabelAndValue(
                 label="Date created",
                 value=case.created,
                 type=FieldLabelAndValue.DATE_TYPE,
             ),
-            FieldLabelAndValue(label="Status", value=self.object.get_status_display()),
+            FieldLabelAndValue(label="Status", value=case.get_status_display()),
         ]
 
-        get_case_rows: Callable = partial(
-            extract_form_labels_and_values, instance=self.object
-        )
+        get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
 
-        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
-            context.update(get_report_visits_metrics(self.object))
+        if not case.report:
+            context.update(get_report_visits_metrics(case))
 
         context["case_details_rows"] = case_details_prefix + get_case_rows(
             form=CaseDetailUpdateForm()
@@ -390,20 +387,9 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         read_notification(self.request)
-        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
+        if self.object.report:
             context.update(get_report_visits_metrics(self.object))
         return context
-
-    def get_form(self):
-        """Hide fields if testing using platform"""
-        form = super().get_form()
-        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
-            for fieldname in [
-                "report_draft_url",
-                "report_notes",
-            ]:
-                form.fields[fieldname].widget = forms.HiddenInput()
-        return form
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -420,17 +406,6 @@ class CaseQAProcessUpdateView(CaseUpdateView):
 
     form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
     template_name: str = "cases/forms/qa_process.html"
-
-    def get_form(self):
-        """Hide fields if testing using platform"""
-        form = super().get_form()
-        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
-            for fieldname in [
-                "report_final_odt_url",
-                "report_final_pdf_url",
-            ]:
-                form.fields[fieldname].widget = forms.HiddenInput()
-        return form
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Notify auditor if case has been QA approved."""
@@ -580,8 +555,7 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
-            context.update(get_report_visits_metrics(self.object))
+        context.update(get_report_visits_metrics(self.object))
         return context
 
     def get_form(self):
