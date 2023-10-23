@@ -161,9 +161,6 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         column_name="Which equalities body will check the case?",
         field_name="enforcement_body",
     ),
-    ColumnAndFieldNames(
-        column_name="Report methodology", field_name="report_methodology"
-    ),
     ColumnAndFieldNames(column_name="Complaint?", field_name="is_complaint"),
     ColumnAndFieldNames(
         column_name="URL to previous case", field_name="previous_case_url"

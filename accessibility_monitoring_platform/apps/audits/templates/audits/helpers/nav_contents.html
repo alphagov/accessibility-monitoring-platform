@@ -39,14 +39,6 @@
             {% if not on_view_case %}
                 {% include './nav_content.html' with id='edit-test-summary' anchor="" edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}
             {% endif %}
-            {% if audit.case.report_methodology == 'odt' %}
-                <a href="#audit-report-text" class="govuk-link govuk-link--no-visited-state">
-                    Report text
-                    {% if audit.archive_audit_report_text_complete_date %}
-                        <span class="govuk-visually-hidden">complete</span>
-                    {% endif %}
-                </a>
-            {% endif %}
         </ul>
         {% if not on_view_case %}
             {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=audit.case %}

@@ -49,8 +49,6 @@ from ...common.utils import amp_format_date
 from ...reports.models import Report
 
 from ..models import (
-    REPORT_METHODOLOGY_ODT,
-    REPORT_METHODOLOGY_PLATFORM,
     Case,
     CaseCompliance,
     CaseEvent,
@@ -241,7 +239,7 @@ def test_archived_case_view_case_includes_sections(admin_client):
     )
     assertContains(
         response,
-        """<p class="govuk-body-m"><b>Archived subsection a</b></p>""",
+        """<p id="archived-subsection-a" class="govuk-body-m"><b>Archived subsection a</b></p>""",
         html=True,
     )
     assertContains(
@@ -1969,55 +1967,6 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
     )
 
 
-def test_case_details_includes_link_to_report(admin_client):
-    """
-    Test that the case details page contains a link to the report
-    """
-    report_final_pdf_url: str = "https://report-final-pdf-url.com"
-    case: Case = Case.objects.create(
-        report_methodology=REPORT_METHODOLOGY_ODT,
-        report_final_pdf_url=report_final_pdf_url,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(
-        response,
-        f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-            Link to final PDF report</th>
-            <td class="govuk-table__cell amp-width-one-half">
-                <a href="{report_final_pdf_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Final draft (PDF)
-                </a>
-            </td>
-        </tr>""",
-        html=True,
-    )
-
-
-def test_case_details_includes_no_link_to_report(admin_client):
-    """
-    Test that the case details page contains no link to the report if none is set
-    """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to final PDF report</th>
-            <td class="govuk-table__cell amp-width-one-half">None</td>
-        </tr>""",
-        html=True,
-    )
-
-
 @pytest.mark.parametrize(
     "edit_link_label",
     [
@@ -2422,32 +2371,6 @@ def test_platform_shows_notification_if_fully_compliant(
     )
 
 
-@pytest.mark.parametrize(
-    "report_methodology, report_link_label",
-    [
-        (REPORT_METHODOLOGY_PLATFORM, "Report publisher"),
-        (REPORT_METHODOLOGY_ODT, "Link to report draft"),
-    ],
-)
-def test_case_details_shows_link_to_report(
-    report_methodology,
-    report_link_label,
-    admin_client,
-):
-    """
-    Test link to correct type is report is shown on case detail page.
-    """
-    case: Case = Case.objects.create(report_methodology=report_methodology)
-    Report.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertContains(response, report_link_label)
-
-
 def test_platform_report_correspondence_shows_link_to_report_if_none_published(
     admin_client,
 ):
@@ -2495,35 +2418,6 @@ def test_non_platform_qa_process_shows_no_link_to_draft_report(admin_client):
         """<div class="govuk-form-group">
             <label class="govuk-label"><b>Link to report draft</b></label>
             <div class="govuk-hint">None</div>
-        </div>""",
-        html=True,
-    )
-
-
-def test_non_platform_qa_process_shows_link_to_draft_report(admin_client):
-    """
-    Test that the QA process page shows the link to report draft
-    when the report methodology is not platform.
-    """
-    case: Case = Case.objects.create(
-        report_draft_url=DRAFT_REPORT_URL,
-        report_methodology=REPORT_METHODOLOGY_ODT,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        f"""<div class="govuk-form-group">
-            <label class="govuk-label"><b>Link to report draft</b></label>
-            <div class="govuk-hint">
-                <a href="{DRAFT_REPORT_URL}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Link to report draft
-                </a>
-            </div>
         </div>""",
         html=True,
     )
@@ -2665,22 +2559,6 @@ def test_platform_qa_process_shows_link_to_s3_report(admin_client):
         </div>""",
         html=True,
     )
-
-
-def test_non_platform_qa_process_shows_final_report_fields(admin_client):
-    """
-    Test that the QA process page shows the published report fields
-    when the report methodology is not platform.
-    """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Link to final PDF report")
-    assertContains(response, "Link to final ODT report")
 
 
 def test_platform_qa_process_does_not_show_final_report_fields(admin_client):

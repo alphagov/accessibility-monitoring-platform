@@ -25,28 +25,8 @@ class MetaStatusCaseListFilter(admin.SimpleListFilter):
         """Returns queryset with filter applied"""
         if self.value() == "open":
             return queryset.exclude(status__in=CLOSED_CASE_STATUSES)
-        return queryset.filter(status__in=CLOSED_CASE_STATUSES)
-
-
-class HistoricAuditorCaseListFilter(admin.SimpleListFilter):
-    """Filter by list of statuses which mean Case is closed"""
-
-    title = "Historic auditors"
-
-    parameter_name = "historic_auditor"
-
-    def lookups(self, request, model_admin):
-        """Return list of values and labels for filter"""
-        return (
-            ("open", "Open"),
-            ("closed", "Closed"),
-        )
-
-    def queryset(self, request, queryset):
-        """Returns queryset with filter applied"""
-        if self.value() == "open":
-            return queryset.exclude(status__in=CLOSED_CASE_STATUSES)
-        return queryset.filter(status__in=CLOSED_CASE_STATUSES)
+        if self.value() == "closed":
+            return queryset.filter(status__in=CLOSED_CASE_STATUSES)
 
 
 class CaseAdmin(admin.ModelAdmin):
@@ -57,7 +37,6 @@ class CaseAdmin(admin.ModelAdmin):
     list_display = ["organisation_name", "domain", "auditor", "created", "status"]
     list_filter = [
         MetaStatusCaseListFilter,
-        "report_methodology",
         ("auditor", admin.RelatedOnlyFieldListFilter),
     ]
 

@@ -179,7 +179,7 @@
                                                         View test
                                                     </a>
                                                 {% endif %}
-                                                {% if case.report_methodology == 'platform' and case.report %}
+                                                {% if case.report %}
                                                     <a
                                                         href="{% url 'reports:report-publisher' case.report.id %}"
                                                         class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
