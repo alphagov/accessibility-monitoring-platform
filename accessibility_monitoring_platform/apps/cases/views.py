@@ -52,6 +52,7 @@ from ..common.utils import amp_format_date
 from ..reports.utils import build_issues_tables
 from .models import (
     Case,
+    CaseCompliance,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
     REPORT_METHODOLOGY_PLATFORM,
@@ -297,6 +298,8 @@ class CaseCreateView(CreateView):
         user: User = self.request.user
         record_model_create_event(user=user, model_object=case)
         record_case_event(user=user, new_case=case)
+        case_compliance: CaseCompliance.objects.create(case=case)
+        record_model_create_event(user=user, model_object=case_compliance)
         case_pk: Dict[str, int] = {"pk": self.object.id}
         if "save_continue_case" in self.request.POST:
             url: str = reverse("cases:edit-case-details", kwargs=case_pk)

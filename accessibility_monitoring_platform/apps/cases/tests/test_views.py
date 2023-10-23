@@ -52,6 +52,7 @@ from ..models import (
     REPORT_METHODOLOGY_ODT,
     REPORT_METHODOLOGY_PLATFORM,
     Case,
+    CaseCompliance,
     CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
@@ -178,6 +179,12 @@ CASE_ARCHIVE: List[Dict] = {
         },
     ]
 }
+
+
+def create_case():
+    case: Case = Case.objects.create()
+    CaseCompliance.objects.create(case=case)
+    return case
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -2392,10 +2399,14 @@ def test_platform_shows_notification_if_fully_compliant(
     Test cases with fully compliant website and accessibility statement show
     notification to that effect on report details page.
     """
-    case: Case = Case.objects.create(
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    case: Case = create_case()
+    case.compliance.website_compliance_state_initial = (
+        WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
     )
+    case.compliance.statement_compliance_state_initial = (
+        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+    )
+    case.compliance.save()
 
     response: HttpResponse = admin_client.get(
         reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),
@@ -2808,18 +2819,6 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
 @pytest.mark.parametrize(
     "path_name,label,field_name,field_value",
     [
-        (
-            "cases:edit-test-results",
-            "Initial website compliance decision is not filled in",
-            "website_compliance_state_initial",
-            WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-        ),
-        (
-            "cases:edit-test-results",
-            "Initial accessibility statement decision is not filled in",
-            "accessibility_statement_state",
-            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        ),
         (
             "cases:edit-qa-process",
             "Report ready to be reviewed needs to be Yes",

@@ -110,19 +110,21 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
 def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndValue]]:
     """Get context for test view tables"""
     get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
-    get_case_rows: Callable = partial(
-        extract_form_labels_and_values, instance=audit.case
+    get_compliance_rows: Callable = partial(
+        extract_form_labels_and_values, instance=audit.case.compliance
     )
     return {
         "audit_metadata_rows": get_audit_rows(form=AuditMetadataUpdateForm()),
-        "website_decision_rows": get_case_rows(form=CaseWebsiteDecisionUpdateForm()),
+        "website_decision_rows": get_compliance_rows(
+            form=CaseWebsiteDecisionUpdateForm()
+        ),
         "audit_statement_1_rows": get_audit_rows(
             form=ArchiveAuditStatement1UpdateForm()
         ),
         "audit_statement_2_rows": get_audit_rows(
             form=ArchiveAuditStatement2UpdateForm()
         ),
-        "statement_decision_rows": get_case_rows(
+        "statement_decision_rows": get_compliance_rows(
             form=ArchiveCaseStatementDecisionUpdateForm()
         ),
         "audit_report_options_rows": get_audit_report_options_rows(audit=audit),
@@ -131,12 +133,14 @@ def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndVa
 
 def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndValue]]:
     """Get context for 12-week retest view tables"""
-    get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
+    get_compliance_rows: Callable = partial(
+        extract_form_labels_and_values, instance=case.compliance
+    )
     return {
-        "audit_retest_website_decision_rows": get_case_rows(
+        "audit_retest_website_decision_rows": get_compliance_rows(
             form=CaseFinalWebsiteDecisionUpdateForm()
         ),
-        "audit_retest_statement_decision_rows": get_case_rows(
+        "audit_retest_statement_decision_rows": get_compliance_rows(
             form=ArchiveCaseFinalStatementDecisionUpdateForm()
         ),
     }

@@ -21,6 +21,7 @@ from ..common.forms import (
 )
 from ..cases.models import (
     Case,
+    CaseCompliance,
     BOOLEAN_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     WEBSITE_INITIAL_COMPLIANCE_CHOICES,
@@ -270,14 +271,16 @@ class CaseWebsiteDecisionUpdateForm(VersionForm):
         help_text="This field effects the case status",
         choices=WEBSITE_INITIAL_COMPLIANCE_CHOICES,
     )
-    compliance_decision_notes = AMPTextField(label="Initial website compliance notes")
+    website_compliance_notes_initial = AMPTextField(
+        label="Initial website compliance notes"
+    )
 
     class Meta:
-        model = Case
+        model = CaseCompliance
         fields: List[str] = [
             "version",
             "website_compliance_state_initial",
-            "compliance_decision_notes",
+            "website_compliance_notes_initial",
         ]
 
 
@@ -589,21 +592,21 @@ class ArchiveCaseStatementDecisionUpdateForm(VersionForm):
     Form for editing statement compliance decision
     """
 
-    accessibility_statement_state = AMPChoiceRadioField(
+    statement_compliance_state_initial = AMPChoiceRadioField(
         label="Initial accessibility statement compliance decision",
         help_text="This field effects the case status",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
-    accessibility_statement_notes = AMPTextField(
+    statement_compliance_notes_initial = AMPTextField(
         label="Initial accessibility statement compliance notes"
     )
 
     class Meta:
-        model = Case
+        model = CaseCompliance
         fields: List[str] = [
             "version",
-            "accessibility_statement_state",
-            "accessibility_statement_notes",
+            "statement_compliance_state_initial",
+            "statement_compliance_notes_initial",
         ]
 
 
@@ -1016,20 +1019,20 @@ class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
     Form to record final website compliance decision
     """
 
-    website_state_final = AMPChoiceRadioField(
+    website_compliance_state_12_week = AMPChoiceRadioField(
         label="12-week website compliance decision",
         choices=WEBSITE_STATE_FINAL_CHOICES,
     )
-    website_state_notes_final = AMPTextField(
+    website_compliance_notes_12_week = AMPTextField(
         label="12-week website compliance decision notes",
     )
 
     class Meta:
-        model = Case
+        model = CaseCompliance
         fields = [
             "version",
-            "website_state_final",
-            "website_state_notes_final",
+            "website_compliance_state_12_week",
+            "website_compliance_notes_12_week",
         ]
 
 
@@ -1346,20 +1349,20 @@ class ArchiveCaseFinalStatementDecisionUpdateForm(VersionForm):
     Form to record final accessibility statement compliance decision
     """
 
-    accessibility_statement_state_final = AMPChoiceRadioField(
+    statement_compliance_state_12_week = AMPChoiceRadioField(
         label="12-week accessibility statement compliance decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
-    accessibility_statement_notes_final = AMPTextField(
+    statement_compliance_notes_12_week = AMPTextField(
         label="12-week accessibility statement compliance notes",
     )
 
     class Meta:
-        model = Case
+        model = CaseCompliance
         fields = [
             "version",
-            "accessibility_statement_state_final",
-            "accessibility_statement_notes_final",
+            "statement_compliance_state_12_week",
+            "statement_compliance_notes_12_week",
         ]
 
 

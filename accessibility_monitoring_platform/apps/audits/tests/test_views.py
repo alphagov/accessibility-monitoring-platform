@@ -17,6 +17,7 @@ from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
 
 from ...cases.models import (
     Case,
+    CaseCompliance,
     CaseEvent,
     Contact,
     REPORT_METHODOLOGY_PLATFORM,
@@ -101,6 +102,8 @@ STATEMENT_CHECK_REPORT_TEXT: str = "Report text"
 
 def create_audit() -> Audit:
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+    CaseCompliance.objects.create(case=case)
+    case.save()
     audit: Audit = Audit.objects.create(case=case)
     return audit
 
@@ -766,8 +769,11 @@ def test_audit_edit_statement_overview_updates_case_status(
     case.organisation_name = "org name"
     user: User = User.objects.create()
     case.auditor = user
-    case.website_compliance_state_initial = WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
     case.save()
+    case.compliance.website_compliance_state_initial = (
+        WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
+    )
+    case.compliance.save()
 
     assert audit.case.status == "test-in-progress"
 
@@ -1170,9 +1176,9 @@ def test_website_decision_saved_on_case(admin_client):
         {
             "version": audit.version,
             "save": "Button value",
-            "case-version": audit.case.version,
-            "case-website_compliance_state_initial": WEBSITE_COMPLIANCE_STATE_INITIAL,
-            "case-compliance_decision_notes": COMPLIANCE_DECISION_NOTES,
+            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-website_compliance_state_initial": WEBSITE_COMPLIANCE_STATE_INITIAL,
+            "case-compliance-website_compliance_notes_initial": COMPLIANCE_DECISION_NOTES,
         },
     )
 
@@ -1181,17 +1187,24 @@ def test_website_decision_saved_on_case(admin_client):
     updated_case: Case = Case.objects.get(id=audit.case.id)
 
     assert (
-        updated_case.website_compliance_state_initial
+        updated_case.compliance.website_compliance_state_initial
         == WEBSITE_COMPLIANCE_STATE_INITIAL
     )
-    assert updated_case.compliance_decision_notes == COMPLIANCE_DECISION_NOTES
+    assert (
+        updated_case.compliance.website_compliance_notes_initial
+        == COMPLIANCE_DECISION_NOTES
+    )
 
 
 @pytest.mark.parametrize(
     "field_name, new_value, report_content_update",
     [
-        ("case-website_compliance_state_initial", "partially-compliant", True),
-        ("case-compliance_decision_notes", "blah", False),
+        (
+            "case-compliance-website_compliance_state_initial",
+            "partially-compliant",
+            True,
+        ),
+        ("case-compliance-compliance_decision_notes", "blah", False),
         ("audit_website_decision_complete_date", timezone.now(), False),
     ],
 )
@@ -1208,8 +1221,8 @@ def test_website_decision_field_updates_report_content(
     assert audit.published_report_data_updated_time is None
     context: Dict[str, Union[str, int]] = {
         "version": audit.version,
-        "case-version": audit.case.version,
-        "case-website_compliance_state_initial": audit.case.website_compliance_state_initial,
+        "case-compliance-version": audit.case.compliance.version,
+        "case-compliance-website_compliance_state_initial": audit.case.compliance.website_compliance_state_initial,
         "save": "Button value",
     }
     context[field_name] = new_value
@@ -1885,9 +1898,9 @@ def test_retest_website_decision_saved_on_case(admin_client):
         {
             "version": audit.version,
             "save": "Button value",
-            "case-version": audit.case.version,
-            "case-website_state_final": WEBSITE_COMPLIANCE_STATE_INITIAL,
-            "case-website_state_notes_final": COMPLIANCE_DECISION_NOTES,
+            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-website_compliance_state_12_week": WEBSITE_COMPLIANCE_STATE_INITIAL,
+            "case-compliance-website_compliance_notes_12_week": COMPLIANCE_DECISION_NOTES,
         },
     )
 
@@ -1895,8 +1908,14 @@ def test_retest_website_decision_saved_on_case(admin_client):
 
     updated_case: Case = Case.objects.get(id=audit.case.id)
 
-    assert updated_case.website_state_final == WEBSITE_COMPLIANCE_STATE_INITIAL
-    assert updated_case.website_state_notes_final == COMPLIANCE_DECISION_NOTES
+    assert (
+        updated_case.compliance.website_compliance_state_12_week
+        == WEBSITE_COMPLIANCE_STATE_INITIAL
+    )
+    assert (
+        updated_case.compliance.website_compliance_state_12_week
+        == COMPLIANCE_DECISION_NOTES
+    )
 
 
 def test_retest_statement_decision_saved_on_case(admin_client):

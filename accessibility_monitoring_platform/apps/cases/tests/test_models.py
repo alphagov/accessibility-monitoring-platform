@@ -30,6 +30,7 @@ from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
+    CaseCompliance,
     Contact,
     WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
     WEBSITE_STATE_FINAL_DEFAULT,
@@ -567,7 +568,7 @@ def test_contact_updated_updated():
 
 
 @pytest.mark.parametrize(
-    "website_compliance_state_initial, website_state_final, expected_result",
+    "website_compliance_state_initial, website_compliance_state_12_week, expected_result",
     [
         (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, WEBSITE_STATE_FINAL_DEFAULT, "Not known"),
         (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, "compliant", "Fully compliant"),
@@ -584,20 +585,24 @@ def test_contact_updated_updated():
         ("partially-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Partially compliant"),
     ],
 )
+@pytest.mark.django_db
 def test_website_compliance_display(
-    website_compliance_state_initial, website_state_final, expected_result
+    website_compliance_state_initial, website_compliance_state_12_week, expected_result
 ):
     """Test website compliance is derived correctly"""
-    case: Case = Case(
+    case: Case = Case.objects.create()
+    CaseCompliance.objects.create(
+        case=case,
         website_compliance_state_initial=website_compliance_state_initial,
-        website_state_final=website_state_final,
+        website_compliance_state_12_week=website_compliance_state_12_week,
     )
+    case.save()
 
     assert case.website_compliance_display == expected_result
 
 
 @pytest.mark.parametrize(
-    "accessibility_statement_state, accessibility_statement_state_final, expected_result",
+    "statement_compliance_state_initial, statement_compliance_state_12_week, expected_result",
     [
         (
             ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
@@ -622,14 +627,20 @@ def test_website_compliance_display(
         (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "other", "Other"),
     ],
 )
+@pytest.mark.django_db
 def test_accessibility_statement_compliance_display(
-    accessibility_statement_state, accessibility_statement_state_final, expected_result
+    statement_compliance_state_initial,
+    statement_compliance_state_12_week,
+    expected_result,
 ):
     """Test accessibility statement compliance is derived correctly"""
-    case: Case = Case(
-        accessibility_statement_state=accessibility_statement_state,
-        accessibility_statement_state_final=accessibility_statement_state_final,
+    case: Case = Case.objects.create()
+    CaseCompliance.objects.create(
+        case=case,
+        statement_compliance_state_initial=statement_compliance_state_initial,
+        statement_compliance_state_12_week=statement_compliance_state_12_week,
     )
+    case.save()
 
     assert case.accessibility_statement_compliance_display == expected_result
 

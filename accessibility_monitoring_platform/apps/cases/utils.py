@@ -35,6 +35,7 @@ from .models import (
     CASE_EVENT_APPROVE_REPORT,
     CASE_EVENT_READY_FOR_FINAL_DECISION,
     CASE_EVENT_CASE_COMPLETED,
+    COMPLIANCE_FIELDS,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
@@ -175,11 +176,11 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Initial accessibility statement compliance decision",
-        field_name="accessibility_statement_state",
+        field_name="statement_compliance_state_initial",
     ),
     ColumnAndFieldNames(
         column_name="Initial accessibility statement compliance notes",
-        field_name="accessibility_statement_notes",
+        field_name="statement_compliance_notes_initial",
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance decision",
@@ -310,11 +311,11 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="12-week website compliance decision",
-        field_name="website_state_final",
+        field_name="website_compliance_state_12_week",
     ),
     ColumnAndFieldNames(
         column_name="12-week website compliance decision notes",
-        field_name="website_state_notes_final",
+        field_name="website_compliance_notes_12_week",
     ),
     ColumnAndFieldNames(
         column_name="Final website compliance decision page complete (spreadsheet testing)",
@@ -573,7 +574,12 @@ def download_feedback_survey_cases(
         contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
         row = []
         for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT:
-            row.append(format_model_field(model_instance=case, column=column))
+            if column.field_name in COMPLIANCE_FIELDS:
+                row.append(
+                    format_model_field(model_instance=case.compliance, column=column)
+                )
+            else:
+                row.append(format_model_field(model_instance=case, column=column))
         for column in CONTACT_COLUMNS_FOR_EXPORT:
             row.append(format_model_field(model_instance=contact, column=column))
         output.append(row)

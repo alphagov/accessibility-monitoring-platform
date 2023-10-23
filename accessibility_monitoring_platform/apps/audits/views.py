@@ -252,7 +252,7 @@ class AuditUpdateView(UpdateView):
         return self.request.path
 
 
-class AuditCaseUpdateView(AuditUpdateView):
+class AuditCaseComplianceUpdateView(AuditUpdateView):
     """
     View to update audit and case fields
     """
@@ -261,16 +261,18 @@ class AuditCaseUpdateView(AuditUpdateView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
-        if "case_form" not in context:
+        if "case_compliance_form" not in context:
             if self.request.POST:
-                case_form: Form = self.case_form_class(
-                    self.request.POST, instance=self.object.case, prefix="case"
+                case_compliance_form: Form = self.case_compliance_form_class(
+                    self.request.POST,
+                    instance=self.object.case.compliance,
+                    prefix="case-compliance",
                 )
             else:
-                case_form: Form = self.case_form_class(
-                    instance=self.object.case, prefix="case"
+                case_compliance_form: Form = self.case_compliance_form_class(
+                    instance=self.object.case.compliance, prefix="case-compliance"
                 )
-            context["case_form"] = case_form
+            context["case_compliance_form"] = case_compliance_form
         return context
 
     def post(
@@ -279,18 +281,20 @@ class AuditCaseUpdateView(AuditUpdateView):
         """Populate two forms from post request"""
         self.object: Audit = self.get_object()
         form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
-        case_form: Form = self.case_form_class(
-            request.POST, instance=self.object.case, prefix="case"
+        case_compliance_form: Form = self.case_compliance_form_class(
+            request.POST, instance=self.object.case.compliance, prefix="case-compliance"
         )
-        if form.is_valid() and case_form.is_valid():
+        if form.is_valid() and case_compliance_form.is_valid():
             form.save()
-            case_form.save()
-            if "website_compliance_state_initial" in case_form.changed_data:
+            case_compliance_form.save()
+            if "website_compliance_state_initial" in case_compliance_form.changed_data:
                 report_data_updated(audit=self.object)
             return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(
-                self.get_context_data(form=form, case_form=case_form)
+                self.get_context_data(
+                    form=form, case_compliance_form=case_compliance_form
+                )
             )
 
 
@@ -510,13 +514,15 @@ class AuditPageChecksFormView(FormView):
         return self.request.path
 
 
-class AuditWebsiteDecisionUpdateView(AuditCaseUpdateView):
+class AuditWebsiteDecisionUpdateView(AuditCaseComplianceUpdateView):
     """
     View to update website compliance fields
     """
 
     form_class: Type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
-    case_form_class: Type[CaseWebsiteDecisionUpdateForm] = CaseWebsiteDecisionUpdateForm
+    case_compliance_form_class: Type[
+        CaseWebsiteDecisionUpdateForm
+    ] = CaseWebsiteDecisionUpdateForm
     template_name: str = "audits/forms/website_decision.html"
 
     def get_success_url(self) -> str:
@@ -827,7 +833,7 @@ class AuditStatement2UpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementDecisionUpdateView(AuditCaseUpdateView):
+class AuditStatementDecisionUpdateView(AuditCaseComplianceUpdateView):
     """
     View to update statement decision fields
     """
@@ -835,7 +841,7 @@ class AuditStatementDecisionUpdateView(AuditCaseUpdateView):
     form_class: Type[
         ArchiveAuditStatementDecisionUpdateForm
     ] = ArchiveAuditStatementDecisionUpdateForm
-    case_form_class: Type[
+    case_compliance_form_class: Type[
         ArchiveCaseStatementDecisionUpdateForm
     ] = ArchiveCaseStatementDecisionUpdateForm
     template_name: str = "audits/forms/statement_decision.html"
@@ -1064,7 +1070,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         return super().get_success_url()
 
 
-class AuditRetestWebsiteDecisionUpdateView(AuditCaseUpdateView):
+class AuditRetestWebsiteDecisionUpdateView(AuditCaseComplianceUpdateView):
     """
     View to retest website compliance fields
     """
@@ -1072,7 +1078,7 @@ class AuditRetestWebsiteDecisionUpdateView(AuditCaseUpdateView):
     form_class: Type[
         AuditRetestWebsiteDecisionUpdateForm
     ] = AuditRetestWebsiteDecisionUpdateForm
-    case_form_class: Type[
+    case_compliance_form_class: Type[
         CaseFinalWebsiteDecisionUpdateForm
     ] = CaseFinalWebsiteDecisionUpdateForm
     template_name: str = "audits/forms/retest_website_decision.html"
@@ -1356,7 +1362,7 @@ class AuditRetestStatementComparisonUpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditRetestStatementDecisionUpdateView(AuditCaseUpdateView):
+class AuditRetestStatementDecisionUpdateView(AuditCaseComplianceUpdateView):
     """
     View to retest statement decsion
     """
@@ -1364,7 +1370,7 @@ class AuditRetestStatementDecisionUpdateView(AuditCaseUpdateView):
     form_class: Type[
         ArchiveAuditRetestStatementDecisionUpdateForm
     ] = ArchiveAuditRetestStatementDecisionUpdateForm
-    case_form_class: Type[
+    case_compliance_form_class: Type[
         ArchiveCaseFinalStatementDecisionUpdateForm
     ] = ArchiveCaseFinalStatementDecisionUpdateForm
     template_name: str = "audits/forms/retest_statement_decision.html"
