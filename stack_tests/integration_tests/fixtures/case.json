@@ -78,5 +78,21 @@
       "deactivate_notes": "",
       "qa_status": "qa-approved"
     }
+  },
+  {
+    "model": "cases.casecompliance",
+    "pk": 1,
+    "fields": {
+      "version": 0,
+      "case_id": 1,
+      "website_compliance_state_initial": "not-known",
+      "website_compliance_notes_initial": "",
+      "statement_compliance_state_initial": "unknown",
+      "statement_compliance_notes_initial": "",
+      "website_compliance_state_12_week": "not-known",
+      "website_compliance_notes_12_week": "",
+      "statement_compliance_state_12_week": "unknown",
+      "statement_compliance_notes_12_week": ""
+    }
   }
 ]

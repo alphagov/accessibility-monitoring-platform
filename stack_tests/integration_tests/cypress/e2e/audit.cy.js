@@ -70,8 +70,8 @@ describe('View test', () => {
 
   it('can edit accessibility statement compliance decision', () => {
     cy.get('#edit-statement-decision').click()
-    cy.get('[name="case-compliance-statement_compliance_state_12_week"]').check('not-compliant')
-    cy.get('[name="case-compliance-statement_compliance_notes_12_week"]').clear().type(accessibilityStatementComplianceNote)
+    cy.get('[name="case-compliance-statement_compliance_state_initial"]').check('not-compliant')
+    cy.get('[name="case-compliance-statement_compliance_notes_initial"]').clear().type(accessibilityStatementComplianceNote)
     cy.get('[name="archive_audit_statement_decision_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Test').click()
