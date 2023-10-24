@@ -22,6 +22,7 @@ from ...cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
 )
 from ...cases.views import calculate_report_followup_dates
+from ...cases.utils import create_case_and_compliance
 from ...notifications.models import Notification
 from ...overdue.tests import create_case
 from ...reminders.models import Reminder
@@ -465,9 +466,9 @@ def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = Case.objects.create(
+    fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_12_week=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
         case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
@@ -602,13 +603,13 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
+    case: Case = create_case_and_compliance(case_completed="complete-no-send")
     Audit.objects.create(
         case=case,
         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    initially_compliant_website_case: Case = Case.objects.create(
+    initially_compliant_website_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
         website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
@@ -619,11 +620,11 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
+    case: Case = create_case_and_compliance(case_completed="complete-no-send")
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = Case.objects.create(
+    fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
@@ -631,11 +632,11 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
         case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
     )
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
+    case: Case = create_case_and_compliance(case_completed="complete-no-send")
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = Case.objects.create(
+    fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
@@ -666,11 +667,11 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    initally_compliant_statement_case: Case = Case.objects.create(
+    initally_compliant_statement_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_initial=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_12_week=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
         case=initally_compliant_statement_case,
@@ -678,27 +679,27 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
+    case: Case = create_case_and_compliance(case_completed="complete-no-send")
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = Case.objects.create(
+    fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_12_week=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
         case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
     )
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
+    case: Case = create_case_and_compliance(case_completed="complete-no-send")
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = Case.objects.create(
+    fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_12_week=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
         case=fixed_case, retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc)

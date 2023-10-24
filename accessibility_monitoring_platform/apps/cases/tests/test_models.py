@@ -80,6 +80,12 @@ def last_edited_audit(last_edited_case: Case) -> Audit:
         )
 
 
+def create_case():
+    case: Case = Case.objects.create()
+    CaseCompliance.objects.create(case=case)
+    return case
+
+
 @pytest.mark.django_db
 def test_case_created_timestamp_is_populated():
     """Test the Case created field is populated the first time the Case is saved"""
@@ -527,10 +533,13 @@ def test_case_statement_checks_still_initial():
     overview checks is still not tested.
     """
     case: Case = Case.objects.create()
+    case_compliance: CaseCompliance = CaseCompliance.objects.create(case=case)
 
     assert case.statement_checks_still_initial is True
 
-    case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+    case_compliance.statement_compliance_state_initial = (
+        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+    )
 
     assert case.statement_checks_still_initial is False
 
@@ -772,12 +781,13 @@ def test_overview_issues_statement_with_statement_checks():
 @pytest.mark.django_db
 def test_set_accessibility_statement_state_default():
     """Test calculated accessibility statement state for new case"""
-    case: Case = Case.objects.create()
+    case: Case = create_case()
 
     case.set_accessibility_statement_states()
 
     assert (
-        case.accessibility_statement_state == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+        case.compliance.statement_compliance_state_initial
+        == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
     )
 
 

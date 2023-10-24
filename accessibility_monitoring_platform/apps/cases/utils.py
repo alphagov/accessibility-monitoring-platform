@@ -23,6 +23,8 @@ from .forms import CaseSearchForm, DEFAULT_SORT, NO_FILTER
 
 from .models import (
     Case,
+    CaseCompliance,
+    COMPLIANCE_FIELDS,
     CaseEvent,
     Contact,
     STATUS_UNASSIGNED,
@@ -87,11 +89,11 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Accessibility Statement Decision",
-        field_name="accessibility_statement_state_final",
+        field_name="statement_compliance_state_12_week",
     ),
     ColumnAndFieldNames(
         column_name="Notes on accessibility statement",
-        field_name="accessibility_statement_notes_final",
+        field_name="statement_compliance_notes_12_week",
     ),
     ColumnAndFieldNames(column_name=CONTACT_DETAIL_COLUMN_NAME, field_name=None),
     ColumnAndFieldNames(column_name=CONTACT_NAME_COLUMN_NAME, field_name=None),
@@ -185,7 +187,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance notes",
-        field_name="compliance_decision_notes",
+        field_name="website_compliance_notes_initial",
     ),
     ColumnAndFieldNames(
         column_name="Testing details page complete",
@@ -332,11 +334,11 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="12-week accessibility statement compliance decision",
-        field_name="accessibility_statement_state_final",
+        field_name="statement_compliance_state_12_week",
     ),
     ColumnAndFieldNames(
         column_name="12-week accessibility statement compliance notes",
-        field_name="accessibility_statement_notes_final",
+        field_name="statement_compliance_notes_12_week",
     ),
     ColumnAndFieldNames(
         column_name="Final accessibility statement compliance decision page complete (spreadsheet testing)",
@@ -745,3 +747,17 @@ def build_edit_link_html(case: Case, url_name: str) -> str:
     return (
         f"<a href='{edit_url}' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
     )
+
+
+def create_case_and_compliance(**kwargs):
+    """Create case and compliance objects from arbitrary arguments"""
+    compliance_kwargs: Dict[str, Any] = {
+        key: value for key, value in kwargs.items() if key in COMPLIANCE_FIELDS
+    }
+    non_compliance_args: Dict[str, Any] = {
+        key: value for key, value in kwargs.items() if key not in COMPLIANCE_FIELDS
+    }
+    case: Case = Case.objects.create(**non_compliance_args)
+    CaseCompliance.objects.create(case=case, **compliance_kwargs)
+    case.save()
+    return case

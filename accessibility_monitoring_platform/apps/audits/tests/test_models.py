@@ -794,10 +794,9 @@ def test_audit_failed_statement_check_results():
     ],
 )
 @pytest.mark.django_db
-def test_audit_specific_outstanding_statement_check_results(type, attr):
+def test_audit_contains_specific_outstanding_statement_check_results(type, attr):
     """
-    Tests specific audit outstanding_statement_check_results property contains the
-    matching failed statement check results.
+    Tests audit contains specific statement check results.
     """
     audit: Audit = create_audit_and_statement_check_results()
     failed_statement_check_results: StatementCheckResult = (

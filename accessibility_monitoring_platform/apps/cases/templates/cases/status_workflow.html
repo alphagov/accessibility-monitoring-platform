@@ -42,7 +42,7 @@
                             <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
                                 Initial accessibility statement decision is not filled in
                             </a>
-                            {% if case.accessibility_statement_state != 'unknown' %}&check;{% endif %}
+                            {% if case.compliance.statement_compliance_state_initial != 'unknown' %}&check;{% endif %}
                         {% endif %}
                     </li>
                 </ul>

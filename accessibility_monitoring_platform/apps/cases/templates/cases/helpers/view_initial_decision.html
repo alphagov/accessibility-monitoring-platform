@@ -10,8 +10,8 @@
                                     <div class="govuk-form-group">
                                         <label class="govuk-label"><b>Initial compliance notes</b></label>
                                         <div class="govuk-hint">
-                                            {% if case.compliance_decision_notes %}
-                                                {{ case.compliance_decision_notes|markdown_to_html }}
+                                            {% if case.compliance.website_compliance_notes_initial %}
+                                                {{ case.compliance.website_compliance_notes_initial|markdown_to_html }}
                                             {% else %}
                                                 No notes for this case
                                             {% endif %}
@@ -19,13 +19,13 @@
                                     </div>
                                     <div class="govuk-form-group">
                                         <label class="govuk-label"><b>Initial accessibility statement decision</b></label>
-                                        <div class="govuk-hint">{{ case.get_accessibility_statement_state_display }}</div>
+                                        <div class="govuk-hint">{{ case.compliance.get_statement_compliance_state_initial_display }}</div>
                                     </div>
                                     <div class="govuk-form-group">
                                         <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
                                         <div class="govuk-hint">
-                                            {% if case.accessibility_statement_notes %}
-                                                {{ case.accessibility_statement_notes|markdown_to_html }}
+                                            {% if case.compliance.statement_compliance_notes_initial %}
+                                                {{ case.compliance.statement_compliance_notes_initial|markdown_to_html }}
                                             {% else %}
                                                 No notes for this case
                                             {% endif %}

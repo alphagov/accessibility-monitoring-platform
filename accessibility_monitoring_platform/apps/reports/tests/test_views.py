@@ -32,6 +32,7 @@ from ...cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
 )
+from ...cases.utils import create_case_and_compliance
 from ...common.models import BOOLEAN_TRUE
 from ...s3_read_write.models import S3Report
 
@@ -55,7 +56,7 @@ SECOND_CODENAME: str = "SecondCodename"
 
 def create_report() -> Report:
     """Create a report"""
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     return report
@@ -66,7 +67,7 @@ def test_create_report_uses_older_template(admin_client):
     Test that report create uses last pre-statement check report template if no
     statement checks exist
     """
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     path_kwargs: Dict[str, int] = {"case_id": case.id}
     Audit.objects.create(case=case)
 
@@ -86,7 +87,7 @@ def test_create_report_uses_latest_template(admin_client):
     Test that report create uses latest report template if statement checks
     exist
     """
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     path_kwargs: Dict[str, int] = {"case_id": case.id}
     audit: Audit = Audit.objects.create(case=case)
     StatementCheckResult.objects.create(audit=audit)
@@ -104,7 +105,7 @@ def test_create_report_uses_latest_template(admin_client):
 
 def test_create_report_redirects(admin_client):
     """Test that report create redirects to report publisher"""
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     path_kwargs: Dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
@@ -133,7 +134,7 @@ def test_create_report_does_not_create_duplicate(admin_client):
 
 def test_create_report_creates_case_event(admin_client):
     """Test that report create al creates a case event"""
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     path_kwargs: Dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
@@ -296,7 +297,7 @@ def test_button_to_published_report_shown(admin_client):
     """
     Test button link to published report shown if published report exists
     """
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     S3Report.objects.create(case=case, version=0, latest_published=True)
@@ -317,7 +318,7 @@ def test_button_to_published_report_not_shown(admin_client):
     """
     Test button link to published report not shown if report not published
     """
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
@@ -337,7 +338,7 @@ def test_report_next_step_for_not_started(admin_client):
     """
     Test report next step for report review not started
     """
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
@@ -357,11 +358,11 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
     Test report next step for unassigned qa case
     """
     user: User = User.objects.create()
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_initial=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
@@ -384,11 +385,11 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
     Test report next step for case in qa in progress
     """
     user: User = User.objects.create()
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_initial=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
@@ -410,7 +411,7 @@ def test_report_next_step_for_case_report_approved(admin_client):
     """
     Test report next step for case report approved status is 'yes'
     """
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
@@ -434,7 +435,7 @@ def test_report_next_step_for_published_report_out_of_date(admin_client):
     """
     Test report next step for published report is out of date
     """
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
@@ -461,7 +462,7 @@ def test_report_next_step_for_published_report(admin_client):
     """
     Test report next step for published report
     """
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
@@ -484,7 +485,7 @@ def test_report_next_step_default(admin_client):
     """
     Test report next stepdefault
     """
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         report_review_status=BOOLEAN_TRUE,
         report_approved_status="in-progress",
     )
@@ -660,9 +661,14 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.home_page_url = "https://www.website.com"
     case.organisation_name = "org name"
     case.auditor = user
-    case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
-    case.website_compliance_state_initial = WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
     case.report_review_status = BOOLEAN_TRUE
+    case.compliance.statement_compliance_state_initial = (
+        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+    )
+    case.compliance.website_compliance_state_initial = (
+        WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
+    )
+    case.compliance.save()
     case.save()
 
     response: HttpResponse = admin_client.get(

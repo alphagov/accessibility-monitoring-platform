@@ -354,7 +354,7 @@ def get_policy_progress_metrics() -> List[ProgressMetric]:
     )
     fixed_audits_count: int = fixed_audits.count()
     compliant_audits: QuerySet[Audit] = retested_audits.filter(
-        case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        case__compliance__statement_compliance_state_12_week=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
     )
     compliant_audits_count: int = compliant_audits.count()
     check_results_of_last_90_days: QuerySet[CheckResult] = CheckResult.objects.filter(
@@ -428,12 +428,12 @@ def get_policy_yearly_metrics() -> List[YearlyMetric]:
     thirteen_month_website_initial_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
+        case__compliance__website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
     )
     thirteen_month_statement_initial_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        case__compliance__statement_compliance_state_initial=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
     )
     thirteen_month_final_no_action: QuerySet[
         Audit
@@ -443,7 +443,7 @@ def get_policy_yearly_metrics() -> List[YearlyMetric]:
     thirteen_month_statement_final_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        case__compliance__statement_compliance_state_12_week=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
     )
 
     retested_by_month: Timeseries = Timeseries(

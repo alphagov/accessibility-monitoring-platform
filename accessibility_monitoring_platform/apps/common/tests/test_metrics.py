@@ -25,6 +25,7 @@ from ...cases.models import (
     WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
 )
+from ...cases.utils import create_case_and_compliance
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 
@@ -122,7 +123,7 @@ def test_count_statement_issues_old_style(
     Test counting issues and fixed issues for accessibility statements
     prior to the introduction of statement check results.
     """
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     Audit.objects.create(**audit_params, case=case)
     assert count_statement_issues(audits=Audit.objects.all()) == (
         expected_fixed,
@@ -148,7 +149,7 @@ def test_count_statement_issues(
     expected_total: int,
 ):
     """Test counting issues and fixed issues for accessibility statements"""
-    case: Case = Case.objects.create()
+    case: Case = create_case_and_compliance()
     audit: Audit = Audit.objects.create(case=case)
     statement_check: StatementCheck = StatementCheck.objects.all().first()
     StatementCheckResult.objects.create(
@@ -170,12 +171,12 @@ def test_group_timeseries_data_by_month():
     Test counting objects and grouping a queryset with a date/datetime field by
     month
     """
-    Case.objects.create(case_details_complete_date=date(2022, 1, 1))
-    Case.objects.create(case_details_complete_date=date(2022, 1, 2))
-    Case.objects.create(case_details_complete_date=date(2022, 1, 3))
-    Case.objects.create(case_details_complete_date=date(2022, 2, 4))
-    Case.objects.create(case_details_complete_date=date(2022, 2, 5))
-    Case.objects.create(case_details_complete_date=date(2022, 4, 6))
+    create_case_and_compliance(case_details_complete_date=date(2022, 1, 1))
+    create_case_and_compliance(case_details_complete_date=date(2022, 1, 2))
+    create_case_and_compliance(case_details_complete_date=date(2022, 1, 3))
+    create_case_and_compliance(case_details_complete_date=date(2022, 2, 4))
+    create_case_and_compliance(case_details_complete_date=date(2022, 2, 5))
+    create_case_and_compliance(case_details_complete_date=date(2022, 4, 6))
 
     assert group_timeseries_data_by_month(
         queryset=Case.objects,
@@ -352,25 +353,25 @@ def test_get_case_progress_metrics(mock_date):
     """Test case progress metrics returned"""
     mock_date.today.return_value = date(2022, 1, 20)
 
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
         testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
     )
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
         testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
         testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
     )
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
         testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
@@ -402,25 +403,25 @@ def test_get_case_yearly_metrics(mock_datetime):
     """Test case yearly metrics returned"""
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
         testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
     )
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
         testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
         testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
     )
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
         testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
@@ -511,10 +512,10 @@ def test_get_case_yearly_metrics(mock_datetime):
 @pytest.mark.django_db
 def test_get_policy_total_metrics():
     """Test policy total metrics returned"""
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
     )
-    Case.objects.create(
+    create_case_and_compliance(
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         case_completed=CASE_COMPLETED_NO_SEND,
     )
@@ -571,7 +572,7 @@ def test_get_policy_progress_metrics(mock_datetime):
     """Test policy progress metrics"""
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
     )
     audit: Audit = Audit.objects.create(
@@ -624,7 +625,7 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
     """Test policy progress metrics excludes missing pages"""
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
     )
     audit: Audit = Audit.objects.create(
@@ -678,9 +679,9 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
 def test_get_equality_body_cases_metric(mock_datetime):
     """Test equality body cases metric"""
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
-    Case.objects.create(enforcement_body_pursuing="yes-completed")
-    Case.objects.create(enforcement_body_pursuing="yes-completed")
-    Case.objects.create(enforcement_body_pursuing="yes-in-progress")
+    create_case_and_compliance(enforcement_body_pursuing="yes-completed")
+    create_case_and_compliance(enforcement_body_pursuing="yes-completed")
+    create_case_and_compliance(enforcement_body_pursuing="yes-in-progress")
 
     assert get_equality_body_cases_metric() == EqualityBodyCasesMetric(
         label="Cases completed with equalities bodies in last year",
@@ -695,15 +696,15 @@ def test_get_policy_yearly_metrics(mock_datetime):
     """Test policy yearly metrics returned"""
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
         website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_initial=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
         website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
@@ -711,7 +712,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
         website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
@@ -719,10 +720,10 @@ def test_get_policy_yearly_metrics(mock_datetime):
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
         website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_12_week=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
@@ -782,15 +783,15 @@ def test_get_report_progress_metrics(mock_date):
     """Test report progress metrics returned"""
     mock_date.today.return_value = date(2022, 1, 20)
 
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
         report_acknowledged_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
     )
-    Case.objects.create(
+    create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
         report_acknowledged_date=datetime(2021, 12, 1, tzinfo=timezone.utc),
     )
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
         report_acknowledged_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
@@ -828,7 +829,7 @@ def test_get_report_yearly_metrics(mock_datetime):
     """Test report yearly metrics returned"""
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
     )
     s3_report: S3Report = S3Report.objects.create(

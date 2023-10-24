@@ -7,9 +7,9 @@
     <h2 class="govuk-heading-s amp-margin-bottom-5">Auditor</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{% if audit.case.auditor %}{{ audit.case.auditor.get_full_name }}{% else %}None{% endif %}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">12-week website compliance</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">{{ audit.case.get_website_state_final_display }}</p>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ audit.case.compliance.get_website_compliance_state_12_week_display }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">12-week Statement compliance</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">{{ audit.case.get_accessibility_statement_state_final_display }}</p>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ audit.case.compliance.get_statement_compliance_state_12_week_display }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Number of remaining WCAG issues</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{{ audit.unfixed_check_results.count|intcomma }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Number of remaining statement issues</h2>

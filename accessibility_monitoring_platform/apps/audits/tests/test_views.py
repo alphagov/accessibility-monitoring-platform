@@ -1202,7 +1202,7 @@ def test_website_decision_saved_on_case(admin_client):
             "partially-compliant",
             True,
         ),
-        ("case-compliance-compliance_decision_notes", "blah", False),
+        ("case-compliance-website_compliance_notes_initial", "blah", False),
         ("audit_website_decision_complete_date", timezone.now(), False),
     ],
 )
@@ -1616,8 +1616,8 @@ def test_statement_decision_saved_on_case(admin_client):
             "version": audit.version,
             "save": "Button value",
             "case-version": audit.case.version,
-            "case-accessibility_statement_state": ACCESSIBILITY_STATEMENT_STATE,
-            "case-accessibility_statement_notes": ACCESSIBILITY_STATEMENT_NOTES,
+            "case-compliance-statement_compliance_state_initial": ACCESSIBILITY_STATEMENT_STATE,
+            "case-compliance-statement_compliance_notes_initial": ACCESSIBILITY_STATEMENT_NOTES,
         },
     )
 
@@ -1625,8 +1625,14 @@ def test_statement_decision_saved_on_case(admin_client):
 
     updated_case: Case = Case.objects.get(id=audit.case.id)
 
-    assert updated_case.accessibility_statement_state == ACCESSIBILITY_STATEMENT_STATE
-    assert updated_case.accessibility_statement_notes == ACCESSIBILITY_STATEMENT_NOTES
+    assert (
+        updated_case.compliance.statement_compliance_state_initial
+        == ACCESSIBILITY_STATEMENT_STATE
+    )
+    assert (
+        updated_case.compliance.statement_compliance_notes_initial
+        == ACCESSIBILITY_STATEMENT_NOTES
+    )
 
 
 @pytest.mark.parametrize(
@@ -1927,8 +1933,8 @@ def test_retest_statement_decision_saved_on_case(admin_client):
             "version": audit.version,
             "save": "Button value",
             "case-version": audit.case.version,
-            "case-accessibility_statement_state_final": ACCESSIBILITY_STATEMENT_STATE,
-            "case-accessibility_statement_notes_final": ACCESSIBILITY_STATEMENT_NOTES,
+            "case-compliance-accessibility_statement_state_final": ACCESSIBILITY_STATEMENT_STATE,
+            "case-compliance-accessibility_statement_notes_final": ACCESSIBILITY_STATEMENT_NOTES,
         },
     )
 
@@ -1937,11 +1943,11 @@ def test_retest_statement_decision_saved_on_case(admin_client):
     updated_case: Case = Case.objects.get(id=audit.case.id)
 
     assert (
-        updated_case.accessibility_statement_state_final
+        updated_case.compliance.accessibility_statement_state_final
         == ACCESSIBILITY_STATEMENT_STATE
     )
     assert (
-        updated_case.accessibility_statement_notes_final
+        updated_case.compliance.accessibility_statement_notes_final
         == ACCESSIBILITY_STATEMENT_NOTES
     )
 

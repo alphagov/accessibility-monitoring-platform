@@ -652,22 +652,30 @@ class Case(VersionModel):
 
     def set_accessibility_statement_states(self) -> None:
         if self.audit:
-            accessibility_statement_state: str = self.accessibility_statement_state
-            accessibility_statement_state_final: str = (
-                self.accessibility_statement_state_final
+            old_statement_compliance_state_initial: str = (
+                self.compliance.statement_compliance_state_initial
+            )
+            old_statement_compliance_state_12_week: str = (
+                self.compliance.statement_compliance_state_12_week
+            )
+            new_statement_compliance_state_initial: str = (
+                old_statement_compliance_state_initial
+            )
+            new_statement_compliance_state_12_week: str = (
+                old_statement_compliance_state_12_week
             )
             if self.audit.accessibility_statement_initially_found:
                 if self.audit.uses_statement_checks:
                     if self.audit.failed_statement_check_results.count() > 0:
-                        self.accessibility_statement_state = (
+                        new_statement_compliance_state_initial = (
                             ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
                         )
                     else:
-                        self.accessibility_statement_state = (
+                        new_statement_compliance_state_initial = (
                             ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
                         )
             else:
-                self.accessibility_statement_state = (
+                new_statement_compliance_state_initial = (
                     ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
                 )
             if (
@@ -676,22 +684,30 @@ class Case(VersionModel):
             ):
                 if self.audit.uses_statement_checks:
                     if self.audit.failed_retest_statement_check_results.count() > 0:
-                        self.accessibility_statement_state_final = (
+                        new_statement_compliance_state_12_week = (
                             ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
                         )
                     else:
-                        self.accessibility_statement_state_final = (
+                        new_statement_compliance_state_12_week = (
                             ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
                         )
             else:
-                self.accessibility_statement_state_final = (
+                new_statement_compliance_state_12_week = (
                     ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
                 )
             if (
-                accessibility_statement_state != self.accessibility_statement_state
-                or accessibility_statement_state_final
-                != self.accessibility_statement_state_final
+                old_statement_compliance_state_initial
+                != new_statement_compliance_state_initial
+                or old_statement_compliance_state_12_week
+                != new_statement_compliance_state_12_week
             ):
+                self.compliance.statement_compliance_state_initial = (
+                    new_statement_compliance_state_initial
+                )
+                self.compliance.statement_compliance_state_12_week = (
+                    new_statement_compliance_state_12_week
+                )
+                self.compliance.save()
                 self.save()
 
     @property
