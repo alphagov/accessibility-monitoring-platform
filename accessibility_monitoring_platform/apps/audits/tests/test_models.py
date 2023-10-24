@@ -1009,13 +1009,13 @@ def test_set_accessibility_statement_state_called_on_statement_page_update():
     state on the case.
     """
     case: Case = Case.objects.create()
-    mock_set_accessibility_statement_states = Mock()
-    case.set_accessibility_statement_states = mock_set_accessibility_statement_states
+    mock_set_statement_compliance_states = Mock()
+    case.set_statement_compliance_states = mock_set_statement_compliance_states
     audit: Audit = Audit.objects.create(case=case)
 
     Page.objects.create(audit=audit, page_type=PAGE_TYPE_STATEMENT)
 
-    mock_set_accessibility_statement_states.assert_called_once()
+    mock_set_statement_compliance_states.assert_called_once()
 
 
 @pytest.mark.django_db
@@ -1025,13 +1025,13 @@ def test_set_accessibility_statement_state_not_called_on_non_statement_page_upda
     state on the case.
     """
     case: Case = Case.objects.create()
-    mock_set_accessibility_statement_states = Mock()
-    case.set_accessibility_statement_states = mock_set_accessibility_statement_states
+    mock_set_statement_compliance_states = Mock()
+    case.set_statement_compliance_states = mock_set_statement_compliance_states
     audit: Audit = Audit.objects.create(case=case)
 
     Page.objects.create(audit=audit)
 
-    mock_set_accessibility_statement_states.assert_not_called()
+    mock_set_statement_compliance_states.assert_not_called()
 
 
 @pytest.mark.django_db
@@ -1041,8 +1041,8 @@ def test_set_accessibility_statement_state_called_on_statement_check_update():
     state on the case.
     """
     case: Case = Case.objects.create()
-    mock_set_accessibility_statement_states = Mock()
-    case.set_accessibility_statement_states = mock_set_accessibility_statement_states
+    mock_set_statement_compliance_states = Mock()
+    case.set_statement_compliance_states = mock_set_statement_compliance_states
     audit: Audit = Audit.objects.create(case=case)
     statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
 
@@ -1052,4 +1052,4 @@ def test_set_accessibility_statement_state_called_on_statement_check_update():
         statement_check=statement_check,
     )
 
-    mock_set_accessibility_statement_states.assert_called_once()
+    mock_set_statement_compliance_states.assert_called_once()

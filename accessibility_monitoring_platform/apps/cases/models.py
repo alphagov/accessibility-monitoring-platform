@@ -653,7 +653,7 @@ class Case(VersionModel):
             return QA_STATUS_QA_APPROVED
         return QA_STATUS_UNKNOWN
 
-    def set_accessibility_statement_states(self) -> None:
+    def set_statement_compliance_states(self) -> None:
         if self.audit:
             old_statement_compliance_state_initial: str = (
                 self.compliance.statement_compliance_state_initial

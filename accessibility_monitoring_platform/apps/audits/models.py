@@ -1116,7 +1116,7 @@ class Page(models.Model):
         self.updated = timezone.now()
         super().save(*args, **kwargs)
         if self.page_type == PAGE_TYPE_STATEMENT:
-            self.audit.case.set_accessibility_statement_states()
+            self.audit.case.set_statement_compliance_states()
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-page-checks", kwargs={"pk": self.pk})
@@ -1300,7 +1300,7 @@ class StatementCheckResult(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
-        self.audit.case.set_accessibility_statement_states()
+        self.audit.case.set_statement_compliance_states()
 
     @property
     def label(self):
