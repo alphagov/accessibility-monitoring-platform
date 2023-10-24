@@ -50,7 +50,6 @@ from ...reports.models import Report
 
 from ..models import (
     Case,
-    CaseCompliance,
     CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
@@ -64,6 +63,7 @@ from ..models import (
     CASE_COMPLETED_NO_SEND,
 )
 from ..utils import (
+    create_case_and_compliance,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     COLUMNS_FOR_EQUALITY_BODY,
     EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
@@ -176,12 +176,6 @@ CASE_ARCHIVE: List[Dict] = {
         },
     ]
 }
-
-
-def create_case():
-    case: Case = Case.objects.create()
-    CaseCompliance.objects.create(case=case)
-    return case
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -2347,7 +2341,7 @@ def test_platform_shows_notification_if_fully_compliant(
     Test cases with fully compliant website and accessibility statement show
     notification to that effect on report details page.
     """
-    case: Case = create_case()
+    case: Case = create_case_and_compliance()
     case.compliance.website_compliance_state_initial = (
         WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
     )

@@ -4,7 +4,6 @@ Tests for view - dashboard
 import pytest
 
 from datetime import datetime
-from typing import Any, Dict
 
 from pytest_django.asserts import assertContains
 
@@ -15,8 +14,6 @@ from accessibility_monitoring_platform.apps.common.models import ChangeToPlatfor
 
 from ...cases.models import (
     Case,
-    CaseCompliance,
-    COMPLIANCE_FIELDS,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     CASE_COMPLETED_NO_SEND,
@@ -24,20 +21,8 @@ from ...cases.models import (
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
 )
+from ...cases.utils import create_case_and_compliance
 from ...common.models import BOOLEAN_TRUE
-
-
-def create_case(**kwargs):
-    compliance_kwargs: Dict[str, Any] = {
-        key: value for key, value in kwargs.items() if key in COMPLIANCE_FIELDS
-    }
-    non_compliance_args: Dict[str, Any] = {
-        key: value for key, value in kwargs.items() if key not in COMPLIANCE_FIELDS
-    }
-    case: Case = Case.objects.create(**non_compliance_args)
-    CaseCompliance.objects.create(case=case, **compliance_kwargs)
-    case.save()
-    return case
 
 
 def test_dashboard_loads_correctly_when_user_logged_in(admin_client):
@@ -73,9 +58,9 @@ def test_dashboard_shows_qa_auditors(dashboard_view, admin_client):
 
 def test_dashboard_shows_oldest_unassigned_cases_first(admin_client):
     """Tests dashboard shows unassigned cases in order of oldest first"""
-    case_1: Case = create_case(organisation_name="Organisation One")
-    case_2: Case = create_case(organisation_name="Organisation Two")
-    case_3: Case = create_case(organisation_name="Organisation Three")
+    case_1: Case = Case.objects.create(organisation_name="Organisation One")
+    case_2: Case = Case.objects.create(organisation_name="Organisation Two")
+    case_3: Case = Case.objects.create(organisation_name="Organisation Three")
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
@@ -92,7 +77,7 @@ def test_dashboard_shows_oldest_unassigned_cases_first(admin_client):
 
 def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user):
     """Check dashboard contains link to find closed and sent to equalities body cases"""
-    create_case(
+    create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
@@ -124,7 +109,7 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
 
 def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
     """Check dashboard contains link to find completed cases"""
-    create_case(
+    create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
@@ -173,24 +158,24 @@ def test_dashboard_shows_warning_of_recent_changes_to_platform(admin_client):
 def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user):
     """Check dashboard shows correct number of active cases"""
     # Creates unassigned case
-    create_case()
+    Case.objects.create()
 
     # Creates test in progress case
-    create_case(
+    Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
     )
 
     # Creates deactivated case
-    create_case(
+    Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         is_deactivated=True,
     )
 
     # Creates completed case
-    create_case(
+    create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
@@ -208,7 +193,7 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
     )
 
     # Creates closed sent to equalities-body case
-    create_case(
+    create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
@@ -242,11 +227,11 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
     """Check dashboard shows correct number of your active cases"""
 
     # Creates unassigned case
-    create_case()
-    create_case()
+    Case.objects.create()
+    Case.objects.create()
 
     # Case assigned to you
-    create_case(auditor=admin_user)
+    Case.objects.create(auditor=admin_user)
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
     assert Case.objects.all().count() == 3

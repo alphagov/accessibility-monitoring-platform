@@ -17,7 +17,6 @@ from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
 
 from ...cases.models import (
     Case,
-    CaseCompliance,
     CaseEvent,
     Contact,
     CASE_EVENT_CREATE_AUDIT,
@@ -100,8 +99,6 @@ STATEMENT_CHECK_REPORT_TEXT: str = "Report text"
 
 def create_audit() -> Audit:
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
-    CaseCompliance.objects.create(case=case)
-    case.save()
     audit: Audit = Audit.objects.create(case=case)
     return audit
 
@@ -387,12 +384,6 @@ def test_audit_statement_check_specific_page_loads(
     [
         ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
         ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages"),
-        ("audits:edit-website-decision", "save", "audits:edit-website-decision"),
-        (
-            "audits:edit-website-decision",
-            "save_continue",
-            "audits:edit-audit-statement-1",
-        ),
         ("audits:edit-audit-statement-1", "save", "audits:edit-audit-statement-1"),
         (
             "audits:edit-audit-statement-1",
@@ -400,17 +391,6 @@ def test_audit_statement_check_specific_page_loads(
             "audits:edit-audit-statement-2",
         ),
         ("audits:edit-audit-statement-2", "save", "audits:edit-audit-statement-2"),
-        (
-            "audits:edit-audit-statement-2",
-            "save_continue",
-            "audits:edit-statement-decision",
-        ),
-        ("audits:edit-statement-decision", "save", "audits:edit-statement-decision"),
-        (
-            "audits:edit-statement-decision",
-            "save_continue",
-            "audits:edit-audit-report-options",
-        ),
         (
             "audits:edit-audit-report-options",
             "save",
@@ -438,21 +418,6 @@ def test_audit_statement_check_specific_page_loads(
             "audits:edit-audit-retest-pages",
         ),
         ("audits:edit-audit-retest-pages", "save", "audits:edit-audit-retest-pages"),
-        (
-            "audits:edit-audit-retest-pages",
-            "save_continue",
-            "audits:edit-audit-retest-website-decision",
-        ),
-        (
-            "audits:edit-audit-retest-website-decision",
-            "save",
-            "audits:edit-audit-retest-website-decision",
-        ),
-        (
-            "audits:edit-audit-retest-website-decision",
-            "save_continue",
-            "audits:edit-audit-retest-statement-1",
-        ),
         (
             "audits:edit-audit-retest-statement-1",
             "save",
@@ -493,16 +458,6 @@ def test_audit_statement_check_specific_page_loads(
             "save_continue",
             "audits:edit-audit-retest-statement-decision",
         ),
-        (
-            "audits:edit-audit-retest-statement-decision",
-            "save",
-            "audits:edit-audit-retest-statement-decision",
-        ),
-        (
-            "audits:edit-audit-retest-statement-decision",
-            "save_exit",
-            "audits:audit-retest-detail",
-        ),
     ],
 )
 def test_audit_edit_redirects_based_on_button_pressed(
@@ -522,7 +477,81 @@ def test_audit_edit_redirects_based_on_button_pressed(
         {
             "version": audit.version,
             button_name: "Button value",
-            "case-version": audit.case.version,
+            "case-compliance-version": audit.case.compliance.version,
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
+        ("audits:edit-website-decision", "save", "audits:edit-website-decision"),
+        (
+            "audits:edit-website-decision",
+            "save_continue",
+            "audits:edit-audit-statement-1",
+        ),
+        (
+            "audits:edit-audit-statement-2",
+            "save_continue",
+            "audits:edit-statement-decision",
+        ),
+        ("audits:edit-statement-decision", "save", "audits:edit-statement-decision"),
+        (
+            "audits:edit-statement-decision",
+            "save_continue",
+            "audits:edit-audit-report-options",
+        ),
+        (
+            "audits:edit-audit-retest-pages",
+            "save_continue",
+            "audits:edit-audit-retest-website-decision",
+        ),
+        (
+            "audits:edit-audit-retest-website-decision",
+            "save",
+            "audits:edit-audit-retest-website-decision",
+        ),
+        (
+            "audits:edit-audit-retest-website-decision",
+            "save_continue",
+            "audits:edit-audit-retest-statement-1",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save",
+            "audits:edit-audit-retest-statement-decision",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save_exit",
+            "audits:audit-retest-detail",
+        ),
+    ],
+)
+def test_audit_compliance_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful audit update redirects based on the button pressed
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=audit_pk),
+        {
+            "version": audit.version,
+            button_name: "Button value",
+            "case-compliance-version": audit.case.compliance.version,
         },
     )
 
@@ -704,7 +733,7 @@ def test_audit_statement_edit_redirects_based_on_button_pressed(
         reverse(path_name, kwargs=audit_pk),
         {
             "version": audit.version,
-            "case-version": audit.case.version,
+            "case-compliance-version": audit.case.compliance.version,
             button_name: "Button value",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -843,7 +872,7 @@ def test_audit_edit_redirects_to_case(
         {
             "version": audit.version,
             "save_exit": "Button value",
-            "case-version": audit.case.version,
+            "case-compliance-version": audit.case.compliance.version,
         },
     )
 
@@ -869,7 +898,7 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
         {
             "version": audit.version,
             "save_continue": "Button value",
-            "case-version": audit.case.version,
+            "case-compliance-version": audit.case.compliance.version,
         },
     )
 
@@ -1615,7 +1644,7 @@ def test_statement_decision_saved_on_case(admin_client):
         {
             "version": audit.version,
             "save": "Button value",
-            "case-version": audit.case.version,
+            "case-compliance-version": audit.case.compliance.version,
             "case-compliance-statement_compliance_state_initial": ACCESSIBILITY_STATEMENT_STATE,
             "case-compliance-statement_compliance_notes_initial": ACCESSIBILITY_STATEMENT_NOTES,
         },
@@ -1917,7 +1946,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
         == WEBSITE_COMPLIANCE_STATE_INITIAL
     )
     assert (
-        updated_case.compliance.website_compliance_state_12_week
+        updated_case.compliance.website_compliance_notes_12_week
         == COMPLIANCE_DECISION_NOTES
     )
 
@@ -1932,9 +1961,9 @@ def test_retest_statement_decision_saved_on_case(admin_client):
         {
             "version": audit.version,
             "save": "Button value",
-            "case-version": audit.case.version,
-            "case-compliance-accessibility_statement_state_final": ACCESSIBILITY_STATEMENT_STATE,
-            "case-compliance-accessibility_statement_notes_final": ACCESSIBILITY_STATEMENT_NOTES,
+            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-statement_compliance_state_12_week": ACCESSIBILITY_STATEMENT_STATE,
+            "case-compliance-statement_compliance_notes_12_week": ACCESSIBILITY_STATEMENT_NOTES,
         },
     )
 
@@ -1943,11 +1972,11 @@ def test_retest_statement_decision_saved_on_case(admin_client):
     updated_case: Case = Case.objects.get(id=audit.case.id)
 
     assert (
-        updated_case.compliance.accessibility_statement_state_final
+        updated_case.compliance.statement_compliance_state_12_week
         == ACCESSIBILITY_STATEMENT_STATE
     )
     assert (
-        updated_case.compliance.accessibility_statement_notes_final
+        updated_case.compliance.statement_compliance_notes_12_week
         == ACCESSIBILITY_STATEMENT_NOTES
     )
 
@@ -2183,7 +2212,7 @@ def test_update_audit_checks_version(admin_client):
         reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),
         {
             "version": audit.version - 1,
-            "case-version": case.version,
+            "case-compliance-version": case.compliance.version,
             "save": "Button value",
         },
     )
@@ -2212,7 +2241,9 @@ def test_update_audit_checks_version(admin_client):
     ],
 )
 def test_update_audit_checks_case_version(url_name, admin_client):
-    """Test that updating a case shows an error if the version of the case has changed"""
+    """
+    Test that updating a case shows an error if the version of the case compliance has changed
+    """
     audit: Audit = create_audit()
     case: Case = audit.case
 
@@ -2220,7 +2251,7 @@ def test_update_audit_checks_case_version(url_name, admin_client):
         reverse(url_name, kwargs={"pk": audit.id}),
         {
             "version": audit.version,
-            "case-version": case.version - 1,
+            "case-compliance-version": case.compliance.version - 1,
             "save": "Button value",
         },
     )
@@ -2231,7 +2262,7 @@ def test_update_audit_checks_case_version(url_name, admin_client):
         f"""<div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
                 <li class="govuk-error-message">
-                    {str(case)} has changed since this page loaded
+                    {str(case.compliance)} has changed since this page loaded
                 </li>
             </ul>
         </div>""",

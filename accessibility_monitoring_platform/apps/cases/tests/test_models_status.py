@@ -25,19 +25,7 @@ from ..models import (
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     BOOLEAN_TRUE,
 )
-
-
-def create_case(**kwargs):
-    compliance_kwargs: Dict[str, Any] = {
-        key: value for key, value in kwargs.items() if key in COMPLIANCE_FIELDS
-    }
-    non_compliance_args: Dict[str, Any] = {
-        key: value for key, value in kwargs.items() if key not in COMPLIANCE_FIELDS
-    }
-    case: Case = Case.objects.create(**non_compliance_args)
-    CaseCompliance.objects.create(case=case, **compliance_kwargs)
-    case.save()
-    return case
+from ..utils import create_case_and_compliance
 
 
 def check_for_status_specific_link(admin_client, case: Case, expected_link_label: str):
@@ -50,7 +38,7 @@ def check_for_status_specific_link(admin_client, case: Case, expected_link_label
 
 def test_case_status_deactivated(admin_client):
     """Test case status returns deactivated"""
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         is_deactivated=True,
@@ -64,7 +52,7 @@ def test_case_status_deactivated(admin_client):
 
 def test_case_status_unassigned(admin_client):
     """Test case status returns unassigned-case"""
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
@@ -78,7 +66,7 @@ def test_case_status_unassigned(admin_client):
 def test_case_status_test_in_progress(admin_client):
     """Test case status returns test-in-progress"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -93,7 +81,7 @@ def test_case_status_test_in_progress(admin_client):
 def test_case_status_report_in_progress(admin_client):
     """Test case status returns report-in-progress"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -111,7 +99,7 @@ def test_case_status_report_in_progress(admin_client):
 def test_case_status_qa_in_progress(admin_client):
     """Test case status returns qa-in-progress"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -129,7 +117,7 @@ def test_case_status_qa_in_progress(admin_client):
 def test_case_status_report_ready_to_send(admin_client):
     """Test case status returns report-ready-to-send"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -148,7 +136,7 @@ def test_case_status_report_ready_to_send(admin_client):
 def test_case_status_in_report_correspondence(admin_client):
     """Test case status returns in-report-correspondence"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -168,7 +156,7 @@ def test_case_status_in_report_correspondence(admin_client):
 def test_case_status_when_no_psb_contact(admin_client):
     """Test case status returns final-decision-due"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -188,7 +176,7 @@ def test_case_status_when_no_psb_contact(admin_client):
 def test_case_status_in_probation_period(admin_client):
     """Test case status returns in-probation-period"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -209,7 +197,7 @@ def test_case_status_in_probation_period(admin_client):
 def test_case_status_in_12_week_correspondence(admin_client):
     """Test case status returns in-12-week-correspondence"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -231,7 +219,7 @@ def test_case_status_in_12_week_correspondence(admin_client):
 def test_case_status_reviewing_changes(admin_client):
     """Test case status returns reviewing-changes"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -254,7 +242,7 @@ def test_case_status_reviewing_changes(admin_client):
 def test_case_status_final_decision_due(admin_client):
     """Test case status returns final-decision-due"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -278,7 +266,7 @@ def test_case_status_final_decision_due(admin_client):
 def test_case_status_case_closed_waiting_to_be_sent(admin_client):
     """Test case status returns case-closed-waiting-to-be-sent"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -302,7 +290,7 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
 def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
     """Test case status returns case-closed-sent-to-equalities-body"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -327,7 +315,7 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
 def test_case_status_in_correspondence_with_equalities_body(admin_client):
     """Test case status returns in-correspondence-with-equalities-body"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -353,7 +341,7 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
 def test_case_status_equality_bodies_complete(admin_client):
     """Test case status returns complete"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -380,7 +368,7 @@ def test_case_status_equality_bodies_complete(admin_client):
 def test_case_status_complete():
     """Test case status returns complete when case is exempt"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -395,7 +383,7 @@ def test_case_status_complete():
 def test_case_qa_status_unassigned_qa_case():
     """Test case returns unassigned-qa-case for qa_status"""
     user: User = User.objects.create()
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -411,7 +399,7 @@ def test_case_qa_status_in_qa():
     """Test case returns in-qa for qa_status"""
     user: User = User.objects.create(username="1")
     user2: User = User.objects.create(username="2")
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -428,7 +416,7 @@ def test_case_qa_status_qa_approved():
     """Test case returns qa-approved for qa_status"""
     user: User = User.objects.create(username="1")
     user2: User = User.objects.create(username="2")
-    case: Case = create_case(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,

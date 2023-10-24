@@ -492,6 +492,7 @@ class Case(VersionModel):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
 
     def save(self, *args, **kwargs) -> None:
+        new_case: bool = not self.id
         now: datetime = timezone.now()
         if not self.created:
             self.created = now
@@ -502,6 +503,8 @@ class Case(VersionModel):
         self.qa_status = self.calulate_qa_status()
         self.updated = now
         super().save(*args, **kwargs)
+        if new_case:
+            CaseCompliance.objects.create(case=self)
 
     @property
     def formatted_home_page_url(self) -> str:

@@ -609,7 +609,11 @@ def download_equality_body_cases(
         contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))
         row = []
         for column in COLUMNS_FOR_EQUALITY_BODY:
-            if column.field_name is None:
+            if column.field_name in COMPLIANCE_FIELDS:
+                row.append(
+                    format_model_field(model_instance=case.compliance, column=column)
+                )
+            elif column.field_name is None:
                 row.append(format_contacts(contacts=contacts, column=column))
             else:
                 row.append(format_model_field(model_instance=case, column=column))
@@ -639,7 +643,12 @@ def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpRe
         contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
         row = []
         for column in CASE_COLUMNS_FOR_EXPORT:
-            row.append(format_model_field(model_instance=case, column=column))
+            if column.field_name in COMPLIANCE_FIELDS:
+                row.append(
+                    format_model_field(model_instance=case.compliance, column=column)
+                )
+            else:
+                row.append(format_model_field(model_instance=case, column=column))
         for column in CONTACT_COLUMNS_FOR_EXPORT:
             row.append(format_model_field(model_instance=contact, column=column))
         output.append(row)
@@ -750,7 +759,7 @@ def build_edit_link_html(case: Case, url_name: str) -> str:
 
 
 def create_case_and_compliance(**kwargs):
-    """Create case and compliance objects from arbitrary arguments"""
+    """Create case and populate compliance fields from arbitrary arguments"""
     compliance_kwargs: Dict[str, Any] = {
         key: value for key, value in kwargs.items() if key in COMPLIANCE_FIELDS
     }
@@ -758,6 +767,9 @@ def create_case_and_compliance(**kwargs):
         key: value for key, value in kwargs.items() if key not in COMPLIANCE_FIELDS
     }
     case: Case = Case.objects.create(**non_compliance_args)
-    CaseCompliance.objects.create(case=case, **compliance_kwargs)
-    case.save()
+    if compliance_kwargs:
+        for key, value in compliance_kwargs.items():
+            setattr(case.compliance, key, value)
+        case.compliance.save()
+        case.save()
     return case
