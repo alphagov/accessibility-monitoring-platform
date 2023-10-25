@@ -23,8 +23,6 @@ from .forms import CaseSearchForm, DEFAULT_SORT, NO_FILTER
 
 from .models import (
     Case,
-    CaseCompliance,
-    COMPLIANCE_FIELDS,
     CaseEvent,
     Contact,
     STATUS_UNASSIGNED,

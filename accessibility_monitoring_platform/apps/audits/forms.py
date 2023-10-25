@@ -25,7 +25,6 @@ from ..cases.models import (
     BOOLEAN_CHOICES,
     STATEMENT_COMPLIANCE_STATE_CHOICES,
     WEBSITE_COMPLIANCE_STATE_CHOICES,
-    WEBSITE_COMPLIANCE_STATE_CHOICES,
 )
 from .models import (
     Audit,

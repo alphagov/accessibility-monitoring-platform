@@ -81,6 +81,22 @@ def last_edited_audit(last_edited_case: Case) -> Audit:
 
 
 @pytest.mark.django_db
+def test_case_creation_also_creates_compliance():
+    """Test that creating a case also creates a CaseCompliance"""
+    case: Case = Case.objects.create()
+
+    assert case.compliance is not None
+    assert case.compliance.website_compliance_state_initial is not None
+    assert case.compliance.website_compliance_notes_initial is not None
+    assert case.compliance.statement_compliance_state_initial is not None
+    assert case.compliance.statement_compliance_notes_initial is not None
+    assert case.compliance.website_compliance_state_12_week is not None
+    assert case.compliance.website_compliance_notes_12_week is not None
+    assert case.compliance.statement_compliance_state_12_week is not None
+    assert case.compliance.statement_compliance_notes_12_week is not None
+
+
+@pytest.mark.django_db
 def test_case_created_timestamp_is_populated():
     """Test the Case created field is populated the first time the Case is saved"""
     case: Case = Case.objects.create()

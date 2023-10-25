@@ -19,6 +19,7 @@ from ...common.models import BOOLEAN_TRUE
 
 from ..models import (
     Case,
+    CaseCompliance,
     CaseEvent,
     Contact,
     CASE_EVENT_TYPE_CREATE,
@@ -49,6 +50,7 @@ from ..utils import (
     download_cases,
     record_case_event,
     build_edit_link_html,
+    create_case_and_compliance,
 )
 
 ORGANISATION_NAME: str = "Organisation name one"
@@ -686,3 +688,24 @@ def test_build_edit_link_html():
         build_edit_link_html(case=case, url_name="cases:edit-test-results")
         == "<a href='/cases/1/edit-test-results/' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
     )
+
+
+@pytest.mark.django_db
+def test_create_case_and_compliance_no_args():
+    """Test cretaion of case and compliance with no arguments"""
+    case: Case = create_case_and_compliance()
+
+    assert isinstance(case, Case)
+    assert isinstance(case.compliance, CaseCompliance)
+
+
+@pytest.mark.django_db
+def test_create_case_and_compliance():
+    """Test cretaion of case and compliance with mix of arguments"""
+    case: Case = create_case_and_compliance(
+        organisation_name=ORGANISATION_NAME,
+        website_compliance_state_12_week="compliant",
+    )
+
+    assert case.organisation_name == ORGANISATION_NAME
+    assert case.compliance.website_compliance_state_12_week == "compliant"
