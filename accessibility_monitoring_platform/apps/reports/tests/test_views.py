@@ -56,7 +56,7 @@ SECOND_CODENAME: str = "SecondCodename"
 
 def create_report() -> Report:
     """Create a report"""
-    case: Case = create_case_and_compliance()
+    case: Case = Case.objects.create()
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     return report
@@ -67,7 +67,7 @@ def test_create_report_uses_older_template(admin_client):
     Test that report create uses last pre-statement check report template if no
     statement checks exist
     """
-    case: Case = create_case_and_compliance()
+    case: Case = Case.objects.create()
     path_kwargs: Dict[str, int] = {"case_id": case.id}
     Audit.objects.create(case=case)
 
@@ -87,7 +87,7 @@ def test_create_report_uses_latest_template(admin_client):
     Test that report create uses latest report template if statement checks
     exist
     """
-    case: Case = create_case_and_compliance()
+    case: Case = Case.objects.create()
     path_kwargs: Dict[str, int] = {"case_id": case.id}
     audit: Audit = Audit.objects.create(case=case)
     StatementCheckResult.objects.create(audit=audit)
@@ -105,7 +105,7 @@ def test_create_report_uses_latest_template(admin_client):
 
 def test_create_report_redirects(admin_client):
     """Test that report create redirects to report publisher"""
-    case: Case = create_case_and_compliance()
+    case: Case = Case.objects.create()
     path_kwargs: Dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
@@ -134,7 +134,7 @@ def test_create_report_does_not_create_duplicate(admin_client):
 
 def test_create_report_creates_case_event(admin_client):
     """Test that report create al creates a case event"""
-    case: Case = create_case_and_compliance()
+    case: Case = Case.objects.create()
     path_kwargs: Dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
@@ -297,7 +297,7 @@ def test_button_to_published_report_shown(admin_client):
     """
     Test button link to published report shown if published report exists
     """
-    case: Case = create_case_and_compliance()
+    case: Case = Case.objects.create()
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     S3Report.objects.create(case=case, version=0, latest_published=True)
@@ -318,7 +318,7 @@ def test_button_to_published_report_not_shown(admin_client):
     """
     Test button link to published report not shown if report not published
     """
-    case: Case = create_case_and_compliance()
+    case: Case = Case.objects.create()
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
@@ -338,7 +338,7 @@ def test_report_next_step_for_not_started(admin_client):
     """
     Test report next step for report review not started
     """
-    case: Case = create_case_and_compliance()
+    case: Case = Case.objects.create()
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
@@ -411,7 +411,7 @@ def test_report_next_step_for_case_report_approved(admin_client):
     """
     Test report next step for case report approved status is 'yes'
     """
-    case: Case = create_case_and_compliance(
+    case: Case = Case.objects.create(
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
@@ -435,7 +435,7 @@ def test_report_next_step_for_published_report_out_of_date(admin_client):
     """
     Test report next step for published report is out of date
     """
-    case: Case = create_case_and_compliance(
+    case: Case = Case.objects.create(
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
@@ -462,7 +462,7 @@ def test_report_next_step_for_published_report(admin_client):
     """
     Test report next step for published report
     """
-    case: Case = create_case_and_compliance(
+    case: Case = Case.objects.create(
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
@@ -485,7 +485,7 @@ def test_report_next_step_default(admin_client):
     """
     Test report next stepdefault
     """
-    case: Case = create_case_and_compliance(
+    case: Case = Case.objects.create(
         report_review_status=BOOLEAN_TRUE,
         report_approved_status="in-progress",
     )

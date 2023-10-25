@@ -603,7 +603,7 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = create_case_and_compliance(case_completed="complete-no-send")
+    case: Case = Case.objects.create(case_completed="complete-no-send")
     Audit.objects.create(
         case=case,
         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
@@ -620,11 +620,11 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
-    case: Case = create_case_and_compliance(case_completed="complete-no-send")
+    case: Case = Case.objects.create(case_completed="complete-no-send")
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = create_case_and_compliance(
+    fixed_case: Case = Case.objects.create(
         case_completed="complete-no-send",
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
@@ -632,11 +632,11 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
         case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
     )
 
-    case: Case = create_case_and_compliance(case_completed="complete-no-send")
+    case: Case = Case.objects.create(case_completed="complete-no-send")
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = create_case_and_compliance(
+    fixed_case: Case = Case.objects.create(
         case_completed="complete-no-send",
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
@@ -679,7 +679,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
-    case: Case = create_case_and_compliance(case_completed="complete-no-send")
+    case: Case = Case.objects.create(case_completed="complete-no-send")
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
     )
@@ -692,7 +692,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
         case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
     )
 
-    case: Case = create_case_and_compliance(case_completed="complete-no-send")
+    case: Case = Case.objects.create(case_completed="complete-no-send")
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc)
     )

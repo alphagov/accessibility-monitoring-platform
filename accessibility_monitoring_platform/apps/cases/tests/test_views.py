@@ -2341,14 +2341,10 @@ def test_platform_shows_notification_if_fully_compliant(
     Test cases with fully compliant website and accessibility statement show
     notification to that effect on report details page.
     """
-    case: Case = create_case_and_compliance()
-    case.compliance.website_compliance_state_initial = (
-        WEBSITE_COMPLIANCE_STATE_COMPLIANT
+    case: Case = create_case_and_compliance(
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
-    case.compliance.statement_compliance_state_initial = (
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT
-    )
-    case.compliance.save()
 
     response: HttpResponse = admin_client.get(
         reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),
