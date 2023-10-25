@@ -254,7 +254,7 @@ class AuditUpdateView(UpdateView):
 
 class AuditCaseComplianceUpdateView(AuditUpdateView):
     """
-    View to update audit and case fields
+    View to update audit and case compliance fields
     """
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:

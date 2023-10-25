@@ -30,7 +30,7 @@
                         <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             Initial website compliance decision is not filled in
                         </a>
-                        {% if case.website_compliance_state_initial != 'not-known' %}&check;{% endif %}
+                        {% if case.compliance.website_compliance_state_initial != 'not-known' %}&check;{% endif %}
                     </li>
                     <li>
                     {% if case.audit.uses_statement_checks %}

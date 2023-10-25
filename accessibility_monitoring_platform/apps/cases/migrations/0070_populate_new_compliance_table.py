@@ -6,7 +6,7 @@ from django.db import migrations
 def populate_compliance(apps, schema_editor):  # pylint: disable=unused-argument
     Case = apps.get_model("cases", "Case")
     CaseCompliance = apps.get_model("cases", "CaseCompliance")
-    for case in Case.objects.all():
+    for case in Case.objects.all().order_by("id"):
         CaseCompliance.objects.create(
             case=case,
             website_compliance_state_initial=case.website_compliance_state_initial,

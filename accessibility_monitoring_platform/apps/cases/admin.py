@@ -49,10 +49,6 @@ class CaseComplianceAdmin(admin.ModelAdmin):
     list_display = [
         "case",
         "__str__",
-        # "website_compliance_state_initial",
-        # "website_compliance_state_12_week",
-        # "statement_compliance_state_initial",
-        # "statement_compliance_state_12_week",
     ]
     list_filter = [
         "website_compliance_state_initial",

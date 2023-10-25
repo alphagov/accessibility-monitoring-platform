@@ -1,4 +1,4 @@
-"""
+""""
 Models - cases
 """
 from datetime import date, datetime, timedelta, timezone as datetime_timezone
@@ -914,50 +914,36 @@ class CaseCompliance(VersionModel):
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="compliance"
     )
-    website_compliance_state_initial = (
-        models.CharField(  # Formerly website_compliance_state_initial
-            max_length=20,
-            choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
-            default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
-        )
+    website_compliance_state_initial = models.CharField(
+        max_length=20,
+        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
+        default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
     )
-    website_compliance_notes_initial = models.TextField(
-        default="", blank=True
-    )  # Formerly compliance_decision_notes
-    statement_compliance_state_initial = (
-        models.CharField(  # Formerly accessibility_statement_state
-            max_length=200,
-            choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
-            default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        )
+    website_compliance_notes_initial = models.TextField(default="", blank=True)
+    statement_compliance_state_initial = models.CharField(
+        max_length=200,
+        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
+        default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
     )
-    statement_compliance_notes_initial = models.TextField(
-        default="", blank=True
-    )  # Formerly accessibility_statement_notes
-    website_compliance_state_12_week = models.CharField(  # Formerly website_state_final
+    statement_compliance_notes_initial = models.TextField(default="", blank=True)
+    website_compliance_state_12_week = models.CharField(
         max_length=200,
         choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
         default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
     )
-    website_compliance_notes_12_week = models.TextField(
-        default="", blank=True
-    )  # Formerly website_state_notes_final
-    statement_compliance_state_12_week = (
-        models.CharField(  # Formerly accessibility_statement_state_final
-            max_length=200,
-            choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
-            default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        )
+    website_compliance_notes_12_week = models.TextField(default="", blank=True)
+    statement_compliance_state_12_week = models.CharField(
+        max_length=200,
+        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
+        default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
     )
-    statement_compliance_notes_12_week = models.TextField(
-        default="", blank=True
-    )  # Formerly accessibility_statement_notes_final
+    statement_compliance_notes_12_week = models.TextField(default="", blank=True)
 
     def __str__(self) -> str:
         return (
-            f"Website: {self.get_website_compliance_state_initial_display()}/"
+            f"Website: {self.get_website_compliance_state_initial_display()}->"
             f"{self.get_website_compliance_state_12_week_display()}; "
-            f"Statement: {self.get_statement_compliance_state_initial_display()}/"
+            f"Statement: {self.get_statement_compliance_state_initial_display()}->"
             f"{self.get_statement_compliance_state_12_week_display()}"
         )
 
