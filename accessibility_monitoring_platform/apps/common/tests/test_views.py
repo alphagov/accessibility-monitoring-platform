@@ -17,7 +17,7 @@ from django.urls import reverse
 from ...audits.models import Audit, CheckResult, Page, WcagDefinition
 from ...cases.models import (
     Case,
-    WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
 )
@@ -611,7 +611,7 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     )
     initially_compliant_website_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
     Audit.objects.create(

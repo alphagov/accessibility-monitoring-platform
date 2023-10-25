@@ -25,7 +25,7 @@ from ..cases.models import (
     RECOMMENDATION_NO_ACTION,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     CLOSED_CASE_STATUSES,
-    WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
 )
 from ..s3_read_write.models import S3Report
 from ..reports.models import ReportVisitsMetrics
@@ -428,7 +428,7 @@ def get_policy_yearly_metrics() -> List[YearlyMetric]:
     thirteen_month_website_initial_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__compliance__website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT
+        case__compliance__website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT
     )
     thirteen_month_statement_initial_compliant: QuerySet[
         Audit

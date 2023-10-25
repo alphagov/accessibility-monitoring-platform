@@ -128,12 +128,12 @@ STATEMENT_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not selected"),
 ]
 
-WEBSITE_COMPLIANCE_STATE_INITIAL_DEFAULT: str = "not-known"
-WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT: str = "compliant"
-WEBSITE_COMPLIANCE_STATE_INITIAL_CHOICES: List[Tuple[str, str]] = [
-    (WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT, "Fully compliant"),
+WEBSITE_COMPLIANCE_STATE_DEFAULT: str = "not-known"
+WEBSITE_COMPLIANCE_STATE_COMPLIANT: str = "compliant"
+WEBSITE_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
+    (WEBSITE_COMPLIANCE_STATE_COMPLIANT, "Fully compliant"),
     ("partially-compliant", "Partially compliant"),
-    (WEBSITE_COMPLIANCE_STATE_INITIAL_DEFAULT, "Not known"),
+    (WEBSITE_COMPLIANCE_STATE_DEFAULT, "Not known"),
 ]
 
 RECOMMENDATION_DEFAULT: str = "unknown"
@@ -164,13 +164,6 @@ IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
     (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "Not known"),
-]
-
-WEBSITE_COMPLIANCE_STATE_12_WEEK_DEFAULT: str = "not-known"
-WEBSITE_COMPLIANCE_STATE_12_WEEK_CHOICES: List[Tuple[str, str]] = [
-    ("compliant", "Fully compliant"),
-    ("partially-compliant", "Partially compliant"),
-    (WEBSITE_COMPLIANCE_STATE_12_WEEK_DEFAULT, "Not known"),
 ]
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
@@ -565,13 +558,13 @@ class Case(VersionModel):
         elif (
             compliance is None
             or self.compliance.website_compliance_state_initial
-            == WEBSITE_COMPLIANCE_STATE_INITIAL_DEFAULT
+            == WEBSITE_COMPLIANCE_STATE_DEFAULT
             or self.statement_checks_still_initial
         ):
             return "test-in-progress"
         elif (
             self.compliance.website_compliance_state_initial
-            != WEBSITE_COMPLIANCE_STATE_INITIAL_DEFAULT
+            != WEBSITE_COMPLIANCE_STATE_DEFAULT
             and not self.statement_checks_still_initial
             and self.report_review_status != BOOLEAN_TRUE
         ):
@@ -846,7 +839,7 @@ class Case(VersionModel):
     def website_compliance_display(self):
         if (
             self.compliance.website_compliance_state_12_week
-            == WEBSITE_COMPLIANCE_STATE_12_WEEK_DEFAULT
+            == WEBSITE_COMPLIANCE_STATE_DEFAULT
         ):
             return self.compliance.get_website_compliance_state_initial_display()
         return self.compliance.get_website_compliance_state_12_week_display()
@@ -924,8 +917,8 @@ class CaseCompliance(VersionModel):
     website_compliance_state_initial = (
         models.CharField(  # Formerly website_compliance_state_initial
             max_length=20,
-            choices=WEBSITE_COMPLIANCE_STATE_INITIAL_CHOICES,
-            default=WEBSITE_COMPLIANCE_STATE_INITIAL_DEFAULT,
+            choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
+            default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
         )
     )
     website_compliance_notes_initial = models.TextField(
@@ -943,8 +936,8 @@ class CaseCompliance(VersionModel):
     )  # Formerly accessibility_statement_notes
     website_compliance_state_12_week = models.CharField(  # Formerly website_state_final
         max_length=200,
-        choices=WEBSITE_COMPLIANCE_STATE_12_WEEK_CHOICES,
-        default=WEBSITE_COMPLIANCE_STATE_12_WEEK_DEFAULT,
+        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
+        default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
     )
     website_compliance_notes_12_week = models.TextField(
         default="", blank=True

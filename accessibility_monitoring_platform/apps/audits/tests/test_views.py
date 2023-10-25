@@ -21,7 +21,7 @@ from ...cases.models import (
     Contact,
     CASE_EVENT_CREATE_AUDIT,
     CASE_EVENT_START_RETEST,
-    WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
 )
 from ..models import (
     PAGE_TYPE_PDF,
@@ -56,7 +56,7 @@ NEW_PAGE_NAME: str = "New page name"
 NEW_PAGE_URL: str = "https://example.com/extra"
 UPDATED_PAGE_NAME: str = "Updated page name"
 UPDATED_PAGE_URL: str = "https://example.com/updated"
-WEBSITE_COMPLIANCE_STATE_INITIAL: str = "partially-compliant"
+WEBSITE_COMPLIANCE_STATE: str = "partially-compliant"
 WEBSITE_COMPLIANCE_NOTES: str = "Website decision notes"
 STATEMENT_COMPLIANCE_STATE: str = "not-compliant"
 STATEMENT_COMPLIANCE_NOTES: str = "Accessibility statement notes"
@@ -798,7 +798,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     case.auditor = user
     case.save()
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT
+        WEBSITE_COMPLIANCE_STATE_COMPLIANT
     )
     case.compliance.save()
 
@@ -1204,7 +1204,7 @@ def test_website_decision_saved_on_case(admin_client):
             "version": audit.version,
             "save": "Button value",
             "case-compliance-version": audit.case.compliance.version,
-            "case-compliance-website_compliance_state_initial": WEBSITE_COMPLIANCE_STATE_INITIAL,
+            "case-compliance-website_compliance_state_initial": WEBSITE_COMPLIANCE_STATE,
             "case-compliance-website_compliance_notes_initial": WEBSITE_COMPLIANCE_NOTES,
         },
     )
@@ -1215,7 +1215,7 @@ def test_website_decision_saved_on_case(admin_client):
 
     assert (
         updated_case.compliance.website_compliance_state_initial
-        == WEBSITE_COMPLIANCE_STATE_INITIAL
+        == WEBSITE_COMPLIANCE_STATE
     )
     assert (
         updated_case.compliance.website_compliance_notes_initial
@@ -1932,7 +1932,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
             "version": audit.version,
             "save": "Button value",
             "case-compliance-version": audit.case.compliance.version,
-            "case-compliance-website_compliance_state_12_week": WEBSITE_COMPLIANCE_STATE_INITIAL,
+            "case-compliance-website_compliance_state_12_week": WEBSITE_COMPLIANCE_STATE,
             "case-compliance-website_compliance_notes_12_week": WEBSITE_COMPLIANCE_NOTES,
         },
     )
@@ -1943,7 +1943,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
 
     assert (
         updated_case.compliance.website_compliance_state_12_week
-        == WEBSITE_COMPLIANCE_STATE_INITIAL
+        == WEBSITE_COMPLIANCE_STATE
     )
     assert (
         updated_case.compliance.website_compliance_notes_12_week

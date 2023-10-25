@@ -24,8 +24,8 @@ from ..cases.models import (
     CaseCompliance,
     BOOLEAN_CHOICES,
     STATEMENT_COMPLIANCE_STATE_CHOICES,
-    WEBSITE_COMPLIANCE_STATE_INITIAL_CHOICES,
-    WEBSITE_COMPLIANCE_STATE_12_WEEK_CHOICES,
+    WEBSITE_COMPLIANCE_STATE_CHOICES,
+    WEBSITE_COMPLIANCE_STATE_CHOICES,
 )
 from .models import (
     Audit,
@@ -269,7 +269,7 @@ class CaseWebsiteDecisionUpdateForm(VersionForm):
     website_compliance_state_initial = AMPChoiceRadioField(
         label="Initial website compliance decision",
         help_text="This field effects the case status",
-        choices=WEBSITE_COMPLIANCE_STATE_INITIAL_CHOICES,
+        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
     )
     website_compliance_notes_initial = AMPTextField(
         label="Initial website compliance notes"
@@ -1021,7 +1021,7 @@ class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
 
     website_compliance_state_12_week = AMPChoiceRadioField(
         label="12-week website compliance decision",
-        choices=WEBSITE_COMPLIANCE_STATE_12_WEEK_CHOICES,
+        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
     )
     website_compliance_notes_12_week = AMPTextField(
         label="12-week website compliance decision notes",

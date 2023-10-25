@@ -22,7 +22,7 @@ from ...cases.models import (
     Case,
     CASE_COMPLETED_NO_SEND,
     RECOMMENDATION_NO_ACTION,
-    WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
 )
 from ...cases.utils import create_case_and_compliance
@@ -698,7 +698,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
 
     case: Case = create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
     Audit.objects.create(
@@ -706,7 +706,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
     )
     case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
     Audit.objects.create(
@@ -714,7 +714,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
     )
     case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
     Audit.objects.create(
@@ -722,7 +722,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
     )
     case: Case = create_case_and_compliance(
         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
     Audit.objects.create(

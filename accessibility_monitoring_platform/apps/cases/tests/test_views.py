@@ -53,7 +53,7 @@ from ..models import (
     CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
-    WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
@@ -2343,7 +2343,7 @@ def test_platform_shows_notification_if_fully_compliant(
     """
     case: Case = create_case_and_compliance()
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT
+        WEBSITE_COMPLIANCE_STATE_COMPLIANT
     )
     case.compliance.statement_compliance_state_initial = (
         STATEMENT_COMPLIANCE_STATE_COMPLIANT
