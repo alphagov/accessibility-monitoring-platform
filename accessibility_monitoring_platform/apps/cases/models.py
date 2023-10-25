@@ -317,18 +317,6 @@ class Case(VersionModel):
 
     # Historic testing details page
     test_results_url = models.TextField(default="", blank=True)
-    accessibility_statement_state = models.CharField(
-        max_length=200,
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-    )
-    accessibility_statement_notes = models.TextField(default="", blank=True)
-    website_compliance_state_initial = models.CharField(
-        max_length=20,
-        choices=WEBSITE_INITIAL_COMPLIANCE_CHOICES,
-        default=WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
-    )
-    compliance_decision_notes = models.TextField(default="", blank=True)
     testing_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report details page
@@ -413,12 +401,6 @@ class Case(VersionModel):
     review_changes_complete_date = models.DateField(null=True, blank=True)
 
     # Final website
-    website_state_final = models.CharField(
-        max_length=200,
-        choices=WEBSITE_STATE_FINAL_CHOICES,
-        default=WEBSITE_STATE_FINAL_DEFAULT,
-    )
-    website_state_notes_final = models.TextField(default="", blank=True)
     final_website_complete_date = models.DateField(null=True, blank=True)
 
     # Final statement
@@ -429,12 +411,6 @@ class Case(VersionModel):
     )
     disproportionate_notes = models.TextField(default="", blank=True)
     accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
-    accessibility_statement_state_final = models.CharField(
-        max_length=200,
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-    )
-    accessibility_statement_notes_final = models.TextField(default="", blank=True)
     final_statement_complete_date = models.DateField(null=True, blank=True)
 
     # Case close

@@ -34,9 +34,9 @@ Tests were completed using different settings in the Google Chrome browser on Ma
 5,3,2022-03-28 08:22:14.175708+00:00,The issues we found,issues-intro,Only serious accessibility issues on the sample of pages we tested are listed in this report – these will cause problems for users with access needs when using your website. There are likely to be smaller errors which will make things more difficult for some users. You must carry out your own audit to find and fix issues on other pages.,5
 6,0,2022-03-28 08:22:14.178105+00:00,Accessibility statement,markdown,"As part of the regulations you must publish an accessibility statement.
 
-{{ audit.get_accessibility_statement_state_display }}
+{{ audit.get_archive_accessibility_statement_state_display }}
 
-{% if audit.accessibility_statement_state == 'found-but' %}
+{% if audit.archive_accessibility_statement_state == 'found-but' %}
     {% for issue in audit.report_accessibility_issues %}
 * {{ issue }}
     {% endfor %}

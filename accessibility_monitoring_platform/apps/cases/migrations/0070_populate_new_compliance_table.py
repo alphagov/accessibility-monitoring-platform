@@ -21,8 +21,34 @@ def populate_compliance(apps, schema_editor):  # pylint: disable=unused-argument
 
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
+    Case = apps.get_model("cases", "Case")
     CaseCompliance = apps.get_model("cases", "CaseCompliance")
-    CaseCompliance.objects.all().delete()
+    for case_compliance in CaseCompliance.objects.all():
+        case = Case.objects.get(id=case_compliance.case_id)
+        case.website_compliance_state_initial = (
+            case_compliance.website_compliance_state_initial
+        )
+        case.compliance_decision_notes = (
+            case_compliance.website_compliance_notes_initial
+        )
+        case.accessibility_statement_state = (
+            case_compliance.statement_compliance_state_initial
+        )
+        case.accessibility_statement_notes = (
+            case_compliance.statement_compliance_notes_initial
+        )
+        case.website_state_final = case_compliance.website_compliance_state_12_week
+        case.website_state_notes_final = (
+            case_compliance.website_compliance_notes_12_week
+        )
+        case.accessibility_statement_state_final = (
+            case_compliance.statement_compliance_state_12_week
+        )
+        case.accessibility_statement_notes_final = (
+            case_compliance.statement_compliance_notes_12_week
+        )
+        case.save()
+        case_compliance.delete()
 
 
 class Migration(migrations.Migration):
