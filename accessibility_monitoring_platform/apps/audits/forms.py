@@ -260,7 +260,7 @@ class AuditWebsiteDecisionUpdateForm(VersionForm):
         ]
 
 
-class CaseWebsiteDecisionUpdateForm(VersionForm):
+class CaseComplianceWebsiteInitialUpdateForm(VersionForm):
     """
     Form for editing website compliance decision
     """
@@ -586,7 +586,7 @@ CustomStatementCheckResultFormsetOneExtra: Any = forms.modelformset_factory(
 )
 
 
-class ArchiveCaseStatementDecisionUpdateForm(VersionForm):
+class ArchiveCaseComplianceStatementInitialUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision
     """
@@ -1013,7 +1013,7 @@ class AuditRetestWebsiteDecisionUpdateForm(VersionForm):
         ]
 
 
-class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
+class CaseComplianceWebsite12WeekUpdateForm(VersionForm):
     """
     Form to record final website compliance decision
     """
@@ -1343,7 +1343,7 @@ class ArchiveAuditRetestStatementDecisionUpdateForm(VersionForm):
         ]
 
 
-class ArchiveCaseFinalStatementDecisionUpdateForm(VersionForm):
+class ArchiveCaseComplianceStatement12WeekUpdateForm(VersionForm):
     """
     Form to record final accessibility statement compliance decision
     """

@@ -19,14 +19,14 @@ from ..common.form_extract_utils import (
 )
 from .forms import (
     AuditMetadataUpdateForm,
-    CaseWebsiteDecisionUpdateForm,
+    CaseComplianceWebsiteInitialUpdateForm,
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
-    ArchiveCaseStatementDecisionUpdateForm,
+    ArchiveCaseComplianceStatementInitialUpdateForm,
     ArchiveAuditReportOptionsUpdateForm,
     CheckResultForm,
-    CaseFinalWebsiteDecisionUpdateForm,
-    ArchiveCaseFinalStatementDecisionUpdateForm,
+    CaseComplianceWebsite12WeekUpdateForm,
+    ArchiveCaseComplianceStatement12WeekUpdateForm,
 )
 from .models import (
     Audit,
@@ -116,7 +116,7 @@ def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndVa
     return {
         "audit_metadata_rows": get_audit_rows(form=AuditMetadataUpdateForm()),
         "website_decision_rows": get_compliance_rows(
-            form=CaseWebsiteDecisionUpdateForm()
+            form=CaseComplianceWebsiteInitialUpdateForm()
         ),
         "audit_statement_1_rows": get_audit_rows(
             form=ArchiveAuditStatement1UpdateForm()
@@ -125,7 +125,7 @@ def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndVa
             form=ArchiveAuditStatement2UpdateForm()
         ),
         "statement_decision_rows": get_compliance_rows(
-            form=ArchiveCaseStatementDecisionUpdateForm()
+            form=ArchiveCaseComplianceStatementInitialUpdateForm()
         ),
         "audit_report_options_rows": get_audit_report_options_rows(audit=audit),
     }
@@ -138,10 +138,10 @@ def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndVa
     )
     return {
         "audit_retest_website_decision_rows": get_compliance_rows(
-            form=CaseFinalWebsiteDecisionUpdateForm()
+            form=CaseComplianceWebsite12WeekUpdateForm()
         ),
         "audit_retest_statement_decision_rows": get_compliance_rows(
-            form=ArchiveCaseFinalStatementDecisionUpdateForm()
+            form=ArchiveCaseComplianceStatement12WeekUpdateForm()
         ),
     }
 

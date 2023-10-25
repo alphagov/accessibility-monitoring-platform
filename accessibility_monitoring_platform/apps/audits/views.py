@@ -47,11 +47,11 @@ from .forms import (
     CheckResultForm,
     CheckResultFormset,
     AuditWebsiteDecisionUpdateForm,
-    CaseWebsiteDecisionUpdateForm,
+    CaseComplianceWebsiteInitialUpdateForm,
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
     ArchiveAuditStatementDecisionUpdateForm,
-    ArchiveCaseStatementDecisionUpdateForm,
+    ArchiveCaseComplianceStatementInitialUpdateForm,
     AuditStatementOverviewUpdateForm,
     AuditStatementWebsiteUpdateForm,
     AuditStatementComplianceUpdateForm,
@@ -69,7 +69,7 @@ from .forms import (
     RetestCheckResultFilterForm,
     RetestCheckResultFormset,
     AuditRetestWebsiteDecisionUpdateForm,
-    CaseFinalWebsiteDecisionUpdateForm,
+    CaseComplianceWebsite12WeekUpdateForm,
     Audit12WeekStatementUpdateForm,
     ArchiveAuditRetestStatement1UpdateForm,
     ArchiveAuditRetestStatement2UpdateForm,
@@ -83,7 +83,7 @@ from .forms import (
     AuditRetestStatementOtherUpdateForm,
     AuditRetestStatementComparisonUpdateForm,
     ArchiveAuditRetestStatementDecisionUpdateForm,
-    ArchiveCaseFinalStatementDecisionUpdateForm,
+    ArchiveCaseComplianceStatement12WeekUpdateForm,
     WcagDefinitionSearchForm,
     WcagDefinitionCreateUpdateForm,
     StatementCheckResultFormset,
@@ -514,15 +514,15 @@ class AuditPageChecksFormView(FormView):
         return self.request.path
 
 
-class AuditWebsiteDecisionUpdateView(AuditCaseComplianceUpdateView):
+class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView):
     """
     View to update website compliance fields
     """
 
     form_class: Type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
     case_compliance_form_class: Type[
-        CaseWebsiteDecisionUpdateForm
-    ] = CaseWebsiteDecisionUpdateForm
+        CaseComplianceWebsiteInitialUpdateForm
+    ] = CaseComplianceWebsiteInitialUpdateForm
     template_name: str = "audits/forms/website_decision.html"
 
     def get_success_url(self) -> str:
@@ -833,7 +833,7 @@ class AuditStatement2UpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementDecisionUpdateView(AuditCaseComplianceUpdateView):
+class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateView):
     """
     View to update statement decision fields
     """
@@ -842,8 +842,8 @@ class AuditStatementDecisionUpdateView(AuditCaseComplianceUpdateView):
         ArchiveAuditStatementDecisionUpdateForm
     ] = ArchiveAuditStatementDecisionUpdateForm
     case_compliance_form_class: Type[
-        ArchiveCaseStatementDecisionUpdateForm
-    ] = ArchiveCaseStatementDecisionUpdateForm
+        ArchiveCaseComplianceStatementInitialUpdateForm
+    ] = ArchiveCaseComplianceStatementInitialUpdateForm
     template_name: str = "audits/forms/statement_decision.html"
 
     def get_success_url(self) -> str:
@@ -1070,7 +1070,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         return super().get_success_url()
 
 
-class AuditRetestWebsiteDecisionUpdateView(AuditCaseComplianceUpdateView):
+class AuditRetestCaseComplianceWebsite12WeekUpdateView(AuditCaseComplianceUpdateView):
     """
     View to retest website compliance fields
     """
@@ -1079,8 +1079,8 @@ class AuditRetestWebsiteDecisionUpdateView(AuditCaseComplianceUpdateView):
         AuditRetestWebsiteDecisionUpdateForm
     ] = AuditRetestWebsiteDecisionUpdateForm
     case_compliance_form_class: Type[
-        CaseFinalWebsiteDecisionUpdateForm
-    ] = CaseFinalWebsiteDecisionUpdateForm
+        CaseComplianceWebsite12WeekUpdateForm
+    ] = CaseComplianceWebsite12WeekUpdateForm
     template_name: str = "audits/forms/retest_website_decision.html"
 
     def get_success_url(self) -> str:
@@ -1362,7 +1362,7 @@ class AuditRetestStatementComparisonUpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditRetestStatementDecisionUpdateView(AuditCaseComplianceUpdateView):
+class AuditRetestCaseComplianceStatement12WeekUpdateView(AuditCaseComplianceUpdateView):
     """
     View to retest statement decsion
     """
@@ -1371,8 +1371,8 @@ class AuditRetestStatementDecisionUpdateView(AuditCaseComplianceUpdateView):
         ArchiveAuditRetestStatementDecisionUpdateForm
     ] = ArchiveAuditRetestStatementDecisionUpdateForm
     case_compliance_form_class: Type[
-        ArchiveCaseFinalStatementDecisionUpdateForm
-    ] = ArchiveCaseFinalStatementDecisionUpdateForm
+        ArchiveCaseComplianceStatement12WeekUpdateForm
+    ] = ArchiveCaseComplianceStatement12WeekUpdateForm
     template_name: str = "audits/forms/retest_statement_decision.html"
 
     def get_success_url(self) -> str:
