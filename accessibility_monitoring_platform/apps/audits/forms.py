@@ -23,14 +23,15 @@ from ..cases.models import (
     Case,
     CaseCompliance,
     BOOLEAN_CHOICES,
-    ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    WEBSITE_INITIAL_COMPLIANCE_CHOICES,
-    WEBSITE_STATE_FINAL_CHOICES,
+    STATEMENT_COMPLIANCE_STATE_CHOICES,
+    WEBSITE_COMPLIANCE_STATE_INITIAL_CHOICES,
+    WEBSITE_COMPLIANCE_STATE_12_WEEK_CHOICES,
 )
 from .models import (
     Audit,
     Page,
     CheckResult,
+    ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     SCREEN_SIZE_CHOICES,
     EXEMPTIONS_STATE_CHOICES,
     DECLARATION_STATE_CHOICES,
@@ -46,7 +47,6 @@ from .models import (
     CONTACT_INFORMATION_STATE_CHOICES,
     ENFORCEMENT_PROCEDURE_STATE_CHOICES,
     ACCESS_REQUIREMENTS_STATE_CHOICES,
-    ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     REPORT_OPTIONS_NEXT_CHOICES,
     CHECK_RESULT_STATE_CHOICES,
     RETEST_CHECK_RESULT_STATE_CHOICES,
@@ -269,7 +269,7 @@ class CaseWebsiteDecisionUpdateForm(VersionForm):
     website_compliance_state_initial = AMPChoiceRadioField(
         label="Initial website compliance decision",
         help_text="This field effects the case status",
-        choices=WEBSITE_INITIAL_COMPLIANCE_CHOICES,
+        choices=WEBSITE_COMPLIANCE_STATE_INITIAL_CHOICES,
     )
     website_compliance_notes_initial = AMPTextField(
         label="Initial website compliance notes"
@@ -595,7 +595,7 @@ class ArchiveCaseStatementDecisionUpdateForm(VersionForm):
     statement_compliance_state_initial = AMPChoiceRadioField(
         label="Initial accessibility statement compliance decision",
         help_text="This field effects the case status",
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
     )
     statement_compliance_notes_initial = AMPTextField(
         label="Initial accessibility statement compliance notes"
@@ -632,7 +632,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
 
     archive_accessibility_statement_state = AMPChoiceRadioField(
         label="Accessibility statement",
-        choices=ACCESSIBILITY_STATEMENT_STATE_CHOICES,
+        choices=ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     )
     archive_accessibility_statement_not_correct_format = AMPChoiceCheckboxField(
         label="",
@@ -1021,7 +1021,7 @@ class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
 
     website_compliance_state_12_week = AMPChoiceRadioField(
         label="12-week website compliance decision",
-        choices=WEBSITE_STATE_FINAL_CHOICES,
+        choices=WEBSITE_COMPLIANCE_STATE_12_WEEK_CHOICES,
     )
     website_compliance_notes_12_week = AMPTextField(
         label="12-week website compliance decision notes",
@@ -1351,7 +1351,7 @@ class ArchiveCaseFinalStatementDecisionUpdateForm(VersionForm):
 
     statement_compliance_state_12_week = AMPChoiceRadioField(
         label="12-week accessibility statement compliance decision",
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
     )
     statement_compliance_notes_12_week = AMPTextField(
         label="12-week accessibility statement compliance notes",

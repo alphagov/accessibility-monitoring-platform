@@ -165,10 +165,10 @@ ACCESS_REQUIREMENTS_STATE_CHOICES: List[Tuple[str, str]] = [
     ("n/a", "N/A"),
     ("other", "Other (Please specify)"),
 ]
-ACCESSIBILITY_STATEMENT_STATE_DEFAULT: str = "not-found"
-ACCESSIBILITY_STATEMENT_STATE_CHOICES: List[Tuple[str, str]] = [
+ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT: str = "not-found"
+ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES: List[Tuple[str, str]] = [
     (
-        ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
+        ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
         "An accessibility statement for the website was not found.",
     ),
     (
@@ -485,8 +485,8 @@ class Audit(VersionModel):
     # Report options
     archive_accessibility_statement_state = models.CharField(
         max_length=20,
-        choices=ACCESSIBILITY_STATEMENT_STATE_CHOICES,
-        default=ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
+        choices=ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES,
+        default=ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     )
     archive_accessibility_statement_not_correct_format = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT

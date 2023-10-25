@@ -29,8 +29,8 @@ from ...cases.models import (
     CaseEvent,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_EVENT_CREATE_REPORT,
-    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
 )
 from ...cases.utils import create_case_and_compliance
 from ...common.models import BOOLEAN_TRUE
@@ -362,8 +362,8 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        statement_compliance_state_initial=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
@@ -389,8 +389,8 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        statement_compliance_state_initial=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
@@ -663,10 +663,10 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.auditor = user
     case.report_review_status = BOOLEAN_TRUE
     case.compliance.statement_compliance_state_initial = (
-        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT
     )
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
+        WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT
     )
     case.compliance.save()
     case.save()

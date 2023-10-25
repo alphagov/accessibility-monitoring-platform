@@ -53,8 +53,8 @@ from ..models import (
     CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
@@ -97,7 +97,7 @@ TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
 DEACTIVATE_NOTES: str = """I am
 a deactivate note,
 I am"""
-ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
+STATEMENT_COMPLIANCE_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_feedback_survey_columns_to_export_str: str = ",".join(
@@ -2343,10 +2343,10 @@ def test_platform_shows_notification_if_fully_compliant(
     """
     case: Case = create_case_and_compliance()
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
+        WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT
     )
     case.compliance.statement_compliance_state_initial = (
-        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT
     )
     case.compliance.save()
 

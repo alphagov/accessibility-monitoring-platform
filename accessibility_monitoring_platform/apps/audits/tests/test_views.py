@@ -21,7 +21,7 @@ from ...cases.models import (
     Contact,
     CASE_EVENT_CREATE_AUDIT,
     CASE_EVENT_START_RETEST,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
 )
 from ..models import (
     PAGE_TYPE_PDF,
@@ -30,13 +30,13 @@ from ..models import (
     CheckResult,
     Page,
     WcagDefinition,
+    ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NOT_TESTED,
     RETEST_CHECK_RESULT_FIXED,
     PAGE_TYPE_EXTRA,
     TEST_TYPE_AXE,
     TEST_TYPE_PDF,
-    ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     REPORT_OPTIONS_NEXT_DEFAULT,
     StatementCheck,
     StatementCheckResult,
@@ -57,9 +57,9 @@ NEW_PAGE_URL: str = "https://example.com/extra"
 UPDATED_PAGE_NAME: str = "Updated page name"
 UPDATED_PAGE_URL: str = "https://example.com/updated"
 WEBSITE_COMPLIANCE_STATE_INITIAL: str = "partially-compliant"
-COMPLIANCE_DECISION_NOTES: str = "Website decision notes"
-ACCESSIBILITY_STATEMENT_STATE: str = "not-compliant"
-ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility statement notes"
+WEBSITE_COMPLIANCE_NOTES: str = "Website decision notes"
+STATEMENT_COMPLIANCE_STATE: str = "not-compliant"
+STATEMENT_COMPLIANCE_NOTES: str = "Accessibility statement notes"
 FIXED_ERROR_NOTES: str = "Fixed error notes"
 WCAG_DEFINITION_TYPE: str = "axe"
 WCAG_DEFINITION_NAME: str = "WCAG definiton name"
@@ -798,7 +798,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     case.auditor = user
     case.save()
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
+        WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT
     )
     case.compliance.save()
 
@@ -1205,7 +1205,7 @@ def test_website_decision_saved_on_case(admin_client):
             "save": "Button value",
             "case-compliance-version": audit.case.compliance.version,
             "case-compliance-website_compliance_state_initial": WEBSITE_COMPLIANCE_STATE_INITIAL,
-            "case-compliance-website_compliance_notes_initial": COMPLIANCE_DECISION_NOTES,
+            "case-compliance-website_compliance_notes_initial": WEBSITE_COMPLIANCE_NOTES,
         },
     )
 
@@ -1219,7 +1219,7 @@ def test_website_decision_saved_on_case(admin_client):
     )
     assert (
         updated_case.compliance.website_compliance_notes_initial
-        == COMPLIANCE_DECISION_NOTES
+        == WEBSITE_COMPLIANCE_NOTES
     )
 
 
@@ -1635,7 +1635,7 @@ def test_delete_custom_statement_check_result(admin_client):
 
 
 def test_statement_decision_saved_on_case(admin_client):
-    """Test that a website decision is saved on case"""
+    """Test that a statement decision is saved on case"""
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
@@ -1645,8 +1645,8 @@ def test_statement_decision_saved_on_case(admin_client):
             "version": audit.version,
             "save": "Button value",
             "case-compliance-version": audit.case.compliance.version,
-            "case-compliance-statement_compliance_state_initial": ACCESSIBILITY_STATEMENT_STATE,
-            "case-compliance-statement_compliance_notes_initial": ACCESSIBILITY_STATEMENT_NOTES,
+            "case-compliance-statement_compliance_state_initial": STATEMENT_COMPLIANCE_STATE,
+            "case-compliance-statement_compliance_notes_initial": STATEMENT_COMPLIANCE_NOTES,
         },
     )
 
@@ -1656,11 +1656,11 @@ def test_statement_decision_saved_on_case(admin_client):
 
     assert (
         updated_case.compliance.statement_compliance_state_initial
-        == ACCESSIBILITY_STATEMENT_STATE
+        == STATEMENT_COMPLIANCE_STATE
     )
     assert (
         updated_case.compliance.statement_compliance_notes_initial
-        == ACCESSIBILITY_STATEMENT_NOTES
+        == STATEMENT_COMPLIANCE_NOTES
     )
 
 
@@ -1685,7 +1685,7 @@ def test_report_options_field_updates_report_content(
         reverse("audits:edit-audit-report-options", kwargs=audit_pk),
         {
             "version": audit.version,
-            "archive_accessibility_statement_state": ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
+            "archive_accessibility_statement_state": ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
             "archive_report_options_next": REPORT_OPTIONS_NEXT_DEFAULT,
             "save": "Button value",
             field_name: new_value,
@@ -1933,7 +1933,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
             "save": "Button value",
             "case-compliance-version": audit.case.compliance.version,
             "case-compliance-website_compliance_state_12_week": WEBSITE_COMPLIANCE_STATE_INITIAL,
-            "case-compliance-website_compliance_notes_12_week": COMPLIANCE_DECISION_NOTES,
+            "case-compliance-website_compliance_notes_12_week": WEBSITE_COMPLIANCE_NOTES,
         },
     )
 
@@ -1947,7 +1947,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
     )
     assert (
         updated_case.compliance.website_compliance_notes_12_week
-        == COMPLIANCE_DECISION_NOTES
+        == WEBSITE_COMPLIANCE_NOTES
     )
 
 
@@ -1962,8 +1962,8 @@ def test_retest_statement_decision_saved_on_case(admin_client):
             "version": audit.version,
             "save": "Button value",
             "case-compliance-version": audit.case.compliance.version,
-            "case-compliance-statement_compliance_state_12_week": ACCESSIBILITY_STATEMENT_STATE,
-            "case-compliance-statement_compliance_notes_12_week": ACCESSIBILITY_STATEMENT_NOTES,
+            "case-compliance-statement_compliance_state_12_week": STATEMENT_COMPLIANCE_STATE,
+            "case-compliance-statement_compliance_notes_12_week": STATEMENT_COMPLIANCE_NOTES,
         },
     )
 
@@ -1973,11 +1973,11 @@ def test_retest_statement_decision_saved_on_case(admin_client):
 
     assert (
         updated_case.compliance.statement_compliance_state_12_week
-        == ACCESSIBILITY_STATEMENT_STATE
+        == STATEMENT_COMPLIANCE_STATE
     )
     assert (
         updated_case.compliance.statement_compliance_notes_12_week
-        == ACCESSIBILITY_STATEMENT_NOTES
+        == STATEMENT_COMPLIANCE_NOTES
     )
 
 

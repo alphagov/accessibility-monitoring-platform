@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 
 from ..cases.models import (
     Case,
-    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
     REPORT_APPROVED_STATUS_APPROVED,
 )
 from ..cases.views import (
@@ -39,8 +39,8 @@ def create_case(user: User) -> Case:
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-        statement_compliance_state_initial=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_INITIAL_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         report_draft_url="https://www.report-draft.com",
         report_review_status=BOOLEAN_TRUE,
         reviewer=user,
