@@ -52,6 +52,7 @@ from ..common.utils import amp_format_date
 from ..reports.utils import build_issues_tables
 from .models import (
     Case,
+    CaseCompliance,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
 )

@@ -12,7 +12,7 @@ const newIssueWhereFound = 'New issue where found'
 
 describe('Report publisher', () => {
   beforeEach(() => {
-    cy.session('login', cy.login, {cacheAcrossSpecs: true})
+    cy.session('login', cy.login, { cacheAcrossSpecs: true })
     cy.visit('/reports/1/report-publisher')
   })
 
@@ -35,7 +35,7 @@ describe('Report publisher', () => {
   it('can edit how accessible the website is', () => {
     cy.contains('Edit test > Website compliance decision').click()
     cy.title().should('eq', 'ExampleCorp | Website compliance decision')
-    cy.get('[name="case-website_compliance_state_initial"]').check('partially-compliant')
+    cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
     cy.contains('Save').click()
     cy.visit('/reports/1/report-publisher')
     cy.contains('Based on our testing, this site is partially compliant')

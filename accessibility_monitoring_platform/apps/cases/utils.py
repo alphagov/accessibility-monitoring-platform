@@ -35,6 +35,7 @@ from .models import (
     CASE_EVENT_APPROVE_REPORT,
     CASE_EVENT_READY_FOR_FINAL_DECISION,
     CASE_EVENT_CASE_COMPLETED,
+    COMPLIANCE_FIELDS,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
@@ -86,11 +87,11 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Accessibility Statement Decision",
-        field_name="accessibility_statement_state_final",
+        field_name="statement_compliance_state_12_week",
     ),
     ColumnAndFieldNames(
         column_name="Notes on accessibility statement",
-        field_name="accessibility_statement_notes_final",
+        field_name="statement_compliance_notes_12_week",
     ),
     ColumnAndFieldNames(column_name=CONTACT_DETAIL_COLUMN_NAME, field_name=None),
     ColumnAndFieldNames(column_name=CONTACT_NAME_COLUMN_NAME, field_name=None),
@@ -172,11 +173,11 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Initial accessibility statement compliance decision",
-        field_name="accessibility_statement_state",
+        field_name="statement_compliance_state_initial",
     ),
     ColumnAndFieldNames(
         column_name="Initial accessibility statement compliance notes",
-        field_name="accessibility_statement_notes",
+        field_name="statement_compliance_notes_initial",
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance decision",
@@ -184,7 +185,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance notes",
-        field_name="compliance_decision_notes",
+        field_name="website_compliance_notes_initial",
     ),
     ColumnAndFieldNames(
         column_name="Testing details page complete",
@@ -307,11 +308,11 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="12-week website compliance decision",
-        field_name="website_state_final",
+        field_name="website_compliance_state_12_week",
     ),
     ColumnAndFieldNames(
         column_name="12-week website compliance decision notes",
-        field_name="website_state_notes_final",
+        field_name="website_compliance_notes_12_week",
     ),
     ColumnAndFieldNames(
         column_name="Final website compliance decision page complete (spreadsheet testing)",
@@ -331,11 +332,11 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="12-week accessibility statement compliance decision",
-        field_name="accessibility_statement_state_final",
+        field_name="statement_compliance_state_12_week",
     ),
     ColumnAndFieldNames(
         column_name="12-week accessibility statement compliance notes",
-        field_name="accessibility_statement_notes_final",
+        field_name="statement_compliance_notes_12_week",
     ),
     ColumnAndFieldNames(
         column_name="Final accessibility statement compliance decision page complete (spreadsheet testing)",
@@ -570,7 +571,12 @@ def download_feedback_survey_cases(
         contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
         row = []
         for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT:
-            row.append(format_model_field(model_instance=case, column=column))
+            if column.field_name in COMPLIANCE_FIELDS:
+                row.append(
+                    format_model_field(model_instance=case.compliance, column=column)
+                )
+            else:
+                row.append(format_model_field(model_instance=case, column=column))
         for column in CONTACT_COLUMNS_FOR_EXPORT:
             row.append(format_model_field(model_instance=contact, column=column))
         output.append(row)
@@ -601,7 +607,11 @@ def download_equality_body_cases(
         contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))
         row = []
         for column in COLUMNS_FOR_EQUALITY_BODY:
-            if column.field_name is None:
+            if column.field_name in COMPLIANCE_FIELDS:
+                row.append(
+                    format_model_field(model_instance=case.compliance, column=column)
+                )
+            elif column.field_name is None:
                 row.append(format_contacts(contacts=contacts, column=column))
             else:
                 row.append(format_model_field(model_instance=case, column=column))
@@ -631,7 +641,12 @@ def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpRe
         contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
         row = []
         for column in CASE_COLUMNS_FOR_EXPORT:
-            row.append(format_model_field(model_instance=case, column=column))
+            if column.field_name in COMPLIANCE_FIELDS:
+                row.append(
+                    format_model_field(model_instance=case.compliance, column=column)
+                )
+            else:
+                row.append(format_model_field(model_instance=case, column=column))
         for column in CONTACT_COLUMNS_FOR_EXPORT:
             row.append(format_model_field(model_instance=contact, column=column))
         output.append(row)
@@ -739,3 +754,20 @@ def build_edit_link_html(case: Case, url_name: str) -> str:
     return (
         f"<a href='{edit_url}' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
     )
+
+
+def create_case_and_compliance(**kwargs):
+    """Create case and populate compliance fields from arbitrary arguments"""
+    compliance_kwargs: Dict[str, Any] = {
+        key: value for key, value in kwargs.items() if key in COMPLIANCE_FIELDS
+    }
+    non_compliance_args: Dict[str, Any] = {
+        key: value for key, value in kwargs.items() if key not in COMPLIANCE_FIELDS
+    }
+    case: Case = Case.objects.create(**non_compliance_args)
+    if compliance_kwargs:
+        for key, value in compliance_kwargs.items():
+            setattr(case.compliance, key, value)
+        case.compliance.save()
+        case.save()
+    return case

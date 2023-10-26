@@ -39,7 +39,7 @@ def populate_accessibility_statement_states(
             case.save()
 
 
-def reset_accessibility_statement_states(
+def reset_statement_compliance_states(
     apps, schema_editor
 ):  # pylint: disable=unused-argument
     Case = apps.get_model("cases", "Case")
@@ -61,6 +61,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(
             populate_accessibility_statement_states,
-            reverse_code=reset_accessibility_statement_states,
+            reverse_code=reset_statement_compliance_states,
         ),
     ]

@@ -4,7 +4,7 @@ Admin for cases
 from django.contrib import admin
 
 from ..common.admin import ExportCsvMixin
-from .models import Case, CaseEvent, Contact, CLOSED_CASE_STATUSES
+from .models import Case, CaseCompliance, CaseEvent, Contact, CLOSED_CASE_STATUSES
 
 
 class MetaStatusCaseListFilter(admin.SimpleListFilter):
@@ -41,6 +41,23 @@ class CaseAdmin(admin.ModelAdmin):
     ]
 
 
+class CaseComplianceAdmin(admin.ModelAdmin):
+    """Django admin configuration for CaseCompliance model"""
+
+    readonly_fields = ["case"]
+    search_fields = ["case__organisation_name", "case__id"]
+    list_display = [
+        "case",
+        "__str__",
+    ]
+    list_filter = [
+        "website_compliance_state_initial",
+        "website_compliance_state_12_week",
+        "statement_compliance_state_initial",
+        "statement_compliance_state_12_week",
+    ]
+
+
 class CaseEventAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for CaseEvent model"""
 
@@ -70,5 +87,6 @@ class ContactAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Case, CaseAdmin)
+admin.site.register(CaseCompliance, CaseComplianceAdmin)
 admin.site.register(CaseEvent, CaseEventAdmin)
 admin.site.register(Contact, ContactAdmin)

@@ -53,8 +53,8 @@ from ..models import (
     CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
@@ -63,6 +63,7 @@ from ..models import (
     CASE_COMPLETED_NO_SEND,
 )
 from ..utils import (
+    create_case_and_compliance,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     COLUMNS_FOR_EQUALITY_BODY,
     EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
@@ -96,8 +97,7 @@ TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
 DEACTIVATE_NOTES: str = """I am
 a deactivate note,
 I am"""
-COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
-ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
+STATEMENT_COMPLIANCE_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_feedback_survey_columns_to_export_str: str = ",".join(
@@ -2341,9 +2341,9 @@ def test_platform_shows_notification_if_fully_compliant(
     Test cases with fully compliant website and accessibility statement show
     notification to that effect on report details page.
     """
-    case: Case = Case.objects.create(
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    case: Case = create_case_and_compliance(
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
 
     response: HttpResponse = admin_client.get(
@@ -2686,18 +2686,6 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
 @pytest.mark.parametrize(
     "path_name,label,field_name,field_value",
     [
-        (
-            "cases:edit-test-results",
-            "Initial website compliance decision is not filled in",
-            "website_compliance_state_initial",
-            WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-        ),
-        (
-            "cases:edit-test-results",
-            "Initial accessibility statement decision is not filled in",
-            "accessibility_statement_state",
-            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        ),
         (
             "cases:edit-qa-process",
             "Report ready to be reviewed needs to be Yes",
