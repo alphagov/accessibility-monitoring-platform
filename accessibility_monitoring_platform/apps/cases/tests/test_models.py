@@ -31,14 +31,15 @@ from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     Contact,
-    WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
-    WEBSITE_STATE_FINAL_DEFAULT,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT,
-    ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND,
-    ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+    WEBSITE_COMPLIANCE_STATE_DEFAULT,
+    WEBSITE_COMPLIANCE_STATE_DEFAULT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+    STATEMENT_COMPLIANCE_STATE_DEFAULT,
 )
+from ..utils import create_case_and_compliance
 
 DOMAIN: str = "example.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}/index.html"
@@ -77,6 +78,22 @@ def last_edited_audit(last_edited_case: Case) -> Audit:
         return Audit.objects.create(
             case=last_edited_case, date_of_test=DATE_AUDIT_CREATED
         )
+
+
+@pytest.mark.django_db
+def test_case_creation_also_creates_compliance():
+    """Test that creating a case also creates a CaseCompliance"""
+    case: Case = Case.objects.create()
+
+    assert case.compliance is not None
+    assert case.compliance.website_compliance_state_initial is not None
+    assert case.compliance.website_compliance_notes_initial is not None
+    assert case.compliance.statement_compliance_state_initial is not None
+    assert case.compliance.statement_compliance_notes_initial is not None
+    assert case.compliance.website_compliance_state_12_week is not None
+    assert case.compliance.website_compliance_notes_12_week is not None
+    assert case.compliance.statement_compliance_state_12_week is not None
+    assert case.compliance.statement_compliance_notes_12_week is not None
 
 
 @pytest.mark.django_db
@@ -529,7 +546,9 @@ def test_case_statement_checks_still_initial():
 
     assert case.statement_checks_still_initial is True
 
-    case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+    case.compliance.statement_compliance_state_initial = (
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT
+    )
 
     assert case.statement_checks_still_initial is False
 
@@ -567,68 +586,80 @@ def test_contact_updated_updated():
 
 
 @pytest.mark.parametrize(
-    "website_compliance_state_initial, website_state_final, expected_result",
+    "website_compliance_state_initial, website_compliance_state_12_week, expected_result",
     [
-        (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, WEBSITE_STATE_FINAL_DEFAULT, "Not known"),
-        (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, "compliant", "Fully compliant"),
         (
-            WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
+            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            "Not known",
+        ),
+        (WEBSITE_COMPLIANCE_STATE_DEFAULT, "compliant", "Fully compliant"),
+        (
+            WEBSITE_COMPLIANCE_STATE_DEFAULT,
             "partially-compliant",
             "Partially compliant",
         ),
         (
-            WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-            WEBSITE_STATE_FINAL_DEFAULT,
+            WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+            WEBSITE_COMPLIANCE_STATE_DEFAULT,
             "Fully compliant",
         ),
-        ("partially-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Partially compliant"),
+        (
+            "partially-compliant",
+            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            "Partially compliant",
+        ),
     ],
 )
+@pytest.mark.django_db
 def test_website_compliance_display(
-    website_compliance_state_initial, website_state_final, expected_result
+    website_compliance_state_initial, website_compliance_state_12_week, expected_result
 ):
     """Test website compliance is derived correctly"""
-    case: Case = Case(
+    case: Case = create_case_and_compliance(
         website_compliance_state_initial=website_compliance_state_initial,
-        website_state_final=website_state_final,
+        website_compliance_state_12_week=website_compliance_state_12_week,
     )
 
     assert case.website_compliance_display == expected_result
 
 
 @pytest.mark.parametrize(
-    "accessibility_statement_state, accessibility_statement_state_final, expected_result",
+    "statement_compliance_state_initial, statement_compliance_state_12_week, expected_result",
     [
         (
-            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+            STATEMENT_COMPLIANCE_STATE_DEFAULT,
             "Compliant",
         ),
-        ("not-compliant", ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not compliant"),
-        ("not-found", ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not found"),
-        ("other", ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Other"),
+        ("not-compliant", STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not compliant"),
+        ("not-found", STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not found"),
+        ("other", STATEMENT_COMPLIANCE_STATE_DEFAULT, "Other"),
         (
-            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            STATEMENT_COMPLIANCE_STATE_DEFAULT,
+            STATEMENT_COMPLIANCE_STATE_DEFAULT,
             "Not selected",
         ),
         (
-            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+            STATEMENT_COMPLIANCE_STATE_DEFAULT,
+            STATEMENT_COMPLIANCE_STATE_COMPLIANT,
             "Compliant",
         ),
-        (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "not-compliant", "Not compliant"),
-        (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "not-found", "Not found"),
-        (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "other", "Other"),
+        (STATEMENT_COMPLIANCE_STATE_DEFAULT, "not-compliant", "Not compliant"),
+        (STATEMENT_COMPLIANCE_STATE_DEFAULT, "not-found", "Not found"),
+        (STATEMENT_COMPLIANCE_STATE_DEFAULT, "other", "Other"),
     ],
 )
+@pytest.mark.django_db
 def test_accessibility_statement_compliance_display(
-    accessibility_statement_state, accessibility_statement_state_final, expected_result
+    statement_compliance_state_initial,
+    statement_compliance_state_12_week,
+    expected_result,
 ):
     """Test accessibility statement compliance is derived correctly"""
-    case: Case = Case(
-        accessibility_statement_state=accessibility_statement_state,
-        accessibility_statement_state_final=accessibility_statement_state_final,
+    case: Case = create_case_and_compliance(
+        statement_compliance_state_initial=statement_compliance_state_initial,
+        statement_compliance_state_12_week=statement_compliance_state_12_week,
     )
 
     assert case.accessibility_statement_compliance_display == expected_result
@@ -763,97 +794,106 @@ def test_set_accessibility_statement_state_default():
     """Test calculated accessibility statement state for new case"""
     case: Case = Case.objects.create()
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
     assert (
-        case.accessibility_statement_state == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+        case.compliance.statement_compliance_state_initial
+        == STATEMENT_COMPLIANCE_STATE_DEFAULT
     )
 
 
 @pytest.mark.parametrize(
-    "accessibility_statement_state",
+    "statement_compliance_state_initial",
     [
-        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND,
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
         "other",
     ],
 )
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_no_audit(accessibility_statement_state):
-    """Test accessibility_statement_state unchanged in case with no audit"""
-    case: Case = Case.objects.create(
-        accessibility_statement_state=accessibility_statement_state
-    )
-
-    case.set_accessibility_statement_states()
-
-    assert case.accessibility_statement_state == accessibility_statement_state
-
-
-@pytest.mark.parametrize(
-    "accessibility_statement_state",
-    [
-        ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND,
-        "other",
-    ],
-)
-@pytest.mark.django_db
-def test_set_accessibility_statement_state_no_statement_page(
-    accessibility_statement_state,
+def test_set_statement_compliance_state_initial_no_audit(
+    statement_compliance_state_initial,
 ):
-    """Test accessibility_statement_state not compliant in case with no statement page"""
-    case: Case = Case.objects.create(
-        accessibility_statement_state=accessibility_statement_state
+    """Test statement_compliance_state_initial unchanged in case with no audit"""
+    case: Case = create_case_and_compliance(
+        statement_compliance_state_initial=statement_compliance_state_initial
+    )
+
+    case.set_statement_compliance_states()
+
+    assert (
+        case.compliance.statement_compliance_state_initial
+        == statement_compliance_state_initial
+    )
+
+
+@pytest.mark.parametrize(
+    "statement_compliance_state_initial",
+    [
+        STATEMENT_COMPLIANCE_STATE_DEFAULT,
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        "other",
+    ],
+)
+@pytest.mark.django_db
+def test_set_statement_compliance_state_initial_no_statement_page(
+    statement_compliance_state_initial,
+):
+    """Test statement_compliance_state_initial not compliant in case with no statement page"""
+    case: Case = create_case_and_compliance(
+        statement_compliance_state_initial=statement_compliance_state_initial
     )
     Audit.objects.create(case=case)
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
     assert (
-        case.accessibility_statement_state
-        == ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+        case.compliance.statement_compliance_state_initial
+        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
     )
 
 
 @pytest.mark.parametrize(
-    "accessibility_statement_state",
+    "statement_compliance_state_initial",
     [
-        ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND,
+        STATEMENT_COMPLIANCE_STATE_DEFAULT,
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
         "other",
     ],
 )
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_no_statement_checks(
-    accessibility_statement_state,
+def test_set_statement_compliance_state_initial_no_statement_checks(
+    statement_compliance_state_initial,
 ):
     """
-    Test accessibility_statement_state unchanged in case which doesn't
+    Test statement_compliance_state_initial unchanged in case which doesn't
     use statement checks.
     """
-    case: Case = Case.objects.create(
-        accessibility_statement_state=accessibility_statement_state
+    case: Case = create_case_and_compliance(
+        statement_compliance_state_initial=statement_compliance_state_initial
     )
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
     )
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
-    assert case.accessibility_statement_state == accessibility_statement_state
+    assert (
+        case.compliance.statement_compliance_state_initial
+        == statement_compliance_state_initial
+    )
 
 
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_to_compliant():
+def test_set_statement_compliance_state_initial_to_compliant():
     """
-    Test accessibility_statement_state set to compliant when no statement check
+    Test statement_compliance_state_initial set to compliant when no statement check
     has been answered 'no'.
     """
     case: Case = Case.objects.create()
@@ -870,17 +910,18 @@ def test_set_accessibility_statement_state_to_compliant():
             statement_check=statement_check,
         )
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
     assert (
-        case.accessibility_statement_state == ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        case.compliance.statement_compliance_state_initial
+        == STATEMENT_COMPLIANCE_STATE_COMPLIANT
     )
 
 
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_to_not_compliant():
+def test_set_statement_compliance_state_initial_to_not_compliant():
     """
-    Test accessibility_statement_state set to not compliant when a statement check
+    Test statement_compliance_state_initial set to not compliant when a statement check
     has been answered 'no'.
     """
     case: Case = Case.objects.create()
@@ -898,113 +939,115 @@ def test_set_accessibility_statement_state_to_not_compliant():
             check_result_state=STATEMENT_CHECK_NO,
         )
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
     assert (
-        case.accessibility_statement_state
-        == ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+        case.compliance.statement_compliance_state_initial
+        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
     )
 
 
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_final_default():
+def test_set_statement_compliance_state_12_week_default():
     """Test calculated final accessibility statement state for new case"""
     case: Case = Case.objects.create()
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
     assert (
-        case.accessibility_statement_state_final
-        == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+        case.compliance.statement_compliance_state_12_week
+        == STATEMENT_COMPLIANCE_STATE_DEFAULT
     )
 
 
 @pytest.mark.parametrize(
-    "accessibility_statement_state_final",
+    "statement_compliance_state_12_week",
     [
-        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND,
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
         "other",
     ],
 )
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_final_no_audit(
-    accessibility_statement_state_final,
+def test_set_statement_compliance_state_12_week_no_audit(
+    statement_compliance_state_12_week,
 ):
-    """Test accessibility_statement_state_final unchanged in case with no audit"""
-    case: Case = Case.objects.create(
-        accessibility_statement_state_final=accessibility_statement_state_final
+    """Test statement_compliance_state_12_week unchanged in case with no audit"""
+    case: Case = create_case_and_compliance(
+        statement_compliance_state_12_week=statement_compliance_state_12_week
     )
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
     assert (
-        case.accessibility_statement_state_final == accessibility_statement_state_final
+        case.compliance.statement_compliance_state_12_week
+        == statement_compliance_state_12_week
     )
 
 
 @pytest.mark.parametrize(
-    "accessibility_statement_state_final",
+    "statement_compliance_state_12_week",
     [
-        ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND,
+        STATEMENT_COMPLIANCE_STATE_DEFAULT,
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
         "other",
     ],
 )
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_final__no_statement_page(
-    accessibility_statement_state_final,
+def test_set_statement_compliance_state_12_week__no_statement_page(
+    statement_compliance_state_12_week,
 ):
-    """Test accessibility_statement_state_final not compliant in case with no statement page"""
-    case: Case = Case.objects.create(
-        accessibility_statement_state_final=accessibility_statement_state_final
+    """Test statement_compliance_state_12_week not compliant in case with no statement page"""
+    case: Case = create_case_and_compliance(
+        statement_compliance_state_12_week=statement_compliance_state_12_week
     )
     Audit.objects.create(case=case)
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
     assert (
-        case.accessibility_statement_state_final
-        == ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+        case.compliance.statement_compliance_state_12_week
+        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
     )
 
 
 @pytest.mark.parametrize(
-    "accessibility_statement_state_final",
+    "statement_compliance_state_12_week",
     [
-        ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-        ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT,
-        ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND,
+        STATEMENT_COMPLIANCE_STATE_DEFAULT,
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
+        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
         "other",
     ],
 )
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_final_no_statement_checks(
-    accessibility_statement_state_final,
+def test_set_statement_compliance_state_12_week_no_statement_checks(
+    statement_compliance_state_12_week,
 ):
-    """Test accessibility_statement_state_final unchanged in case with no statement page"""
-    case: Case = Case.objects.create(
-        accessibility_statement_state_final=accessibility_statement_state_final
+    """Test statement_compliance_state_12_week unchanged in case with no statement page"""
+    case: Case = create_case_and_compliance(
+        statement_compliance_state_12_week=statement_compliance_state_12_week
     )
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
     )
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
     assert (
-        case.accessibility_statement_state_final == accessibility_statement_state_final
+        case.compliance.statement_compliance_state_12_week
+        == statement_compliance_state_12_week
     )
 
 
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_final_to_compliant():
+def test_set_statement_compliance_state_12_week_to_compliant():
     """
-    Test accessibility_statement_state_final set to compliant when no statement check
+    Test statement_compliance_state_12_week set to compliant when no statement check
     retest state has been set to 'no'.
     """
     case: Case = Case.objects.create()
@@ -1021,18 +1064,18 @@ def test_set_accessibility_statement_state_final_to_compliant():
             statement_check=statement_check,
         )
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
     assert (
-        case.accessibility_statement_state_final
-        == ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        case.compliance.statement_compliance_state_12_week
+        == STATEMENT_COMPLIANCE_STATE_COMPLIANT
     )
 
 
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_final_to_not_compliant():
+def test_set_statement_compliance_state_12_week_to_not_compliant():
     """
-    Test accessibility_statement_state_final set to not compliant when a statement check
+    Test statement_compliance_state_12_week set to not compliant when a statement check
     retest state has been set to 'no'.
     """
     case: Case = Case.objects.create()
@@ -1050,11 +1093,11 @@ def test_set_accessibility_statement_state_final_to_not_compliant():
             retest_state=STATEMENT_CHECK_NO,
         )
 
-    case.set_accessibility_statement_states()
+    case.set_statement_compliance_states()
 
     assert (
-        case.accessibility_statement_state_final
-        == ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+        case.compliance.statement_compliance_state_12_week
+        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
     )
 
 

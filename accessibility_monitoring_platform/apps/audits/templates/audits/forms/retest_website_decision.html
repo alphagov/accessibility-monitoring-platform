@@ -15,14 +15,14 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' with form=case_form %}
+                {% include 'common/error_summary.html' with form=case_compliance_form %}
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-retest-website-decision' audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
-                            {% include 'common/amp_form_snippet.html' with form=case_form %}
+                            {% include 'common/amp_form_snippet.html' with form=case_compliance_form %}
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">

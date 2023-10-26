@@ -22,9 +22,10 @@ from ...cases.models import (
     Case,
     CASE_COMPLETED_NO_SEND,
     RECOMMENDATION_NO_ACTION,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
 )
+from ...cases.utils import create_case_and_compliance
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 
@@ -695,34 +696,34 @@ def test_get_policy_yearly_metrics(mock_datetime):
     """Test policy yearly metrics returned"""
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)

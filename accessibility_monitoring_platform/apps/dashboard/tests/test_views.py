@@ -14,13 +14,14 @@ from accessibility_monitoring_platform.apps.common.models import ChangeToPlatfor
 
 from ...cases.models import (
     Case,
-    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     CASE_COMPLETED_NO_SEND,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
 )
+from ...cases.utils import create_case_and_compliance
 from ...common.models import BOOLEAN_TRUE
 
 
@@ -76,12 +77,12 @@ def test_dashboard_shows_oldest_unassigned_cases_first(admin_client):
 
 def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user):
     """Check dashboard contains link to find closed and sent to equalities body cases"""
-    Case.objects.create(
+    create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
@@ -108,12 +109,12 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
 
 def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
     """Check dashboard contains link to find completed cases"""
-    Case.objects.create(
+    create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         case_completed=CASE_COMPLETED_NO_SEND,
     )
 
@@ -174,12 +175,12 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
     )
 
     # Creates completed case
-    Case.objects.create(
+    create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
@@ -192,12 +193,12 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
     )
 
     # Creates closed sent to equalities-body case
-    Case.objects.create(
+    create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
