@@ -37,11 +37,9 @@
                     {% else %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-5">
-                                {% if page.failed_check_results %}
-                                    <a href="{% url 'audits:edit-retest-page-checks' retest_page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
-                                        Edit retest
-                                    </a>
-                                {% endif %}
+                                <a href="{% url 'audits:edit-retest-page-checks' retest_page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
+                                    Edit retest
+                                </a>
                                 <a href="{{ retest_page.page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
                                     Link to {{ retest_page }}
                                 </a>

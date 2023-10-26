@@ -139,7 +139,9 @@ class RetestCheckResultAdmin(admin.ModelAdmin):
         "check_result",
         "retest",
         "retest_page",
+        "retest_state",
     ]
+    list_filter = ["retest_state"]
     readonly_fields = ["check_result", "retest_page", "retest"]
 
 

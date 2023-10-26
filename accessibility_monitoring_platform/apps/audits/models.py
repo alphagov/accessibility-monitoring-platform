@@ -1440,3 +1440,8 @@ class RetestCheckResult(models.Model):
         return self.retest.previous_retest.retestcheckresult_set.filter(
             check_result=self.check_result
         ).first()
+
+    @property
+    def all_retest_check_results(self):
+        """Return all retest results for this check"""
+        return RetestCheckResult.objects.filter(check_result=self.check_result)
