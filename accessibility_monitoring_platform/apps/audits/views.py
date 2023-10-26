@@ -92,6 +92,7 @@ from .forms import (
     RetestUpdateForm,
     RetestPageChecksForm,
     RetestCheckResultFormset,
+    RetestComparisonUpdateForm,
 )
 from .models import (
     Audit,
@@ -1664,7 +1665,7 @@ class RetestMetadataUpdateView(UpdateView):
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add record event on change"""
         if form.changed_data:
-            self.object: StatementCheck = form.save(commit=False)
+            self.object: Retest = form.save(commit=False)
             record_model_update_event(user=self.request.user, model_object=self.object)
         return super().form_valid(form)
 
@@ -1726,3 +1727,29 @@ class RetestPageChecksFormView(UpdateView):
                 retest=retest_page.retest, current_page=retest_page
             )
         return self.request.path
+
+
+class RetestComparisonUpdateView(UpdateView):
+    """
+    View to update a equality body retest comparison
+    """
+
+    model: Type[Retest] = Retest
+    form_class: Type[RetestComparisonUpdateForm] = RetestComparisonUpdateForm
+    template_name: str = "audits/forms/equality_body_retest_comparison_update.html"
+    context_object_name: str = "retest"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add record event on change"""
+        if form.changed_data:
+            self.object: Retest = form.save(commit=False)
+            record_model_update_event(user=self.request.user, model_object=self.object)
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-retest-overview", kwargs={"pk": self.object.case.id}
+            )
+        return reverse("audits:retest-comparison-update", kwargs={"pk": self.object.id})

@@ -1331,11 +1331,14 @@ class Retest(VersionModel):
     compliance_notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
     complete_date = models.DateField(null=True, blank=True)
+    comparison_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]
 
     def __str__(self) -> str:
+        if self.id_within_case == 0:
+            return "12-week retest"
         return str(f"Retest #{self.id_within_case}")
 
     def save(self, *args, **kwargs) -> None:
@@ -1367,7 +1370,7 @@ class Retest(VersionModel):
     @property
     def previous_retest(self):
         """Return previous retest"""
-        if self.id_within_case > 1:
+        if self.id_within_case > 0:
             return Retest.objects.get(
                 case=self.case, id_within_case=self.id_within_case - 1
             )
@@ -1430,3 +1433,10 @@ class RetestCheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
+
+    @property
+    def previous_retest_check_result(self):
+        """Return previous retest result for this check"""
+        return self.retest.previous_retest.retestcheckresult_set.filter(
+            check_result=self.check_result
+        ).first()

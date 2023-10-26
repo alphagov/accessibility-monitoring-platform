@@ -11,6 +11,7 @@
                 {% endfor %}
             </ul>
         </li>
+        {% include './nav_step.html' with edit_name='audits:retest-comparison-update' name='Comparison' complete=retest.comparison_complete_date %}
     </ul>
     {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=retest.case %}
 </nav>

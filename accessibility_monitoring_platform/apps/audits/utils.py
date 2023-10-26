@@ -357,6 +357,8 @@ def create_checkresults_for_retest(retest: Retest) -> None:
                         retest=retest_0,
                         retest_page=retest_page,
                         check_result=check_result,
+                        retest_state=check_result.retest_state,
+                        retest_notes=check_result.retest_notes,
                     )
 
     previous_retest: Retest = Retest.objects.get(
@@ -388,14 +390,14 @@ def get_next_equality_body_retest_page_url(
     retest_pk: Dict[str, int] = {"pk": retest.id}
     retest_pages: List[RetestPage] = list(retest.retestpage_set.all())
     if not retest_pages:
-        return reverse("audits:retest-metadata-update", kwargs=retest_pk)
+        return reverse("audits:retest-comparison-update", kwargs=retest_pk)
 
     if current_page is None:
         next_page_pk: Dict[str, int] = {"pk": retest_pages[0].id}
         return reverse("audits:edit-retest-page-checks", kwargs=next_page_pk)
 
     if retest_pages[-1] == current_page:
-        return reverse("audits:retest-metadata-update", kwargs=retest_pk)
+        return reverse("audits:retest-comparison-update", kwargs=retest_pk)
 
     current_page_position: int = retest_pages.index(current_page)
     next_page_pk: Dict[str, int] = {"pk": retest_pages[current_page_position + 1].id}

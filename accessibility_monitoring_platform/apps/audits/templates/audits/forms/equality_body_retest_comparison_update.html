@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}{{ retest }} | Comparison{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'audits/helpers/retest_breadcrumb.html' with page_heading='Comparison' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Comparison' case=retest.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                {% for retest_page in retest.retestpage_set.all %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-l amp-margin-bottom-5">{{ retest_page }}</h2>
+                        </div>
+                    </div>
+                    {% if retest_page.missing_date %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <p class="govuk-body-m">
+                                    This page has been removed by the organisation.
+                                    Update the
+                                    <a href="{% url 'audits:edit-retest-page-checks' retest_page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
+                                        retest page</a>
+                                    if this is incorrect.
+                                </p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-5">
+                                {% if page.failed_check_results %}
+                                    <a href="{% url 'audits:edit-retest-page-checks' retest_page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
+                                        Edit retest
+                                    </a>
+                                {% endif %}
+                                <a href="{{ retest_page.page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
+                                    Link to {{ retest_page }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <table class="govuk-table amp-accordion-table">
+                                    {% include 'audits/helpers/equality_body_retest_page_comparison.html' with check_results=page.unfixed_check_results %}
+                                </table>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <form method="post" action="{% url 'audits:retest-comparison-update' retest.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and continue"
+                                name="save_continue"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'cases:edit-retest-overview' retest.case.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return to retest overview
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:retest-comparison-update' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

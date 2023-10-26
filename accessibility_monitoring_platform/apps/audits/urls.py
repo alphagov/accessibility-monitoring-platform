@@ -56,6 +56,7 @@ from .views import (
     create_equality_body_retest,
     RetestMetadataUpdateView,
     RetestPageChecksFormView,
+    RetestComparisonUpdateView,
 )
 
 app_name: str = "audits"
@@ -304,5 +305,10 @@ urlpatterns: List[URLPattern] = [
         "retest-page/<int:pk>/retest-page-checks/",
         login_required(RetestPageChecksFormView.as_view()),
         name="edit-retest-page-checks",
+    ),
+    path(
+        "retest-page/<int:pk>/retest-comparison-update/",
+        login_required(RetestComparisonUpdateView.as_view()),
+        name="retest-comparison-update",
     ),
 ]

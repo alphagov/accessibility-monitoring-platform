@@ -1446,7 +1446,7 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
 
 class RetestUpdateForm(forms.ModelForm):
     """
-    Form for updating equality body retest metadata
+    Form for updating equality body retest
     """
 
     date_of_retest = AMPDateField(label="Date of retest")
@@ -1508,3 +1508,17 @@ class RetestCheckResultForm(forms.ModelForm):
 RetestCheckResultFormset: Any = forms.modelformset_factory(
     RetestCheckResult, form=RetestCheckResultForm, extra=0
 )
+
+
+class RetestComparisonUpdateForm(forms.ModelForm):
+    """
+    Form for updating equality body retest comparison complete
+    """
+
+    comparison_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: List[str] = [
+            "comparison_complete_date",
+        ]
