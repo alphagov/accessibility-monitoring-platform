@@ -1395,7 +1395,7 @@ class RetestPage(models.Model):
 
     @property
     def heading(self):
-        return f"{self.retest} {self.page}"
+        return f"{self.retest} | {self.page}"
 
     @property
     def unfixed_check_results(self):

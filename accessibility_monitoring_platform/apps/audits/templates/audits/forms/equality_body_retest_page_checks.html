@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'audits/helpers/retest_breadcrumb.html' with retest=retest_page.retest page_heading=retest_page.heading %}
+    {% include 'audits/helpers/retest_breadcrumb.html' with retest=retest_page.retest page_heading=retest_page %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -56,10 +56,7 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ retest_check_results_formset.management_form }}
                     {% for form in retest_check_results_formset %}
-                        <div class="govuk-grid-row"
-                            data-check-type="{{ form.instance.check_result.wcag_definition.type }}"
-                            data-filter-string="{{ form.instance.check_result.wcag_definition.name }} {{ form.instance.check_result.wcag_definition.description }}"
-                        >
+                        <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
                                 <hr class="amp-width-100 amp-margin-bottom-30">
                                 <label class="govuk-label"><b>{{ form.instance.check_result.wcag_definition }}</b></label>
