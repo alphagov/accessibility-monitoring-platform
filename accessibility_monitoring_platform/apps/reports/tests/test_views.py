@@ -29,9 +29,10 @@ from ...cases.models import (
     CaseEvent,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_EVENT_CREATE_REPORT,
-    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
 )
+from ...cases.utils import create_case_and_compliance
 from ...common.models import BOOLEAN_TRUE
 from ...s3_read_write.models import S3Report
 
@@ -357,12 +358,12 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
     Test report next step for unassigned qa case
     """
     user: User = User.objects.create()
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
@@ -384,12 +385,12 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
     Test report next step for case in qa in progress
     """
     user: User = User.objects.create()
-    case: Case = Case.objects.create(
+    case: Case = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
@@ -660,9 +661,14 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.home_page_url = "https://www.website.com"
     case.organisation_name = "org name"
     case.auditor = user
-    case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
-    case.website_compliance_state_initial = WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
     case.report_review_status = BOOLEAN_TRUE
+    case.compliance.statement_compliance_state_initial = (
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT
+    )
+    case.compliance.website_compliance_state_initial = (
+        WEBSITE_COMPLIANCE_STATE_COMPLIANT
+    )
+    case.compliance.save()
     case.save()
 
     response: HttpResponse = admin_client.get(

@@ -36,19 +36,19 @@
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial accessibility statement decision (found in
                                     <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
-                                <div class="govuk-hint">{{ case.get_accessibility_statement_state_display }}</div>
+                                <div class="govuk-hint">{{ case.compliance.get_statement_compliance_state_initial_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial accessibility statement notes (found in
                                     <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
                                 <div class="govuk-hint">
-                                    {% if case.accessibility_statement_notes %}{{ case.accessibility_statement_notes|markdown_to_html }}{% else %}None{% endif %}
+                                    {% if case.compliance.statement_compliance_notes_initial%}{{ case.compliance.statement_compliance_notes_initial|markdown_to_html }}{% else %}None{% endif %}
                                 </div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Final accessibility statement decision (found in
                                     <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
-                                <div class="govuk-hint">{{ case.get_accessibility_statement_state_final_display }}</div>
+                                <div class="govuk-hint">{{ case.compliance.get_statement_compliance_state_12_week_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Link to screenshot of accessibility statement</b></label>
@@ -64,20 +64,20 @@
                                 <label class="govuk-label"><b>Final accessibility statement notes (found in
                                     <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
                                 <div class="govuk-hint">
-                                    {% if case.accessibility_statement_notes_final %}{{ case.accessibility_statement_notes_final|markdown_to_html }}{% else %}None{% endif %}
+                                    {% if case.compliance.statement_compliance_notes_12_week %}{{ case.compliance.statement_compliance_notes_12_week|markdown_to_html }}{% else %}None{% endif %}
                                 </div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial compliance decision (found in
                                     <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
-                                <div class="govuk-hint">{{ case.get_website_compliance_state_initial_display }}</div>
+                                <div class="govuk-hint">{{ case.compliance.get_website_compliance_state_initial_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial compliance notes (found in
                                     <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
                                 <div class="govuk-hint">
-                                    {% if case.compliance_decision_notes %}
-                                        {{ case.compliance_decision_notes|markdown_to_html }}
+                                    {% if case.compliance.website_compliance_notes_initial %}
+                                        {{ case.compliance.website_compliance_notes_initial|markdown_to_html }}
                                     {% else %}
                                         None
                                     {% endif %}
@@ -86,13 +86,13 @@
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Final compliance decision (found in
                                     <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
-                                <div class="govuk-hint">{{ case.get_website_state_final_display }}</div>
+                                <div class="govuk-hint">{{ case.compliance.get_website_compliance_state_12_week_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Final compliance notes (found in
                                     <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
                                 <div class="govuk-hint">
-                                    {% if case.website_state_notes_final %}{{ case.website_state_notes_final|markdown_to_html }}{% else %}None{% endif %}
+                                    {% if case.compliance.website_compliance_notes_12_week %}{{ case.compliance.website_compliance_notes_12_week|markdown_to_html }}{% else %}None{% endif %}
                                 </div>
                             </div>
                         </div>

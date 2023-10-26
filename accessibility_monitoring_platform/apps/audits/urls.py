@@ -12,10 +12,10 @@ from .views import (
     AuditMetadataUpdateView,
     AuditPagesUpdateView,
     AuditPageChecksFormView,
-    AuditWebsiteDecisionUpdateView,
+    AuditCaseComplianceWebsiteInitialUpdateView,
     AuditStatement1UpdateView,
     AuditStatement2UpdateView,
-    AuditStatementDecisionUpdateView,
+    AuditCaseComplianceStatementInitialUpdateView,
     AuditStatementOverviewFormView,
     AuditStatementWebsiteFormView,
     AuditStatementComplianceFormView,
@@ -29,7 +29,7 @@ from .views import (
     AuditRetestMetadataUpdateView,
     AuditRetestPagesUpdateView,
     AuditRetestPageChecksFormView,
-    AuditRetestWebsiteDecisionUpdateView,
+    AuditRetestCaseComplianceWebsite12WeekUpdateView,
     AuditRetestStatement1UpdateView,
     Audit12WeekStatementUpdateView,
     AuditRetestStatement2UpdateView,
@@ -41,7 +41,7 @@ from .views import (
     AuditRetestStatementFeedbackFormView,
     AuditRetestStatementOtherFormView,
     AuditRetestStatementComparisonUpdateView,
-    AuditRetestStatementDecisionUpdateView,
+    AuditRetestCaseComplianceStatement12WeekUpdateView,
     WcagDefinitionListView,
     WcagDefinitionCreateView,
     WcagDefinitionUpdateView,
@@ -102,7 +102,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-website-decision/",
-        login_required(AuditWebsiteDecisionUpdateView.as_view()),
+        login_required(AuditCaseComplianceWebsiteInitialUpdateView.as_view()),
         name="edit-website-decision",
     ),
     path(
@@ -117,7 +117,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-statement-decision/",
-        login_required(AuditStatementDecisionUpdateView.as_view()),
+        login_required(AuditCaseComplianceStatementInitialUpdateView.as_view()),
         name="edit-statement-decision",
     ),
     path(
@@ -192,7 +192,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-retest-website-decision/",
-        login_required(AuditRetestWebsiteDecisionUpdateView.as_view()),
+        login_required(AuditRetestCaseComplianceWebsite12WeekUpdateView.as_view()),
         name="edit-audit-retest-website-decision",
     ),
     path(
@@ -252,7 +252,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-decision/",
-        login_required(AuditRetestStatementDecisionUpdateView.as_view()),
+        login_required(AuditRetestCaseComplianceStatement12WeekUpdateView.as_view()),
         name="edit-audit-retest-statement-decision",
     ),
     path(

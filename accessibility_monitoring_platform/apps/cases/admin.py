@@ -6,6 +6,7 @@ from django.contrib import admin
 from ..common.admin import ExportCsvMixin
 from .models import (
     Case,
+    CaseCompliance,
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
@@ -44,6 +45,23 @@ class CaseAdmin(admin.ModelAdmin):
     list_filter = [
         MetaStatusCaseListFilter,
         ("auditor", admin.RelatedOnlyFieldListFilter),
+    ]
+
+
+class CaseComplianceAdmin(admin.ModelAdmin):
+    """Django admin configuration for CaseCompliance model"""
+
+    readonly_fields = ["case"]
+    search_fields = ["case__organisation_name", "case__id"]
+    list_display = [
+        "case",
+        "__str__",
+    ]
+    list_filter = [
+        "website_compliance_state_initial",
+        "website_compliance_state_12_week",
+        "statement_compliance_state_initial",
+        "statement_compliance_state_12_week",
     ]
 
 
@@ -89,6 +107,7 @@ class EqualityBodyCorrespondenceAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Case, CaseAdmin)
+admin.site.register(CaseCompliance, CaseComplianceAdmin)
 admin.site.register(CaseEvent, CaseEventAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(EqualityBodyCorrespondence, EqualityBodyCorrespondenceAdmin)

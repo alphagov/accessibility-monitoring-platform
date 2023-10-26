@@ -24,7 +24,13 @@ from ....audits.models import (
     RetestPage,
     RetestCheckResult,
 )
-from ....cases.models import Case, CaseEvent, Contact, EqualityBodyCorrespondence
+from ....cases.models import (
+    Case,
+    CaseCompliance,
+    CaseEvent,
+    Contact,
+    EqualityBodyCorrespondence,
+)
 from ....comments.models import Comment
 from ....notifications.models import Notification, NotificationSetting
 from ....reminders.models import Reminder
@@ -84,6 +90,7 @@ class Command(BaseCommand):
                 Audit,
                 WcagDefinition,
                 UserCacheUniqueHash,
+                CaseCompliance,
             ]
         )
         delete_from_tables(

@@ -1,4 +1,4 @@
-"""
+""""
 Models - cases
 """
 from datetime import date, datetime, timedelta, timezone as datetime_timezone
@@ -116,24 +116,24 @@ ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
     ("ecni", "Equality Commission Northern Ireland"),
 ]
 
-ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
-ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT: str = "compliant"
-ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT: str = "not-compliant"
-ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND: str = "not-found"
-ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
-    (ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT, "Compliant"),
-    (ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT, "Not compliant"),
-    (ACCESSIBILITY_STATEMENT_DECISION_NOT_FOUND, "Not found"),
+STATEMENT_COMPLIANCE_STATE_DEFAULT: str = "unknown"
+STATEMENT_COMPLIANCE_STATE_COMPLIANT: str = "compliant"
+STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT: str = "not-compliant"
+STATEMENT_COMPLIANCE_STATE_NOT_FOUND: str = "not-found"
+STATEMENT_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
+    (STATEMENT_COMPLIANCE_STATE_COMPLIANT, "Compliant"),
+    (STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT, "Not compliant"),
+    (STATEMENT_COMPLIANCE_STATE_NOT_FOUND, "Not found"),
     ("other", "Other"),
-    (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not selected"),
+    (STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not selected"),
 ]
 
-WEBSITE_INITIAL_COMPLIANCE_DEFAULT: str = "not-known"
-WEBSITE_INITIAL_COMPLIANCE_COMPLIANT: str = "compliant"
-WEBSITE_INITIAL_COMPLIANCE_CHOICES: List[Tuple[str, str]] = [
-    (WEBSITE_INITIAL_COMPLIANCE_COMPLIANT, "Fully compliant"),
+WEBSITE_COMPLIANCE_STATE_DEFAULT: str = "not-known"
+WEBSITE_COMPLIANCE_STATE_COMPLIANT: str = "compliant"
+WEBSITE_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
+    (WEBSITE_COMPLIANCE_STATE_COMPLIANT, "Fully compliant"),
     ("partially-compliant", "Partially compliant"),
-    (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, "Not known"),
+    (WEBSITE_COMPLIANCE_STATE_DEFAULT, "Not known"),
 ]
 
 RECOMMENDATION_DEFAULT: str = "unknown"
@@ -164,13 +164,6 @@ IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
     (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "Not known"),
-]
-
-WEBSITE_STATE_FINAL_DEFAULT: str = "not-known"
-WEBSITE_STATE_FINAL_CHOICES: List[Tuple[str, str]] = [
-    ("compliant", "Fully compliant"),
-    ("partially-compliant", "Partially compliant"),
-    (WEBSITE_STATE_FINAL_DEFAULT, "Not known"),
 ]
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
@@ -257,6 +250,16 @@ CLOSED_CASE_STATUSES: List[str] = [
     "in-correspondence-with-equalities-body",
     "deactivated",
 ]
+COMPLIANCE_FIELDS: List[str] = [
+    "website_compliance_state_initial",
+    "website_compliance_notes_initial",
+    "statement_compliance_state_initial",
+    "statement_compliance_notes_initial",
+    "website_compliance_state_12_week",
+    "website_compliance_notes_12_week",
+    "statement_compliance_state_12_week",
+    "statement_compliance_notes_12_week",
+]
 
 EQUALITY_BODY_CORRESPONDENCE_QUESTION: str = "question"
 EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES: List[Tuple[str, str]] = [
@@ -325,18 +328,6 @@ class Case(VersionModel):
 
     # Historic testing details page
     test_results_url = models.TextField(default="", blank=True)
-    accessibility_statement_state = models.CharField(
-        max_length=200,
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-    )
-    accessibility_statement_notes = models.TextField(default="", blank=True)
-    website_compliance_state_initial = models.CharField(
-        max_length=20,
-        choices=WEBSITE_INITIAL_COMPLIANCE_CHOICES,
-        default=WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
-    )
-    compliance_decision_notes = models.TextField(default="", blank=True)
     testing_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report details page
@@ -421,12 +412,6 @@ class Case(VersionModel):
     review_changes_complete_date = models.DateField(null=True, blank=True)
 
     # Final website
-    website_state_final = models.CharField(
-        max_length=200,
-        choices=WEBSITE_STATE_FINAL_CHOICES,
-        default=WEBSITE_STATE_FINAL_DEFAULT,
-    )
-    website_state_notes_final = models.TextField(default="", blank=True)
     final_website_complete_date = models.DateField(null=True, blank=True)
 
     # Final statement
@@ -437,12 +422,6 @@ class Case(VersionModel):
     )
     disproportionate_notes = models.TextField(default="", blank=True)
     accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
-    accessibility_statement_state_final = models.CharField(
-        max_length=200,
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-    )
-    accessibility_statement_notes_final = models.TextField(default="", blank=True)
     final_statement_complete_date = models.DateField(null=True, blank=True)
 
     # Case close
@@ -508,16 +487,19 @@ class Case(VersionModel):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
 
     def save(self, *args, **kwargs) -> None:
+        new_case: bool = not self.id
         now: datetime = timezone.now()
         if not self.created:
             self.created = now
             self.domain = extract_domain_from_url(self.home_page_url)
         if self.case_completed != DEFAULT_CASE_COMPLETED and not self.completed_date:
             self.completed_date = now
-        self.status = self.set_status()
-        self.qa_status = self.set_qa_status()
+        self.status = self.calculate_status()
+        self.qa_status = self.calulate_qa_status()
         self.updated = now
         super().save(*args, **kwargs)
+        if new_case:
+            CaseCompliance.objects.create(case=self)
 
     @property
     def formatted_home_page_url(self) -> str:
@@ -574,7 +556,12 @@ class Case(VersionModel):
     def qa_comments(self):
         return self.comment_case.filter(hidden=False).order_by("-created_date")
 
-    def set_status(self) -> str:  # noqa: C901
+    def calculate_status(self) -> str:  # noqa: C901
+        try:
+            compliance: CaseCompliance = self.compliance
+        except CaseCompliance.DoesNotExist:
+            compliance = None
+
         if self.is_deactivated:
             return STATUS_DEACTIVATED
         elif (
@@ -595,12 +582,15 @@ class Case(VersionModel):
         elif self.auditor is None:
             return "unassigned-case"
         elif (
-            self.website_compliance_state_initial == WEBSITE_INITIAL_COMPLIANCE_DEFAULT
+            compliance is None
+            or self.compliance.website_compliance_state_initial
+            == WEBSITE_COMPLIANCE_STATE_DEFAULT
             or self.statement_checks_still_initial
         ):
             return "test-in-progress"
         elif (
-            self.website_compliance_state_initial != WEBSITE_INITIAL_COMPLIANCE_DEFAULT
+            self.compliance.website_compliance_state_initial
+            != WEBSITE_COMPLIANCE_STATE_DEFAULT
             and not self.statement_checks_still_initial
             and self.report_review_status != BOOLEAN_TRUE
         ):
@@ -639,7 +629,7 @@ class Case(VersionModel):
             return "final-decision-due"
         return "unknown"
 
-    def set_qa_status(self) -> str:
+    def calulate_qa_status(self) -> str:
         if (
             self.reviewer is None
             and self.report_review_status == BOOLEAN_TRUE
@@ -658,25 +648,33 @@ class Case(VersionModel):
             return QA_STATUS_QA_APPROVED
         return QA_STATUS_UNKNOWN
 
-    def set_accessibility_statement_states(self) -> None:
+    def set_statement_compliance_states(self) -> None:
         if self.audit:
-            accessibility_statement_state: str = self.accessibility_statement_state
-            accessibility_statement_state_final: str = (
-                self.accessibility_statement_state_final
+            old_statement_compliance_state_initial: str = (
+                self.compliance.statement_compliance_state_initial
+            )
+            old_statement_compliance_state_12_week: str = (
+                self.compliance.statement_compliance_state_12_week
+            )
+            new_statement_compliance_state_initial: str = (
+                old_statement_compliance_state_initial
+            )
+            new_statement_compliance_state_12_week: str = (
+                old_statement_compliance_state_12_week
             )
             if self.audit.accessibility_statement_initially_found:
                 if self.audit.uses_statement_checks:
                     if self.audit.failed_statement_check_results.count() > 0:
-                        self.accessibility_statement_state = (
-                            ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+                        new_statement_compliance_state_initial = (
+                            STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
                         )
                     else:
-                        self.accessibility_statement_state = (
-                            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+                        new_statement_compliance_state_initial = (
+                            STATEMENT_COMPLIANCE_STATE_COMPLIANT
                         )
             else:
-                self.accessibility_statement_state = (
-                    ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+                new_statement_compliance_state_initial = (
+                    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
                 )
             if (
                 self.audit.accessibility_statement_initially_found
@@ -684,22 +682,30 @@ class Case(VersionModel):
             ):
                 if self.audit.uses_statement_checks:
                     if self.audit.failed_retest_statement_check_results.count() > 0:
-                        self.accessibility_statement_state_final = (
-                            ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+                        new_statement_compliance_state_12_week = (
+                            STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
                         )
                     else:
-                        self.accessibility_statement_state_final = (
-                            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+                        new_statement_compliance_state_12_week = (
+                            STATEMENT_COMPLIANCE_STATE_COMPLIANT
                         )
             else:
-                self.accessibility_statement_state_final = (
-                    ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT
+                new_statement_compliance_state_12_week = (
+                    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
                 )
             if (
-                accessibility_statement_state != self.accessibility_statement_state
-                or accessibility_statement_state_final
-                != self.accessibility_statement_state_final
+                old_statement_compliance_state_initial
+                != new_statement_compliance_state_initial
+                or old_statement_compliance_state_12_week
+                != new_statement_compliance_state_12_week
             ):
+                self.compliance.statement_compliance_state_initial = (
+                    new_statement_compliance_state_initial
+                )
+                self.compliance.statement_compliance_state_12_week = (
+                    new_statement_compliance_state_12_week
+                )
+                self.compliance.save()
                 self.save()
 
     @property
@@ -857,18 +863,21 @@ class Case(VersionModel):
 
     @property
     def website_compliance_display(self):
-        if self.website_state_final == WEBSITE_STATE_FINAL_DEFAULT:
-            return self.get_website_compliance_state_initial_display()
-        return self.get_website_state_final_display()
+        if (
+            self.compliance.website_compliance_state_12_week
+            == WEBSITE_COMPLIANCE_STATE_DEFAULT
+        ):
+            return self.compliance.get_website_compliance_state_initial_display()
+        return self.compliance.get_website_compliance_state_12_week_display()
 
     @property
     def accessibility_statement_compliance_display(self):
         if (
-            self.accessibility_statement_state_final
-            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            self.compliance.statement_compliance_state_12_week
+            == STATEMENT_COMPLIANCE_STATE_DEFAULT
         ):
-            return self.get_accessibility_statement_state_display()
-        return self.get_accessibility_statement_state_final_display()
+            return self.compliance.get_statement_compliance_state_initial_display()
+        return self.compliance.get_statement_compliance_state_12_week_display()
 
     @property
     def percentage_website_issues_fixed(self) -> int:
@@ -910,8 +919,8 @@ class Case(VersionModel):
         if self.audit and self.audit.uses_statement_checks:
             return not self.audit.overview_statement_checks_complete
         return (
-            self.accessibility_statement_state
-            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            self.compliance.statement_compliance_state_initial
+            == STATEMENT_COMPLIANCE_STATE_DEFAULT
         )
 
     @property
@@ -921,6 +930,48 @@ class Case(VersionModel):
         else:
             return None
         return archive["sections"] if "sections" in archive else None
+
+
+class CaseCompliance(VersionModel):
+    """
+    Model for website and accessibility statement compliance
+    """
+
+    case = models.OneToOneField(
+        Case, on_delete=models.PROTECT, related_name="compliance"
+    )
+    website_compliance_state_initial = models.CharField(
+        max_length=20,
+        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
+        default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
+    )
+    website_compliance_notes_initial = models.TextField(default="", blank=True)
+    statement_compliance_state_initial = models.CharField(
+        max_length=200,
+        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
+        default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
+    )
+    statement_compliance_notes_initial = models.TextField(default="", blank=True)
+    website_compliance_state_12_week = models.CharField(
+        max_length=200,
+        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
+        default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
+    )
+    website_compliance_notes_12_week = models.TextField(default="", blank=True)
+    statement_compliance_state_12_week = models.CharField(
+        max_length=200,
+        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
+        default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
+    )
+    statement_compliance_notes_12_week = models.TextField(default="", blank=True)
+
+    def __str__(self) -> str:
+        return (
+            f"Website: {self.get_website_compliance_state_initial_display()}->"
+            f"{self.get_website_compliance_state_12_week_display()}; "
+            f"Statement: {self.get_statement_compliance_state_initial_display()}->"
+            f"{self.get_statement_compliance_state_12_week_display()}"
+        )
 
 
 class Contact(models.Model):

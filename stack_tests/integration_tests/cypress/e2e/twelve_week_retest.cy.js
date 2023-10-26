@@ -42,8 +42,8 @@ describe('View test', () => {
 
   it('can edit 12-week website compliance decision', () => {
     cy.get('#edit-audit-retest-website-decision').click()
-    cy.get('[name="case-website_state_final"]').check('compliant')
-    cy.get('[name="case-website_state_notes_final"]').clear().type(websiteComplianceNote)
+    cy.get('[name="case-compliance-website_compliance_state_12_week"]').check('compliant')
+    cy.get('[name="case-compliance-website_compliance_notes_12_week"]').clear().type(websiteComplianceNote)
     cy.get('[name="audit_retest_website_decision_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('12-week test').click()
@@ -65,8 +65,8 @@ describe('View test', () => {
 
   it('can edit 12-week accessibility statement compliance decision', () => {
     cy.get('#edit-audit-retest-statement-decision').click()
-    cy.get('[name="case-accessibility_statement_state_final"]').check('compliant')
-    cy.get('[name="case-accessibility_statement_notes_final"]').clear().type(statementComplianceNote)
+    cy.get('[name="case-compliance-statement_compliance_state_12_week"]').check('compliant')
+    cy.get('[name="case-compliance-statement_compliance_notes_12_week"]').clear().type(statementComplianceNote)
     cy.get('[name="archive_audit_retest_statement_decision_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('12-week test').click()

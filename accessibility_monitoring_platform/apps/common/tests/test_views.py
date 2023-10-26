@@ -17,11 +17,12 @@ from django.urls import reverse
 from ...audits.models import Audit, CheckResult, Page, WcagDefinition
 from ...cases.models import (
     Case,
-    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
-    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
 )
 from ...cases.views import calculate_report_followup_dates
+from ...cases.utils import create_case_and_compliance
 from ...notifications.models import Notification
 from ...overdue.tests import create_case
 from ...reminders.models import Reminder
@@ -465,9 +466,9 @@ def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = Case.objects.create(
+    fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
     Audit.objects.create(
         case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
@@ -608,9 +609,9 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    initially_compliant_website_case: Case = Case.objects.create(
+    initially_compliant_website_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
-        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
     Audit.objects.create(
@@ -666,11 +667,11 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    initally_compliant_statement_case: Case = Case.objects.create(
+    initally_compliant_statement_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
     Audit.objects.create(
         case=initally_compliant_statement_case,
@@ -682,10 +683,10 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = Case.objects.create(
+    fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
     Audit.objects.create(
         case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
@@ -695,10 +696,10 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     Audit.objects.create(
         case=case, retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc)
     )
-    fixed_case: Case = Case.objects.create(
+    fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
-        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
     Audit.objects.create(
         case=fixed_case, retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc)
