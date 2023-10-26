@@ -116,16 +116,6 @@ ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
     ("ecni", "Equality Commission Northern Ireland"),
 ]
 
-REPORT_METHODOLOGY_PLATFORM: str = "platform"
-REPORT_METHODOLOGY_ODT: str = "odt"
-REPORT_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
-    (
-        REPORT_METHODOLOGY_PLATFORM,
-        "Platform",
-    ),
-    (REPORT_METHODOLOGY_ODT, "ODT templates"),
-]
-
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
 ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT: str = "compliant"
 ACCESSIBILITY_STATEMENT_DECISION_NOT_COMPLIANT: str = "not-compliant"
@@ -324,11 +314,6 @@ class Case(VersionModel):
         max_length=20,
         choices=ENFORCEMENT_BODY_CHOICES,
         default=ENFORCEMENT_BODY_DEFAULT,
-    )
-    report_methodology = models.CharField(
-        max_length=20,
-        choices=REPORT_METHODOLOGY_CHOICES,
-        default=REPORT_METHODOLOGY_PLATFORM,
     )
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT

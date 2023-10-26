@@ -4,11 +4,7 @@
         <ul class="govuk-list amp-margin-bottom-5">
             {% if case.archive %}
                 {% for archived_section in case.archived_sections %}
-                    <li>
-                        <a href="#{{ archived_section.name|slugify }}" class="govuk-link govuk-link--no-visited-state">
-                            {{ archived_section.name }}{% if archived_section.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
-                        {% if archived_section.complete %}&check;{% endif %}
-                    </li>
+                    {% include 'cases/details/archive_section_link.html' with section=archived_section %}
                 {% endfor %}
             {% else %}
                 {% include './nav_content.html' with id='case-details' edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}

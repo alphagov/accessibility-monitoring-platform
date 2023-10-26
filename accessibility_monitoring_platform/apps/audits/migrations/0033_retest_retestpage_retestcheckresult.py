@@ -7,7 +7,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cases", "0069_remove_contact_created_by_equalitybodycorrespondence"),
+        ("cases", "0068_remove_case_report_methodology"),
         (
             "audits",
             "0032_rename_access_requirements_notes_audit_archive_access_requirements_notes_and_more",
