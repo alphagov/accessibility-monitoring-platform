@@ -1397,6 +1397,12 @@ class RetestPage(models.Model):
     def heading(self):
         return f"{self.retest} {self.page}"
 
+    @property
+    def unfixed_check_results(self):
+        return self.retestcheckresult_set.all().exclude(
+            retest_state=RETEST_CHECK_RESULT_FIXED
+        )
+
 
 class RetestCheckResult(models.Model):
     """

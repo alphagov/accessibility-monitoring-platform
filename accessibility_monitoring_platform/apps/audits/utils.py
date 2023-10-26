@@ -344,30 +344,34 @@ def create_checkresults_for_retest(retest: Retest) -> None:
         # Create fake retest from 12-week results for first retest to compare itself to
         retest_0: Retest = Retest.objects.create(case=retest.case, id_within_case=0)
         for page in audit.testable_pages:
-            retest_page: RetestPage = RetestPage.objects.create(
-                retest=retest_0, page=page
-            )
-            for check_result in page.unfixed_check_results:
-                RetestCheckResult.objects.create(
-                    retest=retest_0, retest_page=retest_page, check_result=check_result
+            if page.unfixed_check_results:
+                retest_page: RetestPage = RetestPage.objects.create(
+                    retest=retest_0, page=page
                 )
+                for check_result in page.unfixed_check_results:
+                    RetestCheckResult.objects.create(
+                        retest=retest_0,
+                        retest_page=retest_page,
+                        check_result=check_result,
+                    )
 
     previous_retest: Retest = Retest.objects.get(
         case=retest.case, id_within_case=retest.id_within_case - 1
     )
 
     for previous_retest_page in RetestPage.objects.filter(retest=previous_retest):
-        retest_page: RetestPage = RetestPage.objects.create(
-            retest=retest, page=previous_retest_page.page
-        )
-        for previous_retest_check_result in RetestCheckResult.objects.filter(
-            retest_page=previous_retest_page
-        ):
-            RetestCheckResult.objects.create(
-                retest=retest,
-                retest_page=retest_page,
-                check_result=previous_retest_check_result.check_result,
+        if previous_retest_page.unfixed_check_results:
+            retest_page: RetestPage = RetestPage.objects.create(
+                retest=retest, page=previous_retest_page.page
             )
+            for (
+                previous_retest_check_result
+            ) in previous_retest_page.unfixed_check_results:
+                RetestCheckResult.objects.create(
+                    retest=retest,
+                    retest_page=retest_page,
+                    check_result=previous_retest_check_result.check_result,
+                )
 
 
 def get_next_equality_body_retest_page_url(

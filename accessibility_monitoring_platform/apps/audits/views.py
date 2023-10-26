@@ -111,7 +111,6 @@ from .models import (
     STATEMENT_CHECK_NO,
     Retest,
     RetestPage,
-    RetestCheckResult,
 )
 from .utils import (
     create_or_update_check_results_for_page,
@@ -1670,34 +1669,20 @@ class RetestMetadataUpdateView(UpdateView):
         return reverse("audits:retest-metadata-update", kwargs={"pk": self.object.id})
 
 
-class RetestPageChecksFormView(FormView):
+class RetestPageChecksFormView(UpdateView):
     """
     View to update check results for a page in a retest requested by an equality body
     """
 
+    model: Type[RetestPage] = RetestPage
     form_class: Type[RetestPageChecksForm] = RetestPageChecksForm
     template_name: str = "audits/forms/equality_body_retest_page_checks.html"
-    retest_page: RetestPage
     context_object_name: str = "retest_page"
-
-    def setup(self, request, *args, **kwargs):
-        """Add retest page object to view"""
-        super().setup(request, *args, **kwargs)
-        self.retest_page = RetestPage.objects.get(pk=kwargs["pk"])
-
-    def get_form(self):
-        """Populate next retest page select field"""
-        form = super().get_form()
-        if "complete_date" in form.fields:
-            form.fields["complete_date"].initial = self.retest_page.complete_date
-            form.fields["missing_date"].initial = self.retest_page.missing_date
-        return form
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["retest_page"] = self.retest_page
-        # wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
+
         if self.request.POST:
             retest_check_results_formset: RetestCheckResultFormset = (
                 RetestCheckResultFormset(self.request.POST)
@@ -1705,33 +1690,23 @@ class RetestPageChecksFormView(FormView):
         else:
             retest_check_results_formset: RetestCheckResultFormset = (
                 RetestCheckResultFormset(
-                    queryset=self.retest_page.retestcheckresult_set.all()
+                    queryset=self.object.retestcheckresult_set.all()
                 )
             )
 
         context["retest_check_results_formset"] = retest_check_results_formset
-        # context["definitions_forms_errors"] = definitions_forms_errors
 
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        retest_page: RetestPage = self.retest_page
-        retest_page.complete_date = form.cleaned_data["complete_date"]
-        retest_page.missing_date = form.cleaned_data["missing_date"]
-        retest_page.save()
 
         retest_check_results_formset: RetestCheckResultFormset = context[
             "retest_check_results_formset"
         ]
         if retest_check_results_formset.is_valid():
-            pass
-            # create_or_update_check_results_for_page(
-            #     user=self.request.user,
-            #     page=page,
-            #     check_result_forms=check_results_formset.forms,
-            # )
+            retest_check_results_formset.save()
         else:
             return super().form_invalid(form)
 
@@ -1740,90 +1715,8 @@ class RetestPageChecksFormView(FormView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            retest_page: RetestPage = self.retest_page
+            retest_page: RetestPage = self.object
             return get_next_equality_body_retest_page_url(
                 retest=retest_page.retest, current_page=retest_page
             )
         return self.request.path
-
-
-# class RetestPageCheckResultsFormView(RetestPageChecksFormView):
-#     """
-#     View to retest check results for a page
-#     """
-
-#     form_class: Type[RetestPageChecksForm] = RetestPageChecksForm
-#     template_name: str = "audits/forms/equality_body_retest_page_checks.html"
-#     page: Page
-
-#     def get_form(self):
-#         """Populate next page fields"""
-#         form = super().get_form()
-#         form.fields["retest_complete_date"].initial = self.page.retest_complete_date
-#         form.fields[
-#             "retest_page_missing_date"
-#         ].initial = self.page.retest_page_missing_date
-#         form.fields["retest_notes"].initial = self.page.retest_notes
-#         return form
-
-#     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-#         """Populate context data for template rendering"""
-#         context: Dict[str, Any] = super().get_context_data(**kwargs)
-#         context["page"] = self.page
-#         context["filter_form"] = AuditRetestCheckResultFilterForm(
-#             initial={
-#                 "fixed": False,
-#                 "not-fixed": False,
-#                 "not-tested": False,
-#             }
-#         )
-#         if self.request.POST:
-#             check_results_formset: RetestCheckResultFormset = RetestCheckResultFormset(
-#                 self.request.POST
-#             )
-#         else:
-#             check_results_formset: RetestCheckResultFormset = RetestCheckResultFormset(
-#                 initial=[
-#                     check_result.dict_for_retest
-#                     for check_result in self.page.failed_check_results
-#                 ]
-#             )
-#         check_results_and_forms: List[Tuple[CheckResult, CheckResultForm]] = list(
-#             zip(self.page.failed_check_results, check_results_formset.forms)
-#         )
-
-#         context["check_results_formset"] = check_results_formset
-#         context["check_results_and_forms"] = check_results_and_forms
-
-#         return context
-
-#     def form_valid(self, form: ModelForm):
-#         """Process contents of valid form"""
-#         context: Dict[str, Any] = self.get_context_data()
-#         page: Page = self.page
-#         page.retest_complete_date = form.cleaned_data["retest_complete_date"]
-#         page.retest_page_missing_date = form.cleaned_data["retest_page_missing_date"]
-#         page.retest_notes = form.cleaned_data["retest_notes"]
-#         page.save()
-
-#         check_results_formset: CheckResultFormset = context["check_results_formset"]
-#         if check_results_formset.is_valid():
-#             for form in check_results_formset.forms:
-#                 check_result: CheckResult = CheckResult.objects.get(
-#                     id=form.cleaned_data["id"]
-#                 )
-#                 check_result.retest_state = form.cleaned_data["retest_state"]
-#                 check_result.retest_notes = form.cleaned_data["retest_notes"]
-#                 check_result.save()
-#         else:
-#             return super().form_invalid(form)
-
-#         return HttpResponseRedirect(self.get_success_url())
-
-#     def get_success_url(self) -> str:
-#         """Detect the submit button used and act accordingly"""
-#         if "save_continue" in self.request.POST:
-#             return get_next_retest_page_url(
-#                 audit=self.page.audit, current_page=self.page
-#             )
-#         return super().get_success_url()

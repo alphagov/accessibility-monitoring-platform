@@ -1460,7 +1460,7 @@ class RetestUpdateForm(forms.ModelForm):
         ]
 
 
-class RetestPageChecksForm(forms.Form):
+class RetestPageChecksForm(forms.ModelForm):
     """
     Form for equality body retesting checks for a page
     """
