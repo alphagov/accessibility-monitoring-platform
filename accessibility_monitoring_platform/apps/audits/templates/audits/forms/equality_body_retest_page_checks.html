@@ -19,7 +19,6 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                </fieldset>
                 <form method="post" action="{% url 'audits:edit-retest-page-checks' retest_page.id %}">
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
@@ -55,7 +54,7 @@
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {{ check_results_formset.management_form }}
+                    {{ retest_check_results_formset.management_form }}
                     {% for check_result, form in check_results_and_forms %}
                         <div class="govuk-grid-row"
                             data-check-type="{{ check_result.wcag_definition.type }}"

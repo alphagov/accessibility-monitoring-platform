@@ -125,6 +125,7 @@ from .utils import (
     get_test_view_tables_context,
     get_retest_view_tables_context,
     create_checkresults_for_retest,
+    get_next_equality_body_retest_page_url,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -1663,11 +1664,9 @@ class RetestMetadataUpdateView(UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Return to list of equality body retests"""
+        """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            return reverse(
-                "cases:edit-retest-overview", kwargs={"pk": self.object.case.id}
-            )
+            return get_next_equality_body_retest_page_url(retest=self.object)
         return reverse("audits:retest-metadata-update", kwargs={"pk": self.object.id})
 
 
@@ -1723,10 +1722,10 @@ class RetestPageChecksFormView(FormView):
         retest_page.missing_date = form.cleaned_data["missing_date"]
         retest_page.save()
 
-        retest_eheck_results_formset: RetestCheckResultFormset = context[
+        retest_check_results_formset: RetestCheckResultFormset = context[
             "retest_check_results_formset"
         ]
-        if retest_eheck_results_formset.is_valid():
+        if retest_check_results_formset.is_valid():
             pass
             # create_or_update_check_results_for_page(
             #     user=self.request.user,
@@ -1740,9 +1739,11 @@ class RetestPageChecksFormView(FormView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        # if "save_continue" in self.request.POST:
-        #     retest_page: RetestPage = self.retest_page
-        #     return get_next_page_url(audit=page.audit, current_page=retest_page)
+        if "save_continue" in self.request.POST:
+            retest_page: RetestPage = self.retest_page
+            return get_next_equality_body_retest_page_url(
+                retest=retest_page.retest, current_page=retest_page
+            )
         return self.request.path
 
 
