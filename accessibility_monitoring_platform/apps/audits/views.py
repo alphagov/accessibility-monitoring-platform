@@ -1705,7 +1705,7 @@ class RetestPageChecksFormView(FormView):
         else:
             retest_check_results_formset: RetestCheckResultFormset = (
                 RetestCheckResultFormset(
-                    initial=self.retest_page.retestcheckresult_set.all()
+                    queryset=self.retest_page.retestcheckresult_set.all()
                 )
             )
 

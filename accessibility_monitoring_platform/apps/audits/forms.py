@@ -1503,4 +1503,6 @@ class RetestCheckResultForm(forms.ModelForm):
         ]
 
 
-RetestCheckResultFormset: Any = forms.formset_factory(RetestCheckResultForm, extra=0)
+RetestCheckResultFormset: Any = forms.modelformset_factory(
+    RetestCheckResult, form=RetestCheckResultForm, extra=0
+)

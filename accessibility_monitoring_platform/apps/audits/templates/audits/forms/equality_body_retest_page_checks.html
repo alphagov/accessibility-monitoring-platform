@@ -55,15 +55,22 @@
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ retest_check_results_formset.management_form }}
-                    {% for check_result, form in check_results_and_forms %}
+                    {% for form in retest_check_results_formset %}
                         <div class="govuk-grid-row"
-                            data-check-type="{{ check_result.wcag_definition.type }}"
-                            data-filter-string="{{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }}"
+                            data-check-type="{{ form.instance.check_result.wcag_definition.type }}"
+                            data-filter-string="{{ form.instance.check_result.wcag_definition.name }} {{ form.instance.check_result.wcag_definition.description }}"
                         >
                             <div class="govuk-grid-column-full">
                                 <hr class="amp-width-100 amp-margin-bottom-30">
-                                <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
-                                <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
+                                <label class="govuk-label"><b>{{ form.instance.check_result.wcag_definition }}</b></label>
+                                <div class="govuk-hint">
+                                    <p><i>Initial notes:</i></p>
+                                    {{ form.instance.check_result.notes|markdown_to_html }}
+                                </div>
+                                <div class="govuk-hint">
+                                    <p><i>12-week retest notes:</i></p>
+                                    {{ form.instance.check_result.retest_notes|markdown_to_html }}
+                                </div>
                                 {% include 'common/amp_form_snippet.html' %}
                             </div>
                         </div>
