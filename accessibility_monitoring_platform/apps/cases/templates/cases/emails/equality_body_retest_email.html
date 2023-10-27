@@ -52,10 +52,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div id="email-text" class="amp-report-wrapper">
-                    Dear <b>[NAMED CONTACT]</b>,
-                    <br>
-                    <br>
-                    <h2 class="amp-margin-bottom-0">{{ case.organisation_name }}</h2>
+                    <h1 class="amp-margin-bottom-0">{{ case.organisation_name }}</h1>
                     {{ case.domain }}
                     <br>
                     <br>
@@ -68,7 +65,7 @@
                     Most recent retest completed: <span class="amp-todo">UNKNOWN to platform</span>
                     <br>
                     <br>
-                    <h3 class="amp-margin-bottom-0">Overview</h3>
+                    <h2 class="amp-margin-bottom-0">Overview</h2>
                     <ul>
                         <li>
                             Retest results:
@@ -84,7 +81,7 @@
                         </li>
                     </ul>
                     <br>
-                    <h3 class="amp-margin-bottom-0">Pages we retested</h3>
+                    <h2 class="amp-margin-bottom-0">Pages we retested</h2>
                     <table id="pages-table">
                         <thead>
                             <tr>
@@ -104,7 +101,8 @@
                         </tbody>
                     </table>
                     <br>
-                    <h3 class="amp-margin-bottom-0">Correspondence</h3>
+                    <h2 class="amp-margin-bottom-0">Correspondence</h2>
+                    <br>
                     Report sent {{ case.report_sent_date|amp_date }} through <span class="amp-todo">unknown form or email</span>
                     <br>
                     <br>
@@ -127,7 +125,7 @@
                     <br>
                     <br>
                     Closing email sent <span class="amp-todo">on which date?</span> to <span class="amp-todo">unknown</span>
-                    <h3 class="amp-margin-bottom-0">Errors found in report <span class="amp-todo">report?</span></h3>
+                    <h2 class="amp-margin-bottom-0">Errors found in report <span class="amp-todo">report?</span></h2>
                     <br>
                     {% for retest_page in retest.retestpage_set.all %}
                         <b>{{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %} issues</b>
@@ -136,7 +134,7 @@
                         <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
                         <br>
                         <br>
-                        {% if retest_page.missing_page %}
+                        {% if retest_page.missing_date %}
                             This page has been removed by the organisation.
                             <br>
                             <br>
