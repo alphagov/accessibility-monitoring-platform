@@ -60,6 +60,7 @@ from .models import (
     Retest,
     RetestPage,
     RetestCheckResult,
+    RETEST_INITIAL_COMPLIANCE_CHOICES,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
@@ -1521,4 +1522,25 @@ class RetestComparisonUpdateForm(forms.ModelForm):
         model = Retest
         fields: List[str] = [
             "comparison_complete_date",
+        ]
+
+
+class RetestComplianceUpdateForm(forms.ModelForm):
+    """
+    Form for updating equality body retest compliance
+    """
+
+    retest_compliance_state = AMPChoiceRadioField(
+        label="Website compliance decision",
+        choices=RETEST_INITIAL_COMPLIANCE_CHOICES,
+    )
+    compliance_notes = AMPTextField(label="Notes")
+    compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: List[str] = [
+            "retest_compliance_state",
+            "compliance_notes",
+            "compliance_complete_date",
         ]

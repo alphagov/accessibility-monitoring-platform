@@ -14,4 +14,9 @@ class Migration(migrations.Migration):
             name="comparison_complete_date",
             field=models.DateField(blank=True, null=True),
         ),
+        migrations.AddField(
+            model_name="retest",
+            name="compliance_complete_date",
+            field=models.DateField(blank=True, null=True),
+        ),
     ]

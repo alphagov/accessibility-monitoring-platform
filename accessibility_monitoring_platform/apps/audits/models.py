@@ -1332,6 +1332,7 @@ class Retest(VersionModel):
     is_deleted = models.BooleanField(default=False)
     complete_date = models.DateField(null=True, blank=True)
     comparison_complete_date = models.DateField(null=True, blank=True)
+    compliance_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]
