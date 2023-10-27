@@ -1369,6 +1369,11 @@ class Retest(VersionModel):
         return fixed_checks_count
 
     @property
+    def original_retest(self):
+        """Copy of 12-week retest results"""
+        return Retest.objects.get(case=self.case, id_within_case=0)
+
+    @property
     def previous_retest(self):
         """Return previous retest"""
         if self.id_within_case > 0:
@@ -1376,6 +1381,11 @@ class Retest(VersionModel):
                 case=self.case, id_within_case=self.id_within_case - 1
             )
         return None
+
+    @property
+    def latest_retest(self):
+        """Return latest retest"""
+        return Retest.objects.filter(case=self.case).first()
 
 
 class RetestPage(models.Model):
@@ -1409,6 +1419,12 @@ class RetestPage(models.Model):
     def unfixed_check_results(self):
         return self.all_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
 
+    @property
+    def original_check_results(self):
+        return self.retest.original_retest.retestpage_set.get(
+            page=self.page
+        ).all_check_results
+
 
 class RetestCheckResult(models.Model):
     """
@@ -1436,6 +1452,20 @@ class RetestCheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
+
+    @property
+    def original_retest_check_result(self):
+        """Return original copy of 12-week retest result for this check"""
+        return self.retest.original_retest.retestcheckresult_set.filter(
+            check_result=self.check_result
+        ).first()
+
+    @property
+    def latest_retest_check_result(self):
+        """Return latest retest result for this check"""
+        return self.retest.latest_retest.retestcheckresult_set.filter(
+            check_result=self.check_result
+        ).first()
 
     @property
     def previous_retest_check_result(self):
