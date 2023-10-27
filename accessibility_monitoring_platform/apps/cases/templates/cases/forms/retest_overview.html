@@ -25,7 +25,7 @@
                             New retest
                         </a>
                         <a
-                            href="{{ case.get_absolute_url }}"
+                            href="{% url 'cases:equality-body-retest-email-template' case.id %}"
                             class="govuk-link govuk-link--no-visited-state"
                         >
                             EHRC email template

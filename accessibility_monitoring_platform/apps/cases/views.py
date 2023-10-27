@@ -1098,6 +1098,18 @@ class CaseRetestOverviewTemplateView(TemplateView):
         return context
 
 
+class EqualityBodyRetestEmailTemplateView(TemplateView):
+    template_name: str = "cases/emails/equality_body_retest_email.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        context["retest"] = case.retest_set.first()
+        return context
+
+
 class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
     """
     View to note correspondence with enforcement body
