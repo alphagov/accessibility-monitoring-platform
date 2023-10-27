@@ -1401,10 +1401,12 @@ class RetestPage(models.Model):
         return f"{self.retest} | {self.page}"
 
     @property
+    def all_check_results(self):
+        return self.retestcheckresult_set.all()
+
+    @property
     def unfixed_check_results(self):
-        return self.retestcheckresult_set.all().exclude(
-            retest_state=RETEST_CHECK_RESULT_FIXED
-        )
+        return self.all_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
 
 
 class RetestCheckResult(models.Model):

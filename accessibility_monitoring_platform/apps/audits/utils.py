@@ -366,18 +366,17 @@ def create_checkresults_for_retest(retest: Retest) -> None:
     )
 
     for previous_retest_page in RetestPage.objects.filter(retest=previous_retest):
-        if previous_retest_page.unfixed_check_results:
-            retest_page: RetestPage = RetestPage.objects.create(
-                retest=retest, page=previous_retest_page.page
+        retest_page: RetestPage = RetestPage.objects.create(
+            retest=retest,
+            page=previous_retest_page.page,
+            missing_date=previous_retest_page.missing_date,
+        )
+        for previous_retest_check_result in previous_retest_page.unfixed_check_results:
+            RetestCheckResult.objects.create(
+                retest=retest,
+                retest_page=retest_page,
+                check_result=previous_retest_check_result.check_result,
             )
-            for (
-                previous_retest_check_result
-            ) in previous_retest_page.unfixed_check_results:
-                RetestCheckResult.objects.create(
-                    retest=retest,
-                    retest_page=retest_page,
-                    check_result=previous_retest_check_result.check_result,
-                )
 
 
 def get_next_equality_body_retest_page_url(

@@ -55,56 +55,66 @@
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ retest_check_results_formset.management_form }}
-                    {% for form in retest_check_results_formset %}
-                        <div class="govuk-grid-row">
-                            <div class="govuk-grid-column-full">
-                                <hr class="amp-width-100 amp-margin-bottom-30">
-                                <label class="govuk-label"><b>{{ form.instance.check_result.wcag_definition }}</b></label>
-                                <div class="govuk-hint">
-                                    <p><i>Initial notes:</i></p>
-                                    {{ form.instance.check_result.notes|markdown_to_html }}
+                    {% if retest_check_results_formset.forms %}
+                        {% for form in retest_check_results_formset %}
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <hr class="amp-width-100 amp-margin-bottom-30">
+                                    <label class="govuk-label"><b>{{ form.instance.check_result.wcag_definition }}</b></label>
+                                    <div class="govuk-hint">
+                                        <p><i>Initial notes:</i></p>
+                                        {{ form.instance.check_result.notes|markdown_to_html }}
+                                    </div>
+                                    {% for retest_check_result in form.instance.all_retest_check_results %}
+                                        {% if retest_check_result != form.instance %}
+                                            <div class="govuk-hint">
+                                                <p><i>{{ retest_check_result.retest }} notes:</i></p>
+                                                {{ retest_check_result.retest_notes|markdown_to_html }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% include 'common/amp_form_snippet.html' %}
                                 </div>
-                                {% for retest_check_result in form.instance.all_retest_check_results %}
-                                    {% if retest_check_result != form.instance %}
-                                        <div class="govuk-hint">
-                                            <p><i>{{ retest_check_result.retest }} notes:</i></p>
-                                            {{ retest_check_result.retest_notes|markdown_to_html }}
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                                {% include 'common/amp_form_snippet.html' %}
+                            </div>
+                        {% endfor %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full govuk-button-group">
+                                <hr class="amp-width-100 amp-margin-bottom-30">
                             </div>
                         </div>
-                    {% endfor %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <hr class="amp-width-100 amp-margin-bottom-30">
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full govuk-button-group">
+                                <input
+                                    type="submit"
+                                    value="Save"
+                                    name="save"
+                                    class="govuk-button"
+                                    data-module="govuk-button"
+                                />
+                                <input
+                                    type="submit"
+                                    value="Save and next page"
+                                    name="save_continue"
+                                    class="govuk-button govuk-button--secondary"
+                                    data-module="govuk-button"
+                                />
+                                <a
+                                    href="{% url 'cases:edit-retest-overview' retest_page.retest.case.id %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Cancel and return to retest overview
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and next page"
-                                name="save_continue"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{% url 'cases:edit-retest-overview' retest_page.retest.case.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel and return to retest overview
-                            </a>
+                    {% else %}
+                        <div class="govuk-grid-row amp-margin-bottom-30">
+                            <div class="govuk-grid-column-full">
+                                <p class="govuk-body-m">
+                                    All errors have been fixed in a previous retest.
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">

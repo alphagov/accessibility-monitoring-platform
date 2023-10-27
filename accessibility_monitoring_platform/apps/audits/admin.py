@@ -122,7 +122,7 @@ class RetestPageAdmin(admin.ModelAdmin):
     """Django admin configuration for RetestPage model"""
 
     search_fields = ["page__name", "page__url", "retest__case__organisation_name"]
-    list_display = ["page", "retest"]
+    list_display = ["page", "retest", "missing_date"]
     list_filter = ["page__page_type"]
 
 
