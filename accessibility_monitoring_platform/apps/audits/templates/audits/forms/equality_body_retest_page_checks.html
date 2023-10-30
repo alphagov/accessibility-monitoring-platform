@@ -19,6 +19,15 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% if not retest_check_results_formset.forms %}
+                    <div class="govuk-grid-row amp-margin-bottom-30">
+                        <div class="govuk-grid-column-full">
+                            <p class="govuk-body-m">
+                                All errors have been fixed in a previous retest.
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
                 <form method="post" action="{% url 'audits:edit-retest-page-checks' retest_page.id %}">
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
@@ -69,7 +78,11 @@
                                         {% if retest_check_result != form.instance %}
                                             <div class="govuk-hint">
                                                 <p><i>{{ retest_check_result.retest }} notes:</i></p>
-                                                {{ retest_check_result.retest_notes|markdown_to_html }}
+                                                {% if retest_check_result.retest_notes %}
+                                                    {{ retest_check_result.retest_notes|markdown_to_html }}
+                                                {% else %}
+                                                    None
+                                                {% endif %}
                                             </div>
                                         {% endif %}
                                     {% endfor %}
@@ -104,14 +117,6 @@
                                 >
                                     Cancel and return to retest overview
                                 </a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="govuk-grid-row amp-margin-bottom-30">
-                            <div class="govuk-grid-column-full">
-                                <p class="govuk-body-m">
-                                    All errors have been fixed in a previous retest.
-                                </p>
                             </div>
                         </div>
                     {% endif %}
