@@ -33,11 +33,14 @@
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
     {% endif %}
     <ul class="govuk-list">
-        {% include './nav_step.html' with edit_name='cases:edit-statement-enforcement' name='Statement enforcement' %}
-        {% include './nav_step.html' with edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
-        {% include './nav_step.html' with edit_name='cases:list-equality-body-correspondence' name='Equality body correspondence' %}
-        {% include './nav_step.html' with edit_name='cases:edit-retest-overview' name='Retest overview' %}
-        {% include './nav_step.html' with edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
+        {% if case.audit.uses_statement_checks %}
+            {% include './nav_step.html' with edit_name='cases:edit-statement-enforcement' name='Statement enforcement' %}
+            {% include './nav_step.html' with edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
+            {% include './nav_step.html' with edit_name='cases:list-equality-body-correspondence' name='Equality body correspondence' %}
+            {% include './nav_step.html' with edit_name='cases:edit-retest-overview' name='Retest overview' %}
+        {% else %}
+            {% include './nav_step.html' with edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
+        {% endif %}
     </ul>
     {% include 'common/frequently_used_links.html' %}
 </nav>

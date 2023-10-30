@@ -668,12 +668,8 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     enforcement_body_case_owner = AMPCharFieldWide(
         label="Equality body case owner (first name only)",
     )
-    enforcement_body_pursuing = AMPChoiceRadioField(
-        label="Equality body pursuing this case? (OLD)",
-        choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
-    )
     enforcement_body_closed_case = AMPChoiceRadioField(
-        label="Equality body has officially closed the case? (NEW)",
+        label="Equality body has officially closed the case?",
         choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
     )
     enforcement_body_finished_date = AMPDateField(
@@ -686,7 +682,6 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
             "version",
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_case_owner",
-            "enforcement_body_pursuing",
             "enforcement_body_closed_case",
             "enforcement_body_finished_date",
         ]

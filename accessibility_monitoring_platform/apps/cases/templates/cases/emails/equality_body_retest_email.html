@@ -60,14 +60,10 @@
                     <br>
                     Report published: {{ case.report.latest_s3_report.created|amp_date }}
                     <br>
-                    {% if case.unknown_field %}
-                        Case sent to Equality body: <span class="amp-todo">UNKNOWN to platform</span>
-                        <br>
-                    {% endif %}
-                    {% if case.unknown_field %}
-                        Most recent retest completed: <span class="amp-todo">UNKNOWN to platform</span>
-                        <br>
-                    {% endif %}
+                    Case sent to Equality body: {{ case.sent_to_enforcement_body_sent_date|amp_date }}
+                    <br>
+                    Most recent retest: {{ case.retest_set.first.date_of_retest|amp_date }}
+                    <br>
                     <br>
                     <h2 class="amp-margin-bottom-0">Overview</h2>
                     <ul>
@@ -141,9 +137,6 @@
                         12-week update followup request acknowledged {{ case.twelve_week_correspondence_acknowledged_date|amp_date }}
                         <br>
                         <br>
-                    {% endif %}
-                    {% if case.unknown_field %}
-                        Closing email sent
                     {% endif %}
                     <h2 class="amp-margin-bottom-0">Errors found in retest</h2>
                     <br>
