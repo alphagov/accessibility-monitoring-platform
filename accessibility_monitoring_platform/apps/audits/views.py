@@ -23,6 +23,7 @@ from ..cases.models import (
     CASE_EVENT_START_RETEST,
 )
 from ..common.forms import AMPChoiceCheckboxWidget
+from ..common.models import BOOLEAN_TRUE, BOOLEAN_FALSE
 from ..common.utils import (
     record_model_update_event,
     record_model_create_event,
@@ -1709,6 +1710,13 @@ class RetestPageChecksFormView(UpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
+        if "missing_date" in form.changed_data:
+            retest_page: RetestPage = self.object
+            if form.cleaned_data["missing_date"]:
+                retest_page.page.not_found = BOOLEAN_TRUE
+            else:
+                retest_page.page.not_found = BOOLEAN_FALSE
+            retest_page.page.save()
 
         retest_check_results_formset: RetestCheckResultFormset = context[
             "retest_check_results_formset"

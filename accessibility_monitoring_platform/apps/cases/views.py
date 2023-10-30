@@ -5,7 +5,6 @@ from datetime import date, timedelta
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Type, Union
 
-from django import forms
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -52,7 +51,6 @@ from ..common.utils import amp_format_date
 from ..reports.utils import build_issues_tables
 from .models import (
     Case,
-    CaseCompliance,
     Contact,
     EqualityBodyCorrespondence,
     REPORT_APPROVED_STATUS_APPROVED,

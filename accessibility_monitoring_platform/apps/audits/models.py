@@ -1342,28 +1342,27 @@ class Retest(VersionModel):
             return "12-week retest"
         return str(f"Retest #{self.id_within_case}")
 
-    def save(self, *args, **kwargs) -> None:
-        if not self.id:
-            self.created = timezone.now()
-        super().save(*args, **kwargs)
-
     @property
     def fixed_checks_count(self):
         """
-        Add the numbers of check fixed in the 12-week retest and all equality body requested retests
-        up to this one.
+        Add the numbers of checks fixed in the 12-week retest and all equality
+        body requested retests up to this one.
         """
         fixed_checks_count: int = (
             CheckResult.objects.filter(audit=self.case.audit)
             .filter(retest_state=RETEST_CHECK_RESULT_FIXED)
+            .exclude(page__not_found="yes")
             .count()
         )
-        for previous_retest in Retest.objects.filter(case=self.case).exclude(
-            id_within_case__gt=self.id_within_case
+        for retest in (
+            Retest.objects.filter(case=self.case)
+            .exclude(id_within_case__gt=self.id_within_case)
+            .exclude(id_within_case=0)
         ):
             fixed_checks_count += (
-                RetestCheckResult.objects.filter(retest=previous_retest)
+                RetestCheckResult.objects.filter(retest=retest)
                 .filter(retest_state=RETEST_CHECK_RESULT_FIXED)
+                .exclude(retest_page__page__not_found="yes")
                 .count()
             )
         return fixed_checks_count

@@ -60,10 +60,14 @@
                     <br>
                     Report published: {{ case.report.latest_s3_report.created|amp_date }}
                     <br>
-                    Case sent to EHRC: <span class="amp-todo">UNKNOWN to platform</span>
-                    <br>
-                    Most recent retest completed: <span class="amp-todo">UNKNOWN to platform</span>
-                    <br>
+                    {% if case.unknown_field %}
+                        Case sent to Equality body: <span class="amp-todo">UNKNOWN to platform</span>
+                        <br>
+                    {% endif %}
+                    {% if case.unknown_field %}
+                        Most recent retest completed: <span class="amp-todo">UNKNOWN to platform</span>
+                        <br>
+                    {% endif %}
                     <br>
                     <h2 class="amp-margin-bottom-0">Overview</h2>
                     <ul>
@@ -103,29 +107,45 @@
                     <br>
                     <h2 class="amp-margin-bottom-0">Correspondence</h2>
                     <br>
-                    Report sent {{ case.report_sent_date|amp_date }} through <span class="amp-todo">unknown form or email</span>
-                    <br>
-                    <br>
-                    1-week follow up sent {{ case.report_followup_week_1_sent_date|amp_date }} through <span class="amp-todo">unknown</span>
-                    <br>
-                    <br>
-                    4-week follow up sent {{ case.report_followup_week_4_sent_date|amp_date }} through <span class="amp-todo">unknown</span>
-                    <br>
-                    <br>
-                    Report acknowledged {{ case.report_acknowledged_date|amp_date }} by <span class="amp-todo">unknown</span>
-                    <br>
-                    <br>
-                    12-week update request sent {{ case.twelve_week_update_requested_date|amp_date }} to <span class="amp-todo">unknown</span>
-                    <br>
-                    <br>
-                    12-week update followup request sent {{ case.twelve_week_1_week_chaser_sent_date|amp_date }} to <span class="amp-todo">unknown</span>
-                    <br>
-                    <br>
-                    12-week update followup request acknowledged {{ case.twelve_week_correspondence_acknowledged_date|amp_date }} by <span class="amp-todo">unknown</span>
-                    <br>
-                    <br>
-                    Closing email sent <span class="amp-todo">on which date?</span> to <span class="amp-todo">unknown</span>
-                    <h2 class="amp-margin-bottom-0">Errors found in report <span class="amp-todo">report?</span></h2>
+                    {% if case.report_sent_date %}
+                        Report sent {{ case.report_sent_date|amp_date }}
+                        <br>
+                        <br>
+                    {% endif %}
+                    {% if case.report_followup_week_1_sent_date %}
+                        1-week follow up sent {{ case.report_followup_week_1_sent_date|amp_date }}
+                        <br>
+                        <br>
+                    {% endif %}
+                    {% if case.report_followup_week_4_sent_date %}
+                        4-week follow up sent {{ case.report_followup_week_4_sent_date|amp_date }}
+                        <br>
+                        <br>
+                    {% endif %}
+                    {% if case.report_acknowledged_date %}
+                        Report acknowledged {{ case.report_acknowledged_date|amp_date }}
+                        <br>
+                        <br>
+                    {% endif %}
+                    {% if case.twelve_week_update_requested_date %}
+                        12-week update request sent {{ case.twelve_week_update_requested_date|amp_date }}
+                        <br>
+                        <br>
+                    {% endif %}
+                    {% if case.twelve_week_1_week_chaser_sent_date %}
+                        12-week update followup request sent {{ case.twelve_week_1_week_chaser_sent_date|amp_date }}
+                        <br>
+                        <br>
+                    {% endif %}
+                    {% if case.twelve_week_correspondence_acknowledged_date %}
+                        12-week update followup request acknowledged {{ case.twelve_week_correspondence_acknowledged_date|amp_date }}
+                        <br>
+                        <br>
+                    {% endif %}
+                    {% if case.unknown_field %}
+                        Closing email sent
+                    {% endif %}
+                    <h2 class="amp-margin-bottom-0">Errors found in retest</h2>
                     <br>
                     {% for retest_page in retest.retestpage_set.all %}
                         <b>{{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %} issues</b>
@@ -138,50 +158,51 @@
                             This page has been removed by the organisation.
                             <br>
                             <br>
-                        {% endif %}
-                        <table id="email-issues-table-{{ forloop.counter }}">
-                            <thead>
-                                <tr>
-                                    <td width=1%>#</td>
-                                    <td id="issue-{{ forloop.counter }}" width=33%>Issue and description</td>
-                                    <td id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</td>
-                                    <td id="retest-update-{{ forloop.counter }}" width=33%>Retest outcome</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for retest_check_result in retest_page.original_check_results %}
-                                    <tr valign="top">
-                                        <td width=1%>{{ forloop.counter }}</td>
-                                        <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
-                                            {% if retest_check_result.check_result.wcag_definition.url_on_w3 %}
-                                                <a href="{{ retest_check_result.check_result.wcag_definition.url_on_w3 }}">
-                                                    {{ retest_check_result.check_result.wcag_definition.name }}</a>
-                                            {% else %}
-                                                {{ retest_check_result.check_result.wcag_definition.name }}
-                                            {% endif %}
-                                            <br>
-                                            <br>
-                                            {{ retest_check_result.check_result.wcag_definition.description|markdown_to_html }}
-                                            <br>
-                                            {{ retest_check_result.check_result.wcag_definition.report_boilerplate|markdown_to_html }}
-                                        </td>
-                                        <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>
-                                            {{ retest_check_result.check_result.notes|markdown_to_html }}
-                                        </td>
-                                        <td headers="retest-update-{{ forloop.parentloop.counter }}" width=33%>
-                                            {% if retest_check_result.latest_retest_check_result %}
-                                                {{ retest_check_result.latest_retest_check_result.get_retest_state_display }}
-                                                <br>
-                                                <br>
-                                                {{ retest_check_result.latest_retest_check_result.retest_notes|markdown_to_html }}
-                                            {% else %}
-                                                Fixed in a previous retest
-                                            {% endif %}
-                                        </td>
+                        {% else %}
+                            <table id="email-issues-table-{{ forloop.counter }}">
+                                <thead>
+                                    <tr>
+                                        <td width=1%>#</td>
+                                        <td id="issue-{{ forloop.counter }}" width=33%>Issue and description</td>
+                                        <td id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</td>
+                                        <td id="retest-update-{{ forloop.counter }}" width=33%>Retest outcome</td>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {% for retest_check_result in retest_page.original_check_results %}
+                                        <tr valign="top">
+                                            <td width=1%>{{ forloop.counter }}</td>
+                                            <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
+                                                {% if retest_check_result.check_result.wcag_definition.url_on_w3 %}
+                                                    <a href="{{ retest_check_result.check_result.wcag_definition.url_on_w3 }}">
+                                                        {{ retest_check_result.check_result.wcag_definition.name }}</a>
+                                                {% else %}
+                                                    {{ retest_check_result.check_result.wcag_definition.name }}
+                                                {% endif %}
+                                                <br>
+                                                <br>
+                                                {{ retest_check_result.check_result.wcag_definition.description|markdown_to_html }}
+                                                <br>
+                                                {{ retest_check_result.check_result.wcag_definition.report_boilerplate|markdown_to_html }}
+                                            </td>
+                                            <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>
+                                                {{ retest_check_result.check_result.notes|markdown_to_html }}
+                                            </td>
+                                            <td headers="retest-update-{{ forloop.parentloop.counter }}" width=33%>
+                                                {% if retest_check_result.latest_retest_check_result %}
+                                                    {{ retest_check_result.latest_retest_check_result.get_retest_state_display }}
+                                                    <br>
+                                                    <br>
+                                                    {{ retest_check_result.latest_retest_check_result.retest_notes|markdown_to_html }}
+                                                {% else %}
+                                                    Fixed in a previous retest
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
                     {% endfor %}
                     <br>
                 </div>
