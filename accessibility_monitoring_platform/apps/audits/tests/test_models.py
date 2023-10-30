@@ -40,6 +40,9 @@ from ..models import (
     STATEMENT_CHECK_NOT_TESTED,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_YES,
+    Retest,
+    RetestPage,
+    RetestCheckResult,
 )
 
 PAGE_NAME = "Page name"
@@ -1053,3 +1056,101 @@ def test_set_accessibility_statement_state_called_on_statement_check_update():
     )
 
     mock_set_statement_compliance_states.assert_called_once()
+
+
+def test_retest_str():
+    """Test Retest.__str__"""
+    assert str(Retest(id_within_case=0)) == "12-week retest"
+    assert str(Retest(id_within_case=1)) == "Retest #1"
+
+
+@pytest.mark.django_db
+def test_fixed_checks_count_at_12_week():
+    """Test fixed checks count at 12-week retest"""
+    audit: Audit = create_audit_and_check_results()
+    retest: Retest = Retest.objects.create(case=audit.case)
+
+    assert retest.fixed_checks_count == 0
+
+    check_result: CheckResult = audit.checkresult_audit.all().first()
+    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.save()
+
+    assert retest.fixed_checks_count == 1
+
+    check_result.page.not_found = BOOLEAN_TRUE
+    check_result.page.save()
+
+    assert retest.fixed_checks_count == 0
+
+
+@pytest.mark.django_db
+def test_fixed_checks_count_in_retests():
+    """Test fixed checks count at equality body restart"""
+    audit: Audit = create_audit_and_check_results()
+    page: Page = audit.page_audit.all().first()
+    retest: Retest = Retest.objects.create(case=audit.case)
+    retest_page: RetestPage = RetestPage.objects.create(
+        retest=retest,
+        page=page,
+    )
+    check_result: CheckResult = audit.checkresult_audit.all().first()
+    retest_check_result: RetestCheckResult = RetestCheckResult.objects.create(
+        retest=retest,
+        retest_page=retest_page,
+        check_result=check_result,
+    )
+
+    assert retest.fixed_checks_count == 0
+
+    retest_check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    retest_check_result.save()
+
+    assert retest.fixed_checks_count == 1
+
+    retest_page.page.not_found = BOOLEAN_TRUE
+    retest_page.page.save()
+
+    assert retest.fixed_checks_count == 0
+
+
+@pytest.mark.django_db
+def test_returning_original_retest():
+    """Test original retest contains the retest with id_within_case of 0"""
+    case: Case = Case.objects.create()
+    first_retest: Retest = Retest.objects.create(case=case, id_within_case=0)
+    second_retest: Retest = Retest.objects.create(case=case, id_within_case=1)
+
+    assert first_retest.original_retest == first_retest
+    assert second_retest.original_retest == first_retest
+
+
+@pytest.mark.django_db
+def test_returning_previous_retest():
+    """
+    Test previous retest contains the retest with next lowest id_within_case
+    """
+    case: Case = Case.objects.create()
+    retest_0: Retest = Retest.objects.create(case=case, id_within_case=0)
+    retest_1: Retest = Retest.objects.create(case=case, id_within_case=1)
+    retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
+
+    assert retest_0.previous_retest == None
+    assert retest_1.previous_retest == retest_0
+    assert retest_2.previous_retest == retest_1
+
+
+@pytest.mark.django_db
+def test_returning_latest_retest():
+    """
+    Test latest retest contains the most recent retest
+    """
+    case: Case = Case.objects.create()
+    retest_0: Retest = Retest.objects.create(case=case, id_within_case=0)
+    retest_1: Retest = Retest.objects.create(case=case, id_within_case=1)
+
+    assert retest_1.latest_retest == retest_1
+
+    retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
+
+    assert retest_2.latest_retest == retest_2
