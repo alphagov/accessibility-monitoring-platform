@@ -56,6 +56,7 @@ from .models import (
     REPORT_APPROVED_STATUS_APPROVED,
     EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
     EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+    CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE,
 )
 from .forms import (
     CaseCreateForm,
@@ -942,8 +943,14 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-equality-body-correspondence", kwargs=case_pk)
+            case: Case = self.object
+            case_pk: Dict[str, int] = {"pk": case.id}
+            if case.variant == CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE:
+                return reverse(
+                    "cases:list-equality-body-correspondence", kwargs=case_pk
+                )
+            else:
+                return reverse("cases:legacy-end-of-case", kwargs=case_pk)
         return super().get_success_url()
 
 

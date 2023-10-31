@@ -193,9 +193,10 @@ CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
 ]
 RETEST_CHECK_RESULT_DEFAULT: str = "not-retested"
 RETEST_CHECK_RESULT_FIXED: str = "fixed"
+RETEST_CHECK_RESULT_NOT_FIXED: str = "not-fixed"
 RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (RETEST_CHECK_RESULT_FIXED, "Fixed"),
-    ("not-fixed", "Not fixed"),
+    (RETEST_CHECK_RESULT_NOT_FIXED, "Not fixed"),
     (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
 

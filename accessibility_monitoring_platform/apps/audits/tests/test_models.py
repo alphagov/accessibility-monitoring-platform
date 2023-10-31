@@ -4,7 +4,7 @@ Tests for cases models
 import pytest
 
 from datetime import date, datetime, timezone
-from typing import List
+from typing import List, Optional
 from unittest.mock import patch, Mock
 
 from pytest_django.asserts import assertQuerysetEqual
@@ -32,6 +32,7 @@ from ..models import (
     RETEST_CHECK_RESULT_DEFAULT,
     ArchiveAccessibilityStatementCheck,
     RETEST_CHECK_RESULT_FIXED,
+    RETEST_CHECK_RESULT_NOT_FIXED,
     ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
     SCOPE_STATE_VALID,
     StatementCheck,
@@ -1146,7 +1147,7 @@ def test_returning_latest_retest():
     Test latest retest contains the most recent retest
     """
     case: Case = Case.objects.create()
-    retest_0: Retest = Retest.objects.create(case=case, id_within_case=0)
+    Retest.objects.create(case=case, id_within_case=0)
     retest_1: Retest = Retest.objects.create(case=case, id_within_case=1)
 
     assert retest_1.latest_retest == retest_1
@@ -1154,3 +1155,231 @@ def test_returning_latest_retest():
     retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
 
     assert retest_2.latest_retest == retest_2
+
+
+def create_retest_and_retest_check_results(case: Optional[Case] = None):
+    """Create retest and associated data"""
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    if case is None:
+        case: Case = Case.objects.create()
+        audit: Audit = Audit.objects.create(case=case)
+        home_page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
+        statement_page: Page = Page.objects.create(
+            audit=audit, page_type=PAGE_TYPE_STATEMENT
+        )
+        home_page_check_result: CheckResult = CheckResult.objects.create(
+            audit=audit,
+            page=home_page,
+            check_result_state=CHECK_RESULT_ERROR,
+            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+        statement_page_check_result: CheckResult = CheckResult.objects.create(
+            audit=audit,
+            page=statement_page,
+            check_result_state=CHECK_RESULT_NO_ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+
+        retest: Retest = Retest.objects.create(case=case)
+        home_retest_page: RetestPage = RetestPage.objects.create(
+            retest=retest,
+            page=home_page,
+        )
+        statement_retest_page: RetestPage = RetestPage.objects.create(
+            retest=retest,
+            page=statement_page,
+        )
+        RetestCheckResult.objects.create(
+            retest=retest,
+            retest_page=home_retest_page,
+            check_result=home_page_check_result,
+            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+        )
+        RetestCheckResult.objects.create(
+            retest=retest,
+            retest_page=statement_retest_page,
+            check_result=statement_page_check_result,
+            retest_state=RETEST_CHECK_RESULT_FIXED,
+        )
+        return retest
+    else:
+        last_retest: Retest = Retest.objects.filter(case=case).first()
+        new_retest: Retest = Retest.objects.create(case=case)
+        for last_retest_page in last_retest.retestpage_set.all():
+            new_retest_page = RetestPage.objects.create(
+                retest=new_retest,
+                page=last_retest_page.page,
+            )
+            for (
+                last_retest_check_result
+            ) in last_retest_page.retestcheckresult_set.all():
+                RetestCheckResult.objects.create(
+                    retest=new_retest,
+                    retest_page=new_retest_page,
+                    check_result=last_retest_check_result.check_result,
+                )
+        return new_retest
+
+
+@pytest.mark.django_db
+def test_retest_page_heading():
+    """Test heading returned by retest page"""
+    retest: Retest = create_retest_and_retest_check_results()
+    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=PAGE_TYPE_HOME)
+
+    assert retest_page.heading == "Retest #1 | Home"
+
+
+@pytest.mark.django_db
+def test_retest_page_all_check_results():
+    """Test all_check_results returned by retest page"""
+    retest: Retest = create_retest_and_retest_check_results()
+    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=PAGE_TYPE_HOME)
+
+    assertQuerysetEqual(
+        retest_page.all_check_results, retest_page.retestcheckresult_set.all()
+    )
+
+
+@pytest.mark.django_db
+def test_retest_page_unfixed_check_results():
+    """Test unfixed_check_results returned by retest page"""
+    retest: Retest = create_retest_and_retest_check_results()
+    home_retest_page: RetestPage = retest.retestpage_set.get(
+        page__page_type=PAGE_TYPE_HOME
+    )
+    statement_retest_page: RetestPage = retest.retestpage_set.get(
+        page__page_type=PAGE_TYPE_STATEMENT
+    )
+
+    assert home_retest_page.unfixed_check_results.count() == 1
+    assert (
+        home_retest_page.unfixed_check_results.first().retest_state
+        == RETEST_CHECK_RESULT_NOT_FIXED
+    )
+    assert statement_retest_page.unfixed_check_results.count() == 0
+
+
+@pytest.mark.django_db
+def test_retest_page_original_check_results():
+    """Test original_check_results returned by retest page"""
+    original_retest: Retest = create_retest_and_retest_check_results()
+    original_retest.id_within_case = 0
+    original_retest.save()
+    page: Page = original_retest.retestpage_set.all().first().page
+    retest: Retest = Retest.objects.create(case=original_retest.case)
+    retest_page: RetestPage = RetestPage.objects.create(retest=retest, page=page)
+
+    assert retest_page.original_check_results.count() == 1
+    assert retest_page.original_check_results.first().retest_page.page == page
+
+
+@pytest.mark.django_db
+def test_retest_check_result_original_retest_check_result():
+    """Test original_retest_check_result returned by retest retest_check_result"""
+    original_retest: Retest = create_retest_and_retest_check_results()
+    original_retest.id_within_case = 0
+    original_retest.save()
+    original_retest_page: RetestPage = original_retest.retestpage_set.all().first()
+    original_retest_check_result: RetestCheckResult = (
+        original_retest_page.retestcheckresult_set.all().first()
+    )
+
+    new_retest: Retest = create_retest_and_retest_check_results(
+        case=original_retest.case
+    )
+    new_retest_page: RetestPage = new_retest.retestpage_set.all().first()
+    new_retest_check_result: RetestCheckResult = (
+        new_retest_page.retestcheckresult_set.all().first()
+    )
+
+    assert new_retest_check_result.original_retest_check_result is not None
+    assert (
+        new_retest_check_result.original_retest_check_result
+        == original_retest_check_result
+    )
+
+
+@pytest.mark.django_db
+def test_retest_check_result_latest_retest_check_result():
+    """Test latest_retest_check_result returned by retest retest_check_result"""
+    original_retest: Retest = create_retest_and_retest_check_results()
+    original_retest.id_within_case = 0
+    original_retest.save()
+    original_retest_page: RetestPage = original_retest.retestpage_set.all().first()
+    original_retest_check_result: RetestCheckResult = (
+        original_retest_page.retestcheckresult_set.all().first()
+    )
+
+    new_retest: Retest = create_retest_and_retest_check_results(
+        case=original_retest.case
+    )
+    new_retest_page: RetestPage = new_retest.retestpage_set.all().first()
+    new_retest_check_result: RetestCheckResult = (
+        new_retest_page.retestcheckresult_set.all().first()
+    )
+
+    assert (
+        original_retest_check_result.latest_retest_check_result
+        == new_retest_check_result
+    )
+
+
+@pytest.mark.django_db
+def test_retest_check_result_previous_retest_check_result():
+    """Test previous_retest_check_result returned by retest retest_check_result"""
+    original_retest: Retest = create_retest_and_retest_check_results()
+    original_retest.id_within_case = 0
+    original_retest.save()
+    original_retest_page: RetestPage = original_retest.retestpage_set.all().first()
+    original_retest_check_result: RetestCheckResult = (
+        original_retest_page.retestcheckresult_set.all().first()
+    )
+
+    new_retest: Retest = create_retest_and_retest_check_results(
+        case=original_retest.case
+    )
+    new_retest_page: RetestPage = new_retest.retestpage_set.all().first()
+    new_retest_check_result: RetestCheckResult = (
+        new_retest_page.retestcheckresult_set.all().first()
+    )
+
+    assert (
+        new_retest_check_result.previous_retest_check_result
+        == original_retest_check_result
+    )
+
+
+@pytest.mark.django_db
+def test_retest_check_result_all_retest_check_result():
+    """Test all_retest_check_result returned by retest retest_check_result"""
+    original_retest: Retest = create_retest_and_retest_check_results()
+    original_retest.id_within_case = 0
+    original_retest.save()
+    original_retest_page: RetestPage = original_retest.retestpage_set.all().first()
+    original_retest_check_result: RetestCheckResult = (
+        original_retest_page.retestcheckresult_set.all().first()
+    )
+
+    new_retest: Retest = create_retest_and_retest_check_results(
+        case=original_retest.case
+    )
+    new_retest_page: RetestPage = new_retest.retestpage_set.all().first()
+    new_retest_check_result: RetestCheckResult = (
+        new_retest_page.retestcheckresult_set.all().first()
+    )
+
+    assert new_retest_check_result.all_retest_check_result.count() == 2
+    assert (
+        new_retest_check_result.all_retest_check_result.first()
+        == original_retest_check_result
+    )
+    assert (
+        new_retest_check_result.all_retest_check_result.last()
+        == new_retest_check_result
+    )
