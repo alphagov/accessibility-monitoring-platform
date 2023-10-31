@@ -61,6 +61,75 @@ INSUFFICIENT_DEADLINE_TEXT: str = "Insufficient deadline text"
 ERROR_NOTES: str = "Error notes"
 
 
+def create_retest_and_retest_check_results(case: Optional[Case] = None):
+    """Create retest and associated data"""
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    if case is None:
+        case: Case = Case.objects.create()
+        audit: Audit = Audit.objects.create(case=case)
+        home_page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
+        statement_page: Page = Page.objects.create(
+            audit=audit, page_type=PAGE_TYPE_STATEMENT
+        )
+        home_page_check_result: CheckResult = CheckResult.objects.create(
+            audit=audit,
+            page=home_page,
+            check_result_state=CHECK_RESULT_ERROR,
+            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+        statement_page_check_result: CheckResult = CheckResult.objects.create(
+            audit=audit,
+            page=statement_page,
+            check_result_state=CHECK_RESULT_NO_ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+
+        retest: Retest = Retest.objects.create(case=case)
+        home_retest_page: RetestPage = RetestPage.objects.create(
+            retest=retest,
+            page=home_page,
+        )
+        statement_retest_page: RetestPage = RetestPage.objects.create(
+            retest=retest,
+            page=statement_page,
+        )
+        RetestCheckResult.objects.create(
+            retest=retest,
+            retest_page=home_retest_page,
+            check_result=home_page_check_result,
+            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+        )
+        RetestCheckResult.objects.create(
+            retest=retest,
+            retest_page=statement_retest_page,
+            check_result=statement_page_check_result,
+            retest_state=RETEST_CHECK_RESULT_FIXED,
+        )
+        return retest
+    else:
+        last_retest: Retest = Retest.objects.filter(case=case).first()
+        new_retest: Retest = Retest.objects.create(case=case)
+        for last_retest_page in last_retest.retestpage_set.all():
+            new_retest_page = RetestPage.objects.create(
+                retest=new_retest,
+                page=last_retest_page.page,
+            )
+            for (
+                last_retest_check_result
+            ) in last_retest_page.retestcheckresult_set.all():
+                RetestCheckResult.objects.create(
+                    retest=new_retest,
+                    retest_page=new_retest_page,
+                    check_result=last_retest_check_result.check_result,
+                )
+        return new_retest
+
+
 def create_audit_and_pages() -> Audit:
     """Create an audit with all types of page"""
     case: Case = Case.objects.create()
@@ -1155,75 +1224,6 @@ def test_returning_latest_retest():
     retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
 
     assert retest_2.latest_retest == retest_2
-
-
-def create_retest_and_retest_check_results(case: Optional[Case] = None):
-    """Create retest and associated data"""
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
-    )
-    if case is None:
-        case: Case = Case.objects.create()
-        audit: Audit = Audit.objects.create(case=case)
-        home_page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
-        statement_page: Page = Page.objects.create(
-            audit=audit, page_type=PAGE_TYPE_STATEMENT
-        )
-        home_page_check_result: CheckResult = CheckResult.objects.create(
-            audit=audit,
-            page=home_page,
-            check_result_state=CHECK_RESULT_ERROR,
-            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-        )
-        statement_page_check_result: CheckResult = CheckResult.objects.create(
-            audit=audit,
-            page=statement_page,
-            check_result_state=CHECK_RESULT_NO_ERROR,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-        )
-
-        retest: Retest = Retest.objects.create(case=case)
-        home_retest_page: RetestPage = RetestPage.objects.create(
-            retest=retest,
-            page=home_page,
-        )
-        statement_retest_page: RetestPage = RetestPage.objects.create(
-            retest=retest,
-            page=statement_page,
-        )
-        RetestCheckResult.objects.create(
-            retest=retest,
-            retest_page=home_retest_page,
-            check_result=home_page_check_result,
-            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
-        )
-        RetestCheckResult.objects.create(
-            retest=retest,
-            retest_page=statement_retest_page,
-            check_result=statement_page_check_result,
-            retest_state=RETEST_CHECK_RESULT_FIXED,
-        )
-        return retest
-    else:
-        last_retest: Retest = Retest.objects.filter(case=case).first()
-        new_retest: Retest = Retest.objects.create(case=case)
-        for last_retest_page in last_retest.retestpage_set.all():
-            new_retest_page = RetestPage.objects.create(
-                retest=new_retest,
-                page=last_retest_page.page,
-            )
-            for (
-                last_retest_check_result
-            ) in last_retest_page.retestcheckresult_set.all():
-                RetestCheckResult.objects.create(
-                    retest=new_retest,
-                    retest_page=new_retest_page,
-                    check_result=last_retest_check_result.check_result,
-                )
-        return new_retest
 
 
 @pytest.mark.django_db
