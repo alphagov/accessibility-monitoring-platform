@@ -1374,12 +1374,12 @@ def test_retest_check_result_all_retest_check_result():
         new_retest_page.retestcheckresult_set.all().first()
     )
 
-    assert new_retest_check_result.all_retest_check_result.count() == 2
+    assert new_retest_check_result.all_retest_check_results.count() == 2
     assert (
-        new_retest_check_result.all_retest_check_result.first()
+        new_retest_check_result.all_retest_check_results.first()
         == original_retest_check_result
     )
     assert (
-        new_retest_check_result.all_retest_check_result.last()
+        new_retest_check_result.all_retest_check_results.last()
         == new_retest_check_result
     )
