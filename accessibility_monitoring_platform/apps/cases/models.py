@@ -277,8 +277,7 @@ CASE_VARIANT_CHOICES: List[Tuple[str, str]] = [
     (CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE, "Equality Body Close Case"),
     ("statement-content", "Statement content yes/no"),
     ("reporting", "Platform reports"),
-    ("testing", "Platform tests"),
-    ("original", "Metadata only"),
+    ("archived", "Archived"),
 ]
 
 

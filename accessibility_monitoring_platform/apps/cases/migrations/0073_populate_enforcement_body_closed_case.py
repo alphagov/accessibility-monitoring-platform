@@ -17,7 +17,7 @@ def populate_enforcement_body_closed_case(
             case.enforcement_body_closed_case = "no"
 
         if Audit.objects.filter(case=case).count() == 0:
-            case.variant = "original"
+            case.variant = "archived"
         else:
             audit = Audit.objects.get(case=case)
             if StatementCheckResult.objects.filter(audit=audit).count() > 0:
@@ -25,7 +25,7 @@ def populate_enforcement_body_closed_case(
             elif Report.objects.filter(case=case).count() > 0:
                 case.variant = "reporting"
             else:
-                case.variant = "testing"
+                case.variant = "archived"
 
         case.save()
 
