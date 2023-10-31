@@ -16,6 +16,21 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="case",
+            name="variant",
+            field=models.CharField(
+                choices=[
+                    ("close-case", "Equality Body Close Case"),
+                    ("statement-content", "Statement content yes/no"),
+                    ("reporting", "Platform reports"),
+                    ("testing", "Platform tests"),
+                    ("original", "Metadata only"),
+                ],
+                default="close-case",
+                max_length=20,
+            ),
+        ),
+        migrations.AddField(
+            model_name="case",
             name="enforcement_body_case_owner",
             field=models.TextField(blank=True, default=""),
         ),

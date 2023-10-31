@@ -272,6 +272,14 @@ EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES: List[Tuple[str, str]] = [
     (EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED, "Unresolved"),
     (EQUALITY_BODY_CORRESPONDENCE_RESOLVED, "Resolved"),
 ]
+CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE: str = "close-case"
+CASE_VARIANT_CHOICES: List[Tuple[str, str]] = [
+    (CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE, "Equality Body Close Case"),
+    ("statement-content", "Statement content yes/no"),
+    ("reporting", "Platform reports"),
+    ("testing", "Platform tests"),
+    ("original", "Metadata only"),
+]
 
 
 class Case(VersionModel):
@@ -288,6 +296,11 @@ class Case(VersionModel):
         null=True,
     )
     updated = models.DateTimeField(null=True, blank=True)
+    variant = models.CharField(
+        max_length=20,
+        choices=CASE_VARIANT_CHOICES,
+        default=CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE,
+    )
 
     # Case details page
     created = models.DateTimeField(blank=True)

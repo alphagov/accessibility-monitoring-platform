@@ -21,7 +21,7 @@
         </ul>
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
         <ul class="govuk-list">
-            {% if case.audit.uses_statement_checks %}
+            {% if case.variant == 'close-case' %}
                 {% include './nav_content.html' with id='statement-enforcement' edit_name='cases:edit-statement-enforcement' name='Statement enforcement' %}
                 {% include './nav_content.html' with id='equality-body-metadata' edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
                 {% include './nav_content.html' with id='equality-body-correspondence' edit_name='cases:list-equality-body-correspondence' name='Equality body correspondence' %}

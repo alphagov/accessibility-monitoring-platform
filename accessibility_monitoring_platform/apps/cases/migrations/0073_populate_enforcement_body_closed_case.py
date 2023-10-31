@@ -7,11 +7,26 @@ def populate_enforcement_body_closed_case(
     apps, schema_editor
 ):  # pylint: disable=unused-argument
     Case = apps.get_model("cases", "Case")
+    Audit = apps.get_model("audits", "Audit")
+    StatementCheckResult = apps.get_model("audits", "StatementCheckResult")
+    Report = apps.get_model("reports", "Report")
     for case in Case.objects.all():
         if case.enforcement_body_pursuing in ["no", "yes-completed"]:
             case.enforcement_body_closed_case = "yes"
         else:
             case.enforcement_body_closed_case = "no"
+
+        if Audit.objects.filter(case=case).count() == 0:
+            case.variant = "original"
+        else:
+            audit = Audit.objects.get(case=case)
+            if StatementCheckResult.objects.filter(audit=audit).count() > 0:
+                case.variant = "statement-content"
+            elif Report.objects.filter(case=case).count() > 0:
+                case.variant = "reporting"
+            else:
+                case.variant = "testing"
+
         case.save()
 
 
