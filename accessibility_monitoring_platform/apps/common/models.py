@@ -242,3 +242,18 @@ class FooterLink(models.Model):
 
     def get_absolute_url(self) -> str:
         return self.url
+
+
+class SubCategory(models.Model):
+    """
+    Model to record sub-category of case's organisation
+    (such as Jobs, Local offer/SEND, Adult education)
+    """
+
+    name = models.TextField(default="", blank=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return self.name

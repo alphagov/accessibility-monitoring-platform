@@ -31,7 +31,12 @@
 </p>
 <p>
     You’ve been sent this report because
-    <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>
+    {% if audit.case.website_name %}
+        {{ audit.case.website_name }}
+        (<a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>)
+    {% else %}
+        <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>
+    {% endif %}
     is one of the websites we’ve monitored. This report explains:
 </p>
 <ul>
@@ -48,7 +53,14 @@
 <br />
 <h2 id="report-how-accessible-the-website-is" class="amp-new-page">How accessible the website is</h2>
 <p>
-    We checked <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a> on
+    We checked
+    {% if audit.case.website_name %}
+        {{ audit.case.website_name }}
+        (<a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>)
+    {% else %}
+        <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>
+    {% endif %}
+    on
     {{ audit.date_of_test|date:"j F Y" }}
     against the
     <a href="https://www.w3.org/TR/WCAG21/">Web Content Accessibility Guidelines (WCAG) 2.1 AA</a>

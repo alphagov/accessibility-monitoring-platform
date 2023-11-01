@@ -25,6 +25,7 @@ from ..common.models import (
     VersionModel,
     BOOLEAN_CHOICES,
     BOOLEAN_DEFAULT,
+    SubCategory,
 )
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"
@@ -336,6 +337,14 @@ class Case(VersionModel):
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
+    parental_organisation_name = models.TextField(default="", blank=True)
+    website_name = models.TextField(default="", blank=True)
+    subcategory = models.ForeignKey(
+        SubCategory,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
     case_details_complete_date = models.DateField(null=True, blank=True)
 
     # Historic testing details page
