@@ -28,7 +28,7 @@ from ..common.forms import (
     AMPDateRangeForm,
     AMPURLField,
 )
-from ..common.models import Sector
+from ..common.models import Sector, SubCategory
 
 from .models import (
     Case,
@@ -180,6 +180,12 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     )
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
+
+    parental_organisation_name = AMPCharFieldWide(label="Parental organisation name")
+    website_name = AMPCharFieldWide(label="Website name")
+    subcategory = AMPModelChoiceField(
+        label="Sub-category", queryset=SubCategory.objects.all()
+    )
     case_details_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
@@ -228,6 +234,9 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "previous_case_url",
             "trello_url",
             "notes",
+            "parental_organisation_name",
+            "website_name",
+            "subcategory",
             "case_details_complete_date",
         ]
 
