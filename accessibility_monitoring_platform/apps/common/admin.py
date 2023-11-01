@@ -15,6 +15,7 @@ from .models import (
     UserCacheUniqueHash,
     FrequentlyUsedLink,
     FooterLink,
+    SubCategory,
 )
 
 
@@ -148,6 +149,12 @@ class FooterLinksAdmin(admin.ModelAdmin):
     list_display = ["label", "url", "is_deleted"]
 
 
+class SubCategorysAdmin(admin.ModelAdmin):
+    """ "Django admin configuration for SubCategory model"""
+
+    list_display = ["name"]
+
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
@@ -156,3 +163,4 @@ admin.site.register(Sector)
 admin.site.register(UserCacheUniqueHash, UserCacheUniqueHashAdmin)
 admin.site.register(FrequentlyUsedLink, FrequentlyUsedLinksAdmin)
 admin.site.register(FooterLink, FooterLinksAdmin)
+admin.site.register(SubCategory, SubCategorysAdmin)
