@@ -24,6 +24,7 @@ from ...cases.models import (
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
 )
 from ..models import (
+    PAGE_TYPE_HOME,
     PAGE_TYPE_PDF,
     PAGE_TYPE_STATEMENT,
     Audit,
@@ -34,6 +35,7 @@ from ..models import (
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NOT_TESTED,
     RETEST_CHECK_RESULT_FIXED,
+    RETEST_CHECK_RESULT_NOT_FIXED,
     PAGE_TYPE_EXTRA,
     TEST_TYPE_AXE,
     TEST_TYPE_PDF,
@@ -43,6 +45,9 @@ from ..models import (
     STATEMENT_CHECK_TYPE_OVERVIEW,
     STATEMENT_CHECK_TYPE_CUSTOM,
     STATEMENT_CHECK_YES,
+    Retest,
+    RetestPage,
+    RetestCheckResult,
 )
 from ..utils import create_mandatory_pages_for_new_audit
 
@@ -131,6 +136,37 @@ def create_audit_and_statement_check_results() -> Audit:
         report_comment="Custom statement issue",
     )
     return audit
+
+
+def create_equality_body_retest() -> Retest:
+    """Create equality body retest and associated data"""
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        check_result_state=CHECK_RESULT_ERROR,
+        retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    retest: Retest = Retest.objects.create(case=case)
+    retest_page: RetestPage = RetestPage.objects.create(
+        retest=retest,
+        page=page,
+    )
+    RetestCheckResult.objects.create(
+        retest=retest,
+        retest_page=retest_page,
+        check_result=check_result,
+        retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+    )
+    return retest
 
 
 def test_delete_page_view(admin_client):
@@ -2487,3 +2523,236 @@ def test_audit_statement_check_statment_comparison_includes_fixed(admin_client):
     assert response.status_code == 200
 
     assertContains(response, statement_check_result.statement_check.label)
+
+
+def test_create_equality_body_retest_redirects(admin_client):
+    """Test that equality body retest create redirects to retest metadata"""
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:create-equality-body-retest", kwargs=path_kwargs)
+    )
+
+    assert response.status_code == 302
+
+    retest: Retest = Retest.objects.filter(case=case).first()
+    assert response.url == reverse(
+        "audits:retest-metadata-update", kwargs={"pk": retest.id}
+    )
+
+
+def test_create_equality_body_retest_creates_retest_0(admin_client):
+    """
+    Test that equality body retest create creates an extra retest (with
+    id_within_case set to zero) the first time only.
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:create-equality-body-retest", kwargs=path_kwargs)
+    )
+
+    assert response.status_code == 302
+
+    assert Retest.objects.filter(case=case).count() == 2
+
+    retest_1: Retest = Retest.objects.filter(case=case).first()
+    retest_0: Retest = Retest.objects.filter(case=case).last()
+
+    assert retest_1.id_within_case == 1
+    assert retest_0.id_within_case == 0
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:create-equality-body-retest", kwargs=path_kwargs)
+    )
+
+    assert response.status_code == 302
+
+    assert Retest.objects.filter(case=case).count() == 3
+
+    retest_2: Retest = Retest.objects.filter(case=case).first()
+
+    assert retest_2.id_within_case == 2
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
+        ("audits:retest-metadata-update", "save", "audits:retest-metadata-update"),
+        ("audits:retest-comparison-update", "save", "audits:retest-comparison-update"),
+        (
+            "audits:retest-comparison-update",
+            "save_continue",
+            "audits:retest-compliance-update",
+        ),
+        ("audits:retest-compliance-update", "save", "audits:retest-compliance-update"),
+    ],
+)
+def test_equality_body_retest_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful equality body retest update redirects based on the button pressed
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=retest_pk),
+        {
+            "version": retest.version,
+            button_name: "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=retest_pk)
+    assert response.url == expected_path
+
+
+def test_equality_body_retest_metadata_update_redirects_to_retest_page_checks(
+    admin_client,
+):
+    """
+    Test that a equality body retrest metadata update redirects to retest page checks when save
+    and continue button is pressed.
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_page: RetestPage = retest.retestpage_set.first()
+    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:retest-metadata-update", kwargs=retest_pk),
+        {
+            "version": retest.version,
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        "audits:edit-retest-page-checks", kwargs=retest_page_pk
+    )
+    assert response.url == expected_path
+
+
+def test_equality_body_page_checks_save(
+    admin_client,
+):
+    """Test that a equality body retrest page checks saves"""
+    retest: Retest = create_equality_body_retest()
+    retest_page: RetestPage = retest.retestpage_set.first()
+    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "save": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        "audits:edit-retest-page-checks", kwargs=retest_page_pk
+    )
+    assert response.url == expected_path
+
+
+def test_equality_body_page_checks_save_continue(
+    admin_client,
+):
+    """Test that a equality body retrest page checks redirects on save and continue"""
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_page: RetestPage = retest.retestpage_set.first()
+    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
+    assert response.url == expected_path
+
+
+def test_equality_body_retest_compliance_update_redirects_to_retest_overview_based_on_button_pressed(
+    admin_client,
+):
+    """
+    Test that a equality body retrest compliance update redirects to retest overview when save
+    and continue button is pressed.
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+    case_pk: Dict[str, int] = {"pk": retest.case.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:retest-compliance-update", kwargs=retest_pk),
+        {
+            "version": retest.version,
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse("cases:edit-retest-overview", kwargs=case_pk)
+    assert response.url == expected_path
+
+
+def test_equality_body_page_checks_page_missing(
+    admin_client,
+):
+    """
+    Test that when equality body retrest page is marked as missing the underling
+    page is also so marked.
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_page: RetestPage = retest.retestpage_set.first()
+    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+
+    assert retest_page.missing_date is None
+    assert retest_page.page.not_found == "no"
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
+        {
+            "missing_date": "on",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "save": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    updated_retest_page: RetestPage = RetestPage.objects.get(id=retest_page.id)
+
+    assert updated_retest_page.missing_date is not None
+    assert updated_retest_page.page.not_found == "yes"

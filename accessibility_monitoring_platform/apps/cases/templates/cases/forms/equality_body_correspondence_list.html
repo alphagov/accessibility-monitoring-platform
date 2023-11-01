@@ -89,7 +89,7 @@
                                 <div class="govuk-button-group">
                                     <input
                                         type="submit"
-                                        value="Mark as {% if equality_body_correspondence.id.status == 'resolved' %}resolved{% else %}unresolved{% endif %}"
+                                        value="Mark as {% if equality_body_correspondence.status == 'resolved' %}unresolved{% else %}resolved{% endif %}"
                                         name="toggle_status_{{ equality_body_correspondence.id }}"
                                         class="govuk-button govuk-button--secondary"
                                         data-module="govuk-button"

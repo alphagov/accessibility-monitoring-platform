@@ -31,6 +31,7 @@ from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     Contact,
+    EqualityBodyCorrespondence,
     WEBSITE_COMPLIANCE_STATE_DEFAULT,
     WEBSITE_COMPLIANCE_STATE_DEFAULT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
@@ -1111,3 +1112,21 @@ def test_archived_sections():
 
     assert len(case.archived_sections) == 1
     assert case.archived_sections[0] == "section_one"
+
+
+@pytest.mark.django_db
+def test_equality_body_correspondence_sets_id_within_case():
+    """Test EqualityBodyCorrespondence sets id_within_case on save"""
+    case: Case = Case.objects.create()
+
+    first_equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    assert first_equality_body_correspondence.id_within_case == 1
+
+    second_equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    assert second_equality_body_correspondence.id_within_case == 2

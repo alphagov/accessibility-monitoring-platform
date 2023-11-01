@@ -1336,7 +1336,7 @@ class Retest(VersionModel):
     compliance_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["case_id", "-id_within_case"]
 
     def __str__(self) -> str:
         if self.id_within_case == 0:

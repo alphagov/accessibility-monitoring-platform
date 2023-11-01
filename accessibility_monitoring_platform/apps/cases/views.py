@@ -793,8 +793,12 @@ class CaseCloseUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
+            case: Case = self.object
+            case_pk: Dict[str, int] = {"pk": case.id}
+            if case.variant == CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE:
+                return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
+            else:
+                return reverse("cases:edit-equality-body-metadata", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -1030,8 +1034,8 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add case to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        context["case"] = self.case
+        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = case
         return context
 
     def form_valid(self, form: ModelForm):
