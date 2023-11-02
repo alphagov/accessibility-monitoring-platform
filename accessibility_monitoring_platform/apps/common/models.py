@@ -253,6 +253,7 @@ class SubCategory(models.Model):
     name = models.TextField(default="", blank=True)
 
     class Meta:
+        verbose_name_plural = "Sub categories"
         ordering = ["name"]
 
     def __str__(self) -> str:

@@ -116,6 +116,7 @@
                                             <p class="govuk-body-l amp-margin-bottom-0">
                                                 <a href="{{ case.get_absolute_url }}"
                                                     class="govuk-link govuk-link--no-visited-state">
+                                                    {% if case.website_name %}{{ case.website_name }} |{% endif %}
                                                     {{ case.organisation_name }}
                                                 </a>
                                             </p>
