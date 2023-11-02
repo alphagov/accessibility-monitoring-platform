@@ -140,6 +140,11 @@ class CaseCreateForm(forms.ModelForm):
             attrs={"label": "Did this case originate from a complaint?"}
         ),
     )
+    parental_organisation_name = AMPCharFieldWide(label="Parental organisation name")
+    website_name = AMPCharFieldWide(label="Website name")
+    subcategory = AMPModelChoiceField(
+        label="Sub-category", queryset=SubCategory.objects.all()
+    )
 
     class Meta:
         model = Case
@@ -151,6 +156,9 @@ class CaseCreateForm(forms.ModelForm):
             "sector",
             "previous_case_url",
             "is_complaint",
+            "parental_organisation_name",
+            "website_name",
+            "subcategory",
         ]
 
     def clean_home_page_url(self):
@@ -180,12 +188,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     )
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
-
-    parental_organisation_name = AMPCharFieldWide(label="Parental organisation name")
-    website_name = AMPCharFieldWide(label="Website name")
-    subcategory = AMPModelChoiceField(
-        label="Sub-category", queryset=SubCategory.objects.all()
-    )
     case_details_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
