@@ -107,6 +107,21 @@
                             {% include 'common/amp_field.html' with field=form.is_complaint %}
                         </div>
                     </div>
+                    <div class="govuk-grid-row{% if duplicate_cases %} amp-display-none{% endif %}">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.parental_organisation_name %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row{% if duplicate_cases %} amp-display-none{% endif %}">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.website_name %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row{% if duplicate_cases %} amp-display-none{% endif %}">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.subcategory %}
+                        </div>
+                    </div>
 
                     {% if duplicate_cases %}
                         <h2 id="case-details" class="govuk-heading-m">Do you wish to continue?</h2>

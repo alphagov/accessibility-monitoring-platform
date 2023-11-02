@@ -119,6 +119,12 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
         column_name="% of issues fixed",
         field_name="percentage_website_issues_fixed",
     ),
+    ColumnAndFieldNames(
+        column_name="Parental organisation name",
+        field_name="parental_organisation_name",
+    ),
+    ColumnAndFieldNames(column_name="Website name", field_name="website_name"),
+    ColumnAndFieldNames(column_name="Sub-category", field_name="subcategory"),
 ]
 
 EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
@@ -409,6 +415,12 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         column_name="% of issues fixed",
         field_name="percentage_website_issues_fixed",
     ),
+    ColumnAndFieldNames(
+        column_name="Parental organisation name",
+        field_name="parental_organisation_name",
+    ),
+    ColumnAndFieldNames(column_name="Website name", field_name="website_name"),
+    ColumnAndFieldNames(column_name="Sub-category", field_name="subcategory"),
 ]
 CONTACT_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(column_name="Contact email", field_name="email"),
@@ -429,6 +441,12 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Feedback survey sent?", field_name="is_feedback_requested"
     ),
+    ColumnAndFieldNames(
+        column_name="Parental organisation name",
+        field_name="parental_organisation_name",
+    ),
+    ColumnAndFieldNames(column_name="Website name", field_name="website_name"),
+    ColumnAndFieldNames(column_name="Sub-category", field_name="subcategory"),
 ]
 
 
@@ -481,6 +499,9 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
                     | Q(home_page_url__icontains=search)
                     | Q(psb_location__icontains=search)
                     | Q(sector__name__icontains=search)
+                    | Q(parental_organisation_name__icontains=search)
+                    | Q(website_name__icontains=search)
+                    | Q(subcategory__name__icontains=search)
                 )
         for filter_name in ["is_complaint", "enforcement_body"]:
             filter_value: str = form.cleaned_data.get(filter_name, NO_FILTER)

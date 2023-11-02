@@ -495,9 +495,13 @@ class Case(VersionModel):
 
     @property
     def title(self) -> str:
-        return str(
+        title: str = ""
+        if self.website_name:
+            title += f"{self.website_name} | "
+        title += (
             f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
         )
+        return title
 
     @property
     def next_action_due_date(self) -> Optional[date]:
