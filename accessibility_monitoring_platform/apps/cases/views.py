@@ -1128,10 +1128,3 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
         CaseStatementEnforcementUpdateForm
     ] = CaseStatementEnforcementUpdateForm
     template_name: str = "cases/forms/legacy_end_of_case.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-post-case", kwargs=case_pk)
-        return super().get_success_url()

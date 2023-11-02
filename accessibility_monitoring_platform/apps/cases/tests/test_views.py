@@ -3274,3 +3274,106 @@ def test_equality_body_correspondence_status_toggle(admin_client):
         updated_equality_body_correspondence.status
         == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
     )
+
+
+def test_create_equality_body_correspondence_save_return_redirects(admin_client):
+    """
+    Test that a successful equality body correspondence create redirects
+    to list when save_return button pressed
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:create-equality-body-correspondence", kwargs={"case_id": case.id}
+        ),
+        {
+            "save_return": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+    )
+
+
+def test_create_equality_body_correspondence_save_redirects(admin_client):
+    """
+    Test that a successful equality body correspondence create redirects
+    to update page when save button pressed
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:create-equality-body-correspondence", kwargs={"case_id": case.id}
+        ),
+        {
+            "save": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.get(case=case)
+    )
+
+    assert response.url == reverse(
+        "cases:edit-equality-body-correspondence",
+        kwargs={"pk": equality_body_correspondence.id},
+    )
+
+
+def test_update_equality_body_correspondence_save_return_redirects(admin_client):
+    """
+    Test that a successful equality body correspondence update redirects
+    to list when save_return button pressed
+    """
+    case: Case = Case.objects.create()
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:edit-equality-body-correspondence",
+            kwargs={"pk": equality_body_correspondence.id},
+        ),
+        {
+            "save_return": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+    )
+
+
+def test_update_equality_body_correspondence_save_redirects(admin_client):
+    """
+    Test that a successful equality body correspondence update redirects
+    to itself when save button pressed
+    """
+    case: Case = Case.objects.create()
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:edit-equality-body-correspondence",
+            kwargs={"pk": equality_body_correspondence.id},
+        ),
+        {
+            "save": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "cases:edit-equality-body-correspondence",
+        kwargs={"pk": equality_body_correspondence.id},
+    )
