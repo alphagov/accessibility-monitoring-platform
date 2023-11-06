@@ -11,11 +11,18 @@ type: Environment
 #   vpc:
 #     id:
 
+cdn: true
+
 # Configure the load balancers in your environment, once created.
-# http:
-#   public:
+http:
+  public:
+    security_groups:
+      ingress:
+        restrict_to:
+          cdn: true
 #   private:
 
 # Configure observability for your environment resources.
 observability:
   container_insights: false
+
