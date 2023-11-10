@@ -20,7 +20,7 @@ jobs:
       with:
         node-version: '18'
     - name: Get new commits
-      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
+      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '168 hours ago' | wc -l)" >> $GITHUB_ENV
     - name: Unit tests
       if: ${{ env.NEW_COMMIT_COUNT > 0 }}
       run: |
@@ -49,7 +49,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: Get new commits
-      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
+      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '168 hours ago' | wc -l)" >> $GITHUB_ENV
     - name: Integration tests
       if: ${{ env.NEW_COMMIT_COUNT > 0 }}
       run: |
@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Get new commits
-        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
+        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '168 hours ago' | wc -l)" >> $GITHUB_ENV
 
       - name: Install AWS Copilot
         if: ${{ env.NEW_COMMIT_COUNT > 0 }}
