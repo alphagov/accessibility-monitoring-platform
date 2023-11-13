@@ -22,6 +22,8 @@ LOG_LEVEL_CHOICES: List[Tuple[int, str]] = [
     (logging.CRITICAL, "Critical"),
 ]
 
+logger = logging.getLogger(__name__)
+
 
 class VersionForm(forms.ModelForm):
     """
@@ -38,6 +40,7 @@ class VersionForm(forms.ModelForm):
                 None,
                 f"{self.instance} has changed since this page loaded",
             )
+            logger.error("%s has changed since page loaded", self.instance)
         return cleaned_data
 
 
