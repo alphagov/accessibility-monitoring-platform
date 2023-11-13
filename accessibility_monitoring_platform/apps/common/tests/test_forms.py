@@ -4,7 +4,9 @@ Test - common widgets and forms
 import pytest
 
 from datetime import date, datetime
+import logging
 from typing import List, Tuple
+from unittest import mock
 from zoneinfo import ZoneInfo
 
 from pytest_django.asserts import assertHTMLEqual
@@ -28,6 +30,9 @@ from ..forms import (
     AMPPasswordField,
     AMPNewPasswordField,
 )
+from ...cases.models import Case
+from ...cases.forms import CaseQAProcessUpdateForm
+
 
 EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
 <div class="govuk-radios">
@@ -351,3 +356,18 @@ def test_amp_date_sent_field_and_widget_return_none_when_not_checked():
     form: MockForm = MockForm(data={})
     assert form.is_valid()
     assert form.cleaned_data["date_as_checkbox"] is None
+
+
+def test_version_form():
+    """Test version form returns and logs version errors"""
+    case: Case = Case()
+    version_form: CaseQAProcessUpdateForm = CaseQAProcessUpdateForm(
+        data={"version": 1}, instance=case
+    )
+
+    logger = logging.getLogger("accessibility_monitoring_platform.apps.common.forms")
+    with mock.patch.object(logger, "error") as mock_error_logger:
+        version_form.is_valid()
+        mock_error_logger.assert_called_once_with(
+            "%s has changed since page loaded", case
+        )
