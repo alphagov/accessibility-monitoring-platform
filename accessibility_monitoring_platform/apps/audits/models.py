@@ -23,6 +23,7 @@ from ..common.utils import amp_format_date
 SCREEN_SIZE_DEFAULT: str = "15in"
 SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
     (SCREEN_SIZE_DEFAULT, "15 inch"),
+    ("14in", "14 inch"),
     ("13in", "13 inch"),
 ]
 EXEMPTIONS_STATE_DEFAULT: str = "unknown"
