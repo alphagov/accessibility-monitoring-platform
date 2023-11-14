@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from django.http.request import QueryDict
 
 from ...audits.models import Audit
-from ...common.models import BOOLEAN_TRUE
+from ...common.models import Sector, SubCategory, BOOLEAN_TRUE
 
 from ..models import (
     Case,
@@ -201,6 +201,32 @@ def test_case_filtered_by_enforcement_body(
 
     assert len(filtered_cases) == expected_number
     assert filtered_cases[0].organisation_name == expected_name
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_sector():
+    """Test that filtering by sector is reflected in the queryset"""
+    sector: Sector = Sector.objects.create()
+    Case.objects.create(organisation_name=ORGANISATION_NAME, sector=sector)
+    form: MockForm = MockForm(cleaned_data={"sector": sector})
+
+    filtered_cases: List[Case] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_subcategory():
+    """Test that filtering by subcategory is reflected in the queryset"""
+    subcategory: SubCategory = SubCategory.objects.create()
+    Case.objects.create(organisation_name=ORGANISATION_NAME, subcategory=subcategory)
+    form: MockForm = MockForm(cleaned_data={"subcategory": subcategory})
+
+    filtered_cases: List[Case] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == ORGANISATION_NAME
 
 
 @pytest.mark.django_db
