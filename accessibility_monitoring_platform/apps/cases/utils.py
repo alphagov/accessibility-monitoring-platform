@@ -513,12 +513,11 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
         filters["qa_status"] = STATUS_READY_TO_QA
         del filters["status"]
 
+    # Auditor and reviewer may be filtered by unassigned
     if "auditor_id" in filters and filters["auditor_id"] == "none":
         filters["auditor_id"] = None
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
-    if "subcategory_id" in filters and filters["subcategory_id"] == "none":
-        filters["subcategory_id"] = None
 
     if not sort_by:
         return (
