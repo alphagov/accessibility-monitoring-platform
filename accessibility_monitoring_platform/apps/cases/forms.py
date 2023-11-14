@@ -100,6 +100,9 @@ class CaseSearchForm(AMPDateRangeForm):
     enforcement_body = AMPChoiceField(
         label="Enforcement body", choices=ENFORCEMENT_BODY_FILTER_CHOICES
     )
+    subcategory = AMPModelChoiceField(
+        label="Sub-category", queryset=SubCategory.objects.all()
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -140,7 +143,7 @@ class CaseCreateForm(forms.ModelForm):
             attrs={"label": "Did this case originate from a complaint?"}
         ),
     )
-    parental_organisation_name = AMPCharFieldWide(label="Parental organisation name")
+    parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
     website_name = AMPCharFieldWide(label="Website name")
     subcategory = AMPModelChoiceField(
         label="Sub-category", queryset=SubCategory.objects.all()
