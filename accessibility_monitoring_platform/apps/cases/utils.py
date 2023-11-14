@@ -43,6 +43,7 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("reviewer", "reviewer_id"),
     ("status", "status"),
     ("sector", "sector_id"),
+    ("subcategory", "subcategory_id"),
 ]
 
 CONTACT_NAME_COLUMN_NAME = "Contact name"
@@ -516,6 +517,8 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
         filters["auditor_id"] = None
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
+    if "subcategory_id" in filters and filters["subcategory_id"] == "none":
+        filters["subcategory_id"] = None
 
     if not sort_by:
         return (
