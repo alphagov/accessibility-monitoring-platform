@@ -61,6 +61,7 @@ from .models import (
     RetestPage,
     RetestCheckResult,
     RETEST_INITIAL_COMPLIANCE_CHOICES,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
@@ -1442,6 +1443,14 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
             "type",
             "success_criteria",
             "report_text",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["type"].choices = [
+            (value, label)
+            for value, label in STATEMENT_CHECK_TYPE_CHOICES
+            if value != STATEMENT_CHECK_TYPE_OVERVIEW
         ]
 
 

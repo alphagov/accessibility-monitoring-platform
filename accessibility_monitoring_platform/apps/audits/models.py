@@ -279,10 +279,10 @@ STATEMENT_CHECK_TYPE_FEEDBACK: str = "feedback"
 STATEMENT_CHECK_TYPE_CUSTOM: str = "custom"
 STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_CHECK_TYPE_OVERVIEW, "Statement overview"),
-    (STATEMENT_CHECK_TYPE_WEBSITE, "Accessibility statement for [website.com]"),
+    (STATEMENT_CHECK_TYPE_WEBSITE, "Statement information"),
     (STATEMENT_CHECK_TYPE_COMPLIANCE, "Compliance status"),
     (STATEMENT_CHECK_TYPE_NON_ACCESSIBLE, "Non-accessible content"),
-    (STATEMENT_CHECK_TYPE_PREPARATION, "Preparation of this accessibility statement"),
+    (STATEMENT_CHECK_TYPE_PREPARATION, "Statement preparation"),
     (STATEMENT_CHECK_TYPE_FEEDBACK, "Feedback and enforcement procedure"),
     (STATEMENT_CHECK_TYPE_CUSTOM, "Custom statement issues"),
 ]
