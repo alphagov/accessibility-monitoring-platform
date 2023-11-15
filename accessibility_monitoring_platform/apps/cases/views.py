@@ -112,6 +112,7 @@ TRUTHY_SEARCH_FIELDS: List[str] = [
     "sector",
     "is_complaint",
     "enforcement_body",
+    "subcategory",
 ]
 statement_fields = {
     **ArchiveAuditStatement1UpdateForm().fields,

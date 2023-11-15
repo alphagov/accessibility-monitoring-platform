@@ -43,6 +43,7 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("reviewer", "reviewer_id"),
     ("status", "status"),
     ("sector", "sector_id"),
+    ("subcategory", "subcategory_id"),
 ]
 
 CONTACT_NAME_COLUMN_NAME = "Contact name"
@@ -512,6 +513,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
         filters["qa_status"] = STATUS_READY_TO_QA
         del filters["status"]
 
+    # Auditor and reviewer may be filtered by unassigned
     if "auditor_id" in filters and filters["auditor_id"] == "none":
         filters["auditor_id"] = None
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
