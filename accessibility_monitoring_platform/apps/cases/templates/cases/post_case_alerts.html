@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% load l10n %}
+
+{% block title %}Post case alerts ({{ post_case_alerts_count }}){% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">Post case alerts ({{ post_case_alerts_count }})</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">
+                    Post case alerts ({{ post_case_alerts_count }})
+                </h1>
+            </div>
+        </div>
+        {% for message in messages %}
+            <div class="govuk-inset-text">
+                {{ message }}
+            </div>
+        {% endfor %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% if post_case_alerts_count == 0 %}
+                    <p class="govuk-body">You have no incomplete retests or unresolved equality body correspondence.</p>
+                {% else %}
+                    <table class="govuk-table">
+                        <thead class="govuk-table__head">
+                            <tr class="govuk-table__row">
+                                <th scope="col" class="govuk-table__header amp-width-one-quarter">Date</th>
+                                <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
+                                <th scope="col" class="govuk-table__header amp-width-one-quarter">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="govuk-table__body">
+                            {% for post_case_alert in post_case_alerts %}
+                                <tr class="govuk-table__row ">
+                                    <th scope="row" class="govuk-table__header amp-width-one-third">
+                                        {{ post_case_alert.date|amp_date }}
+                                    </th>
+                                    <td class="govuk-table__cell amp-width-one-third">
+                                        <a href="{{ post_case_alert.case.get_absolute_url }}" class="govuk-link">{{ post_case_alert.case.organisation_name }}</a>
+                                    </td>
+                                    <td class="govuk-table__cell amp-width-one-third">
+                                        {{ post_case_alert.description }}
+                                        (<a href="{{ post_case_alert.absolute_url }}" class="govuk-link">{{ post_case_alert.absolute_url_label }}</a>)
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

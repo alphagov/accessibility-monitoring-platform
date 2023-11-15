@@ -1339,6 +1339,9 @@ class Retest(VersionModel):
     class Meta:
         ordering = ["case_id", "-id_within_case"]
 
+    def get_absolute_url(self) -> str:
+        return reverse("audits:retest-compliance-update", kwargs={"pk": self.id})
+
     def __str__(self) -> str:
         if self.id_within_case == 0:
             return "12-week retest"

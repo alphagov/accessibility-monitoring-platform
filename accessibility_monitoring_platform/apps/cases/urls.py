@@ -42,6 +42,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseRetestOverviewTemplateView,
     EqualityBodyCorrespondenceCreateView,
     EqualityBodyRetestEmailTemplateView,
+    PostCaseAlertsTemplateView,
 )
 
 app_name: str = "cases"
@@ -206,5 +207,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/equality-body-retest-email-template/",
         login_required(EqualityBodyRetestEmailTemplateView.as_view()),
         name="equality-body-retest-email-template",
+    ),
+    path(
+        "post-case-alerts/",
+        login_required(PostCaseAlertsTemplateView.as_view()),
+        name="post-case-alerts",
     ),
 ]

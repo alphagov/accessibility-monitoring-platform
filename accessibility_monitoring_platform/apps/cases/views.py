@@ -22,7 +22,10 @@ from ..audits.forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
 )
+from ..audits.models import Retest, RETEST_INITIAL_COMPLIANCE_DEFAULT
 from ..audits.utils import get_test_view_tables_context, get_retest_view_tables_context
+
+from ..cases.utils import get_post_case_alerts
 
 from ..notifications.utils import add_notification, read_notification
 
@@ -1129,3 +1132,13 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
         CaseStatementEnforcementUpdateForm
     ] = CaseStatementEnforcementUpdateForm
     template_name: str = "cases/forms/legacy_end_of_case.html"
+
+
+class PostCaseAlertsTemplateView(TemplateView):
+    template_name: str = "cases/post_case_alerts.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["post_case_alerts"] = get_post_case_alerts(user=self.request.user)
+        return context

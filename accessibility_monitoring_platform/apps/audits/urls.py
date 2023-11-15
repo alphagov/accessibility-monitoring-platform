@@ -314,12 +314,12 @@ urlpatterns: List[URLPattern] = [
         name="edit-retest-page-checks",
     ),
     path(
-        "retest-page/<int:pk>/retest-comparison-update/",
+        "retest/<int:pk>/retest-comparison-update/",
         login_required(RetestComparisonUpdateView.as_view()),
         name="retest-comparison-update",
     ),
     path(
-        "retest-page/<int:pk>/retest-compliance-update/",
+        "retest/<int:pk>/retest-compliance-update/",
         login_required(RetestComplianceUpdateView.as_view()),
         name="retest-compliance-update",
     ),

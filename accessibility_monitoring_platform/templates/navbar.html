@@ -56,6 +56,11 @@
                         <a class="govuk-link govuk-link--no-visited-state" href="{% url 'overdue:overdue-list' %}">Overdue ({{ number_of_overdue }})</a>
                         {% if number_of_overdue > 0 %}</b>{% endif %}
                     </li>
+                    <li>
+                        {% if post_case_alerts_count > 0 %}<b>{% endif %}
+                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:post-case-alerts' %}">Post case ({{ post_case_alerts_count }})</a>
+                        {% if post_case_alerts_count > 0 %}</b>{% endif %}
+                    </li>
                 </ul>
         </div>
     </div>
