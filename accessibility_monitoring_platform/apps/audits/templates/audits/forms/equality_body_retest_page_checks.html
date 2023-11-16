@@ -34,9 +34,11 @@
                         <div class="govuk-grid-column-one-half">
                             {% include 'common/amp_field.html' with field=form.complete_date %}
                         </div>
-                        <div class="govuk-grid-column-one-half">
-                            {% include 'common/amp_field.html' with field=form.missing_date %}
-                        </div>
+                        {% if retest_check_results_formset.forms %}
+                            <div class="govuk-grid-column-one-half">
+                                {% include 'common/amp_field.html' with field=form.missing_date %}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
@@ -68,24 +70,29 @@
                         {% for form in retest_check_results_formset %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <hr class="amp-width-100 amp-margin-bottom-30">
-                                    <label class="govuk-label"><b>{{ form.instance.check_result.wcag_definition }}</b></label>
-                                    <div class="govuk-hint">
-                                        <p><i>Initial notes:</i></p>
-                                        {{ form.instance.check_result.notes|markdown_to_html }}
-                                    </div>
-                                    {% for retest_check_result in form.instance.all_retest_check_results %}
-                                        {% if retest_check_result != form.instance %}
-                                            <div class="govuk-hint">
-                                                <p><i>{{ retest_check_result.retest }} notes:</i></p>
-                                                {% if retest_check_result.retest_notes %}
-                                                    {{ retest_check_result.retest_notes|markdown_to_html }}
-                                                {% else %}
-                                                    None
+                                    <hr class="amp-width-100 amp-margin-bottom-15">
+                                    <label class="govuk-label amp-margin-bottom-15"><b>{{ form.instance.check_result.wcag_definition }}</b></label>
+                                    <details class="govuk-details" data-module="govuk-details">
+                                        <summary class="govuk-details__summary">
+                                            <span class="govuk-details__summary-text">Previous test notes</span>
+                                        </summary>
+                                        <div class="govuk-details__text">
+                                            <label class="govuk-label"><b>Initial notes</b></label>
+                                            {{ form.instance.check_result.notes|markdown_to_html }}
+                                            {% for retest_check_result in form.instance.all_retest_check_results %}
+                                                {% if retest_check_result != form.instance %}
+                                                    <label class="govuk-label"><b>{{ retest_check_result.retest }} notes</b></label>
+                                                    {% if retest_check_result.retest_notes %}
+                                                        {{ retest_check_result.retest_notes|markdown_to_html }}
+                                                    {% else %}
+                                                        <p>None</p>
+                                                    {% endif %}
                                                 {% endif %}
-                                            </div>
-                                        {% endif %}
-                                    {% endfor %}
+                                            {% endfor %}
+                                        </div>
+                                    </details>
+                                    <div class="govuk-hint">
+                                    </div>
                                     {% include 'common/amp_form_snippet.html' %}
                                 </div>
                             </div>
