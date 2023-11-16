@@ -199,7 +199,8 @@ ENFORCEMENT_BODY_CLOSED_NO: str = "no"
 ENFORCEMENT_BODY_CLOSED_YES: str = "yes"
 ENFORCEMENT_BODY_CLOSED_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_BODY_CLOSED_YES, "Yes"),
-    (ENFORCEMENT_BODY_CLOSED_NO, "No (or don't know)"),
+    ("in-progress", "Case in progress"),
+    (ENFORCEMENT_BODY_CLOSED_NO, "No (or holding)"),
 ]
 
 PREFERRED_DEFAULT: str = "unknown"
