@@ -26,6 +26,7 @@ from ...audits.models import (
     Page,
     StatementCheck,
     StatementCheckResult,
+    Retest,
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_CONTACT,
     PAGE_TYPE_HOME,
@@ -3377,3 +3378,21 @@ def test_update_equality_body_correspondence_save_redirects(admin_client):
         "cases:edit-equality-body-correspondence",
         kwargs={"pk": equality_body_correspondence.id},
     )
+
+
+def test_post_case_alerts(admin_client, admin_user):
+    """Test post case alerts page renders"""
+    case: Case = Case.objects.create(auditor=admin_user)
+    EqualityBodyCorrespondence.objects.create(case=case)
+    Retest.objects.create(case=case)
+    url: str = reverse(
+        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+    )
+
+    response: HttpResponse = admin_client.get(reverse("cases:post-case-alerts"))
+
+    assert response.status_code == 200
+
+    assertContains(response, "Unresolved correspondence")
+    assertContains(response, "Incomplete retest")
+    assertContains(response, "Post case (2)")

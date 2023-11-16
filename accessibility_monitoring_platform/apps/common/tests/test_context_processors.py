@@ -96,3 +96,6 @@ def test_platform_page_template_context():
     ][0]
     assert custom_footer_links.label == LINK_LABEL
     assert custom_footer_links.url == LINK_URL
+
+    assert "post_case_alerts_count" in platform_page_context
+    assert platform_page_context["post_case_alerts_count"] == 0
