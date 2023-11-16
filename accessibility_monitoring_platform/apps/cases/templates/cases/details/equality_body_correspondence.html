@@ -1,0 +1,34 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>Equality body correspondence</b>
+            |
+            <a href="{% url 'cases:list-equality-body-correspondence' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit
+            </a>
+        </p>
+    </div>
+</div>
+<table class="govuk-table amp-accordion-table">
+    <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Total number of Zendesk tickets</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.equalitybodycorrespondence_set.all.count }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Number of retest requests</th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.equality_body_retests.count }} ({{ case.equality_body_retests_unresolved.count }} unresolved)
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Number of questions</th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.equality_body_questions.count }} ({{ case.equality_body_questions_unresolved.count }} unresolved)
+            </td>
+        </tr>
+    </tbody>
+</table>

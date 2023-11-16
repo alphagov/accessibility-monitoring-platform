@@ -263,9 +263,10 @@ COMPLIANCE_FIELDS: List[str] = [
 ]
 
 EQUALITY_BODY_CORRESPONDENCE_QUESTION: str = "question"
+EQUALITY_BODY_CORRESPONDENCE_RETEST: str = "retest"
 EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (EQUALITY_BODY_CORRESPONDENCE_QUESTION, "Question"),
-    ("request-retest", "Retest request"),
+    (EQUALITY_BODY_CORRESPONDENCE_RETEST, "Retest request"),
 ]
 EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED: str = "outstanding"
 EQUALITY_BODY_CORRESPONDENCE_RESOLVED: str = "resolved"
@@ -955,6 +956,32 @@ class Case(VersionModel):
         else:
             return None
         return archive["sections"] if "sections" in archive else None
+
+    @property
+    def equality_body_questions(self):
+        return self.equalitybodycorrespondence_set.filter(
+            type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+        )
+
+    @property
+    def equality_body_questions_unresolved(self):
+        return self.equalitybodycorrespondence_set.filter(
+            type=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+            status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+        )
+
+    @property
+    def equality_body_retests(self):
+        return self.equalitybodycorrespondence_set.filter(
+            type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+        )
+
+    @property
+    def equality_body_retests_unresolved(self):
+        return self.equalitybodycorrespondence_set.filter(
+            type=EQUALITY_BODY_CORRESPONDENCE_RETEST,
+            status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+        )
 
 
 class CaseCompliance(VersionModel):

@@ -245,7 +245,8 @@
                                 </span>
                             </h2>
                         </div>
-                        <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
+                        <div id="accordion-content-statement-enforcement" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-statement-enforcement">
+                            {% include 'cases/details/statement_enforcement.html' %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section" data-search-target-page-name="Equality body metadata" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-equality-body-metadata' case.id %}">
@@ -257,7 +258,7 @@
                             </h2>
                         </div>
                         <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
-                            {% include 'cases/details/equality_bodies_correspondence.html' %}
+                            {% include 'cases/details/equality_body_metadata.html' %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section" data-search-target-page-name="Equality body corespondence" data-search-target-label="Edit" data-search-target-url="{% url 'cases:list-equality-body-correspondence' case.id %}">
@@ -269,6 +270,7 @@
                             </h2>
                         </div>
                         <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
+                            {% include 'cases/details/equality_body_correspondence.html' %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section" data-search-target-page-name="Retest overview" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-retest-overview' case.id %}">
@@ -279,7 +281,8 @@
                                 </span>
                             </h2>
                         </div>
-                        <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
+                        <div id="accordion-content-enforcement-body-retest" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-retest">
+                            {% include 'cases/details/equality_body_retest.html' %}
                         </div>
                     </div>
                 {% else %}
@@ -292,7 +295,7 @@
                             </h2>
                         </div>
                         <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
-                            {% include 'cases/details/equality_bodies_correspondence.html' %}
+                            {% include 'cases/details/equality_body_metadata.html' %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section" data-search-target-page-name="Post case summary" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-post-case' case.id %}">
@@ -308,7 +311,7 @@
                             </h2>
                         </div>
                         <div id="accordion-content-post-case" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-post-case">
-                            {% include 'cases/details/post_case.html' %}
+                            {% include 'cases/details/legacy_end_of_case.html' %}
                         </div>
                     </div>
                 {% endif %}

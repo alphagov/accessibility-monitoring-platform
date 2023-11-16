@@ -46,6 +46,7 @@ from .models import (
     REPORT_APPROVED_STATUS_CHOICES,
     RECOMMENDATION_CHOICES,
     EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
+    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
 )
 
 status_choices = STATUS_CHOICES
@@ -721,6 +722,7 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
     type = AMPChoiceRadioField(
         label="Type",
         choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
+        initial=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
     )
     message = AMPTextField(label="Message/content")
     notes = AMPTextField(label="Notes")

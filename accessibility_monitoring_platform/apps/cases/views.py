@@ -210,10 +210,20 @@ class CaseDetailView(DetailView):
             form=CaseReviewChangesUpdateForm()
         )
         context["case_close_rows"] = get_case_rows(form=CaseCloseUpdateForm())
-        context["post_case_rows"] = get_case_rows(form=PostCaseUpdateForm())
         context["enforcement_body_correspondence_rows"] = get_case_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()
         )
+        context["equality_body_metadata_rows"] = get_case_rows(
+            form=CaseEqualityBodyMetadataUpdateForm()
+        )
+        if case.variant in ["archived", "reporting", "statement-content"]:
+            context["legacy_end_of_case_rows"] = get_case_rows(
+                form=PostCaseUpdateForm()
+            )
+        else:
+            context["statement_enforcement_rows"] = get_case_rows(
+                form=CaseStatementEnforcementUpdateForm()
+            )
 
         if case.audit:
             return {
