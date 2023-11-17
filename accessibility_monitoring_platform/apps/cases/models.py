@@ -967,27 +967,31 @@ class Case(VersionModel):
         return self.retests.filter(retest_compliance_state="not-known")
 
     @property
+    def equality_body_correspondences(self):
+        return self.equalitybodycorrespondence_set.filter(is_deleted=False)
+
+    @property
     def equality_body_questions(self):
-        return self.equalitybodycorrespondence_set.filter(
+        return self.equality_body_correspondences.filter(
             type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
         )
 
     @property
     def equality_body_questions_unresolved(self):
-        return self.equalitybodycorrespondence_set.filter(
+        return self.equality_body_correspondences.filter(
             type=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
             status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
         )
 
     @property
-    def equality_body_retests(self):
-        return self.equalitybodycorrespondence_set.filter(
+    def equality_body_correspondence_retests(self):
+        return self.equality_body_correspondences.filter(
             type=EQUALITY_BODY_CORRESPONDENCE_RETEST
         )
 
     @property
-    def equality_body_retests_unresolved(self):
-        return self.equalitybodycorrespondence_set.filter(
+    def equality_body_correspondence_retests_unresolved(self):
+        return self.equality_body_correspondences.filter(
             type=EQUALITY_BODY_CORRESPONDENCE_RETEST,
             status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
         )
