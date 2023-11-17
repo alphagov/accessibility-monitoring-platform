@@ -15,13 +15,13 @@
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Number retests</th>
-            <td class="govuk-table__cell amp-width-one-half">{{ case.retest_set.all.count }}
+            <td class="govuk-table__cell amp-width-one-half">{{ case.retests.all.count }} ({{ case.incomplete_retests.count }} incomplete)
             </td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Remaining WCAG issues</th>
             <td class="govuk-table__cell amp-width-one-half">
-            {{ case.retest_set.first.fixed_checks_count }} of {{ case.audit.failed_check_results.count }} issues fixed
+            {{ case.retests.first.fixed_checks_count }} of {{ case.audit.failed_check_results.count }} issues fixed
             </td>
         </tr>
     </tbody>

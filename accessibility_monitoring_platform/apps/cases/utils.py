@@ -822,6 +822,7 @@ def get_post_case_alerts_count(user: User) -> int:
                 case__auditor=user, status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
             ).count()
             + Retest.objects.filter(
+                is_deleted=False,
                 case__auditor=user,
                 retest_compliance_state=RETEST_INITIAL_COMPLIANCE_DEFAULT,
                 id_within_case__gt=0,
@@ -856,6 +857,7 @@ def get_post_case_alerts(user: User) -> List[PostCaseAlert]:
         )
 
     retests: QuerySet[Retest] = Retest.objects.filter(
+        is_deleted=False,
         case__auditor=user,
         retest_compliance_state=RETEST_INITIAL_COMPLIANCE_DEFAULT,
         id_within_case__gt=0,

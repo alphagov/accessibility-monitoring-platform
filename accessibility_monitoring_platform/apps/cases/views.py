@@ -1115,9 +1115,7 @@ class CaseRetestOverviewTemplateView(TemplateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
-        context["equality_body_retests"] = case.retest_set.filter(
-            is_deleted=False
-        ).filter(id_within_case__gt=0)
+        context["equality_body_retests"] = case.retests.filter(id_within_case__gt=0)
         return context
 
 
@@ -1129,7 +1127,7 @@ class EqualityBodyRetestEmailTemplateView(TemplateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
-        context["retest"] = case.retest_set.first()
+        context["retest"] = case.retests.first()
         return context
 
 

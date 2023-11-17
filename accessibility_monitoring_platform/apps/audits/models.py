@@ -1359,11 +1359,9 @@ class Retest(VersionModel):
             .exclude(page__not_found="yes")
             .count()
         )
-        for retest in (
-            Retest.objects.filter(case=self.case)
-            .exclude(id_within_case__gt=self.id_within_case)
-            .exclude(id_within_case=0)
-        ):
+        for retest in self.case.retests.exclude(
+            id_within_case__gt=self.id_within_case
+        ).exclude(id_within_case=0):
             fixed_checks_count += (
                 RetestCheckResult.objects.filter(retest=retest)
                 .filter(retest_state=RETEST_CHECK_RESULT_FIXED)
@@ -1375,21 +1373,21 @@ class Retest(VersionModel):
     @property
     def original_retest(self):
         """Copy of 12-week retest results"""
-        return Retest.objects.get(case=self.case, id_within_case=0)
+        return self.case.retests.filter(id_within_case=0).first()
 
     @property
     def previous_retest(self):
         """Return previous retest"""
         if self.id_within_case > 0:
-            return Retest.objects.get(
-                case=self.case, id_within_case=self.id_within_case - 1
-            )
+            return self.case.retests.filter(
+                id_within_case=self.id_within_case - 1
+            ).first()
         return None
 
     @property
     def latest_retest(self):
         """Return latest retest"""
-        return Retest.objects.filter(case=self.case).first()
+        return self.case.retests.first()
 
 
 class RetestPage(models.Model):

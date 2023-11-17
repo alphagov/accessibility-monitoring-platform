@@ -361,9 +361,9 @@ def create_checkresults_for_retest(retest: Retest) -> None:
                         retest_notes=check_result.retest_notes,
                     )
 
-    previous_retest: Retest = Retest.objects.get(
-        case=retest.case, id_within_case=retest.id_within_case - 1
-    )
+    previous_retest: Retest = retest.case.retests.filter(
+        id_within_case=retest.id_within_case - 1
+    ).first()
 
     for previous_retest_page in RetestPage.objects.filter(retest=previous_retest):
         retest_page: RetestPage = RetestPage.objects.create(

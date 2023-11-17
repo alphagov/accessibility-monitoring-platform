@@ -959,6 +959,14 @@ class Case(VersionModel):
         return archive["sections"] if "sections" in archive else None
 
     @property
+    def retests(self):
+        return self.retest_set.filter(is_deleted=False)
+
+    @property
+    def incomplete_retests(self):
+        return self.retests.filter(retest_compliance_state="not-known")
+
+    @property
     def equality_body_questions(self):
         return self.equalitybodycorrespondence_set.filter(
             type=EQUALITY_BODY_CORRESPONDENCE_QUESTION

@@ -114,8 +114,8 @@ class RetestAdmin(admin.ModelAdmin):
         "retest_notes",
         "compliance_notes",
     ]
-    list_display = ["id", "case", "__str__", "retest_compliance_state"]
-    list_filter = ["retest_compliance_state"]
+    list_display = ["__str__", "case", "retest_compliance_state", "is_deleted"]
+    list_filter = ["retest_compliance_state", "is_deleted"]
 
 
 class RetestPageAdmin(admin.ModelAdmin):
