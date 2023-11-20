@@ -1,21 +1,21 @@
 {
-    "static": {
-        "toWatch": "node_modules/govuk-frontend/govuk/assets/",
-        "toDelete": "common/static/compiled/assets/",
-        "dest": "common/static/compiled/"
-    },
-    "static_img": {
-        "toWatch": "common/static/img/",
-        "toDelete": "common/static/compiled/img/",
-        "dest": "common/static/compiled/"
-    },
-    "css": {
-        "toWatch": "common/static/scss/",
-        "access_point": "common/static/scss/init.scss",
-        "dest": "common/static/compiled/css/"
-    },
-    "js": {
-        "toWatch": "common/static/js",
-        "dest": "common/static/compiled/js"
-    }
+  "static": {
+    "toWatch": "node_modules/govuk-frontend/dist/govuk/assets/",
+    "toDelete": "common/static/compiled/assets/",
+    "dest": "common/static/compiled/"
+  },
+  "static_img": {
+    "toWatch": "common/static/img/",
+    "toDelete": "common/static/compiled/img/",
+    "dest": "common/static/compiled/"
+  },
+  "css": {
+    "toWatch": "common/static/scss/",
+    "access_point": "common/static/scss/init.scss",
+    "dest": "common/static/compiled/css/"
+  },
+  "js": {
+    "toWatch": "common/static/js",
+    "dest": "common/static/compiled/js"
+  }
 }
