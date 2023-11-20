@@ -196,10 +196,11 @@ ENFORCEMENT_BODY_PURSUING_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_BODY_PURSUING_NO, "No"),
 ]
 ENFORCEMENT_BODY_CLOSED_NO: str = "no"
+ENFORCEMENT_BODY_CLOSED_IN_PROGRESS: str = "in-progress"
 ENFORCEMENT_BODY_CLOSED_YES: str = "yes"
 ENFORCEMENT_BODY_CLOSED_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_BODY_CLOSED_YES, "Yes"),
-    ("in-progress", "Case in progress"),
+    (ENFORCEMENT_BODY_CLOSED_IN_PROGRESS, "Case in progress"),
     (ENFORCEMENT_BODY_CLOSED_NO, "No (or holding)"),
 ]
 
@@ -594,10 +595,12 @@ class Case(VersionModel):
         elif (
             self.case_completed == CASE_COMPLETED_NO_SEND
             or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
+            or self.enforcement_body_closed_case == ENFORCEMENT_BODY_CLOSED_YES
         ):
             return "complete"
         elif (
             self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS
+            or self.enforcement_body_closed_case == ENFORCEMENT_BODY_CLOSED_IN_PROGRESS
         ):
             return "in-correspondence-with-equalities-body"
         elif self.sent_to_enforcement_body_sent_date is not None:
