@@ -5,23 +5,10 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
-                {% if formset %}
-                    {% for error in formset.non_form_errors %}
-                        <li class="govuk-error-message">{{ error }}</li>
-                    {% endfor %}
-                    {% for form in formset %}
-                        {% for error in form.non_field_errors %}
-                            <li class="govuk-error-message">{{ error }}</li>
-                        {% endfor %}
-                        {% for field in form.visible_fields %}
-                            {% for error in field.errors%}
-                                <li>
-                                    <a href="#{{ field.auto_id }}-label">{{ error }}</a>
-                                </li>
-                            {% endfor %}
-                        {% endfor %}
-                    {% endfor%}
-                {% else %}
+                {% for error in formset.non_form_errors %}
+                    <li class="govuk-error-message">{{ error }}</li>
+                {% endfor %}
+                {% for form in formset %}
                     {% for error in form.non_field_errors %}
                         <li class="govuk-error-message">{{ error }}</li>
                     {% endfor %}
@@ -32,7 +19,17 @@
                             </li>
                         {% endfor %}
                     {% endfor %}
-                {% endif %}
+                {% endfor%}
+                {% for error in form.non_field_errors %}
+                    <li class="govuk-error-message">{{ error }}</li>
+                {% endfor %}
+                {% for field in form.visible_fields %}
+                    {% for error in field.errors %}
+                        <li>
+                            <a href="#{{ field.auto_id }}-label">{{ error }}</a>
+                        </li>
+                    {% endfor %}
+                {% endfor %}
             </ul>
         </div>
     </div>

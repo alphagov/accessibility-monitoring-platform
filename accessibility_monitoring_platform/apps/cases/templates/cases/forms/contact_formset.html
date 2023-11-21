@@ -14,7 +14,7 @@
         {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' %}
+                {% include 'common/error_summary.html' with formset=contacts_formset %}
                 <p class="govuk-body-m">
                     {% if case.audit.contact_page.url and case.audit.contact_page.not_found == 'no' %}
                         <a href="{{ case.audit.contact_page.url }}" target="_blank" class="govuk-link">
