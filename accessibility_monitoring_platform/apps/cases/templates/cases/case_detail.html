@@ -236,38 +236,85 @@
                         </div>
                     </div>
                 {% endif %}
-                <div class="govuk-accordion__section" data-search-target-page-name="Equality body summary" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-enforcement-body-correspondence' case.id %}">
-                    <div class="govuk-accordion__section-header">
-                        <h2 id="enforcement-body-correspondence" class="govuk-accordion__section-heading">
-                            <span class="govuk-accordion__section-button" id="accordion-heading-enforcement-body-correspondence">
-                                Equality body summary
-                                {% if case.enforcement_correspondence_complete_date %}
-                                    <span class="govuk-visually-hidden">complete</span>
-                                    &check;
-                                {% endif %}
-                            </span>
-                        </h2>
+                {% if case.variant == 'close-case' %}
+                    <div class="govuk-accordion__section" data-search-target-page-name="Statement enforcement" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-statement-enforcement' case.id %}">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="statement-enforcement" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-equality-body-metadata">
+                                    Statement enforcement
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-statement-enforcement" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-statement-enforcement">
+                            {% include 'cases/details/statement_enforcement.html' %}
+                        </div>
                     </div>
-                    <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
-                        {% include 'cases/details/equality_bodies_correspondence.html' %}
+                    <div class="govuk-accordion__section" data-search-target-page-name="Equality body metadata" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-equality-body-metadata' case.id %}">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="equality-body-metadata" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-equality-body-metadata">
+                                    Equality body metadata
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
+                            {% include 'cases/details/equality_body_metadata.html' %}
+                        </div>
                     </div>
-                </div>
-                <div class="govuk-accordion__section" data-search-target-page-name="Post case summary" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-post-case' case.id %}">
-                    <div class="govuk-accordion__section-header">
-                        <h2 id="post-case" class="govuk-accordion__section-heading">
-                            <span class="govuk-accordion__section-button" id="accordion-heading-post-case">
-                                Post case summary
-                                {% if case.post_case_complete_date %}
-                                    <span class="govuk-visually-hidden">complete</span>
-                                    &check;
-                                {% endif %}
-                            </span>
-                        </h2>
+                    <div class="govuk-accordion__section" data-search-target-page-name="Equality body corespondence" data-search-target-label="Edit" data-search-target-url="{% url 'cases:list-equality-body-correspondence' case.id %}">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="equality-body-correspondence" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-equality-body-corespondence">
+                                    Equality body corespondence
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
+                            {% include 'cases/details/equality_body_correspondence.html' %}
+                        </div>
                     </div>
-                    <div id="accordion-content-post-case" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-post-case">
-                        {% include 'cases/details/post_case.html' %}
+                    <div class="govuk-accordion__section" data-search-target-page-name="Retest overview" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-retest-overview' case.id %}">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="retest-overview" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-equality-body-metadata">
+                                    Retest overview
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-enforcement-body-retest" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-retest">
+                            {% include 'cases/details/equality_body_retest.html' %}
+                        </div>
                     </div>
-                </div>
+                {% else %}
+                    <div class="govuk-accordion__section" data-search-target-page-name="Equality body metadata" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-equality-body-metadata' case.id %}">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="equality-body-metadata" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-equality-body-metadata">
+                                    Equality body metadata
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
+                            {% include 'cases/details/equality_body_metadata.html' %}
+                        </div>
+                    </div>
+                    <div class="govuk-accordion__section" data-search-target-page-name="Post case summary" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-post-case' case.id %}">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="legacy-end-of-case" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-post-case">
+                                    Legacy end of case data
+                                    {% if case.post_case_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-post-case" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-post-case">
+                            {% include 'cases/details/legacy_end_of_case.html' %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </main>

@@ -6,8 +6,20 @@ from typing import List
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
-from .views import (
+from .views.base import (
+    create_audit,
+    delete_page,
+    restore_page,
     AuditAllIssuesListView,
+    WcagDefinitionListView,
+    WcagDefinitionCreateView,
+    WcagDefinitionUpdateView,
+    StatementCheckListView,
+    StatementCheckCreateView,
+    StatementCheckUpdateView,
+)
+from .views.initial import (
+    clear_published_report_data_updated_time,
     AuditDetailView,
     AuditMetadataUpdateView,
     AuditPagesUpdateView,
@@ -25,6 +37,9 @@ from .views import (
     AuditStatementCustomFormsetView,
     AuditSummaryUpdateView,
     AuditReportOptionsUpdateView,
+)
+from .views.twelve_week import (
+    start_retest,
     AuditRetestDetailView,
     AuditRetestMetadataUpdateView,
     AuditRetestPagesUpdateView,
@@ -42,17 +57,13 @@ from .views import (
     AuditRetestStatementOtherFormView,
     AuditRetestStatementComparisonUpdateView,
     AuditRetestCaseComplianceStatement12WeekUpdateView,
-    WcagDefinitionListView,
-    WcagDefinitionCreateView,
-    WcagDefinitionUpdateView,
-    StatementCheckListView,
-    StatementCheckCreateView,
-    StatementCheckUpdateView,
-    create_audit,
-    delete_page,
-    restore_page,
-    start_retest,
-    clear_published_report_data_updated_time,
+)
+from .views.equality_body import (
+    create_equality_body_retest,
+    RetestMetadataUpdateView,
+    RetestPageChecksFormView,
+    RetestComparisonUpdateView,
+    RetestComplianceUpdateView,
 )
 
 app_name: str = "audits"
@@ -286,5 +297,30 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-statement-check/",
         login_required(StatementCheckUpdateView.as_view()),
         name="statement-check-update",
+    ),
+    path(
+        "create-equality-body-retest/<int:case_id>/",
+        login_required(create_equality_body_retest),
+        name="create-equality-body-retest",
+    ),
+    path(
+        "retest/<int:pk>/retest-metadata-update/",
+        login_required(RetestMetadataUpdateView.as_view()),
+        name="retest-metadata-update",
+    ),
+    path(
+        "retest-page/<int:pk>/retest-page-checks/",
+        login_required(RetestPageChecksFormView.as_view()),
+        name="edit-retest-page-checks",
+    ),
+    path(
+        "retest/<int:pk>/retest-comparison-update/",
+        login_required(RetestComparisonUpdateView.as_view()),
+        name="retest-comparison-update",
+    ),
+    path(
+        "retest/<int:pk>/retest-compliance-update/",
+        login_required(RetestComplianceUpdateView.as_view()),
+        name="retest-compliance-update",
     ),
 ]

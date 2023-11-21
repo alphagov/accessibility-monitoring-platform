@@ -47,7 +47,7 @@ class ReminderCreateView(CreateView):
         )
 
     def get_success_url(self) -> str:
-        """Record creation eventthe submit button used and act accordingly"""
+        """Record creation event the submit button used and act accordingly"""
         record_model_create_event(user=self.request.user, model_object=self.object)
         return super().get_success_url()
 

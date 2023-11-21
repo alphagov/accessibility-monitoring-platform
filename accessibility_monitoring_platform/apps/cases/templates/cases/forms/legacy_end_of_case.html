@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ case.organisation_name }} | Legacy end of case data{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading='Legacy end of case data' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Legacy end of case data' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'cases:legacy-end-of-case' case.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{{ case.get_absolute_url }}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return to case view
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:legacy-end-of-case' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

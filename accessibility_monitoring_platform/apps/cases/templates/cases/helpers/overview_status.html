@@ -39,8 +39,8 @@
                 Go to closing the case
             </a>
         {% elif case.status == 'case-closed-sent-to-equalities-body' or case.status == 'in-correspondence-with-equalities-body' %}
-            <a href="{% url 'cases:edit-enforcement-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                Go to equality body summary
+            <a href="{% url 'cases:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to equality body metadata
             </a>
         {% elif case.status == 'complete' %}
             <a href="{% url 'cases:edit-post-case' case.id %}" class="govuk-link govuk-link--no-visited-state">
