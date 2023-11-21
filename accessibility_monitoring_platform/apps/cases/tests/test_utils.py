@@ -14,7 +14,7 @@ from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
-from ...audits.models import Audit
+from ...audits.models import Audit, Retest, RETEST_INITIAL_COMPLIANCE_COMPLIANT
 from ...common.models import Sector, SubCategory, BOOLEAN_TRUE
 
 from ..models import (
@@ -22,6 +22,7 @@ from ..models import (
     CaseCompliance,
     CaseEvent,
     Contact,
+    EqualityBodyCorrespondence,
     CASE_EVENT_TYPE_CREATE,
     CASE_EVENT_AUDITOR,
     CASE_EVENT_CREATE_AUDIT,
@@ -32,6 +33,7 @@ from ..models import (
     CASE_EVENT_CASE_COMPLETED,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_NO_SEND,
+    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
 )
 from ..utils import (
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
@@ -51,6 +53,9 @@ from ..utils import (
     record_case_event,
     build_edit_link_html,
     create_case_and_compliance,
+    get_post_case_alerts_count,
+    PostCaseAlert,
+    get_post_case_alerts,
 )
 
 ORGANISATION_NAME: str = "Organisation name one"
@@ -744,3 +749,84 @@ def test_create_case_and_compliance():
 
     assert case.organisation_name == ORGANISATION_NAME
     assert case.compliance.website_compliance_state_12_week == "compliant"
+
+
+@pytest.mark.django_db
+def test_get_post_case_alerts_count():
+    """Test counting unresolved correspondence and incomplate retests"""
+    user: User = User.objects.create()
+
+    assert get_post_case_alerts_count(user=user) == 0
+
+    case: Case = Case.objects.create(auditor=user)
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    assert get_post_case_alerts_count(user=user) == 1
+
+    equality_body_correspondence.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    equality_body_correspondence.save()
+
+    assert get_post_case_alerts_count(user=user) == 0
+
+    retest: Retest = Retest.objects.create(case=case)
+
+    assert get_post_case_alerts_count(user=user) == 1
+
+    retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    retest.save()
+
+    assert get_post_case_alerts_count(user=user) == 0
+
+
+@pytest.mark.django_db
+def test_get_post_case_alerts():
+    """Test returning unresolved correspondence and incomplate retests"""
+    user: User = User.objects.create()
+
+    assert len(get_post_case_alerts(user=user)) == 0
+
+    case: Case = Case.objects.create(auditor=user)
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    post_case_alerts: List[PostCaseAlert] = get_post_case_alerts(user=user)
+
+    assert len(post_case_alerts) == 1
+
+    post_case_alert: PostCaseAlert = post_case_alerts[0]
+
+    assert post_case_alert.date == equality_body_correspondence.created.date()
+    assert post_case_alert.case == case
+    assert post_case_alert.description == "Unresolved correspondence"
+    assert (
+        post_case_alert.absolute_url
+        == f"{equality_body_correspondence.get_absolute_url()}?view=unresolved"
+    )
+    assert post_case_alert.absolute_url_label == "View correspondence"
+
+    equality_body_correspondence.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    equality_body_correspondence.save()
+
+    assert len(get_post_case_alerts(user=user)) == 0
+
+    retest: Retest = Retest.objects.create(case=case)
+
+    post_case_alerts: List[PostCaseAlert] = get_post_case_alerts(user=user)
+
+    assert len(post_case_alerts) == 1
+
+    post_case_alert: PostCaseAlert = post_case_alerts[0]
+
+    assert post_case_alert.date == retest.date_of_retest
+    assert post_case_alert.case == case
+    assert post_case_alert.description == "Incomplete retest"
+    assert post_case_alert.absolute_url == retest.get_absolute_url()
+    assert post_case_alert.absolute_url_label == "View retest"
+
+    retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    retest.save()
+
+    assert len(get_post_case_alerts(user=user)) == 0

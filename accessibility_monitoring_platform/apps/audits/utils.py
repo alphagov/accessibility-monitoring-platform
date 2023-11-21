@@ -3,7 +3,7 @@ Utilities for audits app
 """
 
 from functools import partial
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Optional, Union
 from datetime import datetime
 
 from django.contrib.auth.models import User
@@ -35,6 +35,9 @@ from .models import (
     CheckResult,
     StatementCheck,
     StatementCheckResult,
+    Retest,
+    RetestPage,
+    RetestCheckResult,
     CHECK_RESULT_NOT_TESTED,
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
     ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
@@ -333,3 +336,68 @@ def report_data_updated(audit: Audit) -> None:
     now: datetime = timezone.now()
     audit.published_report_data_updated_time = now
     audit.save()
+
+
+def create_checkresults_for_retest(retest: Retest) -> None:
+    """
+    Create pages and checkresults for restest from outstanding issues of previous test.
+    """
+
+    audit: Audit = retest.case.audit
+    if retest.id_within_case == 1:
+        # Create fake retest from 12-week results for first retest to compare itself to
+        retest_0: Retest = Retest.objects.create(case=retest.case, id_within_case=0)
+        for page in audit.testable_pages:
+            if page.unfixed_check_results:
+                retest_page: RetestPage = RetestPage.objects.create(
+                    retest=retest_0, page=page
+                )
+                for check_result in page.unfixed_check_results:
+                    RetestCheckResult.objects.create(
+                        retest=retest_0,
+                        retest_page=retest_page,
+                        check_result=check_result,
+                        retest_state=check_result.retest_state,
+                        retest_notes=check_result.retest_notes,
+                    )
+
+    previous_retest: Retest = retest.case.retests.filter(
+        id_within_case=retest.id_within_case - 1
+    ).first()
+
+    for previous_retest_page in RetestPage.objects.filter(retest=previous_retest):
+        retest_page: RetestPage = RetestPage.objects.create(
+            retest=retest,
+            page=previous_retest_page.page,
+            missing_date=previous_retest_page.missing_date,
+        )
+        for previous_retest_check_result in previous_retest_page.unfixed_check_results:
+            RetestCheckResult.objects.create(
+                retest=retest,
+                retest_page=retest_page,
+                check_result=previous_retest_check_result.check_result,
+            )
+
+
+def get_next_equality_body_retest_page_url(
+    retest: Retest, current_page: Optional[RetestPage] = None
+) -> str:
+    """
+    Return the path of the next retest page to go to when a save and continue button is
+    pressed.
+    """
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_pages: List[RetestPage] = list(retest.retestpage_set.all())
+    if not retest_pages:
+        return reverse("audits:retest-comparison-update", kwargs=retest_pk)
+
+    if current_page is None:
+        next_page_pk: Dict[str, int] = {"pk": retest_pages[0].id}
+        return reverse("audits:edit-retest-page-checks", kwargs=next_page_pk)
+
+    if retest_pages[-1] == current_page:
+        return reverse("audits:retest-comparison-update", kwargs=retest_pk)
+
+    current_page_position: int = retest_pages.index(current_page)
+    next_page_pk: Dict[str, int] = {"pk": retest_pages[current_page_position + 1].id}
+    return reverse("audits:edit-retest-page-checks", kwargs=next_page_pk)

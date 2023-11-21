@@ -4,7 +4,14 @@ Admin for cases
 from django.contrib import admin
 
 from ..common.admin import ExportCsvMixin
-from .models import Case, CaseCompliance, CaseEvent, Contact, CLOSED_CASE_STATUSES
+from .models import (
+    Case,
+    CaseCompliance,
+    CaseEvent,
+    Contact,
+    EqualityBodyCorrespondence,
+    CLOSED_CASE_STATUSES,
+)
 
 
 class MetaStatusCaseListFilter(admin.SimpleListFilter):
@@ -86,7 +93,21 @@ class ContactAdmin(admin.ModelAdmin):
     autocomplete_fields = ["case"]
 
 
+class EqualityBodyCorrespondenceAdmin(admin.ModelAdmin):
+    """Django admin configuration for EqualityBodyCorrespondence model"""
+
+    search_fields = [
+        "message",
+        "notes",
+        "case__organisation_name",
+        "case__id",
+    ]
+    list_display = ["created", "case", "type", "status", "message"]
+    list_filter = ["type", "status"]
+
+
 admin.site.register(Case, CaseAdmin)
 admin.site.register(CaseCompliance, CaseComplianceAdmin)
 admin.site.register(CaseEvent, CaseEventAdmin)
 admin.site.register(Contact, ContactAdmin)
+admin.site.register(EqualityBodyCorrespondence, EqualityBodyCorrespondenceAdmin)

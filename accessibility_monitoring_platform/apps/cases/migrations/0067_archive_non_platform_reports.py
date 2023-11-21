@@ -788,6 +788,10 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
 
 class Migration(migrations.Migration):
     dependencies = [
+        (
+            "audits",
+            "0032_rename_access_requirements_notes_audit_archive_access_requirements_notes_and_more",
+        ),
         ("cases", "0066_remove_case_test_status_and_more"),
     ]
 

@@ -1,0 +1,22 @@
+<tbody class="govuk-table__body">
+    <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__header amp-width-one-third">WCAG Issue</th>
+        <th scope="row" class="govuk-table__header amp-width-one-third">{{ retest.previous_retest }}</th>
+        <th scope="row" class="govuk-table__header amp-width-one-third">{{ retest }}</th>
+    </tr>
+    {% for retest_check_result in retest_page.all_check_results %}
+        <tr class="govuk-table__row">
+            <td class="govuk-table__cell amp-width-one-third">
+                <label class="govuk-label">{{ retest_check_result.check_result.wcag_definition }}</label>
+            </td>
+            <td class="govuk-table__cell amp-width-one-third">
+                <label class="govuk-label">{{ retest_check_result.previous_retest_check_result.get_retest_state_display }}</label>
+                <div class="govuk-hint">{{ retest_check_result.previous_retest_check_result.retest_notes|markdown_to_html }}</div>
+            </td>
+            <td class="govuk-table__cell amp-width-one-third">
+                <label class="govuk-label">{{ retest_check_result.get_retest_state_display }}</label>
+                <div class="govuk-hint">{{ retest_check_result.retest_notes|markdown_to_html }}</div>
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>

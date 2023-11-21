@@ -308,7 +308,7 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
     assert case.status == "case-closed-sent-to-equalities-body"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to equality body summary"
+        admin_client, case=case, expected_link_label="Go to equality body metadata"
     )
 
 
@@ -334,7 +334,7 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
     assert case.status == "in-correspondence-with-equalities-body"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to equality body summary"
+        admin_client, case=case, expected_link_label="Go to equality body metadata"
     )
 
 
