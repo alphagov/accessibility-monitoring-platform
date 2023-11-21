@@ -1119,6 +1119,17 @@ class CaseRetestOverviewTemplateView(TemplateView):
         return context
 
 
+class CaseRetestCreateErrorTemplateView(TemplateView):
+    template_name: str = "cases/retest_create_error.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        return context
+
+
 class EqualityBodyRetestEmailTemplateView(TemplateView):
     template_name: str = "cases/emails/equality_body_retest_email.html"
 

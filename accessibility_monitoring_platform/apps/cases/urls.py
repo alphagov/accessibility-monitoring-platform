@@ -43,6 +43,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     EqualityBodyCorrespondenceCreateView,
     EqualityBodyRetestEmailTemplateView,
     PostCaseAlertsTemplateView,
+    CaseRetestCreateErrorTemplateView,
 )
 
 app_name: str = "cases"
@@ -197,6 +198,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/retest-overview/",
         login_required(CaseRetestOverviewTemplateView.as_view()),
         name="edit-retest-overview",
+    ),
+    path(
+        "<int:pk>/retest-create-error/",
+        login_required(CaseRetestCreateErrorTemplateView.as_view()),
+        name="retest-create-error",
     ),
     path(
         "<int:pk>/legacy-end-of-case/",

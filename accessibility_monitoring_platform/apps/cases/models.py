@@ -970,6 +970,10 @@ class Case(VersionModel):
         return self.retests.filter(retest_compliance_state="not-known")
 
     @property
+    def latest_retest(self):
+        return self.retests.first()
+
+    @property
     def equality_body_correspondences(self):
         return self.equalitybodycorrespondence_set.filter(is_deleted=False)
 

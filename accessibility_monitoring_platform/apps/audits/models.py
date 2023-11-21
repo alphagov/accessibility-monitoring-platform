@@ -1348,6 +1348,10 @@ class Retest(VersionModel):
         return str(f"Retest #{self.id_within_case}")
 
     @property
+    def is_incomplete(self) -> bool:
+        return self.retest_compliance_state == RETEST_INITIAL_COMPLIANCE_DEFAULT
+
+    @property
     def fixed_checks_count(self):
         """
         Add the numbers of checks fixed in the 12-week retest and all equality

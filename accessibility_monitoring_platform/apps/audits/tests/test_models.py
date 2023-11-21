@@ -42,6 +42,7 @@ from ..models import (
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_YES,
     Retest,
+    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
     RetestPage,
     RetestCheckResult,
 )
@@ -1185,6 +1186,19 @@ def test_fixed_checks_count_in_retests():
 
 
 @pytest.mark.django_db
+def test_retest_is_incomplete():
+    """Test retest compliance status is still default"""
+    audit: Audit = create_audit_and_check_results()
+    retest: Retest = Retest.objects.create(case=audit.case)
+
+    assert retest.is_incomplete is True
+
+    retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+
+    assert retest.is_incomplete is False
+
+
+@pytest.mark.django_db
 def test_returning_original_retest():
     """Test original retest contains the retest with id_within_case of 0"""
     case: Case = Case.objects.create()
@@ -1223,7 +1237,7 @@ def test_returning_latest_retest():
 
     retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
 
-    assert retest_2.latest_retest == retest_2
+    assert retest_1.latest_retest == retest_2
 
 
 @pytest.mark.django_db

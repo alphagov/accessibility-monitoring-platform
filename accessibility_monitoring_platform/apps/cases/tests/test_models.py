@@ -1153,6 +1153,22 @@ def test_case_retests_returns_undeleted_retests():
 
 
 @pytest.mark.django_db
+def test_case_latest_retest_returns_most_recent():
+    """Test Case.latest_retest returns most recent"""
+    case: Case = Case.objects.create()
+
+    assert case.latest_retest is None
+
+    first_retest: Retest = Retest.objects.create(case=case)
+
+    assert case.latest_retest == first_retest
+
+    second_retest: Retest = Retest.objects.create(case=case, id_within_case=2)
+
+    assert case.latest_retest == second_retest
+
+
+@pytest.mark.django_db
 def test_case_incomplete_retests_returns_incomplete_retests():
     """Test Case.incomplete_retests returns retests with the default state"""
     case: Case = Case.objects.create()
