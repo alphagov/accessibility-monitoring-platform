@@ -21,6 +21,8 @@ from ..models import (
     StatementCheck,
     StatementCheckResult,
     CHECK_RESULT_ERROR,
+    CHECK_RESULT_NO_ERROR,
+    RETEST_CHECK_RESULT_NOT_FIXED,
     PAGE_TYPE_HOME,
     PAGE_TYPE_CONTACT,
     PAGE_TYPE_STATEMENT,
@@ -31,6 +33,9 @@ from ..models import (
     TEST_TYPE_AXE,
     TEST_TYPE_MANUAL,
     MANDATORY_PAGE_TYPES,
+    Retest,
+    RetestPage,
+    RetestCheckResult,
 )
 from ..utils import (
     create_mandatory_pages_for_new_audit,
@@ -44,6 +49,8 @@ from ..utils import (
     get_test_view_tables_context,
     get_retest_view_tables_context,
     create_statement_checks_for_new_audit,
+    create_checkresults_for_retest,
+    get_next_equality_body_retest_page_url,
 )
 
 HOME_PAGE_URL: str = "https://example.com/home"
@@ -687,7 +694,7 @@ def test_other_page_failed_check_results():
     extra_page: Page = Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_EXTRA, url="https://example.com/extra"
     )
-    second_extra_page: Page = Page.objects.create(
+    Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_EXTRA, url="https://example.com/extra2"
     )
     wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
@@ -808,3 +815,132 @@ def test_create_statement_checks_for_new_audit():
         StatementCheckResult.objects.filter(audit=audit).count()
         == number_of_statement_checks
     )
+
+
+@pytest.mark.django_db
+def test_create_checkresults_for_retest():
+    """
+    Copy unfixed checks from 12-week retest to create a hidden retest with
+    id-in-case set to zero.
+
+    All subsequent retests are created by copying unfixed retests and
+    incrementing id-in-case.
+    """
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com"
+    )
+    unfixed_page_check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        check_result_state=CHECK_RESULT_ERROR,
+        retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        check_result_state=CHECK_RESULT_NO_ERROR,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert Retest.objects.all().count() == 0
+
+    retest_1: Retest = Retest.objects.create(case=case)
+
+    create_checkresults_for_retest(retest=retest_1)
+
+    assert Retest.objects.all().count() == 2
+
+    retest_0: Retest = Retest.objects.get(id_within_case=0)
+    retest_page_0: RetestPage = RetestPage.objects.get(retest=retest_0)
+
+    assert retest_page_0.page == page
+    assert RetestCheckResult.objects.filter(retest=retest_0).count() == 1
+
+    retest_checkresult_0: RetestCheckResult = RetestCheckResult.objects.get(
+        retest=retest_0
+    )
+
+    assert retest_checkresult_0.check_result == unfixed_page_check_result
+
+    retest_page_1: RetestPage = RetestPage.objects.get(retest=retest_1)
+
+    assert retest_page_1.page == page
+    assert RetestCheckResult.objects.filter(retest=retest_1).count() == 1
+
+    retest_checkresult_1: RetestCheckResult = RetestCheckResult.objects.get(
+        retest=retest_1
+    )
+
+    assert retest_checkresult_1.check_result == unfixed_page_check_result
+
+    retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
+
+    create_checkresults_for_retest(retest=retest_2)
+
+    assert Retest.objects.all().count() == 3
+
+    retest_2: Retest = Retest.objects.get(id_within_case=2)
+    retest_page_2: RetestPage = RetestPage.objects.get(retest=retest_2)
+
+    assert retest_page_2.page == page
+    assert RetestCheckResult.objects.filter(retest=retest_2).count() == 1
+
+    retest_checkresult_2: RetestCheckResult = RetestCheckResult.objects.get(
+        retest=retest_2
+    )
+
+    assert retest_checkresult_2.check_result == unfixed_page_check_result
+
+
+@pytest.mark.django_db
+def test_get_next_equality_body_retest_page_url_with_no_pages():
+    """
+    Test get_next_equality_body_retest_page_url returns url for retest comparison
+    update when retest has no retest pages.
+    """
+    case: Case = Case.objects.create()
+    retest: Retest = Retest.objects.create(case=case)
+    assert get_next_equality_body_retest_page_url(retest) == reverse(
+        "audits:retest-comparison-update", kwargs={"pk": retest.id}
+    )
+
+
+@pytest.mark.django_db
+def test_get_next_equality_body_retest_page_url_with_pages():
+    """
+    Test get_next_equality_body_retest_page_url returns urls for each retest page
+    in retest in in turn.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com"
+    )
+    retest: Retest = Retest.objects.create(case=case)
+
+    first_retest_page: RetestPage = RetestPage.objects.create(
+        retest=retest,
+        page=page,
+    )
+    last_retest_page: RetestPage = RetestPage.objects.create(
+        retest=retest,
+        page=page,
+    )
+
+    assert get_next_equality_body_retest_page_url(retest) == reverse(
+        "audits:edit-retest-page-checks", kwargs={"pk": first_retest_page.id}
+    )
+    assert get_next_equality_body_retest_page_url(
+        retest, current_page=first_retest_page
+    ) == reverse("audits:edit-retest-page-checks", kwargs={"pk": last_retest_page.id})
+    assert get_next_equality_body_retest_page_url(
+        retest, current_page=last_retest_page
+    ) == reverse("audits:retest-comparison-update", kwargs={"pk": retest.id})

@@ -42,7 +42,6 @@ const loggedInUrls = [
   '/cases/1/edit-case-close/',
   '/cases/1/edit-case-details/',
   '/cases/1/edit-contact-details/',
-  '/cases/1/edit-enforcement-body-correspondence/',
   '/cases/1/edit-no-psb-response/',
   '/cases/1/edit-post-case/',
   '/cases/1/edit-qa-process/',

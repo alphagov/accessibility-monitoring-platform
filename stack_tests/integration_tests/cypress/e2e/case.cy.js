@@ -126,33 +126,4 @@ describe('View case', () => {
     cy.contains('Case').click()
     cy.contains(recommendationNote)
   })
-
-  it('can edit equality body summary', () => {
-    cy.get('#edit-enforcement-body-correspondence').click()
-    cy.contains('Populate with today\'s date').click()
-    cy.get('[name="enforcement_body_pursuing"]').check('yes-completed')
-    cy.get('[name="enforcement_body_correspondence_notes"]').clear().type(equalityBodyCorrespondenceNote)
-    cy.get('[name="enforcement_correspondence_complete_date"]').click()
-    cy.contains('Save').click()
-    cy.contains('Case').click()
-    cy.contains(equalityBodyCorrespondenceNote)
-  })
-
-  it('can edit post case summary', () => {
-    cy.get('#edit-post-case').click()
-    cy.get('[name="post_case_notes"]').clear().type(postCaseNote)
-    cy.contains('Populate with today\'s date').click()
-    cy.get('[name="psb_appeal_notes"]').clear().type(psbAppealNote)
-    cy.get('[name="post_case_complete_date"]').click()
-    cy.contains('Save').click()
-    cy.contains('Case').click()
-    cy.contains(postCaseNote)
-    cy.contains(psbAppealNote)
-  })
-
-  it('can see status workflow page', () => {
-    cy.get('#edit-post-case').click()
-    cy.contains('View status workflow').click()
-    cy.title().should('eq', `${organisationName} | Status workflow`)
-  })
 })

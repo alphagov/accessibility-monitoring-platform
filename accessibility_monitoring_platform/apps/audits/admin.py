@@ -12,6 +12,9 @@ from .models import (
     WcagDefinition,
     StatementCheck,
     StatementCheckResult,
+    Retest,
+    RetestPage,
+    RetestCheckResult,
 )
 
 
@@ -25,7 +28,7 @@ class AuditAdmin(admin.ModelAdmin):
 class PageAdmin(admin.ModelAdmin):
     """Django admin configuration for Page model"""
 
-    search_fields = ["name", "url", "audit__case__organisation_name"]
+    search_fields = ["name", "url", "audit__case__organisation_name", "audit__case__id"]
     list_display = ["page_type", "audit", "name", "url"]
     list_filter = ["page_type"]
 
@@ -102,9 +105,52 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
     )
 
 
+class RetestAdmin(admin.ModelAdmin):
+    """Django admin configuration for Retest model"""
+
+    search_fields = [
+        "case__organisation_name",
+        "case__id",
+        "retest_notes",
+        "compliance_notes",
+    ]
+    list_display = ["__str__", "case", "retest_compliance_state", "is_deleted"]
+    list_filter = ["retest_compliance_state", "is_deleted"]
+
+
+class RetestPageAdmin(admin.ModelAdmin):
+    """Django admin configuration for RetestPage model"""
+
+    search_fields = ["page__name", "page__url", "retest__case__organisation_name"]
+    list_display = ["page", "retest", "missing_date"]
+    list_filter = ["page__page_type"]
+
+
+class RetestCheckResultAdmin(admin.ModelAdmin):
+    """Django admin configuration for RetestCheckResult model"""
+
+    search_fields = [
+        "check_result__wcag_definition__name",
+        "retest__case__organisation_name",
+        "retest_page__page__name",
+        "retest_page__page__url",
+    ]
+    list_display = [
+        "check_result",
+        "retest",
+        "retest_page",
+        "retest_state",
+    ]
+    list_filter = ["retest_state"]
+    readonly_fields = ["check_result", "retest_page", "retest"]
+
+
 admin.site.register(Audit, AuditAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(CheckResult, CheckResultAdmin)
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)
 admin.site.register(StatementCheck, StatementCheckAdmin)
 admin.site.register(StatementCheckResult, StatementCheckResultAdmin)
+admin.site.register(Retest, RetestAdmin)
+admin.site.register(RetestPage, RetestPageAdmin)
+admin.site.register(RetestCheckResult, RetestCheckResultAdmin)

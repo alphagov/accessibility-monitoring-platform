@@ -195,6 +195,14 @@ ENFORCEMENT_BODY_PURSUING_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS, "Yes, in progress"),
     (ENFORCEMENT_BODY_PURSUING_NO, "No"),
 ]
+ENFORCEMENT_BODY_CLOSED_NO: str = "no"
+ENFORCEMENT_BODY_CLOSED_IN_PROGRESS: str = "in-progress"
+ENFORCEMENT_BODY_CLOSED_YES: str = "yes"
+ENFORCEMENT_BODY_CLOSED_CHOICES: List[Tuple[str, str]] = [
+    (ENFORCEMENT_BODY_CLOSED_YES, "Yes"),
+    (ENFORCEMENT_BODY_CLOSED_IN_PROGRESS, "Case in progress"),
+    (ENFORCEMENT_BODY_CLOSED_NO, "No (or holding)"),
+]
 
 PREFERRED_DEFAULT: str = "unknown"
 PREFERRED_CHOICES: List[Tuple[str, str]] = [
@@ -256,6 +264,26 @@ COMPLIANCE_FIELDS: List[str] = [
     "statement_compliance_notes_12_week",
 ]
 
+EQUALITY_BODY_CORRESPONDENCE_QUESTION: str = "question"
+EQUALITY_BODY_CORRESPONDENCE_RETEST: str = "retest"
+EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (EQUALITY_BODY_CORRESPONDENCE_QUESTION, "Question"),
+    (EQUALITY_BODY_CORRESPONDENCE_RETEST, "Retest request"),
+]
+EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED: str = "outstanding"
+EQUALITY_BODY_CORRESPONDENCE_RESOLVED: str = "resolved"
+EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES: List[Tuple[str, str]] = [
+    (EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED, "Unresolved"),
+    (EQUALITY_BODY_CORRESPONDENCE_RESOLVED, "Resolved"),
+]
+CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE: str = "close-case"
+CASE_VARIANT_CHOICES: List[Tuple[str, str]] = [
+    (CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE, "Equality Body Close Case"),
+    ("statement-content", "Statement content yes/no"),
+    ("reporting", "Platform reports"),
+    ("archived", "Archived"),
+]
+
 
 class Case(VersionModel):
     """
@@ -271,6 +299,11 @@ class Case(VersionModel):
         null=True,
     )
     updated = models.DateTimeField(null=True, blank=True)
+    variant = models.CharField(
+        max_length=20,
+        choices=CASE_VARIANT_CHOICES,
+        default=CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE,
+    )
 
     # Case details page
     created = models.DateTimeField(blank=True)
@@ -429,26 +462,34 @@ class Case(VersionModel):
     completed_date = models.DateTimeField(null=True, blank=True)
     case_close_complete_date = models.DateField(null=True, blank=True)
 
-    # Post case
+    # Post case/Statement enforcement
     psb_appeal_notes = models.TextField(default="", blank=True)
     post_case_notes = models.TextField(default="", blank=True)
     post_case_complete_date = models.DateField(null=True, blank=True)
 
     # Equality body pursuit page
     case_updated_date = models.DateField(null=True, blank=True)
-    sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
     enforcement_body_pursuing = models.CharField(
         max_length=20,
         choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
         default=ENFORCEMENT_BODY_PURSUING_NO,
     )
-    enforcement_body_finished_date = models.DateField(null=True, blank=True)
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_retest_document_url = models.TextField(default="", blank=True)
     is_feedback_requested = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
+
+    # Equality body metadata
+    sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
+    enforcement_body_case_owner = models.TextField(default="", blank=True)
+    enforcement_body_closed_case = models.CharField(
+        max_length=20,
+        choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
+        default=ENFORCEMENT_BODY_CLOSED_NO,
+    )
+    enforcement_body_finished_date = models.DateField(null=True, blank=True)
 
     # Deactivate case page
     is_deactivated = models.BooleanField(default=False)
@@ -554,10 +595,12 @@ class Case(VersionModel):
         elif (
             self.case_completed == CASE_COMPLETED_NO_SEND
             or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
+            or self.enforcement_body_closed_case == ENFORCEMENT_BODY_CLOSED_YES
         ):
             return "complete"
         elif (
             self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS
+            or self.enforcement_body_closed_case == ENFORCEMENT_BODY_CLOSED_IN_PROGRESS
         ):
             return "in-correspondence-with-equalities-body"
         elif self.sent_to_enforcement_body_sent_date is not None:
@@ -918,6 +961,48 @@ class Case(VersionModel):
             return None
         return archive["sections"] if "sections" in archive else None
 
+    @property
+    def retests(self):
+        return self.retest_set.filter(is_deleted=False)
+
+    @property
+    def incomplete_retests(self):
+        return self.retests.filter(retest_compliance_state="not-known")
+
+    @property
+    def latest_retest(self):
+        return self.retests.first()
+
+    @property
+    def equality_body_correspondences(self):
+        return self.equalitybodycorrespondence_set.filter(is_deleted=False)
+
+    @property
+    def equality_body_questions(self):
+        return self.equality_body_correspondences.filter(
+            type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+        )
+
+    @property
+    def equality_body_questions_unresolved(self):
+        return self.equality_body_correspondences.filter(
+            type=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+            status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+        )
+
+    @property
+    def equality_body_correspondence_retests(self):
+        return self.equality_body_correspondences.filter(
+            type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+        )
+
+    @property
+    def equality_body_correspondence_retests_unresolved(self):
+        return self.equality_body_correspondences.filter(
+            type=EQUALITY_BODY_CORRESPONDENCE_RETEST,
+            status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+        )
+
 
 class CaseCompliance(VersionModel):
     """
@@ -974,7 +1059,6 @@ class Contact(models.Model):
         max_length=20, choices=PREFERRED_CHOICES, default=PREFERRED_DEFAULT
     )
     created = models.DateTimeField()
-    created_by = models.CharField(max_length=200, default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
 
@@ -1016,3 +1100,48 @@ class CaseEvent(models.Model):
 
     def __str__(self) -> str:
         return str(f"{self.case.organisation_name}: {self.message}")
+
+
+class EqualityBodyCorrespondence(models.Model):
+    """
+    Model for cases equality body correspondence
+    """
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=1, blank=True)
+    type = models.CharField(
+        max_length=20,
+        choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
+        default=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+    )
+    message = models.TextField(default="", blank=True)
+    notes = models.TextField(default="", blank=True)
+    zendesk_url = models.TextField(default="", blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES,
+        default=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+    )
+    created = models.DateTimeField()
+    updated = models.DateTimeField()
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return str(f"Equality body correspondence #{self.id_within_case}")
+
+    def get_absolute_url(self) -> str:
+        return reverse(
+            "cases:list-equality-body-correspondence", kwargs={"pk": self.case.id}
+        )
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        if not self.id:
+            self.created = timezone.now()
+            self.id_within_case = (
+                self.case.equalitybodycorrespondence_set.all().count() + 1
+            )
+        super().save(*args, **kwargs)
