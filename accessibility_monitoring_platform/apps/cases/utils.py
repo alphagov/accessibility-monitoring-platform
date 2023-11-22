@@ -528,6 +528,10 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
         filters["qa_status"] = STATUS_READY_TO_QA
         del filters["status"]
 
+    if "status" in filters:
+        filters["status__status"] = filters["status"]
+        del filters["status"]
+
     # Auditor and reviewer may be filtered by unassigned
     if "auditor_id" in filters and filters["auditor_id"] == "none":
         filters["auditor_id"] = None
