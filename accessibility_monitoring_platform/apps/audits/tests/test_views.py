@@ -838,7 +838,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     )
     case.compliance.save()
 
-    assert audit.case.status == "test-in-progress"
+    assert audit.case.status.status == "test-in-progress"
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-statement-overview", kwargs=audit_pk),
@@ -861,7 +861,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     assert response.status_code == 302
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
-    assert audit_from_db.case.status == "report-in-progress"
+    assert audit_from_db.case.status.status == "report-in-progress"
 
 
 def test_retest_date_change_creates_case_event(admin_client):

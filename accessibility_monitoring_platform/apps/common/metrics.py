@@ -326,7 +326,7 @@ def get_policy_total_metrics() -> List[TotalMetric]:
         ),
         TotalMetric(
             label="Total cases closed",
-            total=Case.objects.filter(status__in=CLOSED_CASE_STATUSES).count(),
+            total=Case.objects.filter(status__status__in=CLOSED_CASE_STATUSES).count(),
         ),
         TotalMetric(
             label="Total number of accessibility issues found",

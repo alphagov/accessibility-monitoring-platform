@@ -27,6 +27,7 @@ from ....audits.models import (
 from ....cases.models import (
     Case,
     CaseCompliance,
+    CaseStatus,
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
@@ -91,6 +92,7 @@ class Command(BaseCommand):
                 WcagDefinition,
                 UserCacheUniqueHash,
                 CaseCompliance,
+                CaseStatus,
             ]
         )
         delete_from_tables(
