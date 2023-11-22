@@ -309,17 +309,18 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-
+        audit: Audit = self.object
         retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = context[
             "retest_statement_check_results_formset"
         ]
-        if retest_statement_check_results_formset.is_valid():
-            for (
-                retest_statement_check_results_form
-            ) in retest_statement_check_results_formset.forms:
-                retest_statement_check_results_form.save()
-        else:
-            return super().form_invalid(form)
+        if audit.twelve_week_accessibility_statement_found:
+            if retest_statement_check_results_formset.is_valid():
+                for (
+                    retest_statement_check_results_form
+                ) in retest_statement_check_results_formset.forms:
+                    retest_statement_check_results_form.save()
+            else:
+                return super().form_invalid(form)
 
         return super().form_valid(form)
 
