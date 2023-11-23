@@ -6,7 +6,6 @@
       "version": 4,
       "created_by": 2,
       "created": "2022-09-02T14:36:27.869Z",
-      "status": "test-in-progress",
       "auditor": 1,
       "test_type": "simplified",
       "home_page_url": "https://example.com",
@@ -93,6 +92,14 @@
       "website_compliance_notes_12_week": "",
       "statement_compliance_state_12_week": "unknown",
       "statement_compliance_notes_12_week": ""
+    }
+  },
+  {
+    "model": "cases.casestatus",
+    "pk": 1,
+    "fields": {
+      "case_id": 1,
+      "status": "test-in-progress"
     }
   }
 ]

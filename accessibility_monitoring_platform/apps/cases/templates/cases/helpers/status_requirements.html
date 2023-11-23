@@ -8,7 +8,7 @@
 </p>
 <h2 class="govuk-heading-m amp-margin-bottom-5">Case status</h2>
 <ul class="govuk-list">
-    <li>{{ case.get_status_display }}</li>
+    <li>{{ case.status.get_status_display }}</li>
     <li>
         <a href="{% url 'cases:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
             View status workflow

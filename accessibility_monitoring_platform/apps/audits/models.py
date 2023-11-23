@@ -575,6 +575,7 @@ class Audit(VersionModel):
     archive_audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking overview
+    statement_extra_report_text = models.TextField(default="", blank=True)
     audit_statement_overview_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking website

@@ -388,7 +388,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object
-        audit.case.save()  # Save case to recalculate Case.status
+        audit.case.status.calculate_and_save_status()
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": audit.id}
             if audit.all_overview_statement_checks_have_passed:

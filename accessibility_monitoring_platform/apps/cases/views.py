@@ -191,7 +191,7 @@ class CaseDetailView(DetailView):
                 value=case.created,
                 type=FieldLabelAndValue.DATE_TYPE,
             ),
-            FieldLabelAndValue(label="Status", value=case.get_status_display()),
+            FieldLabelAndValue(label="Status", value=case.status.get_status_display()),
         ]
 
         get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
@@ -342,6 +342,7 @@ class CaseUpdateView(UpdateView):
             user: User = self.request.user
             record_model_update_event(user=user, model_object=self.object)
             old_case: Case = Case.objects.get(pk=self.object.id)
+            old_status: str = old_case.status
             record_case_event(user=user, new_case=self.object, old_case=old_case)
 
             if "home_page_url" in form.changed_data:
@@ -349,12 +350,12 @@ class CaseUpdateView(UpdateView):
 
             self.object.save()
 
-            if old_case.status != self.object.status:
+            if old_status.status != self.object.status.status:
                 messages.add_message(
                     self.request,
                     messages.INFO,
-                    f"Status changed from '{old_case.get_status_display()}'"
-                    f" to '{self.object.get_status_display()}'",
+                    f"Status changed from '{old_status.get_status_display()}'"
+                    f" to '{self.object.status.get_status_display()}'",
                 )
         return HttpResponseRedirect(self.get_success_url())
 

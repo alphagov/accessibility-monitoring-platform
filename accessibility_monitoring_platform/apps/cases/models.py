@@ -307,9 +307,6 @@ class Case(VersionModel):
 
     # Case details page
     created = models.DateTimeField(blank=True)
-    status = models.CharField(
-        max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
-    )
     auditor = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -518,12 +515,14 @@ class Case(VersionModel):
             self.domain = extract_domain_from_url(self.home_page_url)
         if self.case_completed != DEFAULT_CASE_COMPLETED and not self.completed_date:
             self.completed_date = now
-        self.status = self.calculate_status()
         self.qa_status = self.calulate_qa_status()
         self.updated = now
         super().save(*args, **kwargs)
         if new_case:
             CaseCompliance.objects.create(case=self)
+            CaseStatus.objects.create(case=self)
+        else:
+            self.status.calculate_and_save_status()
 
     @property
     def formatted_home_page_url(self) -> str:
@@ -546,7 +545,7 @@ class Case(VersionModel):
 
     @property
     def next_action_due_date(self) -> Optional[date]:
-        if self.status == "in-report-correspondence":
+        if self.status.status == "in-report-correspondence":
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date
             elif self.report_followup_week_4_sent_date is None:
@@ -557,10 +556,10 @@ class Case(VersionModel):
                 "Case is in-report-correspondence but neither sent date is set"
             )
 
-        if self.status == "in-probation-period":
+        if self.status.status == "in-probation-period":
             return self.report_followup_week_12_due_date
 
-        if self.status == "in-12-week-correspondence":
+        if self.status.status == "in-12-week-correspondence":
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
             return self.twelve_week_1_week_chaser_sent_date + timedelta(days=5)
@@ -583,81 +582,6 @@ class Case(VersionModel):
     @property
     def qa_comments(self):
         return self.comment_case.filter(hidden=False).order_by("-created_date")
-
-    def calculate_status(self) -> str:  # noqa: C901
-        try:
-            compliance: CaseCompliance = self.compliance
-        except CaseCompliance.DoesNotExist:
-            compliance = None
-
-        if self.is_deactivated:
-            return STATUS_DEACTIVATED
-        elif (
-            self.case_completed == CASE_COMPLETED_NO_SEND
-            or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
-            or self.enforcement_body_closed_case == ENFORCEMENT_BODY_CLOSED_YES
-        ):
-            return "complete"
-        elif (
-            self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS
-            or self.enforcement_body_closed_case == ENFORCEMENT_BODY_CLOSED_IN_PROGRESS
-        ):
-            return "in-correspondence-with-equalities-body"
-        elif self.sent_to_enforcement_body_sent_date is not None:
-            return "case-closed-sent-to-equalities-body"
-        elif self.case_completed == "complete-send":
-            return "case-closed-waiting-to-be-sent"
-        elif self.no_psb_contact == "yes":
-            return "final-decision-due"
-        elif self.auditor is None:
-            return "unassigned-case"
-        elif (
-            compliance is None
-            or self.compliance.website_compliance_state_initial
-            == WEBSITE_COMPLIANCE_STATE_DEFAULT
-            or self.statement_checks_still_initial
-        ):
-            return "test-in-progress"
-        elif (
-            self.compliance.website_compliance_state_initial
-            != WEBSITE_COMPLIANCE_STATE_DEFAULT
-            and not self.statement_checks_still_initial
-            and self.report_review_status != BOOLEAN_TRUE
-        ):
-            return "report-in-progress"
-        elif (
-            self.report_review_status == BOOLEAN_TRUE
-            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
-        ):
-            return STATUS_QA_IN_PROGRESS
-        elif (
-            self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
-            and self.report_sent_date is None
-        ):
-            return "report-ready-to-send"
-        elif self.report_sent_date and self.report_acknowledged_date is None:
-            return "in-report-correspondence"
-        elif (
-            self.report_acknowledged_date
-            and self.twelve_week_update_requested_date is None
-        ):
-            return "in-probation-period"
-        elif self.twelve_week_update_requested_date and (
-            self.twelve_week_correspondence_acknowledged_date is None
-            and self.twelve_week_response_state == TWELVE_WEEK_RESPONSE_DEFAULT
-        ):
-            return "in-12-week-correspondence"
-        elif (
-            self.twelve_week_correspondence_acknowledged_date
-            or self.twelve_week_response_state != TWELVE_WEEK_RESPONSE_DEFAULT
-        ) and self.is_ready_for_final_decision == BOOLEAN_FALSE:
-            return "reviewing-changes"
-        elif (
-            self.is_ready_for_final_decision == BOOLEAN_TRUE
-            and self.case_completed == DEFAULT_CASE_COMPLETED
-        ):
-            return "final-decision-due"
-        return "unknown"
 
     def calulate_qa_status(self) -> str:
         if (
@@ -1002,6 +926,106 @@ class Case(VersionModel):
             type=EQUALITY_BODY_CORRESPONDENCE_RETEST,
             status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
         )
+
+
+class CaseStatus(models.Model):
+    """
+    Model for case status
+    """
+
+    case = models.OneToOneField(Case, on_delete=models.PROTECT, related_name="status")
+    status = models.CharField(
+        max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
+    )
+
+    def save(self, *args, **kwargs) -> None:
+        self.status = self.calculate_status()
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return self.status
+
+    def calculate_and_save_status(self) -> None:
+        self.status = self.calculate_status()
+        self.save()
+
+    def calculate_status(self) -> str:  # noqa: C901
+        try:
+            compliance: CaseCompliance = self.case.compliance
+        except CaseCompliance.DoesNotExist:
+            compliance = None
+
+        if self.case.is_deactivated:
+            return STATUS_DEACTIVATED
+        elif (
+            self.case.case_completed == CASE_COMPLETED_NO_SEND
+            or self.case.enforcement_body_pursuing
+            == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
+            or self.case.enforcement_body_closed_case == ENFORCEMENT_BODY_CLOSED_YES
+        ):
+            return "complete"
+        elif (
+            self.case.enforcement_body_pursuing
+            == ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS
+            or self.case.enforcement_body_closed_case
+            == ENFORCEMENT_BODY_CLOSED_IN_PROGRESS
+        ):
+            return "in-correspondence-with-equalities-body"
+        elif self.case.sent_to_enforcement_body_sent_date is not None:
+            return "case-closed-sent-to-equalities-body"
+        elif self.case.case_completed == "complete-send":
+            return "case-closed-waiting-to-be-sent"
+        elif self.case.no_psb_contact == "yes":
+            return "final-decision-due"
+        elif self.case.auditor is None:
+            return "unassigned-case"
+        elif (
+            compliance is None
+            or self.case.compliance.website_compliance_state_initial
+            == WEBSITE_COMPLIANCE_STATE_DEFAULT
+            or self.case.statement_checks_still_initial
+        ):
+            return "test-in-progress"
+        elif (
+            self.case.compliance.website_compliance_state_initial
+            != WEBSITE_COMPLIANCE_STATE_DEFAULT
+            and not self.case.statement_checks_still_initial
+            and self.case.report_review_status != BOOLEAN_TRUE
+        ):
+            return "report-in-progress"
+        elif (
+            self.case.report_review_status == BOOLEAN_TRUE
+            and self.case.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
+        ):
+            return STATUS_QA_IN_PROGRESS
+        elif (
+            self.case.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            and self.case.report_sent_date is None
+        ):
+            return "report-ready-to-send"
+        elif self.case.report_sent_date and self.case.report_acknowledged_date is None:
+            return "in-report-correspondence"
+        elif (
+            self.case.report_acknowledged_date
+            and self.case.twelve_week_update_requested_date is None
+        ):
+            return "in-probation-period"
+        elif self.case.twelve_week_update_requested_date and (
+            self.case.twelve_week_correspondence_acknowledged_date is None
+            and self.case.twelve_week_response_state == TWELVE_WEEK_RESPONSE_DEFAULT
+        ):
+            return "in-12-week-correspondence"
+        elif (
+            self.case.twelve_week_correspondence_acknowledged_date
+            or self.case.twelve_week_response_state != TWELVE_WEEK_RESPONSE_DEFAULT
+        ) and self.case.is_ready_for_final_decision == BOOLEAN_FALSE:
+            return "reviewing-changes"
+        elif (
+            self.case.is_ready_for_final_decision == BOOLEAN_TRUE
+            and self.case.case_completed == DEFAULT_CASE_COMPLETED
+        ):
+            return "final-decision-due"
+        return "unknown"
 
 
 class CaseCompliance(VersionModel):
