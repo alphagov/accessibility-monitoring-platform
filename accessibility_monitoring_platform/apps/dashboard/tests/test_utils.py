@@ -1,5 +1,5 @@
 """Test dashboard utility functions"""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Union
 
@@ -29,7 +29,7 @@ class MockCase:
     """Mock of case for testing"""
 
     id: int
-    status: MockCaseStatus = MockCaseStatus(status="unknown")
+    status: MockCaseStatus = field(default_factory=MockCaseStatus)
     qa_status: str = "unknown"
     report_sent_date: Union[date, None] = None
     report_followup_week_12_due_date: Union[date, None] = None
