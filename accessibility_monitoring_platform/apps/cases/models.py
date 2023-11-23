@@ -520,8 +520,7 @@ class Case(VersionModel):
         super().save(*args, **kwargs)
         if new_case:
             CaseCompliance.objects.create(case=self)
-            status: CaseStatus = CaseStatus.objects.create(case=self)
-            status.calculate_and_save_status()
+            CaseStatus.objects.create(case=self)
         else:
             self.status.calculate_and_save_status()
 
@@ -938,6 +937,10 @@ class CaseStatus(models.Model):
     status = models.CharField(
         max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
     )
+
+    def save(self, *args, **kwargs) -> None:
+        self.status = self.calculate_status()
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.status
