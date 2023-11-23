@@ -257,6 +257,7 @@ def test_formatted_home_page_url(url, expected_formatted_url):
     assert case.formatted_home_page_url == expected_formatted_url
 
 
+@pytest.mark.django_db
 def test_next_action_due_date_for_in_report_correspondence():
     """
     Check that the next_action_due_date is correctly calculated
@@ -267,14 +268,14 @@ def test_next_action_due_date_for_in_report_correspondence():
     report_followup_week_4_due_date: date = date(2020, 1, 4)
     report_followup_week_12_due_date: date = date(2020, 1, 12)
 
-    case: Case = Case(
-        status="in-report-correspondence",
+    case: Case = Case.objects.create(
         report_followup_week_1_sent_date=any_old_date,
         report_followup_week_4_sent_date=any_old_date,
         report_followup_week_1_due_date=report_followup_week_1_due_date,
         report_followup_week_4_due_date=report_followup_week_4_due_date,
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
+    case.status.status = "in-report-correspondence"
 
     case.report_followup_week_4_sent_date = None
     assert case.next_action_due_date == report_followup_week_4_due_date
@@ -283,6 +284,7 @@ def test_next_action_due_date_for_in_report_correspondence():
     assert case.next_action_due_date == report_followup_week_1_due_date
 
 
+@pytest.mark.django_db
 def test_next_action_due_date_for_in_probation_period():
     """
     Check that the next_action_due_date is correctly calculated
@@ -290,13 +292,15 @@ def test_next_action_due_date_for_in_probation_period():
     """
     report_followup_week_12_due_date: date = date(2020, 1, 12)
 
-    case: Case = Case(
-        status="in-probation-period",
+    case: Case = Case.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
+    case.status.status = "in-probation-period"
+
     assert case.next_action_due_date == report_followup_week_12_due_date
 
 
+@pytest.mark.django_db
 def test_next_action_due_date_for_in_12_week_correspondence():
     """
     Check that the next_action_due_date is correctly calculated
@@ -304,10 +308,10 @@ def test_next_action_due_date_for_in_12_week_correspondence():
     """
     twelve_week_1_week_chaser_due_date: date = date(2020, 1, 1)
 
-    case: Case = Case(
-        status="in-12-week-correspondence",
+    case: Case = Case.objects.create(
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
+    case.status.status = "in-12-week-correspondence"
 
     assert case.next_action_due_date == twelve_week_1_week_chaser_due_date
 
@@ -334,6 +338,7 @@ def test_next_action_due_date_for_in_12_week_correspondence():
         "complete",
     ],
 )
+@pytest.mark.django_db
 def test_next_action_due_date_not_set(status):
     """
     Check that the next_action_due_date is correctly calculated
@@ -342,11 +347,12 @@ def test_next_action_due_date_not_set(status):
     twelve_week_1_week_chaser_due_date: date = date(2020, 1, 1)
     report_followup_week_12_due_date: date = date(2020, 1, 12)
 
-    case: Case = Case(
-        status=status,
+    case: Case = Case.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
+    case.status.status = status
+
     assert case.next_action_due_date == date(1970, 1, 1)
 
 
@@ -358,12 +364,14 @@ def test_next_action_due_date_not_set(status):
         (date.today() + timedelta(days=1), "future"),
     ],
 )
+@pytest.mark.django_db
 def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_tense):
     """Check that the calculated next_action_due_date is correctly reported"""
-    case: Case = Case(
-        status="in-probation-period",
+    case: Case = Case.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
+    case.status.status = "in-probation-period"
+
     assert case.next_action_due_date_tense == expected_tense
 
 

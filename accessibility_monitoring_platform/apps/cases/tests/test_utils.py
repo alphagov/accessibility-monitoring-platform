@@ -154,6 +154,18 @@ def test_case_filtered_by_search_string():
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
 
 
+@pytest.mark.django_db
+def test_case_filtered_by_status():
+    """Test that filtering cases by status is reflected in the queryset"""
+    Case.objects.create(organisation_name=ORGANISATION_NAME)
+    form: MockForm = MockForm(cleaned_data={"status": "unassigned-case"})
+
+    filtered_cases: List[Case] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
 @pytest.mark.parametrize(
     "is_complaint_filter, expected_number, expected_name",
     [

@@ -39,18 +39,18 @@
                                 </a>
                             </td>
                             <td class="govuk-table__cell amp-width-one-quarter">
-                                {{ overdue_case.get_status_display }}
+                                {{ overdue_case.status.get_status_display }}
                             </td>
                             <td class="govuk-table__cell amp-width-one-quarter">
-                                {% if overdue_case.status == "in-report-correspondence" %}
+                                {% if overdue_case.status.status == "in-report-correspondence" %}
                                     <a href="{% url 'cases:edit-report-correspondence' overdue_case.id %}" class="govuk-link govuk-link--no-visited-state">
                                         {{ overdue_case.in_report_correspondence_progress }}
                                     </a>
-                                {% elif overdue_case.status == "in-probation-period" %}
+                                {% elif overdue_case.status.status == "in-probation-period" %}
                                     <a href="{% url 'cases:edit-twelve-week-correspondence' overdue_case.id %}" class="govuk-link govuk-link--no-visited-state">
                                         Overdue
                                     </a>
-                                {% elif overdue_case.status == "in-12-week-correspondence" %}
+                                {% elif overdue_case.status.status == "in-12-week-correspondence" %}
                                     <a href="{% url 'cases:edit-twelve-week-correspondence' overdue_case.id %}" class="govuk-link govuk-link--no-visited-state">
                                         {{ overdue_case.twelve_week_correspondence_progress }}
                                     </a>

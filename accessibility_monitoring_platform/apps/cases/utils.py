@@ -524,8 +524,12 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             if filter_value != NO_FILTER:
                 filters[filter_name] = filter_value
 
-    if filters.get("status", "") == STATUS_READY_TO_QA:
+    if str(filters.get("status", "")) == STATUS_READY_TO_QA:
         filters["qa_status"] = STATUS_READY_TO_QA
+        del filters["status"]
+
+    if "status" in filters:
+        filters["status__status"] = filters["status"]
         del filters["status"]
 
     # Auditor and reviewer may be filtered by unassigned
@@ -539,7 +543,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             Case.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
-                    When(status=STATUS_UNASSIGNED, then=0), default=1
+                    When(status__status=STATUS_UNASSIGNED, then=0), default=1
                 )
             )
             .order_by("position_unassigned_first", "-id")
@@ -679,7 +683,11 @@ def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpRe
         contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
         row = []
         for column in CASE_COLUMNS_FOR_EXPORT:
-            if column.field_name in COMPLIANCE_FIELDS:
+            if column.field_name == "status":
+                row.append(
+                    format_model_field(model_instance=case.status, column=column)
+                )
+            elif column.field_name in COMPLIANCE_FIELDS:
                 row.append(
                     format_model_field(model_instance=case.compliance, column=column)
                 )

@@ -51,14 +51,14 @@ class DashboardView(TemplateView):
             case
             for case in all_cases
             if (
-                case.status != "complete"
-                and case.status != "case-closed-sent-to-equalities-body"
-                and case.status != "deleted"
-                and case.status != "deactivated"
+                case.status.status != "complete"
+                and case.status.status != "case-closed-sent-to-equalities-body"
+                and case.status.status != "deleted"
+                and case.status.status != "deactivated"
             )
         ]
         unassigned_cases: List[Case] = sorted(
-            [case for case in all_cases if case.status == "unassigned-case"],
+            [case for case in all_cases if case.status.status == "unassigned-case"],
             key=lambda case: (case.created),  # type: ignore
         )
         cases_by_status["unassigned_cases"] = unassigned_cases
