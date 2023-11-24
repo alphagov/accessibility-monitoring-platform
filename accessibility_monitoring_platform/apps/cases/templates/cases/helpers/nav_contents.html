@@ -21,8 +21,15 @@
         </ul>
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
         <ul class="govuk-list">
-            {% include './nav_content.html' with id='enforcement-body-correspondence' edit_name='cases:edit-enforcement-body-correspondence' name='Equality body summary' complete=case.enforcement_correspondence_complete_date %}
-            {% include './nav_content.html' with id='post-case' edit_name='cases:edit-post-case' name='Post case summary' complete=case.post_case_complete_date %}
+            {% if case.variant == 'close-case' %}
+                {% include './nav_content.html' with id='statement-enforcement' edit_name='cases:edit-statement-enforcement' name='Statement enforcement' %}
+                {% include './nav_content.html' with id='equality-body-metadata' edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
+                {% include './nav_content.html' with id='equality-body-correspondence' edit_name='cases:list-equality-body-correspondence' name='Equality body correspondence' %}
+                {% include './nav_content.html' with id='retest-overview' edit_name='cases:edit-retest-overview' name='Retest overview' %}
+            {% else %}
+                {% include './nav_content.html' with id='equality-body-metadata' edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
+                {% include './nav_content.html' with id='legacy-end-of-case' edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
+            {% endif %}
         </ul>
         {% include 'common/frequently_used_links.html' %}
     </div>

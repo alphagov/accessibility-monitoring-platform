@@ -1,9 +1,9 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <p class="govuk-body-m">
-            <b>Post case summary</b>
+            <b>Equality body metadata</b>
             |
-            <a href="{% url 'cases:edit-post-case' case.id %}"
+            <a href="{% url 'cases:edit-equality-body-metadata' case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
                 Edit
@@ -13,7 +13,7 @@
 </div>
 <table class="govuk-table amp-accordion-table">
     <tbody class="govuk-table__body">
-        {% for row in post_case_rows %}
+        {% for row in equality_body_metadata_rows %}
             {% include 'cases/helpers/detail_row.html' with row=row %}
         {% endfor %}
     </tbody>

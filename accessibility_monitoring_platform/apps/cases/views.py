@@ -5,7 +5,6 @@ from datetime import date, timedelta
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Type, Union
 
-from django import forms
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -23,7 +22,10 @@ from ..audits.forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
 )
+from ..audits.models import Retest, RETEST_INITIAL_COMPLIANCE_DEFAULT
 from ..audits.utils import get_test_view_tables_context, get_retest_view_tables_context
+
+from ..cases.utils import get_post_case_alerts
 
 from ..notifications.utils import add_notification, read_notification
 
@@ -52,9 +54,12 @@ from ..common.utils import amp_format_date
 from ..reports.utils import build_issues_tables
 from .models import (
     Case,
-    CaseCompliance,
     Contact,
+    EqualityBodyCorrespondence,
     REPORT_APPROVED_STATUS_APPROVED,
+    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
+    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+    CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE,
 )
 from .forms import (
     CaseCreateForm,
@@ -77,6 +82,10 @@ from .forms import (
     PostCaseUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
     CaseDeactivateForm,
+    CaseStatementEnforcementUpdateForm,
+    CaseEqualityBodyMetadataUpdateForm,
+    ListCaseEqualityBodyCorrespondenceUpdateForm,
+    EqualityBodyCorrespondenceCreateForm,
 )
 from .utils import (
     get_sent_date,
@@ -182,7 +191,7 @@ class CaseDetailView(DetailView):
                 value=case.created,
                 type=FieldLabelAndValue.DATE_TYPE,
             ),
-            FieldLabelAndValue(label="Status", value=case.get_status_display()),
+            FieldLabelAndValue(label="Status", value=case.status.get_status_display()),
         ]
 
         get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
@@ -201,10 +210,20 @@ class CaseDetailView(DetailView):
             form=CaseReviewChangesUpdateForm()
         )
         context["case_close_rows"] = get_case_rows(form=CaseCloseUpdateForm())
-        context["post_case_rows"] = get_case_rows(form=PostCaseUpdateForm())
         context["enforcement_body_correspondence_rows"] = get_case_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()
         )
+        context["equality_body_metadata_rows"] = get_case_rows(
+            form=CaseEqualityBodyMetadataUpdateForm()
+        )
+        if case.variant in ["archived", "reporting", "statement-content"]:
+            context["legacy_end_of_case_rows"] = get_case_rows(
+                form=PostCaseUpdateForm()
+            )
+        else:
+            context["statement_enforcement_rows"] = get_case_rows(
+                form=CaseStatementEnforcementUpdateForm()
+            )
 
         if case.audit:
             return {
@@ -323,6 +342,7 @@ class CaseUpdateView(UpdateView):
             user: User = self.request.user
             record_model_update_event(user=user, model_object=self.object)
             old_case: Case = Case.objects.get(pk=self.object.id)
+            old_status: str = old_case.status
             record_case_event(user=user, new_case=self.object, old_case=old_case)
 
             if "home_page_url" in form.changed_data:
@@ -330,12 +350,12 @@ class CaseUpdateView(UpdateView):
 
             self.object.save()
 
-            if old_case.status != self.object.status:
+            if old_status.status != self.object.status.status:
                 messages.add_message(
                     self.request,
                     messages.INFO,
-                    f"Status changed from '{old_case.get_status_display()}'"
-                    f" to '{self.object.get_status_display()}'",
+                    f"Status changed from '{old_status.get_status_display()}'"
+                    f" to '{self.object.status.get_status_display()}'",
                 )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -428,8 +448,6 @@ class CaseQAProcessUpdateView(CaseUpdateView):
         """
         Detect the submit button used and act accordingly.
         """
-        if "add_comment" in self.request.POST:
-            return reverse("cases:add-qa-comment", kwargs={"case_id": self.object.id})
         if "save_continue" in self.request.POST:
             return reverse("cases:edit-contact-details", kwargs={"pk": self.object.id})
         return super().get_success_url()
@@ -788,26 +806,12 @@ class CaseCloseUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-enforcement-body-correspondence", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
-    """
-    View to note correspondence with enforcement body
-    """
-
-    form_class: Type[
-        CaseEnforcementBodyCorrespondenceUpdateForm
-    ] = CaseEnforcementBodyCorrespondenceUpdateForm
-    template_name: str = "cases/forms/enforcement_body_correspondence.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-post-case", kwargs=case_pk)
+            case: Case = self.object
+            case_pk: Dict[str, int] = {"pk": case.id}
+            if case.variant == CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE:
+                return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
+            else:
+                return reverse("cases:edit-equality-body-metadata", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -923,3 +927,236 @@ def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:
     )
     case_search_form.is_valid()
     return download_feedback_survey_cases(cases=filter_cases(form=case_search_form))
+
+
+class CaseStatementEnforcementUpdateView(CaseUpdateView):
+    """
+    View of statement enforcement
+    """
+
+    form_class: Type[
+        CaseStatementEnforcementUpdateForm
+    ] = CaseStatementEnforcementUpdateForm
+    template_name: str = "cases/forms/statement_enforcement.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("cases:edit-equality-body-metadata", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
+    """
+    View of equality body metadata
+    """
+
+    form_class: Type[
+        CaseEqualityBodyMetadataUpdateForm
+    ] = CaseEqualityBodyMetadataUpdateForm
+    template_name: str = "cases/forms/equality_body_metadata.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case: Case = self.object
+            case_pk: Dict[str, int] = {"pk": case.id}
+            if case.variant == CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE:
+                return reverse(
+                    "cases:list-equality-body-correspondence", kwargs=case_pk
+                )
+            else:
+                return reverse("cases:legacy-end-of-case", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
+    """
+    View of equality body correspondence list
+    """
+
+    form_class: Type[
+        ListCaseEqualityBodyCorrespondenceUpdateForm
+    ] = ListCaseEqualityBodyCorrespondenceUpdateForm
+    template_name: str = "cases/forms/equality_body_correspondence_list.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case to context"""
+        case: Case = self.object
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        view_url_param: Union[str, None] = self.request.GET.get("view")
+        show_unresolved = view_url_param == "unresolved"
+        context["show_unresolved"] = show_unresolved
+        if show_unresolved:
+            context[
+                "equality_body_correspondences"
+            ] = case.equalitybodycorrespondence_set.filter(
+                status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+            )
+        else:
+            context[
+                "equality_body_correspondences"
+            ] = case.equalitybodycorrespondence_set.all()
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        equality_body_correspondence_id_to_toggle: Optional[
+            int
+        ] = get_id_from_button_name(
+            button_name_prefix="toggle_status_",
+            querydict=self.request.POST,
+        )
+        if equality_body_correspondence_id_to_toggle is not None:
+            equality_body_correspondence: EqualityBodyCorrespondence = (
+                EqualityBodyCorrespondence.objects.get(
+                    id=equality_body_correspondence_id_to_toggle
+                )
+            )
+            if (
+                equality_body_correspondence.status
+                == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+            ):
+                equality_body_correspondence.status = (
+                    EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+                )
+            else:
+                equality_body_correspondence.status = (
+                    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                )
+            record_model_update_event(
+                user=self.request.user, model_object=equality_body_correspondence
+            )
+            equality_body_correspondence.save()
+        return super().form_valid(form)
+
+
+class EqualityBodyCorrespondenceCreateView(CreateView):
+    """
+    View to create a case
+    """
+
+    model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
+    form_class: Type[
+        EqualityBodyCorrespondenceCreateForm
+    ] = EqualityBodyCorrespondenceCreateForm
+    context_object_name: str = "equality_body_correspondence"
+    template_name: str = "cases/forms/equality_body_correspondence_create.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = case
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        equality_body_correspondence: EqualityBodyCorrespondence = form.save(
+            commit=False
+        )
+        case: Case = Case.objects.get(pk=self.kwargs["case_id"])
+        equality_body_correspondence.case = case
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Record creation of object and return to equality body correspondence page"""
+        record_model_create_event(user=self.request.user, model_object=self.object)
+        if "save_return" in self.request.POST:
+            return reverse(
+                "cases:list-equality-body-correspondence",
+                kwargs={"pk": self.object.case.id},
+            )
+        return reverse(
+            "cases:edit-equality-body-correspondence", kwargs={"pk": self.object.id}
+        )
+
+
+class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
+    """
+    View of equality body metadata
+    """
+
+    model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
+    form_class: Type[
+        EqualityBodyCorrespondenceCreateForm
+    ] = EqualityBodyCorrespondenceCreateForm
+    context_object_name: str = "equality_body_correspondence"
+    template_name: str = "cases/forms/equality_body_correspondence_update.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        equality_body_correspondence: EqualityBodyCorrespondence = form.save(
+            commit=False
+        )
+        record_model_update_event(
+            user=self.request.user, model_object=equality_body_correspondence
+        )
+        equality_body_correspondence.save()
+        if "save_return" in self.request.POST:
+            url: str = reverse(
+                "cases:list-equality-body-correspondence",
+                kwargs={"pk": self.object.case.id},
+            )
+        else:
+            url: str = reverse(
+                "cases:edit-equality-body-correspondence", kwargs={"pk": self.object.id}
+            )
+        return HttpResponseRedirect(url)
+
+
+class CaseRetestOverviewTemplateView(TemplateView):
+    template_name: str = "cases/forms/retest_overview.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        context["equality_body_retests"] = case.retests.filter(id_within_case__gt=0)
+        return context
+
+
+class CaseRetestCreateErrorTemplateView(TemplateView):
+    template_name: str = "cases/retest_create_error.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        return context
+
+
+class EqualityBodyRetestEmailTemplateView(TemplateView):
+    template_name: str = "cases/emails/equality_body_retest_email.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        context["retest"] = case.retests.first()
+        return context
+
+
+class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
+    """
+    View to note correspondence with enforcement body
+    """
+
+    form_class: Type[
+        CaseStatementEnforcementUpdateForm
+    ] = CaseStatementEnforcementUpdateForm
+    template_name: str = "cases/forms/legacy_end_of_case.html"
+
+
+class PostCaseAlertsTemplateView(TemplateView):
+    template_name: str = "cases/post_case_alerts.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["post_case_alerts"] = get_post_case_alerts(user=self.request.user)
+        return context

@@ -37,13 +37,8 @@
                                 </summary>
                                 <div class="govuk-details__text">
                                     <div class="govuk-button-group">
-                                        <input
-                                            type="submit"
-                                            value="Add comment"
-                                            name="add_comment"
-                                            class="govuk-button govuk-button--secondary"
-                                            data-module="govuk-button"
-                                        />
+                                        <a href="{% url 'cases:add-qa-comment' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                            Add comment</a>
                                     </div>
                                     {% for comment in case.qa_comments %}
                                         {% include "comments/helpers/comment.html" %}

@@ -15,7 +15,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' %}
+                {% include 'common/error_summary.html' with formset=retest_statement_check_results_formset %}
                 <form method="post" action="{% url 'audits:edit-retest-statement-custom' audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
@@ -33,7 +33,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/retest_nav_steps.html' with current_page='audits:edit-retest-statement-custom' %}
+                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-retest-statement-custom' %}
             </div>
         </div>
     </main>

@@ -43,7 +43,7 @@ def test_case_status_deactivated(admin_client):
         organisation_name="org name",
         is_deactivated=True,
     )
-    assert case.status == "deactivated"
+    assert case.status.status == "deactivated"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to case details"
@@ -56,7 +56,7 @@ def test_case_status_unassigned(admin_client):
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
-    assert case.status == "unassigned-case"
+    assert case.status.status == "unassigned-case"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to case details"
@@ -71,7 +71,7 @@ def test_case_status_test_in_progress(admin_client):
         organisation_name="org name",
         auditor=user,
     )
-    assert case.status == "test-in-progress"
+    assert case.status.status == "test-in-progress"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to testing details"
@@ -89,7 +89,7 @@ def test_case_status_report_in_progress(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     )
 
-    assert case.status == "report-in-progress"
+    assert case.status.status == "report-in-progress"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to report details"
@@ -107,7 +107,7 @@ def test_case_status_qa_in_progress(admin_client):
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
-    assert case.status == "qa-in-progress"
+    assert case.status.status == "qa-in-progress"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to QA process"
@@ -126,7 +126,7 @@ def test_case_status_report_ready_to_send(admin_client):
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
-    assert case.status == "report-ready-to-send"
+    assert case.status.status == "report-ready-to-send"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to contact details"
@@ -146,7 +146,7 @@ def test_case_status_in_report_correspondence(admin_client):
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
     )
-    assert case.status == "in-report-correspondence"
+    assert case.status.status == "in-report-correspondence"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to report correspondence"
@@ -166,7 +166,7 @@ def test_case_status_when_no_psb_contact(admin_client):
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         no_psb_contact=BOOLEAN_TRUE,
     )
-    assert case.status == "final-decision-due"
+    assert case.status.status == "final-decision-due"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Closing the case"
@@ -187,7 +187,7 @@ def test_case_status_in_probation_period(admin_client):
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
     )
-    assert case.status == "in-probation-period"
+    assert case.status.status == "in-probation-period"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to 12-week correspondence"
@@ -209,7 +209,7 @@ def test_case_status_in_12_week_correspondence(admin_client):
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
     )
-    assert case.status == "in-12-week-correspondence"
+    assert case.status.status == "in-12-week-correspondence"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to 12-week correspondence"
@@ -232,7 +232,7 @@ def test_case_status_reviewing_changes(admin_client):
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
     )
-    assert case.status == "reviewing-changes"
+    assert case.status.status == "reviewing-changes"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to reviewing changes"
@@ -256,7 +256,7 @@ def test_case_status_final_decision_due(admin_client):
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         is_ready_for_final_decision=BOOLEAN_TRUE,
     )
-    assert case.status == "final-decision-due"
+    assert case.status.status == "final-decision-due"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to closing the case"
@@ -280,7 +280,7 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         case_completed=CASE_COMPLETED_SEND,
     )
-    assert case.status == "case-closed-waiting-to-be-sent"
+    assert case.status.status == "case-closed-waiting-to-be-sent"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to closing the case"
@@ -305,10 +305,10 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
         case_completed=CASE_COMPLETED_SEND,
         sent_to_enforcement_body_sent_date=datetime.now(),
     )
-    assert case.status == "case-closed-sent-to-equalities-body"
+    assert case.status.status == "case-closed-sent-to-equalities-body"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to equality body summary"
+        admin_client, case=case, expected_link_label="Go to equality body metadata"
     )
 
 
@@ -331,10 +331,10 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
         sent_to_enforcement_body_sent_date=datetime.now(),
         enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     )
-    assert case.status == "in-correspondence-with-equalities-body"
+    assert case.status.status == "in-correspondence-with-equalities-body"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to equality body summary"
+        admin_client, case=case, expected_link_label="Go to equality body metadata"
     )
 
 
@@ -357,7 +357,7 @@ def test_case_status_equality_bodies_complete(admin_client):
         sent_to_enforcement_body_sent_date=datetime.now(),
         enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     )
-    assert case.status == "complete"
+    assert case.status.status == "complete"
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to post case summary"
@@ -376,7 +376,7 @@ def test_case_status_complete():
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         case_completed=CASE_COMPLETED_NO_SEND,
     )
-    assert case.status == "complete"
+    assert case.status.status == "complete"
 
 
 @pytest.mark.django_db

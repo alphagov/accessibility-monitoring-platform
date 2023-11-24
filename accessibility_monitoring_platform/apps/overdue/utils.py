@@ -17,7 +17,7 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
         seven_days_ago = date.today() - timedelta(days=7)
 
         in_report_correspondence: QuerySet[Case] = user_cases.filter(
-            Q(status="in-report-correspondence"),
+            Q(status__status="in-report-correspondence"),
             Q(
                 Q(  # pylint: disable=unsupported-binary-operation
                     report_followup_week_1_due_date__range=[start_date, end_date],
@@ -34,12 +34,12 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
         )
 
         in_probation_period: QuerySet[Case] = user_cases.filter(
-            status__icontains="in-probation-period",
+            status__status__icontains="in-probation-period",
             report_followup_week_12_due_date__range=[start_date, end_date],
         )
 
         in_12_week_correspondence: QuerySet[Case] = user_cases.filter(
-            Q(status__icontains="in-12-week-correspondence"),
+            Q(status__status__icontains="in-12-week-correspondence"),
             Q(
                 Q(
                     twelve_week_1_week_chaser_due_date__range=[start_date, end_date],

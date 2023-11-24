@@ -19,6 +19,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' with formset=statement_check_results_formset %}
                 <form method="post" action="{% url 'audits:edit-statement-overview' audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
@@ -37,7 +38,9 @@
                     </div>
                     {% include 'audits/helpers/statement_check_formset.html' %}
                     <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
+                        <div class="govuk-grid-column-full">
+                            <hr class="amp-width-100 amp-margin-bottom-30" />
+                            {% include 'common/amp_field.html' with field=form.statement_extra_report_text %}
                             {% include 'common/amp_field.html' with field=form.audit_statement_overview_complete_date %}
                         </div>
                     </div>

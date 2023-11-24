@@ -5,6 +5,7 @@ Utility functions for cases app
 from collections import namedtuple
 import copy
 import csv
+from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -16,7 +17,7 @@ from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.urls import reverse
 
-from ..audits.models import Audit
+from ..audits.models import Audit, Retest, RETEST_INITIAL_COMPLIANCE_DEFAULT
 from ..common.utils import build_filters
 
 from .forms import CaseSearchForm, DEFAULT_SORT, NO_FILTER
@@ -25,6 +26,7 @@ from .models import (
     Case,
     CaseEvent,
     Contact,
+    EqualityBodyCorrespondence,
     STATUS_UNASSIGNED,
     STATUS_READY_TO_QA,
     CASE_EVENT_TYPE_CREATE,
@@ -36,6 +38,7 @@ from .models import (
     CASE_EVENT_READY_FOR_FINAL_DECISION,
     CASE_EVENT_CASE_COMPLETED,
     COMPLIANCE_FIELDS,
+    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
@@ -50,6 +53,18 @@ CONTACT_NAME_COLUMN_NAME = "Contact name"
 JOB_TITLE_COLUMN_NAME = "Job title"
 CONTACT_DETAIL_COLUMN_NAME = "Contact detail"
 CONTACT_NOTES_COLUMN_NUMBER = "Contact notes"
+
+
+@dataclass
+class PostCaseAlert:
+    """Data to use in html table row of post case alerts page"""
+
+    date: date
+    case: Case
+    description: str
+    absolute_url: str
+    absolute_url_label: str
+
 
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
@@ -509,8 +524,12 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             if filter_value != NO_FILTER:
                 filters[filter_name] = filter_value
 
-    if filters.get("status", "") == STATUS_READY_TO_QA:
+    if str(filters.get("status", "")) == STATUS_READY_TO_QA:
         filters["qa_status"] = STATUS_READY_TO_QA
+        del filters["status"]
+
+    if "status" in filters:
+        filters["status__status"] = filters["status"]
         del filters["status"]
 
     # Auditor and reviewer may be filtered by unassigned
@@ -524,7 +543,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             Case.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
-                    When(status=STATUS_UNASSIGNED, then=0), default=1
+                    When(status__status=STATUS_UNASSIGNED, then=0), default=1
                 )
             )
             .order_by("position_unassigned_first", "-id")
@@ -664,7 +683,11 @@ def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpRe
         contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
         row = []
         for column in CASE_COLUMNS_FOR_EXPORT:
-            if column.field_name in COMPLIANCE_FIELDS:
+            if column.field_name == "status":
+                row.append(
+                    format_model_field(model_instance=case.status, column=column)
+                )
+            elif column.field_name in COMPLIANCE_FIELDS:
                 row.append(
                     format_model_field(model_instance=case.compliance, column=column)
                 )
@@ -794,3 +817,68 @@ def create_case_and_compliance(**kwargs):
         case.compliance.save()
         case.save()
     return case
+
+
+def get_post_case_alerts_count(user: User) -> int:
+    """
+    Return the number of unresolved equality body correspondence entries
+    and incomplete equality body retests for user.
+    """
+    if user.id:
+        return (
+            EqualityBodyCorrespondence.objects.filter(
+                case__auditor=user, status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+            ).count()
+            + Retest.objects.filter(
+                is_deleted=False,
+                case__auditor=user,
+                retest_compliance_state=RETEST_INITIAL_COMPLIANCE_DEFAULT,
+                id_within_case__gt=0,
+            ).count()
+        )
+    return 0
+
+
+def get_post_case_alerts(user: User) -> List[PostCaseAlert]:
+    """
+    Return sorted list of unresolved equality body correspondence entries and
+    incomplete equality body retests for a user.
+    """
+    post_case_alerts: List[PostCaseAlert] = []
+
+    equality_body_correspondences: QuerySet[
+        EqualityBodyCorrespondence
+    ] = EqualityBodyCorrespondence.objects.filter(
+        case__auditor=user,
+        status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+    )
+
+    for equality_body_correspondence in equality_body_correspondences:
+        post_case_alerts.append(
+            PostCaseAlert(
+                date=equality_body_correspondence.created.date(),
+                case=equality_body_correspondence.case,
+                description="Unresolved correspondence",
+                absolute_url=f"{equality_body_correspondence.get_absolute_url()}?view=unresolved",
+                absolute_url_label="View correspondence",
+            )
+        )
+
+    retests: QuerySet[Retest] = Retest.objects.filter(
+        is_deleted=False,
+        case__auditor=user,
+        retest_compliance_state=RETEST_INITIAL_COMPLIANCE_DEFAULT,
+        id_within_case__gt=0,
+    )
+
+    for retest in retests:
+        post_case_alerts.append(
+            PostCaseAlert(
+                date=retest.date_of_retest,
+                case=retest.case,
+                description="Incomplete retest",
+                absolute_url=retest.get_absolute_url(),
+                absolute_url_label="View retest",
+            )
+        )
+    return sorted(post_case_alerts, key=lambda alert: alert.date, reverse=True)
