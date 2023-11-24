@@ -821,8 +821,8 @@ def test_audit_edit_statement_overview_updates_case_status(
     admin_client,
 ):
     """
-    Test that a successful audit statement overview update redirects to
-    statement website if the overiew checks have passed
+    Test that a successful audit statement overview update updates case
+    status and check results
     """
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
@@ -862,6 +862,68 @@ def test_audit_edit_statement_overview_updates_case_status(
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
     assert audit_from_db.case.status.status == "report-in-progress"
+
+    statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
+        id=1
+    )
+
+    assert statement_checkresult_1.check_result_state == "yes"
+
+    statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
+        id=2
+    )
+
+    assert statement_checkresult_2.check_result_state == "no"
+
+
+def test_audit_retest_statement_overview_updates_statement_checkresult(
+    admin_client,
+):
+    """
+    Test that a successful audit retest statement overview update updates
+    check results
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    case: Case = audit.case
+    case.home_page_url = "https://www.website.com"
+    case.organisation_name = "org name"
+    user: User = User.objects.create()
+    case.auditor = user
+    case.save()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-retest-statement-overview", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "2",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "1",
+            "form-0-retest_state": "yes",
+            "form-0-report_comment": "",
+            "form-1-id": "2",
+            "form-1-retest_state": "no",
+            "form-1-report_comment": "",
+        },
+    )
+
+    assert response.status_code == 302
+
+    statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
+        id=1
+    )
+
+    assert statement_checkresult_1.retest_state == "yes"
+
+    statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
+        id=2
+    )
+
+    assert statement_checkresult_2.retest_state == "no"
 
 
 def test_retest_date_change_creates_case_event(admin_client):
