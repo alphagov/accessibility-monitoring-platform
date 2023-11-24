@@ -321,7 +321,13 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
                 for (
                     retest_statement_check_results_form
                 ) in retest_statement_check_results_formset.forms:
-                    retest_statement_check_results_form.save()
+                    statement_check_result: StatementCheckResult = (
+                        retest_statement_check_results_form.save(commit=False)
+                    )
+                    record_model_update_event(
+                        user=self.request.user, model_object=statement_check_result
+                    )
+                    statement_check_result.save()
             else:
                 return super().form_invalid(form)
 
