@@ -313,7 +313,10 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = context[
             "retest_statement_check_results_formset"
         ]
-        if audit.twelve_week_accessibility_statement_found:
+        if (
+            audit.twelve_week_accessibility_statement_found
+            or audit.uses_statement_checks
+        ):
             if retest_statement_check_results_formset.is_valid():
                 for (
                     retest_statement_check_results_form
