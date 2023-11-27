@@ -817,6 +817,36 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
     assert response.url == expected_path
 
 
+def test_audit_edit_statement_overview_updates_when_no_statement_exists(
+    admin_client,
+):
+    """
+    Test that audit statement overview update updates when no page exists
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-overview", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "audit_statement_overview_complete_date": "on",
+        },
+    )
+
+    assert response.status_code == 302
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+
+    assert audit_from_db.audit_statement_overview_complete_date == date.today()
+
+
 def test_audit_edit_statement_overview_updates_case_status(
     admin_client,
 ):
@@ -876,6 +906,36 @@ def test_audit_edit_statement_overview_updates_case_status(
     assert statement_checkresult_2.check_result_state == "no"
 
 
+def test_audit_retest_statement_overview_updates_when_no_statement_exists(
+    admin_client,
+):
+    """
+    Test that audit retest statement overview update updates when no page exists
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-retest-statement-overview", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "audit_retest_statement_overview_complete_date": "on",
+        },
+    )
+
+    assert response.status_code == 302
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+
+    assert audit_from_db.audit_retest_statement_overview_complete_date == date.today()
+
+
 def test_audit_retest_statement_overview_updates_statement_checkresult(
     admin_client,
 ):
@@ -885,6 +945,62 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     """
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    statement_page.url = "https://example.com/statement"
+    statement_page.save()
+
+    case: Case = audit.case
+    case.home_page_url = "https://www.website.com"
+    case.organisation_name = "org name"
+    user: User = User.objects.create()
+    case.auditor = user
+    case.save()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-retest-statement-overview", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "2",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "1",
+            "form-0-retest_state": "yes",
+            "form-0-report_comment": "",
+            "form-1-id": "2",
+            "form-1-retest_state": "no",
+            "form-1-report_comment": "",
+        },
+    )
+
+    assert response.status_code == 302
+
+    statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
+        id=1
+    )
+
+    assert statement_checkresult_1.retest_state == "yes"
+
+    statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
+        id=2
+    )
+
+    assert statement_checkresult_2.retest_state == "no"
+
+
+def test_audit_retest_statement_overview_updates_statement_checkresult_no_initial_statement(
+    admin_client,
+):
+    """
+    Test that a successful audit retest statement overview update updates
+    check results when no initial statement was found
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit.twelve_week_accessibility_statement_url = "https://www.website.com/statement"
+    audit.save()
 
     case: Case = audit.case
     case.home_page_url = "https://www.website.com"
@@ -2122,6 +2238,9 @@ def test_retest_statement_custom_with_initial(admin_client):
     """Test that a retest statement custom with an initial failure shows it"""
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
+    statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    statement_page.url = "https://example.com/statement"
+    statement_page.save()
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-retest-statement-custom", kwargs=audit_pk),
