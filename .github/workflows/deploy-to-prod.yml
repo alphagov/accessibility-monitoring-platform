@@ -3,15 +3,16 @@ name: Deploy to production
 on:
   workflow_dispatch: # allows manual triggering
   schedule:
-    - cron: '0 13 * * *' # runs daily at 00:00
+    - cron: '0 16 * * *' # runs daily at 00:00
 
 jobs:
   test:
     name: Unit tests
     runs-on: ubuntu-20.04
-    if: github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: main
     - name: Set up Python 3.x
       uses: actions/setup-python@v3
       with:
@@ -20,7 +21,7 @@ jobs:
       with:
         node-version: '18'
     - name: Get new commits
-      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
+      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '200 hours ago' | wc -l)" >> $GITHUB_ENV
     - name: Unit tests
       if: ${{ env.NEW_COMMIT_COUNT > 0 }}
       run: |
@@ -41,15 +42,16 @@ jobs:
     needs: test
     name: Integration tests
     runs-on: ubuntu-20.04
-    if: github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: main
     - name: Set up Python 3.x
       uses: actions/setup-python@v3
       with:
         python-version: '3.11'
     - name: Get new commits
-      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
+      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '200 hours ago' | wc -l)" >> $GITHUB_ENV
     - name: Integration tests
       if: ${{ env.NEW_COMMIT_COUNT > 0 }}
       run: |
@@ -60,11 +62,12 @@ jobs:
     needs: int-test
     name: Deploy to AWS
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: main
       - name: Get new commits
-        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
+        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '200 hours ago' | wc -l)" >> $GITHUB_ENV
 
       - name: Install AWS Copilot
         if: ${{ env.NEW_COMMIT_COUNT > 0 }}
