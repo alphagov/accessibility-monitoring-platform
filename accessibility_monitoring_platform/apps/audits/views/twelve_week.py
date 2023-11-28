@@ -36,6 +36,7 @@ from ..forms import (
     AuditRetestStatementComparisonUpdateForm,
     ArchiveAuditRetestStatementDecisionUpdateForm,
     ArchiveCaseComplianceStatement12WeekUpdateForm,
+    TwelveWeekStatementPagesUpdateForm,
 )
 from ..models import (
     Audit,
@@ -51,7 +52,11 @@ from ..models import (
     STATEMENT_CHECK_TYPE_CUSTOM,
 )
 from ..utils import get_next_retest_page_url, get_retest_view_tables_context
-from .base import AuditUpdateView, AuditCaseComplianceUpdateView
+from .base import (
+    AuditUpdateView,
+    AuditCaseComplianceUpdateView,
+    StatementPageFormsetUpdateView,
+)
 from .initial import AuditPageChecksFormView
 
 
@@ -543,3 +548,27 @@ def start_retest(
         message="Started retest",
     )
     return redirect(reverse("audits:edit-audit-retest-metadata", kwargs={"pk": pk}))
+
+
+class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
+    """
+    View to update statement pages in 12-week retest
+    """
+
+    form_class: Type[
+        TwelveWeekStatementPagesUpdateForm
+    ] = TwelveWeekStatementPagesUpdateForm
+    template_name: str = "audits/forms/twelve_week_statement_pages_formset.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        audit_pk: Dict[str, int] = {"pk": self.object.id}
+        current_url: str = reverse(
+            "audits:edit-retest-statement-pages", kwargs=audit_pk
+        )
+        if "save_continue" in self.request.POST:
+            return reverse("audits:edit-retest-statement-overview", kwargs=audit_pk)
+        elif "add_statement_page" in self.request.POST:
+            return f"{current_url}?add_extra=true#statement_page-None"
+        else:
+            return current_url

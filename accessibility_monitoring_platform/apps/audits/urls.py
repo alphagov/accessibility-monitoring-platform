@@ -37,6 +37,7 @@ from .views.initial import (
     AuditStatementCustomFormsetView,
     AuditSummaryUpdateView,
     AuditReportOptionsUpdateView,
+    InitialStatementPageFormsetUpdateView,
 )
 from .views.twelve_week import (
     start_retest,
@@ -57,6 +58,7 @@ from .views.twelve_week import (
     AuditRetestStatementOtherFormView,
     AuditRetestStatementComparisonUpdateView,
     AuditRetestCaseComplianceStatement12WeekUpdateView,
+    TwelveWeekStatementPageFormsetUpdateView,
 )
 from .views.equality_body import (
     create_equality_body_retest,
@@ -127,6 +129,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-statement-decision/",
         login_required(AuditCaseComplianceStatementInitialUpdateView.as_view()),
         name="edit-statement-decision",
+    ),
+    path(
+        "<int:pk>/edit-statement-pages/",
+        login_required(InitialStatementPageFormsetUpdateView.as_view()),
+        name="edit-statement-pages",
     ),
     path(
         "<int:pk>/edit-statement-overview/",
@@ -217,6 +224,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-retest-statement-2/",
         login_required(AuditRetestStatement2UpdateView.as_view()),
         name="edit-audit-retest-statement-2",
+    ),
+    path(
+        "<int:pk>/edit-retest-statement-pages/",
+        login_required(TwelveWeekStatementPageFormsetUpdateView.as_view()),
+        name="edit-retest-statement-pages",
     ),
     path(
         "<int:pk>/edit-retest-statement-overview/",

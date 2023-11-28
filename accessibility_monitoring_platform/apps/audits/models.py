@@ -301,6 +301,14 @@ RETEST_INITIAL_COMPLIANCE_CHOICES: List[Tuple[str, str]] = [
     ("partially-compliant", "Partially compliant"),
     (RETEST_INITIAL_COMPLIANCE_DEFAULT, "Not known"),
 ]
+ADDED_STAGE_INITIAL: str = "initial"
+ADDED_STAGE_TWELVE_WEEK: str = "12-week-retest"
+ADDED_STAGE_RETEST: str = "retest"
+ADDED_STAGE_CHOICES: List[Tuple[str, str]] = [
+    (ADDED_STAGE_INITIAL, "Initial"),
+    (ADDED_STAGE_TWELVE_WEEK, "12-week retest"),
+    (ADDED_STAGE_RETEST, "Equality body retest"),
+]
 
 
 class ArchiveAccessibilityStatementCheck:
@@ -574,6 +582,9 @@ class Audit(VersionModel):
     archive_report_options_notes = models.TextField(default="", blank=True)
     archive_audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
+    # Statement pages
+    audit_statement_pages_complete_date = models.DateField(null=True, blank=True)
+
     # Statement checking overview
     statement_extra_report_text = models.TextField(default="", blank=True)
     audit_statement_overview_complete_date = models.DateField(null=True, blank=True)
@@ -714,6 +725,9 @@ class Audit(VersionModel):
     archive_audit_retest_statement_2_complete_date = models.DateField(
         null=True, blank=True
     )
+
+    # Statement pages
+    audit_retest_statement_pages_complete_date = models.DateField(null=True, blank=True)
 
     # Retest statement checking overview
     audit_retest_statement_overview_complete_date = models.DateField(
@@ -1485,3 +1499,26 @@ class RetestCheckResult(models.Model):
     def all_retest_check_results(self):
         """Return all retest results for this check"""
         return RetestCheckResult.objects.filter(check_result=self.check_result)
+
+
+class StatementPage(models.Model):
+    """
+    Model to store links to statement pages found at various stages in the life
+    of a case.
+    """
+
+    audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
+    is_deleted = models.BooleanField(default=False)
+
+    url = models.TextField(default="", blank=True)
+    backup_url = models.TextField(default="", blank=True)
+    added_stage = models.CharField(
+        max_length=20, choices=ADDED_STAGE_CHOICES, default=ADDED_STAGE_INITIAL
+    )
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
+        return self.url

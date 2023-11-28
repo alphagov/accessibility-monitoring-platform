@@ -62,6 +62,8 @@ from .models import (
     RetestCheckResult,
     RETEST_INITIAL_COMPLIANCE_CHOICES,
     STATEMENT_CHECK_TYPE_OVERVIEW,
+    StatementPage,
+    ADDED_STAGE_CHOICES,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
@@ -1554,4 +1556,58 @@ class RetestComplianceUpdateForm(forms.ModelForm):
             "retest_compliance_state",
             "compliance_notes",
             "compliance_complete_date",
+        ]
+
+
+class StatementPageUpdateForm(forms.ModelForm):
+    """
+    Form for updating a statement page
+    """
+
+    url = AMPURLField(label="Link to statement")
+    backup_url = AMPURLField(label="Statement backup")
+    added_stage = AMPChoiceRadioField(
+        label="Statement added", choices=ADDED_STAGE_CHOICES
+    )
+
+    class Meta:
+        model = StatementPage
+        fields = ["url", "backup_url", "added_stage"]
+
+
+StatementPageFormset: Any = forms.modelformset_factory(
+    StatementPage, StatementPageUpdateForm, extra=0
+)
+StatementPageFormsetOneExtra: Any = forms.modelformset_factory(
+    StatementPage, StatementPageUpdateForm, extra=1
+)
+
+
+class AuditStatementPagesUpdateForm(VersionForm):
+    """
+    Form for statement pages update at initial test
+    """
+
+    audit_statement_pages_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_statement_pages_complete_date",
+        ]
+
+
+class TwelveWeekStatementPagesUpdateForm(VersionForm):
+    """
+    Form for statement pages update at 12-week retest
+    """
+
+    audit_retest_statement_pages_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_pages_complete_date",
         ]
