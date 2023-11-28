@@ -603,7 +603,7 @@ def test_audit_compliance_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-website-decision",
             "save_continue",
-            "audits:edit-statement-overview",
+            "audits:edit-statement-pages",
         ),
         (
             "audits:edit-statement-overview",
