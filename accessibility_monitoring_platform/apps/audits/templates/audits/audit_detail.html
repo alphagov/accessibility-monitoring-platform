@@ -138,6 +138,22 @@
             {% if audit.statement_check_results %}
                 <div class="govuk-accordion__section">
                     <div class="govuk-accordion__section-header">
+                        <h2 id="statement-pages" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-pages">
+                                Statement links
+                                {% if audit.audit_statement_pages_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-audit-statement-pages" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
+                        {% include 'audits/details/statement_pages.html' %}
+                    </div>
+                </div>
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
                         <h2 id="statement-overview" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
                                 Statement overview

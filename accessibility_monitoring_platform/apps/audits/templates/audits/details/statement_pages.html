@@ -1,0 +1,47 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p id="statement-pages" class="govuk-body-m">
+            <b>Statement links</b>
+            |
+            <a href="{% url 'audits:edit-statement-pages' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit{% if on_view_case %} test &gt; statement links{% endif %}
+            </a>
+        </p>
+    </div>
+</div>
+<table class="govuk-table amp-accordion-table">
+    <tbody class="govuk-table__body">
+        {% for statement_page in audit.statementpage_set.all %}
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to statement {{ forloop.counter }}</th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {% if statement_page.url %}
+                        <a href="{{ statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ statement_page.url }}</a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Statement backup {{ forloop.counter }}</th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {% if statement_page.backup_url %}
+                        <a href="{{ statement_page.backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ statement_page.backup_url }}</a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Statement added {{ forloop.counter }}</th>
+                <td class="govuk-table__cell amp-width-one-half">{{ statement_page.get_added_stage_display }}</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Created {{ forloop.counter }}</th>
+                <td class="govuk-table__cell amp-width-one-half">{{ statement_page.created|amp_date }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
