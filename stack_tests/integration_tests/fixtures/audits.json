@@ -200,7 +200,8 @@
       "check_result_state": "error",
       "notes": "Error detail text",
       "retest_state": "not-retested",
-      "retest_notes": ""
+      "retest_notes": "",
+      "created": "2022-09-06T12:20:04.436Z"
     }
   },
   {
