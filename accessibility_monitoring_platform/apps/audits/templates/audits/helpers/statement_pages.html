@@ -1,0 +1,47 @@
+<details class="govuk-details" data-module="govuk-details" open>
+    <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">
+            Statement links
+        </span>
+    </summary>
+    <div class="govuk-details__text">
+        {% if audit.statement_pages %}
+            <ul class="govuk-list">
+            {% for statement_page in audit.statement_pages %}
+                <li>
+                    <a href="{{ statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        Link to statement {{ forloop.counter }} ({{ statement_page.get_added_stage_display }})</a>
+                        Added {{ statement_page.created|amp_date }}
+                    |
+                    <a href="{% url 'audits:edit-statement-pages' audit.id %}?#statement-page-{{ statement_page.id }}"
+                        class="govuk-link govuk-link--no-visited-state"
+                        rel="noreferrer noopener">
+                        Edit{% if on_view_case %} test &gt; statement links{% endif %}
+                    </a>
+                </li>
+                {% if statement_page.backup_url %}
+                    <li>
+                        <a href="{{ statement_page.backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                            Link to statement {{ forloop.counter }} backup ({{ statement_page.get_added_stage_display }})</a>
+                            Added {{ statement_page.created|amp_date }}
+                        |
+                        <a href="{% url 'audits:edit-statement-pages' audit.id %}?#statement-page-{{ statement_page.id }}"
+                            class="govuk-link govuk-link--no-visited-state"
+                            rel="noreferrer noopener">
+                            Edit{% if on_view_case %} test &gt; statement links{% endif %}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="govuk-body">
+                No statement added. Add a statement in
+                <a href="{% url 'audits:edit-statement-pages' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    statement links</a>.
+            </p>
+        {% endif %}
+    </div>
+</details>

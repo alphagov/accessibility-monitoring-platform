@@ -1101,6 +1101,10 @@ class Audit(VersionModel):
             retest_state=STATEMENT_CHECK_YES
         )
 
+    @property
+    def statement_pages(self) -> bool:
+        return self.statementpage_set.filter(is_deleted=False)
+
 
 class Page(models.Model):
     """

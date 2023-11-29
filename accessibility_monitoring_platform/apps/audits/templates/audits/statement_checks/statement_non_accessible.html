@@ -19,6 +19,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'audits/helpers/statement_pages.html' %}
                 {% include 'common/error_summary.html' with formset=statement_check_results_formset %}
                 <form method="post" action="{% url 'audits:edit-statement-non-accessible' audit.id %}">
                     {% csrf_token %}
