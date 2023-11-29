@@ -16,8 +16,8 @@
                 </li>
             {% endif %}
             {% include './nav_content.html' with id='edit-website-decision' anchor="website-decision" edit_name='audits:edit-website-decision' name='Website compliance decision' complete=audit.audit_website_decision_complete_date %}
+            {% include './nav_content.html' with id='edit-statement-pages' anchor='statement-pages' edit_name='audits:edit-statement-pages' name='Statement links' complete=audit.audit_statement_pages_complete_date %}
             {% if audit.uses_statement_checks %}
-                {% include './nav_content.html' with id='edit-statement-pages' anchor='statement-pages' edit_name='audits:edit-statement-pages' name='Statement links' complete=audit.audit_statement_pages_complete_date %}
                 {% include './nav_content.html' with id='edit-statement-overview' anchor="statement-overview" edit_name='audits:edit-statement-overview' name='Statement overview' complete=audit.audit_statement_overview_complete_date %}
                 {% if audit.all_overview_statement_checks_have_passed %}
                     <li>

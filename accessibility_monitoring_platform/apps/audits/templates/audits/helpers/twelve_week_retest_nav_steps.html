@@ -19,8 +19,8 @@
             {% include './nav_step.html' with edit_name='audits:edit-audit-retest-pages' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
             {% include './nav_step.html' with edit_name='audits:edit-audit-retest-website-decision' name='12-week website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
         {% endif %}
+        {% include './nav_step.html' with edit_name='audits:edit-retest-statement-pages' name='12-week statement links' complete=audit.audit_retest_statement_pages_complete_date %}
         {% if audit.uses_statement_checks %}
-            {% include './nav_step.html' with edit_name='audits:edit-retest-statement-pages' name='12-week statement links' complete=audit.audit_retest_statement_pages_complete_date %}
             {% include './nav_step.html' with edit_name='audits:edit-retest-statement-overview' name='12-week statement overview' complete=audit.audit_retest_statement_overview_complete_date %}
             {% if audit.all_overview_statement_checks_have_passed %}
                 <li>

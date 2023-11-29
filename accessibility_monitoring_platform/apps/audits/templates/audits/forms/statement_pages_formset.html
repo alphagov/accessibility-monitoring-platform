@@ -20,7 +20,7 @@
                     {% csrf_token %}
                     {{ statement_pages_formset.management_form }}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% if audit.accessibility_statement_page %}
+                    {% if audit.accessibility_statement_found %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
                                 <input

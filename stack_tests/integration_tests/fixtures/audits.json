@@ -202,5 +202,16 @@
       "retest_state": "not-retested",
       "retest_notes": ""
     }
+  },
+  {
+    "model": "audits.statementpage",
+    "pk": 1,
+    "fields": {
+      "audit": 1,
+      "is_deleted": false,
+      "url": "",
+      "backup_url": "",
+      "added_stage": "initial"
+    }
   }
 ]

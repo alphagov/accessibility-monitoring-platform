@@ -1046,29 +1046,6 @@ class CaseComplianceWebsite12WeekUpdateForm(VersionForm):
         ]
 
 
-class Audit12WeekStatementUpdateForm(VersionForm):
-    """
-    Form to add a statement at 12-weeks (no initial statement)
-    """
-
-    twelve_week_accessibility_statement_url = AMPURLField(
-        label="Link to accessibility statement",
-        help_text="Blank out to remove appended statement",
-    )
-    audit_retest_accessibility_statement_backup_url = AMPURLField(
-        label="Link to backup accessibility statement",
-        help_text="Blank out to remove appended statement",
-    )
-
-    class Meta:
-        model = Audit
-        fields = [
-            "version",
-            "twelve_week_accessibility_statement_url",
-            "audit_retest_accessibility_statement_backup_url",
-        ]
-
-
 class ArchiveAuditRetestStatement1UpdateForm(VersionForm):
     """
     Form for retesting accessibility statement 1 checks

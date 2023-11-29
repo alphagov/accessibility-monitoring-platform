@@ -22,7 +22,6 @@ from ..forms import (
     AuditRetestCheckResultFormset,
     AuditRetestWebsiteDecisionUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
-    Audit12WeekStatementUpdateForm,
     ArchiveAuditRetestStatement1UpdateForm,
     ArchiveAuditRetestStatement2UpdateForm,
     AuditRetestStatementCheckResultFormset,
@@ -246,22 +245,6 @@ class AuditRetestStatement1UpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-retest-statement-2", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class Audit12WeekStatementUpdateView(AuditUpdateView):
-    """
-    View to add a statement at 12-weeks (no initial statement)
-    """
-
-    form_class: Type[Audit12WeekStatementUpdateForm] = Audit12WeekStatementUpdateForm
-    template_name: str = "audits/forms/twelve_week_statement.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_return" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-retest-statement-overview", kwargs=audit_pk)
         return super().get_success_url()
 
 

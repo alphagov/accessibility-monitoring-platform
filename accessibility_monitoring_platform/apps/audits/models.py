@@ -1525,4 +1525,4 @@ class StatementPage(models.Model):
         ordering = ["-id"]
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
-        return self.url
+        return self.url or self.backup_url
