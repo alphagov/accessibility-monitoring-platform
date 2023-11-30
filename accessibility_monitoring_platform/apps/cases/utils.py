@@ -49,10 +49,11 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("subcategory", "subcategory_id"),
 ]
 
-CONTACT_NAME_COLUMN_NAME = "Contact name"
-JOB_TITLE_COLUMN_NAME = "Job title"
-CONTACT_DETAIL_COLUMN_NAME = "Contact detail"
-CONTACT_NOTES_COLUMN_NUMBER = "Contact notes"
+CONTACT_NAME_COLUMN_NAME: str = "Contact name"
+JOB_TITLE_COLUMN_NAME: str = "Job title"
+CONTACT_DETAIL_COLUMN_NAME: str = "Contact detail"
+CONTACT_NOTES_COLUMN_NUMBER: str = "Contact notes"
+CONTACT_FIELDS: List[str] = ["email"]
 
 
 @dataclass
@@ -450,19 +451,18 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         column_name="Closing the case date", field_name="compliance_email_sent_date"
     ),
     ColumnAndFieldNames(
-        column_name="Enforcement recommendation notes including exemptions",
+        column_name="Enforcement recommendation",
+        field_name="recommendation_for_enforcement",
+    ),
+    ColumnAndFieldNames(
+        column_name="Enforcement recommendation notes",
         field_name="recommendation_notes",
     ),
+    ColumnAndFieldNames(column_name="Contact email", field_name="email"),
     ColumnAndFieldNames(column_name="Contact notes", field_name="contact_notes"),
     ColumnAndFieldNames(
         column_name="Feedback survey sent?", field_name="is_feedback_requested"
     ),
-    ColumnAndFieldNames(
-        column_name="Parental organisation name",
-        field_name="parental_organisation_name",
-    ),
-    ColumnAndFieldNames(column_name="Website name", field_name="website_name"),
-    ColumnAndFieldNames(column_name="Sub-category", field_name="subcategory"),
 ]
 
 
@@ -601,11 +601,7 @@ def download_feedback_survey_cases(
 
     writer: Any = csv.writer(response)
     writer.writerow(
-        [
-            column.column_name
-            for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
-            + CONTACT_COLUMNS_FOR_EXPORT
-        ]
+        [column.column_name for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT]
     )
 
     output: List[List[str]] = []
@@ -617,10 +613,10 @@ def download_feedback_survey_cases(
                 row.append(
                     format_model_field(model_instance=case.compliance, column=column)
                 )
+            if column.field_name in CONTACT_FIELDS:
+                row.append(format_model_field(model_instance=contact, column=column))
             else:
                 row.append(format_model_field(model_instance=case, column=column))
-        for column in CONTACT_COLUMNS_FOR_EXPORT:
-            row.append(format_model_field(model_instance=contact, column=column))
         output.append(row)
     writer.writerows(output)
 

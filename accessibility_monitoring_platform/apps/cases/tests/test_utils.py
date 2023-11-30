@@ -392,20 +392,17 @@ def test_download_feedback_survey_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: List[str] = [
-        column.column_name
-        for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+        column.column_name for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
     ]
     expected_first_data_row: List[str] = [
-        "1",
-        "",
-        "16/12/2022",
-        "",
-        CONTACT_NOTES,
-        "No",
-        "",
-        "",
-        "",
-        "",
+        "1",  # Case no.
+        "",  # Organisation name
+        "16/12/2022",  # Closing the case date
+        "Not selected",  # Enforcement recommendation
+        "",  # Enforcement recommendation notes
+        "",  # Contact email
+        CONTACT_NOTES,  # Contact notes
+        "No",  # Feedback survey sent
     ]
 
     validate_csv_response(
