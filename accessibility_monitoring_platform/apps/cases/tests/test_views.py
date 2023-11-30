@@ -183,6 +183,8 @@ UNRESOLVED_EQUALITY_BODY_MESSAGE: str = (
     "Unresolved equality body correspondence message"
 )
 UNRESOLVED_EQUALITY_BODY_NOTES: str = "Unresolved equality body correspondence notes"
+STATEMENT_CHECK_RESULT_REPORT_COMMENT: str = "Statement check result report comment"
+STATEMENT_CHECK_RESULT_RETEST_COMMENT: str = "Statement check result retest comment"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -3128,16 +3130,31 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     page.save()
     Report.objects.create(case=audit.case)
     url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=type,
+        statement_check=statement_check,
+        check_result_state=STATEMENT_CHECK_NO,
+        report_comment=STATEMENT_CHECK_RESULT_REPORT_COMMENT,
+        retest_state=STATEMENT_CHECK_NO,
+        retest_comment=STATEMENT_CHECK_RESULT_RETEST_COMMENT,
+    )
 
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
 
     assertContains(response, ERROR_NOTES)
+    assertContains(response, STATEMENT_CHECK_RESULT_REPORT_COMMENT)
+    assertContains(response, STATEMENT_CHECK_RESULT_RETEST_COMMENT)
 
     for check_result in audit.failed_check_results:
         check_result.retest_state = RETEST_CHECK_RESULT_FIXED
         check_result.save()
+
+    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.save()
 
     url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
 
@@ -3146,6 +3163,8 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     assert response.status_code == 200
 
     assertNotContains(response, ERROR_NOTES)
+    assertNotContains(response, STATEMENT_CHECK_RESULT_REPORT_COMMENT)
+    assertNotContains(response, STATEMENT_CHECK_RESULT_RETEST_COMMENT)
 
 
 def test_outstanding_issues_email_template_contains_no_issues(admin_client):
