@@ -200,8 +200,7 @@
       "check_result_state": "error",
       "notes": "Error detail text",
       "retest_state": "not-retested",
-      "retest_notes": "",
-      "created": "2022-09-06T12:20:04.436Z"
+      "retest_notes": ""
     }
   },
   {
@@ -212,7 +211,8 @@
       "is_deleted": false,
       "url": "",
       "backup_url": "",
-      "added_stage": "initial"
+      "added_stage": "initial",
+      "created": "2022-09-06T12:20:04.436Z"
     }
   }
 ]
