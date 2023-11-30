@@ -288,21 +288,26 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+        audit: Audit = self.object
 
-        if self.request.POST:
-            retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = AuditRetestStatementCheckResultFormset(
-                self.request.POST
-            )
-        else:
-            retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = AuditRetestStatementCheckResultFormset(
-                queryset=StatementCheckResult.objects.filter(
-                    audit=self.object, type=self.statement_check_type
+        if (
+            audit.accessibility_statement_initially_found
+            or audit.twelve_week_accessibility_statement_found
+        ):
+            if self.request.POST:
+                retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = AuditRetestStatementCheckResultFormset(
+                    self.request.POST
                 )
-            )
+            else:
+                retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = AuditRetestStatementCheckResultFormset(
+                    queryset=StatementCheckResult.objects.filter(
+                        audit=self.object, type=self.statement_check_type
+                    )
+                )
 
-        context[
-            "retest_statement_check_results_formset"
-        ] = retest_statement_check_results_formset
+            context[
+                "retest_statement_check_results_formset"
+            ] = retest_statement_check_results_formset
 
         return context
 
@@ -310,13 +315,13 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
         audit: Audit = self.object
-        retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = context[
-            "retest_statement_check_results_formset"
-        ]
         if (
-            audit.twelve_week_accessibility_statement_found
-            or audit.uses_statement_checks
+            audit.accessibility_statement_initially_found
+            or audit.twelve_week_accessibility_statement_found
         ):
+            retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = context[
+                "retest_statement_check_results_formset"
+            ]
             if retest_statement_check_results_formset.is_valid():
                 for (
                     retest_statement_check_results_form
