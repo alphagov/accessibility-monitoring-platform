@@ -21,11 +21,7 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% if audit.statement_pages %}
-                                {% include 'audits/helpers/retest_statement_check_formset.html' %}
-                            {% else %}
-                                {% include 'audits/helpers/no_statement_at_retest.html' %}
-                            {% endif %}
+                            {% include 'audits/helpers/retest_statement_check_formset.html' %}
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">

@@ -23,6 +23,7 @@ from ....audits.models import (
     Retest,
     RetestPage,
     RetestCheckResult,
+    StatementPage,
 )
 from ....cases.models import (
     Case,
@@ -80,6 +81,7 @@ class Command(BaseCommand):
 
         delete_from_models(
             [
+                StatementPage,
                 FrequentlyUsedLink,
                 EqualityBodyCorrespondence,
                 RetestCheckResult,

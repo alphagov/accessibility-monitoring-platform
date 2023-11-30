@@ -224,10 +224,35 @@ class AuditRetestCaseComplianceWebsite12WeekUpdateView(AuditCaseComplianceUpdate
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
+            return reverse("audits:edit-retest-statement-pages", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
+    """
+    View to update statement pages in 12-week retest
+    """
+
+    form_class: Type[
+        TwelveWeekStatementPagesUpdateForm
+    ] = TwelveWeekStatementPagesUpdateForm
+    template_name: str = "audits/forms/twelve_week_statement_pages_formset.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        audit: Audit = self.object
+        audit_pk: Dict[str, int] = {"pk": audit.id}
+        current_url: str = reverse(
+            "audits:edit-retest-statement-pages", kwargs=audit_pk
+        )
+        if "save_continue" in self.request.POST:
             if audit.uses_statement_checks:
                 return reverse("audits:edit-retest-statement-overview", kwargs=audit_pk)
             return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
-        return super().get_success_url()
+        elif "add_statement_page" in self.request.POST:
+            return f"{current_url}?add_extra=true#statement_page-None"
+        else:
+            return current_url
 
 
 class AuditRetestStatement1UpdateView(AuditUpdateView):
@@ -531,27 +556,3 @@ def start_retest(
         message="Started retest",
     )
     return redirect(reverse("audits:edit-audit-retest-metadata", kwargs={"pk": pk}))
-
-
-class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
-    """
-    View to update statement pages in 12-week retest
-    """
-
-    form_class: Type[
-        TwelveWeekStatementPagesUpdateForm
-    ] = TwelveWeekStatementPagesUpdateForm
-    template_name: str = "audits/forms/twelve_week_statement_pages_formset.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        audit_pk: Dict[str, int] = {"pk": self.object.id}
-        current_url: str = reverse(
-            "audits:edit-retest-statement-pages", kwargs=audit_pk
-        )
-        if "save_continue" in self.request.POST:
-            return reverse("audits:edit-retest-statement-overview", kwargs=audit_pk)
-        elif "add_statement_page" in self.request.POST:
-            return f"{current_url}?add_extra=true#statement_page-None"
-        else:
-            return current_url

@@ -155,6 +155,9 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week website compliance decision`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | 12-week statement links`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | 12-week statement overview`)
     cy.contains('Save and continue').click()
 
