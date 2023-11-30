@@ -71,20 +71,10 @@ WCAG_DEFINITION_NAME: str = "WCAG definiton name"
 WCAG_DEFINITION_URL: str = "https://example.com"
 PAGE_RETEST_NOTES: str = "Retest notes"
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
-NO_ACCESSIBILITY_STATEMENT_WARNING: str = """<strong class="govuk-warning-text__text">
-    <span class="govuk-warning-text__assistive">Warning</span>
-    The statement assessment is not visible as no statement has been found
-    for this organisation website. To make the form visible, add an
-    accessibility statement to
-    <a href="/audits/1/edit-audit-pages/" class="govuk-link govuk-link--no-visited-state">
-        Test > Pages</a>
-    and uncheck 'Not found?'
-</strong>"""
-NO_ACCESSIBILITY_STATEMENT_ON_RETEST: str = """<p class="govuk-body-m">
-    The statement assessment is not visible, as no statement was found during the initial test.
-    <a href="/audits/1/edit-retest-statement-pages/" class="govuk-link govuk-link--no-visited-state">
-        Append a statement to the 12-week test</a>
-    if the organisation has added a statement to their website.
+NO_ACCESSIBILITY_STATEMENT: str = """<p class="govuk-body">
+No statement added. Add a statement in
+<a href="/audits/1/edit-statement-pages/" class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener">
+    statement links</a>.
 </p>"""
 NO_12_WEEK_STATEMENT_ON_RETEST_TEXT: str = "The statement assessment is not visible, as no statement was found during the initial test."
 ACCESSIBILITY_STATEMENT_12_WEEK_URL: str = (
@@ -516,7 +506,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-website-decision",
             "save_continue",
-            "audits:edit-audit-statement-1",
+            "audits:edit-statement-pages",
         ),
         (
             "audits:edit-audit-statement-2",
@@ -542,7 +532,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-audit-retest-statement-1",
+            "audits:edit-retest-statement-pages",
         ),
         (
             "audits:edit-audit-retest-statement-decision",
@@ -664,7 +654,7 @@ def test_audit_compliance_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-retest-statement-overview",
+            "audits:edit-retest-statement-pages",
         ),
         (
             "audits:edit-retest-statement-overview",
@@ -1405,7 +1395,7 @@ def test_statement_details_hidden_when_no_statement_page(
 
     assert response.status_code == 200
 
-    assertContains(response, NO_ACCESSIBILITY_STATEMENT_WARNING, html=True)
+    assertContains(response, NO_ACCESSIBILITY_STATEMENT, html=True)
     assertNotContains(response, field_label)
 
     StatementPage.objects.create(audit=audit, url=ACCESSIBILITY_STATEMENT_URL)
@@ -1416,7 +1406,7 @@ def test_statement_details_hidden_when_no_statement_page(
 
     assert response.status_code == 200
 
-    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT_WARNING, html=True)
+    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT, html=True)
     assertContains(response, field_label)
 
 
@@ -1449,7 +1439,7 @@ def test_statement_details_hidden_when_no_statement_page_on_retest(
 
     assert response.status_code == 200
 
-    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertContains(response, NO_ACCESSIBILITY_STATEMENT, html=True)
     assertNotContains(response, field_label)
 
     StatementPage.objects.create(audit=audit)
@@ -1460,84 +1450,8 @@ def test_statement_details_hidden_when_no_statement_page_on_retest(
 
     assert response.status_code == 200
 
-    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT, html=True)
     assertContains(response, field_label)
-
-
-@pytest.mark.parametrize(
-    "url_name, field_label",
-    [
-        (
-            "audits:edit-retest-statement-overview",
-            "Is there an accessibility page?",
-        ),
-    ],
-)
-def test_statement_check_results_hidden_when_no_statement_page_on_retest(
-    url_name, field_label, admin_client
-):
-    """
-    Test that accessibility statement check results form fields shown only if
-    such a page is present.
-    """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
-    assertNotContains(response, field_label)
-
-    StatementPage.objects.create(audit=audit, url=ACCESSIBILITY_STATEMENT_URL)
-
-    response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
-    assertContains(response, field_label)
-
-
-@pytest.mark.parametrize(
-    "url_name",
-    [
-        "audits:edit-audit-retest-statement-1",
-        "audits:edit-audit-retest-statement-2",
-        "audits:edit-retest-statement-overview",
-    ],
-)
-def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
-    """
-    Test that option to add 12-week accessibility statement shown.
-    """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, NO_12_WEEK_STATEMENT_ON_RETEST_TEXT)
-    assertNotContains(response, ACCESSIBILITY_STATEMENT_12_WEEK_URL)
-
-    StatementPage.objects.create(audit=audit, url=ACCESSIBILITY_STATEMENT_12_WEEK_URL)
-
-    response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, NO_12_WEEK_STATEMENT_ON_RETEST_TEXT)
-    assertContains(response, ACCESSIBILITY_STATEMENT_12_WEEK_URL)
 
 
 @pytest.mark.parametrize(

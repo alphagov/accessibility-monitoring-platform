@@ -35,7 +35,10 @@ def populate_statement_pages(apps, schema_editor):  # pylint: disable=unused-arg
                     url=page.url,
                     backup_url=audit.accessibility_statement_backup_url,
                 )
-                statement_page.created = page.updated
+                if page.updated:
+                    statement_page.created = page.updated
+                else:
+                    statement_page.created = DEFAULT_CREATION_DATETIME
                 statement_page.save()
         if (
             audit.twelve_week_accessibility_statement_url
