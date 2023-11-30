@@ -224,7 +224,7 @@ class AuditRetestCaseComplianceWebsite12WeekUpdateView(AuditCaseComplianceUpdate
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse("audits:edit-retest-statement-pages", kwargs=audit_pk)
+            return reverse("audits:edit-audit-retest-statement-pages", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -243,7 +243,7 @@ class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
         audit: Audit = self.object
         audit_pk: Dict[str, int] = {"pk": audit.id}
         current_url: str = reverse(
-            "audits:edit-retest-statement-pages", kwargs=audit_pk
+            "audits:edit-audit-retest-statement-pages", kwargs=audit_pk
         )
         if "save_continue" in self.request.POST:
             if audit.uses_statement_checks:

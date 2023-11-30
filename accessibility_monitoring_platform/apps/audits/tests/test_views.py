@@ -532,7 +532,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-retest-statement-pages",
+            "audits:edit-audit-retest-statement-pages",
         ),
         (
             "audits:edit-audit-retest-statement-decision",
@@ -654,7 +654,7 @@ def test_audit_compliance_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-retest-statement-pages",
+            "audits:edit-audit-retest-statement-pages",
         ),
         (
             "audits:edit-retest-statement-overview",

@@ -220,9 +220,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-retest-statement-2",
     ),
     path(
-        "<int:pk>/edit-retest-statement-pages/",
+        "<int:pk>/edit-audit-retest-statement-pages/",
         login_required(TwelveWeekStatementPageFormsetUpdateView.as_view()),
-        name="edit-retest-statement-pages",
+        name="edit-audit-retest-statement-pages",
     ),
     path(
         "<int:pk>/edit-retest-statement-overview/",

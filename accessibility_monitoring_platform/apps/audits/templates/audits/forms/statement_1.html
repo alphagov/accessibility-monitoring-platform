@@ -26,10 +26,6 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% if audit.statement_pages %}
-                                {% include 'common/amp_field.html' with field=form.accessibility_statement_backup_url %}
-                                {% if audit.accessibility_statement_backup_url_date %}
-                                    <p class="govuk-body amp-margin-top-minus-20"> Added {{ audit.accessibility_statement_backup_url_date }} </p>
-                                {% endif %}
                                 {% include 'audits/helpers/test_statement_field_info.html' with field=form.archive_scope_state help_details='audits/archive_statement_examples/scope_state.html' %}
                                 {% include 'common/amp_field.html' with field=form.archive_scope_notes %}
                                 {% include 'audits/helpers/test_statement_field_info.html' with field=form.archive_feedback_state help_details='audits/archive_statement_examples/feedback_state.html' %}
@@ -53,8 +49,6 @@
                                 {% include 'common/amp_field.html' with field=form.archive_compliance_notes %}
                                 {% include 'audits/helpers/test_statement_field_info.html' with field=form.archive_non_regulation_state help_details='audits/archive_statement_examples/non_regulation_state.html' %}
                                 {% include 'common/amp_field.html' with field=form.archive_non_regulation_notes %}
-                            {% else %}
-                                {% include 'audits/helpers/no_statement_warning.html' %}
                             {% endif %}
                             {% include 'common/amp_field.html' with field=form.archive_audit_statement_1_complete_date %}
                         </div>

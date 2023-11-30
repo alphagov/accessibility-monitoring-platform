@@ -128,7 +128,7 @@
 
             <div class="govuk-accordion__section">
                 <div class="govuk-accordion__section-header">
-                    <h2 id="statement-pages" class="govuk-accordion__section-heading">
+                    <h2 id="retest-statement-pages" class="govuk-accordion__section-heading">
                         <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-pages">
                             12-week statement links
                             {% if audit.audit_retest_statement_pages_complete_date %}
@@ -139,7 +139,7 @@
                     </h2>
                 </div>
                 <div id="accordion-content-audit-statement-pages" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-pages">
-                    {% include 'audits/details/statement_pages.html' %}
+                    {% include 'audits/details/statement_pages.html' with on_retest=True  %}
                 </div>
             </div>
 

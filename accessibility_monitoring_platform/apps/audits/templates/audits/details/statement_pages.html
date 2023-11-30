@@ -1,14 +1,26 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-        <p id="statement-pages" class="govuk-body-m">
-            <b>Statement links</b>
-            |
-            <a href="{% url 'audits:edit-statement-pages' audit.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit{% if on_view_case %} test &gt; statement links{% endif %}
-            </a>
-        </p>
+        {% if on_retest %}
+            <p id="retest-statement-pages" class="govuk-body-m">
+                <b>12-week statement links</b>
+                |
+                <a href="{% url 'audits:edit-audit-retest-statement-pages' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} 12-week test &gt; statement links{% endif %}
+                </a>
+            </p>
+        {% else %}
+            <p id="statement-pages" class="govuk-body-m">
+                <b>Statement links</b>
+                |
+                <a href="{% url 'audits:edit-statement-pages' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} test &gt; statement links{% endif %}
+                </a>
+            </p>
+        {% endif %}
     </div>
 </div>
 {% for statement_page in audit.statement_pages %}

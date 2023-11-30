@@ -19,9 +19,7 @@
                 {% include './nav_content.html' with id='edit-audit-retest-pages' edit_name='audits:edit-audit-retest-pages' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
                 {% include './nav_content.html' with id='edit-audit-retest-website-decision' anchor='audit-retest-website-decision' edit_name='audits:edit-audit-retest-website-decision' name='12-week website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
             {% endif %}
-            {% if not on_view_case %}
-                {% include './nav_content.html' with id='edit-retest-statement-pages' anchor='statement-pages' edit_name='audits:edit-retest-statement-pages' name='12-week statement links' complete=audit.audit_retest_statement_pages_complete_date %}
-            {% endif %}
+            {% include './nav_content.html' with id='edit-audit-retest-statement-pages' anchor='retest-statement-pages' edit_name='audits:edit-audit-retest-statement-pages' name='12-week statement links' complete=audit.audit_retest_statement_pages_complete_date %}
             {% if audit.uses_statement_checks %}
                 {% include './nav_content.html' with id='edit-retest-statement-overview' anchor='retest-statement-overview' edit_name='audits:edit-retest-statement-overview' name='12-week statement overview' complete=audit.audit_retest_statement_overview_complete_date %}
                 {% if audit.all_overview_statement_checks_have_passed %}
