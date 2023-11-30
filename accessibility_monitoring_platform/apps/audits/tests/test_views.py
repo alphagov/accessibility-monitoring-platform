@@ -1548,7 +1548,6 @@ def test_statement_check_results_hidden_when_no_statement_page_on_retest(
 
     assert response.status_code == 200
 
-    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
     assertNotContains(response, field_label)
 
     page: Page = audit.accessibility_statement_page
@@ -1561,7 +1560,6 @@ def test_statement_check_results_hidden_when_no_statement_page_on_retest(
 
     assert response.status_code == 200
 
-    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
     assertContains(response, field_label)
 
     page.not_found = BOOLEAN_TRUE
@@ -1573,7 +1571,6 @@ def test_statement_check_results_hidden_when_no_statement_page_on_retest(
 
     assert response.status_code == 200
 
-    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
     assertNotContains(response, field_label)
 
 
@@ -1582,7 +1579,6 @@ def test_statement_check_results_hidden_when_no_statement_page_on_retest(
     [
         "audits:edit-audit-retest-statement-1",
         "audits:edit-audit-retest-statement-2",
-        "audits:edit-retest-statement-overview",
     ],
 )
 def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
@@ -1612,6 +1608,41 @@ def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
     assert response.status_code == 200
 
     assertNotContains(response, NO_12_WEEK_STATEMENT_ON_RETEST_TEXT)
+    assertContains(response, TWELVE_WEEK_STATEMENT_ON_RETEST_TEXT)
+    assertContains(response, ACCESSIBILITY_STATEMENT_12_WEEK_URL)
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-retest-statement-overview",
+    ],
+)
+def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
+    """
+    Test that option to add 12-week accessibility statement shown.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, TWELVE_WEEK_STATEMENT_ON_RETEST_TEXT)
+    assertNotContains(response, ACCESSIBILITY_STATEMENT_12_WEEK_URL)
+
+    audit.twelve_week_accessibility_statement_url = ACCESSIBILITY_STATEMENT_12_WEEK_URL
+    audit.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
     assertContains(response, TWELVE_WEEK_STATEMENT_ON_RETEST_TEXT)
     assertContains(response, ACCESSIBILITY_STATEMENT_12_WEEK_URL)
 
