@@ -27,6 +27,7 @@ from ...audits.models import (
     StatementCheck,
     StatementCheckResult,
     Retest,
+    StatementPage,
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_CONTACT,
     PAGE_TYPE_HOME,
@@ -34,6 +35,7 @@ from ...audits.models import (
     SCOPE_STATE_VALID,
     STATEMENT_CHECK_YES,
     STATEMENT_CHECK_NO,
+    ADDED_STAGE_TWELVE_WEEK,
 )
 from ...audits.tests.test_models import create_audit_and_check_results, ERROR_NOTES
 
@@ -1697,9 +1699,7 @@ def test_test_results_page_shows_if_statement_exists(
         html=True,
     )
 
-    Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
-    )
+    StatementPage.objects.create(audit=audit)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-test-results", kwargs={"pk": case.id}),
@@ -1834,8 +1834,7 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
         html=True,
     )
 
-    audit.twelve_week_accessibility_statement_url = "https://example.com"
-    audit.save()
+    StatementPage.objects.create(audit=audit, added_stage=ADDED_STAGE_TWELVE_WEEK)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),

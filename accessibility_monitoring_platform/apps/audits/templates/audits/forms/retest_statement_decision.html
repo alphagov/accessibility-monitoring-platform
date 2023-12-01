@@ -26,7 +26,7 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% if audit.twelve_week_accessibility_statement_found %}
+                            {% if not audit.accessibility_statement_initially_found and audit.twelve_week_accessibility_statement_found %}
                                 <p class="govuk-body-m">Statement missing during initial test</p>
                             {% else %}
                                 {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}

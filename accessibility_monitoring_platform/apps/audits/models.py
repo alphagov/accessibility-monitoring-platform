@@ -857,22 +857,6 @@ class Audit(VersionModel):
         return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
 
     @property
-    def accessibility_statement_initially_found(self):
-        return self.accessibility_statement_found
-
-    @property
-    def accessibility_statement_found(self):
-        return (
-            self.accessibility_statement_page is not None
-            and self.accessibility_statement_page.url != ""
-            and self.accessibility_statement_page.not_found == BOOLEAN_FALSE
-        )
-
-    @property
-    def twelve_week_accessibility_statement_found(self):
-        return self.twelve_week_accessibility_statement_url != ""
-
-    @property
     def contact_page(self):
         return self.every_page.filter(page_type=PAGE_TYPE_CONTACT).first()
 
@@ -1104,6 +1088,20 @@ class Audit(VersionModel):
     @property
     def statement_pages(self) -> bool:
         return self.statementpage_set.filter(is_deleted=False)
+
+    @property
+    def accessibility_statement_initially_found(self):
+        return self.statement_pages.filter(added_stage=ADDED_STAGE_INITIAL).count() > 0
+
+    @property
+    def twelve_week_accessibility_statement_found(self):
+        return (
+            self.statement_pages.filter(added_stage=ADDED_STAGE_TWELVE_WEEK).count() > 0
+        )
+
+    @property
+    def accessibility_statement_found(self):
+        return self.statement_pages.count() > 0
 
 
 class Page(models.Model):

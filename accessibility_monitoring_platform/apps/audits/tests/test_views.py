@@ -49,6 +49,7 @@ from ..models import (
     RetestPage,
     RetestCheckResult,
     StatementPage,
+    ADDED_STAGE_TWELVE_WEEK,
 )
 from ..utils import create_mandatory_pages_for_new_audit
 
@@ -214,8 +215,11 @@ def test_audit_detail_shows_12_week_statement(admin_client):
     """Test that audit detail view shows the 12-week statement"""
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
-    audit.twelve_week_accessibility_statement_url = ACCESSIBILITY_STATEMENT_12_WEEK_URL
-    audit.save()
+    StatementPage.objects.create(
+        audit=audit,
+        added_stage=ADDED_STAGE_TWELVE_WEEK,
+        url=ACCESSIBILITY_STATEMENT_12_WEEK_URL,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("audits:audit-retest-detail", kwargs=audit_pk)
@@ -922,9 +926,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
-    statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
-    statement_page.url = "https://example.com/statement"
-    statement_page.save()
+    StatementPage.objects.create(audit=audit, added_stage=ADDED_STAGE_TWELVE_WEEK)
 
     case: Case = audit.case
     case.home_page_url = "https://www.website.com"
@@ -975,8 +977,12 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     """
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
-    audit.twelve_week_accessibility_statement_url = "https://www.website.com/statement"
-    audit.save()
+
+    StatementPage.objects.create(
+        audit=audit,
+        added_stage=ADDED_STAGE_TWELVE_WEEK,
+        url="https://www.website.com/statement",
+    )
 
     case: Case = audit.case
     case.home_page_url = "https://www.website.com"
@@ -2048,8 +2054,11 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
     assert response.status_code == 200
     assertContains(response, "View initial decision")
 
-    audit.twelve_week_accessibility_statement_url = ACCESSIBILITY_STATEMENT_12_WEEK_URL
-    audit.save()
+    StatementPage.objects.create(
+        audit=audit,
+        added_stage=ADDED_STAGE_TWELVE_WEEK,
+        url=ACCESSIBILITY_STATEMENT_12_WEEK_URL,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-retest-statement-decision", kwargs=audit_pk)
@@ -2076,9 +2085,8 @@ def test_retest_statement_custom_with_initial(admin_client):
     """Test that a retest statement custom with an initial failure shows it"""
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
-    statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
-    statement_page.url = "https://example.com/statement"
-    statement_page.save()
+
+    StatementPage.objects.create(audit=audit)
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-retest-statement-custom", kwargs=audit_pk),

@@ -46,6 +46,7 @@ from ..models import (
     RetestPage,
     RetestCheckResult,
     StatementPage,
+    ADDED_STAGE_TWELVE_WEEK,
 )
 
 PAGE_NAME = "Page name"
@@ -434,19 +435,13 @@ def test_accessibility_statement_initially_found():
     # No page
     assert audit.accessibility_statement_initially_found is False
 
-    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_STATEMENT)
-
-    # No URL
-    assert audit.accessibility_statement_initially_found is False
-
-    page.url = "https://example.com"
-    page.save()
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
 
     # Not found flag not set
     assert audit.accessibility_statement_initially_found is True
 
-    page.not_found = BOOLEAN_TRUE
-    page.save()
+    statement_page.added_stage = ADDED_STAGE_TWELVE_WEEK
+    statement_page.save()
 
     # Not found flag set
     assert audit.accessibility_statement_initially_found is False
@@ -458,34 +453,14 @@ def test_accessibility_statement_found():
     Test that an accessibility statement was found.
     """
     audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
-
-    assert audit.accessibility_statement_found is False
-
-    page.url = "https://example.com/statement"
-    page.save()
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
 
     assert audit.accessibility_statement_found is True
 
-    page.not_found = BOOLEAN_TRUE
-    page.save()
+    statement_page.added_stage = ADDED_STAGE_TWELVE_WEEK
+    statement_page.save()
 
-    assert audit.accessibility_statement_found is False
-
-
-@pytest.mark.django_db
-def test_twelve_week_accessibility_statement_found():
-    """
-    Test that an accessibility statement was found on 12-week retest.
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-
-    assert audit.twelve_week_accessibility_statement_found is False
-
-    audit.twelve_week_accessibility_statement_url = "https://example.com/statement"
-
-    assert audit.twelve_week_accessibility_statement_found is True
+    assert audit.accessibility_statement_found is True
 
 
 @pytest.mark.django_db
