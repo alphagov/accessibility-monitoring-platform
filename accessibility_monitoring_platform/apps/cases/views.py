@@ -22,7 +22,6 @@ from ..audits.forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
 )
-from ..audits.models import Retest, RETEST_INITIAL_COMPLIANCE_DEFAULT
 from ..audits.utils import get_test_view_tables_context, get_retest_view_tables_context
 
 from ..cases.utils import get_post_case_alerts
@@ -80,7 +79,6 @@ from .forms import (
     CaseReviewChangesUpdateForm,
     CaseCloseUpdateForm,
     PostCaseUpdateForm,
-    CaseEnforcementBodyCorrespondenceUpdateForm,
     CaseDeactivateForm,
     CaseStatementEnforcementUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
@@ -210,9 +208,6 @@ class CaseDetailView(DetailView):
             form=CaseReviewChangesUpdateForm()
         )
         context["case_close_rows"] = get_case_rows(form=CaseCloseUpdateForm())
-        context["enforcement_body_correspondence_rows"] = get_case_rows(
-            form=CaseEnforcementBodyCorrespondenceUpdateForm()
-        )
         context["equality_body_metadata_rows"] = get_case_rows(
             form=CaseEqualityBodyMetadataUpdateForm()
         )

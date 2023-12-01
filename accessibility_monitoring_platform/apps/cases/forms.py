@@ -40,7 +40,6 @@ from .models import (
     PREFERRED_CHOICES,
     TWELVE_WEEK_RESPONSE_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
-    ENFORCEMENT_BODY_PURSUING_CHOICES,
     ENFORCEMENT_BODY_CLOSED_CHOICES,
     PSB_LOCATION_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
@@ -593,50 +592,6 @@ class PostCaseUpdateForm(VersionForm):
             "case_updated_date",
             "psb_appeal_notes",
             "post_case_complete_date",
-        ]
-
-
-class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
-    """
-    Form for recording correspondence with enforcement body
-    """
-
-    sent_to_enforcement_body_sent_date = AMPDateField(
-        label="Date sent to equality body",
-        help_text="This field affects the case status",
-    )
-    enforcement_body_pursuing = AMPChoiceRadioField(
-        label="Equality body pursuing this case?",
-        choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
-        help_text="This field affects the case status",
-    )
-    enforcement_body_finished_date = AMPDateField(
-        label="Date equality body completed the case",
-    )
-    enforcement_body_correspondence_notes = AMPTextField(
-        label="Equality body correspondence notes"
-    )
-    enforcement_retest_document_url = AMPURLField(label="External retest document")
-    is_feedback_requested = AMPChoiceCheckboxField(
-        label="Feedback survey sent?",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Feedback survey sent to this organisation?"}
-        ),
-    )
-    enforcement_correspondence_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "sent_to_enforcement_body_sent_date",
-            "enforcement_body_pursuing",
-            "enforcement_body_finished_date",
-            "enforcement_body_correspondence_notes",
-            "enforcement_retest_document_url",
-            "is_feedback_requested",
-            "enforcement_correspondence_complete_date",
         ]
 
 
