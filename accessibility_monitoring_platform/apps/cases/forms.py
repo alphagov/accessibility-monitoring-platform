@@ -690,6 +690,13 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     enforcement_body_finished_date = AMPDateField(
         label="Date equality body completed the case",
     )
+    is_feedback_requested = AMPChoiceCheckboxField(
+        label="Feedback survey sent?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
 
     class Meta:
         model = Case
@@ -699,6 +706,7 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
             "enforcement_body_case_owner",
             "enforcement_body_closed_case",
             "enforcement_body_finished_date",
+            "is_feedback_requested",
         ]
 
 
