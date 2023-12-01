@@ -32,8 +32,6 @@
                         <div class="govuk-grid-column-full">
                             {% if audit.accessibility_statement_initially_found or audit.twelve_week_accessibility_statement_found %}
                                 {% include 'audits/helpers/retest_statement_check_formset.html' %}
-                            {% else %}
-                                {% include 'audits/helpers/no_statement_at_retest.html' %}
                             {% endif %}
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
