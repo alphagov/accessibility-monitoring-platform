@@ -1519,7 +1519,7 @@ class StatementPage(models.Model):
     added_stage = models.CharField(
         max_length=20, choices=ADDED_STAGE_CHOICES, default=ADDED_STAGE_INITIAL
     )
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]
