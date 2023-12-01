@@ -44,8 +44,6 @@
                                 {% include 'audits/helpers/retest_statement_field_info.html' with name='Access Requirements' example='audits/archive_statement_examples/access_requirements_state.html' decision=audit.get_archive_access_requirements_state_display notes=audit.archive_access_requirements_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_access_requirements_state %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_access_requirements_notes %}
-                            {% else %}
-                                {% include 'audits/helpers/no_statement_at_retest.html' %}
                             {% endif %}
                             {% include 'common/amp_field.html' with field=form.archive_audit_retest_statement_2_complete_date %}
                         </div>

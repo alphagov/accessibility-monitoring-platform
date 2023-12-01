@@ -77,7 +77,6 @@ No statement added. Add a statement in
 <a href="/audits/1/edit-statement-pages/" class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener">
     statement links</a>.
 </p>"""
-NO_12_WEEK_STATEMENT_ON_RETEST_TEXT: str = "The statement assessment is not visible, as no statement was found during the initial test."
 ACCESSIBILITY_STATEMENT_12_WEEK_URL: str = (
     "https://example.com/12-week-accessibility-statement"
 )

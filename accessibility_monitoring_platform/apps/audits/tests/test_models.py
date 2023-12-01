@@ -45,6 +45,7 @@ from ..models import (
     RETEST_INITIAL_COMPLIANCE_COMPLIANT,
     RetestPage,
     RetestCheckResult,
+    StatementPage,
 )
 
 PAGE_NAME = "Page name"
@@ -1397,3 +1398,21 @@ def test_retest_check_result_all_retest_check_result():
         new_retest_check_result.all_retest_check_results.last()
         == new_retest_check_result
     )
+
+
+def test_statement_page_str():
+    """
+    Test the string representation of the statement page is the backup
+    url or url.
+    """
+    statement_page: StatementPage = StatementPage()
+
+    assert str(statement_page) == ""
+
+    statement_page.backup_url = "backup"
+
+    assert str(statement_page) == "backup"
+
+    statement_page.url = "url"
+
+    assert str(statement_page) == "url"

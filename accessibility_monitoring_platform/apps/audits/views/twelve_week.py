@@ -250,7 +250,7 @@ class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
                 return reverse("audits:edit-retest-statement-overview", kwargs=audit_pk)
             return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
         elif "add_statement_page" in self.request.POST:
-            return f"{current_url}?add_extra=true#statement_page-None"
+            return f"{current_url}?add_extra=true#statement-page-None"
         else:
             return current_url
 

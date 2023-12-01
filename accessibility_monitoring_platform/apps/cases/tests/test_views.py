@@ -330,10 +330,6 @@ def test_view_case_includes_tests(admin_client):
 
     assertContains(response, "12-week test metadata")
     assertContains(response, "Retest date")
-    assertContains(
-        response,
-        "The statement assessment is not visible, as no statement was found during the initial test.",
-    )
 
 
 def test_case_detail_view_leaves_out_deleted_contact(admin_client):
@@ -3385,9 +3381,6 @@ def test_post_case_alerts(admin_client, admin_user):
     case: Case = Case.objects.create(auditor=admin_user)
     EqualityBodyCorrespondence.objects.create(case=case)
     Retest.objects.create(case=case)
-    url: str = reverse(
-        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
-    )
 
     response: HttpResponse = admin_client.get(reverse("cases:post-case-alerts"))
 
