@@ -26,7 +26,6 @@ from ...cases.models import (
 from ..models import (
     PAGE_TYPE_HOME,
     PAGE_TYPE_PDF,
-    PAGE_TYPE_STATEMENT,
     Audit,
     CheckResult,
     Page,
@@ -580,11 +579,111 @@ def test_audit_compliance_edit_redirects_based_on_button_pressed(
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
+        ("audits:edit-statement-pages", "save", "audits:edit-statement-pages"),
         (
-            "audits:edit-website-decision",
-            "save_continue",
             "audits:edit-statement-pages",
+            "save_continue",
+            "audits:edit-audit-statement-1",
         ),
+        (
+            "audits:edit-audit-retest-statement-pages",
+            "save",
+            "audits:edit-audit-retest-statement-pages",
+        ),
+        (
+            "audits:edit-audit-retest-statement-pages",
+            "save_continue",
+            "audits:edit-audit-retest-statement-1",
+        ),
+    ],
+)
+def test_audit_statement_pages_edit_redirects_based_on_button_pressed_no_statement_checks(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful audit statement pages update redirects based
+    on the button pressed (no statement checks)
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=audit_pk),
+        {
+            "version": audit.version,
+            button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
+        ("audits:edit-statement-pages", "save", "audits:edit-statement-pages"),
+        (
+            "audits:edit-statement-pages",
+            "save_continue",
+            "audits:edit-statement-overview",
+        ),
+        (
+            "audits:edit-audit-retest-statement-pages",
+            "save",
+            "audits:edit-audit-retest-statement-pages",
+        ),
+        (
+            "audits:edit-audit-retest-statement-pages",
+            "save_continue",
+            "audits:edit-retest-statement-overview",
+        ),
+    ],
+)
+def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful audit statement pages update redirects based
+    on the button pressed (with statement checks)
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=audit_pk),
+        {
+            "version": audit.version,
+            button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
         (
             "audits:edit-statement-overview",
             "save",
@@ -659,6 +758,16 @@ def test_audit_compliance_edit_redirects_based_on_button_pressed(
             "audits:edit-audit-retest-website-decision",
             "save_continue",
             "audits:edit-audit-retest-statement-pages",
+        ),
+        (
+            "audits:edit-audit-retest-statement-pages",
+            "save",
+            "audits:edit-audit-retest-statement-pages",
+        ),
+        (
+            "audits:edit-audit-retest-statement-pages",
+            "save_continue",
+            "audits:edit-retest-statement-overview",
         ),
         (
             "audits:edit-retest-statement-overview",
@@ -2046,6 +2155,7 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
     """
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-retest-statement-decision", kwargs=audit_pk)
@@ -2054,11 +2164,8 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
     assert response.status_code == 200
     assertContains(response, "View initial decision")
 
-    StatementPage.objects.create(
-        audit=audit,
-        added_stage=ADDED_STAGE_TWELVE_WEEK,
-        url=ACCESSIBILITY_STATEMENT_12_WEEK_URL,
-    )
+    statement_page.added_stage = (ADDED_STAGE_TWELVE_WEEK,)
+    statement_page.save()
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-retest-statement-decision", kwargs=audit_pk)

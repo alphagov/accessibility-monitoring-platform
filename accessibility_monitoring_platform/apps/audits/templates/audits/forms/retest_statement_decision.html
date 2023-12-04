@@ -26,10 +26,10 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% if not audit.accessibility_statement_initially_found and audit.twelve_week_accessibility_statement_found %}
-                                <p class="govuk-body-m">Statement missing during initial test</p>
-                            {% else %}
+                            {% if audit.accessibility_statement_initially_found %}
                                 {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
+                            {% else %}
+                                <p class="govuk-body-m">Statement missing during initial test</p>
                             {% endif %}
                             {% include 'common/amp_form_snippet.html' with form=case_compliance_form %}
                             {% include 'common/amp_field.html' with field=form.archive_audit_retest_statement_decision_complete_date %}

@@ -46,6 +46,7 @@ from ..models import (
     RetestPage,
     RetestCheckResult,
     StatementPage,
+    ADDED_STAGE_INITIAL,
     ADDED_STAGE_TWELVE_WEEK,
 )
 
@@ -1373,6 +1374,81 @@ def test_retest_check_result_all_retest_check_result():
         new_retest_check_result.all_retest_check_results.last()
         == new_retest_check_result
     )
+
+
+@pytest.mark.django_db
+def test_audit_statement_pages():
+    """Test audit statement pages"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert not audit.statement_pages
+
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+
+    assert audit.statement_pages.count() == 1
+    assert audit.statement_pages.first() == statement_page
+
+    statement_page.is_deleted = True
+    statement_page.save()
+
+    assert not audit.statement_pages
+
+
+@pytest.mark.django_db
+def test_audit_accessibility_statement_initially_found():
+    """Test audit statement initially found"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.accessibility_statement_initially_found is False
+
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+
+    assert audit.accessibility_statement_initially_found is True
+
+    statement_page.added_stage = ADDED_STAGE_TWELVE_WEEK
+    statement_page.save()
+
+    assert audit.accessibility_statement_initially_found is False
+
+
+@pytest.mark.django_db
+def test_audit_twelve_week_accessibility_statement_found():
+    """Test audit statement found at twelve-week retest"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.twelve_week_accessibility_statement_found is False
+
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, added_stage=ADDED_STAGE_TWELVE_WEEK
+    )
+
+    assert audit.twelve_week_accessibility_statement_found is True
+
+    statement_page.added_stage = ADDED_STAGE_INITIAL
+    statement_page.save()
+
+    assert audit.twelve_week_accessibility_statement_found is False
+
+
+@pytest.mark.django_db
+def test_audit_accessibility_statement_found():
+    """Test audit statement found"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.accessibility_statement_found is False
+
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+
+    assert audit.accessibility_statement_found is True
+
+    statement_page.is_deleted = True
+    statement_page.save()
+
+    assert audit.accessibility_statement_found is False
 
 
 def test_statement_page_str():
