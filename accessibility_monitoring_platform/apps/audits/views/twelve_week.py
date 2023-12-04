@@ -303,10 +303,7 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object
 
-        if (
-            audit.accessibility_statement_initially_found
-            or audit.twelve_week_accessibility_statement_found
-        ):
+        if audit.accessibility_statement_found:
             if self.request.POST:
                 retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = AuditRetestStatementCheckResultFormset(
                     self.request.POST
@@ -328,10 +325,7 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
         audit: Audit = self.object
-        if (
-            audit.accessibility_statement_initially_found
-            or audit.twelve_week_accessibility_statement_found
-        ):
+        if audit.accessibility_statement_found:
             retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = context[
                 "retest_statement_check_results_formset"
             ]

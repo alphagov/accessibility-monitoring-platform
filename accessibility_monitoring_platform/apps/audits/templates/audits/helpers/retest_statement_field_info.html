@@ -6,7 +6,7 @@
         </summary>
         <div class="govuk-details__text">{% include example %}</div>
     </details>
-    {% if audit.twelve_week_accessibility_statement_found %}
+    {% if not audit.accessibility_statement_initially_found %}
         <p class="govuk-body-m">Statement missing during initial test</p>
     {% else %}
         <details class="govuk-details" data-module="govuk-details">

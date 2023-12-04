@@ -14,17 +14,6 @@
 {% if audit.accessibility_statement_initially_found or audit.twelve_week_accessibility_statement_found %}
     <table class="govuk-table amp-accordion-table">
         <tbody class="govuk-table__body">
-            {% if audit.twelve_week_accessibility_statement_found %}
-                <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">12-week accessibility statement</th>
-                    <td class="govuk-table__cell amp-width-one-half">
-                        <a href="{{ audit.twelve_week_accessibility_statement_url }}"
-                            rel="noreferrer noopener" target="_blank" class="govuk-link">
-                            {{ audit.twelve_week_accessibility_statement_url }}
-                        </a>
-                    </td>
-                </tr>
-            {% endif %}
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Non-accessible content - disproportionate burden</th>
                 <td class="govuk-table__cell amp-width-one-half">{{ audit.get_archive_audit_retest_disproportionate_burden_state_display }}</td>
