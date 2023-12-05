@@ -629,6 +629,70 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed_no_stateme
     assert response.url == expected_path
 
 
+def test_audit_statement_pages_edit_add_from_wcag_shown(
+    admin_client,
+):
+    """
+    Test that add link from WCAG button shown on statement link page
+    when an accessibility statem,ent page exists with a URL.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    page: Page = audit.accessibility_statement_page
+    url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Add link from WCAG assessment")
+
+    page.url = "https://example.com/statement"
+    page.save()
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Add link from WCAG assessment")
+
+
+def test_audit_statement_pages_edit_add_from_wcag(
+    admin_client,
+):
+    """
+    Test that add link from WCAG button creates a new statement
+    page with the URL from the WCAG page.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    page: Page = audit.accessibility_statement_page
+    page.url = "https://example.com/statement"
+    page.save()
+
+    assert StatementPage.objects.filter(audit=audit).count() == 0
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-pages", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "add_wcag_statement_page": "Add link from WCAG assessment",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert StatementPage.objects.filter(audit=audit).count() == 1
+
+    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+
+    assert statement_page.url == "https://example.com/statement"
+
+
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
