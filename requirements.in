@@ -1,4 +1,4 @@
-django
+django==4.2.8
 python-dotenv
 psycopg2
 notifications-python-client
