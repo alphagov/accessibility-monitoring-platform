@@ -1153,6 +1153,22 @@ def test_case_retests_returns_undeleted_retests():
 
 
 @pytest.mark.django_db
+def test_case_number_retests():
+    """
+    Test Case.number_retests returns number of retests not counting
+    Retest #0.
+    """
+    case: Case = Case.objects.create()
+    Retest.objects.create(case=case)
+
+    assert case.number_retests == 1
+
+    Retest.objects.create(case=case, id_within_case=0)
+
+    assert case.number_retests == 1
+
+
+@pytest.mark.django_db
 def test_case_latest_retest_returns_most_recent():
     """Test Case.latest_retest returns most recent"""
     case: Case = Case.objects.create()
