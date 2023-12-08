@@ -87,6 +87,12 @@ STATEMENT_CHECK_LABEL: str = "Test statement check"
 STATEMENT_CHECK_TYPE: str = "custom"
 STATEMENT_CHECK_SUCCESS_CRITERIA: str = "Success criteria"
 STATEMENT_CHECK_REPORT_TEXT: str = "Report text"
+STATEMENT_PAGE_INITIAL_CHECKED: str = """<input class="govuk-radios__input"
+type="radio" name="form-0-added_stage" value="initial"
+id="id_form-0-added_stage_0" checked="">"""
+STATEMENT_PAGE_TWELVE_WEEK_CHECKED: str = """<input class="govuk-radios__input"
+type="radio" name="form-0-added_stage" value="12-week-retest"
+id="id_form-0-added_stage_1" checked="">"""
 
 
 def create_audit() -> Audit:
@@ -691,6 +697,34 @@ def test_audit_statement_pages_edit_add_from_wcag(
     statement_page: StatementPage = StatementPage.objects.get(audit=audit)
 
     assert statement_page.url == "https://example.com/statement"
+
+
+def test_audit_statement_pages_default_added_stage(
+    admin_client,
+):
+    """
+    Test that added stage for new entries defaults to initial
+    for initial and 12-week for 12-week retest pages.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("audits:edit-statement-pages", kwargs=audit_pk)}?add_extra=true#statement-page-None'
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, STATEMENT_PAGE_INITIAL_CHECKED, html=True)
+    assertNotContains(response, STATEMENT_PAGE_TWELVE_WEEK_CHECKED, html=True)
+    response: HttpResponse = admin_client.get(
+        f'{reverse("audits:edit-audit-retest-statement-pages", kwargs=audit_pk)}?add_extra=true#statement-page-None'
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, STATEMENT_PAGE_INITIAL_CHECKED, html=True)
+    assertContains(response, STATEMENT_PAGE_TWELVE_WEEK_CHECKED, html=True)
 
 
 @pytest.mark.parametrize(

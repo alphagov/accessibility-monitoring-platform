@@ -49,6 +49,7 @@ from ..models import (
     STATEMENT_CHECK_TYPE_PREPARATION,
     STATEMENT_CHECK_TYPE_FEEDBACK,
     STATEMENT_CHECK_TYPE_CUSTOM,
+    ADDED_STAGE_TWELVE_WEEK,
 )
 from ..utils import get_next_retest_page_url, get_retest_view_tables_context
 from .base import (
@@ -237,6 +238,14 @@ class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
         TwelveWeekStatementPagesUpdateForm
     ] = TwelveWeekStatementPagesUpdateForm
     template_name: str = "audits/forms/twelve_week_statement_pages_formset.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        for form in context["statement_pages_formset"]:
+            if form.instance.id is None:
+                form.fields["added_stage"].initial = ADDED_STAGE_TWELVE_WEEK
+        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

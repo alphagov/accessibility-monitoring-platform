@@ -71,6 +71,7 @@ from ..models import (
     STATEMENT_CHECK_TYPE_CUSTOM,
     STATEMENT_CHECK_NO,
     StatementPage,
+    ADDED_STAGE_INITIAL,
 )
 from ..utils import (
     create_or_update_check_results_for_page,
@@ -382,6 +383,14 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
 
     form_class: Type[AuditStatementPagesUpdateForm] = AuditStatementPagesUpdateForm
     template_name: str = "audits/forms/statement_pages_formset.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        for form in context["statement_pages_formset"]:
+            if form.instance.id is None:
+                form.fields["added_stage"].initial = ADDED_STAGE_INITIAL
+        return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
