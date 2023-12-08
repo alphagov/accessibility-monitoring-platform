@@ -64,13 +64,9 @@
         </li>
     {% endif %}
     <li>
-        {% if case.audit.accessibility_statement_page.url %}
-            <a href="{{ case.audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View {{ case.audit.accessibility_statement_page|lower }}
-            </a>
-        {% elif case.audit.statement_pages %}
+        {% if case.audit.statement_pages %}
             <a href="{{ case.audit.statement_pages.first.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View accessibility statement
+                View latest accessibility statement
             </a>
         {% else %}
             No accessibility statement
