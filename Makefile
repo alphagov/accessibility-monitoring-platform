@@ -87,6 +87,3 @@ breakdown_prototype:
 
 new_account_prototype:
 	python aws_prototype/main.py -b newaccount
-
-temp:
-	ls
