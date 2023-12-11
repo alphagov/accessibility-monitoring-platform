@@ -1,6 +1,7 @@
 """
 Models for common data used across project
 """
+from datetime import date
 from typing import Dict, List, Tuple
 
 import json
@@ -38,6 +39,20 @@ Placeholder for platform."""
 MORE_INFORMATION_ABOUT_MONITORING_DEFAULT: str = """# More Information
 
 More information about monitoring placeholder"""
+
+
+class StartEndDeleteManager(models.Manager):
+    """Model manager which filters by today's date and is_deleted flag"""
+
+    def get_queryset(self):
+        today: date = date.today()
+        return (
+            super()
+            .get_queryset()
+            .filter(is_deleted=False)
+            .exclude(date_start__lt=today)
+            .exclude(date_end__gt=today)
+        )
 
 
 class Sector(models.Model):

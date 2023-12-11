@@ -276,7 +276,7 @@ class WcagDefinitionListView(ListView):
             )
 
             if search_str:
-                return WcagDefinition.objects.filter(
+                return WcagDefinition.objects.filter(is_deleted=False).filter(
                     Q(  # pylint: disable=unsupported-binary-operation
                         name__icontains=search_str
                     )
@@ -286,7 +286,7 @@ class WcagDefinitionListView(ListView):
                     | Q(report_boilerplate__icontains=search_str)
                 )
 
-        return WcagDefinition.objects.all()
+        return WcagDefinition.objects.filter(is_deleted=False)
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""

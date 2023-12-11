@@ -229,7 +229,7 @@ class CheckResultForm(forms.ModelForm):
     """
 
     wcag_definition = forms.ModelChoiceField(
-        queryset=WcagDefinition.objects.all(), widget=forms.HiddenInput()
+        queryset=WcagDefinition.start_end.all(), widget=forms.HiddenInput()
     )
     check_result_state = AMPChoiceRadioField(
         label="",
@@ -1395,6 +1395,8 @@ class WcagDefinitionCreateUpdateForm(forms.ModelForm):
     """
 
     name = AMPCharFieldWide(label="Name", required=True)
+    start_date = AMPDateField(label="Start end")
+    end_date = AMPDateField(label="Date end")
     type = AMPChoiceRadioField(label="Type", choices=TEST_TYPE_CHOICES)
     url_on_w3 = AMPURLField(label="Link to WCAG", required=True)
     description = AMPCharFieldWide(label="Description")
@@ -1404,6 +1406,8 @@ class WcagDefinitionCreateUpdateForm(forms.ModelForm):
         model = WcagDefinition
         fields: List[str] = [
             "name",
+            "start_date",
+            "end_date",
             "type",
             "url_on_w3",
             "description",
@@ -1432,6 +1436,8 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
     """
 
     label = AMPCharFieldWide(label="Name", required=True)
+    start_date = AMPDateField(label="Start end")
+    end_date = AMPDateField(label="Date end")
     type = AMPChoiceField(
         label="Statement section", choices=STATEMENT_CHECK_TYPE_CHOICES
     )
@@ -1442,6 +1448,8 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
         model = StatementCheck
         fields: List[str] = [
             "label",
+            "start_date",
+            "end_date",
             "type",
             "success_criteria",
             "report_text",

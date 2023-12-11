@@ -292,7 +292,7 @@ class AuditPageChecksFormView(FormView):
         other_pages_failed_check_results: Dict[
             WcagDefinition, List[CheckResult]
         ] = other_page_failed_check_results(page=self.page)
-        wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
+        wcag_definitions: List[WcagDefinition] = list(WcagDefinition.start_end.all())
 
         if self.request.POST:
             check_results_formset: CheckResultFormset = CheckResultFormset(
