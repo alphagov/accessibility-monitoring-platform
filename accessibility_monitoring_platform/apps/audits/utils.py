@@ -245,7 +245,7 @@ def create_statement_checks_for_new_audit(audit: Audit) -> None:
     """
     Create statement check results for new audit.
     """
-    for statement_check in StatementCheck.objects.filter(is_deleted=False):
+    for statement_check in StatementCheck.start_end.all():
         StatementCheckResult.objects.create(
             audit=audit,
             type=statement_check.type,

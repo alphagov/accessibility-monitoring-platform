@@ -2414,9 +2414,10 @@ def test_update_wcag_definition_works(admin_client):
 
     wcag_definition_pk: int = wcag_definition.id  # type: ignore
     path_kwargs: Dict[str, int] = {"pk": wcag_definition_pk}
+    update_url: str = reverse("audits:wcag-definition-update", kwargs=path_kwargs)
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:wcag-definition-update", kwargs=path_kwargs),
+        update_url,
         {
             "type": WCAG_DEFINITION_TYPE,
             "name": WCAG_DEFINITION_NAME,
@@ -2425,7 +2426,7 @@ def test_update_wcag_definition_works(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("audits:wcag-definition-list")
+    assert response.url == update_url
 
     wcag_definition_from_db: Optional[WcagDefinition] = WcagDefinition.objects.first()
 
