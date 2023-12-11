@@ -333,10 +333,6 @@ class WcagDefinitionUpdateView(UpdateView):
             )
         return super().form_valid(form)
 
-    def get_success_url(self) -> str:
-        """Return to list of WCAG definitions"""
-        return reverse("audits:wcag-definition-list")
-
 
 class StatementCheckListView(ListView):
     """
