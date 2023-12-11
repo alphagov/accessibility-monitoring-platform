@@ -194,9 +194,10 @@ CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
 ]
 RETEST_CHECK_RESULT_DEFAULT: str = "not-retested"
 RETEST_CHECK_RESULT_FIXED: str = "fixed"
+RETEST_CHECK_RESULT_NOT_FIXED: str = "not-fixed"
 RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (RETEST_CHECK_RESULT_FIXED, "Fixed"),
-    ("not-fixed", "Not fixed"),
+    (RETEST_CHECK_RESULT_NOT_FIXED, "Not fixed"),
     (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
 
@@ -292,6 +293,13 @@ STATEMENT_CHECK_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_CHECK_YES, "Yes"),
     (STATEMENT_CHECK_NO, "No"),
     (STATEMENT_CHECK_NOT_TESTED, "Not tested"),
+]
+RETEST_INITIAL_COMPLIANCE_DEFAULT: str = "not-known"
+RETEST_INITIAL_COMPLIANCE_COMPLIANT: str = "compliant"
+RETEST_INITIAL_COMPLIANCE_CHOICES: List[Tuple[str, str]] = [
+    (RETEST_INITIAL_COMPLIANCE_COMPLIANT, "Compliant"),
+    ("partially-compliant", "Partially compliant"),
+    (RETEST_INITIAL_COMPLIANCE_DEFAULT, "Not known"),
 ]
 
 
@@ -567,6 +575,7 @@ class Audit(VersionModel):
     archive_audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking overview
+    statement_extra_report_text = models.TextField(default="", blank=True)
     audit_statement_overview_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking website
@@ -1306,3 +1315,173 @@ class StatementCheckResult(models.Model):
     @property
     def label(self):
         return self.statement_check.label if self.statement_check else "Custom"
+
+
+class Retest(VersionModel):
+    """
+    Model for retest of outstanding issues requested by an equality body
+    """
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=1, blank=True)
+    date_of_retest = models.DateField(default=date.today)
+    retest_notes = models.TextField(default="", blank=True)
+    retest_compliance_state = models.CharField(
+        max_length=20,
+        choices=RETEST_INITIAL_COMPLIANCE_CHOICES,
+        default=RETEST_INITIAL_COMPLIANCE_DEFAULT,
+    )
+    compliance_notes = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+    complete_date = models.DateField(null=True, blank=True)
+    comparison_complete_date = models.DateField(null=True, blank=True)
+    compliance_complete_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["case_id", "-id_within_case"]
+
+    def get_absolute_url(self) -> str:
+        return reverse("audits:retest-compliance-update", kwargs={"pk": self.id})
+
+    def __str__(self) -> str:
+        if self.id_within_case == 0:
+            return "12-week retest"
+        return str(f"Retest #{self.id_within_case}")
+
+    @property
+    def is_incomplete(self) -> bool:
+        return self.retest_compliance_state == RETEST_INITIAL_COMPLIANCE_DEFAULT
+
+    @property
+    def fixed_checks_count(self):
+        """
+        Add the numbers of checks fixed in the 12-week retest and all equality
+        body requested retests up to this one.
+        """
+        fixed_checks_count: int = (
+            CheckResult.objects.filter(audit=self.case.audit)
+            .filter(retest_state=RETEST_CHECK_RESULT_FIXED)
+            .exclude(page__not_found="yes")
+            .count()
+        )
+        for retest in self.case.retests.exclude(
+            id_within_case__gt=self.id_within_case
+        ).exclude(id_within_case=0):
+            fixed_checks_count += (
+                RetestCheckResult.objects.filter(retest=retest)
+                .filter(retest_state=RETEST_CHECK_RESULT_FIXED)
+                .exclude(retest_page__page__not_found="yes")
+                .count()
+            )
+        return fixed_checks_count
+
+    @property
+    def original_retest(self):
+        """Copy of 12-week retest results"""
+        return self.case.retests.filter(id_within_case=0).first()
+
+    @property
+    def previous_retest(self):
+        """Return previous retest"""
+        if self.id_within_case > 0:
+            return self.case.retests.filter(
+                id_within_case=self.id_within_case - 1
+            ).first()
+        return None
+
+    @property
+    def latest_retest(self):
+        """Return latest retest"""
+        return self.case.retests.first()
+
+
+class RetestPage(models.Model):
+    """
+    Model for equality body requested retest page
+    """
+
+    retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
+    page = models.ForeignKey(Page, on_delete=models.PROTECT)
+    missing_date = models.DateField(null=True, blank=True)
+    complete_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
+        return f"{self.page}"
+
+    def get_absolute_url(self) -> str:
+        return reverse("audits:edit-retest-page-checks", kwargs={"pk": self.pk})
+
+    @property
+    def heading(self):
+        return f"{self.retest} | {self.page}"
+
+    @property
+    def all_check_results(self):
+        return self.retestcheckresult_set.all()
+
+    @property
+    def unfixed_check_results(self):
+        return self.all_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
+
+    @property
+    def original_check_results(self):
+        return self.retest.original_retest.retestpage_set.get(
+            page=self.page
+        ).all_check_results
+
+
+class RetestCheckResult(models.Model):
+    """
+    Model for equality body requested retest result
+    """
+
+    retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
+    retest_page = models.ForeignKey(RetestPage, on_delete=models.PROTECT)
+    check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
+    is_deleted = models.BooleanField(default=False)
+    retest_state = models.CharField(
+        max_length=20,
+        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        default=RETEST_CHECK_RESULT_DEFAULT,
+    )
+    retest_notes = models.TextField(default="", blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self) -> str:
+        return str(f"{self.retest_page} | {self.check_result}")
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
+
+    @property
+    def original_retest_check_result(self):
+        """Return original copy of 12-week retest result for this check"""
+        return self.retest.original_retest.retestcheckresult_set.filter(
+            check_result=self.check_result
+        ).first()
+
+    @property
+    def latest_retest_check_result(self):
+        """Return latest retest result for this check"""
+        return self.retest.latest_retest.retestcheckresult_set.filter(
+            check_result=self.check_result
+        ).first()
+
+    @property
+    def previous_retest_check_result(self):
+        """Return previous retest result for this check"""
+        return self.retest.previous_retest.retestcheckresult_set.filter(
+            check_result=self.check_result
+        ).first()
+
+    @property
+    def all_retest_check_results(self):
+        """Return all retest results for this check"""
+        return RetestCheckResult.objects.filter(check_result=self.check_result)

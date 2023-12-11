@@ -15,7 +15,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' %}
+                {% include 'common/error_summary.html' with formset=retest_statement_check_results_formset %}
                 {% if audit.accessibility_statement_initially_found %}
                     {% include 'audits/helpers/accessibility_statement_and_backup_link.html' with twelve_week_test=1 %}
                 {% elif audit.twelve_week_accessibility_statement_found %}
@@ -32,8 +32,6 @@
                         <div class="govuk-grid-column-full">
                             {% if audit.accessibility_statement_initially_found or audit.twelve_week_accessibility_statement_found %}
                                 {% include 'audits/helpers/retest_statement_check_formset.html' %}
-                            {% else %}
-                                {% include 'audits/helpers/no_statement_at_retest.html' %}
                             {% endif %}
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
@@ -44,7 +42,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/retest_nav_steps.html' with current_page='audits:edit-retest-statement-overview' %}
+                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-retest-statement-overview' %}
             </div>
         </div>
     </main>

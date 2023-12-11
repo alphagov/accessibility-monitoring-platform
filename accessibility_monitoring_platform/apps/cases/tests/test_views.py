@@ -26,6 +26,7 @@ from ...audits.models import (
     Page,
     StatementCheck,
     StatementCheckResult,
+    Retest,
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_CONTACT,
     PAGE_TYPE_HOME,
@@ -52,15 +53,16 @@ from ..models import (
     Case,
     CaseEvent,
     Contact,
+    EqualityBodyCorrespondence,
     REPORT_APPROVED_STATUS_APPROVED,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     CASE_COMPLETED_SEND,
-    ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
-    ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     CASE_EVENT_TYPE_CREATE,
     CASE_EVENT_CASE_COMPLETED,
     CASE_COMPLETED_NO_SEND,
+    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
+    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
 )
 from ..utils import (
     create_case_and_compliance,
@@ -101,8 +103,7 @@ STATEMENT_COMPLIANCE_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_feedback_survey_columns_to_export_str: str = ",".join(
-    column.column_name
-    for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+    column.column_name for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
 )
 case_equality_body_columns_to_export_str: str = ",".join(
     column.column_name
@@ -176,6 +177,14 @@ CASE_ARCHIVE: List[Dict] = {
         },
     ]
 }
+RESOLVED_EQUALITY_BODY_MESSAGE: str = "Resolved equality body correspondence message"
+RESOLVED_EQUALITY_BODY_NOTES: str = "Resolved equality body correspondence notes"
+UNRESOLVED_EQUALITY_BODY_MESSAGE: str = (
+    "Unresolved equality body correspondence message"
+)
+UNRESOLVED_EQUALITY_BODY_NOTES: str = "Unresolved equality body correspondence notes"
+STATEMENT_CHECK_RESULT_REPORT_COMMENT: str = "Statement check result report comment"
+STATEMENT_CHECK_RESULT_RETEST_COMMENT: str = "Statement check result retest comment"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -984,23 +993,27 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-case-close",
             "save_continue",
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-statement-enforcement",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-statement-enforcement",
             "save",
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-statement-enforcement",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-statement-enforcement",
             "save_continue",
-            "cases:edit-post-case",
+            "cases:edit-equality-body-metadata",
         ),
-        ("cases:edit-post-case", "save", "cases:edit-post-case"),
         (
-            "cases:edit-post-case",
-            "save_exit",
-            "cases:case-detail",
+            "cases:edit-equality-body-metadata",
+            "save",
+            "cases:edit-equality-body-metadata",
+        ),
+        (
+            "cases:edit-equality-body-metadata",
+            "save_continue",
+            "cases:list-equality-body-correspondence",
         ),
     ],
 )
@@ -1012,7 +1025,6 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
 ):
     """
     Test that a successful case update redirects based on the button pressed
-    when the case testing methodology is platform
     """
     case: Case = Case.objects.create()
 
@@ -1027,6 +1039,33 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
             "enforcement_body": "ehrc",
             "version": case.version,
             button_name: "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
+
+
+@pytest.mark.parametrize(
+    "case_edit_path, expected_redirect_path",
+    [
+        ("cases:edit-case-close", "cases:edit-equality-body-metadata"),
+        ("cases:edit-equality-body-metadata", "cases:legacy-end-of-case"),
+    ],
+)
+def test_platform_update_redirects_based_on_case_variant(
+    case_edit_path, expected_redirect_path, admin_client
+):
+    """
+    Test that a case save and continue redirects as expected when case is not of the
+    equality body close case variant.
+    """
+    case: Case = Case.objects.create(variant="archived")
+
+    response: HttpResponse = admin_client.post(
+        reverse(case_edit_path, kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            "save_continue": "Button value",
         },
     )
     assert response.status_code == 302
@@ -1055,24 +1094,6 @@ def test_add_qa_comment(admin_client, admin_user):
     event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
 
     assert event.type == EVENT_TYPE_MODEL_CREATE
-
-
-def test_add_comment_button_redirects_to_add_comment(admin_client):
-    """Test pressing add comment button redirects to add comment"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-        {
-            "add_comment": "Add comment",
-            "version": case.version,
-        },
-    )
-    assert response.status_code == 302
-    assert (
-        response.url
-        == f'{reverse("cases:add-qa-comment", kwargs={"case_id": case.id})}'
-    )
 
 
 def test_add_qa_comment_redirects_to_qa_process(admin_client):
@@ -1559,12 +1580,6 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "edit-twelve-week-retest",
         ),
         ("case_close_complete_date", "Closing the case", "edit-case-close"),
-        (
-            "enforcement_correspondence_complete_date",
-            "Equality body summary",
-            "edit-enforcement-body-correspondence",
-        ),
-        ("post_case_complete_date", "Post case summary", "edit-post-case"),
     ],
 )
 def test_section_complete_check_displayed(
@@ -1636,12 +1651,6 @@ def test_section_complete_check_displayed(
             "Reviewing changes",
         ),
         ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "enforcement_correspondence_complete_date",
-            "Equality body summary",
-        ),
-        ("cases:edit-post-case", "post_case_complete_date", "Post case summary"),
     ],
 )
 def test_section_complete_check_displayed_in_steps_platform_methodology(
@@ -1973,8 +1982,6 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
-        "edit-enforcement-body-correspondence",
-        "edit-post-case",
     ],
 )
 def test_case_details_shows_edit_links(
@@ -2068,8 +2075,6 @@ def test_qa_process_approval_notifies_auditor(rf):
         ("trello_url", "edit-twelve-week-correspondence"),
         ("zendesk_url", "edit-review-changes"),
         ("zendesk_url", "edit-case-close"),
-        ("trello_url", "edit-enforcement-body-correspondence"),
-        ("zendesk_url", "edit-post-case"),
     ],
 )
 def test_frequently_used_links_displayed_in_edit(
@@ -2329,8 +2334,6 @@ def test_update_case_checks_version(admin_client):
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
-        "edit-enforcement-body-correspondence",
-        "edit-post-case",
     ],
 )
 def test_platform_shows_notification_if_fully_compliant(
@@ -2746,24 +2749,6 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "case_completed",
             CASE_COMPLETED_SEND,
         ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "Date sent to equality body requires a date",
-            "sent_to_enforcement_body_sent_date",
-            TODAY,
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "Equality body pursuing this case? should either be 'Yes, completed' or 'Yes, in progress'",
-            "enforcement_body_pursuing",
-            ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "Equality body pursuing this case? should be 'Yes, completed'",
-            "enforcement_body_pursuing",
-            ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
-        ),
     ],
 )
 def test_status_workflow_page(path_name, label, field_name, field_value, admin_client):
@@ -2864,103 +2849,59 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     )
 
 
-def test_case_steps_shown_when_platform_testing(admin_client):
-    """
-    Test case steps shown when testing methodology is platform.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-enforcement-body-correspondence", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>""",
-        html=True,
-    )
-    assertNotContains(
-        response,
-        """<h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>""",
-        html=True,
-    )
-
-
 @pytest.mark.parametrize(
     "edit_case_url_name, nav_link_name,nav_link_label",
     [
         (
-            "cases:edit-enforcement-body-correspondence",
             "cases:edit-case-details",
-            "Case details",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
             "cases:edit-test-results",
             "Testing details",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-report-details",
             "Report details",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-qa-process",
             "QA process",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-contact-details",
             "Contact details",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-report-correspondence",
             "Report correspondence",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-twelve-week-correspondence",
             "12-week correspondence",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-twelve-week-retest",
             "12-week retest",
         ),
         (
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
             "cases:edit-review-changes",
             "Reviewing changes",
         ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-case-close",
-            "Closing the case",
-        ),
-        (
-            "cases:edit-post-case",
-            "cases:edit-enforcement-body-correspondence",
-            "Equality body summary",
-        ),
-        (
-            "cases:edit-enforcement-body-correspondence",
-            "cases:edit-post-case",
-            "Post case summary",
-        ),
     ],
 )
-def test_navigation_links_shown_when_platform_testing(
+def test_navigation_links_shown(
     edit_case_url_name,
     nav_link_name,
     nav_link_label,
     admin_client,
 ):
     """
-    Test case steps' navigation links are shown when testing methodology is
-    platform.
+    Test case steps' navigation links are shown
     """
     case: Case = Case.objects.create()
     nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
@@ -3189,16 +3130,31 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     page.save()
     Report.objects.create(case=audit.case)
     url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=type,
+        statement_check=statement_check,
+        check_result_state=STATEMENT_CHECK_NO,
+        report_comment=STATEMENT_CHECK_RESULT_REPORT_COMMENT,
+        retest_state=STATEMENT_CHECK_NO,
+        retest_comment=STATEMENT_CHECK_RESULT_RETEST_COMMENT,
+    )
 
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
 
     assertContains(response, ERROR_NOTES)
+    assertContains(response, STATEMENT_CHECK_RESULT_REPORT_COMMENT)
+    assertContains(response, STATEMENT_CHECK_RESULT_RETEST_COMMENT)
 
     for check_result in audit.failed_check_results:
         check_result.retest_state = RETEST_CHECK_RESULT_FIXED
         check_result.save()
+
+    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.save()
 
     url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
 
@@ -3207,6 +3163,8 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     assert response.status_code == 200
 
     assertNotContains(response, ERROR_NOTES)
+    assertNotContains(response, STATEMENT_CHECK_RESULT_REPORT_COMMENT)
+    assertNotContains(response, STATEMENT_CHECK_RESULT_RETEST_COMMENT)
 
 
 def test_outstanding_issues_email_template_contains_no_issues(admin_client):
@@ -3222,3 +3180,219 @@ def test_outstanding_issues_email_template_contains_no_issues(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "We found no major issues.")
+
+
+def test_equality_body_correspondence(admin_client):
+    """
+    Test equality body correspondence page renders according to URL parameters.
+    """
+    case: Case = Case.objects.create()
+    EqualityBodyCorrespondence.objects.create(
+        case=case,
+        message=RESOLVED_EQUALITY_BODY_MESSAGE,
+        notes=RESOLVED_EQUALITY_BODY_NOTES,
+        status=EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
+    )
+    EqualityBodyCorrespondence.objects.create(
+        case=case,
+        message=UNRESOLVED_EQUALITY_BODY_MESSAGE,
+        notes=UNRESOLVED_EQUALITY_BODY_NOTES,
+    )
+    url: str = reverse(
+        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, RESOLVED_EQUALITY_BODY_MESSAGE)
+    assertContains(response, RESOLVED_EQUALITY_BODY_NOTES)
+    assertContains(response, UNRESOLVED_EQUALITY_BODY_MESSAGE)
+    assertContains(response, UNRESOLVED_EQUALITY_BODY_NOTES)
+
+    response: HttpResponse = admin_client.get(f"{url}?view=unresolved")
+
+    assert response.status_code == 200
+
+    assertNotContains(response, RESOLVED_EQUALITY_BODY_MESSAGE)
+    assertNotContains(response, RESOLVED_EQUALITY_BODY_NOTES)
+    assertContains(response, UNRESOLVED_EQUALITY_BODY_MESSAGE)
+    assertContains(response, UNRESOLVED_EQUALITY_BODY_NOTES)
+
+
+def test_equality_body_correspondence_status_toggle(admin_client):
+    """
+    Test equality body correspondence page buttons toggles the status
+    """
+    case: Case = Case.objects.create()
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(
+            case=case,
+            message=UNRESOLVED_EQUALITY_BODY_MESSAGE,
+            notes=UNRESOLVED_EQUALITY_BODY_NOTES,
+        )
+    )
+
+    assert (
+        equality_body_correspondence.status == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:list-equality-body-correspondence", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            f"toggle_status_{equality_body_correspondence.id}": "Mark as resolved",
+        },
+    )
+
+    assert response.status_code == 302
+
+    updated_equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.get(id=equality_body_correspondence.id)
+    )
+
+    assert (
+        updated_equality_body_correspondence.status
+        == EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:list-equality-body-correspondence", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            f"toggle_status_{equality_body_correspondence.id}": "Mark as resolved",
+        },
+    )
+
+    assert response.status_code == 302
+
+    updated_equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.get(id=equality_body_correspondence.id)
+    )
+
+    assert (
+        updated_equality_body_correspondence.status
+        == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+    )
+
+
+def test_create_equality_body_correspondence_save_return_redirects(admin_client):
+    """
+    Test that a successful equality body correspondence create redirects
+    to list when save_return button pressed
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:create-equality-body-correspondence", kwargs={"case_id": case.id}
+        ),
+        {
+            "save_return": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+    )
+
+
+def test_create_equality_body_correspondence_save_redirects(admin_client):
+    """
+    Test that a successful equality body correspondence create redirects
+    to update page when save button pressed
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:create-equality-body-correspondence", kwargs={"case_id": case.id}
+        ),
+        {
+            "save": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.get(case=case)
+    )
+
+    assert response.url == reverse(
+        "cases:edit-equality-body-correspondence",
+        kwargs={"pk": equality_body_correspondence.id},
+    )
+
+
+def test_update_equality_body_correspondence_save_return_redirects(admin_client):
+    """
+    Test that a successful equality body correspondence update redirects
+    to list when save_return button pressed
+    """
+    case: Case = Case.objects.create()
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:edit-equality-body-correspondence",
+            kwargs={"pk": equality_body_correspondence.id},
+        ),
+        {
+            "save_return": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+    )
+
+
+def test_update_equality_body_correspondence_save_redirects(admin_client):
+    """
+    Test that a successful equality body correspondence update redirects
+    to itself when save button pressed
+    """
+    case: Case = Case.objects.create()
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:edit-equality-body-correspondence",
+            kwargs={"pk": equality_body_correspondence.id},
+        ),
+        {
+            "save": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "cases:edit-equality-body-correspondence",
+        kwargs={"pk": equality_body_correspondence.id},
+    )
+
+
+def test_post_case_alerts(admin_client, admin_user):
+    """Test post case alerts page renders"""
+    case: Case = Case.objects.create(auditor=admin_user)
+    EqualityBodyCorrespondence.objects.create(case=case)
+    Retest.objects.create(case=case)
+    url: str = reverse(
+        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+    )
+
+    response: HttpResponse = admin_client.get(reverse("cases:post-case-alerts"))
+
+    assert response.status_code == 200
+
+    assertContains(response, "Unresolved correspondence")
+    assertContains(response, "Incomplete retest")
+    assertContains(response, "Post case (2)")

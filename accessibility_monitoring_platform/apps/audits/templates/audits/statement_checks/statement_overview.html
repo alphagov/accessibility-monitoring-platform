@@ -19,25 +19,26 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' with formset=statement_check_results_formset %}
                 <form method="post" action="{% url 'audits:edit-statement-overview' audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% if audit.accessibility_statement_initially_found %}
+                    {% if audit.accessibility_statement_initially_found %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
                                 {% include 'common/amp_field.html' with field=form.accessibility_statement_backup_url %}
                                 {% if audit.accessibility_statement_backup_url_date %}
                                     <p class="govuk-body amp-margin-top-minus-20"> Added {{ audit.accessibility_statement_backup_url_date }} </p>
                                 {% endif %}
-                            {% else %}
-                                {% include 'audits/helpers/no_statement_warning.html' %}
-                            {% endif %}
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                     {% include 'audits/helpers/statement_check_formset.html' %}
                     <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
+                        <div class="govuk-grid-column-full">
+                            <hr class="amp-width-100 amp-margin-bottom-30" />
+                            {% include 'common/amp_field.html' with field=form.statement_extra_report_text %}
                             {% include 'common/amp_field.html' with field=form.audit_statement_overview_complete_date %}
                         </div>
                     </div>

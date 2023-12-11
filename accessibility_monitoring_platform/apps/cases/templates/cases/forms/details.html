@@ -27,7 +27,7 @@
 
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Status</b></label>
-                                <p class="govuk-body-m">{{ case.get_status_display}}</p>
+                                <p class="govuk-body-m">{{ case.status.get_status_display}}</p>
                             </div>
 
                             {% for field in form.visible_fields %}

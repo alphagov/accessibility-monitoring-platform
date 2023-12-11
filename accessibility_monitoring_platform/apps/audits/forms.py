@@ -57,6 +57,10 @@ from .models import (
     StatementCheckResult,
     STATEMENT_CHECK_CHOICES,
     STATEMENT_CHECK_TYPE_CHOICES,
+    Retest,
+    RetestPage,
+    RetestCheckResult,
+    RETEST_INITIAL_COMPLIANCE_CHOICES,
     STATEMENT_CHECK_TYPE_OVERVIEW,
 )
 
@@ -465,6 +469,7 @@ class AuditStatementOverviewUpdateForm(VersionForm):
     accessibility_statement_backup_url = AMPURLField(
         label="Link to saved accessibility statement",
     )
+    statement_extra_report_text = AMPTextField(label="Extra report text")
     audit_statement_overview_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -472,6 +477,7 @@ class AuditStatementOverviewUpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "accessibility_statement_backup_url",
+            "statement_extra_report_text",
             "audit_statement_overview_complete_date",
         ]
 
@@ -946,7 +952,7 @@ class AuditRetestPageChecksForm(forms.Form):
         ]
 
 
-class RetestCheckResultFilterForm(forms.Form):
+class AuditRetestCheckResultFilterForm(forms.Form):
     """
     Form for filtering check results on retest
     """
@@ -974,7 +980,7 @@ class RetestCheckResultFilterForm(forms.Form):
         ]
 
 
-class RetestCheckResultForm(forms.ModelForm):
+class AuditRetestCheckResultForm(forms.ModelForm):
     """
     Form for updating a single check test on retest
     """
@@ -996,7 +1002,9 @@ class RetestCheckResultForm(forms.ModelForm):
         ]
 
 
-RetestCheckResultFormset: Any = forms.formset_factory(RetestCheckResultForm, extra=0)
+AuditRetestCheckResultFormset: Any = forms.formset_factory(
+    AuditRetestCheckResultForm, extra=0
+)
 
 
 class AuditRetestWebsiteDecisionUpdateForm(VersionForm):
@@ -1180,7 +1188,7 @@ class ArchiveAuditRetestStatement2UpdateForm(VersionForm):
         ]
 
 
-class RetestStatementCheckResultForm(forms.ModelForm):
+class AuditRetestStatementCheckResultForm(forms.ModelForm):
     """
     Form for updating a single statement check retest
     """
@@ -1200,8 +1208,8 @@ class RetestStatementCheckResultForm(forms.ModelForm):
         ]
 
 
-RetestStatementCheckResultFormset: Any = forms.modelformset_factory(
-    StatementCheckResult, RetestStatementCheckResultForm, extra=0
+AuditRetestStatementCheckResultFormset: Any = forms.modelformset_factory(
+    StatementCheckResult, AuditRetestStatementCheckResultForm, extra=0
 )
 
 
@@ -1445,4 +1453,105 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
             (value, label)
             for value, label in STATEMENT_CHECK_TYPE_CHOICES
             if value != STATEMENT_CHECK_TYPE_OVERVIEW
+        ]
+
+
+class RetestUpdateForm(forms.ModelForm):
+    """
+    Form for updating equality body retest
+    """
+
+    date_of_retest = AMPDateField(label="Date of retest")
+    retest_notes = AMPTextField(label="Retest notes")
+    complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: List[str] = [
+            "date_of_retest",
+            "retest_notes",
+            "complete_date",
+        ]
+
+
+class RetestPageChecksForm(forms.ModelForm):
+    """
+    Form for equality body retesting checks for a page
+    """
+
+    complete_date = AMPDatePageCompleteField(
+        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+    )
+    missing_date = AMPDatePageCompleteField(
+        label="",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
+    )
+
+    class Meta:
+        model = RetestPage
+        fields: List[str] = [
+            "complete_date",
+            "missing_date",
+        ]
+
+
+class RetestCheckResultForm(forms.ModelForm):
+    """
+    Form for updating a single check test on equality body requested retest
+    """
+
+    id = forms.IntegerField(widget=forms.HiddenInput())
+    retest_state = AMPChoiceRadioField(
+        label="Issue fixed?",
+        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+    )
+    retest_notes = AMPTextField(label="Notes")
+
+    class Meta:
+        model = RetestCheckResult
+        fields = [
+            "id",
+            "retest_state",
+            "retest_notes",
+        ]
+
+
+RetestCheckResultFormset: Any = forms.modelformset_factory(
+    RetestCheckResult, form=RetestCheckResultForm, extra=0
+)
+
+
+class RetestComparisonUpdateForm(forms.ModelForm):
+    """
+    Form for updating equality body retest comparison complete
+    """
+
+    comparison_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: List[str] = [
+            "comparison_complete_date",
+        ]
+
+
+class RetestComplianceUpdateForm(forms.ModelForm):
+    """
+    Form for updating equality body retest compliance
+    """
+
+    retest_compliance_state = AMPChoiceRadioField(
+        label="Website compliance decision",
+        choices=RETEST_INITIAL_COMPLIANCE_CHOICES,
+    )
+    compliance_notes = AMPTextField(label="Notes")
+    compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: List[str] = [
+            "retest_compliance_state",
+            "compliance_notes",
+            "compliance_complete_date",
         ]

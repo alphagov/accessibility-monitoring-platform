@@ -33,6 +33,7 @@ from ..common.models import Sector, SubCategory
 from .models import (
     Case,
     Contact,
+    EqualityBodyCorrespondence,
     STATUS_CHOICES,
     CASE_COMPLETED_CHOICES,
     BOOLEAN_CHOICES,
@@ -40,9 +41,12 @@ from .models import (
     TWELVE_WEEK_RESPONSE_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     ENFORCEMENT_BODY_PURSUING_CHOICES,
+    ENFORCEMENT_BODY_CLOSED_CHOICES,
     PSB_LOCATION_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
     RECOMMENDATION_CHOICES,
+    EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
+    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
 )
 
 status_choices = STATUS_CHOICES
@@ -648,4 +652,95 @@ class CaseDeactivateForm(VersionForm):
         fields = [
             "version",
             "deactivate_notes",
+        ]
+
+
+class CaseStatementEnforcementUpdateForm(VersionForm):
+    """
+    Form to update statement enforcement
+    """
+
+    post_case_notes = AMPTextField(label="Summary of events after the case was closed")
+    psb_appeal_notes = AMPTextField(label="Public sector body appeal notes")
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "post_case_notes",
+            "psb_appeal_notes",
+        ]
+
+
+class CaseEqualityBodyMetadataUpdateForm(VersionForm):
+    """
+    Form to update equality body metadata
+    """
+
+    sent_to_enforcement_body_sent_date = AMPDateField(
+        label="Date sent to equality body",
+    )
+    enforcement_body_case_owner = AMPCharFieldWide(
+        label="Equality body case owner (first name only)",
+    )
+    enforcement_body_closed_case = AMPChoiceRadioField(
+        label="Equality body has officially closed the case?",
+        choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
+    )
+    enforcement_body_finished_date = AMPDateField(
+        label="Date equality body completed the case",
+    )
+    is_feedback_requested = AMPChoiceCheckboxField(
+        label="Feedback survey sent?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "sent_to_enforcement_body_sent_date",
+            "enforcement_body_case_owner",
+            "enforcement_body_closed_case",
+            "enforcement_body_finished_date",
+            "is_feedback_requested",
+        ]
+
+
+class ListCaseEqualityBodyCorrespondenceUpdateForm(VersionForm):
+    """
+    Form for list equality body correspondence page
+    """
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+        ]
+
+
+class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
+    """
+    Form for creating an EqualityBodyCorrespondence
+    """
+
+    type = AMPChoiceRadioField(
+        label="Type",
+        choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
+        initial=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+    )
+    message = AMPTextField(label="Message/content")
+    notes = AMPTextField(label="Notes")
+    zendesk_url = AMPURLField(label="Link to Zendesk ticket")
+
+    class Meta:
+        model = EqualityBodyCorrespondence
+        fields = [
+            "type",
+            "message",
+            "notes",
+            "zendesk_url",
         ]

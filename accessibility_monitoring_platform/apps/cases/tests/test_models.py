@@ -23,6 +23,8 @@ from ...audits.models import (
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_YES,
     STATEMENT_CHECK_TYPE_OVERVIEW,
+    Retest,
+    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
 )
 from ...comments.models import Comment
 from ...reminders.models import Reminder
@@ -31,6 +33,7 @@ from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     Contact,
+    EqualityBodyCorrespondence,
     WEBSITE_COMPLIANCE_STATE_DEFAULT,
     WEBSITE_COMPLIANCE_STATE_DEFAULT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
@@ -38,6 +41,9 @@ from ..models import (
     STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
     STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
     STATEMENT_COMPLIANCE_STATE_DEFAULT,
+    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+    EQUALITY_BODY_CORRESPONDENCE_RETEST,
+    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
 )
 from ..utils import create_case_and_compliance
 
@@ -251,6 +257,7 @@ def test_formatted_home_page_url(url, expected_formatted_url):
     assert case.formatted_home_page_url == expected_formatted_url
 
 
+@pytest.mark.django_db
 def test_next_action_due_date_for_in_report_correspondence():
     """
     Check that the next_action_due_date is correctly calculated
@@ -261,14 +268,14 @@ def test_next_action_due_date_for_in_report_correspondence():
     report_followup_week_4_due_date: date = date(2020, 1, 4)
     report_followup_week_12_due_date: date = date(2020, 1, 12)
 
-    case: Case = Case(
-        status="in-report-correspondence",
+    case: Case = Case.objects.create(
         report_followup_week_1_sent_date=any_old_date,
         report_followup_week_4_sent_date=any_old_date,
         report_followup_week_1_due_date=report_followup_week_1_due_date,
         report_followup_week_4_due_date=report_followup_week_4_due_date,
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
+    case.status.status = "in-report-correspondence"
 
     case.report_followup_week_4_sent_date = None
     assert case.next_action_due_date == report_followup_week_4_due_date
@@ -277,6 +284,7 @@ def test_next_action_due_date_for_in_report_correspondence():
     assert case.next_action_due_date == report_followup_week_1_due_date
 
 
+@pytest.mark.django_db
 def test_next_action_due_date_for_in_probation_period():
     """
     Check that the next_action_due_date is correctly calculated
@@ -284,13 +292,15 @@ def test_next_action_due_date_for_in_probation_period():
     """
     report_followup_week_12_due_date: date = date(2020, 1, 12)
 
-    case: Case = Case(
-        status="in-probation-period",
+    case: Case = Case.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
+    case.status.status = "in-probation-period"
+
     assert case.next_action_due_date == report_followup_week_12_due_date
 
 
+@pytest.mark.django_db
 def test_next_action_due_date_for_in_12_week_correspondence():
     """
     Check that the next_action_due_date is correctly calculated
@@ -298,10 +308,10 @@ def test_next_action_due_date_for_in_12_week_correspondence():
     """
     twelve_week_1_week_chaser_due_date: date = date(2020, 1, 1)
 
-    case: Case = Case(
-        status="in-12-week-correspondence",
+    case: Case = Case.objects.create(
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
+    case.status.status = "in-12-week-correspondence"
 
     assert case.next_action_due_date == twelve_week_1_week_chaser_due_date
 
@@ -328,6 +338,7 @@ def test_next_action_due_date_for_in_12_week_correspondence():
         "complete",
     ],
 )
+@pytest.mark.django_db
 def test_next_action_due_date_not_set(status):
     """
     Check that the next_action_due_date is correctly calculated
@@ -336,11 +347,12 @@ def test_next_action_due_date_not_set(status):
     twelve_week_1_week_chaser_due_date: date = date(2020, 1, 1)
     report_followup_week_12_due_date: date = date(2020, 1, 12)
 
-    case: Case = Case(
-        status=status,
+    case: Case = Case.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
+    case.status.status = status
+
     assert case.next_action_due_date == date(1970, 1, 1)
 
 
@@ -352,12 +364,14 @@ def test_next_action_due_date_not_set(status):
         (date.today() + timedelta(days=1), "future"),
     ],
 )
+@pytest.mark.django_db
 def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_tense):
     """Check that the calculated next_action_due_date is correctly reported"""
-    case: Case = Case(
-        status="in-probation-period",
+    case: Case = Case.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
+    case.status.status = "in-probation-period"
+
     assert case.next_action_due_date_tense == expected_tense
 
 
@@ -1111,3 +1125,166 @@ def test_archived_sections():
 
     assert len(case.archived_sections) == 1
     assert case.archived_sections[0] == "section_one"
+
+
+@pytest.mark.django_db
+def test_equality_body_correspondence_sets_id_within_case():
+    """Test EqualityBodyCorrespondence sets id_within_case on save"""
+    case: Case = Case.objects.create()
+
+    first_equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    assert first_equality_body_correspondence.id_within_case == 1
+
+    second_equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    assert second_equality_body_correspondence.id_within_case == 2
+
+
+@pytest.mark.django_db
+def test_case_retests_returns_undeleted_retests():
+    """Test Case.retests returns undeleted retests"""
+    case: Case = Case.objects.create()
+    retest: Retest = Retest.objects.create(case=case)
+
+    assert len(case.retests) == 1
+    assert case.retests[0] == retest
+
+    retest.is_deleted = True
+    retest.save()
+
+    assert len(case.retests) == 0
+
+
+@pytest.mark.django_db
+def test_case_number_retests():
+    """
+    Test Case.number_retests returns number of retests not counting
+    Retest #0.
+    """
+    case: Case = Case.objects.create()
+    Retest.objects.create(case=case)
+
+    assert case.number_retests == 1
+
+    Retest.objects.create(case=case, id_within_case=0)
+
+    assert case.number_retests == 1
+
+
+@pytest.mark.django_db
+def test_case_latest_retest_returns_most_recent():
+    """Test Case.latest_retest returns most recent"""
+    case: Case = Case.objects.create()
+
+    assert case.latest_retest is None
+
+    first_retest: Retest = Retest.objects.create(case=case)
+
+    assert case.latest_retest == first_retest
+
+    second_retest: Retest = Retest.objects.create(case=case, id_within_case=2)
+
+    assert case.latest_retest == second_retest
+
+
+@pytest.mark.django_db
+def test_case_incomplete_retests_returns_incomplete_retests():
+    """Test Case.incomplete_retests returns retests with the default state"""
+    case: Case = Case.objects.create()
+    incomplete_retest: Retest = Retest.objects.create(case=case)
+
+    assert len(case.incomplete_retests) == 1
+    assert case.incomplete_retests[0] == incomplete_retest
+
+    incomplete_retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    incomplete_retest.save()
+
+    assert len(case.incomplete_retests) == 0
+
+
+@pytest.mark.django_db
+def test_case_equality_body_correspondences_returns_undeleted_equality_body_correspondences():
+    """Test Case.equality_body_correspondences returns undeleted equality_body_correspondences"""
+    case: Case = Case.objects.create()
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    assert len(case.equality_body_correspondences) == 1
+    assert case.equality_body_correspondences[0] == equality_body_correspondence
+
+    equality_body_correspondence.is_deleted = True
+    equality_body_correspondence.save()
+
+    assert len(case.equality_body_questions) == 0
+
+
+@pytest.mark.django_db
+def test_case_equality_body_questions_returns_equality_body_questions():
+    """Test Case.equality_body_questions returns equality_body_questions"""
+    case: Case = Case.objects.create()
+    equality_body_question: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(
+            case=case, type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+        )
+    )
+
+    assert len(case.equality_body_questions) == 1
+    assert case.equality_body_questions[0] == equality_body_question
+
+
+@pytest.mark.django_db
+def test_case_equality_body_questions_unresolved_returns_unresolved():
+    """Test Case.equality_body_questions_unresolved returns questions with the default state"""
+    case: Case = Case.objects.create()
+    unresolved_question: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(
+            case=case, type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+        )
+    )
+
+    assert len(case.equality_body_questions_unresolved) == 1
+    assert case.equality_body_questions_unresolved[0] == unresolved_question
+
+    unresolved_question.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    unresolved_question.save()
+
+    assert len(case.equality_body_questions_unresolved) == 0
+
+
+@pytest.mark.django_db
+def test_case_equality_body_correspondence_retests_returns_equality_body_correspondence_retests():
+    """Test Case.equality_body_correspondence_retests returns equality_body_correspondence_retests"""
+    case: Case = Case.objects.create()
+    equality_body_retest: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(
+            case=case, type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+        )
+    )
+
+    assert len(case.equality_body_correspondence_retests) == 1
+    assert case.equality_body_correspondence_retests[0] == equality_body_retest
+
+
+@pytest.mark.django_db
+def test_case_equality_body_correspondence_retests_unresolved_returns_unresolved():
+    """Test Case.equality_body_correspondence_retests_unresolved returns retests with the default state"""
+    case: Case = Case.objects.create()
+    unresolved_retest: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(
+            case=case, type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+        )
+    )
+
+    assert len(case.equality_body_correspondence_retests_unresolved) == 1
+    assert case.equality_body_correspondence_retests_unresolved[0] == unresolved_retest
+
+    unresolved_retest.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    unresolved_retest.save()
+
+    assert len(case.equality_body_correspondence_retests_unresolved) == 0

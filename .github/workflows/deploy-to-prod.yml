@@ -3,15 +3,16 @@ name: Deploy to production
 on:
   workflow_dispatch: # allows manual triggering
   schedule:
-    - cron: '0 13 * * *' # runs daily at 00:00
+    - cron: '0 4 * * *' # runs daily at 00:00
 
 jobs:
   test:
     name: Unit tests
     runs-on: ubuntu-20.04
-    if: github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: main
     - name: Set up Python 3.x
       uses: actions/setup-python@v3
       with:
@@ -19,10 +20,7 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: '18'
-    - name: Get new commits
-      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
     - name: Unit tests
-      if: ${{ env.NEW_COMMIT_COUNT > 0 }}
       run: |
         python3 -m venv venv
         source venv/bin/activate
@@ -41,17 +39,15 @@ jobs:
     needs: test
     name: Integration tests
     runs-on: ubuntu-20.04
-    if: github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: main
     - name: Set up Python 3.x
       uses: actions/setup-python@v3
       with:
         python-version: '3.11'
-    - name: Get new commits
-      run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
     - name: Integration tests
-      if: ${{ env.NEW_COMMIT_COUNT > 0 }}
       run: |
         cd stack_tests/integration_tests
         docker-compose up --abort-on-container-exit
@@ -60,14 +56,11 @@ jobs:
     needs: int-test
     name: Deploy to AWS
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3
-      - name: Get new commits
-        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
-
+        with:
+          ref: main
       - name: Install AWS Copilot
-        if: ${{ env.NEW_COMMIT_COUNT > 0 }}
         run: |
           mkdir -p $GITHUB_WORKSPACE/bin
           # download copilot
@@ -81,7 +74,6 @@ jobs:
           echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
 
       - name: Backup databases
-        if: ${{ env.NEW_COMMIT_COUNT > 0 }}
         run: |
           copilot svc exec -a ampapp -e prodenv -n amp-svc --command "python aws_tools/dump_rds_to_s3_as_sql.py" && \
           sleep 30 && \
@@ -92,7 +84,6 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
 
       - name: Staging tests
-        if: ${{ env.NEW_COMMIT_COUNT > 0 }}
         run: |
           aws s3 sync s3://ampapp-prodenv-addonsstack-yu-reportstoragebucket-18zkdeyu0it3u/ s3://ampapp-stageenv-addonsstack-u-reportstoragebucket-hms911jlrqzu/ && \
           copilot svc exec -a ampapp -e stageenv -n amp-svc --command "python aws_tools/reset_staging_db.py" && \
@@ -108,7 +99,6 @@ jobs:
           SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
 
       - name: Deploy to AWS
-        if: ${{ env.NEW_COMMIT_COUNT > 0 }}
         run: |
           copilot svc deploy --name viewer-svc --env prodenv && \
           copilot svc deploy --name amp-svc --env prodenv
@@ -118,7 +108,6 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
 
       - name: Smoke tests
-        if: ${{ env.NEW_COMMIT_COUNT > 0 }}
         run: |
           cd stack_tests/smoke_tests
           docker-compose up --abort-on-container-exit
