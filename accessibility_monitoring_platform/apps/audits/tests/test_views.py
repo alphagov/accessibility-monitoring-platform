@@ -2,7 +2,7 @@
 Tests for audits views
 """
 import pytest
-from datetime import date
+from datetime import date, timedelta
 from typing import Dict, List, Optional, Union
 
 from pytest_django.asserts import assertContains, assertNotContains
@@ -1328,6 +1328,42 @@ def test_page_checks_edit_page_loads(admin_client):
     assertContains(response, WCAG_TYPE_PDF_NAME)
 
 
+def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
+    """Test page checks edit view page loads and hides future WCAG definitions"""
+    audit: Audit = create_audit_and_wcag()
+    future_wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    future_wcag_definition.date_start = audit.date_of_test + timedelta(days=10)
+    future_wcag_definition.save()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: Dict[str, int] = {"pk": page.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Showing 1 error")
+
+
+def test_page_checks_edit_hides_past_wcag_definitions(admin_client):
+    """Test page checks edit view page loads and hides past WCAG definitions"""
+    audit: Audit = create_audit_and_wcag()
+    future_wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    future_wcag_definition.date_end = audit.date_of_test - timedelta(days=10)
+    future_wcag_definition.save()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: Dict[str, int] = {"pk": page.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Showing 1 error")
+
+
 def test_page_checks_edit_saves_results(admin_client):
     """Test page checks edit view saves the entered results"""
     audit: Audit = create_audit_and_wcag()
@@ -1728,13 +1764,7 @@ def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
     assertContains(response, ACCESSIBILITY_STATEMENT_12_WEEK_URL)
 
 
-@pytest.mark.parametrize(
-    "url_name",
-    [
-        "audits:edit-retest-statement-overview",
-    ],
-)
-def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
+def test_12_week_statement_page_shown_on_retest_overview(admin_client):
     """
     Test that option to add 12-week accessibility statement shown.
     """
@@ -1742,7 +1772,7 @@ def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
+        reverse("audits:edit-retest-statement-overview", kwargs=audit_pk),
     )
 
     assert response.status_code == 200
@@ -1754,7 +1784,7 @@ def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
     audit.save()
 
     response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
+        reverse("audits:edit-retest-statement-overview", kwargs=audit_pk),
     )
 
     assert response.status_code == 200

@@ -1,7 +1,7 @@
 """
 Test - common utility functions
 """
-from datetime import date
+from datetime import date, timedelta
 import pytest
 from typing import Dict, List, Tuple, Union
 
@@ -808,6 +808,50 @@ def test_create_statement_checks_for_new_audit():
     create_statement_checks_for_new_audit(audit=audit)
 
     number_of_statement_checks: int = StatementCheck.objects.all().count()
+
+    assert (
+        StatementCheckResult.objects.filter(audit=audit).count()
+        == number_of_statement_checks
+    )
+
+
+@pytest.mark.django_db
+def test_create_skips_future_statement_checks():
+    """
+    Test creation of statement check results for audit skips future
+    statement checks.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    future_statement_check: StatementCheck = StatementCheck.objects.all().first()
+    future_statement_check.date_start = date.today() + timedelta(days=10)
+    future_statement_check.save()
+
+    create_statement_checks_for_new_audit(audit=audit)
+
+    number_of_statement_checks: int = StatementCheck.objects.all().count() - 1
+
+    assert (
+        StatementCheckResult.objects.filter(audit=audit).count()
+        == number_of_statement_checks
+    )
+
+
+@pytest.mark.django_db
+def test_create_skips_past_statement_checks():
+    """
+    Test creation of statement check results for audit skips past
+    statement checks.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    past_statement_check: StatementCheck = StatementCheck.objects.all().first()
+    past_statement_check.date_end = date.today() - timedelta(days=10)
+    past_statement_check.save()
+
+    create_statement_checks_for_new_audit(audit=audit)
+
+    number_of_statement_checks: int = StatementCheck.objects.all().count() - 1
 
     assert (
         StatementCheckResult.objects.filter(audit=audit).count()

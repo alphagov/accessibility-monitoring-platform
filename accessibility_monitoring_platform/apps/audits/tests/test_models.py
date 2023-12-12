@@ -423,6 +423,26 @@ def test_wcag_definition_strings():
 
 
 @pytest.mark.django_db
+def test_wcag_definition_start_end_date_range():
+    """
+    Test that an WCAG definition within a date range returned.
+    """
+    WcagDefinition.objects.all().delete()
+    past_date: date = date(2020, 1, 1)
+    current_date: date = date(2023, 1, 1)
+    future_date: date = date(2024, 1, 1)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    WcagDefinition.objects.create(date_end=past_date)
+    WcagDefinition.objects.create(date_start=future_date)
+
+    assert WcagDefinition.objects.all().count() == 3
+
+    assert WcagDefinition.objects.on_date(current_date).count() == 1
+
+    assert WcagDefinition.objects.on_date(current_date).first() == wcag_definition
+
+
+@pytest.mark.django_db
 def test_accessibility_statement_initially_found():
     """
     Test that an accessibility statement was initially found.
@@ -1106,6 +1126,26 @@ def test_set_accessibility_statement_state_not_called_on_non_statement_page_upda
     Page.objects.create(audit=audit)
 
     mock_set_statement_compliance_states.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_statement_check_start_end_date_range():
+    """
+    Test that an statement check within a date range returned.
+    """
+    StatementCheck.objects.all().delete()
+    past_date: date = date(2020, 1, 1)
+    current_date: date = date(2023, 1, 1)
+    future_date: date = date(2024, 1, 1)
+    wcag_definition: StatementCheck = StatementCheck.objects.create()
+    StatementCheck.objects.create(date_end=past_date)
+    StatementCheck.objects.create(date_start=future_date)
+
+    assert StatementCheck.objects.all().count() == 3
+
+    assert StatementCheck.objects.on_date(current_date).count() == 1
+
+    assert StatementCheck.objects.on_date(current_date).first() == wcag_definition
 
 
 @pytest.mark.django_db
