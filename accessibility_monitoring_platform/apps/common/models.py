@@ -42,14 +42,21 @@ More information about monitoring placeholder"""
 
 
 class StartEndDeleteManager(models.Manager):
-    """Model manager which filters by today's date and is_deleted flag"""
+    """Model manager which filters by date"""
+
+    def on_date(self, target_date: date):
+        return (
+            super()
+            .get_queryset()
+            .exclude(date_start__lt=target_date)
+            .exclude(date_end__gt=target_date)
+        )
 
     def get_queryset(self):
         today: date = date.today()
         return (
             super()
             .get_queryset()
-            .filter(is_deleted=False)
             .exclude(date_start__lt=today)
             .exclude(date_end__gt=today)
         )

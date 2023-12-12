@@ -2661,7 +2661,7 @@ def test_update_statement_check_works(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("audits:statement-check-list")
+    assert response.url == reverse("audits:statement-check-update", kwargs=path_kwargs)
 
     statement_check_from_db: StatementCheck = StatementCheck.objects.get(
         id=statement_check_id

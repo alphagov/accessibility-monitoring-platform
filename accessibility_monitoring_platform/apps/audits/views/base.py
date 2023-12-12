@@ -46,16 +46,6 @@ from ..utils import (
 )
 
 
-class AuditAllIssuesListView(ListView):
-    """
-    View of list WCAG definitions
-    """
-
-    model: Type[WcagDefinition] = WcagDefinition
-    context_object_name: str = "wcag_definitions"
-    template_name: str = "audits/all_issues.html"
-
-
 def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     """
     Create audit. If one already exists use that instead.
@@ -276,7 +266,7 @@ class WcagDefinitionListView(ListView):
             )
 
             if search_str:
-                return WcagDefinition.objects.filter(is_deleted=False).filter(
+                return WcagDefinition.objects.filter(
                     Q(  # pylint: disable=unsupported-binary-operation
                         name__icontains=search_str
                     )
@@ -286,7 +276,7 @@ class WcagDefinitionListView(ListView):
                     | Q(report_boilerplate__icontains=search_str)
                 )
 
-        return WcagDefinition.objects.filter(is_deleted=False)
+        return WcagDefinition.objects.all()
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -421,7 +411,3 @@ class StatementCheckUpdateView(UpdateView):
             self.object: StatementCheck = form.save(commit=False)
             record_model_update_event(user=self.request.user, model_object=self.object)
         return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Return to list of statement checks"""
-        return reverse("audits:statement-check-list")

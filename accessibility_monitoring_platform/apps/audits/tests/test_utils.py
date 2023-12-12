@@ -807,9 +807,7 @@ def test_create_statement_checks_for_new_audit():
 
     create_statement_checks_for_new_audit(audit=audit)
 
-    number_of_statement_checks: int = StatementCheck.objects.filter(
-        is_deleted=False
-    ).count()
+    number_of_statement_checks: int = StatementCheck.objects.all().count()
 
     assert (
         StatementCheckResult.objects.filter(audit=audit).count()

@@ -1175,7 +1175,6 @@ class WcagDefinition(models.Model):
     report_boilerplate = models.TextField(default="", blank=True)
     date_start = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
-    is_deleted = models.BooleanField(default=False)
 
     objects = models.Manager()
     start_end = StartEndDeleteManager()
@@ -1262,7 +1261,6 @@ class StatementCheck(models.Model):
     position = models.IntegerField(default=0)
     date_start = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
-    is_deleted = models.BooleanField(default=False)
 
     objects = models.Manager()
     start_end = StartEndDeleteManager()

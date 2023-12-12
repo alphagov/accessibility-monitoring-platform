@@ -55,11 +55,10 @@ class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):
         "type",
         "name",
         "description",
-        "is_deleted",
         "date_start",
         "date_end",
     ]
-    list_filter = ["type", "is_deleted"]
+    list_filter = ["type"]
     actions = ["export_as_csv"]
 
 
@@ -67,14 +66,14 @@ class StatementCheckAdmin(admin.ModelAdmin):
     """Django admin configuration for StatementCheck model"""
 
     search_fields = ["label", "success_criteria", "report_text"]
-    list_display = ["label", "type", "position", "is_deleted", "date_start", "date_end"]
-    list_filter = ["type", "is_deleted"]
+    list_display = ["label", "type", "position", "date_start", "date_end"]
+    list_filter = ["type"]
     fieldsets = (
         (
             None,
             {
                 "fields": (
-                    ("type", "position", "is_deleted"),
+                    ("type", "position"),
                     ("label",),
                     ("success_criteria",),
                     ("report_text",),
