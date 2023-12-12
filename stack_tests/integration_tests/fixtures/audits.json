@@ -202,5 +202,17 @@
       "retest_state": "not-retested",
       "retest_notes": ""
     }
+  },
+  {
+    "model": "audits.statementpage",
+    "pk": 1,
+    "fields": {
+      "audit": 1,
+      "is_deleted": false,
+      "url": "https://example.com/statement",
+      "backup_url": "",
+      "added_stage": "initial",
+      "created": "2022-09-06T12:20:04.436Z"
+    }
   }
 ]

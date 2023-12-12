@@ -23,6 +23,7 @@ from ...common.utils import (
     record_model_create_event,
     amp_format_date,
     get_url_parameters_for_pagination,
+    get_id_from_button_name,
 )
 
 from ..forms import (
@@ -31,6 +32,8 @@ from ..forms import (
     WcagDefinitionCreateUpdateForm,
     StatementCheckSearchForm,
     StatementCheckCreateUpdateForm,
+    StatementPageFormset,
+    StatementPageFormsetOneExtra,
 )
 from ..models import (
     Audit,
@@ -38,6 +41,7 @@ from ..models import (
     WcagDefinition,
     StatementCheck,
     StatementCheckResult,
+    StatementPage,
 )
 from ..utils import (
     create_mandatory_pages_for_new_audit,
@@ -410,4 +414,66 @@ class StatementCheckUpdateView(UpdateView):
         if form.changed_data:
             self.object: StatementCheck = form.save(commit=False)
             record_model_update_event(user=self.request.user, model_object=self.object)
+        return super().form_valid(form)
+
+
+class StatementPageFormsetUpdateView(AuditUpdateView):
+    """
+    View to update statement pages
+    """
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            statement_pages_formset = StatementPageFormset(self.request.POST)
+        else:
+            statement_pages: QuerySet[
+                StatementPage
+            ] = self.object.statementpage_set.filter(is_deleted=False)
+            if "add_extra" in self.request.GET:
+                statement_pages_formset = StatementPageFormsetOneExtra(
+                    queryset=statement_pages
+                )
+            else:
+                statement_pages_formset = StatementPageFormset(queryset=statement_pages)
+        context["statement_pages_formset"] = statement_pages_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        statement_pages_formset = context["statement_pages_formset"]
+        audit: Audit = form.save(commit=False)
+        if statement_pages_formset.is_valid():
+            statement_pages: List[StatementPage] = statement_pages_formset.save(
+                commit=False
+            )
+            for statement_page in statement_pages:
+                if not statement_page.audit_id:
+                    statement_page.audit = audit
+                    statement_page.save()
+                    record_model_create_event(
+                        user=self.request.user, model_object=statement_page
+                    )
+                else:
+                    record_model_update_event(
+                        user=self.request.user, model_object=statement_page
+                    )
+                    statement_page.save()
+        else:
+            return super().form_invalid(form)
+        statement_page_id_to_delete: Optional[int] = get_id_from_button_name(
+            button_name_prefix="remove_statement_page_",
+            querydict=self.request.POST,
+        )
+        if statement_page_id_to_delete is not None:
+            statement_page_to_delete: statement_page = StatementPage.objects.get(
+                id=statement_page_id_to_delete
+            )
+            statement_page_to_delete.is_deleted = True
+            record_model_update_event(
+                user=self.request.user, model_object=statement_page_to_delete
+            )
+            statement_page_to_delete.save()
         return super().form_valid(form)

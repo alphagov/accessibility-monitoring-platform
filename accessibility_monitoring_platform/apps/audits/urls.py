@@ -36,6 +36,7 @@ from .views.initial import (
     AuditStatementCustomFormsetView,
     AuditSummaryUpdateView,
     AuditReportOptionsUpdateView,
+    InitialStatementPageFormsetUpdateView,
 )
 from .views.twelve_week import (
     start_retest,
@@ -45,7 +46,6 @@ from .views.twelve_week import (
     AuditRetestPageChecksFormView,
     AuditRetestCaseComplianceWebsite12WeekUpdateView,
     AuditRetestStatement1UpdateView,
-    Audit12WeekStatementUpdateView,
     AuditRetestStatement2UpdateView,
     AuditRetestStatementOverviewFormView,
     AuditRetestStatementWebsiteFormView,
@@ -56,6 +56,7 @@ from .views.twelve_week import (
     AuditRetestStatementOtherFormView,
     AuditRetestStatementComparisonUpdateView,
     AuditRetestCaseComplianceStatement12WeekUpdateView,
+    TwelveWeekStatementPageFormsetUpdateView,
 )
 from .views.equality_body import (
     create_equality_body_retest,
@@ -121,6 +122,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-statement-decision/",
         login_required(AuditCaseComplianceStatementInitialUpdateView.as_view()),
         name="edit-statement-decision",
+    ),
+    path(
+        "<int:pk>/edit-statement-pages/",
+        login_required(InitialStatementPageFormsetUpdateView.as_view()),
+        name="edit-statement-pages",
     ),
     path(
         "<int:pk>/edit-statement-overview/",
@@ -203,14 +209,14 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-retest-statement-1",
     ),
     path(
-        "<int:pk>/edit-audit-12-week-statement/",
-        login_required(Audit12WeekStatementUpdateView.as_view()),
-        name="edit-audit-12-week-statement",
-    ),
-    path(
         "<int:pk>/edit-audit-retest-statement-2/",
         login_required(AuditRetestStatement2UpdateView.as_view()),
         name="edit-audit-retest-statement-2",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-statement-pages/",
+        login_required(TwelveWeekStatementPageFormsetUpdateView.as_view()),
+        name="edit-audit-retest-statement-pages",
     ),
     path(
         "<int:pk>/edit-retest-statement-overview/",

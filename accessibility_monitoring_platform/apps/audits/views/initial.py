@@ -53,6 +53,7 @@ from ..forms import (
     CustomStatementCheckResultFormsetOneExtra,
     AuditSummaryUpdateForm,
     ArchiveAuditReportOptionsUpdateForm,
+    AuditStatementPagesUpdateForm,
 )
 from ..models import (
     Audit,
@@ -69,6 +70,8 @@ from ..models import (
     STATEMENT_CHECK_TYPE_FEEDBACK,
     STATEMENT_CHECK_TYPE_CUSTOM,
     STATEMENT_CHECK_NO,
+    StatementPage,
+    ADDED_STAGE_INITIAL,
 )
 from ..utils import (
     create_or_update_check_results_for_page,
@@ -82,6 +85,7 @@ from .base import (
     AuditUpdateView,
     AuditCaseComplianceUpdateView,
     AuditStatementCheckingView,
+    StatementPageFormsetUpdateView,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -370,10 +374,53 @@ class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView)
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
+            return reverse("audits:edit-statement-pages", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
+    """
+    View to update statement pages in initial test
+    """
+
+    form_class: Type[AuditStatementPagesUpdateForm] = AuditStatementPagesUpdateForm
+    template_name: str = "audits/forms/statement_pages_formset.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        for form in context["statement_pages_formset"]:
+            if form.instance.id is None:
+                form.fields["added_stage"].initial = ADDED_STAGE_INITIAL
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        audit: Audit = self.object
+        if "add_wcag_statement_page" in self.request.POST:
+            statement_page: StatementPage = StatementPage.objects.create(
+                audit=audit,
+                url=audit.accessibility_statement_page.url,
+                backup_url=audit.accessibility_statement_backup_url,
+            )
+            record_model_create_event(
+                user=self.request.user, model_object=statement_page
+            )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        audit: Audit = self.object
+        audit_pk: Dict[str, int] = {"pk": audit.id}
+        current_url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
+        if "save_continue" in self.request.POST:
             if audit.uses_statement_checks:
                 return reverse("audits:edit-statement-overview", kwargs=audit_pk)
             return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
-        return super().get_success_url()
+        elif "add_statement_page" in self.request.POST:
+            return f"{current_url}?add_extra=true#statement-page-None"
+        else:
+            return current_url
 
 
 class AuditStatementOverviewFormView(AuditStatementCheckingView):

@@ -126,7 +126,40 @@
                 </div>
             </div>
 
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="retest-statement-pages" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-pages">
+                            12-week statement links
+                            {% if audit.audit_retest_statement_pages_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-statement-pages" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-pages">
+                    {% include 'audits/details/statement_pages.html' with on_retest=True  %}
+                </div>
+            </div>
+
             {% if audit.statement_check_results %}
+                <div class="govuk-accordion__section ">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="audit-retest-statement-pages" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-statement-pages">
+                                12-week website compliance decision
+                                {% if audit.audit_retest_website_decision_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-audit-retest-statement-pages" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-statement-pages">
+                        {% include 'audits/details/retest_website_decision.html' %}
+                    </div>
+                </div>
                 <div class="govuk-accordion__section">
                     <div class="govuk-accordion__section-header">
                         <h2 id="retest-statement-overview" class="govuk-accordion__section-heading">
