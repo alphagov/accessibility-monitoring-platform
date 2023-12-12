@@ -48,6 +48,9 @@ case.audit.id %}"{% endif %}>
                 {% include 'audits/details/retest_website_decision.html' with on_view_case=True %}
             </div>
         {% endif %}
+        <div{% if case.audit %} data-search-target-page-name="12-week statement pages" data-search-target-label="Edit 12-week test > 12-week statement pages" data-search-target-url="{% url 'audits:edit-audit-retest-statement-pages' case.audit.id %}"{% endif %}>
+            {% include 'audits/details/statement_pages.html' with on_view_case=True on_retest=True %}
+        </div>
         {% if audit.statement_check_results %}
             {% include 'audits/details/retest_statement_check_results.html' with on_view_case=True %}
         {% else %}

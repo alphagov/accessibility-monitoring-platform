@@ -17,6 +17,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'audits/helpers/statement_pages.html' %}
                 {% include 'common/error_summary.html' with form=case_compliance_form %}
                 {% include 'common/error_summary.html' %}
                 {% include 'audits/helpers/end_of_test.html' %}
@@ -25,17 +26,10 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% if audit.twelve_week_accessibility_statement_found %}
-                                <p class="govuk-body-m">Statement missing during initial test</p>
-                            {% else %}
-                                {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
-                            {% endif %}
-                            {% include 'audits/helpers/accessibility_statement_and_backup_link.html' with twelve_week_test=1 %}
                             {% if audit.accessibility_statement_initially_found %}
-                                {% include 'common/amp_field.html' with field=form.audit_retest_accessibility_statement_backup_url %}
-                                {% if audit.audit_retest_accessibility_statement_backup_url_date %}
-                                    <p class="govuk-body amp-margin-top-minus-20">Added {{ audit.audit_retest_accessibility_statement_backup_url_date }}</p>
-                                {% endif %}
+                                {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
+                            {% else %}
+                                <p class="govuk-body-m">Statement missing during initial test</p>
                             {% endif %}
                             {% include 'common/amp_form_snippet.html' with form=case_compliance_form %}
                             {% include 'common/amp_field.html' with field=form.archive_audit_retest_statement_decision_complete_date %}

@@ -19,18 +19,12 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'audits/helpers/statement_pages.html' %}
                 {% include 'common/error_summary.html' with formset=statement_check_results_formset %}
                 <form method="post" action="{% url 'audits:edit-statement-website' audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% if audit.accessibility_statement_initially_found %}
-                                {% include 'audits/helpers/accessibility_statement_and_backup_link.html' with twelve_week_test=0 %}
-                            {% endif %}
-                        </div>
-                    </div>
                     {% include 'audits/helpers/statement_check_formset.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">

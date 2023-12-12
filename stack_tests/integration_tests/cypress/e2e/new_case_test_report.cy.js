@@ -57,6 +57,9 @@ describe('Create case, tests and report', () => {
     cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | Statement links`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | Statement overview`)
     cy.get('[name="form-0-check_result_state"]').check('yes')
     cy.get('[name="form-1-check_result_state"]').check('yes')
@@ -150,6 +153,9 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week website compliance decision`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week statement links`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week statement overview`)

@@ -301,6 +301,14 @@ RETEST_INITIAL_COMPLIANCE_CHOICES: List[Tuple[str, str]] = [
     ("partially-compliant", "Partially compliant"),
     (RETEST_INITIAL_COMPLIANCE_DEFAULT, "Not known"),
 ]
+ADDED_STAGE_INITIAL: str = "initial"
+ADDED_STAGE_TWELVE_WEEK: str = "12-week-retest"
+ADDED_STAGE_RETEST: str = "retest"
+ADDED_STAGE_CHOICES: List[Tuple[str, str]] = [
+    (ADDED_STAGE_INITIAL, "Initial"),
+    (ADDED_STAGE_TWELVE_WEEK, "12-week retest"),
+    (ADDED_STAGE_RETEST, "Equality body retest"),
+]
 
 
 class ArchiveAccessibilityStatementCheck:
@@ -574,6 +582,9 @@ class Audit(VersionModel):
     archive_report_options_notes = models.TextField(default="", blank=True)
     archive_audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
+    # Statement pages
+    audit_statement_pages_complete_date = models.DateField(null=True, blank=True)
+
     # Statement checking overview
     statement_extra_report_text = models.TextField(default="", blank=True)
     audit_statement_overview_complete_date = models.DateField(null=True, blank=True)
@@ -715,6 +726,9 @@ class Audit(VersionModel):
         null=True, blank=True
     )
 
+    # Statement pages
+    audit_retest_statement_pages_complete_date = models.DateField(null=True, blank=True)
+
     # Retest statement checking overview
     audit_retest_statement_overview_complete_date = models.DateField(
         null=True, blank=True
@@ -841,22 +855,6 @@ class Audit(VersionModel):
     @property
     def accessibility_statement_page(self):
         return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
-
-    @property
-    def accessibility_statement_initially_found(self):
-        return self.accessibility_statement_found
-
-    @property
-    def accessibility_statement_found(self):
-        return (
-            self.accessibility_statement_page is not None
-            and self.accessibility_statement_page.url != ""
-            and self.accessibility_statement_page.not_found == BOOLEAN_FALSE
-        )
-
-    @property
-    def twelve_week_accessibility_statement_found(self):
-        return self.twelve_week_accessibility_statement_url != ""
 
     @property
     def contact_page(self):
@@ -1086,6 +1084,24 @@ class Audit(VersionModel):
         return self.failed_statement_check_results.filter(
             retest_state=STATEMENT_CHECK_YES
         )
+
+    @property
+    def statement_pages(self) -> bool:
+        return self.statementpage_set.filter(is_deleted=False)
+
+    @property
+    def accessibility_statement_initially_found(self):
+        return self.statement_pages.filter(added_stage=ADDED_STAGE_INITIAL).count() > 0
+
+    @property
+    def twelve_week_accessibility_statement_found(self):
+        return (
+            self.statement_pages.filter(added_stage=ADDED_STAGE_TWELVE_WEEK).count() > 0
+        )
+
+    @property
+    def accessibility_statement_found(self):
+        return self.statement_pages.count() > 0
 
 
 class Page(models.Model):
@@ -1485,3 +1501,26 @@ class RetestCheckResult(models.Model):
     def all_retest_check_results(self):
         """Return all retest results for this check"""
         return RetestCheckResult.objects.filter(check_result=self.check_result)
+
+
+class StatementPage(models.Model):
+    """
+    Model to store links to statement pages found at various stages in the life
+    of a case.
+    """
+
+    audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
+    is_deleted = models.BooleanField(default=False)
+
+    url = models.TextField(default="", blank=True)
+    backup_url = models.TextField(default="", blank=True)
+    added_stage = models.CharField(
+        max_length=20, choices=ADDED_STAGE_CHOICES, default=ADDED_STAGE_INITIAL
+    )
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
+        return self.url or self.backup_url

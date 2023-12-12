@@ -62,6 +62,8 @@ from .models import (
     RetestCheckResult,
     RETEST_INITIAL_COMPLIANCE_CHOICES,
     STATEMENT_CHECK_TYPE_OVERVIEW,
+    StatementPage,
+    ADDED_STAGE_CHOICES,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
@@ -1044,29 +1046,6 @@ class CaseComplianceWebsite12WeekUpdateForm(VersionForm):
         ]
 
 
-class Audit12WeekStatementUpdateForm(VersionForm):
-    """
-    Form to add a statement at 12-weeks (no initial statement)
-    """
-
-    twelve_week_accessibility_statement_url = AMPURLField(
-        label="Link to accessibility statement",
-        help_text="Blank out to remove appended statement",
-    )
-    audit_retest_accessibility_statement_backup_url = AMPURLField(
-        label="Link to backup accessibility statement",
-        help_text="Blank out to remove appended statement",
-    )
-
-    class Meta:
-        model = Audit
-        fields = [
-            "version",
-            "twelve_week_accessibility_statement_url",
-            "audit_retest_accessibility_statement_backup_url",
-        ]
-
-
 class ArchiveAuditRetestStatement1UpdateForm(VersionForm):
     """
     Form for retesting accessibility statement 1 checks
@@ -1554,4 +1533,58 @@ class RetestComplianceUpdateForm(forms.ModelForm):
             "retest_compliance_state",
             "compliance_notes",
             "compliance_complete_date",
+        ]
+
+
+class StatementPageUpdateForm(forms.ModelForm):
+    """
+    Form for updating a statement page
+    """
+
+    url = AMPURLField(label="Link to statement")
+    backup_url = AMPURLField(label="Statement backup")
+    added_stage = AMPChoiceRadioField(
+        label="Statement added", choices=ADDED_STAGE_CHOICES
+    )
+
+    class Meta:
+        model = StatementPage
+        fields = ["url", "backup_url", "added_stage"]
+
+
+StatementPageFormset: Any = forms.modelformset_factory(
+    StatementPage, StatementPageUpdateForm, extra=0
+)
+StatementPageFormsetOneExtra: Any = forms.modelformset_factory(
+    StatementPage, StatementPageUpdateForm, extra=1
+)
+
+
+class AuditStatementPagesUpdateForm(VersionForm):
+    """
+    Form for statement pages update at initial test
+    """
+
+    audit_statement_pages_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_statement_pages_complete_date",
+        ]
+
+
+class TwelveWeekStatementPagesUpdateForm(VersionForm):
+    """
+    Form for statement pages update at 12-week retest
+    """
+
+    audit_retest_statement_pages_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_pages_complete_date",
         ]
