@@ -1176,8 +1176,7 @@ class WcagDefinition(models.Model):
     date_start = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
 
-    objects = models.Manager()
-    start_end = StartEndDeleteManager()
+    objects = StartEndDeleteManager()
 
     class Meta:
         ordering = ["id"]
@@ -1262,8 +1261,7 @@ class StatementCheck(models.Model):
     date_start = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
 
-    objects = models.Manager()
-    start_end = StartEndDeleteManager()
+    objects = StartEndDeleteManager()
 
     class Meta:
         ordering = ["position", "id"]

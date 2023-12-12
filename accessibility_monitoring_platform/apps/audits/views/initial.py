@@ -293,7 +293,7 @@ class AuditPageChecksFormView(FormView):
             WcagDefinition, List[CheckResult]
         ] = other_page_failed_check_results(page=self.page)
         wcag_definitions: List[WcagDefinition] = list(
-            WcagDefinition.start_end.on_date(self.page.audit.date_of_test)
+            WcagDefinition.objects.on_date(self.page.audit.date_of_test)
         )
 
         if self.request.POST:

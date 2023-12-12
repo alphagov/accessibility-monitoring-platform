@@ -229,7 +229,7 @@ class CheckResultForm(forms.ModelForm):
     """
 
     wcag_definition = forms.ModelChoiceField(
-        queryset=WcagDefinition.start_end.all(), widget=forms.HiddenInput()
+        queryset=WcagDefinition.objects.all(), widget=forms.HiddenInput()
     )
     check_result_state = AMPChoiceRadioField(
         label="",

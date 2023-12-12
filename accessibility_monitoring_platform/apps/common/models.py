@@ -48,17 +48,8 @@ class StartEndDeleteManager(models.Manager):
         return (
             super()
             .get_queryset()
-            .exclude(date_start__lt=target_date)
-            .exclude(date_end__gt=target_date)
-        )
-
-    def get_queryset(self):
-        today: date = date.today()
-        return (
-            super()
-            .get_queryset()
-            .exclude(date_start__lt=today)
-            .exclude(date_end__gt=today)
+            .exclude(date_start__gt=target_date)
+            .exclude(date_end__lt=target_date)
         )
 
 
