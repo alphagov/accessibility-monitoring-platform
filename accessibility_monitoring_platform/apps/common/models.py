@@ -41,7 +41,7 @@ MORE_INFORMATION_ABOUT_MONITORING_DEFAULT: str = """# More Information
 More information about monitoring placeholder"""
 
 
-class StartEndDeleteManager(models.Manager):
+class StartEndDateManager(models.Manager):
     """Model manager which filters by date"""
 
     def on_date(self, target_date: date):

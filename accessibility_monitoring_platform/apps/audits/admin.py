@@ -74,6 +74,7 @@ class StatementCheckAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("type", "position"),
+                    ("date_start", "date_end"),
                     ("label",),
                     ("success_criteria",),
                     ("report_text",),

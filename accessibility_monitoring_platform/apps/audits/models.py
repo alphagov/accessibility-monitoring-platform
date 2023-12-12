@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from ..cases.models import Case
 from ..common.models import (
-    StartEndDeleteManager,
+    StartEndDateManager,
     VersionModel,
     BOOLEAN_CHOICES,
     BOOLEAN_DEFAULT,
@@ -1176,7 +1176,7 @@ class WcagDefinition(models.Model):
     date_start = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
 
-    objects = StartEndDeleteManager()
+    objects = StartEndDateManager()
 
     class Meta:
         ordering = ["id"]
@@ -1261,7 +1261,7 @@ class StatementCheck(models.Model):
     date_start = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
 
-    objects = StartEndDeleteManager()
+    objects = StartEndDateManager()
 
     class Meta:
         ordering = ["position", "id"]
