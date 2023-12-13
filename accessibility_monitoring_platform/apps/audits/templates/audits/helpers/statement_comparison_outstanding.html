@@ -1,10 +1,10 @@
 {% if audit.uses_statement_checks %}
+    {% include 'audits/helpers/statement_pages.html' %}
     {% if audit.overview_outstanding_statement_check_results %}
         <h2 id="statement-overview" class="govuk-heading-l">Statement overview</h2>
         <div class="govuk-button-group amp-margin-bottom-0">
             <a href="{% url 'audits:edit-retest-statement-overview' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-            {% include 'audits/helpers/accessibility_statement_link.html' %}
         </div>
         {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.overview_outstanding_statement_check_results %}
     {% endif %}
@@ -13,7 +13,6 @@
         <div class="govuk-button-group amp-margin-bottom-0">
             <a href="{% url 'audits:edit-retest-statement-website' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-            {% include 'audits/helpers/accessibility_statement_link.html' %}
         </div>
         {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.website_outstanding_statement_check_results %}
     {% endif %}
@@ -22,7 +21,6 @@
         <div class="govuk-button-group amp-margin-bottom-0">
             <a href="{% url 'audits:edit-retest-statement-compliance' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-            {% include 'audits/helpers/accessibility_statement_link.html' %}
         </div>
         {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.compliance_outstanding_statement_check_results %}
     {% endif %}
@@ -31,7 +29,6 @@
         <div class="govuk-button-group amp-margin-bottom-0">
             <a href="{% url 'audits:edit-retest-statement-non-accessible' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-            {% include 'audits/helpers/accessibility_statement_link.html' %}
         </div>
         {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.non_accessible_outstanding_statement_check_results %}
     {% endif %}
@@ -40,7 +37,6 @@
         <div class="govuk-button-group amp-margin-bottom-0">
             <a href="{% url 'audits:edit-retest-statement-preparation' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-            {% include 'audits/helpers/accessibility_statement_link.html' %}
         </div>
         {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.preparation_outstanding_statement_check_results %}
     {% endif %}
@@ -49,7 +45,6 @@
         <div class="govuk-button-group amp-margin-bottom-0">
             <a href="{% url 'audits:edit-retest-statement-feedback' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-            {% include 'audits/helpers/accessibility_statement_link.html' %}
         </div>
         {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.feedback_outstanding_statement_check_results %}
     {% endif %}
@@ -58,7 +53,6 @@
         <div class="govuk-button-group amp-margin-bottom-0">
             <a href="{% url 'audits:edit-retest-statement-custom' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state">Edit retest</a>
-            {% include 'audits/helpers/accessibility_statement_link.html' %}
         </div>
         {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.custom_outstanding_statement_check_results %}
     {% endif %}

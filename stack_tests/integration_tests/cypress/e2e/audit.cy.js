@@ -4,7 +4,6 @@ const exemptionsNote = 'Test exemptions note'
 const accessibilityStatementURL = 'https://example.com/accessibility-statement'
 const errorText = 'Error detail text'
 const websiteComplianceNote = 'Website compliance note'
-const accessibilityStatementBackupURL = 'https://accessibility-statement-backup.com'
 const accessibilityStatementComplianceNote = 'Accessibility statement compliance note'
 const reportOptionsNote = 'Report options note'
 
@@ -57,7 +56,6 @@ describe('View test', () => {
 
   it('can edit accessibility statement', () => {
     cy.get('#edit-audit-statement-1').click()
-    cy.get('[name="accessibility_statement_backup_url"]').clear().type(accessibilityStatementBackupURL)
     cy.get('[name="archive_scope_state"]').check('incomplete')
     cy.get('[name="archive_audit_statement_1_complete_date"]').click()
     cy.contains('Save and continue').click()
@@ -65,7 +63,6 @@ describe('View test', () => {
     cy.get('[name="archive_audit_statement_2_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Test').click()
-    cy.contains(accessibilityStatementBackupURL)
   })
 
   it('can edit accessibility statement compliance decision', () => {

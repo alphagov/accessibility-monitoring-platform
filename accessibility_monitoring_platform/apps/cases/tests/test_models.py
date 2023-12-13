@@ -25,6 +25,7 @@ from ...audits.models import (
     STATEMENT_CHECK_TYPE_OVERVIEW,
     Retest,
     RETEST_INITIAL_COMPLIANCE_COMPLIANT,
+    StatementPage,
 )
 from ...comments.models import Comment
 from ...reminders.models import Reminder
@@ -34,7 +35,6 @@ from ..models import (
     Case,
     Contact,
     EqualityBodyCorrespondence,
-    WEBSITE_COMPLIANCE_STATE_DEFAULT,
     WEBSITE_COMPLIANCE_STATE_DEFAULT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
@@ -892,9 +892,7 @@ def test_set_statement_compliance_state_initial_no_statement_checks(
         statement_compliance_state_initial=statement_compliance_state_initial
     )
     audit: Audit = Audit.objects.create(case=case)
-    Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
-    )
+    StatementPage.objects.create(audit=audit)
 
     case.set_statement_compliance_states()
 
@@ -912,9 +910,7 @@ def test_set_statement_compliance_state_initial_to_compliant():
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
-    )
+    StatementPage.objects.create(audit=audit)
     for statement_check in StatementCheck.objects.filter(
         type=STATEMENT_CHECK_TYPE_OVERVIEW
     ):
@@ -1046,9 +1042,7 @@ def test_set_statement_compliance_state_12_week_no_statement_checks(
         statement_compliance_state_12_week=statement_compliance_state_12_week
     )
     audit: Audit = Audit.objects.create(case=case)
-    Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
-    )
+    StatementPage.objects.create(audit=audit)
 
     case.set_statement_compliance_states()
 
@@ -1066,9 +1060,7 @@ def test_set_statement_compliance_state_12_week_to_compliant():
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
-    )
+    StatementPage.objects.create(audit=audit)
     for statement_check in StatementCheck.objects.filter(
         type=STATEMENT_CHECK_TYPE_OVERVIEW
     ):
