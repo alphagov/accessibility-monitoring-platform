@@ -1538,9 +1538,9 @@ def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
 def test_page_checks_edit_hides_past_wcag_definitions(admin_client):
     """Test page checks edit view page loads and hides past WCAG definitions"""
     audit: Audit = create_audit_and_wcag()
-    future_wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
-    future_wcag_definition.date_end = audit.date_of_test - timedelta(days=10)
-    future_wcag_definition.save()
+    past_wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    past_wcag_definition.date_end = audit.date_of_test - timedelta(days=10)
+    past_wcag_definition.save()
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}
 
