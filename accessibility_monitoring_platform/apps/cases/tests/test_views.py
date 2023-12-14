@@ -740,7 +740,6 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-report-details", "<li>Report details</li>"),
         ("cases:edit-qa-process", "<li>QA process</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
-        ("cases:edit-report-correspondence", "<li>Report correspondence</li>"),
         (
             "cases:outstanding-issues",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">Outstanding issues</h1>',
@@ -938,7 +937,7 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-contact-details",
             "save_continue",
-            "cases:edit-report-correspondence",
+            "cases:edit-report-sent-on",
         ),
         (
             "cases:edit-report-correspondence",
@@ -1627,16 +1626,6 @@ def test_section_complete_check_displayed(
             "cases:edit-contact-details",
             "contact_details_complete_date",
             "Contact details",
-        ),
-        (
-            "cases:edit-report-correspondence",
-            "report_correspondence_complete_date",
-            "Report correspondence",
-        ),
-        (
-            "cases:edit-twelve-week-correspondence",
-            "twelve_week_correspondence_complete_date",
-            "12-week correspondence",
         ),
         (
             "cases:edit-twelve-week-retest",
@@ -2866,16 +2855,6 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "cases:edit-case-details",
             "cases:edit-contact-details",
             "Contact details",
-        ),
-        (
-            "cases:edit-case-details",
-            "cases:edit-report-correspondence",
-            "Report correspondence",
-        ),
-        (
-            "cases:edit-case-details",
-            "cases:edit-twelve-week-correspondence",
-            "12-week correspondence",
         ),
         (
             "cases:edit-case-details",

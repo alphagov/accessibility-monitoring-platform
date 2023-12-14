@@ -130,13 +130,34 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | QA process`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | Correspondence overview`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | No contact details`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | Contact details`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report correspondence`)
+    cy.title().should('eq', `${newOrganisationName} | Report send on`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week correspondence`)
+    cy.title().should('eq', `${newOrganisationName} | One week followup`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Four week followup`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Report acknowledged`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week update requested`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | One week followup for final update`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week update request acknowledged`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week retest`)

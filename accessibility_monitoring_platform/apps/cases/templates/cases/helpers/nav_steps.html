@@ -27,7 +27,7 @@
             <li>
                 <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                     {% include './nav_step.html' with edit_name='cases:edit-no-contact-details' name='No contact details' complete=case.no_contact_details_complete_date %}
-                    {% include './nav_step.html' with edit_name='cases:edit-contact-details' name='Contact details' complete=case.contact_detail_complete_date %}
+                    {% include './nav_step.html' with edit_name='cases:edit-contact-details' name='Contact details' complete=case.contact_details_complete_date %}
                     {% include './nav_step.html' with edit_name='cases:edit-report-sent-on' name='Report send on' complete=case.report_sent_on_complete_date %}
                     {% include './nav_step.html' with edit_name='cases:edit-one-week-followup' name='One week followup' complete=case.one_week_followup_complete_date %}
                     {% include './nav_step.html' with edit_name='cases:edit-four-week-followup' name='Four week followup' complete=case.four_week_followup_complete_date %}

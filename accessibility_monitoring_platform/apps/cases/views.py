@@ -453,7 +453,7 @@ class CaseQAProcessUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
-            return reverse("cases:edit-contact-details", kwargs={"pk": self.object.id})
+            return reverse("cases:edit-cores-overview", kwargs={"pk": self.object.id})
         return super().get_success_url()
 
 
