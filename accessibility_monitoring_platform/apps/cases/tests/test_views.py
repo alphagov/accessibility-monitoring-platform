@@ -932,7 +932,7 @@ def test_updating_case_creates_case_event(admin_client):
         ("cases:edit-report-details", "save", "cases:edit-report-details"),
         ("cases:edit-report-details", "save_continue", "cases:edit-qa-process"),
         ("cases:edit-qa-process", "save", "cases:edit-qa-process"),
-        ("cases:edit-qa-process", "save_continue", "cases:edit-contact-details"),
+        ("cases:edit-qa-process", "save_continue", "cases:edit-cores-overview"),
         ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
         (
             "cases:edit-contact-details",
