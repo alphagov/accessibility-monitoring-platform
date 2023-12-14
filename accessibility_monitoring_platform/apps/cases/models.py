@@ -379,9 +379,38 @@ class Case(VersionModel):
     report_final_odt_url = models.TextField(default="", blank=True)
     qa_process_complete_date = models.DateField(null=True, blank=True)
 
+    # Correspondence overview page
+    cores_overview_complete_date = models.DateField(null=True, blank=True)
+
+    # No contact details page
+    no_contact_details_complete_date = models.DateField(null=True, blank=True)
+
     # Contact details page
     contact_notes = models.TextField(default="", blank=True)
     contact_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Report send on page
+    report_sent_on_complete_date = models.DateField(null=True, blank=True)
+
+    # One week followup page
+    one_week_followup_complete_date = models.DateField(null=True, blank=True)
+
+    # Four week followup page
+    four_week_followup_complete_date = models.DateField(null=True, blank=True)
+
+    # Report acknowledged page
+    report_acknowledged_complete_date = models.DateField(null=True, blank=True)
+
+    # 12-week update requested page
+    twelve_week_update_requested_complete_date = models.DateField(null=True, blank=True)
+
+    # One week followup for final update page
+    one_week_followup_final_complete_date = models.DateField(null=True, blank=True)
+
+    # 12-week update request acknowledged page
+    twelve_week_update_request_ack_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Report correspondence page
     seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)

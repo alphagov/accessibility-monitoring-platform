@@ -44,6 +44,16 @@ from accessibility_monitoring_platform.apps.cases.views import (
     EqualityBodyRetestEmailTemplateView,
     PostCaseAlertsTemplateView,
     CaseRetestCreateErrorTemplateView,
+    CaseCorrespondenceOverviewUpdateView,
+    CaseNoContactDetailsUpdateView,
+    CaseContactFormsetUpdateView,
+    CaseReportSentOnUpdateView,
+    CaseOneWeekFollowupUpdateView,
+    CaseFourWeekFollowupUpdateView,
+    CaseReportAcknowledgedUpdateView,
+    CaseTwelveWeekUpdateRequestedUpdateView,
+    CaseOneWeekFollowupFinalUpdateView,
+    CaseTwelveWeekUpdateAcknowledgedUpdateView,
 )
 
 app_name: str = "cases"
@@ -90,9 +100,54 @@ urlpatterns: List[URLPattern] = [
         name="add-qa-comment",
     ),
     path(
+        "<int:pk>/edit-cores-overview/",
+        login_required(CaseCorrespondenceOverviewUpdateView.as_view()),
+        name="edit-cores-overview",
+    ),
+    path(
+        "<int:pk>/edit-no-contact-details/",
+        login_required(CaseNoContactDetailsUpdateView.as_view()),
+        name="edit-no-contact-details",
+    ),
+    path(
         "<int:pk>/edit-contact-details/",
         login_required(CaseContactFormsetUpdateView.as_view()),
         name="edit-contact-details",
+    ),
+    path(
+        "<int:pk>/edit-report-sent-on/",
+        login_required(CaseReportSentOnUpdateView.as_view()),
+        name="edit-report-sent-on",
+    ),
+    path(
+        "<int:pk>/edit-one-week-followup/",
+        login_required(CaseOneWeekFollowupUpdateView.as_view()),
+        name="edit-one-week-followup",
+    ),
+    path(
+        "<int:pk>/edit-four-week-followup/",
+        login_required(CaseFourWeekFollowupUpdateView.as_view()),
+        name="edit-four-week-followup",
+    ),
+    path(
+        "<int:pk>/edit-report-acknowledged/",
+        login_required(CaseReportAcknowledgedUpdateView.as_view()),
+        name="edit-report-acknowledged",
+    ),
+    path(
+        "<int:pk>/edit-12-week-update-requested/",
+        login_required(CaseTwelveWeekUpdateRequestedUpdateView.as_view()),
+        name="edit-12-week-update-requested",
+    ),
+    path(
+        "<int:pk>/edit-one-week-followup-final/",
+        login_required(CaseOneWeekFollowupFinalUpdateView.as_view()),
+        name="edit-one-week-followup-final",
+    ),
+    path(
+        "<int:pk>/edit-12-week-update-request-ack/",
+        login_required(CaseTwelveWeekUpdateAcknowledgedUpdateView.as_view()),
+        name="edit-12-week-update-request-ack",
     ),
     path(
         "<int:pk>/edit-report-correspondence/",

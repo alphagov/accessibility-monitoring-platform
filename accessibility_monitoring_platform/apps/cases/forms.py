@@ -319,6 +319,36 @@ class CaseQAProcessUpdateForm(VersionForm):
         ]
 
 
+class CaseCorrespondenceOverviewUpdateForm(VersionForm):
+    """
+    Form to update Correspondence overview
+    """
+
+    cores_overview_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "cores_overview_complete_date",
+        ]
+
+
+class CaseNoContactDetailsUpdateForm(VersionForm):
+    """
+    Form to update No contact details
+    """
+
+    no_contact_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "no_contact_details_complete_date",
+        ]
+
+
 class CaseContactUpdateForm(forms.ModelForm):
     """
     Form for updating a contact
@@ -358,6 +388,111 @@ class CaseContactsUpdateForm(VersionForm):
             "version",
             "contact_notes",
             "contact_details_complete_date",
+        ]
+
+
+class CaseReportSentOnUpdateForm(VersionForm):
+    """
+    Form to update Report send on
+    """
+
+    report_sent_on_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "report_sent_on_complete_date",
+        ]
+
+
+class CaseOneWeekFollowupUpdateForm(VersionForm):
+    """
+    Form to update One week followup
+    """
+
+    one_week_followup_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "one_week_followup_complete_date",
+        ]
+
+
+class CaseFourWeekFollowupUpdateForm(VersionForm):
+    """
+    Form to update Four week followup
+    """
+
+    four_week_followup_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "four_week_followup_complete_date",
+        ]
+
+
+class CaseReportAcknowledgedUpdateForm(VersionForm):
+    """
+    Form to update Report acknowledged
+    """
+
+    report_acknowledged_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "report_acknowledged_complete_date",
+        ]
+
+
+class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
+    """
+    Form to update 12-week update requested
+    """
+
+    twelve_week_update_requested_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "twelve_week_update_requested_complete_date",
+        ]
+
+
+class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
+    """
+    Form to update One week followup for final update
+    """
+
+    one_week_followup_final_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "one_week_followup_final_complete_date",
+        ]
+
+
+class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
+    """
+    Form to update 12-week update request acknowledged
+    """
+
+    twelve_week_update_request_ack_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "twelve_week_update_request_ack_complete_date",
         ]
 
 

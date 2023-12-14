@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ case.organisation_name }} | 12-week update request acknowledged{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading='12-week update request acknowledged' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='12-week update request acknowledged' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'cases:edit-12-week-update-request-ack' case.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save and continue"
+                                name="save_continue"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'cases:edit-report-correspondence' case.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-12-week-update-request-ack' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
