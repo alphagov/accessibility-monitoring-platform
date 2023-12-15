@@ -4,7 +4,6 @@ Tests for automated statuses
 import pytest
 
 from datetime import datetime
-from typing import Any, Dict
 
 from pytest_django.asserts import assertContains
 
@@ -14,8 +13,6 @@ from django.urls import reverse
 
 from ..models import (
     Case,
-    CaseCompliance,
-    COMPLIANCE_FIELDS,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     REPORT_APPROVED_STATUS_APPROVED,
