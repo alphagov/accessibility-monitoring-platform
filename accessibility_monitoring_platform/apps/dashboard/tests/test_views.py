@@ -3,10 +3,11 @@ Tests for view - dashboard
 """
 import pytest
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pytest_django.asserts import assertContains
 
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.urls import reverse
 
@@ -23,6 +24,7 @@ from ...cases.models import (
 )
 from ...cases.utils import create_case_and_compliance
 from ...common.models import BOOLEAN_TRUE
+from ...reminders.models import Reminder
 
 
 def test_dashboard_loads_correctly_when_user_logged_in(admin_client):
@@ -254,4 +256,42 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
         response,
         expected_number_of_unnassigned_cases,
         html=True,
+    )
+
+
+def test_dashboard_shows_link_to_owedue_reminder(admin_client, admin_user):
+    """
+    Tests dashboard shows link to overdue reminder for cases of status
+    reviewing changes
+    """
+    case: Case = Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=admin_user,
+        report_review_status=BOOLEAN_TRUE,
+        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_sent_date=datetime.now(),
+        report_acknowledged_date=datetime.now(),
+        twelve_week_update_requested_date=datetime.now(),
+        twelve_week_correspondence_acknowledged_date=datetime.now(),
+    )
+    case.compliance.statement_compliance_state_initial = (
+        STATEMENT_COMPLIANCE_STATE_COMPLIANT
+    )
+    case.compliance.website_compliance_state_initial = (
+        WEBSITE_COMPLIANCE_STATE_COMPLIANT
+    )
+    case.compliance.save()
+    case.save()
+    reminder: Reminder = Reminder.objects.create(case=case, due_date=date.today())
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+    f = open("t.html", "w")
+    f.write(str(response.content))
+    f.close()
+
+    assertContains(
+        response, reverse("reminders:edit-reminder", kwargs={"pk": reminder.id})
     )

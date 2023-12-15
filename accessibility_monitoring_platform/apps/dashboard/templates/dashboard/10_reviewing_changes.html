@@ -33,10 +33,10 @@
                             {% endif %}
                         {% else %}
                             <a href="{% url 'cases:edit-review-changes' case.id %}" class="govuk-link">Reviewing changes</a>
-                            {% if case.overdue_reminder %}
-                                |
-                                <a href="{% url 'reminders:edit-reminder' case.overdue_reminder.id %}" class="govuk-link govuk-link--no-visited-state">View reminder</a>
-                            {% endif %}
+                        {% endif %}
+                        {% if case.overdue_reminder %}
+                            |
+                            <a href="{% url 'reminders:edit-reminder' case.overdue_reminder.id %}" class="govuk-link govuk-link--no-visited-state">View reminder</a>
                         {% endif %}
                     </td>
                 </tr>
