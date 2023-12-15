@@ -258,9 +258,9 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
     )
 
 
-def test_dashboard_shows_link_to_owedue_reminder(admin_client, admin_user):
+def test_dashboard_shows_link_to_reminder(admin_client, admin_user):
     """
-    Tests dashboard shows link to overdue reminder for cases of status
+    Tests dashboard shows link to reminder for cases of status
     reviewing changes
     """
     case: Case = Case.objects.create(
@@ -289,9 +289,6 @@ def test_dashboard_shows_link_to_owedue_reminder(admin_client, admin_user):
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
     assert response.status_code == 200
-    f = open("t.html", "w")
-    f.write(str(response.content))
-    f.close()
 
     assertContains(
         response, reverse("reminders:edit-reminder", kwargs={"pk": reminder.id})
