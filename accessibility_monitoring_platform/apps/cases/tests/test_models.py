@@ -1280,18 +1280,3 @@ def test_case_equality_body_correspondence_retests_unresolved_returns_unresolved
     unresolved_retest.save()
 
     assert len(case.equality_body_correspondence_retests_unresolved) == 0
-
-
-@pytest.mark.django_db
-def test_case_overdue_reminder():
-    """Test Case.overdue_reminder returns a reminder if it is overdue"""
-    case: Case = Case.objects.create()
-    future_date: date = date.today() + timedelta(days=10)
-    reminder: Reminder = Reminder.objects.create(case=case, due_date=future_date)
-
-    assert case.overdue_reminder is None
-
-    reminder.due_date = date.today()
-    reminder.save()
-
-    assert case.overdue_reminder == reminder

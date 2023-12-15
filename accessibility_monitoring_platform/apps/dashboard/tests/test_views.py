@@ -3,11 +3,10 @@ Tests for view - dashboard
 """
 import pytest
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from pytest_django.asserts import assertContains
 
-from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.urls import reverse
 
@@ -283,7 +282,9 @@ def test_dashboard_shows_link_to_owedue_reminder(admin_client, admin_user):
     )
     case.compliance.save()
     case.save()
-    reminder: Reminder = Reminder.objects.create(case=case, due_date=date.today())
+    reminder: Reminder = Reminder.objects.create(
+        case=case, due_date=date.today() + timedelta(days=10)
+    )
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 

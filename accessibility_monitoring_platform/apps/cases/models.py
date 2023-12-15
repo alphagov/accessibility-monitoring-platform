@@ -931,11 +931,6 @@ class Case(VersionModel):
             status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
         )
 
-    @property
-    def overdue_reminder(self):
-        today: date = date.today()
-        return self.reminder_case.filter(is_deleted=False, due_date__lte=today).first()
-
 
 class CaseStatus(models.Model):
     """
