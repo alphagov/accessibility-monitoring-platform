@@ -87,6 +87,14 @@
                                 <p class="govuk-body-m">
                                     {{ statement_check.get_type_display }}
                                 </p>
+                                {% if statement_check.date_start %}
+                                    <p class="govuk-body-m amp-label">Start date</p>
+                                    <p class="govuk-body-m">{{ statement_check.date_start|amp_date }}</p>
+                                {% endif %}
+                                {% if statement_check.date_end %}
+                                    <p class="govuk-body-m amp-label">End date</p>
+                                    <p class="govuk-body-m">{{ statement_check.date_end|amp_date }}</p>
+                                {% endif %}
                                 <p class="govuk-body-m amp-label">Success criteria</p>
                                 <p class="govuk-body-m">
                                     {% if statement_check.success_criteria %}

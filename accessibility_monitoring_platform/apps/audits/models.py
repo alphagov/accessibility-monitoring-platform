@@ -12,6 +12,7 @@ from django.utils import timezone
 
 from ..cases.models import Case
 from ..common.models import (
+    StartEndDateManager,
     VersionModel,
     BOOLEAN_CHOICES,
     BOOLEAN_DEFAULT,
@@ -1188,8 +1189,10 @@ class WcagDefinition(models.Model):
     description = models.TextField(default="", blank=True)
     url_on_w3 = models.TextField(default="", blank=True)
     report_boilerplate = models.TextField(default="", blank=True)
-    date_start = models.DateTimeField(null=True, blank=True)
-    date_end = models.DateTimeField(null=True, blank=True)
+    date_start = models.DateField(null=True, blank=True)
+    date_end = models.DateField(null=True, blank=True)
+
+    objects = StartEndDateManager()
 
     class Meta:
         ordering = ["id"]
@@ -1271,7 +1274,10 @@ class StatementCheck(models.Model):
     success_criteria = models.TextField(default="", blank=True)
     report_text = models.TextField(default="", blank=True)
     position = models.IntegerField(default=0)
-    is_deleted = models.BooleanField(default=False)
+    date_start = models.DateField(null=True, blank=True)
+    date_end = models.DateField(null=True, blank=True)
+
+    objects = StartEndDateManager()
 
     class Meta:
         ordering = ["position", "id"]

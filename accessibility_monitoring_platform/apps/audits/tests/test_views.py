@@ -2,7 +2,7 @@
 Tests for audits views
 """
 import pytest
-from datetime import date
+from datetime import date, timedelta
 from typing import Dict, List, Optional, Union
 
 from pytest_django.asserts import assertContains, assertNotContains
@@ -1517,6 +1517,42 @@ def test_page_checks_edit_page_loads(admin_client):
     assertContains(response, WCAG_TYPE_PDF_NAME)
 
 
+def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
+    """Test page checks edit view page loads and hides future WCAG definitions"""
+    audit: Audit = create_audit_and_wcag()
+    future_wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    future_wcag_definition.date_start = audit.date_of_test + timedelta(days=10)
+    future_wcag_definition.save()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: Dict[str, int] = {"pk": page.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Showing 1 error")
+
+
+def test_page_checks_edit_hides_past_wcag_definitions(admin_client):
+    """Test page checks edit view page loads and hides past WCAG definitions"""
+    audit: Audit = create_audit_and_wcag()
+    past_wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    past_wcag_definition.date_end = audit.date_of_test - timedelta(days=10)
+    past_wcag_definition.save()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: Dict[str, int] = {"pk": page.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Showing 1 error")
+
+
 def test_page_checks_edit_saves_results(admin_client):
     """Test page checks edit view saves the entered results"""
     audit: Audit = create_audit_and_wcag()
@@ -2430,9 +2466,10 @@ def test_update_wcag_definition_works(admin_client):
 
     wcag_definition_pk: int = wcag_definition.id  # type: ignore
     path_kwargs: Dict[str, int] = {"pk": wcag_definition_pk}
+    update_url: str = reverse("audits:wcag-definition-update", kwargs=path_kwargs)
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:wcag-definition-update", kwargs=path_kwargs),
+        update_url,
         {
             "type": WCAG_DEFINITION_TYPE,
             "name": WCAG_DEFINITION_NAME,
@@ -2441,7 +2478,7 @@ def test_update_wcag_definition_works(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("audits:wcag-definition-list")
+    assert response.url == update_url
 
     wcag_definition_from_db: Optional[WcagDefinition] = WcagDefinition.objects.first()
 
@@ -2676,7 +2713,7 @@ def test_update_statement_check_works(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("audits:statement-check-list")
+    assert response.url == reverse("audits:statement-check-update", kwargs=path_kwargs)
 
     statement_check_from_db: StatementCheck = StatementCheck.objects.get(
         id=statement_check_id
