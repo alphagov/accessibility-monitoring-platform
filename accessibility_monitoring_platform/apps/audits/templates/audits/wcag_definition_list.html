@@ -90,6 +90,14 @@
                                 <p class="govuk-body-m">
                                     {{ wcag_definition.get_type_display }}
                                 </p>
+                                {% if wcag_definition.date_start %}
+                                    <p class="govuk-body-m amp-label">Start date</p>
+                                    <p class="govuk-body-m">{{ wcag_definition.date_start|amp_date }}</p>
+                                {% endif %}
+                                {% if wcag_definition.date_end %}
+                                    <p class="govuk-body-m amp-label">End date</p>
+                                    <p class="govuk-body-m">{{ wcag_definition.date_end|amp_date }}</p>
+                                {% endif %}
                                 <p class="govuk-body-m amp-label">Description</p>
                                 <p class="govuk-body-m">
                                     {% if wcag_definition.description %}

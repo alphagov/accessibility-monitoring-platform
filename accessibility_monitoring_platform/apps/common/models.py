@@ -1,6 +1,7 @@
 """
 Models for common data used across project
 """
+from datetime import date
 from typing import Dict, List, Tuple
 
 import json
@@ -38,6 +39,18 @@ Placeholder for platform."""
 MORE_INFORMATION_ABOUT_MONITORING_DEFAULT: str = """# More Information
 
 More information about monitoring placeholder"""
+
+
+class StartEndDateManager(models.Manager):
+    """Model manager which filters by date"""
+
+    def on_date(self, target_date: date):
+        return (
+            super()
+            .get_queryset()
+            .exclude(date_start__gt=target_date)
+            .exclude(date_end__lt=target_date)
+        )
 
 
 class Sector(models.Model):

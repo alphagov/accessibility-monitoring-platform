@@ -7,6 +7,7 @@ from ..common.admin import ExportCsvMixin
 from .models import (
     Case,
     CaseCompliance,
+    CaseStatus,
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
@@ -46,6 +47,14 @@ class CaseAdmin(admin.ModelAdmin):
         MetaStatusCaseListFilter,
         ("auditor", admin.RelatedOnlyFieldListFilter),
     ]
+
+
+class CaseStatusAdmin(admin.ModelAdmin):
+    """Django admin configuration for CaseStatus model"""
+
+    readonly_fields = ["case"]
+    search_fields = ["case__organisation_name", "case__id"]
+    list_filter = ["status"]
 
 
 class CaseComplianceAdmin(admin.ModelAdmin):
@@ -107,6 +116,7 @@ class EqualityBodyCorrespondenceAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Case, CaseAdmin)
+admin.site.register(CaseStatus, CaseStatusAdmin)
 admin.site.register(CaseCompliance, CaseComplianceAdmin)
 admin.site.register(CaseEvent, CaseEventAdmin)
 admin.site.register(Contact, ContactAdmin)

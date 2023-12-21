@@ -2,9 +2,9 @@
 Utilities for audits app
 """
 
+from datetime import date, datetime
 from functools import partial
 from typing import Callable, Dict, List, Optional, Union
-from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -245,7 +245,8 @@ def create_statement_checks_for_new_audit(audit: Audit) -> None:
     """
     Create statement check results for new audit.
     """
-    for statement_check in StatementCheck.objects.filter(is_deleted=False):
+    today: date = date.today()
+    for statement_check in StatementCheck.objects.on_date(today):
         StatementCheckResult.objects.create(
             audit=audit,
             type=statement_check.type,
