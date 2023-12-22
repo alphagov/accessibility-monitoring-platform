@@ -52,6 +52,24 @@ def create_case(user: User) -> Case:
 
 
 @pytest.mark.django_db
+def test_report_ready_to_send_seven_day_no_contact():
+    """
+    Show overdue if report is ready to send and seven day no
+    contact email sent date is more than seven days ago.
+    """
+    user: User = User.objects.create()
+
+    case: Case = create_case(user)
+
+    assert len(get_overdue_cases(user)) == 0
+
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 1
+
+
+@pytest.mark.django_db
 def test_returns_no_overdue_cases():
     """Creates seven cases that are all in correspondence with the PSB but require no further actions.
 
