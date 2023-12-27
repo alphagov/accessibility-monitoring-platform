@@ -380,10 +380,11 @@ class Case(VersionModel):
     qa_process_complete_date = models.DateField(null=True, blank=True)
 
     # Correspondence overview page
+    zendesk_url = models.TextField(default="", blank=True)
     cores_overview_complete_date = models.DateField(null=True, blank=True)
 
-    # No contact details page
-    no_contact_details_complete_date = models.DateField(null=True, blank=True)
+    # Find contact details page
+    find_contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Contact details page
     contact_notes = models.TextField(default="", blank=True)
@@ -418,7 +419,6 @@ class Case(VersionModel):
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
     report_acknowledged_date = models.DateField(null=True, blank=True)
-    zendesk_url = models.TextField(default="", blank=True)
     correspondence_notes = models.TextField(default="", blank=True)
     report_correspondence_complete_date = models.DateField(null=True, blank=True)
 

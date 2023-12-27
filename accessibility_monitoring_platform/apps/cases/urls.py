@@ -45,7 +45,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     PostCaseAlertsTemplateView,
     CaseRetestCreateErrorTemplateView,
     CaseCorrespondenceOverviewUpdateView,
-    CaseNoContactDetailsUpdateView,
+    CaseFindContactDetailsUpdateView,
     CaseContactFormsetUpdateView,
     CaseReportSentOnUpdateView,
     CaseOneWeekFollowupUpdateView,
@@ -105,9 +105,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-cores-overview",
     ),
     path(
-        "<int:pk>/edit-no-contact-details/",
-        login_required(CaseNoContactDetailsUpdateView.as_view()),
-        name="edit-no-contact-details",
+        "<int:pk>/edit-find-contact-details/",
+        login_required(CaseFindContactDetailsUpdateView.as_view()),
+        name="edit-find-contact-details",
     ),
     path(
         "<int:pk>/edit-contact-details/",

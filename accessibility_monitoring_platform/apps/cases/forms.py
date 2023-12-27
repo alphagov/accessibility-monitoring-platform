@@ -324,28 +324,30 @@ class CaseCorrespondenceOverviewUpdateForm(VersionForm):
     Form to update Correspondence overview
     """
 
+    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     cores_overview_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "zendesk_url",
             "cores_overview_complete_date",
         ]
 
 
-class CaseNoContactDetailsUpdateForm(VersionForm):
+class CaseFindContactDetailsUpdateForm(VersionForm):
     """
-    Form to update No contact details
+    Form to update Find contact details
     """
 
-    no_contact_details_complete_date = AMPDatePageCompleteField()
+    find_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "no_contact_details_complete_date",
+            "find_contact_details_complete_date",
         ]
 
 

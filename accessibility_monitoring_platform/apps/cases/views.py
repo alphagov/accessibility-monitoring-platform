@@ -85,7 +85,7 @@ from .forms import (
     ListCaseEqualityBodyCorrespondenceUpdateForm,
     EqualityBodyCorrespondenceCreateForm,
     CaseCorrespondenceOverviewUpdateForm,
-    CaseNoContactDetailsUpdateForm,
+    CaseFindContactDetailsUpdateForm,
     CaseReportSentOnUpdateForm,
     CaseOneWeekFollowupUpdateForm,
     CaseFourWeekFollowupUpdateForm,
@@ -506,18 +506,20 @@ class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):
         """
         if "save_continue" in self.request.POST:
             return reverse(
-                "cases:edit-no-contact-details", kwargs={"pk": self.object.id}
+                "cases:edit-find-contact-details", kwargs={"pk": self.object.id}
             )
         return super().get_success_url()
 
 
-class CaseNoContactDetailsUpdateView(CaseUpdateView):
+class CaseFindContactDetailsUpdateView(CaseUpdateView):
     """
-    View to update No contact details
+    View to update Find contact details
     """
 
-    form_class: Type[CaseNoContactDetailsUpdateForm] = CaseNoContactDetailsUpdateForm
-    template_name: str = "cases/forms/no_contact_details.html"
+    form_class: Type[
+        CaseFindContactDetailsUpdateForm
+    ] = CaseFindContactDetailsUpdateForm
+    template_name: str = "cases/forms/find_contact_details.html"
 
     def get_success_url(self) -> str:
         """
