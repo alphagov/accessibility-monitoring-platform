@@ -971,6 +971,9 @@ class CaseStatus(models.Model):
         max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
     )
 
+    class Meta:
+        verbose_name_plural = "Case statuses"
+
     def save(self, *args, **kwargs) -> None:
         self.status = self.calculate_status()
         super().save(*args, **kwargs)

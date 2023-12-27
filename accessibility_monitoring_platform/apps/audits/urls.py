@@ -10,7 +10,6 @@ from .views.base import (
     create_audit,
     delete_page,
     restore_page,
-    AuditAllIssuesListView,
     WcagDefinitionListView,
     WcagDefinitionCreateView,
     WcagDefinitionUpdateView,
@@ -69,11 +68,6 @@ from .views.equality_body import (
 
 app_name: str = "audits"
 urlpatterns: List[URLPattern] = [
-    path(
-        "all-issues/",
-        login_required(AuditAllIssuesListView.as_view()),
-        name="audit-all-issues",
-    ),
     path(
         "create-for-case/<int:case_id>/",
         login_required(create_audit),

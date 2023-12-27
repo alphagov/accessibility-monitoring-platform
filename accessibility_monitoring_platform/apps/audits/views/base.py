@@ -50,16 +50,6 @@ from ..utils import (
 )
 
 
-class AuditAllIssuesListView(ListView):
-    """
-    View of list WCAG definitions
-    """
-
-    model: Type[WcagDefinition] = WcagDefinition
-    context_object_name: str = "wcag_definitions"
-    template_name: str = "audits/all_issues.html"
-
-
 def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     """
     Create audit. If one already exists use that instead.
@@ -337,10 +327,6 @@ class WcagDefinitionUpdateView(UpdateView):
             )
         return super().form_valid(form)
 
-    def get_success_url(self) -> str:
-        """Return to list of WCAG definitions"""
-        return reverse("audits:wcag-definition-list")
-
 
 class StatementCheckListView(ListView):
     """
@@ -429,10 +415,6 @@ class StatementCheckUpdateView(UpdateView):
             self.object: StatementCheck = form.save(commit=False)
             record_model_update_event(user=self.request.user, model_object=self.object)
         return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Return to list of statement checks"""
-        return reverse("audits:statement-check-list")
 
 
 class StatementPageFormsetUpdateView(AuditUpdateView):
