@@ -283,6 +283,20 @@ CASE_VARIANT_CHOICES: List[Tuple[str, str]] = [
     ("reporting", "Platform reports"),
     ("archived", "Archived"),
 ]
+CONTACT_DETAILS_FOUND_DEFAULT: str = "not-checked"
+CONTACT_DETAILS_FOUND_CHOICES: List[Tuple[str, str]] = [
+    ("found", "Contact details found"),
+    ("not-found", "No contact details found"),
+    (CONTACT_DETAILS_FOUND_DEFAULT, "Not checked"),
+]
+ORGANISATION_RESPONSE_DEFAULT: str = "not-applicable"
+ORGANISATION_RESPONSE_CHOICES: List[Tuple[str, str]] = [
+    ("no-response", "Organisation did not respond to 12-week update"),
+    (
+        ORGANISATION_RESPONSE_DEFAULT,
+        "Not applicable or organisation responded to 12-week update",
+    ),
+]
 
 
 class Case(VersionModel):
@@ -384,6 +398,11 @@ class Case(VersionModel):
     cores_overview_complete_date = models.DateField(null=True, blank=True)
 
     # Find contact details page
+    contact_details_found = models.CharField(
+        max_length=20,
+        choices=CONTACT_DETAILS_FOUND_CHOICES,
+        default=CONTACT_DETAILS_FOUND_DEFAULT,
+    )
     seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
     correspondence_notes = models.TextField(default="", blank=True)
     find_contact_details_complete_date = models.DateField(null=True, blank=True)
@@ -394,32 +413,56 @@ class Case(VersionModel):
 
     # Report send on page
     report_sent_date = models.DateField(null=True, blank=True)
+    report_sent_to_email = models.CharField(max_length=200, default="", blank=True)
     report_sent_on_complete_date = models.DateField(null=True, blank=True)
 
     # One week followup page
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
+    one_week_followup_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
     one_week_followup_complete_date = models.DateField(null=True, blank=True)
 
     # Four week followup page
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
+    four_week_followup_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
     four_week_followup_complete_date = models.DateField(null=True, blank=True)
 
     # Report acknowledged page
     report_acknowledged_date = models.DateField(null=True, blank=True)
+    report_acknowledged_by_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
     report_acknowledged_complete_date = models.DateField(null=True, blank=True)
 
     # 12-week update requested page
     twelve_week_update_requested_date = models.DateField(null=True, blank=True)
+    twelve_week_update_request_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
     twelve_week_correspondence_notes = models.TextField(default="", blank=True)
     twelve_week_update_requested_complete_date = models.DateField(null=True, blank=True)
 
     # One week followup for final update page
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    twelve_week_1_week_chaser_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
     one_week_followup_final_complete_date = models.DateField(null=True, blank=True)
 
     # 12-week update request acknowledged page
     twelve_week_correspondence_acknowledged_date = models.DateField(
         null=True, blank=True
+    )
+    twelve_week_correspondence_acknowledged_by_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    organisation_response = models.CharField(
+        max_length=20,
+        choices=ORGANISATION_RESPONSE_CHOICES,
+        default=ORGANISATION_RESPONSE_DEFAULT,
     )
     twelve_week_update_request_ack_complete_date = models.DateField(
         null=True, blank=True
@@ -475,13 +518,16 @@ class Case(VersionModel):
     final_statement_complete_date = models.DateField(null=True, blank=True)
 
     # Case close
+    compliance_email_sent_date = models.DateField(null=True, blank=True)
+    compliance_decision_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
     recommendation_for_enforcement = models.CharField(
         max_length=20,
         choices=RECOMMENDATION_CHOICES,
         default=RECOMMENDATION_DEFAULT,
     )
     recommendation_notes = models.TextField(default="", blank=True)
-    compliance_email_sent_date = models.DateField(null=True, blank=True)
     case_completed = models.CharField(
         max_length=30, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )

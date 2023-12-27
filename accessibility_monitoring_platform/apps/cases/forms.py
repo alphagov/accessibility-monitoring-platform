@@ -46,6 +46,8 @@ from .models import (
     RECOMMENDATION_CHOICES,
     EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
     EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+    CONTACT_DETAILS_FOUND_CHOICES,
+    ORGANISATION_RESPONSE_CHOICES,
 )
 
 status_choices = STATUS_CHOICES
@@ -341,6 +343,9 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
     Form to update Find contact details
     """
 
+    contact_details_found = AMPChoiceRadioField(
+        label="Contact details found?", choices=CONTACT_DETAILS_FOUND_CHOICES
+    )
     seven_day_no_contact_email_sent_date = AMPDateField(
         label="Seven day 'no contact details' email sent",
     )
@@ -351,6 +356,7 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
+            "contact_details_found",
             "seven_day_no_contact_email_sent_date",
             "correspondence_notes",
             "find_contact_details_complete_date",
@@ -407,6 +413,7 @@ class CaseReportSentOnUpdateForm(VersionForm):
     report_sent_date = AMPDateField(
         label="Report sent on", help_text="This field affects the case status"
     )
+    report_sent_to_email = AMPCharFieldWide(label="Report sent to (email address)")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     report_sent_on_complete_date = AMPDatePageCompleteField()
 
@@ -415,6 +422,7 @@ class CaseReportSentOnUpdateForm(VersionForm):
         fields = [
             "version",
             "report_sent_date",
+            "report_sent_to_email",
             "correspondence_notes",
             "report_sent_on_complete_date",
         ]
@@ -428,6 +436,9 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
     report_followup_week_1_sent_date = AMPDateField(
         label="1-week followup to report date"
     )
+    one_week_followup_sent_to_email = AMPCharFieldWide(
+        label="One week followup sent to (email address)"
+    )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     one_week_followup_complete_date = AMPDatePageCompleteField()
 
@@ -436,6 +447,7 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
         fields = [
             "version",
             "report_followup_week_1_sent_date",
+            "one_week_followup_sent_to_email",
             "correspondence_notes",
             "one_week_followup_complete_date",
         ]
@@ -449,6 +461,9 @@ class CaseFourWeekFollowupUpdateForm(VersionForm):
     report_followup_week_4_sent_date = AMPDateField(
         label="4-week followup to report date"
     )
+    four_week_followup_sent_to_email = AMPCharFieldWide(
+        label="Four week followup sent to (email address)"
+    )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     four_week_followup_complete_date = AMPDatePageCompleteField()
 
@@ -457,6 +472,7 @@ class CaseFourWeekFollowupUpdateForm(VersionForm):
         fields = [
             "version",
             "report_followup_week_4_sent_date",
+            "four_week_followup_sent_to_email",
             "correspondence_notes",
             "four_week_followup_complete_date",
         ]
@@ -470,6 +486,9 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
     report_acknowledged_date = AMPDateField(
         label="Report acknowledged", help_text="This field affects the case status"
     )
+    report_acknowledged_by_email = AMPCharFieldWide(
+        label="Report acknowledged by (email address)"
+    )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 
@@ -478,6 +497,7 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
         fields = [
             "version",
             "report_acknowledged_date",
+            "report_acknowledged_by_email",
             "correspondence_notes",
             "report_acknowledged_complete_date",
         ]
@@ -492,6 +512,9 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         label="12-week update requested",
         help_text="Enter todays date if PSB sends an update before the deadline<br>This field affects the case status",
     )
+    twelve_week_update_request_sent_to_email = AMPCharFieldWide(
+        label="12-week request sent to (email address)"
+    )
     twelve_week_correspondence_notes = AMPTextField(
         label="12-week correspondence notes"
     )
@@ -502,6 +525,7 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         fields = [
             "version",
             "twelve_week_update_requested_date",
+            "twelve_week_update_request_sent_to_email",
             "twelve_week_correspondence_notes",
             "twelve_week_update_requested_complete_date",
         ]
@@ -513,6 +537,9 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
     """
 
     twelve_week_1_week_chaser_sent_date = AMPDateField(label="1-week followup")
+    twelve_week_1_week_chaser_sent_to_email = AMPCharFieldWide(
+        label="One week followup for final update sent to (email address)"
+    )
     twelve_week_correspondence_notes = AMPTextField(
         label="12-week correspondence notes"
     )
@@ -523,6 +550,7 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
         fields = [
             "version",
             "twelve_week_1_week_chaser_sent_date",
+            "twelve_week_1_week_chaser_sent_to_email",
             "twelve_week_correspondence_notes",
             "one_week_followup_final_complete_date",
         ]
@@ -536,6 +564,14 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
     twelve_week_correspondence_acknowledged_date = AMPDateField(
         label="12-week update received", help_text="This field affects the case status"
     )
+    twelve_week_correspondence_acknowledged_by_email = AMPCharFieldWide(
+        label="12-week update request acknowledged by (email address)"
+    )
+    organisation_response = AMPChoiceRadioField(
+        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’",
+        help_text="This field affects the case status",
+        choices=ORGANISATION_RESPONSE_CHOICES,
+    )
     twelve_week_correspondence_notes = AMPTextField(
         label="12-week correspondence notes"
     )
@@ -546,6 +582,8 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
         fields = [
             "version",
             "twelve_week_correspondence_acknowledged_date",
+            "twelve_week_correspondence_acknowledged_by_email",
+            "organisation_response",
             "twelve_week_correspondence_notes",
             "twelve_week_update_request_ack_complete_date",
         ]
@@ -734,6 +772,9 @@ class CaseCloseUpdateForm(VersionForm):
     compliance_email_sent_date = AMPDateField(
         label="Date when compliance decision email sent to public sector body"
     )
+    compliance_decision_sent_to_email = AMPCharFieldWide(
+        label="Compliance decision sent to (email address)"
+    )
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Recommendation for equality body",
         choices=RECOMMENDATION_CHOICES,
@@ -757,6 +798,7 @@ class CaseCloseUpdateForm(VersionForm):
         fields = [
             "version",
             "compliance_email_sent_date",
+            "compliance_decision_sent_to_email",
             "recommendation_for_enforcement",
             "recommendation_notes",
             "case_completed",
