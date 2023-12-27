@@ -45,7 +45,6 @@ const loggedInUrls = [
   '/cases/1/edit-no-psb-response/',
   '/cases/1/edit-post-case/',
   '/cases/1/edit-qa-process/',
-  '/cases/1/edit-report-correspondence/',
   '/cases/1/edit-report-details/',
   '/cases/1/edit-report-followup-due-dates/',
   '/cases/1/edit-review-changes/',
