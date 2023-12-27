@@ -341,12 +341,18 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
     Form to update Find contact details
     """
 
+    seven_day_no_contact_email_sent_date = AMPDateField(
+        label="Seven day 'no contact details' email sent",
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
     find_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "seven_day_no_contact_email_sent_date",
+            "correspondence_notes",
             "find_contact_details_complete_date",
         ]
 
@@ -398,12 +404,18 @@ class CaseReportSentOnUpdateForm(VersionForm):
     Form to update Report send on
     """
 
+    report_sent_date = AMPDateField(
+        label="Report sent on", help_text="This field affects the case status"
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
     report_sent_on_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "report_sent_date",
+            "correspondence_notes",
             "report_sent_on_complete_date",
         ]
 
@@ -413,12 +425,18 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
     Form to update One week followup
     """
 
+    report_followup_week_1_sent_date = AMPDateField(
+        label="1-week followup to report date"
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
     one_week_followup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "report_followup_week_1_sent_date",
+            "correspondence_notes",
             "one_week_followup_complete_date",
         ]
 
@@ -428,12 +446,18 @@ class CaseFourWeekFollowupUpdateForm(VersionForm):
     Form to update Four week followup
     """
 
+    report_followup_week_4_sent_date = AMPDateField(
+        label="4-week followup to report date"
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
     four_week_followup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "report_followup_week_4_sent_date",
+            "correspondence_notes",
             "four_week_followup_complete_date",
         ]
 
@@ -443,12 +467,18 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
     Form to update Report acknowledged
     """
 
+    report_acknowledged_date = AMPDateField(
+        label="Report acknowledged", help_text="This field affects the case status"
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "report_acknowledged_date",
+            "correspondence_notes",
             "report_acknowledged_complete_date",
         ]
 
@@ -458,12 +488,21 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
     Form to update 12-week update requested
     """
 
+    twelve_week_update_requested_date = AMPDateField(
+        label="12-week update requested",
+        help_text="Enter todays date if PSB sends an update before the deadline<br>This field affects the case status",
+    )
+    twelve_week_correspondence_notes = AMPTextField(
+        label="12-week correspondence notes"
+    )
     twelve_week_update_requested_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "twelve_week_update_requested_date",
+            "twelve_week_correspondence_notes",
             "twelve_week_update_requested_complete_date",
         ]
 
@@ -473,12 +512,18 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
     Form to update One week followup for final update
     """
 
+    twelve_week_1_week_chaser_sent_date = AMPDateField(label="1-week followup")
+    twelve_week_correspondence_notes = AMPTextField(
+        label="12-week correspondence notes"
+    )
     one_week_followup_final_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "twelve_week_1_week_chaser_sent_date",
+            "twelve_week_correspondence_notes",
             "one_week_followup_final_complete_date",
         ]
 
@@ -488,12 +533,20 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
     Form to update 12-week update request acknowledged
     """
 
+    twelve_week_correspondence_acknowledged_date = AMPDateField(
+        label="12-week update received", help_text="This field affects the case status"
+    )
+    twelve_week_correspondence_notes = AMPTextField(
+        label="12-week correspondence notes"
+    )
     twelve_week_update_request_ack_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "twelve_week_correspondence_acknowledged_date",
+            "twelve_week_correspondence_notes",
             "twelve_week_update_request_ack_complete_date",
         ]
 

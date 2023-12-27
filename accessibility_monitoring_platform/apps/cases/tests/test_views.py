@@ -1561,11 +1561,6 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
         ("qa_process_complete_date", "QA process", "edit-qa-process"),
         (
-            "report_correspondence_complete_date",
-            "Report correspondence",
-            "edit-report-correspondence",
-        ),
-        (
             "twelve_week_correspondence_complete_date",
             "12-week correspondence",
             "edit-twelve-week-correspondence",

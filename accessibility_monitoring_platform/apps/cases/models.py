@@ -384,6 +384,8 @@ class Case(VersionModel):
     cores_overview_complete_date = models.DateField(null=True, blank=True)
 
     # Find contact details page
+    seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
+    correspondence_notes = models.TextField(default="", blank=True)
     find_contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Contact details page
@@ -391,35 +393,39 @@ class Case(VersionModel):
     contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report send on page
+    report_sent_date = models.DateField(null=True, blank=True)
     report_sent_on_complete_date = models.DateField(null=True, blank=True)
 
     # One week followup page
+    report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
     one_week_followup_complete_date = models.DateField(null=True, blank=True)
 
     # Four week followup page
+    report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
     four_week_followup_complete_date = models.DateField(null=True, blank=True)
 
     # Report acknowledged page
+    report_acknowledged_date = models.DateField(null=True, blank=True)
     report_acknowledged_complete_date = models.DateField(null=True, blank=True)
 
     # 12-week update requested page
+    twelve_week_update_requested_date = models.DateField(null=True, blank=True)
+    twelve_week_correspondence_notes = models.TextField(default="", blank=True)
     twelve_week_update_requested_complete_date = models.DateField(null=True, blank=True)
 
     # One week followup for final update page
+    twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
     one_week_followup_final_complete_date = models.DateField(null=True, blank=True)
 
     # 12-week update request acknowledged page
+    twelve_week_correspondence_acknowledged_date = models.DateField(
+        null=True, blank=True
+    )
     twelve_week_update_request_ack_complete_date = models.DateField(
         null=True, blank=True
     )
 
     # Report correspondence page
-    seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
-    report_sent_date = models.DateField(null=True, blank=True)
-    report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
-    report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
-    report_acknowledged_date = models.DateField(null=True, blank=True)
-    correspondence_notes = models.TextField(default="", blank=True)
     report_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Report followup dates page
@@ -433,12 +439,6 @@ class Case(VersionModel):
     )
 
     # 12-week correspondence page
-    twelve_week_update_requested_date = models.DateField(null=True, blank=True)
-    twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
-    twelve_week_correspondence_acknowledged_date = models.DateField(
-        null=True, blank=True
-    )
-    twelve_week_correspondence_notes = models.TextField(default="", blank=True)
     twelve_week_response_state = models.CharField(
         max_length=20,
         choices=TWELVE_WEEK_RESPONSE_CHOICES,
