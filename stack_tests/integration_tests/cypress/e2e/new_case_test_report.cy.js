@@ -139,7 +139,7 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Contact details`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report send on`)
+    cy.title().should('eq', `${newOrganisationName} | Report sent on`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | One week followup`)
