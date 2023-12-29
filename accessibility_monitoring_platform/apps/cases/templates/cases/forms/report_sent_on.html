@@ -21,37 +21,12 @@
                             {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                             {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                             {% include 'common/amp_field.html' with field=form.report_sent_date %}
-                            <div class="govuk-form-group{% if form.report_sent_to_email.errors %} govuk-form-group--error{% endif %}">
-                                <label id="{{ form.report_sent_to_email.auto_id }}-label" class="govuk-label" for="{{ form.report_sent_to_email.auto_id }}">
-                                    <b>{{ form.report_sent_to_email.label }}</b>
-                                </label>
-                                {% include 'cases/helpers/emails.html' %}
-                                {% if form.report_sent_to_email.help_text %}<div class="govuk-hint">{{ form.report_sent_to_email.help_text }}</div>{% endif %}
-                                {% include 'common/field_errors.html' with errors=form.report_sent_to_email.errors %}
-                                {{ form.report_sent_to_email }}
-                            </div>
+                            {% include 'cases/helpers/amp_email_field.html' with field=form.report_sent_to_email %}
                             {% include 'common/amp_field.html' with field=form.correspondence_notes %}
                             {% include 'common/amp_field.html' with field=form.report_sent_on_complete_date %}
-                            <div class="fieldWrapper">
-                                {{ form.correspondence_notes.errors }}
-                                <label for="{{ form.correspondence_notes.id_for_label }}" class="govuk-label"><b>Correspondence notes</b></label>
-                                {{ form.correspondence_notes }}
-                            </div>
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save and continue"
-                                name="save_continue"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{% url 'cases:edit-report-correspondence' case.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel
-                            </a>
+                            {% include 'cases/helpers/save_continue_cancel.html' %}
                         </div>
                     </div>
                 </form>

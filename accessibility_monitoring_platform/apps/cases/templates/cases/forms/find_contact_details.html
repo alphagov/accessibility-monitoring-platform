@@ -21,19 +21,7 @@
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save and continue"
-                                name="save_continue"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{% url 'cases:edit-report-correspondence' case.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel
-                            </a>
+                            {% include 'cases/helpers/save_continue_cancel.html' %}
                         </div>
                     </div>
                 </form>

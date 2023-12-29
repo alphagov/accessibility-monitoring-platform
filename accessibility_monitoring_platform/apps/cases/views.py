@@ -609,7 +609,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
 
 class CaseReportSentOnUpdateView(CaseUpdateView):
     """
-    View to update Report send on
+    View to update Report sent on
     """
 
     form_class: Type[CaseReportSentOnUpdateForm] = CaseReportSentOnUpdateForm

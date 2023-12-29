@@ -407,7 +407,7 @@ class CaseContactsUpdateForm(VersionForm):
 
 class CaseReportSentOnUpdateForm(VersionForm):
     """
-    Form to update Report send on
+    Form to update Report sent on
     """
 
     report_sent_date = AMPDateField(

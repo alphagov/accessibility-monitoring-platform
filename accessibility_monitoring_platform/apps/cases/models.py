@@ -411,7 +411,7 @@ class Case(VersionModel):
     contact_notes = models.TextField(default="", blank=True)
     contact_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Report send on page
+    # Report sent on page
     report_sent_date = models.DateField(null=True, blank=True)
     report_sent_to_email = models.CharField(max_length=200, default="", blank=True)
     report_sent_on_complete_date = models.DateField(null=True, blank=True)
