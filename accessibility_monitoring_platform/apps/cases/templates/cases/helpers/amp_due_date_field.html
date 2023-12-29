@@ -1,0 +1,12 @@
+<div class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
+    <label id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}">
+        <b>{{ field.label }}</b>
+    </label>
+    <div class="govuk-hint">
+        Due {% if due_date %}{{ due_date|amp_date }}{% else %}None{% endif %}
+        (<a href="{% url edit_url case.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+    </div>
+    {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
+    {% include 'common/field_errors.html' with errors=field.errors %}
+    {{ field }}
+</div>
