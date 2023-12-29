@@ -1,0 +1,25 @@
+{% load humanize %}
+
+{% for contact in case.contacts %}
+    <div class="govuk-form-group">
+        <label class="govuk-label"><b>Contact {{ forloop.counter }}</b></label>
+        <p class="govuk-body-m">
+            {{ contact.name }}
+            {{ contact.job_title }}
+            {{ contact.email }}
+            (<a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+        </p>
+    </div>
+{% endfor %}
+
+<div class="govuk-form-group">
+    <label class="govuk-label"><b>Report visits</b></label>
+    <p class="govuk-body-m">
+        {% if case.report %}
+            {{ case.report.visits_metrics.number_of_visits|intcomma }}
+            (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+        {% else %}
+            None
+        {% endif %}
+    </p>
+</div>

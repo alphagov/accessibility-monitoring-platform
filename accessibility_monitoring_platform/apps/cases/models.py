@@ -808,8 +808,12 @@ class Case(VersionModel):
         return "Unknown"
 
     @property
+    def contacts(self) -> bool:
+        return self.contact_set.filter(is_deleted=False)
+
+    @property
     def contact_exists(self) -> bool:
-        return Contact.objects.filter(case_id=self.id).exists()
+        return self.contacts.exists()
 
     @property
     def psb_appeal_deadline(self) -> Optional[date]:
