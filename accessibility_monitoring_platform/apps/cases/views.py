@@ -615,6 +615,18 @@ class CaseReportSentOnUpdateView(CaseUpdateView):
     form_class: Type[CaseReportSentOnUpdateForm] = CaseReportSentOnUpdateForm
     template_name: str = "cases/forms/report_sent_on.html"
 
+    def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
+        """
+        Recalculate followup dates if report sent date has changed;
+        Otherwise set sent dates based on followup date checkboxes.
+        """
+        self.object: Case = form.save(commit=False)
+        if "report_sent_date" in form.changed_data:
+            self.object = calculate_report_followup_dates(
+                case=self.object, report_sent_date=form.cleaned_data["report_sent_date"]
+            )
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """
         Detect the submit button used and act accordingly.
@@ -694,6 +706,21 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
         CaseTwelveWeekUpdateRequestedUpdateForm
     ] = CaseTwelveWeekUpdateRequestedUpdateForm
     template_name: str = "cases/forms/12_week_update_requested.html"
+
+    def form_valid(self, form: CaseTwelveWeekCorrespondenceUpdateForm):
+        """
+        Recalculate chaser dates if twelve week update requested date has changed;
+        Otherwise set sent dates based on chaser date checkboxes.
+        """
+        self.object: Case = form.save(commit=False)
+        if "twelve_week_update_requested_date" in form.changed_data:
+            self.object = calculate_twelve_week_chaser_dates(
+                case=self.object,
+                twelve_week_update_requested_date=form.cleaned_data[
+                    "twelve_week_update_requested_date"
+                ],
+            )
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """
@@ -944,7 +971,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         case_pk: Dict[str, int] = {"pk": case.id}
         if case.no_psb_contact == BOOLEAN_TRUE:
             return reverse("cases:edit-case-close", kwargs=case_pk)
-        return reverse("cases:edit-report-correspondence", kwargs=case_pk)
+        return reverse("cases:edit-find-contact-details", kwargs=case_pk)
 
 
 class CaseTwelveWeekRetestUpdateView(CaseUpdateView):

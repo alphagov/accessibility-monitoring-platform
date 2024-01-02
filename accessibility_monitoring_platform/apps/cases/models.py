@@ -480,6 +480,7 @@ class Case(VersionModel):
     no_psb_contact = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    no_psb_contact_notes = models.TextField(default="", blank=True)
 
     # 12-week correspondence page
     twelve_week_response_state = models.CharField(

@@ -660,12 +660,16 @@ class CaseNoPSBContactUpdateForm(VersionForm):
             attrs={"label": "Mark the PSB as unresponsive to this case"}
         ),
     )
+    no_psb_contact_notes = AMPTextField(
+        label="Public sector body is unresponsive notes"
+    )
 
     class Meta:
         model = Case
         fields = [
             "version",
             "no_psb_contact",
+            "no_psb_contact_notes",
         ]
 
 
