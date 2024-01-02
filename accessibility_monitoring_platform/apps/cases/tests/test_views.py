@@ -971,8 +971,8 @@ def test_updating_case_creates_case_event(admin_client):
         ),
         (
             "cases:edit-no-psb-response",
-            "save_continue",
-            "cases:edit-report-correspondence",
+            "save",
+            "cases:edit-find-contact-details",
         ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
