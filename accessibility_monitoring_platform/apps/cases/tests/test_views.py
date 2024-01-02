@@ -739,7 +739,22 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
         ("cases:edit-qa-process", "<li>QA process</li>"),
+        ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
+        ("cases:edit-find-contact-details", "<li>Find contact details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
+        ("cases:edit-report-sent-on", "<li>Report sent on</li>"),
+        ("cases:edit-one-week-followup", "<li>One week followup</li>"),
+        ("cases:edit-four-week-followup", "<li>Four week followup</li>"),
+        ("cases:edit-report-acknowledged", "<li>Report acknowledged</li>"),
+        ("cases:edit-12-week-update-requested", "<li>12-week update requested</li>"),
+        (
+            "cases:edit-one-week-followup-final",
+            "<li>One week followup for final update</li>",
+        ),
+        (
+            "cases:edit-12-week-update-request-ack",
+            "<li>12-week update request acknowledged</li>",
+        ),
         (
             "cases:outstanding-issues",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">Outstanding issues</h1>',
@@ -933,11 +948,69 @@ def test_updating_case_creates_case_event(admin_client):
         ("cases:edit-report-details", "save_continue", "cases:edit-qa-process"),
         ("cases:edit-qa-process", "save", "cases:edit-qa-process"),
         ("cases:edit-qa-process", "save_continue", "cases:edit-cores-overview"),
-        ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
+        ("cases:edit-cores-overview", "save", "cases:edit-cores-overview"),
         (
-            "cases:edit-contact-details",
+            "cases:edit-cores-overview",
             "save_continue",
-            "cases:edit-report-sent-on",
+            "cases:edit-find-contact-details",
+        ),
+        ("cases:edit-find-contact-details", "save", "cases:edit-find-contact-details"),
+        (
+            "cases:edit-find-contact-details",
+            "save_continue",
+            "cases:edit-contact-details",
+        ),
+        ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
+        ("cases:edit-contact-details", "save_continue", "cases:edit-report-sent-on"),
+        ("cases:edit-report-sent-on", "save", "cases:edit-report-sent-on"),
+        ("cases:edit-report-sent-on", "save_continue", "cases:edit-one-week-followup"),
+        ("cases:edit-one-week-followup", "save", "cases:edit-one-week-followup"),
+        (
+            "cases:edit-one-week-followup",
+            "save_continue",
+            "cases:edit-four-week-followup",
+        ),
+        ("cases:edit-four-week-followup", "save", "cases:edit-four-week-followup"),
+        (
+            "cases:edit-four-week-followup",
+            "save_continue",
+            "cases:edit-report-acknowledged",
+        ),
+        ("cases:edit-report-acknowledged", "save", "cases:edit-report-acknowledged"),
+        (
+            "cases:edit-report-acknowledged",
+            "save_continue",
+            "cases:edit-12-week-update-requested",
+        ),
+        (
+            "cases:edit-12-week-update-requested",
+            "save",
+            "cases:edit-12-week-update-requested",
+        ),
+        (
+            "cases:edit-12-week-update-requested",
+            "save_continue",
+            "cases:edit-one-week-followup-final",
+        ),
+        (
+            "cases:edit-one-week-followup-final",
+            "save",
+            "cases:edit-one-week-followup-final",
+        ),
+        (
+            "cases:edit-one-week-followup-final",
+            "save_continue",
+            "cases:edit-12-week-update-request-ack",
+        ),
+        (
+            "cases:edit-12-week-update-request-ack",
+            "save",
+            "cases:edit-12-week-update-request-ack",
+        ),
+        (
+            "cases:edit-12-week-update-request-ack",
+            "save_continue",
+            "cases:edit-twelve-week-retest",
         ),
         (
             "cases:edit-report-correspondence",
@@ -1556,10 +1629,51 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
     "flag_name, section_name, edit_url_name",
     [
         ("case_details_complete_date", "Case details", "edit-case-details"),
-        ("contact_details_complete_date", "Contact details", "edit-contact-details"),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
         ("qa_process_complete_date", "QA process", "edit-qa-process"),
+        (
+            "cores_overview_complete_date",
+            "Correspondence overview",
+            "edit-cores-overview",
+        ),
+        (
+            "find_contact_details_complete_date",
+            "Find contact details",
+            "edit-find-contact-details",
+        ),
+        ("contact_details_complete_date", "Contact details", "edit-contact-details"),
+        ("report_sent_on_complete_date", "Report sent on", "edit-report-sent-on"),
+        (
+            "one_week_followup_complete_date",
+            "One week followup",
+            "edit-one-week-followup",
+        ),
+        (
+            "four_week_followup_complete_date",
+            "Four week followup",
+            "edit-four-week-followup",
+        ),
+        (
+            "report_acknowledged_complete_date",
+            "Report acknowledged",
+            "edit-report-acknowledged",
+        ),
+        (
+            "twelve_week_update_requested_complete_date",
+            "12-week update requested",
+            "edit-12-week-update-requested",
+        ),
+        (
+            "one_week_followup_final_complete_date",
+            "One week followup for final update",
+            "edit-one-week-followup-final",
+        ),
+        (
+            "twelve_week_update_request_ack_complete_date",
+            "12-week update request acknowledged",
+            "edit-12-week-update-request-ack",
+        ),
         (
             "twelve_week_correspondence_complete_date",
             "12-week correspondence",
@@ -1618,9 +1732,50 @@ def test_section_complete_check_displayed(
         ),
         ("cases:edit-qa-process", "qa_process_complete_date", "QA process"),
         (
+            "cases:edit-cores-overview",
+            "cores_overview_complete_date",
+            "Correspondence overview",
+        ),
+        (
+            "cases:edit-find-contact-details",
+            "find_contact_details_complete_date",
+            "Find contact details",
+        ),
+        (
             "cases:edit-contact-details",
             "contact_details_complete_date",
             "Contact details",
+        ),
+        ("cases:edit-report-sent-on", "report_sent_on_complete_date", "Report sent on"),
+        (
+            "cases:edit-one-week-followup",
+            "one_week_followup_complete_date",
+            "One week followup",
+        ),
+        (
+            "cases:edit-four-week-followup",
+            "four_week_followup_complete_date",
+            "Four week followup",
+        ),
+        (
+            "cases:edit-report-acknowledged",
+            "report_acknowledged_complete_date",
+            "Report acknowledged",
+        ),
+        (
+            "cases:edit-12-week-update-requested",
+            "twelve_week_update_requested_complete_date",
+            "12-week update requested",
+        ),
+        (
+            "cases:edit-one-week-followup-final",
+            "one_week_followup_final_complete_date",
+            "One week followup for final update",
+        ),
+        (
+            "cases:edit-12-week-update-request-ack",
+            "twelve_week_update_request_ack_complete_date",
+            "12-week update request acknowledged",
         ),
         (
             "cases:edit-twelve-week-retest",
@@ -2848,8 +3003,45 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         ),
         (
             "cases:edit-case-details",
-            "cases:edit-contact-details",
-            "Contact details",
+            "cases:edit-cores-overview",
+            "Correspondence overview",
+        ),
+        (
+            "cases:edit-case-details",
+            "cases:edit-find-contact-details",
+            "Find contact details",
+        ),
+        ("cases:edit-case-details", "cases:edit-contact-details", "Contact details"),
+        ("cases:edit-case-details", "cases:edit-report-sent-on", "Report sent on"),
+        (
+            "cases:edit-case-details",
+            "cases:edit-one-week-followup",
+            "One week followup",
+        ),
+        (
+            "cases:edit-case-details",
+            "cases:edit-four-week-followup",
+            "Four week followup",
+        ),
+        (
+            "cases:edit-case-details",
+            "cases:edit-report-acknowledged",
+            "Report acknowledged",
+        ),
+        (
+            "cases:edit-case-details",
+            "cases:edit-12-week-update-requested",
+            "12-week update requested",
+        ),
+        (
+            "cases:edit-case-details",
+            "cases:edit-one-week-followup-final",
+            "One week followup for final update",
+        ),
+        (
+            "cases:edit-case-details",
+            "cases:edit-12-week-update-request-ack",
+            "12-week update request acknowledged",
         ),
         (
             "cases:edit-case-details",
