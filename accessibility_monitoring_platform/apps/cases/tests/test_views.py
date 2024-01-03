@@ -90,6 +90,7 @@ DOMAIN: str = "domain.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}"
 ORGANISATION_NAME: str = "Organisation name"
 REPORT_SENT_DATE: date = date(2021, 2, 28)
+UPDATE_REQUESTED_DATE: date = date(2021, 5, 10)
 OTHER_DATE: date = date(2020, 12, 31)
 ONE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
 FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
@@ -97,6 +98,9 @@ FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
 )
 TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
     days=TWELVE_WEEKS_IN_DAYS
+)
+ONE_WEEK_CHASER_DUE_DATE: date = TWELVE_WEEK_FOLLOWUP_DUE_DATE + timedelta(
+    days=ONE_WEEK_IN_DAYS
 )
 DEACTIVATE_NOTES: str = """I am
 a deactivate note,
@@ -1348,7 +1352,7 @@ def test_preferred_contact_displayed_on_form(admin_client):
     assertContains(response, "Preferred contact?")
 
 
-def test_report_followup_due_dates_not_changed(admin_client):
+def test_report_followup_due_dates_changed(admin_client):
     """
     Test that populating the report sent date updates existing report followup due dates
     """
@@ -1359,7 +1363,7 @@ def test_report_followup_due_dates_not_changed(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -1377,7 +1381,7 @@ def test_report_followup_due_dates_not_changed(admin_client):
     assert case_from_db.report_followup_week_12_due_date != OTHER_DATE
 
 
-def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
+def test_report_followup_due_dates_not_changed_if_report_sent_date_already_set(
     admin_client,
 ):
     """
@@ -1386,7 +1390,7 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
     case: Case = Case.objects.create(report_sent_date=OTHER_DATE)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -1402,6 +1406,89 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
     assert case_from_db.report_followup_week_1_due_date is not None
     assert case_from_db.report_followup_week_4_due_date is not None
     assert case_from_db.report_followup_week_12_due_date is not None
+
+
+def test_twelve_week_1_week_chaser_due_date_updated(admin_client):
+    """
+    Test that updating the twelve week update requested date updates the
+    twelve week 1 week chaser due date
+    """
+    case: Case = Case.objects.create(twelve_week_update_requested_date=OTHER_DATE)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-12-week-update-requested", kwargs={"pk": case.id}),
+        {
+            "twelve_week_update_requested_date_0": UPDATE_REQUESTED_DATE.day,
+            "twelve_week_update_requested_date_1": UPDATE_REQUESTED_DATE.month,
+            "twelve_week_update_requested_date_2": UPDATE_REQUESTED_DATE.year,
+            "version": case.version,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert (
+        case_from_db.twelve_week_1_week_chaser_due_date
+        == UPDATE_REQUESTED_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
+    )
+
+
+def test_case_report_one_week_followup_contains_followup_due_date(admin_client):
+    """Test that the case report one week followup view contains the followup due date"""
+    case: Case = Case.objects.create(
+        report_followup_week_1_due_date=ONE_WEEK_FOLLOWUP_DUE_DATE,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-one-week-followup", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"Due {amp_format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}",
+    )
+
+
+def test_case_report_four_week_followup_contains_followup_due_date(admin_client):
+    """Test that the case report four week followup view contains the followup due date"""
+    case: Case = Case.objects.create(
+        report_followup_week_4_due_date=FOUR_WEEK_FOLLOWUP_DUE_DATE,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-four-week-followup", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"Due {amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}",
+    )
+
+
+def test_case_report_twelve_week_1_week_chaser_contains_followup_due_date(admin_client):
+    """
+    Test that the One week followup for final update view contains the one week chaser due date
+    """
+    case: Case = Case.objects.create(
+        twelve_week_1_week_chaser_due_date=ONE_WEEK_CHASER_DUE_DATE,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-one-week-followup-final", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"Due {amp_format_date(ONE_WEEK_CHASER_DUE_DATE)}",
+    )
 
 
 def test_case_report_correspondence_view_contains_followup_due_dates(admin_client):
