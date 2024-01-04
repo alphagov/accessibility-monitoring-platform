@@ -105,7 +105,7 @@ class AuditRetestPagesUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditRetestPagesUpdateForm] = AuditRetestPagesUpdateForm
-    template_name: str = "audits/forms/twelve_week_retest_pages.html"
+    template_name: str = "audits/forms/twelve_week_pages_comparison.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
