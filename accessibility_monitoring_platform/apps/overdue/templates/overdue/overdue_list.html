@@ -42,7 +42,11 @@
                                 {{ overdue_case.status.get_status_display }}
                             </td>
                             <td class="govuk-table__cell amp-width-one-quarter">
-                                {% if overdue_case.status.status == "in-report-correspondence" %}
+                                {% if overdue_case.status.status == "report-ready-to-send" %}
+                                    <a href="{% url 'cases:edit-report-correspondence' overdue_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        Seven day 'no contact details' response overdue
+                                    </a>
+                                {% elif overdue_case.status.status == "in-report-correspondence" %}
                                     <a href="{% url 'cases:edit-report-correspondence' overdue_case.id %}" class="govuk-link govuk-link--no-visited-state">
                                         {{ overdue_case.in_report_correspondence_progress }}
                                     </a>

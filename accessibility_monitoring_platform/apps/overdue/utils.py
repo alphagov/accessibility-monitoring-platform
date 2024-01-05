@@ -16,6 +16,11 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
         end_date: datetime = datetime.now() - timedelta(days=1)
         seven_days_ago = date.today() - timedelta(days=7)
 
+        seven_day_no_contact: QuerySet[Case] = user_cases.filter(
+            status__status__icontains="report-ready-to-send",
+            seven_day_no_contact_email_sent_date__range=[start_date, seven_days_ago],
+        )
+
         in_report_correspondence: QuerySet[Case] = user_cases.filter(
             Q(status__status="in-report-correspondence"),
             Q(
@@ -55,7 +60,10 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
         )
 
         in_correspondence: QuerySet[Case] = (
-            in_report_correspondence | in_probation_period | in_12_week_correspondence
+            seven_day_no_contact
+            | in_report_correspondence
+            | in_probation_period
+            | in_12_week_correspondence
         )
 
         in_correspondence: QuerySet[Case] = sorted(
