@@ -621,6 +621,10 @@ class Case(VersionModel):
 
     @property
     def next_action_due_date(self) -> Optional[date]:
+        if self.status.status == "report-ready-to-send":
+            if self.seven_day_no_contact_email_sent_date:
+                return self.seven_day_no_contact_email_sent_date + timedelta(days=7)
+
         if self.status.status == "in-report-correspondence":
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date

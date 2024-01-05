@@ -290,6 +290,25 @@ def test_formatted_home_page_url(url, expected_formatted_url):
 
 
 @pytest.mark.django_db
+def test_next_action_due_date_for_report_ready_to_send():
+    """
+    Check that the next_action_due_date is correctly returned
+    when case status is report ready to send.
+    """
+    seven_day_no_contact_email_sent_date: date = date(2020, 4, 1)
+
+    case: Case = Case.objects.create(
+        seven_day_no_contact_email_sent_date=seven_day_no_contact_email_sent_date,
+    )
+    case.status.status = "report-ready-to-send"
+
+    assert (
+        case.next_action_due_date
+        == seven_day_no_contact_email_sent_date + timedelta(days=7)
+    )
+
+
+@pytest.mark.django_db
 def test_next_action_due_date_for_in_report_correspondence():
     """
     Check that the next_action_due_date is correctly calculated
