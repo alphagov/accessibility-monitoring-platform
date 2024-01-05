@@ -4,7 +4,11 @@ import pytest
 
 from datetime import datetime, timedelta, date
 
+from pytest_django.asserts import assertContains
+
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.urls import reverse
 
 from ..cases.models import (
     Case,
@@ -49,6 +53,24 @@ def create_case(user: User) -> Case:
         report_final_odt_url="https://www.report-odt.com",
     )
     return case
+
+
+@pytest.mark.django_db
+def test_report_ready_to_send_seven_day_no_contact():
+    """
+    Show overdue if report is ready to send and seven day no
+    contact email sent date is more than seven days ago.
+    """
+    user: User = User.objects.create()
+
+    case: Case = create_case(user)
+
+    assert len(get_overdue_cases(user)) == 0
+
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 1
 
 
 @pytest.mark.django_db
@@ -234,3 +256,15 @@ def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
         case.twelve_week_correspondence_progress
         == "1-week followup sent, case needs to progress"
     )
+
+
+def test_seven_day_no_contact_overdue(admin_client, admin_user):
+    """Test list of overdues includes seven day no contact"""
+    case: Case = create_case(admin_user)
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.save()
+
+    response: HttpResponse = admin_client.get(f'{reverse("overdue:overdue-list")}')
+
+    assertContains(response, "Report ready to send")
+    assertContains(response, "Seven day 'no contact details' response overdue")
