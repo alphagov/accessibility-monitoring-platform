@@ -58,7 +58,6 @@ sync_report_viewer:
 
 test_accessibility_monitoring_platform:
 	python manage.py collectstatic --noinput \
-		&& python manage.py migrate \
 		&& coverage run -m -p pytest --ignore="stack_tests/"  --ignore="report_viewer/" -c pytest.ini \
 		&& coverage run --source='./accessibility_monitoring_platform/' -p manage.py test accessibility_monitoring_platform/ \
 		&& coverage combine \
