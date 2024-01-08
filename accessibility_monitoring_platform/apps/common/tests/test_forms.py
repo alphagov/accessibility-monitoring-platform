@@ -12,7 +12,6 @@ from pytest_django.asserts import assertHTMLEqual
 
 from ...cases.forms import CaseQAProcessUpdateForm
 from ...cases.models import Case
-from ..models import Boolean
 from ..forms import (
     AMPCharField,
     AMPCharFieldWide,
@@ -30,6 +29,7 @@ from ..forms import (
     AMPRadioSelectWidget,
     AMPTextField,
 )
+from ..models import Boolean
 
 EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
 <div class="govuk-radios">

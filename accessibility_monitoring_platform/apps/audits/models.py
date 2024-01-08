@@ -12,11 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..cases.models import Case
-from ..common.models import (
-    Boolean,
-    StartEndDateManager,
-    VersionModel,
-)
+from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date
 
 SCREEN_SIZE_DEFAULT: str = "15in"

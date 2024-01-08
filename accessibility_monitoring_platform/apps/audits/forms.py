@@ -6,9 +6,9 @@ from typing import Any, List, Tuple
 from django import forms
 
 from ..cases.models import (
-    Boolean,
     STATEMENT_COMPLIANCE_STATE_CHOICES,
     WEBSITE_COMPLIANCE_STATE_CHOICES,
+    Boolean,
     Case,
     CaseCompliance,
 )

@@ -29,7 +29,6 @@ from ..common.forms import (
 )
 from ..common.models import Sector, SubCategory
 from .models import (
-    Boolean,
     CASE_COMPLETED_CHOICES,
     ENFORCEMENT_BODY_CLOSED_CHOICES,
     EQUALITY_BODY_CORRESPONDENCE_QUESTION,
@@ -38,6 +37,7 @@ from .models import (
     RECOMMENDATION_CHOICES,
     STATUS_CHOICES,
     TWELVE_WEEK_RESPONSE_CHOICES,
+    Boolean,
     Case,
     Contact,
     EqualityBodyCorrespondence,

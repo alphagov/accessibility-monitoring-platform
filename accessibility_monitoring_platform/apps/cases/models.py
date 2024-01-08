@@ -14,12 +14,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from ..common.models import (
-    Boolean,
-    Sector,
-    SubCategory,
-    VersionModel,
-)
+from ..common.models import Boolean, Sector, SubCategory, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
     format_outstanding_issues,

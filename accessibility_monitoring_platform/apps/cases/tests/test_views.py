@@ -35,9 +35,9 @@ from ...audits.models import (
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
 from ...common.models import (
-    Boolean,
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
+    Boolean,
     Event,
     Sector,
 )

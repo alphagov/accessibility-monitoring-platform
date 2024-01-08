@@ -10,13 +10,13 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains
 
 from ..models import (
-    Boolean,
     CASE_COMPLETED_NO_SEND,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    Boolean,
     Case,
 )
 from ..utils import create_case_and_compliance
