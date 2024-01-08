@@ -1,54 +1,53 @@
 """
 Tests for audits views
 """
-import pytest
 from datetime import date, timedelta
 from typing import Dict, List, Optional, Union
 
-from pytest_django.asserts import assertContains, assertNotContains
-
+import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
+from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
 
 from ...cases.models import (
-    Case,
-    CaseEvent,
-    Contact,
     CASE_EVENT_CREATE_AUDIT,
     CASE_EVENT_START_RETEST,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    Case,
+    CaseEvent,
+    Contact,
 )
 from ..models import (
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_PDF,
-    Audit,
-    CheckResult,
-    Page,
-    WcagDefinition,
+    ADDED_STAGE_TWELVE_WEEK,
     ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NOT_TESTED,
+    PAGE_TYPE_EXTRA,
+    PAGE_TYPE_HOME,
+    PAGE_TYPE_PDF,
+    REPORT_OPTIONS_NEXT_DEFAULT,
     RETEST_CHECK_RESULT_FIXED,
     RETEST_CHECK_RESULT_NOT_FIXED,
-    PAGE_TYPE_EXTRA,
+    STATEMENT_CHECK_TYPE_CUSTOM,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_YES,
     TEST_TYPE_AXE,
     TEST_TYPE_PDF,
-    REPORT_OPTIONS_NEXT_DEFAULT,
+    Audit,
+    CheckResult,
+    Page,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
     StatementCheck,
     StatementCheckResult,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_TYPE_CUSTOM,
-    STATEMENT_CHECK_YES,
-    Retest,
-    RetestPage,
-    RetestCheckResult,
     StatementPage,
-    ADDED_STAGE_TWELVE_WEEK,
+    WcagDefinition,
 )
 from ..utils import create_mandatory_pages_for_new_audit
 

@@ -2,55 +2,54 @@
 Test - common utility functions
 """
 from datetime import date, timedelta
-import pytest
 from typing import Dict, List, Tuple, Union
 
+import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.urls import reverse
 
 from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
-
 from ..forms import CheckResultFormset
 from ..models import (
+    CHECK_RESULT_ERROR,
+    CHECK_RESULT_NO_ERROR,
+    MANDATORY_PAGE_TYPES,
+    PAGE_TYPE_CONTACT,
+    PAGE_TYPE_EXTRA,
+    PAGE_TYPE_FORM,
+    PAGE_TYPE_HOME,
+    PAGE_TYPE_PDF,
+    PAGE_TYPE_STATEMENT,
+    RETEST_CHECK_RESULT_NOT_FIXED,
+    TEST_TYPE_AXE,
+    TEST_TYPE_MANUAL,
+    TEST_TYPE_PDF,
     Audit,
     CheckResult,
     Page,
-    WcagDefinition,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
     StatementCheck,
     StatementCheckResult,
-    CHECK_RESULT_ERROR,
-    CHECK_RESULT_NO_ERROR,
-    RETEST_CHECK_RESULT_NOT_FIXED,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_STATEMENT,
-    PAGE_TYPE_PDF,
-    PAGE_TYPE_FORM,
-    PAGE_TYPE_EXTRA,
-    TEST_TYPE_PDF,
-    TEST_TYPE_AXE,
-    TEST_TYPE_MANUAL,
-    MANDATORY_PAGE_TYPES,
-    Retest,
-    RetestPage,
-    RetestCheckResult,
+    WcagDefinition,
 )
 from ..utils import (
+    create_checkresults_for_retest,
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
+    create_statement_checks_for_new_audit,
     get_all_possible_check_results_for_page,
     get_audit_report_options_rows,
+    get_next_equality_body_retest_page_url,
     get_next_page_url,
     get_next_retest_page_url,
+    get_retest_view_tables_context,
+    get_test_view_tables_context,
     other_page_failed_check_results,
     report_data_updated,
-    get_test_view_tables_context,
-    get_retest_view_tables_context,
-    create_statement_checks_for_new_audit,
-    create_checkresults_for_retest,
-    get_next_equality_body_retest_page_url,
 )
 
 HOME_PAGE_URL: str = "https://example.com/home"

@@ -1,9 +1,10 @@
 """"
 Models - cases
 """
-from datetime import date, datetime, timedelta, timezone as datetime_timezone
 import json
 import re
+from datetime import date, datetime, timedelta
+from datetime import timezone as datetime_timezone
 from typing import List, Optional, Tuple
 
 from django.conf import settings
@@ -13,19 +14,19 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from ..common.models import (
+    BOOLEAN_CHOICES,
+    BOOLEAN_DEFAULT,
+    BOOLEAN_FALSE,
+    BOOLEAN_TRUE,
+    Sector,
+    SubCategory,
+    VersionModel,
+)
 from ..common.utils import (
     extract_domain_from_url,
     format_outstanding_issues,
     format_statement_check_overview,
-)
-from ..common.models import (
-    BOOLEAN_FALSE,
-    BOOLEAN_TRUE,
-    Sector,
-    VersionModel,
-    BOOLEAN_CHOICES,
-    BOOLEAN_DEFAULT,
-    SubCategory,
 )
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"

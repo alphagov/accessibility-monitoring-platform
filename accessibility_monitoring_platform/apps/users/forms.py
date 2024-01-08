@@ -3,18 +3,18 @@ Form for users
 """
 from typing import Any, Optional
 
+from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django import forms
 from django.core.exceptions import ValidationError
 
 from ..common.forms import (
-    AMPChoiceCheckboxWidget,
     AMPCharFieldWide,
-    AMPPasswordField,
-    AMPNewPasswordField,
     AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
+    AMPNewPasswordField,
+    AMPPasswordField,
 )
 from ..common.models import BOOLEAN_CHOICES
 from .models import AllowedEmail

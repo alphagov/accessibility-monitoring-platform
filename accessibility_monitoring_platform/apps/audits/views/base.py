@@ -7,41 +7,40 @@ from django.db.models.query import Q, QuerySet
 from django.forms import Form
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ...cases.models import (
-    Case,
-    CaseEvent,
     CASE_EVENT_CREATE_AUDIT,
     CASE_EVENT_START_RETEST,
+    Case,
+    CaseEvent,
 )
 from ...common.utils import (
-    record_model_update_event,
-    record_model_create_event,
     amp_format_date,
-    get_url_parameters_for_pagination,
     get_id_from_button_name,
+    get_url_parameters_for_pagination,
+    record_model_create_event,
+    record_model_update_event,
 )
-
 from ..forms import (
-    StatementCheckResultFormset,
-    WcagDefinitionSearchForm,
-    WcagDefinitionCreateUpdateForm,
-    StatementCheckSearchForm,
     StatementCheckCreateUpdateForm,
+    StatementCheckResultFormset,
+    StatementCheckSearchForm,
     StatementPageFormset,
     StatementPageFormsetOneExtra,
+    WcagDefinitionCreateUpdateForm,
+    WcagDefinitionSearchForm,
 )
 from ..models import (
     Audit,
     Page,
-    WcagDefinition,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagDefinition,
 )
 from ..utils import (
     create_mandatory_pages_for_new_audit,

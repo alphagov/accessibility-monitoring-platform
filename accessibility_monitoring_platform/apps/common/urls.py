@@ -6,23 +6,24 @@ from typing import List
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
+
 from .views import (
-    ActiveQAAuditorUpdateView,
-    ContactAdminView,
-    IssueReportView,
-    ChangeToPlatformListView,
     AccessibilityStatementTemplateView,
-    PrivacyNoticeTemplateView,
+    ActiveQAAuditorUpdateView,
+    BulkURLSearchView,
+    ChangeToPlatformListView,
+    ContactAdminView,
+    FooterLinkFormsetTemplateView,
+    FrequentlyUsedLinkFormsetTemplateView,
+    IssueReportListView,
+    IssueReportView,
     MarkdownCheatsheetTemplateView,
-    MoreInformationTemplateView,
     MetricsCaseTemplateView,
     MetricsPolicyTemplateView,
     MetricsReportTemplateView,
-    FrequentlyUsedLinkFormsetTemplateView,
-    FooterLinkFormsetTemplateView,
+    MoreInformationTemplateView,
     PlatformCheckingView,
-    IssueReportListView,
-    BulkURLSearchView,
+    PrivacyNoticeTemplateView,
 )
 
 app_name: str = "common"

@@ -6,55 +6,54 @@ from typing import Any, Dict, List, Tuple, Type
 
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 
-from ...cases.models import CaseEvent, CASE_EVENT_START_RETEST
+from ...cases.models import CASE_EVENT_START_RETEST, CaseEvent
 from ...common.utils import record_model_update_event
-
 from ..forms import (
-    AuditRetestMetadataUpdateForm,
-    AuditRetestPagesUpdateForm,
-    AuditRetestPageChecksForm,
+    ArchiveAuditRetestStatement1UpdateForm,
+    ArchiveAuditRetestStatement2UpdateForm,
+    ArchiveAuditRetestStatementDecisionUpdateForm,
+    ArchiveCaseComplianceStatement12WeekUpdateForm,
     AuditRetestCheckResultFilterForm,
     AuditRetestCheckResultForm,
     AuditRetestCheckResultFormset,
+    AuditRetestMetadataUpdateForm,
+    AuditRetestPageChecksForm,
+    AuditRetestPagesUpdateForm,
+    AuditRetestStatementCheckResultFormset,
+    AuditRetestStatementComparisonUpdateForm,
+    AuditRetestStatementComplianceUpdateForm,
+    AuditRetestStatementFeedbackUpdateForm,
+    AuditRetestStatementNonAccessibleUpdateForm,
+    AuditRetestStatementOtherUpdateForm,
+    AuditRetestStatementOverviewUpdateForm,
+    AuditRetestStatementPreparationUpdateForm,
+    AuditRetestStatementWebsiteUpdateForm,
     AuditRetestWebsiteDecisionUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
-    ArchiveAuditRetestStatement1UpdateForm,
-    ArchiveAuditRetestStatement2UpdateForm,
-    AuditRetestStatementCheckResultFormset,
-    AuditRetestStatementOverviewUpdateForm,
-    AuditRetestStatementWebsiteUpdateForm,
-    AuditRetestStatementComplianceUpdateForm,
-    AuditRetestStatementNonAccessibleUpdateForm,
-    AuditRetestStatementPreparationUpdateForm,
-    AuditRetestStatementFeedbackUpdateForm,
-    AuditRetestStatementOtherUpdateForm,
-    AuditRetestStatementComparisonUpdateForm,
-    ArchiveAuditRetestStatementDecisionUpdateForm,
-    ArchiveCaseComplianceStatement12WeekUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
 )
 from ..models import (
-    Audit,
-    Page,
-    CheckResult,
-    StatementCheckResult,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_TYPE_WEBSITE,
-    STATEMENT_CHECK_TYPE_COMPLIANCE,
-    STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
-    STATEMENT_CHECK_TYPE_PREPARATION,
-    STATEMENT_CHECK_TYPE_FEEDBACK,
-    STATEMENT_CHECK_TYPE_CUSTOM,
     ADDED_STAGE_TWELVE_WEEK,
+    STATEMENT_CHECK_TYPE_COMPLIANCE,
+    STATEMENT_CHECK_TYPE_CUSTOM,
+    STATEMENT_CHECK_TYPE_FEEDBACK,
+    STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_TYPE_PREPARATION,
+    STATEMENT_CHECK_TYPE_WEBSITE,
+    Audit,
+    CheckResult,
+    Page,
+    StatementCheckResult,
 )
 from ..utils import get_next_retest_page_url, get_retest_view_tables_context
 from .base import (
-    AuditUpdateView,
     AuditCaseComplianceUpdateView,
+    AuditUpdateView,
     StatementPageFormsetUpdateView,
 )
 from .initial import AuditPageChecksFormView

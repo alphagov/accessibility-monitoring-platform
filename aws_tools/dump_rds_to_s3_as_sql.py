@@ -1,7 +1,8 @@
-import boto3
-from datetime import datetime
 import json
 import os
+from datetime import datetime
+
+import boto3
 from dotenv import load_dotenv
 
 load_dotenv()

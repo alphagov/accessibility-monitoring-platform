@@ -1,22 +1,20 @@
-import pytest
-
-from typing import Dict
-
 import json
-from unittest.mock import patch, Mock
+from typing import Dict
+from unittest.mock import Mock, patch
 
 import boto3
+import pytest
 from botocore.stub import Stubber
 
 from ..ecs_prepare_db import (
-    delete_db,
-    create_db,
-    most_recent_db_s3_path,
-    download_sql_file,
-    upload_db_backup,
     clean_up,
-    redo_migrations,
+    create_db,
+    delete_db,
+    download_sql_file,
     main,
+    most_recent_db_s3_path,
+    redo_migrations,
+    upload_db_backup,
 )
 
 TEST_POSTGRES_CREDENTIALS: Dict[str, str] = {

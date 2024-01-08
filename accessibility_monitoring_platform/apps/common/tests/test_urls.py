@@ -2,7 +2,6 @@
 Test urls of common app
 """
 import pytest
-
 from django.http.response import HttpResponse
 from django.urls import reverse
 

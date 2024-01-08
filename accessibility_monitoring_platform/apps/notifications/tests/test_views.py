@@ -1,8 +1,7 @@
 """ Tests - test for notifications view """
-from pytest_django.asserts import assertContains, assertNotContains
-
 from django.http import HttpResponse
 from django.urls import reverse
+from pytest_django.asserts import assertContains, assertNotContains
 
 from ..models import Notification
 

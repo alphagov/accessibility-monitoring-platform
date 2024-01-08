@@ -1,26 +1,24 @@
 """ Tests for overdue app """
 
+from datetime import date, datetime, timedelta
+
 import pytest
-
-from datetime import datetime, timedelta, date
-
-from pytest_django.asserts import assertContains
-
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.urls import reverse
+from pytest_django.asserts import assertContains
 
 from ..cases.models import (
-    Case,
+    REPORT_APPROVED_STATUS_APPROVED,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    REPORT_APPROVED_STATUS_APPROVED,
+    Case,
 )
+from ..cases.utils import create_case_and_compliance
 from ..cases.views import (
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
 )
-from ..cases.utils import create_case_and_compliance
 from ..common.models import BOOLEAN_TRUE
 from .utils import get_overdue_cases
 

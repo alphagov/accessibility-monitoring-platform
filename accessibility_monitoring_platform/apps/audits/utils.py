@@ -11,38 +11,37 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..cases.models import Case
-
-from ..common.utils import record_model_create_event, record_model_update_event
 from ..common.form_extract_utils import (
-    extract_form_labels_and_values,
     FieldLabelAndValue,
+    extract_form_labels_and_values,
 )
+from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import (
-    AuditMetadataUpdateForm,
-    CaseComplianceWebsiteInitialUpdateForm,
+    ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
-    ArchiveCaseComplianceStatementInitialUpdateForm,
-    ArchiveAuditReportOptionsUpdateForm,
-    CheckResultForm,
-    CaseComplianceWebsite12WeekUpdateForm,
     ArchiveCaseComplianceStatement12WeekUpdateForm,
+    ArchiveCaseComplianceStatementInitialUpdateForm,
+    AuditMetadataUpdateForm,
+    CaseComplianceWebsite12WeekUpdateForm,
+    CaseComplianceWebsiteInitialUpdateForm,
+    CheckResultForm,
 )
 from .models import (
-    Audit,
-    Page,
-    WcagDefinition,
-    CheckResult,
-    StatementCheck,
-    StatementCheckResult,
-    Retest,
-    RetestPage,
-    RetestCheckResult,
-    CHECK_RESULT_NOT_TESTED,
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
     ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
+    CHECK_RESULT_NOT_TESTED,
     MANDATORY_PAGE_TYPES,
     PAGE_TYPE_HOME,
+    Audit,
+    CheckResult,
+    Page,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
+    StatementCheck,
+    StatementCheckResult,
+    WcagDefinition,
 )
 
 MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {

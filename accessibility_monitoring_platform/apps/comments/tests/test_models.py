@@ -1,12 +1,12 @@
 """
 Tests for cases models
 """
-import pytest
 from datetime import datetime, timezone
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
+import pytest
 
 from ...comments.models import Comment
-
 from ..models import Case
 
 DATETIME_COMMENT_UPDATED: datetime = datetime(2021, 9, 26, tzinfo=timezone.utc)

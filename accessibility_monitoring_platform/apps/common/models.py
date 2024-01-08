@@ -1,15 +1,14 @@
 """
 Models for common data used across project
 """
+import json
 from datetime import date
 from typing import Dict, List, Tuple
 
-import json
-
-from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.urls import reverse
 
 BOOLEAN_DEFAULT: str = "no"

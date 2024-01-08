@@ -1,25 +1,23 @@
 """
 Tests for view - dashboard
 """
-import pytest
-
 from datetime import date, datetime, timedelta
 
-from pytest_django.asserts import assertContains
-
+import pytest
 from django.http import HttpResponse
 from django.urls import reverse
+from pytest_django.asserts import assertContains
 
 from accessibility_monitoring_platform.apps.common.models import ChangeToPlatform
 
 from ...cases.models import (
-    Case,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     CASE_COMPLETED_NO_SEND,
-    REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
+    REPORT_APPROVED_STATUS_APPROVED,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    Case,
 )
 from ...cases.utils import create_case_and_compliance
 from ...common.models import BOOLEAN_TRUE

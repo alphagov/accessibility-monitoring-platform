@@ -5,7 +5,6 @@ import re
 from typing import Any, List, Tuple
 
 import requests
-
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -13,39 +12,38 @@ from django.db.models import QuerySet
 from django.utils.safestring import mark_safe
 
 from ..common.forms import (
-    VersionForm,
-    AMPChoiceCheckboxWidget,
-    AMPModelChoiceField,
     AMPAuditorModelChoiceField,
     AMPCharFieldWide,
-    AMPTextField,
+    AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
     AMPChoiceField,
     AMPChoiceRadioField,
-    AMPChoiceCheckboxField,
     AMPDateField,
-    AMPDateSentField,
     AMPDatePageCompleteField,
     AMPDateRangeForm,
+    AMPDateSentField,
+    AMPModelChoiceField,
+    AMPTextField,
     AMPURLField,
+    VersionForm,
 )
 from ..common.models import Sector, SubCategory
-
 from .models import (
+    BOOLEAN_CHOICES,
+    CASE_COMPLETED_CHOICES,
+    ENFORCEMENT_BODY_CHOICES,
+    ENFORCEMENT_BODY_CLOSED_CHOICES,
+    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+    EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
+    PREFERRED_CHOICES,
+    PSB_LOCATION_CHOICES,
+    RECOMMENDATION_CHOICES,
+    REPORT_APPROVED_STATUS_CHOICES,
+    STATUS_CHOICES,
+    TWELVE_WEEK_RESPONSE_CHOICES,
     Case,
     Contact,
     EqualityBodyCorrespondence,
-    STATUS_CHOICES,
-    CASE_COMPLETED_CHOICES,
-    BOOLEAN_CHOICES,
-    PREFERRED_CHOICES,
-    TWELVE_WEEK_RESPONSE_CHOICES,
-    ENFORCEMENT_BODY_CHOICES,
-    ENFORCEMENT_BODY_CLOSED_CHOICES,
-    PSB_LOCATION_CHOICES,
-    REPORT_APPROVED_STATUS_CHOICES,
-    RECOMMENDATION_CHOICES,
-    EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
-    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
 )
 
 status_choices = STATUS_CHOICES

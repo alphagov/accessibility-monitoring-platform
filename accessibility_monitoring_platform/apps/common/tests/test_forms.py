@@ -1,38 +1,35 @@
 """
 Test - common widgets and forms
 """
-import pytest
-
-from datetime import date, datetime
 import logging
+from datetime import date, datetime
 from typing import List, Tuple
 from unittest import mock
 from zoneinfo import ZoneInfo
 
+import pytest
+from django import forms
 from pytest_django.asserts import assertHTMLEqual
 
-from django import forms
-
+from ...cases.forms import CaseQAProcessUpdateForm
+from ...cases.models import Case
 from ..forms import (
-    AMPRadioSelectWidget,
-    AMPChoiceCheckboxWidget,
-    AMPDateCheckboxWidget,
-    AMPDateWidget,
     AMPCharField,
     AMPCharFieldWide,
-    AMPTextField,
+    AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
     AMPChoiceField,
     AMPChoiceRadioField,
-    AMPChoiceCheckboxField,
+    AMPDateCheckboxWidget,
     AMPDateField,
-    AMPDateSentField,
     AMPDateRangeForm,
-    AMPPasswordField,
+    AMPDateSentField,
+    AMPDateWidget,
     AMPNewPasswordField,
+    AMPPasswordField,
+    AMPRadioSelectWidget,
+    AMPTextField,
 )
-from ...cases.models import Case
-from ...cases.forms import CaseQAProcessUpdateForm
-
 
 EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
 <div class="govuk-radios">

@@ -1,6 +1,7 @@
 """View for overdue"""
-from django.views.generic import ListView
 from django.db.models.query import QuerySet
+from django.views.generic import ListView
+
 from ..cases.models import Case
 from .utils import get_overdue_cases
 

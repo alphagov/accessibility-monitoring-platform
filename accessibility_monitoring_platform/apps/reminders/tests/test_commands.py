@@ -1,10 +1,9 @@
 """
 Test for loat_test_cases_csv command
 """
-import pytest
-
 from datetime import date, timedelta
 
+import pytest
 from django.contrib.auth.models import User
 from django.core.management import call_command
 

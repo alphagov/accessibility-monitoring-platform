@@ -1,53 +1,51 @@
 """
 Tests for cases models
 """
-import pytest
-
 from datetime import date, datetime, timezone
 from typing import List, Optional
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
-from pytest_django.asserts import assertQuerysetEqual
-
+import pytest
 from django.db.models.query import QuerySet
+from pytest_django.asserts import assertQuerysetEqual
 
 from ...cases.models import Case
 from ...common.models import BOOLEAN_TRUE
 from ..models import (
-    Audit,
-    Page,
-    CheckResult,
-    PAGE_TYPE_EXTRA,
-    PAGE_TYPE_HOME,
+    ADDED_STAGE_INITIAL,
+    ADDED_STAGE_TWELVE_WEEK,
+    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
+    CHECK_RESULT_ERROR,
+    CHECK_RESULT_NO_ERROR,
     PAGE_TYPE_CONTACT,
-    PAGE_TYPE_STATEMENT,
-    PAGE_TYPE_PDF,
+    PAGE_TYPE_EXTRA,
     PAGE_TYPE_FORM,
+    PAGE_TYPE_HOME,
+    PAGE_TYPE_PDF,
+    PAGE_TYPE_STATEMENT,
+    RETEST_CHECK_RESULT_DEFAULT,
+    RETEST_CHECK_RESULT_FIXED,
+    RETEST_CHECK_RESULT_NOT_FIXED,
+    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
+    SCOPE_STATE_VALID,
+    STATEMENT_CHECK_NO,
+    STATEMENT_CHECK_NOT_TESTED,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_YES,
     TEST_TYPE_AXE,
     TEST_TYPE_MANUAL,
     TEST_TYPE_PDF,
-    WcagDefinition,
-    CHECK_RESULT_ERROR,
-    CHECK_RESULT_NO_ERROR,
-    RETEST_CHECK_RESULT_DEFAULT,
     ArchiveAccessibilityStatementCheck,
-    RETEST_CHECK_RESULT_FIXED,
-    RETEST_CHECK_RESULT_NOT_FIXED,
-    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
-    SCOPE_STATE_VALID,
+    Audit,
+    CheckResult,
+    Page,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
     StatementCheck,
     StatementCheckResult,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_NOT_TESTED,
-    STATEMENT_CHECK_NO,
-    STATEMENT_CHECK_YES,
-    Retest,
-    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
-    RetestPage,
-    RetestCheckResult,
     StatementPage,
-    ADDED_STAGE_INITIAL,
-    ADDED_STAGE_TWELVE_WEEK,
+    WcagDefinition,
 )
 
 PAGE_NAME = "Page name"

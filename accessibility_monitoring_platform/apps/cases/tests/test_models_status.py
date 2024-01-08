@@ -1,26 +1,24 @@
 """
 Tests for automated statuses
 """
-import pytest
-
 from datetime import datetime
 
-from pytest_django.asserts import assertContains
-
+import pytest
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.urls import reverse
+from pytest_django.asserts import assertContains
 
 from ..models import (
-    Case,
+    BOOLEAN_TRUE,
+    CASE_COMPLETED_NO_SEND,
+    CASE_COMPLETED_SEND,
+    ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
+    ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
+    REPORT_APPROVED_STATUS_APPROVED,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    REPORT_APPROVED_STATUS_APPROVED,
-    CASE_COMPLETED_SEND,
-    CASE_COMPLETED_NO_SEND,
-    ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
-    ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
-    BOOLEAN_TRUE,
+    Case,
 )
 from ..utils import create_case_and_compliance
 

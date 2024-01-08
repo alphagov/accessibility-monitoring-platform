@@ -8,7 +8,6 @@ from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
 from ..common.utils import record_model_update_event
-
 from .forms import CommentUpdateForm
 from .models import Comment
 

@@ -1,46 +1,39 @@
 """
 Tests for reports views
 """
-import pytest
 from typing import Dict
 
-from moto import mock_s3
-
-from pytest_django.asserts import assertContains, assertNotContains
-
+import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
+from moto import mock_s3
+from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
+    CHECK_RESULT_ERROR,
+    PAGE_TYPE_STATEMENT,
+    TEST_TYPE_AXE,
     Audit,
     CheckResult,
     Page,
-    WcagDefinition,
     StatementCheckResult,
-    PAGE_TYPE_STATEMENT,
-    TEST_TYPE_AXE,
-    CHECK_RESULT_ERROR,
+    WcagDefinition,
 )
 from ...audits.utils import report_data_updated
 from ...cases.models import (
-    Case,
-    CaseEvent,
-    REPORT_APPROVED_STATUS_APPROVED,
     CASE_EVENT_CREATE_REPORT,
+    REPORT_APPROVED_STATUS_APPROVED,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    Case,
+    CaseEvent,
 )
 from ...cases.utils import create_case_and_compliance
 from ...common.models import BOOLEAN_TRUE
 from ...s3_read_write.models import S3Report
-
-from ..models import (
-    Report,
-    ReportVisitsMetrics,
-    REPORT_VERSION_DEFAULT,
-)
+from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 HOME_PAGE_URL: str = "https://example.com"

@@ -1,13 +1,13 @@
 """
 Common views
 """
+import logging
 from datetime import date, datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
-import logging
 
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.exceptions import PermissionDenied, BadRequest
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.mail import EmailMessage
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -20,44 +20,43 @@ from django.views.generic.list import ListView
 
 from ..cases.models import Case
 from ..common.models import Event
-
 from .forms import (
+    ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
     AMPIssueReportForm,
-    ActiveQAAuditorUpdateForm,
-    FrequentlyUsedLinkFormset,
-    FrequentlyUsedLinkOneExtraFormset,
+    BulkURLSearchForm,
     FooterLinkFormset,
     FooterLinkOneExtraFormset,
+    FrequentlyUsedLinkFormset,
+    FrequentlyUsedLinkOneExtraFormset,
     PlatformCheckingForm,
-    BulkURLSearchForm,
 )
 from .metrics import (
     get_case_progress_metrics,
     get_case_yearly_metrics,
-    get_policy_total_metrics,
-    get_policy_progress_metrics,
     get_equality_body_cases_metric,
+    get_policy_progress_metrics,
+    get_policy_total_metrics,
     get_policy_yearly_metrics,
     get_report_progress_metrics,
     get_report_yearly_metrics,
 )
 from .models import (
+    ChangeToPlatform,
     FooterLink,
     FrequentlyUsedLink,
     IssueReport,
     Platform,
-    ChangeToPlatform,
 )
 from .page_title_utils import get_page_title
 from .utils import (
-    get_id_from_button_name,
-    get_platform_settings,
-    record_model_update_event,
-    record_model_create_event,
     extract_domain_from_url,
-    sanitise_domain,
+    get_id_from_button_name,
     get_one_year_ago,
+    get_platform_settings,
+    record_model_create_event,
+    record_model_update_event,
+    sanitise_domain,
 )
 
 logger = logging.getLogger(__name__)

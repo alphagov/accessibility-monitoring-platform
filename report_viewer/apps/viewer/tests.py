@@ -1,38 +1,35 @@
 """
 Test report viewer
 """
-import pytest
-
-from datetime import date
-import os
-from typing import Dict, Optional, Union
 import logging
+import os
+from datetime import date
+from typing import Dict, Optional, Union
 from unittest import mock
 
-from pytest_django.asserts import assertContains, assertNotContains
-from moto import mock_s3
-
+import pytest
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.template import loader, Template
+from django.template import Template, loader
 from django.urls import reverse
+from moto import mock_s3
+from pytest_django.asserts import assertContains, assertNotContains
 
+from accessibility_monitoring_platform.apps.audits.models import Audit
 from accessibility_monitoring_platform.apps.cases.models import Case
 from accessibility_monitoring_platform.apps.common.models import (
     Platform,
     UserCacheUniqueHash,
 )
 from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
-from accessibility_monitoring_platform.apps.audits.models import Audit
 from accessibility_monitoring_platform.apps.reports.models import (
     Report,
     ReportVisitsMetrics,
 )
-from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWriteReport
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
+from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWriteReport
 
 from .middleware.report_views_middleware import ReportMetrics
-
 from .utils import show_warning
 
 

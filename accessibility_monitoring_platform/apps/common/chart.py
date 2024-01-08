@@ -1,10 +1,10 @@
-from dataclasses import dataclass
-from datetime import datetime, timezone as datetime_timezone
 import math
+from dataclasses import dataclass
+from datetime import datetime
+from datetime import timezone as datetime_timezone
 from typing import List, Union
 
 from django.utils import timezone
-
 
 GRAPH_HEIGHT: int = 250
 GRAPH_WIDTH: int = 600

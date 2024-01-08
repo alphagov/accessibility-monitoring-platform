@@ -5,86 +5,82 @@ from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from django.db.models.query import QuerySet
-from django.http import HttpRequest, HttpResponse
 from django.forms.models import ModelForm
-from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView
 
 from ...cases.models import Contact
-
+from ...common.form_extract_utils import extract_form_labels_and_values
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.utils import (
-    record_model_update_event,
-    record_model_create_event,
-    list_to_dictionary_of_lists,
     get_id_from_button_name,
+    list_to_dictionary_of_lists,
+    record_model_create_event,
+    record_model_update_event,
 )
-from ...common.form_extract_utils import (
-    extract_form_labels_and_values,
-)
-
 from ..forms import (
-    AuditMetadataUpdateForm,
-    AuditStandardPageFormset,
-    AuditExtraPageFormset,
-    AuditExtraPageFormsetOneExtra,
-    AuditExtraPageFormsetTwoExtra,
-    AuditPagesUpdateForm,
-    AuditPageChecksForm,
-    CheckResultFilterForm,
-    CheckResultForm,
-    CheckResultFormset,
-    AuditWebsiteDecisionUpdateForm,
-    CaseComplianceWebsiteInitialUpdateForm,
+    ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
     ArchiveAuditStatementDecisionUpdateForm,
     ArchiveCaseComplianceStatementInitialUpdateForm,
-    AuditStatementOverviewUpdateForm,
-    AuditStatementWebsiteUpdateForm,
+    AuditExtraPageFormset,
+    AuditExtraPageFormsetOneExtra,
+    AuditExtraPageFormsetTwoExtra,
+    AuditMetadataUpdateForm,
+    AuditPageChecksForm,
+    AuditPagesUpdateForm,
+    AuditStandardPageFormset,
     AuditStatementComplianceUpdateForm,
-    AuditStatementNonAccessibleUpdateForm,
-    AuditStatementPreparationUpdateForm,
-    AuditStatementFeedbackUpdateForm,
     AuditStatementCustomUpdateForm,
+    AuditStatementFeedbackUpdateForm,
+    AuditStatementNonAccessibleUpdateForm,
+    AuditStatementOverviewUpdateForm,
+    AuditStatementPagesUpdateForm,
+    AuditStatementPreparationUpdateForm,
+    AuditStatementWebsiteUpdateForm,
+    AuditSummaryUpdateForm,
+    AuditWebsiteDecisionUpdateForm,
+    CaseComplianceWebsiteInitialUpdateForm,
+    CheckResultFilterForm,
+    CheckResultForm,
+    CheckResultFormset,
     CustomStatementCheckResultFormset,
     CustomStatementCheckResultFormsetOneExtra,
-    AuditSummaryUpdateForm,
-    ArchiveAuditReportOptionsUpdateForm,
-    AuditStatementPagesUpdateForm,
 )
 from ..models import (
-    Audit,
-    Page,
-    WcagDefinition,
-    CheckResult,
-    PAGE_TYPE_FORM,
-    StatementCheckResult,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_TYPE_WEBSITE,
-    STATEMENT_CHECK_TYPE_COMPLIANCE,
-    STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
-    STATEMENT_CHECK_TYPE_PREPARATION,
-    STATEMENT_CHECK_TYPE_FEEDBACK,
-    STATEMENT_CHECK_TYPE_CUSTOM,
-    STATEMENT_CHECK_NO,
-    StatementPage,
     ADDED_STAGE_INITIAL,
+    PAGE_TYPE_FORM,
+    STATEMENT_CHECK_NO,
+    STATEMENT_CHECK_TYPE_COMPLIANCE,
+    STATEMENT_CHECK_TYPE_CUSTOM,
+    STATEMENT_CHECK_TYPE_FEEDBACK,
+    STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_TYPE_PREPARATION,
+    STATEMENT_CHECK_TYPE_WEBSITE,
+    Audit,
+    CheckResult,
+    Page,
+    StatementCheckResult,
+    StatementPage,
+    WcagDefinition,
 )
 from ..utils import (
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
     get_next_page_url,
+    get_test_view_tables_context,
     other_page_failed_check_results,
     report_data_updated,
-    get_test_view_tables_context,
 )
 from .base import (
-    AuditUpdateView,
     AuditCaseComplianceUpdateView,
     AuditStatementCheckingView,
+    AuditUpdateView,
     StatementPageFormsetUpdateView,
 )
 

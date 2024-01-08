@@ -7,36 +7,21 @@ from django.contrib import messages
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
-from django.template import loader, Template
-from django.utils.safestring import mark_safe
-
+from django.shortcuts import get_object_or_404, redirect
+from django.template import Template, loader
 from django.urls import reverse, reverse_lazy
+from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import UpdateView
 
-from ..cases.models import Case, CaseEvent, CASE_EVENT_CREATE_REPORT
-from ..common.utils import (
-    record_model_create_event,
-    record_model_update_event,
-)
+from ..cases.models import CASE_EVENT_CREATE_REPORT, Case, CaseEvent
+from ..common.utils import record_model_create_event, record_model_update_event
 from ..s3_read_write.models import S3Report
 from ..s3_read_write.utils import S3ReadWriteReport
-
-from .forms import (
-    ReportNotesUpdateForm,
-    ReportWrapperUpdateForm,
-)
-from .models import (
-    Report,
-    ReportWrapper,
-    ReportVisitsMetrics,
-)
-from .utils import (
-    build_report_context,
-    get_report_visits_metrics,
-)
+from .forms import ReportNotesUpdateForm, ReportWrapperUpdateForm
+from .models import Report, ReportVisitsMetrics, ReportWrapper
+from .utils import build_report_context, get_report_visits_metrics
 
 
 def create_report(request: HttpRequest, case_id: int) -> HttpResponse:

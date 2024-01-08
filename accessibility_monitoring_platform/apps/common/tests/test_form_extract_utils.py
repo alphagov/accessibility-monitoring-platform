@@ -7,18 +7,15 @@ from typing import List
 from django import forms
 from django.contrib.auth.models import User
 
-from ...cases.models import Case, TEST_TYPE_CHOICES
+from ...cases.models import TEST_TYPE_CHOICES, Case
+from ..form_extract_utils import FieldLabelAndValue, extract_form_labels_and_values
 from ..forms import (
     AMPAuditorModelChoiceField,
-    AMPModelChoiceField,
     AMPChoiceRadioField,
-    AMPURLField,
-    AMPTextField,
     AMPDateField,
-)
-from ..form_extract_utils import (
-    FieldLabelAndValue,
-    extract_form_labels_and_values,
+    AMPModelChoiceField,
+    AMPTextField,
+    AMPURLField,
 )
 from ..models import Sector
 

@@ -3,13 +3,8 @@ Admin for reports
 """
 from django.contrib import admin
 
-from .models import (
-    Report,
-    ReportWrapper,
-    ReportVisitsMetrics,
-)
-
 from ..common.admin import ExportCsvMixin
+from .models import Report, ReportVisitsMetrics, ReportWrapper
 
 
 class ReportAdmin(admin.ModelAdmin):

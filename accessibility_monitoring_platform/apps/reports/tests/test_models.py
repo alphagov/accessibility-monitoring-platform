@@ -1,18 +1,15 @@
 """
 Tests for reports models
 """
-import pytest
-
 from datetime import datetime, timezone
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
+import pytest
 
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
 from ...cases.models import Case
-
-from ..models import (
-    Report,
-)
+from ..models import Report
 
 DOMAIN: str = "example.com"
 DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=timezone.utc)

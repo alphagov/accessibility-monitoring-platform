@@ -7,7 +7,6 @@ from html import escape
 from typing import Any, List
 
 import markdown
-
 from django import template
 from django.conf import settings
 from django.utils import timezone

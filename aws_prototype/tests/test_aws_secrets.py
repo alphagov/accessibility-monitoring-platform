@@ -1,10 +1,9 @@
-import pytest
-
 import json
 from typing import Dict
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import boto3
+import pytest
 from botocore.exceptions import ClientError
 from botocore.stub import Stubber
 

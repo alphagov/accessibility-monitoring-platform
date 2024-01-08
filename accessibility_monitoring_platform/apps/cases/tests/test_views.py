@@ -1,88 +1,82 @@
 """
 Tests for cases views
 """
-from datetime import date, datetime, timedelta
 import json
-import pytest
+from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional
 from zoneinfo import ZoneInfo
 
-from pytest_django.asserts import assertContains, assertNotContains
-
+import pytest
 from django.conf import settings
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
-
-from ...notifications.models import Notification
-
-from ...s3_read_write.models import S3Report
+from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
+    ADDED_STAGE_TWELVE_WEEK,
+    PAGE_TYPE_CONTACT,
+    PAGE_TYPE_HOME,
+    PAGE_TYPE_STATEMENT,
+    RETEST_CHECK_RESULT_FIXED,
+    SCOPE_STATE_VALID,
+    STATEMENT_CHECK_NO,
+    STATEMENT_CHECK_YES,
     Audit,
     CheckResult,
     Page,
+    Retest,
     StatementCheck,
     StatementCheckResult,
-    Retest,
     StatementPage,
-    PAGE_TYPE_STATEMENT,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_HOME,
-    RETEST_CHECK_RESULT_FIXED,
-    SCOPE_STATE_VALID,
-    STATEMENT_CHECK_YES,
-    STATEMENT_CHECK_NO,
-    ADDED_STAGE_TWELVE_WEEK,
 )
-from ...audits.tests.test_models import create_audit_and_check_results, ERROR_NOTES
-
+from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
 from ...common.models import (
     BOOLEAN_TRUE,
-    Event,
-    Sector,
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
+    Event,
+    Sector,
 )
 from ...common.utils import amp_format_date
-
+from ...notifications.models import Notification
 from ...reports.models import Report
-
+from ...s3_read_write.models import S3Report
 from ..models import (
+    CASE_COMPLETED_NO_SEND,
+    CASE_COMPLETED_SEND,
+    CASE_EVENT_CASE_COMPLETED,
+    CASE_EVENT_TYPE_CREATE,
+    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
+    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+    REPORT_APPROVED_STATUS_APPROVED,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
-    REPORT_APPROVED_STATUS_APPROVED,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    CASE_COMPLETED_SEND,
-    CASE_EVENT_TYPE_CREATE,
-    CASE_EVENT_CASE_COMPLETED,
-    CASE_COMPLETED_NO_SEND,
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
-    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
 )
 from ..utils import (
-    create_case_and_compliance,
-    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
-    COLUMNS_FOR_EQUALITY_BODY,
-    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
     CASE_COLUMNS_FOR_EXPORT,
+    COLUMNS_FOR_EQUALITY_BODY,
     CONTACT_COLUMNS_FOR_EXPORT,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+    create_case_and_compliance,
 )
 from ..views import (
-    ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
+    ONE_WEEK_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
-    find_duplicate_cases,
+    CaseQAProcessUpdateView,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
+    find_duplicate_cases,
     format_due_date_help_text,
-    CaseQAProcessUpdateView,
 )
 
 CONTACT_EMAIL: str = "test@email.com"

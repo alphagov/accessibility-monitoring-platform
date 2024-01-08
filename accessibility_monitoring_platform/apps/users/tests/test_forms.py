@@ -1,9 +1,9 @@
 """
 Tests for users forms
 """
-import pytest
 from typing import TypedDict
 
+import pytest
 from django.contrib.auth.models import User
 
 from ..forms import UserCreateForm, UserUpdateForm

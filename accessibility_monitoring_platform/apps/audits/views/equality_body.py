@@ -5,20 +5,19 @@ from typing import Any, Dict, List, Type
 
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
 from ...cases.models import Case
-from ...common.models import BOOLEAN_TRUE, BOOLEAN_FALSE
-from ...common.utils import record_model_update_event, record_model_create_event
-
+from ...common.models import BOOLEAN_FALSE, BOOLEAN_TRUE
+from ...common.utils import record_model_create_event, record_model_update_event
 from ..forms import (
-    RetestUpdateForm,
-    RetestPageChecksForm,
     RetestCheckResultFormset,
     RetestComparisonUpdateForm,
     RetestComplianceUpdateForm,
+    RetestPageChecksForm,
+    RetestUpdateForm,
 )
 from ..models import Retest, RetestPage
 from ..utils import (

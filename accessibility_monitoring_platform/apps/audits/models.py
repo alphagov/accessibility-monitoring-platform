@@ -5,19 +5,20 @@ from datetime import date
 from typing import Dict, List, Tuple
 
 from django.db import models
-from django.db.models import Case as DjangoCase, Q, When
+from django.db.models import Case as DjangoCase
+from django.db.models import Q, When
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 
 from ..cases.models import Case
 from ..common.models import (
-    StartEndDateManager,
-    VersionModel,
     BOOLEAN_CHOICES,
     BOOLEAN_DEFAULT,
-    BOOLEAN_TRUE,
     BOOLEAN_FALSE,
+    BOOLEAN_TRUE,
+    StartEndDateManager,
+    VersionModel,
 )
 from ..common.utils import amp_format_date
 

@@ -3,20 +3,16 @@ Views for audits app (called tests by users)
 """
 from typing import Type
 
-from django.forms.models import ModelForm
 from django.db.models.query import QuerySet
+from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
-from ..common.utils import (
-    record_model_update_event,
-    record_model_create_event,
-)
-
+from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Reminder
 from .utils import add_reminder_context_data

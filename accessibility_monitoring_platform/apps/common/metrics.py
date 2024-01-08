@@ -2,40 +2,30 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime, timezone as datetime_timezone, timedelta
-from typing import (
-    Dict,
-    List,
-    Optional,
-    Tuple,
-)
+from datetime import datetime, timedelta
+from datetime import timezone as datetime_timezone
+from typing import Dict, List, Optional, Tuple
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from ..audits.models import (
-    Audit,
-    CheckResult,
     CHECK_RESULT_ERROR,
     RETEST_CHECK_RESULT_FIXED,
+    Audit,
+    CheckResult,
 )
 from ..cases.models import (
-    Case,
+    CLOSED_CASE_STATUSES,
     RECOMMENDATION_NO_ACTION,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    CLOSED_CASE_STATUSES,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    Case,
 )
-from ..s3_read_write.models import S3Report
 from ..reports.models import ReportVisitsMetrics
-
-from .chart import (
-    LineChart,
-    Timeseries,
-    TimeseriesDatapoint,
-    build_yearly_metric_chart,
-)
+from ..s3_read_write.models import S3Report
+from .chart import LineChart, Timeseries, TimeseriesDatapoint, build_yearly_metric_chart
 from .utils import get_days_ago_timestamp, get_first_of_this_month_last_year
 
 ARCHIVE_ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: Dict[str, str] = {

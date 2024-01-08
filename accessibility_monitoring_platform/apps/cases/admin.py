@@ -5,13 +5,13 @@ from django.contrib import admin
 
 from ..common.admin import ExportCsvMixin
 from .models import (
+    CLOSED_CASE_STATUSES,
     Case,
     CaseCompliance,
-    CaseStatus,
     CaseEvent,
+    CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
-    CLOSED_CASE_STATUSES,
 )
 
 

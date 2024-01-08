@@ -1,6 +1,5 @@
 """ Tests - test for notifications models """
 import pytest
-
 from django.contrib.auth.models import User
 
 from ..models import Notification, NotificationSetting

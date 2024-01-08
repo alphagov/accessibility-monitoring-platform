@@ -2,7 +2,6 @@
 Tests for users templatetags
 """
 import pytest
-
 from django.contrib.auth.models import Group, User
 
 from ..templatetags.user_tags import has_group

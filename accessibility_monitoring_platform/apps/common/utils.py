@@ -1,19 +1,10 @@
 """ Common utility functions """
-from datetime import date, datetime, timedelta, timezone as datetime_timezone
-
-import re
 import json
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Match,
-    Optional,
-    Tuple,
-    Union,
-)
+import re
 import urllib
+from datetime import date, datetime, timedelta
+from datetime import timezone as datetime_timezone
+from typing import Any, Dict, Iterable, List, Match, Optional, Tuple, Union
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -24,10 +15,9 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.http.request import QueryDict
 from django.utils import timezone
-
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, ChangeToPlatform
+from .models import EVENT_TYPE_MODEL_CREATE, ChangeToPlatform, Event, Platform
 
 
 def extract_domain_from_url(url: str) -> str:

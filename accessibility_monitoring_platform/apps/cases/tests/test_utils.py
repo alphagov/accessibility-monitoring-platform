@@ -1,61 +1,59 @@
 """
 Test utility functions of cases app
 """
-import pytest
-
 import csv
+import io
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-import io
 from typing import Any, Dict, List, Optional, Tuple
 
+import pytest
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
-from ...audits.models import Audit, Retest, RETEST_INITIAL_COMPLIANCE_COMPLIANT
-from ...common.models import Sector, SubCategory, BOOLEAN_TRUE
-
+from ...audits.models import RETEST_INITIAL_COMPLIANCE_COMPLIANT, Audit, Retest
+from ...common.models import BOOLEAN_TRUE, Sector, SubCategory
 from ..models import (
+    CASE_COMPLETED_NO_SEND,
+    CASE_EVENT_APPROVE_REPORT,
+    CASE_EVENT_AUDITOR,
+    CASE_EVENT_CASE_COMPLETED,
+    CASE_EVENT_CREATE_AUDIT,
+    CASE_EVENT_QA_AUDITOR,
+    CASE_EVENT_READY_FOR_FINAL_DECISION,
+    CASE_EVENT_READY_FOR_QA,
+    CASE_EVENT_TYPE_CREATE,
+    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
+    REPORT_APPROVED_STATUS_APPROVED,
     Case,
     CaseCompliance,
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
-    CASE_EVENT_TYPE_CREATE,
-    CASE_EVENT_AUDITOR,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_READY_FOR_QA,
-    CASE_EVENT_QA_AUDITOR,
-    CASE_EVENT_APPROVE_REPORT,
-    CASE_EVENT_READY_FOR_FINAL_DECISION,
-    CASE_EVENT_CASE_COMPLETED,
-    REPORT_APPROVED_STATUS_APPROVED,
-    CASE_COMPLETED_NO_SEND,
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
 )
 from ..utils import (
-    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
-    COLUMNS_FOR_EQUALITY_BODY,
-    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
     CASE_COLUMNS_FOR_EXPORT,
+    COLUMNS_FOR_EQUALITY_BODY,
     CONTACT_COLUMNS_FOR_EXPORT,
-    get_sent_date,
-    filter_cases,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     ColumnAndFieldNames,
-    format_model_field,
-    format_contacts,
-    replace_search_key_with_case_search,
-    download_feedback_survey_cases,
-    download_equality_body_cases,
-    download_cases,
-    record_case_event,
+    PostCaseAlert,
     build_edit_link_html,
     create_case_and_compliance,
-    get_post_case_alerts_count,
-    PostCaseAlert,
+    download_cases,
+    download_equality_body_cases,
+    download_feedback_survey_cases,
+    filter_cases,
+    format_contacts,
+    format_model_field,
     get_post_case_alerts,
+    get_post_case_alerts_count,
+    get_sent_date,
+    record_case_event,
+    replace_search_key_with_case_search,
 )
 
 ORGANISATION_NAME: str = "Organisation name one"

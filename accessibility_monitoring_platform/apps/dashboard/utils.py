@@ -3,8 +3,10 @@ Utility functions used in dashboard
 """
 
 from typing import Dict, List
+
 from django.contrib.auth.models import User
-from ..cases.models import Case, STATUS_QA_IN_PROGRESS
+
+from ..cases.models import STATUS_QA_IN_PROGRESS, Case
 
 
 def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:

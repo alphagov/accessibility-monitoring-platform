@@ -2,18 +2,13 @@
 Tests for comments views
 """
 import pytest
-
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.urls import reverse
 
 from ...cases.models import Case
-from ...common.models import (
-    Event,
-    EVENT_TYPE_MODEL_UPDATE,
-)
-
+from ...common.models import EVENT_TYPE_MODEL_UPDATE, Event
 from ..models import Comment
 
 

@@ -1,30 +1,27 @@
 """
 Test utility functions of reports app
 """
-import pytest
 from typing import Any, Dict, List, Set
 
+import pytest
+
 from ...audits.models import (
-    Audit,
-    CheckResult,
-    Page,
-    WcagDefinition,
     CHECK_RESULT_ERROR,
     PAGE_TYPE_HOME,
     PAGE_TYPE_PDF,
     TEST_TYPE_PDF,
+    Audit,
+    CheckResult,
+    Page,
+    WcagDefinition,
 )
 from ...cases.models import Case
-
-from ..models import (
-    Report,
-    ReportVisitsMetrics,
-)
+from ..models import Report, ReportVisitsMetrics
 from ..utils import (
     IssueTable,
     TableRow,
-    build_issues_tables,
     build_issue_table_rows,
+    build_issues_tables,
     build_report_context,
     get_report_visits_metrics,
 )

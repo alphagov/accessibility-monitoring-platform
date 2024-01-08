@@ -1,35 +1,33 @@
 """
 Tests for common views
 """
-from datetime import date, datetime, timedelta, timezone
 import logging
+from datetime import date, datetime, timedelta, timezone
+from unittest.mock import Mock, patch
+
 import pytest
-from unittest.mock import patch, Mock
-
-from pytest_django.asserts import assertContains, assertNotContains
-
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
+from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import Audit, CheckResult, Page, WcagDefinition
 from ...cases.models import (
-    Case,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    Case,
 )
-from ...cases.views import calculate_report_followup_dates
 from ...cases.utils import create_case_and_compliance
+from ...cases.views import calculate_report_followup_dates
 from ...notifications.models import Notification
 from ...overdue.tests import create_case
 from ...reminders.models import Reminder
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
-from ...users.tests.test_views import create_user, VALID_USER_EMAIL, VALID_PASSWORD
-
+from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
 from ..models import Event, FooterLink, FrequentlyUsedLink, Platform
 from ..utils import get_platform_settings
 

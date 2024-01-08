@@ -1,56 +1,55 @@
 """
 Test - common utility functions
 """
-import pytest
+from datetime import date, datetime, timezone
 from typing import Dict, List
 from unittest.mock import patch
 
-from datetime import date, datetime, timezone
+import pytest
 
 from ...audits.models import (
-    Audit,
-    Page,
-    WcagDefinition,
-    CheckResult,
-    StatementCheck,
-    StatementCheckResult,
     CHECK_RESULT_ERROR,
     RETEST_CHECK_RESULT_FIXED,
     TEST_TYPE_AXE,
+    Audit,
+    CheckResult,
+    Page,
+    StatementCheck,
+    StatementCheckResult,
+    WcagDefinition,
 )
 from ...cases.models import (
-    Case,
     CASE_COMPLETED_NO_SEND,
     RECOMMENDATION_NO_ACTION,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    Case,
 )
 from ...cases.utils import create_case_and_compliance
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
-
 from ..chart import Timeseries, TimeseriesDatapoint
 from ..metrics import (
-    TimeseriesHtmlTable,
-    ThirtyDayMetric,
-    YearlyMetric,
-    TotalMetric,
-    ProgressMetric,
+    FIRST_COLUMN_HEADER,
     EqualityBodyCasesMetric,
-    count_statement_issues,
-    group_timeseries_data_by_month,
+    ProgressMetric,
+    ThirtyDayMetric,
+    TimeseriesHtmlTable,
+    TotalMetric,
+    YearlyMetric,
     build_html_table,
     convert_timeseries_pair_to_ratio,
     convert_timeseries_to_cumulative,
+    count_statement_issues,
     get_case_progress_metrics,
     get_case_yearly_metrics,
-    get_policy_total_metrics,
-    get_policy_progress_metrics,
     get_equality_body_cases_metric,
+    get_policy_progress_metrics,
+    get_policy_total_metrics,
     get_policy_yearly_metrics,
     get_report_progress_metrics,
     get_report_yearly_metrics,
-    FIRST_COLUMN_HEADER,
+    group_timeseries_data_by_month,
 )
 
 METRIC_LABEL: str = "Metric label"

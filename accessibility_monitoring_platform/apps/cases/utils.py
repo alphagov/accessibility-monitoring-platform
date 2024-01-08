@@ -2,43 +2,41 @@
 Utility functions for cases app
 """
 
-from collections import namedtuple
 import copy
 import csv
+from collections import namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from django import forms
 from django.contrib.auth.models import User
-from django.db.models import Q, QuerySet, Case as DjangoCase, When
-
+from django.db.models import Case as DjangoCase
+from django.db.models import Q, QuerySet, When
 from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.urls import reverse
 
-from ..audits.models import Audit, Retest, RETEST_INITIAL_COMPLIANCE_DEFAULT
+from ..audits.models import RETEST_INITIAL_COMPLIANCE_DEFAULT, Audit, Retest
 from ..common.utils import build_filters
-
-from .forms import CaseSearchForm, DEFAULT_SORT, NO_FILTER
-
+from .forms import DEFAULT_SORT, NO_FILTER, CaseSearchForm
 from .models import (
+    CASE_EVENT_APPROVE_REPORT,
+    CASE_EVENT_AUDITOR,
+    CASE_EVENT_CASE_COMPLETED,
+    CASE_EVENT_CREATE_AUDIT,
+    CASE_EVENT_QA_AUDITOR,
+    CASE_EVENT_READY_FOR_FINAL_DECISION,
+    CASE_EVENT_READY_FOR_QA,
+    CASE_EVENT_TYPE_CREATE,
+    COMPLIANCE_FIELDS,
+    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+    STATUS_READY_TO_QA,
+    STATUS_UNASSIGNED,
     Case,
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
-    STATUS_UNASSIGNED,
-    STATUS_READY_TO_QA,
-    CASE_EVENT_TYPE_CREATE,
-    CASE_EVENT_AUDITOR,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_READY_FOR_QA,
-    CASE_EVENT_QA_AUDITOR,
-    CASE_EVENT_APPROVE_REPORT,
-    CASE_EVENT_READY_FOR_FINAL_DECISION,
-    CASE_EVENT_CASE_COMPLETED,
-    COMPLIANCE_FIELDS,
-    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [

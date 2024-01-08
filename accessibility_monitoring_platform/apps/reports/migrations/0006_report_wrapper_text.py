@@ -2,7 +2,6 @@
 
 from django.db import migrations
 
-
 REPORT_WRAPPER_TEXT = {
     "title": "Accessibility report for {{ report.case.domain }}",
     "title_caption": "Accessibility report",

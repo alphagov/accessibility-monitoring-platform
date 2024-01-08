@@ -2,13 +2,11 @@
 Test - function to derive page title from url path
 """
 import pytest
-
 from django.urls import reverse
 
 from ...audits.models import Audit, Page
 from ...cases.models import Case
 from ...reminders.models import Reminder
-
 from ..page_title_utils import get_page_title
 
 ORGANISATION_NAME: str = "Organisation name"

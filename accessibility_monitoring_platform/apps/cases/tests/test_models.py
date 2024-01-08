@@ -1,49 +1,49 @@
 """
 Tests for cases models
 """
-import pytest
-
 import json
 from datetime import date, datetime, timedelta, timezone
 from typing import List
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
+import pytest
 
 from ...audits.models import (
+    CHECK_RESULT_ERROR,
+    CONTENT_NOT_IN_SCOPE_VALID,
+    PAGE_TYPE_STATEMENT,
+    RETEST_CHECK_RESULT_FIXED,
+    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
+    STATEMENT_CHECK_NO,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_YES,
+    TEST_TYPE_AXE,
     Audit,
     CheckResult,
     Page,
-    PAGE_TYPE_STATEMENT,
-    WcagDefinition,
-    TEST_TYPE_AXE,
-    CHECK_RESULT_ERROR,
-    RETEST_CHECK_RESULT_FIXED,
-    CONTENT_NOT_IN_SCOPE_VALID,
+    Retest,
     StatementCheck,
     StatementCheckResult,
-    STATEMENT_CHECK_NO,
-    STATEMENT_CHECK_YES,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    Retest,
-    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
     StatementPage,
+    WcagDefinition,
 )
 from ...comments.models import Comment
 from ...reminders.models import Reminder
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
+    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
+    EQUALITY_BODY_CORRESPONDENCE_RETEST,
+    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_DEFAULT,
+    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
+    STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+    WEBSITE_COMPLIANCE_STATE_DEFAULT,
     Case,
     Contact,
     EqualityBodyCorrespondence,
-    WEBSITE_COMPLIANCE_STATE_DEFAULT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
-    STATEMENT_COMPLIANCE_STATE_DEFAULT,
-    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
-    EQUALITY_BODY_CORRESPONDENCE_RETEST,
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
 )
 from ..utils import create_case_and_compliance
 

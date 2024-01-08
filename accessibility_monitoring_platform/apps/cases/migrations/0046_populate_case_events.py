@@ -1,25 +1,25 @@
 """Populate new CaseEvent model"""
-from datetime import datetime
 import json
+from datetime import datetime
 from typing import Dict
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 from django.db import migrations
 
-from ..models import (
-    CASE_EVENT_TYPE_CREATE,
-    CASE_EVENT_AUDITOR,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_CREATE_REPORT,
-    CASE_EVENT_READY_FOR_QA,
-    CASE_EVENT_QA_AUDITOR,
-    CASE_EVENT_APPROVE_REPORT,
-    CASE_EVENT_START_RETEST,
-    CASE_EVENT_READY_FOR_FINAL_DECISION,
-    CASE_EVENT_CASE_COMPLETED,
-)
 from ...common.models import EVENT_TYPE_MODEL_UPDATE
 from ...common.utils import amp_format_date
+from ..models import (
+    CASE_EVENT_APPROVE_REPORT,
+    CASE_EVENT_AUDITOR,
+    CASE_EVENT_CASE_COMPLETED,
+    CASE_EVENT_CREATE_AUDIT,
+    CASE_EVENT_CREATE_REPORT,
+    CASE_EVENT_QA_AUDITOR,
+    CASE_EVENT_READY_FOR_FINAL_DECISION,
+    CASE_EVENT_READY_FOR_QA,
+    CASE_EVENT_START_RETEST,
+    CASE_EVENT_TYPE_CREATE,
+)
 
 REPORT_REVIEW_STATUS_LABELS: Dict[str, str] = {
     "ready-to-review": "Yes",
