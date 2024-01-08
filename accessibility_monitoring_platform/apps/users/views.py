@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from ..common.models import BOOLEAN_FALSE, BOOLEAN_TRUE
+from ..common.models import Boolean
 from ..common.utils import (
     checks_if_2fa_is_enabled,
     record_model_create_event,
@@ -81,9 +81,9 @@ class UserUpdateView(SameUserTestMixin, UpdateView):
         form = super().get_form()
         user: User = self.object
         if checks_if_2fa_is_enabled(user=user):
-            form.fields["enable_2fa"].initial = BOOLEAN_TRUE
+            form.fields["enable_2fa"].initial = Boolean.YES
         else:
-            form.fields["enable_2fa"].initial = BOOLEAN_FALSE
+            form.fields["enable_2fa"].initial = Boolean.NO
         notification_setting, _ = NotificationSetting.objects.get_or_create(user=user)
         form.fields[
             "email_notifications"
@@ -111,7 +111,7 @@ class UserUpdateView(SameUserTestMixin, UpdateView):
 
         enable_2fa: str = form.cleaned_data.get("enable_2fa", "")
         email_device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
-        email_device.confirmed = enable_2fa == BOOLEAN_TRUE
+        email_device.confirmed = enable_2fa == Boolean.YES
         email_device.save()
 
         messages.success(self.request, "Successfully saved details!")

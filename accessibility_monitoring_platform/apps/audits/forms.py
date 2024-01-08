@@ -6,7 +6,7 @@ from typing import Any, List, Tuple
 from django import forms
 
 from ..cases.models import (
-    BOOLEAN_CHOICES,
+    Boolean,
     STATEMENT_COMPLIANCE_STATE_CHOICES,
     WEBSITE_COMPLIANCE_STATE_CHOICES,
     Case,
@@ -137,12 +137,12 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
 
     not_found = AMPChoiceCheckboxField(
         label="Not found?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "Mark page as not found"}),
     )
     is_contact_page = AMPChoiceCheckboxField(
         label="Page is a contact",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=forms.HiddenInput(),
     )
 
@@ -644,7 +644,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_not_correct_format = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -655,7 +655,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_not_specific_enough = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -667,7 +667,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     archive_accessibility_statement_missing_accessibility_issues = (
         AMPChoiceCheckboxField(
             label="",
-            choices=BOOLEAN_CHOICES,
+            choices=Boolean.choices,
             widget=AMPChoiceCheckboxWidget(
                 attrs={
                     "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -679,7 +679,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_missing_mandatory_wording = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -694,7 +694,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     archive_accessibility_statement_needs_more_re_disproportionate = (
         AMPChoiceCheckboxField(
             label="",
-            choices=BOOLEAN_CHOICES,
+            choices=Boolean.choices,
             widget=AMPChoiceCheckboxWidget(
                 attrs={
                     "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -707,7 +707,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     archive_accessibility_statement_needs_more_re_accessibility = (
         AMPChoiceCheckboxField(
             label="",
-            choices=BOOLEAN_CHOICES,
+            choices=Boolean.choices,
             widget=AMPChoiceCheckboxWidget(
                 attrs={
                     "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -719,7 +719,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_deadline_not_complete = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -733,7 +733,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_deadline_not_sufficient = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -747,7 +747,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_out_of_date = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -758,7 +758,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_eass_link = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -769,7 +769,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_template_update = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -780,7 +780,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_accessible = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -791,7 +791,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_prominent = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -809,7 +809,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_next_change_statement = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
@@ -820,7 +820,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_next_no_statement = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
@@ -831,7 +831,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_next_statement_not_right = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
@@ -842,7 +842,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_next_statement_matches = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
@@ -853,7 +853,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_next_disproportionate_burden = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[

@@ -10,7 +10,7 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains
 
 from ..models import (
-    BOOLEAN_TRUE,
+    Boolean,
     CASE_COMPLETED_NO_SEND,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
@@ -99,7 +99,7 @@ def test_case_status_qa_in_progress(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
     )
     assert case.status.status == "qa-in-progress"
 
@@ -117,7 +117,7 @@ def test_case_status_report_ready_to_send(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     assert case.status.status == "report-ready-to-send"
@@ -136,7 +136,7 @@ def test_case_status_in_report_correspondence(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
     )
@@ -156,9 +156,9 @@ def test_case_status_when_no_psb_contact(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        no_psb_contact=BOOLEAN_TRUE,
+        no_psb_contact=Boolean.YES,
     )
     assert case.status.status == "final-decision-due"
 
@@ -176,7 +176,7 @@ def test_case_status_in_probation_period(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -197,7 +197,7 @@ def test_case_status_in_12_week_correspondence(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -219,7 +219,7 @@ def test_case_status_reviewing_changes(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -242,13 +242,13 @@ def test_case_status_final_decision_due(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
-        is_ready_for_final_decision=BOOLEAN_TRUE,
+        is_ready_for_final_decision=Boolean.YES,
     )
     assert case.status.status == "final-decision-due"
 
@@ -266,7 +266,7 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -290,7 +290,7 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -315,7 +315,7 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -341,7 +341,7 @@ def test_case_status_equality_bodies_complete(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -383,7 +383,7 @@ def test_case_qa_status_unassigned_qa_case():
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
     )
     assert case.qa_status == "unassigned-qa-case"
 
@@ -399,7 +399,7 @@ def test_case_qa_status_in_qa():
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         reviewer=user2,
     )
     assert case.qa_status == "in-qa"
@@ -416,7 +416,7 @@ def test_case_qa_status_qa_approved():
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         reviewer=user2,
     )

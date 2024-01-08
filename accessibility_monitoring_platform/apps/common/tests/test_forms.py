@@ -3,7 +3,6 @@ Test - common widgets and forms
 """
 import logging
 from datetime import date, datetime
-from typing import List, Tuple
 from unittest import mock
 from zoneinfo import ZoneInfo
 
@@ -13,6 +12,7 @@ from pytest_django.asserts import assertHTMLEqual
 
 from ...cases.forms import CaseQAProcessUpdateForm
 from ...cases.models import Case
+from ..models import Boolean
 from ..forms import (
     AMPCharField,
     AMPCharFieldWide,
@@ -81,17 +81,12 @@ EXPECTED_DATE_WIDGET_HTML: str = """
     </span>
 </p>"""
 
-BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-]
-
 
 class MockForm(forms.Form):
     """Form used to test fields and widgets"""
 
     date_as_checkbox = AMPDateSentField(label="Label1")
-    choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=BOOLEAN_CHOICES)
+    choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=Boolean.choices)
 
 
 def test_amp_widget_html_uses_govuk_classes():

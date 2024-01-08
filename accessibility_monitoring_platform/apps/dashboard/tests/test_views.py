@@ -19,7 +19,7 @@ from ...cases.models import (
     Case,
 )
 from ...cases.utils import create_case_and_compliance
-from ...common.models import BOOLEAN_TRUE
+from ...common.models import Boolean
 from ...reminders.models import Reminder
 
 
@@ -81,7 +81,7 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
         auditor=admin_user,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -179,7 +179,7 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
         auditor=admin_user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -197,7 +197,7 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
         auditor=admin_user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -264,7 +264,7 @@ def test_dashboard_shows_link_to_reminder(admin_client, admin_user):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),

@@ -13,10 +13,7 @@ from django.utils import timezone
 
 from ..cases.models import Case
 from ..common.models import (
-    BOOLEAN_CHOICES,
-    BOOLEAN_DEFAULT,
-    BOOLEAN_FALSE,
-    BOOLEAN_TRUE,
+    Boolean,
     StartEndDateManager,
     VersionModel,
 )
@@ -508,54 +505,54 @@ class Audit(VersionModel):
         default=ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     )
     archive_accessibility_statement_not_correct_format = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_not_specific_enough = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_missing_accessibility_issues = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_missing_mandatory_wording = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_missing_mandatory_wording_notes = models.TextField(
         default="", blank=True
     )
     archive_accessibility_statement_needs_more_re_disproportionate = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_needs_more_re_accessibility = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_deadline_not_complete = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_deadline_not_complete_wording = models.TextField(
         default="it includes a deadline of XXX for fixing XXX issues and this has not been completed",
         blank=True,
     )
     archive_accessibility_statement_deadline_not_sufficient = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_deadline_not_sufficient_wording = models.TextField(
         default="it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
         blank=True,
     )
     archive_accessibility_statement_out_of_date = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_eass_link = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_template_update = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_accessible = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_prominent = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_report_options_next = models.CharField(
         max_length=20,
@@ -563,19 +560,19 @@ class Audit(VersionModel):
         default=REPORT_OPTIONS_NEXT_DEFAULT,
     )
     archive_report_next_change_statement = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_report_next_no_statement = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_report_next_statement_not_right = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_report_next_statement_matches = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_report_next_disproportionate_burden = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     archive_accessibility_statement_report_text_wording = models.TextField(
         default="",
@@ -814,7 +811,7 @@ class Audit(VersionModel):
     def report_accessibility_issues(self) -> List[str]:
         issues: List[str] = []
         for key, value in ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
-            if getattr(self, key) == BOOLEAN_TRUE:
+            if getattr(self, key) == Boolean.YES:
                 if key == "archive_accessibility_statement_deadline_not_complete":
                     issues.append(
                         self.archive_accessibility_statement_deadline_not_complete_wording
@@ -848,7 +845,7 @@ class Audit(VersionModel):
 
     @property
     def testable_pages(self):
-        return self.every_page.exclude(not_found=BOOLEAN_TRUE).exclude(url="")
+        return self.every_page.exclude(not_found=Boolean.YES).exclude(url="")
 
     @property
     def html_pages(self):
@@ -877,7 +874,7 @@ class Audit(VersionModel):
                 is_deleted=False,
                 check_result_state=CHECK_RESULT_ERROR,
                 page__is_deleted=False,
-                page__not_found=BOOLEAN_FALSE,
+                page__not_found=Boolean.NO,
                 page__retest_page_missing_date=None,
             )
             .annotate(
@@ -1124,10 +1121,10 @@ class Page(models.Model):
     complete_date = models.DateField(null=True, blank=True)
     no_errors_date = models.DateField(null=True, blank=True)
     not_found = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     is_contact_page = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     retest_complete_date = models.DateField(null=True, blank=True)
     retest_page_missing_date = models.DateField(null=True, blank=True)

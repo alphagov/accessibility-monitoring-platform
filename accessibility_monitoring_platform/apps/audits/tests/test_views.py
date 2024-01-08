@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from pytest_django.asserts import assertContains, assertNotContains
 
-from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
+from accessibility_monitoring_platform.apps.common.models import Boolean
 
 from ...cases.models import (
     CASE_EVENT_CREATE_AUDIT,
@@ -1292,7 +1292,7 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     case: Case = audit.case
-    case.no_psb_contact = BOOLEAN_TRUE
+    case.no_psb_contact = Boolean.YES
     case.save()
 
     response: HttpResponse = admin_client.post(
@@ -2049,7 +2049,7 @@ def test_retest_details_renders_when_no_psb_response(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     case: Case = audit.case
-    case.no_psb_contact = BOOLEAN_TRUE
+    case.no_psb_contact = Boolean.YES
     case.save()
 
     response: HttpResponse = admin_client.get(

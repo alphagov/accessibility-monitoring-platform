@@ -29,14 +29,12 @@ from ..common.forms import (
 )
 from ..common.models import Sector, SubCategory
 from .models import (
-    BOOLEAN_CHOICES,
+    Boolean,
     CASE_COMPLETED_CHOICES,
-    ENFORCEMENT_BODY_CHOICES,
     ENFORCEMENT_BODY_CLOSED_CHOICES,
     EQUALITY_BODY_CORRESPONDENCE_QUESTION,
     EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
     PREFERRED_CHOICES,
-    PSB_LOCATION_CHOICES,
     RECOMMENDATION_CHOICES,
     STATUS_CHOICES,
     TWELVE_WEEK_RESPONSE_CHOICES,
@@ -60,7 +58,7 @@ IS_COMPLAINT_CHOICES: List[Tuple[str, str]] = [
     ("no", "No complaints"),
     ("yes", "Only complaints"),
 ]
-ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + ENFORCEMENT_BODY_CHOICES
+ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + Case.EnforcementBody.choices
 
 DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("audit_case__date_of_test", "Date test started"),
@@ -125,11 +123,11 @@ class CaseCreateForm(forms.ModelForm):
     home_page_url = AMPURLField(label="Full URL")
     enforcement_body = AMPChoiceRadioField(
         label="Which equalities body will check the case?",
-        choices=ENFORCEMENT_BODY_CHOICES,
+        choices=Case.EnforcementBody.choices,
     )
     psb_location = AMPChoiceRadioField(
         label="Public sector body location",
-        choices=PSB_LOCATION_CHOICES,
+        choices=Case.PsbLocation.choices,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     previous_case_url = AMPURLField(
@@ -138,7 +136,7 @@ class CaseCreateForm(forms.ModelForm):
     )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Did this case originate from a complaint?"}
         ),
@@ -287,7 +285,7 @@ class CaseQAProcessUpdateForm(VersionForm):
 
     report_review_status = AMPChoiceRadioField(
         label="Report ready for QA process?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         help_text="This field affects the case status",
     )
     reviewer = AMPAuditorModelChoiceField(
@@ -423,7 +421,7 @@ class CaseNoPSBContactUpdateForm(VersionForm):
 
     no_psb_contact = AMPChoiceCheckboxField(
         label="Do you want to mark the PSB as unresponsive to this case?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         help_text="This field affects the case status",
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the PSB as unresponsive to this case"}
@@ -518,7 +516,7 @@ class CaseReviewChangesUpdateForm(VersionForm):
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
         help_text="This field affects the case status",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
     )
     review_changes_complete_date = AMPDatePageCompleteField()
 
@@ -644,7 +642,7 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     )
     is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Feedback survey sent to this organisation?"}
         ),

@@ -10,7 +10,7 @@ from django.db.models.query import QuerySet
 from pytest_django.asserts import assertQuerysetEqual
 
 from ...cases.models import Case
-from ...common.models import BOOLEAN_TRUE
+from ...common.models import Boolean
 from ..models import (
     ADDED_STAGE_INITIAL,
     ADDED_STAGE_TWELVE_WEEK,
@@ -983,11 +983,11 @@ def test_report_accessibility_issues():
 
     assert audit.report_accessibility_issues == []
 
-    audit.archive_accessibility_statement_deadline_not_complete = BOOLEAN_TRUE
+    audit.archive_accessibility_statement_deadline_not_complete = Boolean.YES
 
     assert audit.report_accessibility_issues == [INCOMPLETE_DEADLINE_TEXT]
 
-    audit.archive_accessibility_statement_deadline_not_sufficient = BOOLEAN_TRUE
+    audit.archive_accessibility_statement_deadline_not_sufficient = Boolean.YES
 
     assert audit.report_accessibility_issues == [
         INCOMPLETE_DEADLINE_TEXT,
@@ -1164,7 +1164,7 @@ def test_fixed_checks_count_at_12_week():
 
     assert retest.fixed_checks_count == 1
 
-    check_result.page.not_found = BOOLEAN_TRUE
+    check_result.page.not_found = Boolean.YES
     check_result.page.save()
 
     assert retest.fixed_checks_count == 0
@@ -1194,7 +1194,7 @@ def test_fixed_checks_count_in_retests():
 
     assert retest.fixed_checks_count == 1
 
-    retest_page.page.not_found = BOOLEAN_TRUE
+    retest_page.page.not_found = Boolean.YES
     retest_page.page.save()
 
     assert retest.fixed_checks_count == 0

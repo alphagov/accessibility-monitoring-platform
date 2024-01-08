@@ -14,7 +14,7 @@ from django.http import HttpResponse
 from django.http.request import QueryDict
 
 from ...audits.models import RETEST_INITIAL_COMPLIANCE_COMPLIANT, Audit, Retest
-from ...common.models import BOOLEAN_TRUE, Sector, SubCategory
+from ...common.models import Boolean, Sector, SubCategory
 from ..models import (
     CASE_COMPLETED_NO_SEND,
     CASE_EVENT_APPROVE_REPORT,
@@ -615,7 +615,7 @@ def test_download_cases():
     [
         ({}, None, CASE_EVENT_TYPE_CREATE, "Created case"),
         (
-            {"report_review_status": BOOLEAN_TRUE},
+            {"report_review_status": Boolean.YES},
             {},
             CASE_EVENT_READY_FOR_QA,
             "Report ready to be reviewed changed from 'No' to 'Yes'",
@@ -627,7 +627,7 @@ def test_download_cases():
             "Report approved changed from 'Not started' to 'Yes'",
         ),
         (
-            {"is_ready_for_final_decision": BOOLEAN_TRUE},
+            {"is_ready_for_final_decision": Boolean.YES},
             {},
             CASE_EVENT_READY_FOR_FINAL_DECISION,
             "Case ready for final decision changed from 'No' to 'Yes'",

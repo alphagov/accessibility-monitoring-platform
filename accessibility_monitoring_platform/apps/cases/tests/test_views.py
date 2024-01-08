@@ -35,7 +35,7 @@ from ...audits.models import (
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
 from ...common.models import (
-    BOOLEAN_TRUE,
+    Boolean,
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
     Event,
@@ -386,7 +386,9 @@ def test_case_list_view_filters_by_case_number(admin_client):
 
 def test_case_list_view_filters_by_psb_location(admin_client):
     """Test that the case list view page can be filtered by case number"""
-    Case.objects.create(organisation_name="Included", psb_location="scotland")
+    Case.objects.create(
+        organisation_name="Included", psb_location=Case.PsbLocation.SCOTLAND
+    )
     Case.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
@@ -1050,7 +1052,7 @@ def test_platform_update_redirects_based_on_case_variant(
     Test that a case save and continue redirects as expected when case is not of the
     equality body close case variant.
     """
-    case: Case = Case.objects.create(variant="archived")
+    case: Case = Case.objects.create(variant=Case.Variant.ARCHIVED)
 
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),
@@ -1423,7 +1425,7 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 def test_no_psb_response_redirects_to_case_close(admin_client):
     """Test no PSB response redirects to case closing"""
     case: Case = Case.objects.create(
-        no_psb_contact=BOOLEAN_TRUE,
+        no_psb_contact=Boolean.YES,
     )
 
     response: HttpResponse = admin_client.post(
@@ -2611,7 +2613,7 @@ def test_twelve_week_correspondence_no_psb_contact(admin_client):
     Test that the twelve week correspondence page shows small page when no
     contact has been made with the public sector body
     """
-    case: Case = Case.objects.create(no_psb_contact=BOOLEAN_TRUE)
+    case: Case = Case.objects.create(no_psb_contact=Boolean.YES)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-twelve-week-correspondence", kwargs={"pk": case.id}),
@@ -2681,7 +2683,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "cases:edit-qa-process",
             "Report ready to be reviewed needs to be Yes",
             "report_review_status",
-            BOOLEAN_TRUE,
+            Boolean.YES,
         ),
         (
             "cases:edit-qa-process",
@@ -2705,7 +2707,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "cases:edit-no-psb-response",
             "No response from PSB",
             "no_psb_contact",
-            BOOLEAN_TRUE,
+            Boolean.YES,
         ),
         (
             "cases:edit-twelve-week-correspondence",
@@ -2723,13 +2725,13 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "cases:edit-twelve-week-correspondence",
             "12-week update received requires a date or mark the case as having no response",
             "no_psb_contact",
-            BOOLEAN_TRUE,
+            Boolean.YES,
         ),
         (
             "cases:edit-review-changes",
             "Is this case ready for final decision? needs to be Yes",
             "is_ready_for_final_decision",
-            BOOLEAN_TRUE,
+            Boolean.YES,
         ),
         (
             "cases:edit-case-close",

@@ -7,7 +7,7 @@ from typing import List
 from django import forms
 from django.contrib.auth.models import User
 
-from ...cases.models import TEST_TYPE_CHOICES, Case
+from ...cases.models import Case
 from ..form_extract_utils import FieldLabelAndValue, extract_form_labels_and_values
 from ..forms import (
     AMPAuditorModelChoiceField,
@@ -34,7 +34,9 @@ class CaseForm(forms.ModelForm):
 
     auditor = AMPAuditorModelChoiceField(label=AUDITOR_LABEL)
     sector = AMPModelChoiceField(label=SECTOR_LABEL, queryset=Sector.objects.all())
-    test_type = AMPChoiceRadioField(label=TEST_TYPE_LABEL, choices=TEST_TYPE_CHOICES)
+    test_type = AMPChoiceRadioField(
+        label=TEST_TYPE_LABEL, choices=Case.TestType.choices
+    )
     home_page_url = AMPURLField(
         label=HOME_PAGE_URL_LABEL,
         help_text="Enter if test type is simplified or detailed",

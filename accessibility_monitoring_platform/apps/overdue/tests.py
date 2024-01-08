@@ -18,7 +18,7 @@ from ..cases.views import (
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
 )
-from ..common.models import BOOLEAN_TRUE
+from ..common.models import Boolean
 from .utils import get_overdue_cases
 
 TODAY = date.today()
@@ -43,7 +43,7 @@ def create_case(user: User) -> Case:
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         report_draft_url="https://www.report-draft.com",
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         reviewer=user,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_final_pdf_url="https://www.report-pdf.com",

@@ -30,7 +30,7 @@ from ...cases.models import (
     CaseEvent,
 )
 from ...cases.utils import create_case_and_compliance
-from ...common.models import BOOLEAN_TRUE
+from ...common.models import Boolean
 from ...s3_read_write.models import S3Report
 from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
 
@@ -356,7 +356,7 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -383,7 +383,7 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -404,7 +404,7 @@ def test_report_next_step_for_case_report_approved(admin_client):
     Test report next step for case report approved status is 'yes'
     """
     case: Case = Case.objects.create(
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     Audit.objects.create(case=case)
@@ -428,7 +428,7 @@ def test_report_next_step_for_published_report_out_of_date(admin_client):
     Test report next step for published report is out of date
     """
     case: Case = Case.objects.create(
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     audit: Audit = Audit.objects.create(case=case)
@@ -455,7 +455,7 @@ def test_report_next_step_for_published_report(admin_client):
     Test report next step for published report
     """
     case: Case = Case.objects.create(
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     Audit.objects.create(case=case)
@@ -478,7 +478,7 @@ def test_report_next_step_default(admin_client):
     Test report next stepdefault
     """
     case: Case = Case.objects.create(
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status="in-progress",
     )
     Audit.objects.create(case=case)
@@ -653,7 +653,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.home_page_url = "https://www.website.com"
     case.organisation_name = "org name"
     case.auditor = user
-    case.report_review_status = BOOLEAN_TRUE
+    case.report_review_status = Boolean.YES
     case.compliance.statement_compliance_state_initial = (
         STATEMENT_COMPLIANCE_STATE_COMPLIANT
     )

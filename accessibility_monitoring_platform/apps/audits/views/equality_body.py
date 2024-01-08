@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
 from ...cases.models import Case
-from ...common.models import BOOLEAN_FALSE, BOOLEAN_TRUE
+from ...common.models import Boolean
 from ...common.utils import record_model_create_event, record_model_update_event
 from ..forms import (
     RetestCheckResultFormset,
@@ -106,9 +106,9 @@ class RetestPageChecksFormView(UpdateView):
         if "missing_date" in form.changed_data:
             retest_page: RetestPage = self.object
             if form.cleaned_data["missing_date"]:
-                retest_page.page.not_found = BOOLEAN_TRUE
+                retest_page.page.not_found = Boolean.YES
             else:
-                retest_page.page.not_found = BOOLEAN_FALSE
+                retest_page.page.not_found = Boolean.NO
             retest_page.page.save()
 
         retest_check_results_formset: RetestCheckResultFormset = context[

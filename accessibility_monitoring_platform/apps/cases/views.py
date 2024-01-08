@@ -31,7 +31,7 @@ from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
 )
-from ..common.models import BOOLEAN_TRUE
+from ..common.models import Boolean
 from ..common.utils import (
     amp_format_date,
     check_dict_for_truthy_values,
@@ -71,7 +71,6 @@ from .forms import (
     PostCaseUpdateForm,
 )
 from .models import (
-    CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE,
     EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
     EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
     Case,
@@ -204,7 +203,11 @@ class CaseDetailView(DetailView):
         context["equality_body_metadata_rows"] = get_case_rows(
             form=CaseEqualityBodyMetadataUpdateForm()
         )
-        if case.variant in ["archived", "reporting", "statement-content"]:
+        if case.variant in [
+            Case.Variant.ARCHIVED,
+            Case.Variant.REPORTING,
+            Case.Variant.STATEMENT_CONTENT,
+        ]:
             context["legacy_end_of_case_rows"] = get_case_rows(
                 form=PostCaseUpdateForm()
             )
@@ -745,7 +748,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         """Work out url to redirect to on success"""
         case: Case = self.object
         case_pk: Dict[str, int] = {"pk": case.id}
-        if case.no_psb_contact == BOOLEAN_TRUE:
+        if case.no_psb_contact == Boolean.YES:
             return reverse("cases:edit-case-close", kwargs=case_pk)
         return reverse("cases:edit-report-correspondence", kwargs=case_pk)
 
@@ -796,7 +799,7 @@ class CaseCloseUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}
-            if case.variant == CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE:
+            if case.variant == Case.Variant.CLOSE_CASE:
                 return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
             else:
                 return reverse("cases:edit-equality-body-metadata", kwargs=case_pk)
@@ -950,7 +953,7 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}
-            if case.variant == CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE:
+            if case.variant == Case.Variant.CLOSE_CASE:
                 return reverse(
                     "cases:list-equality-body-correspondence", kwargs=case_pk
                 )

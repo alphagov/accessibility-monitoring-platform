@@ -11,14 +11,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 
-BOOLEAN_DEFAULT: str = "no"
-BOOLEAN_FALSE: str = BOOLEAN_DEFAULT
-BOOLEAN_TRUE: str = "yes"
-BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    (BOOLEAN_TRUE, "Yes"),
-    (BOOLEAN_FALSE, "No"),
-]
-
 EVENT_TYPE_DEFAULT: str = "model_update"
 EVENT_TYPE_MODEL_UPDATE: str = EVENT_TYPE_DEFAULT
 EVENT_TYPE_MODEL_CREATE: str = "model_create"
@@ -38,6 +30,11 @@ Placeholder for platform."""
 MORE_INFORMATION_ABOUT_MONITORING_DEFAULT: str = """# More Information
 
 More information about monitoring placeholder"""
+
+
+class Boolean(models.TextChoices):
+    YES = "yes"
+    NO = "no"
 
 
 class StartEndDateManager(models.Manager):

@@ -16,7 +16,7 @@ from ..common.forms import (
     AMPNewPasswordField,
     AMPPasswordField,
 )
-from ..common.models import BOOLEAN_CHOICES
+from ..common.models import Boolean
 from .models import AllowedEmail
 
 
@@ -90,14 +90,14 @@ class UserUpdateForm(forms.ModelForm):
 
     email_notifications = AMPChoiceCheckboxField(
         label="Enable email notifications?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the checkbox to enable email notifications"}
         ),
     )
     enable_2fa = AMPChoiceCheckboxField(
         label="Enable two-factor authentication?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the checkbox to enable two-factor authentication"}
         ),
