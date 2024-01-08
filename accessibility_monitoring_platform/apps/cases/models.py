@@ -146,14 +146,6 @@ RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
     (RECOMMENDATION_DEFAULT, "Not selected"),
 ]
 
-REPORT_APPROVED_STATUS_DEFAULT: str = "not-started"
-REPORT_APPROVED_STATUS_APPROVED: str = "yes"
-REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_APPROVED_STATUS_APPROVED, "Yes"),
-    ("in-progress", "Further work is needed"),
-    (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
-]
-
 TWELVE_WEEK_RESPONSE_DEFAULT = "not-selected"
 TWELVE_WEEK_RESPONSE_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
@@ -291,6 +283,11 @@ class Case(VersionModel):
     Model for Case
     """
 
+    class ReportApprovedStatus(models.TextChoices):
+        APPROVED = "yes", "Yes"
+        IN_PROGRESS = "in-progress", "Further work is needed"
+        NOT_STARTED = "not-started", "Not started"
+
     archive = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
@@ -372,8 +369,8 @@ class Case(VersionModel):
     )
     report_approved_status = models.CharField(
         max_length=200,
-        choices=REPORT_APPROVED_STATUS_CHOICES,
-        default=REPORT_APPROVED_STATUS_DEFAULT,
+        choices=ReportApprovedStatus.choices,
+        default=ReportApprovedStatus.NOT_STARTED,
     )
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_pdf_url = models.TextField(default="", blank=True)
@@ -592,17 +589,17 @@ class Case(VersionModel):
         if (
             self.reviewer is None
             and self.report_review_status == BOOLEAN_TRUE
-            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
+            and self.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
             return QA_STATUS_UNASSIGNED
         elif (
             self.report_review_status == BOOLEAN_TRUE
-            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
+            and self.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
             return QA_STATUS_IN_QA
         elif (
             self.report_review_status == BOOLEAN_TRUE
-            and self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            and self.report_approved_status == Case.ReportApprovedStatus.APPROVED
         ):
             return QA_STATUS_QA_APPROVED
         return QA_STATUS_UNKNOWN
@@ -1007,11 +1004,11 @@ class CaseStatus(models.Model):
             return "report-in-progress"
         elif (
             self.case.report_review_status == BOOLEAN_TRUE
-            and self.case.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
+            and self.case.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
             return STATUS_QA_IN_PROGRESS
         elif (
-            self.case.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            self.case.report_approved_status == Case.ReportApprovedStatus.APPROVED
             and self.case.report_sent_date is None
         ):
             return "report-ready-to-send"

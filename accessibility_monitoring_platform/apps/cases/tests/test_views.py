@@ -52,7 +52,6 @@ from ..models import (
     CASE_EVENT_TYPE_CREATE,
     EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
     EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
-    REPORT_APPROVED_STATUS_APPROVED,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
@@ -2032,7 +2031,7 @@ def test_qa_process_approval_notifies_auditor(rf):
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
         {
             "version": case.version,
-            "report_approved_status": REPORT_APPROVED_STATUS_APPROVED,
+            "report_approved_status": Case.ReportApprovedStatus.APPROVED,
             "save": "Button value",
         },
     )
@@ -2688,7 +2687,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "cases:edit-qa-process",
             "Report approved needs to be Yes",
             "report_approved_status",
-            REPORT_APPROVED_STATUS_APPROVED,
+            Case.ReportApprovedStatus.APPROVED,
         ),
         (
             "cases:edit-report-correspondence",

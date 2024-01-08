@@ -74,7 +74,6 @@ from .models import (
     CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE,
     EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
     EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
-    REPORT_APPROVED_STATUS_APPROVED,
     Case,
     Contact,
     EqualityBodyCorrespondence,
@@ -421,7 +420,7 @@ class CaseQAProcessUpdateView(CaseUpdateView):
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Notify auditor if case has been QA approved."""
         if form.changed_data and "report_approved_status" in form.changed_data:
-            if self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED:
+            if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
                 case: Case = self.object
                 if case.auditor:
                     add_notification(

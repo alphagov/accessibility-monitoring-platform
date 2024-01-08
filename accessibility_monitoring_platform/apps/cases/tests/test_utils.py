@@ -26,7 +26,6 @@ from ..models import (
     CASE_EVENT_READY_FOR_QA,
     CASE_EVENT_TYPE_CREATE,
     EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
-    REPORT_APPROVED_STATUS_APPROVED,
     Case,
     CaseCompliance,
     CaseEvent,
@@ -622,7 +621,7 @@ def test_download_cases():
             "Report ready to be reviewed changed from 'No' to 'Yes'",
         ),
         (
-            {"report_approved_status": REPORT_APPROVED_STATUS_APPROVED},
+            {"report_approved_status": Case.ReportApprovedStatus.APPROVED},
             {},
             CASE_EVENT_APPROVE_REPORT,
             "Report approved changed from 'Not started' to 'Yes'",

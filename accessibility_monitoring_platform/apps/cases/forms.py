@@ -38,7 +38,6 @@ from .models import (
     PREFERRED_CHOICES,
     PSB_LOCATION_CHOICES,
     RECOMMENDATION_CHOICES,
-    REPORT_APPROVED_STATUS_CHOICES,
     STATUS_CHOICES,
     TWELVE_WEEK_RESPONSE_CHOICES,
     Case,
@@ -297,7 +296,7 @@ class CaseQAProcessUpdateForm(VersionForm):
     )
     report_approved_status = AMPChoiceRadioField(
         label="Report approved?",
-        choices=REPORT_APPROVED_STATUS_CHOICES,
+        choices=Case.ReportApprovedStatus.choices,
         help_text="This field affects the case status",
     )
     report_final_odt_url = AMPURLField(label="Link to final ODT report")

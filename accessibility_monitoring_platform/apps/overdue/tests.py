@@ -9,7 +9,6 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains
 
 from ..cases.models import (
-    REPORT_APPROVED_STATUS_APPROVED,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
@@ -46,7 +45,7 @@ def create_case(user: User) -> Case:
         report_draft_url="https://www.report-draft.com",
         report_review_status=BOOLEAN_TRUE,
         reviewer=user,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_final_pdf_url="https://www.report-pdf.com",
         report_final_odt_url="https://www.report-odt.com",
     )

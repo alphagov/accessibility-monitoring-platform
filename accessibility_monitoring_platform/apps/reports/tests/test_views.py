@@ -24,7 +24,6 @@ from ...audits.models import (
 from ...audits.utils import report_data_updated
 from ...cases.models import (
     CASE_EVENT_CREATE_REPORT,
-    REPORT_APPROVED_STATUS_APPROVED,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
@@ -406,7 +405,7 @@ def test_report_next_step_for_case_report_approved(admin_client):
     """
     case: Case = Case.objects.create(
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -430,7 +429,7 @@ def test_report_next_step_for_published_report_out_of_date(admin_client):
     """
     case: Case = Case.objects.create(
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     audit: Audit = Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -457,7 +456,7 @@ def test_report_next_step_for_published_report(admin_client):
     """
     case: Case = Case.objects.create(
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -579,7 +578,7 @@ def test_approved_report_confirm_publish_does_not_ask_for_approval(admin_client)
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     case: Case = report.case
-    case.report_approved_status = REPORT_APPROVED_STATUS_APPROVED
+    case.report_approved_status = Case.ReportApprovedStatus.APPROVED
     case.save()
 
     response: HttpResponse = admin_client.get(

@@ -15,7 +15,6 @@ from ..models import (
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
-    REPORT_APPROVED_STATUS_APPROVED,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
@@ -119,7 +118,7 @@ def test_case_status_report_ready_to_send(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     assert case.status.status == "report-ready-to-send"
 
@@ -138,7 +137,7 @@ def test_case_status_in_report_correspondence(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
     )
     assert case.status.status == "in-report-correspondence"
@@ -158,7 +157,7 @@ def test_case_status_when_no_psb_contact(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         no_psb_contact=BOOLEAN_TRUE,
     )
     assert case.status.status == "final-decision-due"
@@ -178,7 +177,7 @@ def test_case_status_in_probation_period(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
     )
@@ -199,7 +198,7 @@ def test_case_status_in_12_week_correspondence(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
@@ -221,7 +220,7 @@ def test_case_status_reviewing_changes(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
@@ -244,7 +243,7 @@ def test_case_status_final_decision_due(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
@@ -268,7 +267,7 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
@@ -292,7 +291,7 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
@@ -317,7 +316,7 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
@@ -343,7 +342,7 @@ def test_case_status_equality_bodies_complete(admin_client):
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
@@ -418,7 +417,7 @@ def test_case_qa_status_qa_approved():
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         reviewer=user2,
     )
     assert case.qa_status == "qa-approved"
