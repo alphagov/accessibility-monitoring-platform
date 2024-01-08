@@ -126,13 +126,6 @@ RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
     (RECOMMENDATION_DEFAULT, "Not selected"),
 ]
 
-TWELVE_WEEK_RESPONSE_DEFAULT = "not-selected"
-TWELVE_WEEK_RESPONSE_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (TWELVE_WEEK_RESPONSE_DEFAULT, "Not selected"),
-]
-
 IS_DISPROPORTIONATE_CLAIMED_DEFAULT: str = "unknown"
 IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
@@ -275,6 +268,11 @@ class Case(VersionModel):
         IN_PROGRESS = "in-progress", "Further work is needed"
         NOT_STARTED = "not-started", "Not started"
 
+    class TwelveWeekResponse(models.TextChoices):
+        YES = "yes"
+        NO = "no"
+        NOT_SELECTED = "not-selected", "Not selected"
+
     archive = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
@@ -397,8 +395,8 @@ class Case(VersionModel):
     twelve_week_correspondence_notes = models.TextField(default="", blank=True)
     twelve_week_response_state = models.CharField(
         max_length=20,
-        choices=TWELVE_WEEK_RESPONSE_CHOICES,
-        default=TWELVE_WEEK_RESPONSE_DEFAULT,
+        choices=TwelveWeekResponse.choices,
+        default=TwelveWeekResponse.NOT_SELECTED,
     )
     twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
 
@@ -1008,12 +1006,12 @@ class CaseStatus(models.Model):
             return "in-probation-period"
         elif self.case.twelve_week_update_requested_date and (
             self.case.twelve_week_correspondence_acknowledged_date is None
-            and self.case.twelve_week_response_state == TWELVE_WEEK_RESPONSE_DEFAULT
+            and self.case.twelve_week_response_state == TwelveWeekResponse.NOT_SELECTED
         ):
             return "in-12-week-correspondence"
         elif (
             self.case.twelve_week_correspondence_acknowledged_date
-            or self.case.twelve_week_response_state != TWELVE_WEEK_RESPONSE_DEFAULT
+            or self.case.twelve_week_response_state != TwelveWeekResponse.NOT_SELECTED
         ) and self.case.is_ready_for_final_decision == Boolean.NO:
             return "reviewing-changes"
         elif (

@@ -36,7 +36,6 @@ from .models import (
     PREFERRED_CHOICES,
     RECOMMENDATION_CHOICES,
     STATUS_CHOICES,
-    TWELVE_WEEK_RESPONSE_CHOICES,
     Boolean,
     Case,
     Contact,
@@ -455,7 +454,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
     twelve_week_response_state = AMPChoiceRadioField(
         label="Mark the case as having no response to 12 week deadline",
         help_text="This field affects the case status",
-        choices=TWELVE_WEEK_RESPONSE_CHOICES,
+        choices=Case.TwelveWeekResponse.choices,
     )
     twelve_week_correspondence_complete_date = AMPDatePageCompleteField()
 
