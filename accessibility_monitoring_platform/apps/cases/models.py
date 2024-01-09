@@ -1006,12 +1006,14 @@ class CaseStatus(models.Model):
             return "in-probation-period"
         elif self.case.twelve_week_update_requested_date and (
             self.case.twelve_week_correspondence_acknowledged_date is None
-            and self.case.twelve_week_response_state == TwelveWeekResponse.NOT_SELECTED
+            and self.case.twelve_week_response_state
+            == Case.TwelveWeekResponse.NOT_SELECTED
         ):
             return "in-12-week-correspondence"
         elif (
             self.case.twelve_week_correspondence_acknowledged_date
-            or self.case.twelve_week_response_state != TwelveWeekResponse.NOT_SELECTED
+            or self.case.twelve_week_response_state
+            != Case.TwelveWeekResponse.NOT_SELECTED
         ) and self.case.is_ready_for_final_decision == Boolean.NO:
             return "reviewing-changes"
         elif (
