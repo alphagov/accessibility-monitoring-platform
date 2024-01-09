@@ -151,38 +151,6 @@
                             {% include 'cases/details/contact_details.html' %}
                         </div>
                     </div>
-                    <div class="govuk-accordion__section" data-search-target-page-name="Report correspondence" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-report-correspondence' case.id %}">
-                        <div class="govuk-accordion__section-header">
-                            <h2 id="report-correspondence" class="govuk-accordion__section-heading">
-                                <span class="govuk-accordion__section-button" id="accordion-heading-report-correspondence">
-                                    Report correspondence
-                                    {% if case.report_correspondence_complete_date %}
-                                        <span class="govuk-visually-hidden">complete</span>
-                                        &check;
-                                    {% endif %}
-                                </span>
-                            </h2>
-                        </div>
-                        <div id="accordion-content-report-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-report-correspondence">
-                            {% include 'cases/details/report_correspondence.html' %}
-                        </div>
-                    </div>
-                    <div class="govuk-accordion__section" data-search-target-page-name="12-week correspondence" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-twelve-week-correspondence' case.id %}">
-                        <div class="govuk-accordion__section-header">
-                            <h2 id="twelve-week-correspondence" class="govuk-accordion__section-heading">
-                                <span class="govuk-accordion__section-button" id="accordion-heading-twelve-week-correspondence">
-                                    12-week correspondence
-                                    {% if case.twelve_week_correspondence_complete_date %}
-                                        <span class="govuk-visually-hidden">complete</span>
-                                        &check;
-                                    {% endif %}
-                                </span>
-                            </h2>
-                        </div>
-                        <div id="accordion-content-twelve-week-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-correspondence">
-                            {% include 'cases/details/twelve_week_correspondence.html' %}
-                        </div>
-                    </div>
                     <div class="govuk-accordion__section"{% if case.audit %} data-search-target-page-name="View 12-week test" data-search-target-label="View 12-week test" data-search-target-url="{% url 'audits:audit-retest-detail' case.audit.id %}"{% endif %}>
                         <div class="govuk-accordion__section-header">
                             <h2 id="twelve-week-retest" class="govuk-accordion__section-heading">

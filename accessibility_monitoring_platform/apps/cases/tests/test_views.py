@@ -1017,36 +1017,6 @@ def test_updating_case_creates_case_event(admin_client):
             "cases:edit-twelve-week-retest",
         ),
         (
-            "cases:edit-report-correspondence",
-            "save",
-            "cases:edit-report-correspondence",
-        ),
-        (
-            "cases:edit-report-correspondence",
-            "save_continue",
-            "cases:edit-twelve-week-correspondence",
-        ),
-        (
-            "cases:edit-report-followup-due-dates",
-            "save_return",
-            "cases:edit-report-correspondence",
-        ),
-        (
-            "cases:edit-twelve-week-correspondence",
-            "save",
-            "cases:edit-twelve-week-correspondence",
-        ),
-        (
-            "cases:edit-twelve-week-correspondence",
-            "save_continue",
-            "cases:edit-twelve-week-retest",
-        ),
-        (
-            "cases:edit-twelve-week-correspondence-due-dates",
-            "save_return",
-            "cases:edit-twelve-week-correspondence",
-        ),
-        (
             "cases:edit-no-psb-response",
             "save",
             "cases:edit-find-contact-details",
@@ -1303,7 +1273,7 @@ def test_updating_report_sent_date(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -1491,101 +1461,6 @@ def test_case_report_twelve_week_1_week_chaser_contains_followup_due_date(admin_
     )
 
 
-def test_case_report_correspondence_view_contains_followup_due_dates(admin_client):
-    """Test that the case report correspondence view contains the followup due dates"""
-    case: Case = Case.objects.create(
-        report_followup_week_1_due_date=ONE_WEEK_FOLLOWUP_DUE_DATE,
-        report_followup_week_4_due_date=FOUR_WEEK_FOLLOWUP_DUE_DATE,
-        report_followup_week_12_due_date=TWELVE_WEEK_FOLLOWUP_DUE_DATE,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id})
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"Due {amp_format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}",
-    )
-    assertContains(
-        response,
-        f"{amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}",
-    )
-    assertContains(
-        response,
-        f"Due {amp_format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}",
-    )
-
-
-def test_setting_report_followup_populates_sent_dates(admin_client):
-    """Test that ticking the report followup checkboxes populates the report followup sent dates"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
-        {
-            "report_followup_week_1_sent_date": "on",
-            "report_followup_week_4_sent_date": "on",
-            "version": case.version,
-            "save": "Button value",
-        },
-    )
-    assert response.status_code == 302
-
-    case_from_db: Case = Case.objects.get(pk=case.id)
-
-    assert case_from_db.report_followup_week_1_sent_date == TODAY
-    assert case_from_db.report_followup_week_4_sent_date == TODAY
-
-
-def test_setting_report_followup_does_not_update_sent_dates(admin_client):
-    """Test that ticking the report followup checkboxes does not update the report followup sent dates"""
-    case: Case = Case.objects.create(
-        report_followup_week_1_sent_date=OTHER_DATE,
-        report_followup_week_4_sent_date=OTHER_DATE,
-    )
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
-        {
-            "report_followup_week_1_sent_date": "on",
-            "report_followup_week_4_sent_date": "on",
-            "version": case.version,
-            "save": "Button value",
-        },
-    )
-    assert response.status_code == 302
-
-    case_from_db: Case = Case.objects.get(pk=case.id)
-
-    assert case_from_db.report_followup_week_1_sent_date == OTHER_DATE
-    assert case_from_db.report_followup_week_4_sent_date == OTHER_DATE
-
-
-def test_unsetting_report_followup_sent_dates(admin_client):
-    """Test that not ticking the report followup checkboxes clears the report followup sent dates"""
-    case: Case = Case.objects.create(
-        report_followup_week_1_sent_date=OTHER_DATE,
-        report_followup_week_4_sent_date=OTHER_DATE,
-    )
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
-        {
-            "version": case.version,
-            "save": "Button value",
-        },
-    )
-    assert response.status_code == 302
-
-    case_from_db: Case = Case.objects.get(pk=case.id)
-
-    assert case_from_db.report_followup_week_1_sent_date is None
-    assert case_from_db.report_followup_week_4_sent_date is None
-
-
 def test_no_psb_response_redirects_to_case_close(admin_client):
     """Test no PSB response redirects to case closing"""
     case: Case = Case.objects.create(
@@ -1760,11 +1635,6 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "twelve_week_update_request_ack_complete_date",
             "12-week update request acknowledged",
             "edit-12-week-update-request-ack",
-        ),
-        (
-            "twelve_week_correspondence_complete_date",
-            "12-week correspondence",
-            "edit-twelve-week-correspondence",
         ),
         ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
         (
@@ -2198,8 +2068,6 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
         "edit-report-details",
         "edit-qa-process",
         "edit-contact-details",
-        "edit-report-correspondence",
-        "edit-twelve-week-correspondence",
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
@@ -2292,8 +2160,6 @@ def test_qa_process_approval_notifies_auditor(rf):
         ("zendesk_url", "edit-test-results"),
         ("trello_url", "edit-report-details"),
         ("trello_url", "edit-qa-process"),
-        ("zendesk_url", "edit-report-correspondence"),
-        ("trello_url", "edit-twelve-week-correspondence"),
         ("zendesk_url", "edit-review-changes"),
         ("zendesk_url", "edit-case-close"),
     ],
@@ -2401,10 +2267,10 @@ def test_updating_case_create_event(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
         {
             "version": case.version,
-            "report_correspondence_complete_date": "on",
+            "reporting_details_complete_date": "on",
             "save": "Button value",
         },
     )
@@ -2520,7 +2386,7 @@ def test_update_case_checks_version(admin_client):
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
         {
             "version": case.version - 1,
             "save": "Button value",
@@ -2550,8 +2416,6 @@ def test_update_case_checks_version(admin_client):
         "edit-report-details",
         "edit-qa-process",
         "edit-contact-details",
-        "edit-report-correspondence",
-        "edit-twelve-week-correspondence",
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
@@ -2584,36 +2448,6 @@ def test_platform_shows_notification_if_fully_compliant(
     )
 
 
-def test_platform_report_correspondence_shows_link_to_report_if_none_published(
-    admin_client,
-):
-    """
-    Test cases using platform-based reports show a link to report details if no
-    report has been published.
-    """
-    case: Case = Case.objects.create()
-    report: Report = Report.objects.create(case=case)
-    report_publisher_url: str = reverse(
-        "reports:report-publisher", kwargs={"pk": report.id}
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<p class="govuk-body-m">
-            A published report does not exist for this case. Publish report in
-            <a href="{report_publisher_url}" class="govuk-link govuk-link--no-visited-state">
-                Case > Report publisher
-            </a>
-        </p>""",
-        html=True,
-    )
-
-
 def test_non_platform_qa_process_shows_no_link_to_draft_report(admin_client):
     """
     Test that the QA process page shows that the link to report draft is none
@@ -2633,24 +2467,6 @@ def test_non_platform_qa_process_shows_no_link_to_draft_report(admin_client):
             <div class="govuk-hint">None</div>
         </div>""",
         html=True,
-    )
-
-
-def test_non_platform_report_correspondence_shows_no_link_to_report(admin_client):
-    """
-    Test cases using platform-based reports show no link to report details if no
-    report has been published.
-    """
-    case: Case = Case.objects.create()
-    Report.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-
-    assertNotContains(
-        response, "A published report does not exist for this case.", html=True
     )
 
 
@@ -2790,81 +2606,6 @@ def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     assertNotContains(response, "Link to final ODT report")
 
 
-def test_report_corespondence_shows_link_to_create_report(admin_client):
-    """
-    Test that the report correspondence page shows link to create report
-    if one does not exist.
-    """
-    case: Case = Case.objects.create()
-    report_details_url: str = reverse(
-        "cases:edit-report-details", kwargs={"pk": case.id}
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        f"""<p class="govuk-body-m">
-            A published report does not exist for this case. Create a report in
-            <a href="{report_details_url}" class="govuk-link govuk-link--no-visited-state">
-                Case > Report details
-            </a>
-        </p>""",
-        html=True,
-    )
-
-
-def test_twelve_week_correspondence_psb_contact(admin_client):
-    """
-    Test that the twelve week correspondence page shows full page when
-    contact has been made with the public sector body
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-correspondence", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertNotContains(
-        response,
-        "The public sector body has been as unresponsive to this case.",
-    )
-    assertContains(
-        response,
-        "12-week deadline",
-    )
-
-
-def test_twelve_week_correspondence_no_psb_contact(admin_client):
-    """
-    Test that the twelve week correspondence page shows small page when no
-    contact has been made with the public sector body
-    """
-    case: Case = Case.objects.create(no_psb_contact=BOOLEAN_TRUE)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-correspondence", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        "The public sector body has been as unresponsive to this case.",
-    )
-    assertNotContains(
-        response,
-        "Edit 12-week correspondence due dates",
-    )
-    assertNotContains(
-        response,
-        "12-week deadline",
-    )
-
-
 def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     """
     Test that the status workflow page ticks 'Assign an auditor' only
@@ -2923,38 +2664,8 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             REPORT_APPROVED_STATUS_APPROVED,
         ),
         (
-            "cases:edit-report-correspondence",
-            "Report sent on requires a date",
-            "report_sent_date",
-            TODAY,
-        ),
-        (
-            "cases:edit-report-correspondence",
-            "Report acknowledged requires a date",
-            "report_acknowledged_date",
-            TODAY,
-        ),
-        (
             "cases:edit-no-psb-response",
             "No response from PSB",
-            "no_psb_contact",
-            BOOLEAN_TRUE,
-        ),
-        (
-            "cases:edit-twelve-week-correspondence",
-            "12-week update requested requires a date",
-            "twelve_week_update_requested_date",
-            TODAY,
-        ),
-        (
-            "cases:edit-twelve-week-correspondence",
-            "12-week update received requires a date or mark the case as having no response",
-            "twelve_week_correspondence_acknowledged_date",
-            TODAY,
-        ),
-        (
-            "cases:edit-twelve-week-correspondence",
-            "12-week update received requires a date or mark the case as having no response",
             "no_psb_contact",
             BOOLEAN_TRUE,
         ),

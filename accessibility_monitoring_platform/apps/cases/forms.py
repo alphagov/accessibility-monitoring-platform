@@ -23,7 +23,6 @@ from ..common.forms import (
     AMPChoiceRadioField,
     AMPChoiceCheckboxField,
     AMPDateField,
-    AMPDateSentField,
     AMPDatePageCompleteField,
     AMPDateRangeForm,
     AMPURLField,
@@ -593,45 +592,6 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
         ]
 
 
-class CaseReportCorrespondenceUpdateForm(VersionForm):
-    """
-    Form for updating report correspondence details
-    """
-
-    seven_day_no_contact_email_sent_date = AMPDateField(
-        label="Seven day 'no contact details' email sent",
-    )
-    report_sent_date = AMPDateField(
-        label="Report sent on", help_text="This field affects the case status"
-    )
-    report_followup_week_1_sent_date = AMPDateSentField(
-        label="1-week followup to report date"
-    )
-    report_followup_week_4_sent_date = AMPDateSentField(
-        label="4-week followup to report date"
-    )
-    report_acknowledged_date = AMPDateField(
-        label="Report acknowledged", help_text="This field affects the case status"
-    )
-    zendesk_url = AMPURLField(label="Zendesk ticket URL")
-    correspondence_notes = AMPTextField(label="Correspondence notes")
-    report_correspondence_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "seven_day_no_contact_email_sent_date",
-            "report_sent_date",
-            "report_followup_week_1_sent_date",
-            "report_followup_week_4_sent_date",
-            "report_acknowledged_date",
-            "zendesk_url",
-            "correspondence_notes",
-            "report_correspondence_complete_date",
-        ]
-
-
 class CaseReportFollowupDueDatesUpdateForm(VersionForm):
     """
     Form for updating report followup due dates
@@ -674,42 +634,6 @@ class CaseNoPSBContactUpdateForm(VersionForm):
             "version",
             "no_psb_contact",
             "no_psb_contact_notes",
-        ]
-
-
-class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
-    """
-    Form for updating week twelve correspondence details
-    """
-
-    twelve_week_update_requested_date = AMPDateField(
-        label="12-week update requested",
-        help_text="Enter todays date if PSB sends an update before the deadline<br>This field affects the case status",
-    )
-    twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1-week followup")
-    twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12-week update received", help_text="This field affects the case status"
-    )
-    twelve_week_correspondence_notes = AMPTextField(
-        label="12-week correspondence notes"
-    )
-    twelve_week_response_state = AMPChoiceRadioField(
-        label="Mark the case as having no response to 12 week deadline",
-        help_text="This field affects the case status",
-        choices=Case.TwelveWeekResponse.choices,
-    )
-    twelve_week_correspondence_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "twelve_week_update_requested_date",
-            "twelve_week_1_week_chaser_sent_date",
-            "twelve_week_correspondence_acknowledged_date",
-            "twelve_week_correspondence_notes",
-            "twelve_week_response_state",
-            "twelve_week_correspondence_complete_date",
         ]
 
 

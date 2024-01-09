@@ -70,11 +70,7 @@ from .forms import (
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
     CaseQAProcessUpdateForm,
-    CaseReportCorrespondenceUpdateForm,
-    CaseReportFollowupDueDatesUpdateForm,
     CaseNoPSBContactUpdateForm,
-    CaseTwelveWeekCorrespondenceUpdateForm,
-    CaseTwelveWeekCorrespondenceDueDatesUpdateForm,
     CaseTwelveWeekRetestUpdateForm,
     CaseReviewChangesUpdateForm,
     CaseCloseUpdateForm,
@@ -95,14 +91,12 @@ from .forms import (
     CaseTwelveWeekUpdateAcknowledgedUpdateForm,
 )
 from .utils import (
-    get_sent_date,
     download_equality_body_cases,
     download_feedback_survey_cases,
     filter_cases,
     replace_search_key_with_case_search,
     download_cases,
     record_case_event,
-    build_edit_link_html,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -615,7 +609,7 @@ class CaseReportSentOnUpdateView(CaseUpdateView):
     form_class: Type[CaseReportSentOnUpdateForm] = CaseReportSentOnUpdateForm
     template_name: str = "cases/forms/report_sent_on.html"
 
-    def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
+    def form_valid(self, form: CaseReportSentOnUpdateForm):
         """
         Recalculate followup dates if report sent date has changed;
         Otherwise set sent dates based on followup date checkboxes.
@@ -707,7 +701,7 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
     ] = CaseTwelveWeekUpdateRequestedUpdateForm
     template_name: str = "cases/forms/12_week_update_requested.html"
 
-    def form_valid(self, form: CaseTwelveWeekCorrespondenceUpdateForm):
+    def form_valid(self, form: CaseTwelveWeekUpdateRequestedUpdateForm):
         """
         Recalculate chaser dates if twelve week update requested date has changed;
         Otherwise set sent dates based on chaser date checkboxes.
@@ -773,157 +767,6 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
                 "cases:edit-twelve-week-retest", kwargs={"pk": self.object.id}
             )
         return super().get_success_url()
-
-
-class CaseReportCorrespondenceUpdateView(CaseUpdateView):
-    """
-    View to update case post report details
-    """
-
-    form_class: Type[
-        CaseReportCorrespondenceUpdateForm
-    ] = CaseReportCorrespondenceUpdateForm
-    template_name: str = "cases/forms/report_correspondence.html"
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(get_report_visits_metrics(self.object))
-        return context
-
-    def get_form(self):
-        """Populate help text with dates"""
-        form = super().get_form()
-        case: Case = form.instance
-        edit_link_html: str = build_edit_link_html(
-            case=form.instance, url_name="cases:edit-report-followup-due-dates"
-        )
-
-        form.fields[
-            "report_followup_week_1_sent_date"
-        ].help_text = f"{format_due_date_help_text(case.report_followup_week_1_due_date)} | {edit_link_html}"
-        form.fields[
-            "report_followup_week_4_sent_date"
-        ].help_text = f"{format_due_date_help_text(case.report_followup_week_4_due_date)} | {edit_link_html}"
-        return form
-
-    def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
-        """
-        Recalculate followup dates if report sent date has changed;
-        Otherwise set sent dates based on followup date checkboxes.
-        """
-        self.object: Case = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)
-        if "report_sent_date" in form.changed_data:
-            self.object = calculate_report_followup_dates(
-                case=self.object, report_sent_date=form.cleaned_data["report_sent_date"]
-            )
-        else:
-            for sent_date_name in [
-                "report_followup_week_1_sent_date",
-                "report_followup_week_4_sent_date",
-            ]:
-                setattr(
-                    self.object,
-                    sent_date_name,
-                    get_sent_date(form, case_from_db, sent_date_name),
-                )
-        return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
-    """
-    View to update report followup due dates
-    """
-
-    form_class: Type[
-        CaseReportFollowupDueDatesUpdateForm
-    ] = CaseReportFollowupDueDatesUpdateForm
-    template_name: str = "cases/forms/report_followup_due_dates.html"
-
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}
-        return reverse("cases:edit-report-correspondence", kwargs=case_pk)
-
-
-class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
-    """
-    View to record week twelve correspondence details
-    """
-
-    form_class: Type[
-        CaseTwelveWeekCorrespondenceUpdateForm
-    ] = CaseTwelveWeekCorrespondenceUpdateForm
-    template_name: str = "cases/forms/twelve_week_correspondence.html"
-
-    def get_form(self):
-        """Populate help text with dates"""
-        form = super().get_form()
-        edit_link_html: str = build_edit_link_html(
-            case=form.instance,
-            url_name="cases:edit-twelve-week-correspondence-due-dates",
-        )
-        form.fields[
-            "twelve_week_1_week_chaser_sent_date"
-        ].help_text = f"{format_due_date_help_text(form.instance.twelve_week_1_week_chaser_due_date)} | {edit_link_html}"
-        return form
-
-    def form_valid(self, form: CaseTwelveWeekCorrespondenceUpdateForm):
-        """
-        Recalculate chaser dates if twelve week update requested date has changed;
-        Otherwise set sent dates based on chaser date checkboxes.
-        """
-        self.object: Case = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)
-        if "twelve_week_update_requested_date" in form.changed_data:
-            self.object = calculate_twelve_week_chaser_dates(
-                case=self.object,
-                twelve_week_update_requested_date=form.cleaned_data[
-                    "twelve_week_update_requested_date"
-                ],
-            )
-        else:
-            for sent_date_name in [
-                "twelve_week_1_week_chaser_sent_date",
-                "twelve_week_4_week_chaser_sent_date",
-            ]:
-                setattr(
-                    self.object,
-                    sent_date_name,
-                    get_sent_date(form, case_from_db, sent_date_name),
-                )
-        return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}
-            return reverse("cases:edit-twelve-week-retest", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
-    """
-    View to update twelve week correspondence followup due dates
-    """
-
-    form_class: Type[
-        CaseTwelveWeekCorrespondenceDueDatesUpdateForm
-    ] = CaseTwelveWeekCorrespondenceDueDatesUpdateForm
-    template_name: str = "cases/forms/twelve_week_correspondence_due_dates.html"
-
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}
-        return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
 
 
 class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):

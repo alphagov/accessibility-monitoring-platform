@@ -1,4 +1,4 @@
-""""
+"""
 Models - cases
 """
 from datetime import date, datetime, timedelta, timezone as datetime_timezone

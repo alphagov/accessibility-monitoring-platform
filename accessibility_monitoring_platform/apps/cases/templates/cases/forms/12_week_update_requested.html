@@ -15,6 +15,31 @@
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
                 {% include 'cases/helpers/correspondence_overview_detail.html' %}
+                {% if case.no_psb_contact == 'yes' %}
+                    <p class="govuk-body-m">
+                        The public sector body has been as unresponsive to this case.
+                        Progress to
+                        <a
+                            href="{% url 'cases:edit-twelve-week-retest' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state">Case > 12-week retest</a>.
+                    </p>
+                    <p class="govuk-body-m">
+                        If the PSB has since responded, untick Mark the PSB as unresponsive
+                        to this case in
+                        <a
+                            href="{% url 'cases:edit-no-psb-response' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state">Case > Report correspondence > Public sector body is unresponsive</a>.
+                    </p>
+                {% else %}
+                    <p class="govuk-body-m">
+                        <a
+                            href="{% url 'cases:twelve-week-correspondence-email' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            View email template
+                        </a>
+                    </p>
+                {% endif %}
                 <form method="post" action="{% url 'cases:edit-12-week-update-requested' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
