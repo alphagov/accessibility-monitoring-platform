@@ -416,6 +416,7 @@ class Case(VersionModel):
 
     # One week followup page
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
+    report_followup_week_1_due_date = models.DateField(null=True, blank=True)
     one_week_followup_sent_to_email = models.CharField(
         max_length=200, default="", blank=True
     )
@@ -423,6 +424,7 @@ class Case(VersionModel):
 
     # Four week followup page
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
+    report_followup_week_4_due_date = models.DateField(null=True, blank=True)
     four_week_followup_sent_to_email = models.CharField(
         max_length=200, default="", blank=True
     )
@@ -445,6 +447,7 @@ class Case(VersionModel):
 
     # One week followup for final update page
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_sent_to_email = models.CharField(
         max_length=200, default="", blank=True
     )
@@ -475,8 +478,6 @@ class Case(VersionModel):
     report_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Report followup dates page
-    report_followup_week_1_due_date = models.DateField(null=True, blank=True)
-    report_followup_week_4_due_date = models.DateField(null=True, blank=True)
     report_followup_week_12_due_date = models.DateField(null=True, blank=True)
 
     # Unable to send report or no response from public sector body page
@@ -487,10 +488,6 @@ class Case(VersionModel):
 
     # 12-week correspondence page
     twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
-
-    # 12-week correspondence dates
-    # report_followup_week_12_due_date from report followup dates page
-    twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
 
     # Twelve week retest
     twelve_week_retest_complete_date = models.DateField(null=True, blank=True)

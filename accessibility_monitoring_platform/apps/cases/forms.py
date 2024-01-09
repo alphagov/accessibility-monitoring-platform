@@ -434,6 +434,7 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
     report_followup_week_1_sent_date = AMPDateField(
         label="1-week followup to report date"
     )
+    report_followup_week_1_due_date = AMPDateField(label="")
     one_week_followup_sent_to_email = AMPCharFieldWide(
         label="One week followup sent to (email address)"
     )
@@ -445,6 +446,7 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
         fields = [
             "version",
             "report_followup_week_1_sent_date",
+            "report_followup_week_1_due_date",
             "one_week_followup_sent_to_email",
             "correspondence_notes",
             "one_week_followup_complete_date",
@@ -459,6 +461,7 @@ class CaseFourWeekFollowupUpdateForm(VersionForm):
     report_followup_week_4_sent_date = AMPDateField(
         label="4-week followup to report date"
     )
+    report_followup_week_4_due_date = AMPDateField(label="")
     four_week_followup_sent_to_email = AMPCharFieldWide(
         label="Four week followup sent to (email address)"
     )
@@ -470,6 +473,7 @@ class CaseFourWeekFollowupUpdateForm(VersionForm):
         fields = [
             "version",
             "report_followup_week_4_sent_date",
+            "report_followup_week_4_due_date",
             "four_week_followup_sent_to_email",
             "correspondence_notes",
             "four_week_followup_complete_date",
@@ -535,6 +539,7 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
     """
 
     twelve_week_1_week_chaser_sent_date = AMPDateField(label="1-week followup")
+    twelve_week_1_week_chaser_due_date = AMPDateField(label="")
     twelve_week_1_week_chaser_sent_to_email = AMPCharFieldWide(
         label="One week followup for final update sent to (email address)"
     )
@@ -548,6 +553,7 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
         fields = [
             "version",
             "twelve_week_1_week_chaser_sent_date",
+            "twelve_week_1_week_chaser_due_date",
             "twelve_week_1_week_chaser_sent_to_email",
             "twelve_week_correspondence_notes",
             "one_week_followup_final_complete_date",
