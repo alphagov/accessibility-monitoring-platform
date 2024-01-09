@@ -153,12 +153,6 @@ REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
     (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
 ]
 
-TWELVE_WEEK_RESPONSE_DEFAULT = "not-selected"
-TWELVE_WEEK_RESPONSE_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (TWELVE_WEEK_RESPONSE_DEFAULT, "Not selected"),
-]
 
 IS_DISPROPORTIONATE_CLAIMED_DEFAULT: str = "unknown"
 IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
@@ -289,20 +283,24 @@ CONTACT_DETAILS_FOUND_CHOICES: List[Tuple[str, str]] = [
     ("not-found", "No contact details found"),
     (CONTACT_DETAILS_FOUND_DEFAULT, "Not checked"),
 ]
-ORGANISATION_RESPONSE_DEFAULT: str = "not-applicable"
-ORGANISATION_RESPONSE_CHOICES: List[Tuple[str, str]] = [
-    ("no-response", "Organisation did not respond to 12-week update"),
-    (
-        ORGANISATION_RESPONSE_DEFAULT,
-        "Not applicable or organisation responded to 12-week update",
-    ),
-]
 
 
 class Case(VersionModel):
     """
     Model for Case
     """
+
+    class TwelveWeekResponse(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        NOT_SELECTED = "not-selected", "Not selected"
+
+    class OrganisationResponse(models.TextChoices):
+        NO_RESPONSE = "no-response", "Organisation did not respond to 12-week update"
+        NOT_APPLICABLE = (
+            "not-applicable",
+            "Not applicable or organisation responded to 12-week update",
+        )
 
     archive = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
@@ -459,10 +457,15 @@ class Case(VersionModel):
     twelve_week_correspondence_acknowledged_by_email = models.CharField(
         max_length=200, default="", blank=True
     )
+    twelve_week_response_state = models.CharField(
+        max_length=20,
+        choices=TwelveWeekResponse.choices,
+        default=TwelveWeekResponse.NOT_SELECTED,
+    )
     organisation_response = models.CharField(
         max_length=20,
-        choices=ORGANISATION_RESPONSE_CHOICES,
-        default=ORGANISATION_RESPONSE_DEFAULT,
+        choices=OrganisationResponse.choices,
+        default=OrganisationResponse.NOT_APPLICABLE,
     )
     twelve_week_update_request_ack_complete_date = models.DateField(
         null=True, blank=True
@@ -483,11 +486,6 @@ class Case(VersionModel):
     no_psb_contact_notes = models.TextField(default="", blank=True)
 
     # 12-week correspondence page
-    twelve_week_response_state = models.CharField(
-        max_length=20,
-        choices=TWELVE_WEEK_RESPONSE_CHOICES,
-        default=TWELVE_WEEK_RESPONSE_DEFAULT,
-    )
     twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # 12-week correspondence dates
@@ -1103,12 +1101,14 @@ class CaseStatus(models.Model):
             return "in-probation-period"
         elif self.case.twelve_week_update_requested_date and (
             self.case.twelve_week_correspondence_acknowledged_date is None
-            and self.case.twelve_week_response_state == TWELVE_WEEK_RESPONSE_DEFAULT
+            and self.case.twelve_week_response_state
+            == Case.TwelveWeekResponse.NOT_SELECTED
         ):
             return "in-12-week-correspondence"
         elif (
             self.case.twelve_week_correspondence_acknowledged_date
-            or self.case.twelve_week_response_state != TWELVE_WEEK_RESPONSE_DEFAULT
+            or self.case.twelve_week_response_state
+            != Case.TwelveWeekResponse.NOT_SELECTED
         ) and self.case.is_ready_for_final_decision == BOOLEAN_FALSE:
             return "reviewing-changes"
         elif (

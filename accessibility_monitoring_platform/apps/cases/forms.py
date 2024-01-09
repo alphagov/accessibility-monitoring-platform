@@ -38,7 +38,6 @@ from .models import (
     CASE_COMPLETED_CHOICES,
     BOOLEAN_CHOICES,
     PREFERRED_CHOICES,
-    TWELVE_WEEK_RESPONSE_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     ENFORCEMENT_BODY_CLOSED_CHOICES,
     PSB_LOCATION_CHOICES,
@@ -47,7 +46,6 @@ from .models import (
     EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
     EQUALITY_BODY_CORRESPONDENCE_QUESTION,
     CONTACT_DETAILS_FOUND_CHOICES,
-    ORGANISATION_RESPONSE_CHOICES,
 )
 
 status_choices = STATUS_CHOICES
@@ -570,7 +568,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
     organisation_response = AMPChoiceRadioField(
         label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’",
         help_text="This field affects the case status",
-        choices=ORGANISATION_RESPONSE_CHOICES,
+        choices=Case.OrganisationResponse.choices,
     )
     twelve_week_correspondence_notes = AMPTextField(
         label="12-week correspondence notes"
@@ -692,7 +690,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
     twelve_week_response_state = AMPChoiceRadioField(
         label="Mark the case as having no response to 12 week deadline",
         help_text="This field affects the case status",
-        choices=TWELVE_WEEK_RESPONSE_CHOICES,
+        choices=Case.TwelveWeekResponse.choices,
     )
     twelve_week_correspondence_complete_date = AMPDatePageCompleteField()
 
