@@ -19,8 +19,6 @@ from ...audits.models import (
     WcagDefinition,
 )
 from ...cases.models import (
-    CASE_COMPLETED_NO_SEND,
-    RECOMMENDATION_NO_ACTION,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
@@ -516,7 +514,7 @@ def test_get_policy_total_metrics():
     )
     Case.objects.create(
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
-        case_completed=CASE_COMPLETED_NO_SEND,
+        case_completed=Case.CaseCompleted.COMPLETE_NO_SEND,
     )
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
@@ -572,7 +570,7 @@ def test_get_policy_progress_metrics(mock_datetime):
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
     case: Case = Case.objects.create(
-        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     audit: Audit = Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
@@ -625,7 +623,7 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
     case: Case = Case.objects.create(
-        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     audit: Audit = Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
@@ -706,7 +704,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
     case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
@@ -714,7 +712,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
     case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)

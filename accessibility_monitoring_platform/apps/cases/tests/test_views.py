@@ -46,8 +46,6 @@ from ...notifications.models import Notification
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
-    CASE_COMPLETED_NO_SEND,
-    CASE_COMPLETED_SEND,
     CASE_EVENT_CASE_COMPLETED,
     CASE_EVENT_TYPE_CREATE,
     EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
@@ -900,7 +898,7 @@ def test_updating_case_creates_case_event(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-case-close", kwargs={"pk": case.id}),
         {
-            "case_completed": CASE_COMPLETED_NO_SEND,
+            "case_completed": Case.CaseCompleted.COMPLETE_NO_SEND,
             "version": case.version,
             "save": "Button value",
         },
@@ -2737,7 +2735,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "cases:edit-case-close",
             "Case completed requires a decision",
             "case_completed",
-            CASE_COMPLETED_SEND,
+            Case.CaseCompleted.COMPLETE_SEND,
         ),
     ],
 )

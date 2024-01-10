@@ -10,10 +10,6 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains
 
 from ..models import (
-    CASE_COMPLETED_NO_SEND,
-    CASE_COMPLETED_SEND,
-    ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
-    ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Boolean,
@@ -272,7 +268,7 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
-        case_completed=CASE_COMPLETED_SEND,
+        case_completed=Case.CaseCompleted.COMPLETE_SEND,
     )
     assert case.status.status == "case-closed-waiting-to-be-sent"
 
@@ -296,7 +292,7 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
-        case_completed=CASE_COMPLETED_SEND,
+        case_completed=Case.CaseCompleted.COMPLETE_SEND,
         sent_to_enforcement_body_sent_date=datetime.now(),
     )
     assert case.status.status == "case-closed-sent-to-equalities-body"
@@ -321,9 +317,9 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
-        case_completed=CASE_COMPLETED_SEND,
+        case_completed=Case.CaseCompleted.COMPLETE_SEND,
         sent_to_enforcement_body_sent_date=datetime.now(),
-        enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
+        enforcement_body_pursuing=Case.EnforcementBodyPursuing.YES_IN_PROGRESS,
     )
     assert case.status.status == "in-correspondence-with-equalities-body"
 
@@ -347,9 +343,9 @@ def test_case_status_equality_bodies_complete(admin_client):
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
-        case_completed=CASE_COMPLETED_SEND,
+        case_completed=Case.CaseCompleted.COMPLETE_SEND,
         sent_to_enforcement_body_sent_date=datetime.now(),
-        enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
+        enforcement_body_pursuing=Case.EnforcementBodyPursuing.YES_COMPLETED,
     )
     assert case.status.status == "complete"
 
@@ -368,7 +364,7 @@ def test_case_status_complete():
         auditor=user,
         statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
         website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        case_completed=CASE_COMPLETED_NO_SEND,
+        case_completed=Case.CaseCompleted.COMPLETE_NO_SEND,
     )
     assert case.status.status == "complete"
 

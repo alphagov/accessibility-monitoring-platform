@@ -16,7 +16,6 @@ from django.http.request import QueryDict
 from ...audits.models import RETEST_INITIAL_COMPLIANCE_COMPLIANT, Audit, Retest
 from ...common.models import Boolean, Sector, SubCategory
 from ..models import (
-    CASE_COMPLETED_NO_SEND,
     CASE_EVENT_APPROVE_REPORT,
     CASE_EVENT_AUDITOR,
     CASE_EVENT_CASE_COMPLETED,
@@ -633,7 +632,7 @@ def test_download_cases():
             "Case ready for final decision changed from 'No' to 'Yes'",
         ),
         (
-            {"case_completed": CASE_COMPLETED_NO_SEND},
+            {"case_completed": Case.CaseCompleted.COMPLETE_NO_SEND},
             {},
             CASE_EVENT_CASE_COMPLETED,
             "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'",

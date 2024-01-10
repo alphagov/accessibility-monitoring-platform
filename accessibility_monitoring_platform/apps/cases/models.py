@@ -118,58 +118,6 @@ WEBSITE_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
     (WEBSITE_COMPLIANCE_STATE_DEFAULT, "Not known"),
 ]
 
-RECOMMENDATION_DEFAULT: str = "unknown"
-RECOMMENDATION_NO_ACTION: str = "no-further-action"
-RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
-    (RECOMMENDATION_NO_ACTION, "No further action"),
-    ("other", "For enforcement consideration"),
-    (RECOMMENDATION_DEFAULT, "Not selected"),
-]
-
-IS_DISPROPORTIONATE_CLAIMED_DEFAULT: str = "unknown"
-IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "Not known"),
-]
-
-DEFAULT_CASE_COMPLETED: str = "no-decision"
-CASE_COMPLETED_SEND: str = "complete-send"
-CASE_COMPLETED_NO_SEND: str = "complete-no-send"
-CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    (CASE_COMPLETED_SEND, "Case is complete and is ready to send to the equality body"),
-    (CASE_COMPLETED_NO_SEND, "Case should not be sent to the equality body"),
-    (DEFAULT_CASE_COMPLETED, "Case still in progress"),
-]
-
-QA_STATUS_UNKNOWN: str = "unknown"
-QA_STATUS_UNASSIGNED: str = "unassigned-qa-case"
-QA_STATUS_IN_QA: str = "in-qa"
-QA_STATUS_QA_APPROVED: str = "qa-approved"
-QA_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (QA_STATUS_UNKNOWN, "Unknown"),
-    (QA_STATUS_UNASSIGNED, "Unassigned QA case"),
-    (QA_STATUS_IN_QA, "In QA"),
-    (QA_STATUS_QA_APPROVED, "QA approved"),
-]
-
-ENFORCEMENT_BODY_PURSUING_NO: str = "no"
-ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS: str = "yes-in-progress"
-ENFORCEMENT_BODY_PURSUING_YES_COMPLETED: str = "yes-completed"
-ENFORCEMENT_BODY_PURSUING_CHOICES: List[Tuple[str, str]] = [
-    (ENFORCEMENT_BODY_PURSUING_YES_COMPLETED, "Yes, completed"),
-    (ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS, "Yes, in progress"),
-    (ENFORCEMENT_BODY_PURSUING_NO, "No"),
-]
-ENFORCEMENT_BODY_CLOSED_NO: str = "no"
-ENFORCEMENT_BODY_CLOSED_IN_PROGRESS: str = "in-progress"
-ENFORCEMENT_BODY_CLOSED_YES: str = "yes"
-ENFORCEMENT_BODY_CLOSED_CHOICES: List[Tuple[str, str]] = [
-    (ENFORCEMENT_BODY_CLOSED_YES, "Yes"),
-    (ENFORCEMENT_BODY_CLOSED_IN_PROGRESS, "Case in progress"),
-    (ENFORCEMENT_BODY_CLOSED_NO, "No (or holding)"),
-]
-
 PREFERRED_DEFAULT: str = "unknown"
 PREFERRED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
@@ -272,6 +220,43 @@ class Case(VersionModel):
         YES = "yes"
         NO = "no"
         NOT_SELECTED = "not-selected", "Not selected"
+
+    class IsDisproportionateClaimed(models.TextChoices):
+        YES = "yes"
+        NO = "no"
+        NOT_KNOWN = "unknown", "Not known"
+
+    class RecommendationForEnforcement(models.TextChoices):
+        NO_FURTHER_ACTION = "no-further-action", "No further action"
+        OTHER = "other", "For enforcement consideration"
+        UNKNOWN = "unknown", "Not selected"
+
+    class CaseCompleted(models.TextChoices):
+        COMPLETE_SEND = (
+            "complete-send",
+            "Case is complete and is ready to send to the equality body",
+        )
+        COMPLETE_NO_SEND = (
+            "complete-no-send",
+            "Case should not be sent to the equality body",
+        )
+        NO_DECISION = "no-decision", "Case still in progress"
+
+    class EnforcementBodyPursuing(models.TextChoices):
+        YES_COMPLETED = "yes-completed", "Yes, completed"
+        YES_IN_PROGRESS = "yes-in-progress", "Yes, in progress"
+        NO = "no", "No"
+
+    class EnforcementBodyClosedCase(models.TextChoices):
+        YES = "yes", "Yes"
+        IN_PROGRESS = "in-progress", "Case in progress"
+        NO = "no", "No (or holding)"
+
+    class QAStatus(models.TextChoices):
+        UNKNOWN = "unknown", "Unknown"
+        UNASSIGNED = "unassigned-qa-case", "Unassigned QA case"
+        IN_QA = "in-qa", "In QA"
+        APPROVED = "qa-approved", "QA approved"
 
     archive = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
@@ -421,8 +406,8 @@ class Case(VersionModel):
     # Final statement
     is_disproportionate_claimed = models.CharField(
         max_length=20,
-        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
-        default=IS_DISPROPORTIONATE_CLAIMED_DEFAULT,
+        choices=IsDisproportionateClaimed.choices,
+        default=IsDisproportionateClaimed.NOT_KNOWN,
     )
     disproportionate_notes = models.TextField(default="", blank=True)
     accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
@@ -431,13 +416,13 @@ class Case(VersionModel):
     # Case close
     recommendation_for_enforcement = models.CharField(
         max_length=20,
-        choices=RECOMMENDATION_CHOICES,
-        default=RECOMMENDATION_DEFAULT,
+        choices=RecommendationForEnforcement.choices,
+        default=RecommendationForEnforcement.UNKNOWN,
     )
     recommendation_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     case_completed = models.CharField(
-        max_length=30, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
+        max_length=30, choices=CaseCompleted.choices, default=CaseCompleted.NO_DECISION
     )
     completed_date = models.DateTimeField(null=True, blank=True)
     case_close_complete_date = models.DateField(null=True, blank=True)
@@ -451,8 +436,8 @@ class Case(VersionModel):
     case_updated_date = models.DateField(null=True, blank=True)
     enforcement_body_pursuing = models.CharField(
         max_length=20,
-        choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
-        default=ENFORCEMENT_BODY_PURSUING_NO,
+        choices=EnforcementBodyPursuing.choices,
+        default=EnforcementBodyPursuing.NO,
     )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_retest_document_url = models.TextField(default="", blank=True)
@@ -466,8 +451,8 @@ class Case(VersionModel):
     enforcement_body_case_owner = models.TextField(default="", blank=True)
     enforcement_body_closed_case = models.CharField(
         max_length=20,
-        choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
-        default=ENFORCEMENT_BODY_CLOSED_NO,
+        choices=EnforcementBodyClosedCase.choices,
+        default=EnforcementBodyClosedCase.NO,
     )
     enforcement_body_finished_date = models.DateField(null=True, blank=True)
 
@@ -478,7 +463,7 @@ class Case(VersionModel):
 
     # Dashboard page
     qa_status = models.CharField(
-        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_UNKNOWN
+        max_length=200, choices=QAStatus.choices, default=QAStatus.UNKNOWN
     )
 
     class Meta:
@@ -496,7 +481,10 @@ class Case(VersionModel):
         if not self.created:
             self.created = now
             self.domain = extract_domain_from_url(self.home_page_url)
-        if self.case_completed != DEFAULT_CASE_COMPLETED and not self.completed_date:
+        if (
+            self.case_completed != Case.CaseCompleted.NO_DECISION
+            and not self.completed_date
+        ):
             self.completed_date = now
         self.qa_status = self.calulate_qa_status()
         self.updated = now
@@ -576,18 +564,18 @@ class Case(VersionModel):
             and self.report_review_status == Boolean.YES
             and self.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
-            return QA_STATUS_UNASSIGNED
+            return Case.QAStatus.UNASSIGNED
         elif (
             self.report_review_status == Boolean.YES
             and self.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
-            return QA_STATUS_IN_QA
+            return Case.QAStatus.IN_QA
         elif (
             self.report_review_status == Boolean.YES
             and self.report_approved_status == Case.ReportApprovedStatus.APPROVED
         ):
-            return QA_STATUS_QA_APPROVED
-        return QA_STATUS_UNKNOWN
+            return Case.QAStatus.APPROVED
+        return Case.QAStatus.UNKNOWN
 
     def set_statement_compliance_states(self) -> None:
         if self.audit:
@@ -952,17 +940,18 @@ class CaseStatus(models.Model):
         if self.case.is_deactivated:
             return STATUS_DEACTIVATED
         elif (
-            self.case.case_completed == CASE_COMPLETED_NO_SEND
+            self.case.case_completed == Case.CaseCompleted.COMPLETE_NO_SEND
             or self.case.enforcement_body_pursuing
-            == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
-            or self.case.enforcement_body_closed_case == ENFORCEMENT_BODY_CLOSED_YES
+            == Case.EnforcementBodyPursuing.YES_COMPLETED
+            or self.case.enforcement_body_closed_case
+            == Case.EnforcementBodyClosedCase.YES
         ):
             return "complete"
         elif (
             self.case.enforcement_body_pursuing
-            == ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS
+            == Case.EnforcementBodyPursuing.YES_IN_PROGRESS
             or self.case.enforcement_body_closed_case
-            == ENFORCEMENT_BODY_CLOSED_IN_PROGRESS
+            == Case.EnforcementBodyClosedCase.IN_PROGRESS
         ):
             return "in-correspondence-with-equalities-body"
         elif self.case.sent_to_enforcement_body_sent_date is not None:
@@ -1018,7 +1007,7 @@ class CaseStatus(models.Model):
             return "reviewing-changes"
         elif (
             self.case.is_ready_for_final_decision == Boolean.YES
-            and self.case.case_completed == DEFAULT_CASE_COMPLETED
+            and self.case.case_completed == Case.CaseCompleted.NO_DECISION
         ):
             return "final-decision-due"
         return "unknown"

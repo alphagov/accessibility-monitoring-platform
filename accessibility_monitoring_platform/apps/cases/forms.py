@@ -29,12 +29,9 @@ from ..common.forms import (
 )
 from ..common.models import Sector, SubCategory
 from .models import (
-    CASE_COMPLETED_CHOICES,
-    ENFORCEMENT_BODY_CLOSED_CHOICES,
     EQUALITY_BODY_CORRESPONDENCE_QUESTION,
     EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
     PREFERRED_CHOICES,
-    RECOMMENDATION_CHOICES,
     STATUS_CHOICES,
     Boolean,
     Case,
@@ -540,7 +537,7 @@ class CaseCloseUpdateForm(VersionForm):
     )
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Recommendation for equality body",
-        choices=RECOMMENDATION_CHOICES,
+        choices=Case.RecommendationForEnforcement.choices,
     )
     recommendation_notes = AMPTextField(
         label="Enforcement recommendation notes including exemptions",
@@ -551,7 +548,7 @@ class CaseCloseUpdateForm(VersionForm):
     )
     case_completed = AMPChoiceRadioField(
         label="Case completed",
-        choices=CASE_COMPLETED_CHOICES,
+        choices=Case.CaseCompleted.choices,
         help_text="This field affects the case status",
     )
     case_close_complete_date = AMPDatePageCompleteField()
@@ -634,7 +631,7 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     )
     enforcement_body_closed_case = AMPChoiceRadioField(
         label="Equality body has officially closed the case?",
-        choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
+        choices=Case.EnforcementBodyClosedCase.choices,
     )
     enforcement_body_finished_date = AMPDateField(
         label="Date equality body completed the case",

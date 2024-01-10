@@ -18,7 +18,6 @@ from ..audits.models import (
 )
 from ..cases.models import (
     CLOSED_CASE_STATUSES,
-    RECOMMENDATION_NO_ACTION,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
@@ -340,7 +339,7 @@ def get_policy_progress_metrics() -> List[ProgressMetric]:
     retested_audits: QuerySet[Audit] = Audit.objects.filter(retest_date__gte=start_date)
     retested_audits_count: int = retested_audits.count()
     fixed_audits: QuerySet[Audit] = retested_audits.filter(
-        case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        case__recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     fixed_audits_count: int = fixed_audits.count()
     compliant_audits: QuerySet[Audit] = retested_audits.filter(
@@ -428,7 +427,7 @@ def get_policy_yearly_metrics() -> List[YearlyMetric]:
     thirteen_month_final_no_action: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        case__recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     thirteen_month_statement_final_compliant: QuerySet[
         Audit
