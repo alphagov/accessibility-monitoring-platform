@@ -13,7 +13,7 @@
             {% include 'common/amp_field.html' with field=due_date_field %}
         </div>
     </details>
-    {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
+    {% if field.help_text %}<div class="govuk-hint">{{ field.help_text|safe }}</div>{% endif %}
     {% include 'common/field_errors.html' with errors=field.errors %}
     {{ field }}
 </div>

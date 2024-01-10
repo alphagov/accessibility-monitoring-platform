@@ -433,7 +433,9 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
     report_followup_week_1_sent_date = AMPDateField(
         label="1-week followup to report date"
     )
-    report_followup_week_1_due_date = AMPDateField(label="")
+    report_followup_week_1_due_date = AMPDateField(
+        label="Report followup week 1 due date"
+    )
     one_week_followup_sent_to_email = AMPCharFieldWide(
         label="One week followup sent to (email address)"
     )
@@ -460,7 +462,9 @@ class CaseFourWeekFollowupUpdateForm(VersionForm):
     report_followup_week_4_sent_date = AMPDateField(
         label="4-week followup to report date"
     )
-    report_followup_week_4_due_date = AMPDateField(label="")
+    report_followup_week_4_due_date = AMPDateField(
+        label="Report followup week 4 due date"
+    )
     four_week_followup_sent_to_email = AMPCharFieldWide(
         label="Four week followup sent to (email address)"
     )
@@ -513,6 +517,7 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         label="12-week update requested",
         help_text="Enter todays date if PSB sends an update before the deadline<br>This field affects the case status",
     )
+    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
     twelve_week_update_request_sent_to_email = AMPCharFieldWide(
         label="12-week request sent to (email address)"
     )
@@ -526,6 +531,7 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         fields = [
             "version",
             "twelve_week_update_requested_date",
+            "report_followup_week_12_due_date",
             "twelve_week_update_request_sent_to_email",
             "twelve_week_correspondence_notes",
             "twelve_week_update_requested_complete_date",
@@ -538,7 +544,9 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
     """
 
     twelve_week_1_week_chaser_sent_date = AMPDateField(label="1-week followup")
-    twelve_week_1_week_chaser_due_date = AMPDateField(label="")
+    twelve_week_1_week_chaser_due_date = AMPDateField(
+        label="Twelve week 1 week chaser due date"
+    )
     twelve_week_1_week_chaser_sent_to_email = AMPCharFieldWide(
         label="One week followup for final update sent to (email address)"
     )

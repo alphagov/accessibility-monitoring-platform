@@ -341,16 +341,6 @@ class AMPDateField(forms.DateField):
         super().__init__(*args, **kwargs)
 
 
-class AMPDateSentField(forms.DateField):
-    """Checkbox input field in the style of GDS design system. Stores today's date when ticked."""
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault("widget", AMPDateCheckboxWidget(attrs={"label": "Sent?"}))
-        kwargs.setdefault("help_text", "None")
-        super().__init__(*args, **kwargs)
-
-
 class AMPDatePageCompleteField(forms.DateField):
     """Checkbox input field in the style of GDS design system. Stores today's date when ticked."""
 
