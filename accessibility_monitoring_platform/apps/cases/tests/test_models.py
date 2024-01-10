@@ -7,6 +7,7 @@ from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
+from django.contrib.auth.models import User
 
 from ...audits.models import (
     CHECK_RESULT_ERROR,
@@ -28,6 +29,7 @@ from ...audits.models import (
     WcagDefinition,
 )
 from ...comments.models import Comment
+from ...common.models import Boolean
 from ...reminders.models import Reminder
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
@@ -1299,3 +1301,34 @@ def test_case_equality_body_correspondence_retests_unresolved_returns_unresolved
     unresolved_retest.save()
 
     assert len(case.equality_body_correspondence_retests_unresolved) == 0
+
+
+@pytest.mark.django_db
+def test_calulate_qa_status_unassigned():
+    """Test Case calulate_qa_status correctly returns unassigned"""
+    case: Case = Case.objects.create(report_review_status=Boolean.YES)
+
+    assert case.calulate_qa_status() == Case.QAStatus.UNASSIGNED
+
+
+@pytest.mark.django_db
+def test_calulate_qa_status_in_qa():
+    """Test Case calulate_qa_status correctly returns In-QA"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
+        reviewer=user,
+        report_review_status=Boolean.YES,
+    )
+
+    assert case.calulate_qa_status() == Case.QAStatus.IN_QA
+
+
+@pytest.mark.django_db
+def test_calulate_qa_status_approved():
+    """Test Case calulate_qa_status correctly returns approved"""
+    case: Case = Case.objects.create(
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+    )
+
+    assert case.calulate_qa_status() == Case.QAStatus.APPROVED
