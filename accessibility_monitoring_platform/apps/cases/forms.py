@@ -592,25 +592,6 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
         ]
 
 
-class CaseReportFollowupDueDatesUpdateForm(VersionForm):
-    """
-    Form for updating report followup due dates
-    """
-
-    report_followup_week_1_due_date = AMPDateField(label="1-week followup to report")
-    report_followup_week_4_due_date = AMPDateField(label="4-week followup to report")
-    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "report_followup_week_1_due_date",
-            "report_followup_week_4_due_date",
-            "report_followup_week_12_due_date",
-        ]
-
-
 class CaseNoPSBContactUpdateForm(VersionForm):
     """
     Form for archiving a case
@@ -634,23 +615,6 @@ class CaseNoPSBContactUpdateForm(VersionForm):
             "version",
             "no_psb_contact",
             "no_psb_contact_notes",
-        ]
-
-
-class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(VersionForm):
-    """
-    Form for updating twelve week correspondence followup due dates
-    """
-
-    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
-    twelve_week_1_week_chaser_due_date = AMPDateField(label="1-week followup")
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "report_followup_week_12_due_date",
-            "twelve_week_1_week_chaser_due_date",
         ]
 
 

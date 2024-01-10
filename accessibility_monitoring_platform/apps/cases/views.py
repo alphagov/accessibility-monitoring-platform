@@ -206,7 +206,31 @@ class CaseDetailView(DetailView):
         context["report_details_rows"] = get_case_rows(
             form=CaseReportDetailsUpdateForm()
         )
+        context["corres_overview"] = get_case_rows(
+            form=CaseCorrespondenceOverviewUpdateForm()
+        )
+        context["find_contact_details"] = get_case_rows(
+            form=CaseFindContactDetailsUpdateForm()
+        )
         context["contact_rows"] = get_case_rows(form=CaseContactsUpdateForm())
+        context["report_sent_on"] = get_case_rows(form=CaseReportSentOnUpdateForm())
+        context["one_week_followup"] = get_case_rows(
+            form=CaseOneWeekFollowupUpdateForm()
+        )
+        context["four_week_followup"] = get_case_rows(
+            form=CaseFourWeekFollowupUpdateForm()
+        )
+        context["report_ack"] = get_case_rows(form=CaseReportAcknowledgedUpdateForm())
+        context["twelve_week_update_req"] = get_case_rows(
+            form=CaseTwelveWeekUpdateRequestedUpdateForm()
+        )
+        context["one_week_chaser_final"] = get_case_rows(
+            form=CaseOneWeekFollowupFinalUpdateForm()
+        )
+        context["twelve_week_update_ack"] = get_case_rows(
+            form=CaseTwelveWeekUpdateAcknowledgedUpdateForm()
+        )
+        context["no_psb_contact"] = get_case_rows(form=CaseNoPSBContactUpdateForm())
         context["review_changes_rows"] = get_case_rows(
             form=CaseReviewChangesUpdateForm()
         )
