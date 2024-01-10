@@ -439,6 +439,7 @@ class Case(VersionModel):
 
     # 12-week update requested page
     twelve_week_update_requested_date = models.DateField(null=True, blank=True)
+    report_followup_week_12_due_date = models.DateField(null=True, blank=True)
     twelve_week_update_request_sent_to_email = models.CharField(
         max_length=200, default="", blank=True
     )
@@ -476,9 +477,6 @@ class Case(VersionModel):
 
     # Report correspondence page
     report_correspondence_complete_date = models.DateField(null=True, blank=True)
-
-    # Report followup dates page
-    report_followup_week_12_due_date = models.DateField(null=True, blank=True)
 
     # Unable to send report or no response from public sector body page
     no_psb_contact = models.CharField(
