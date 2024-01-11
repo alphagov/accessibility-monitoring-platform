@@ -16,7 +16,6 @@ from django.http.request import QueryDict
 from ...audits.models import RETEST_INITIAL_COMPLIANCE_COMPLIANT, Audit, Retest
 from ...common.models import Boolean, Sector, SubCategory
 from ..models import (
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
     Case,
     CaseCompliance,
     CaseEvent,
@@ -762,7 +761,7 @@ def test_get_post_case_alerts_count():
 
     assert get_post_case_alerts_count(user=user) == 1
 
-    equality_body_correspondence.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    equality_body_correspondence.status = EqualityBodyCorrespondence.Status.RESOLVED
     equality_body_correspondence.save()
 
     assert get_post_case_alerts_count(user=user) == 0
@@ -804,7 +803,7 @@ def test_get_post_case_alerts():
     )
     assert post_case_alert.absolute_url_label == "View correspondence"
 
-    equality_body_correspondence.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    equality_body_correspondence.status = EqualityBodyCorrespondence.Status.RESOLVED
     equality_body_correspondence.save()
 
     assert len(get_post_case_alerts(user=user)) == 0

@@ -70,13 +70,7 @@ from .forms import (
     ListCaseEqualityBodyCorrespondenceUpdateForm,
     PostCaseUpdateForm,
 )
-from .models import (
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
-    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
-    Case,
-    Contact,
-    EqualityBodyCorrespondence,
-)
+from .models import Case, Contact, EqualityBodyCorrespondence
 from .utils import (
     build_edit_link_html,
     download_cases,
@@ -983,7 +977,7 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
             context[
                 "equality_body_correspondences"
             ] = case.equalitybodycorrespondence_set.filter(
-                status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                status=EqualityBodyCorrespondence.Status.UNRESOLVED
             )
         else:
             context[
@@ -1007,14 +1001,14 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
             )
             if (
                 equality_body_correspondence.status
-                == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                == EqualityBodyCorrespondence.Status.UNRESOLVED
             ):
                 equality_body_correspondence.status = (
-                    EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+                    EqualityBodyCorrespondence.Status.RESOLVED
                 )
             else:
                 equality_body_correspondence.status = (
-                    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                    EqualityBodyCorrespondence.Status.UNRESOLVED
                 )
             record_model_update_event(
                 user=self.request.user, model_object=equality_body_correspondence

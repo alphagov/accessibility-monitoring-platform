@@ -34,9 +34,6 @@ from ...reminders.models import Reminder
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
-    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
-    EQUALITY_BODY_CORRESPONDENCE_RETEST,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     STATEMENT_COMPLIANCE_STATE_DEFAULT,
     STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
@@ -1243,7 +1240,7 @@ def test_case_equality_body_questions_returns_equality_body_questions():
     case: Case = Case.objects.create()
     equality_body_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+            case=case, type=EqualityBodyCorrespondence.Type.QUESTION
         )
     )
 
@@ -1257,14 +1254,14 @@ def test_case_equality_body_questions_unresolved_returns_unresolved():
     case: Case = Case.objects.create()
     unresolved_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+            case=case, type=EqualityBodyCorrespondence.Type.QUESTION
         )
     )
 
     assert len(case.equality_body_questions_unresolved) == 1
     assert case.equality_body_questions_unresolved[0] == unresolved_question
 
-    unresolved_question.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    unresolved_question.status = EqualityBodyCorrespondence.Status.RESOLVED
     unresolved_question.save()
 
     assert len(case.equality_body_questions_unresolved) == 0
@@ -1276,7 +1273,7 @@ def test_case_equality_body_correspondence_retests_returns_equality_body_corresp
     case: Case = Case.objects.create()
     equality_body_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+            case=case, type=EqualityBodyCorrespondence.Type.RETEST
         )
     )
 
@@ -1290,14 +1287,14 @@ def test_case_equality_body_correspondence_retests_unresolved_returns_unresolved
     case: Case = Case.objects.create()
     unresolved_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+            case=case, type=EqualityBodyCorrespondence.Type.RETEST
         )
     )
 
     assert len(case.equality_body_correspondence_retests_unresolved) == 1
     assert case.equality_body_correspondence_retests_unresolved[0] == unresolved_retest
 
-    unresolved_retest.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    unresolved_retest.status = EqualityBodyCorrespondence.Status.RESOLVED
     unresolved_retest.save()
 
     assert len(case.equality_body_correspondence_retests_unresolved) == 0

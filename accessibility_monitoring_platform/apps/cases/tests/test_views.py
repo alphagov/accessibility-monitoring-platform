@@ -46,8 +46,6 @@ from ...notifications.models import Notification
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
-    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
@@ -3177,7 +3175,7 @@ def test_equality_body_correspondence(admin_client):
         case=case,
         message=RESOLVED_EQUALITY_BODY_MESSAGE,
         notes=RESOLVED_EQUALITY_BODY_NOTES,
-        status=EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
+        status=EqualityBodyCorrespondence.Status.RESOLVED,
     )
     EqualityBodyCorrespondence.objects.create(
         case=case,
@@ -3221,7 +3219,8 @@ def test_equality_body_correspondence_status_toggle(admin_client):
     )
 
     assert (
-        equality_body_correspondence.status == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+        equality_body_correspondence.status
+        == EqualityBodyCorrespondence.Status.UNRESOLVED
     )
 
     response: HttpResponse = admin_client.post(
@@ -3240,7 +3239,7 @@ def test_equality_body_correspondence_status_toggle(admin_client):
 
     assert (
         updated_equality_body_correspondence.status
-        == EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+        == EqualityBodyCorrespondence.Status.RESOLVED
     )
 
     response: HttpResponse = admin_client.post(
@@ -3259,7 +3258,7 @@ def test_equality_body_correspondence_status_toggle(admin_client):
 
     assert (
         updated_equality_body_correspondence.status
-        == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+        == EqualityBodyCorrespondence.Status.UNRESOLVED
     )
 
 

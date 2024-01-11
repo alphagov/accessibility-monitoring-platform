@@ -147,19 +147,6 @@ COMPLIANCE_FIELDS: List[str] = [
     "statement_compliance_notes_12_week",
 ]
 
-EQUALITY_BODY_CORRESPONDENCE_QUESTION: str = "question"
-EQUALITY_BODY_CORRESPONDENCE_RETEST: str = "retest"
-EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (EQUALITY_BODY_CORRESPONDENCE_QUESTION, "Question"),
-    (EQUALITY_BODY_CORRESPONDENCE_RETEST, "Retest request"),
-]
-EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED: str = "outstanding"
-EQUALITY_BODY_CORRESPONDENCE_RESOLVED: str = "resolved"
-EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED, "Unresolved"),
-    (EQUALITY_BODY_CORRESPONDENCE_RESOLVED, "Resolved"),
-]
-
 
 class Case(VersionModel):
     """
@@ -861,27 +848,27 @@ class Case(VersionModel):
     @property
     def equality_body_questions(self):
         return self.equality_body_correspondences.filter(
-            type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+            type=EqualityBodyCorrespondence.Type.QUESTION
         )
 
     @property
     def equality_body_questions_unresolved(self):
         return self.equality_body_correspondences.filter(
-            type=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
-            status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+            type=EqualityBodyCorrespondence.Type.QUESTION,
+            status=EqualityBodyCorrespondence.Status.UNRESOLVED,
         )
 
     @property
     def equality_body_correspondence_retests(self):
         return self.equality_body_correspondences.filter(
-            type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+            type=EqualityBodyCorrespondence.Type.RETEST
         )
 
     @property
     def equality_body_correspondence_retests_unresolved(self):
         return self.equality_body_correspondences.filter(
-            type=EQUALITY_BODY_CORRESPONDENCE_RETEST,
-            status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+            type=EqualityBodyCorrespondence.Type.RETEST,
+            status=EqualityBodyCorrespondence.Status.UNRESOLVED,
         )
 
 
@@ -1106,20 +1093,28 @@ class EqualityBodyCorrespondence(models.Model):
     Model for cases equality body correspondence
     """
 
+    class Type(models.TextChoices):
+        QUESTION = "question", "Question"
+        RETEST = "retest", "Retest request"
+
+    class Status(models.TextChoices):
+        UNRESOLVED = "outstanding", "Unresolved"
+        RESOLVED = "resolved", "Resolved"
+
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     id_within_case = models.IntegerField(default=1, blank=True)
     type = models.CharField(
         max_length=20,
-        choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
-        default=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+        choices=Type.choices,
+        default=Type.QUESTION,
     )
     message = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
     zendesk_url = models.TextField(default="", blank=True)
     status = models.CharField(
         max_length=20,
-        choices=EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES,
-        default=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+        choices=Status.choices,
+        default=Status.UNRESOLVED,
     )
     created = models.DateTimeField()
     updated = models.DateTimeField()

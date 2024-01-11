@@ -22,7 +22,6 @@ from ..common.utils import build_filters
 from .forms import DEFAULT_SORT, NO_FILTER, CaseSearchForm
 from .models import (
     COMPLIANCE_FIELDS,
-    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
     STATUS_READY_TO_QA,
     STATUS_UNASSIGNED,
     Case,
@@ -813,7 +812,7 @@ def get_post_case_alerts_count(user: User) -> int:
     if user.id:
         return (
             EqualityBodyCorrespondence.objects.filter(
-                case__auditor=user, status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                case__auditor=user, status=EqualityBodyCorrespondence.Status.UNRESOLVED
             ).count()
             + Retest.objects.filter(
                 is_deleted=False,
@@ -836,7 +835,7 @@ def get_post_case_alerts(user: User) -> List[PostCaseAlert]:
         EqualityBodyCorrespondence
     ] = EqualityBodyCorrespondence.objects.filter(
         case__auditor=user,
-        status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+        status=EqualityBodyCorrespondence.Status.UNRESOLVED,
     )
 
     for equality_body_correspondence in equality_body_correspondences:

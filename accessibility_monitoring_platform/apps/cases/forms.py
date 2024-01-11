@@ -29,8 +29,6 @@ from ..common.forms import (
 )
 from ..common.models import Sector, SubCategory
 from .models import (
-    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
-    EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
     PREFERRED_CHOICES,
     STATUS_CHOICES,
     Boolean,
@@ -675,8 +673,8 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
 
     type = AMPChoiceRadioField(
         label="Type",
-        choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
-        initial=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+        choices=EqualityBodyCorrespondence.Type.choices,
+        initial=EqualityBodyCorrespondence.Type.QUESTION,
     )
     message = AMPTextField(label="Message/content")
     notes = AMPTextField(label="Notes")
