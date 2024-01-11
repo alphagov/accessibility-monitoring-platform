@@ -5,7 +5,6 @@ from django.contrib import admin
 
 from ..common.admin import ExportCsvMixin
 from .models import (
-    CLOSED_CASE_STATUSES,
     Case,
     CaseCompliance,
     CaseEvent,
@@ -32,9 +31,9 @@ class MetaStatusCaseListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         """Returns queryset with filter applied"""
         if self.value() == "open":
-            return queryset.exclude(status__status__in=CLOSED_CASE_STATUSES)
+            return queryset.exclude(status__status__in=CaseStatus.CLOSED_CASE_STATUSES)
         if self.value() == "closed":
-            return queryset.filter(status__status__in=CLOSED_CASE_STATUSES)
+            return queryset.filter(status__status__in=CaseStatus.CLOSED_CASE_STATUSES)
 
 
 class CaseAdmin(admin.ModelAdmin):

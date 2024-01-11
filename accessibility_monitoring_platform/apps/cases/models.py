@@ -24,13 +24,6 @@ from ..common.utils import (
 MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
-CLOSED_CASE_STATUSES: List[str] = [
-    "case-closed-sent-to-equalities-body",
-    "complete",
-    "case-closed-waiting-to-be-sent",
-    "in-correspondence-with-equalities-body",
-    "deactivated",
-]
 COMPLIANCE_FIELDS: List[str] = [
     "website_compliance_state_initial",
     "website_compliance_notes_initial",
@@ -802,6 +795,14 @@ class CaseStatus(models.Model):
         )
         COMPLETE = "complete", "Complete"
         DEACTIVATED = "deactivated", "Deactivated"
+
+    CLOSED_CASE_STATUSES: List[str] = [
+        Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+        Status.COMPLETE,
+        Status.CASE_CLOSED_WAITING_TO_SEND,
+        Status.IN_CORES_WITH_ENFORCEMENT_BODY,
+        Status.DEACTIVATED,
+    ]
 
     case = models.OneToOneField(Case, on_delete=models.PROTECT, related_name="status")
     status = models.CharField(

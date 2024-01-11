@@ -16,7 +16,7 @@ from ..audits.models import (
     Audit,
     CheckResult,
 )
-from ..cases.models import CLOSED_CASE_STATUSES, Case, CaseCompliance
+from ..cases.models import Case, CaseCompliance, CaseStatus
 from ..reports.models import ReportVisitsMetrics
 from ..s3_read_write.models import S3Report
 from .chart import LineChart, Timeseries, TimeseriesDatapoint, build_yearly_metric_chart
@@ -310,7 +310,9 @@ def get_policy_total_metrics() -> List[TotalMetric]:
         ),
         TotalMetric(
             label="Total cases closed",
-            total=Case.objects.filter(status__status__in=CLOSED_CASE_STATUSES).count(),
+            total=Case.objects.filter(
+                status__status__in=CaseStatus.CLOSED_CASE_STATUSES
+            ).count(),
         ),
         TotalMetric(
             label="Total number of accessibility issues found",
