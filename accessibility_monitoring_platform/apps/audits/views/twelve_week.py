@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 
-from ...cases.models import CASE_EVENT_START_RETEST, CaseEvent
+from ...cases.models import CaseEvent
 from ...common.utils import record_model_update_event
 from ..forms import (
     ArchiveAuditRetestStatement1UpdateForm,
@@ -565,7 +565,7 @@ def start_retest(
     CaseEvent.objects.create(
         case=audit.case,
         done_by=request.user,
-        event_type=CASE_EVENT_START_RETEST,
+        event_type=CaseEvent.EventType.START_RETEST,
         message="Started retest",
     )
     return redirect(reverse("audits:edit-audit-retest-metadata", kwargs={"pk": pk}))

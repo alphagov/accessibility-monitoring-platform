@@ -8,18 +8,17 @@ from django.db import migrations
 
 from ...common.models import EVENT_TYPE_MODEL_UPDATE
 from ...common.utils import amp_format_date
-from ..models import (
-    CASE_EVENT_APPROVE_REPORT,
-    CASE_EVENT_AUDITOR,
-    CASE_EVENT_CASE_COMPLETED,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_CREATE_REPORT,
-    CASE_EVENT_QA_AUDITOR,
-    CASE_EVENT_READY_FOR_FINAL_DECISION,
-    CASE_EVENT_READY_FOR_QA,
-    CASE_EVENT_START_RETEST,
-    CASE_EVENT_TYPE_CREATE,
-)
+
+CASE_EVENT_TYPE_CREATE: str = "create"
+CASE_EVENT_AUDITOR: str = "auditor"
+CASE_EVENT_CREATE_AUDIT: str = "create_audit"
+CASE_EVENT_CREATE_REPORT: str = "create_report"
+CASE_EVENT_READY_FOR_QA: str = "ready_for_qa"
+CASE_EVENT_QA_AUDITOR: str = "qa_auditor"
+CASE_EVENT_APPROVE_REPORT: str = "approve_report"
+CASE_EVENT_START_RETEST: str = "retest"
+CASE_EVENT_READY_FOR_FINAL_DECISION: str = "read_for_final_decision"
+CASE_EVENT_CASE_COMPLETED: str = "completed"
 
 REPORT_REVIEW_STATUS_LABELS: Dict[str, str] = {
     "ready-to-review": "Yes",

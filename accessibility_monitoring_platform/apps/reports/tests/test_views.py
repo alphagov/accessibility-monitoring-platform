@@ -23,7 +23,6 @@ from ...audits.models import (
 )
 from ...audits.utils import report_data_updated
 from ...cases.models import (
-    CASE_EVENT_CREATE_REPORT,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
     WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
@@ -139,7 +138,7 @@ def test_create_report_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_CREATE_REPORT
+    assert case_event.event_type == CaseEvent.EventType.CREATE_REPORT
     assert case_event.message == "Created report"
 
 

@@ -46,8 +46,6 @@ from ...notifications.models import Notification
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
-    CASE_EVENT_CASE_COMPLETED,
-    CASE_EVENT_TYPE_CREATE,
     EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
     EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
     STATEMENT_COMPLIANCE_STATE_COMPLIANT,
@@ -885,7 +883,7 @@ def test_create_case_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_TYPE_CREATE
+    assert case_event.event_type == CaseEvent.EventType.CREATE
     assert case_event.message == "Created case"
 
 
@@ -909,7 +907,7 @@ def test_updating_case_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_CASE_COMPLETED
+    assert case_event.event_type == CaseEvent.EventType.CASE_COMPLETED
     assert (
         case_event.message
         == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"

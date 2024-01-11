@@ -21,14 +21,6 @@ from ..audits.models import RETEST_INITIAL_COMPLIANCE_DEFAULT, Audit, Retest
 from ..common.utils import build_filters
 from .forms import DEFAULT_SORT, NO_FILTER, CaseSearchForm
 from .models import (
-    CASE_EVENT_APPROVE_REPORT,
-    CASE_EVENT_AUDITOR,
-    CASE_EVENT_CASE_COMPLETED,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_QA_AUDITOR,
-    CASE_EVENT_READY_FOR_FINAL_DECISION,
-    CASE_EVENT_READY_FOR_QA,
-    CASE_EVENT_TYPE_CREATE,
     COMPLIANCE_FIELDS,
     EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
     STATUS_READY_TO_QA,
@@ -709,7 +701,7 @@ def record_case_event(
     """Create a case event based on the changes between the old and new cases"""
     if old_case is None:
         CaseEvent.objects.create(
-            case=new_case, done_by=user, event_type=CASE_EVENT_TYPE_CREATE
+            case=new_case, done_by=user, event_type=CaseEvent.EventType.CREATE
         )
         return
     if old_case.auditor != new_case.auditor:
@@ -722,14 +714,14 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_AUDITOR,
+            event_type=CaseEvent.EventType.AUDITOR,
             message=f"Auditor changed from {old_user_name} to {new_user_name}",
         )
     if old_case.audit is None and new_case.audit is not None:
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_CREATE_AUDIT,
+            event_type=CaseEvent.EventType.CREATE_AUDIT,
             message="Start of test",
         )
     if old_case.report_review_status != new_case.report_review_status:
@@ -738,7 +730,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_READY_FOR_QA,
+            event_type=CaseEvent.EventType.READY_FOR_QA,
             message=f"Report ready to be reviewed changed from '{old_status}' to '{new_status}'",
         )
     if old_case.reviewer != new_case.reviewer:
@@ -755,7 +747,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_QA_AUDITOR,
+            event_type=CaseEvent.EventType.QA_AUDITOR,
             message=f"QA auditor changed from {old_user_name} to {new_user_name}",
         )
     if old_case.report_approved_status != new_case.report_approved_status:
@@ -764,7 +756,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_APPROVE_REPORT,
+            event_type=CaseEvent.EventType.APPROVE_REPORT,
             message=f"Report approved changed from '{old_status}' to '{new_status}'",
         )
     if old_case.is_ready_for_final_decision != new_case.is_ready_for_final_decision:
@@ -773,7 +765,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_READY_FOR_FINAL_DECISION,
+            event_type=CaseEvent.EventType.READY_FOR_FINAL_DECISION,
             message=f"Case ready for final decision changed from '{old_status}' to '{new_status}'",
         )
     if old_case.case_completed != new_case.case_completed:
@@ -782,7 +774,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_CASE_COMPLETED,
+            event_type=CaseEvent.EventType.CASE_COMPLETED,
             message=f"Case completed changed from '{old_status}' to '{new_status}'",
         )
 

@@ -14,14 +14,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
-from ...cases.models import (
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_START_RETEST,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    Case,
-    CaseEvent,
-    Contact,
-)
+from ...cases.models import WEBSITE_COMPLIANCE_STATE_COMPLIANT, Case, CaseEvent, Contact
 from ..models import (
     ADDED_STAGE_TWELVE_WEEK,
     ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
@@ -310,7 +303,7 @@ def test_create_audit_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_CREATE_AUDIT
+    assert case_event.event_type == CaseEvent.EventType.CREATE_AUDIT
     assert case_event.message == "Started test"
 
 
@@ -1252,7 +1245,7 @@ def test_retest_date_change_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_START_RETEST
+    assert case_event.event_type == CaseEvent.EventType.START_RETEST
     assert case_event.message == "Started retest (date set to 30 November 2022)"
 
 
@@ -2037,7 +2030,7 @@ def test_start_retest_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_START_RETEST
+    assert case_event.event_type == CaseEvent.EventType.START_RETEST
     assert case_event.message == "Started retest"
 
 

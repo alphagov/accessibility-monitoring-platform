@@ -12,10 +12,9 @@ from django.template import Template, loader
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
-from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 
-from ..cases.models import CASE_EVENT_CREATE_REPORT, Case, CaseEvent
+from ..cases.models import Case, CaseEvent
 from ..common.utils import record_model_create_event, record_model_update_event
 from ..s3_read_write.models import S3Report
 from ..s3_read_write.utils import S3ReadWriteReport
@@ -50,7 +49,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     CaseEvent.objects.create(
         case=case,
         done_by=request.user,
-        event_type=CASE_EVENT_CREATE_REPORT,
+        event_type=CaseEvent.EventType.CREATE_REPORT,
         message="Created report",
     )
     return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))

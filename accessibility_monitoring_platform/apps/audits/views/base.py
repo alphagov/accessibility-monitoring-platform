@@ -12,12 +12,7 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from ...cases.models import (
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_START_RETEST,
-    Case,
-    CaseEvent,
-)
+from ...cases.models import Case, CaseEvent
 from ...common.utils import (
     amp_format_date,
     get_id_from_button_name,
@@ -72,7 +67,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     CaseEvent.objects.create(
         case=case,
         done_by=request.user,
-        event_type=CASE_EVENT_CREATE_AUDIT,
+        event_type=CaseEvent.EventType.CREATE_AUDIT,
         message="Started test",
     )
     return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))
@@ -132,7 +127,7 @@ class AuditUpdateView(UpdateView):
                 CaseEvent.objects.create(
                     case=self.object.case,
                     done_by=self.request.user,
-                    event_type=CASE_EVENT_START_RETEST,
+                    event_type=CaseEvent.EventType.START_RETEST,
                     message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",
                 )
             self.object.save()

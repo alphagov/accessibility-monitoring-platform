@@ -129,28 +129,6 @@ PREFERRED_CHOICES: List[Tuple[str, str]] = [
 MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
-CASE_EVENT_TYPE_CREATE: str = "create"
-CASE_EVENT_AUDITOR: str = "auditor"
-CASE_EVENT_CREATE_AUDIT: str = "create_audit"
-CASE_EVENT_CREATE_REPORT: str = "create_report"
-CASE_EVENT_READY_FOR_QA: str = "ready_for_qa"
-CASE_EVENT_QA_AUDITOR: str = "qa_auditor"
-CASE_EVENT_APPROVE_REPORT: str = "approve_report"
-CASE_EVENT_START_RETEST: str = "retest"
-CASE_EVENT_READY_FOR_FINAL_DECISION: str = "read_for_final_decision"
-CASE_EVENT_CASE_COMPLETED: str = "completed"
-CASE_EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (CASE_EVENT_TYPE_CREATE, "Create"),
-    (CASE_EVENT_AUDITOR, "Change of auditor"),
-    (CASE_EVENT_CREATE_AUDIT, "Start test"),
-    (CASE_EVENT_CREATE_REPORT, "Create report"),
-    (CASE_EVENT_READY_FOR_QA, "Report readiness for QA"),
-    (CASE_EVENT_QA_AUDITOR, "Change of QA auditor"),
-    (CASE_EVENT_APPROVE_REPORT, "Report approval"),
-    (CASE_EVENT_START_RETEST, "Start retest"),
-    (CASE_EVENT_READY_FOR_FINAL_DECISION, "Ready for final decision"),
-    (CASE_EVENT_CASE_COMPLETED, "Completed"),
-]
 CLOSED_CASE_STATUSES: List[str] = [
     "case-closed-sent-to-equalities-body",
     "complete",
@@ -1092,9 +1070,21 @@ class CaseEvent(models.Model):
     Model to records events on a case
     """
 
+    class EventType(models.TextChoices):
+        CREATE = "create", "Create"
+        AUDITOR = "auditor", "Change of auditor"
+        CREATE_AUDIT = "create_audit", "Start test"
+        CREATE_REPORT = "create_report", "Create report"
+        READY_FOR_QA = "ready_for_qa", "Report readiness for QA"
+        QA_AUDITOR = "qa_auditor", "Change of QA auditor"
+        APPROVE_REPORT = "approve_report", "Report approval"
+        START_RETEST = "retest", "Start retest"
+        READY_FOR_FINAL_DECISION = "read_for_final_decision", "Ready for final decision"
+        CASE_COMPLETED = "completed", "Completed"
+
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     event_type = models.CharField(
-        max_length=100, choices=CASE_EVENT_TYPE_CHOICES, default=CASE_EVENT_TYPE_CREATE
+        max_length=100, choices=EventType.choices, default=EventType.CREATE
     )
     message = models.TextField(default="Created case", blank=True)
     done_by = models.ForeignKey(

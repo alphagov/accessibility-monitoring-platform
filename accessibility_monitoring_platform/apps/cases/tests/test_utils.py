@@ -16,14 +16,6 @@ from django.http.request import QueryDict
 from ...audits.models import RETEST_INITIAL_COMPLIANCE_COMPLIANT, Audit, Retest
 from ...common.models import Boolean, Sector, SubCategory
 from ..models import (
-    CASE_EVENT_APPROVE_REPORT,
-    CASE_EVENT_AUDITOR,
-    CASE_EVENT_CASE_COMPLETED,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_QA_AUDITOR,
-    CASE_EVENT_READY_FOR_FINAL_DECISION,
-    CASE_EVENT_READY_FOR_QA,
-    CASE_EVENT_TYPE_CREATE,
     EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
     Case,
     CaseCompliance,
@@ -612,29 +604,29 @@ def test_download_cases():
 @pytest.mark.parametrize(
     "new_case_params, old_case_params, event_type, message",
     [
-        ({}, None, CASE_EVENT_TYPE_CREATE, "Created case"),
+        ({}, None, CaseEvent.EventType.CREATE, "Created case"),
         (
             {"report_review_status": Boolean.YES},
             {},
-            CASE_EVENT_READY_FOR_QA,
+            CaseEvent.EventType.READY_FOR_QA,
             "Report ready to be reviewed changed from 'No' to 'Yes'",
         ),
         (
             {"report_approved_status": Case.ReportApprovedStatus.APPROVED},
             {},
-            CASE_EVENT_APPROVE_REPORT,
+            CaseEvent.EventType.APPROVE_REPORT,
             "Report approved changed from 'Not started' to 'Yes'",
         ),
         (
             {"is_ready_for_final_decision": Boolean.YES},
             {},
-            CASE_EVENT_READY_FOR_FINAL_DECISION,
+            CaseEvent.EventType.READY_FOR_FINAL_DECISION,
             "Case ready for final decision changed from 'No' to 'Yes'",
         ),
         (
             {"case_completed": Case.CaseCompleted.COMPLETE_NO_SEND},
             {},
-            CASE_EVENT_CASE_COMPLETED,
+            CaseEvent.EventType.CASE_COMPLETED,
             "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'",
         ),
     ],
@@ -679,7 +671,7 @@ def test_record_case_event_auditor_change():
     assert case_events.count() == 1
 
     case_event = case_events[0]
-    assert case_event.event_type == CASE_EVENT_AUDITOR
+    assert case_event.event_type == CaseEvent.EventType.AUDITOR
     assert case_event.message == "Auditor changed from Old User to New User"
 
 
@@ -697,7 +689,7 @@ def test_record_case_event_audit_create():
     assert case_events.count() == 1
 
     case_event = case_events[0]
-    assert case_event.event_type == CASE_EVENT_CREATE_AUDIT
+    assert case_event.event_type == CaseEvent.EventType.CREATE_AUDIT
     assert case_event.message == "Start of test"
 
 
@@ -720,7 +712,7 @@ def test_record_case_event_reviewer_change():
     assert case_events.count() == 1
 
     case_event = case_events[0]
-    assert case_event.event_type == CASE_EVENT_QA_AUDITOR
+    assert case_event.event_type == CaseEvent.EventType.QA_AUDITOR
     assert case_event.message == "QA auditor changed from Old User to New User"
 
 
