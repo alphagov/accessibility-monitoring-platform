@@ -15,18 +15,6 @@ from ..cases.models import Case
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date
 
-SCREEN_SIZE_DEFAULT: str = "15in"
-SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
-    (SCREEN_SIZE_DEFAULT, "15 inch"),
-    ("14in", "14 inch"),
-    ("13in", "13 inch"),
-]
-EXEMPTIONS_STATE_DEFAULT: str = "unknown"
-EXEMPTIONS_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (EXEMPTIONS_STATE_DEFAULT, "Unknown"),
-]
 PAGE_TYPE_EXTRA: str = "extra"
 PAGE_TYPE_HOME: str = "home"
 PAGE_TYPE_CONTACT: str = "contact"
@@ -58,14 +46,6 @@ TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEST_TYPE_AXE, "Axe"),
     (TEST_TYPE_PDF, "PDF"),
 ]
-SCOPE_STATE_DEFAULT: str = "not-present"
-SCOPE_STATE_VALID: str = "present"
-SCOPE_STATE_CHOICES: List[Tuple[str, str]] = [
-    (SCOPE_STATE_VALID, "Present and correct"),
-    (SCOPE_STATE_DEFAULT, "Not included"),
-    ("incomplete", "Does not cover entire website"),
-    ("other", "Other"),
-]
 FEEDBACK_STATE_DEFAULT: str = "not-present"
 FEEDBACK_STATE_VALID: str = "present"
 FEEDBACK_STATE_CHOICES: List[Tuple[str, str]] = [
@@ -88,13 +68,6 @@ ENFORCEMENT_PROCEDURE_STATE_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_PROCEDURE_VALID, "Present"),
     (ENFORCEMENT_PROCEDURE_STATE_DEFAULT, "Not included"),
     ("other", "Other (Please specify)"),
-]
-DECLARATION_STATE_DEFAULT: str = "not-present"
-DECLARATION_STATE_VALID: str = "present"
-DECLARATION_STATE_CHOICES: List[Tuple[str, str]] = [
-    (DECLARATION_STATE_VALID, "Present and correct"),
-    (DECLARATION_STATE_DEFAULT, "Not included"),
-    ("other", "Other"),
 ]
 COMPLIANCE_STATE_DEFAULT: str = "not-present"
 COMPLIANCE_STATE_VALID: str = "present"
@@ -247,11 +220,11 @@ ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES: List[str] = [
     "access_requirements",
 ]
 ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
-    "scope": [SCOPE_STATE_VALID],
+    "scope": ["present"],
     "feedback": [FEEDBACK_STATE_VALID],
     "contact_information": [CONTACT_INFORMATION_VALID],
     "enforcement_procedure": [ENFORCEMENT_PROCEDURE_VALID],
-    "declaration": [DECLARATION_STATE_VALID],
+    "declaration": ["present"],
     "compliance": [COMPLIANCE_STATE_VALID],
     "non_regulation": [NON_REGULATION_VALID],
     "disproportionate_burden": [
@@ -360,6 +333,27 @@ class Audit(VersionModel):
     Model for test
     """
 
+    class ScreenSize(models.TextChoices):
+        SIZE_15 = "15in", "15 inch"
+        SIZE_14 = "14in", "14 inch"
+        SIZE_13 = "13in", "13 inch"
+
+    class Exemptions(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        UNKNOWN = "unknown", "Unknown"
+
+    class Declaration(models.TextChoices):
+        PRESENT = "present", "Present and correct"
+        NOT_PRESENT = "not-present", "Not included"
+        OTHER = "other", "Other"
+
+    class Scope(models.TextChoices):
+        PRESENT = "present", "Present and correct"
+        NOT_PRESENT = "not-present", "Not included"
+        INCOMPLETE = "incomplete", "Does not cover entire website"
+        OTHER = "other", "Other"
+
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="audit_case"
     )
@@ -370,13 +364,13 @@ class Audit(VersionModel):
     date_of_test = models.DateField(default=date.today)
     screen_size = models.CharField(
         max_length=20,
-        choices=SCREEN_SIZE_CHOICES,
-        default=SCREEN_SIZE_DEFAULT,
+        choices=ScreenSize.choices,
+        default=ScreenSize.SIZE_15,
     )
     exemptions_state = models.CharField(
         max_length=20,
-        choices=EXEMPTIONS_STATE_CHOICES,
-        default=EXEMPTIONS_STATE_DEFAULT,
+        choices=Exemptions.choices,
+        default=Exemptions.UNKNOWN,
     )
     exemptions_notes = models.TextField(default="", blank=True)
     audit_metadata_complete_date = models.DateField(null=True, blank=True)
@@ -393,15 +387,15 @@ class Audit(VersionModel):
     archive_declaration_state = models.CharField(
         "Declaration",
         max_length=20,
-        choices=DECLARATION_STATE_CHOICES,
-        default=DECLARATION_STATE_DEFAULT,
+        choices=Declaration.choices,
+        default=Declaration.NOT_PRESENT,
     )
     archive_declaration_notes = models.TextField(default="", blank=True)
     archive_scope_state = models.CharField(
         verbose_name="Scope",
         max_length=20,
-        choices=SCOPE_STATE_CHOICES,
-        default=SCOPE_STATE_DEFAULT,
+        choices=Scope.choices,
+        default=Scope.NOT_PRESENT,
     )
     archive_scope_notes = models.TextField(default="", blank=True)
     archive_compliance_state = models.CharField(
@@ -632,12 +626,12 @@ class Audit(VersionModel):
     )
     archive_audit_retest_declaration_state = models.CharField(
         max_length=20,
-        choices=DECLARATION_STATE_CHOICES,
-        default=DECLARATION_STATE_DEFAULT,
+        choices=Declaration.choices,
+        default=Declaration.NOT_PRESENT,
     )
     archive_audit_retest_declaration_notes = models.TextField(default="", blank=True)
     archive_audit_retest_scope_state = models.CharField(
-        max_length=20, choices=SCOPE_STATE_CHOICES, default=SCOPE_STATE_DEFAULT
+        max_length=20, choices=Scope.choices, default=Scope.NOT_PRESENT
     )
     archive_audit_retest_scope_notes = models.TextField(default="", blank=True)
     archive_audit_retest_compliance_state = models.CharField(

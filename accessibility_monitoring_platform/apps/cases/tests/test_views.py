@@ -21,7 +21,6 @@ from ...audits.models import (
     PAGE_TYPE_HOME,
     PAGE_TYPE_STATEMENT,
     RETEST_CHECK_RESULT_FIXED,
-    SCOPE_STATE_VALID,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_YES,
     Audit,
@@ -2963,7 +2962,7 @@ def test_outstanding_issues_overview_percentage(admin_client):
     correctly.
     """
     audit: Audit = create_audit_and_check_results()
-    audit.archive_audit_retest_scope_state = SCOPE_STATE_VALID
+    audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
     audit.save()
     home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
     check_result: CheckResult = home_page.all_check_results[0]

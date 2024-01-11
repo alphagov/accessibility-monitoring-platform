@@ -30,10 +30,8 @@ from .models import (
     COMPLIANCE_STATE_CHOICES,
     CONTACT_INFORMATION_STATE_CHOICES,
     CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
-    DECLARATION_STATE_CHOICES,
     DISPROPORTIONATE_BURDEN_STATE_CHOICES,
     ENFORCEMENT_PROCEDURE_STATE_CHOICES,
-    EXEMPTIONS_STATE_CHOICES,
     FEEDBACK_STATE_CHOICES,
     METHOD_STATE_CHOICES,
     NON_REGULATION_STATE_CHOICES,
@@ -42,8 +40,6 @@ from .models import (
     RETEST_CHECK_RESULT_STATE_CHOICES,
     RETEST_INITIAL_COMPLIANCE_CHOICES,
     REVIEW_STATE_CHOICES,
-    SCOPE_STATE_CHOICES,
-    SCREEN_SIZE_CHOICES,
     STATEMENT_CHECK_CHOICES,
     STATEMENT_CHECK_TYPE_CHOICES,
     STATEMENT_CHECK_TYPE_OVERVIEW,
@@ -77,10 +73,10 @@ class AuditMetadataUpdateForm(VersionForm):
     """
 
     date_of_test = AMPDateField(label="Date of test")
-    screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
+    screen_size = AMPChoiceField(label="Screen size", choices=Audit.ScreenSize.choices)
     exemptions_state = AMPChoiceRadioField(
         label="Exemptions?",
-        choices=EXEMPTIONS_STATE_CHOICES,
+        choices=Audit.Exemptions.choices,
     )
     exemptions_notes = AMPTextField(label="Notes")
     audit_metadata_complete_date = AMPDatePageCompleteField()
@@ -294,7 +290,7 @@ class ArchiveAuditStatement1UpdateForm(VersionForm):
     )
     archive_scope_state = AMPChoiceRadioField(
         label="Scope",
-        choices=SCOPE_STATE_CHOICES,
+        choices=Audit.Scope.choices,
     )
     archive_scope_notes = AMPTextField(label="Notes")
     archive_feedback_state = AMPChoiceRadioField(
@@ -314,7 +310,7 @@ class ArchiveAuditStatement1UpdateForm(VersionForm):
     archive_enforcement_procedure_notes = AMPTextField(label="Notes")
     archive_declaration_state = AMPChoiceRadioField(
         label="Declaration",
-        choices=DECLARATION_STATE_CHOICES,
+        choices=Audit.Declaration.choices,
     )
     archive_declaration_notes = AMPTextField(label="Notes")
     archive_compliance_state = AMPChoiceRadioField(
@@ -1047,7 +1043,7 @@ class ArchiveAuditRetestStatement1UpdateForm(VersionForm):
 
     archive_audit_retest_scope_state = AMPChoiceRadioField(
         label="",
-        choices=SCOPE_STATE_CHOICES,
+        choices=Audit.Scope.choices,
     )
     archive_audit_retest_scope_notes = AMPTextField(label="Notes")
     archive_audit_retest_feedback_state = AMPChoiceRadioField(
@@ -1067,7 +1063,7 @@ class ArchiveAuditRetestStatement1UpdateForm(VersionForm):
     archive_audit_retest_enforcement_procedure_notes = AMPTextField(label="Notes")
     archive_audit_retest_declaration_state = AMPChoiceRadioField(
         label="",
-        choices=DECLARATION_STATE_CHOICES,
+        choices=Audit.Declaration.choices,
     )
     archive_audit_retest_declaration_notes = AMPTextField(label="Notes")
     archive_audit_retest_compliance_state = AMPChoiceRadioField(

@@ -27,7 +27,6 @@ from ..models import (
     RETEST_CHECK_RESULT_FIXED,
     RETEST_CHECK_RESULT_NOT_FIXED,
     RETEST_INITIAL_COMPLIANCE_COMPLIANT,
-    SCOPE_STATE_VALID,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_NOT_TESTED,
     STATEMENT_CHECK_TYPE_OVERVIEW,
@@ -693,7 +692,7 @@ def test_audit_accessibility_statement_initially_invalid_count():
 
     assert audit.accessibility_statement_initially_invalid_checks_count == 12
 
-    audit.archive_scope_state = SCOPE_STATE_VALID
+    audit.archive_scope_state = Audit.Scope.PRESENT
 
     assert audit.accessibility_statement_initially_invalid_checks_count == 11
 
@@ -707,7 +706,7 @@ def test_audit_accessibility_statement_fixed_count():
 
     assert audit.fixed_accessibility_statement_checks_count == 0
 
-    audit.archive_audit_retest_scope_state = SCOPE_STATE_VALID
+    audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
 
     assert audit.fixed_accessibility_statement_checks_count == 1
 
@@ -721,7 +720,7 @@ def test_audit_accessibility_statement_finally_invalid():
 
     assert len(audit.finally_invalid_accessibility_statement_checks) == 12
 
-    audit.archive_audit_retest_scope_state = SCOPE_STATE_VALID
+    audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
 
     assert len(audit.finally_invalid_accessibility_statement_checks) == 11
 
@@ -1234,7 +1233,7 @@ def test_returning_previous_retest():
     retest_1: Retest = Retest.objects.create(case=case, id_within_case=1)
     retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
 
-    assert retest_0.previous_retest == None
+    assert retest_0.previous_retest is None
     assert retest_1.previous_retest == retest_0
     assert retest_2.previous_retest == retest_1
 
