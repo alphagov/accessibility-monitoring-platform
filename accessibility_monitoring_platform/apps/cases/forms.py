@@ -30,14 +30,14 @@ from ..common.forms import (
 from ..common.models import Sector, SubCategory
 from .models import (
     PREFERRED_CHOICES,
-    STATUS_CHOICES,
     Boolean,
     Case,
+    CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
 )
 
-status_choices = STATUS_CHOICES
+status_choices = CaseStatus.Status.choices
 status_choices.insert(0, ("", "All"))
 
 DEFAULT_SORT: str = ""

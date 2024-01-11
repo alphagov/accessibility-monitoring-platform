@@ -21,83 +21,6 @@ from ..common.utils import (
     format_statement_check_overview,
 )
 
-STATUS_READY_TO_QA: str = "unassigned-qa-case"
-STATUS_QA_IN_PROGRESS: str = "qa-in-progress"
-STATUS_UNASSIGNED: str = "unassigned-case"
-STATUS_DEFAULT: str = STATUS_UNASSIGNED
-STATUS_DEACTIVATED: str = "deactivated"
-STATUS_CHOICES: List[Tuple[str, str]] = [
-    (
-        "unknown",
-        "Unknown",
-    ),
-    (
-        STATUS_DEFAULT,
-        "Unassigned case",
-    ),
-    (
-        "test-in-progress",
-        "Test in progress",
-    ),
-    (
-        "report-in-progress",
-        "Report in progress",
-    ),
-    (
-        STATUS_READY_TO_QA,
-        "Report ready to QA",
-    ),
-    (
-        STATUS_QA_IN_PROGRESS,
-        "QA in progress",
-    ),
-    (
-        "report-ready-to-send",
-        "Report ready to send",
-    ),
-    (
-        "in-report-correspondence",
-        "Report sent",
-    ),
-    (
-        "in-probation-period",
-        "Report acknowledged waiting for 12-week deadline",
-    ),
-    (
-        "in-12-week-correspondence",
-        "After 12-week correspondence",
-    ),
-    (
-        "reviewing-changes",
-        "Reviewing changes",
-    ),
-    (
-        "final-decision-due",
-        "Final decision due",
-    ),
-    (
-        "case-closed-waiting-to-be-sent",
-        "Case closed and waiting to be sent to equalities body",
-    ),
-    (
-        "case-closed-sent-to-equalities-body",
-        "Case closed and sent to equalities body",
-    ),
-    (
-        "in-correspondence-with-equalities-body",
-        "In correspondence with equalities body",
-    ),
-    (
-        "complete",
-        "Complete",
-    ),
-    (
-        STATUS_DEACTIVATED,
-        "Deactivated",
-    ),
-]
-
-
 STATEMENT_COMPLIANCE_STATE_DEFAULT: str = "unknown"
 STATEMENT_COMPLIANCE_STATE_COMPLIANT: str = "compliant"
 STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT: str = "not-compliant"
@@ -877,9 +800,40 @@ class CaseStatus(models.Model):
     Model for case status
     """
 
+    class Status(models.TextChoices):
+        UNKNOWN = "unknown", "Unknown"
+        UNASSIGNED = "unassigned-case", "Unassigned case"
+        TEST_IN_PROGRESS = "test-in-progress", "Test in progress"
+        REPORT_IN_PROGRESS = "report-in-progress", "Report in progress"
+        READY_TO_QA = "unassigned-qa-case", "Report ready to QA"
+        QA_IN_PROGRESS = "qa-in-progress", "QA in progress"
+        REPORT_READY_TO_SEND = "report-ready-to-send", "Report ready to send"
+        IN_REPORT_CORES = "in-report-correspondence", "Report sent"
+        AWAITING_12_WEEK_DEADLINE = (
+            "in-probation-period",
+            "Report acknowledged waiting for 12-week deadline",
+        )
+        IN_12_WEEK_CORES = "in-12-week-correspondence", "After 12-week correspondence"
+        REVIEWING_CHANGES = "reviewing-changes", "Reviewing changes"
+        FINAL_DECISION_DUE = "final-decision-due", "Final decision due"
+        CASE_CLOSED_WAITING_TO_SEND = (
+            "case-closed-waiting-to-be-sent",
+            "Case closed and waiting to be sent to equalities body",
+        )
+        CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
+            "case-closed-sent-to-equalities-body",
+            "Case closed and sent to equalities body",
+        )
+        IN_CORES_WITH_ENFORCEMENT_BODY = (
+            "in-correspondence-with-equalities-body",
+            "In correspondence with equalities body",
+        )
+        COMPLETE = "complete", "Complete"
+        DEACTIVATED = "deactivated", "Deactivated"
+
     case = models.OneToOneField(Case, on_delete=models.PROTECT, related_name="status")
     status = models.CharField(
-        max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
+        max_length=200, choices=Status.choices, default=Status.UNASSIGNED
     )
 
     class Meta:
@@ -903,7 +857,7 @@ class CaseStatus(models.Model):
             compliance = None
 
         if self.case.is_deactivated:
-            return STATUS_DEACTIVATED
+            return CaseStatus.Status.DEACTIVATED
         elif (
             self.case.case_completed == Case.CaseCompleted.COMPLETE_NO_SEND
             or self.case.enforcement_body_pursuing
@@ -911,71 +865,71 @@ class CaseStatus(models.Model):
             or self.case.enforcement_body_closed_case
             == Case.EnforcementBodyClosedCase.YES
         ):
-            return "complete"
+            return CaseStatus.Status.COMPLETE
         elif (
             self.case.enforcement_body_pursuing
             == Case.EnforcementBodyPursuing.YES_IN_PROGRESS
             or self.case.enforcement_body_closed_case
             == Case.EnforcementBodyClosedCase.IN_PROGRESS
         ):
-            return "in-correspondence-with-equalities-body"
+            return CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
         elif self.case.sent_to_enforcement_body_sent_date is not None:
-            return "case-closed-sent-to-equalities-body"
-        elif self.case.case_completed == "complete-send":
-            return "case-closed-waiting-to-be-sent"
-        elif self.case.no_psb_contact == "yes":
-            return "final-decision-due"
+            return CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
+        elif self.case.case_completed == Case.CaseCompleted.COMPLETE_SEND:
+            return CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
+        elif self.case.no_psb_contact == Boolean.YES:
+            return CaseStatus.Status.FINAL_DECISION_DUE
         elif self.case.auditor is None:
-            return "unassigned-case"
+            return CaseStatus.Status.UNASSIGNED
         elif (
             compliance is None
             or self.case.compliance.website_compliance_state_initial
             == WEBSITE_COMPLIANCE_STATE_DEFAULT
             or self.case.statement_checks_still_initial
         ):
-            return "test-in-progress"
+            return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
             self.case.compliance.website_compliance_state_initial
             != WEBSITE_COMPLIANCE_STATE_DEFAULT
             and not self.case.statement_checks_still_initial
             and self.case.report_review_status != Boolean.YES
         ):
-            return "report-in-progress"
+            return CaseStatus.Status.REPORT_IN_PROGRESS
         elif (
             self.case.report_review_status == Boolean.YES
             and self.case.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
-            return STATUS_QA_IN_PROGRESS
+            return CaseStatus.Status.QA_IN_PROGRESS
         elif (
             self.case.report_approved_status == Case.ReportApprovedStatus.APPROVED
             and self.case.report_sent_date is None
         ):
-            return "report-ready-to-send"
+            return CaseStatus.Status.REPORT_READY_TO_SEND
         elif self.case.report_sent_date and self.case.report_acknowledged_date is None:
-            return "in-report-correspondence"
+            return CaseStatus.Status.IN_REPORT_CORES
         elif (
             self.case.report_acknowledged_date
             and self.case.twelve_week_update_requested_date is None
         ):
-            return "in-probation-period"
+            return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
         elif self.case.twelve_week_update_requested_date and (
             self.case.twelve_week_correspondence_acknowledged_date is None
             and self.case.twelve_week_response_state
             == Case.TwelveWeekResponse.NOT_SELECTED
         ):
-            return "in-12-week-correspondence"
+            return CaseStatus.Status.IN_12_WEEK_CORES
         elif (
             self.case.twelve_week_correspondence_acknowledged_date
             or self.case.twelve_week_response_state
             != Case.TwelveWeekResponse.NOT_SELECTED
         ) and self.case.is_ready_for_final_decision == Boolean.NO:
-            return "reviewing-changes"
+            return CaseStatus.Status.REVIEWING_CHANGES
         elif (
             self.case.is_ready_for_final_decision == Boolean.YES
             and self.case.case_completed == Case.CaseCompleted.NO_DECISION
         ):
-            return "final-decision-due"
-        return "unknown"
+            return CaseStatus.Status.FINAL_DECISION_DUE
+        return CaseStatus.Status.UNKNOWN
 
 
 class CaseCompliance(VersionModel):

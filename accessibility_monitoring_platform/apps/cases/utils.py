@@ -22,10 +22,9 @@ from ..common.utils import build_filters
 from .forms import DEFAULT_SORT, NO_FILTER, CaseSearchForm
 from .models import (
     COMPLIANCE_FIELDS,
-    STATUS_READY_TO_QA,
-    STATUS_UNASSIGNED,
     Case,
     CaseEvent,
+    CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
 )
@@ -513,8 +512,8 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             if filter_value != NO_FILTER:
                 filters[filter_name] = filter_value
 
-    if str(filters.get("status", "")) == STATUS_READY_TO_QA:
-        filters["qa_status"] = STATUS_READY_TO_QA
+    if str(filters.get("status", "")) == CaseStatus.Status.READY_TO_QA:
+        filters["qa_status"] = CaseStatus.Status.READY_TO_QA
         del filters["status"]
 
     if "status" in filters:
@@ -532,7 +531,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             Case.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
-                    When(status__status=STATUS_UNASSIGNED, then=0), default=1
+                    When(status__status=CaseStatus.Status.UNASSIGNED, then=0), default=1
                 )
             )
             .order_by("position_unassigned_first", "-id")
