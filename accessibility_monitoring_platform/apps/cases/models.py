@@ -1018,7 +1018,10 @@ class CaseStatus(models.Model):
             return "in-report-correspondence"
         elif (
             self.case.report_acknowledged_date
-            and self.case.twelve_week_update_requested_date is None
+            and (
+                self.case.twelve_week_update_requested_date is None
+                and self.case.twelve_week_correspondence_acknowledged_date is None
+            )
         ):
             return "in-probation-period"
         elif self.case.twelve_week_update_requested_date and (
