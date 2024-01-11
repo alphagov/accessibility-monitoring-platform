@@ -16,12 +16,7 @@ from ..audits.models import (
     Audit,
     CheckResult,
 )
-from ..cases.models import (
-    CLOSED_CASE_STATUSES,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    Case,
-)
+from ..cases.models import CLOSED_CASE_STATUSES, Case, CaseCompliance
 from ..reports.models import ReportVisitsMetrics
 from ..s3_read_write.models import S3Report
 from .chart import LineChart, Timeseries, TimeseriesDatapoint, build_yearly_metric_chart
@@ -343,7 +338,7 @@ def get_policy_progress_metrics() -> List[ProgressMetric]:
     )
     fixed_audits_count: int = fixed_audits.count()
     compliant_audits: QuerySet[Audit] = retested_audits.filter(
-        case__compliance__statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
     )
     compliant_audits_count: int = compliant_audits.count()
     check_results_of_last_90_days: QuerySet[CheckResult] = CheckResult.objects.filter(
@@ -417,12 +412,12 @@ def get_policy_yearly_metrics() -> List[YearlyMetric]:
     thirteen_month_website_initial_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__compliance__website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT
+        case__compliance__website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT
     )
     thirteen_month_statement_initial_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__compliance__statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        case__compliance__statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT
     )
     thirteen_month_final_no_action: QuerySet[
         Audit
@@ -432,7 +427,7 @@ def get_policy_yearly_metrics() -> List[YearlyMetric]:
     thirteen_month_statement_final_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__compliance__statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
     )
 
     retested_by_month: Timeseries = Timeseries(

@@ -33,17 +33,7 @@ from ...common.models import Boolean
 from ...reminders.models import Reminder
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
-from ..models import (
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_DEFAULT,
-    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_DEFAULT,
-    Case,
-    Contact,
-    EqualityBodyCorrespondence,
-)
+from ..models import Case, CaseCompliance, Contact, EqualityBodyCorrespondence
 from ..utils import create_case_and_compliance
 
 DOMAIN: str = "example.com"
@@ -579,7 +569,7 @@ def test_case_statement_checks_still_initial():
     assert case.statement_checks_still_initial is True
 
     case.compliance.statement_compliance_state_initial = (
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.StatementCompliance.COMPLIANT
     )
 
     assert case.statement_checks_still_initial is False
@@ -621,24 +611,24 @@ def test_contact_updated_updated():
     "website_compliance_state_initial, website_compliance_state_12_week, expected_result",
     [
         (
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
             "Not known",
         ),
-        (WEBSITE_COMPLIANCE_STATE_DEFAULT, "compliant", "Fully compliant"),
+        (CaseCompliance.WebsiteCompliance.UNKNOWN, "compliant", "Fully compliant"),
         (
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
             "partially-compliant",
             "Partially compliant",
         ),
         (
-            WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.WebsiteCompliance.COMPLIANT,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
             "Fully compliant",
         ),
         (
             "partially-compliant",
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
             "Partially compliant",
         ),
     ],
@@ -660,26 +650,26 @@ def test_website_compliance_display(
     "statement_compliance_state_initial, statement_compliance_state_12_week, expected_result",
     [
         (
-            STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-            STATEMENT_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.StatementCompliance.COMPLIANT,
+            CaseCompliance.StatementCompliance.UNKNOWN,
             "Compliant",
         ),
-        ("not-compliant", STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not compliant"),
-        ("not-found", STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not found"),
-        ("other", STATEMENT_COMPLIANCE_STATE_DEFAULT, "Other"),
+        ("not-compliant", CaseCompliance.StatementCompliance.UNKNOWN, "Not compliant"),
+        ("not-found", CaseCompliance.StatementCompliance.UNKNOWN, "Not found"),
+        ("other", CaseCompliance.StatementCompliance.UNKNOWN, "Other"),
         (
-            STATEMENT_COMPLIANCE_STATE_DEFAULT,
-            STATEMENT_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.StatementCompliance.UNKNOWN,
+            CaseCompliance.StatementCompliance.UNKNOWN,
             "Not selected",
         ),
         (
-            STATEMENT_COMPLIANCE_STATE_DEFAULT,
-            STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+            CaseCompliance.StatementCompliance.UNKNOWN,
+            CaseCompliance.StatementCompliance.COMPLIANT,
             "Compliant",
         ),
-        (STATEMENT_COMPLIANCE_STATE_DEFAULT, "not-compliant", "Not compliant"),
-        (STATEMENT_COMPLIANCE_STATE_DEFAULT, "not-found", "Not found"),
-        (STATEMENT_COMPLIANCE_STATE_DEFAULT, "other", "Other"),
+        (CaseCompliance.StatementCompliance.UNKNOWN, "not-compliant", "Not compliant"),
+        (CaseCompliance.StatementCompliance.UNKNOWN, "not-found", "Not found"),
+        (CaseCompliance.StatementCompliance.UNKNOWN, "other", "Other"),
     ],
 )
 @pytest.mark.django_db
@@ -830,16 +820,16 @@ def test_set_accessibility_statement_state_default():
 
     assert (
         case.compliance.statement_compliance_state_initial
-        == STATEMENT_COMPLIANCE_STATE_DEFAULT
+        == CaseCompliance.StatementCompliance.UNKNOWN
     )
 
 
 @pytest.mark.parametrize(
     "statement_compliance_state_initial",
     [
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -863,10 +853,10 @@ def test_set_statement_compliance_state_initial_no_audit(
 @pytest.mark.parametrize(
     "statement_compliance_state_initial",
     [
-        STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.UNKNOWN,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -884,17 +874,17 @@ def test_set_statement_compliance_state_initial_no_statement_page(
 
     assert (
         case.compliance.statement_compliance_state_initial
-        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+        == CaseCompliance.StatementCompliance.NOT_COMPLIANT
     )
 
 
 @pytest.mark.parametrize(
     "statement_compliance_state_initial",
     [
-        STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.UNKNOWN,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -942,7 +932,7 @@ def test_set_statement_compliance_state_initial_to_compliant():
 
     assert (
         case.compliance.statement_compliance_state_initial
-        == STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        == CaseCompliance.StatementCompliance.COMPLIANT
     )
 
 
@@ -970,7 +960,7 @@ def test_set_statement_compliance_state_initial_to_not_compliant():
     case.set_statement_compliance_states()
     assert (
         case.compliance.statement_compliance_state_initial
-        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+        == CaseCompliance.StatementCompliance.NOT_COMPLIANT
     )
 
 
@@ -983,16 +973,16 @@ def test_set_statement_compliance_state_12_week_default():
 
     assert (
         case.compliance.statement_compliance_state_12_week
-        == STATEMENT_COMPLIANCE_STATE_DEFAULT
+        == CaseCompliance.StatementCompliance.UNKNOWN
     )
 
 
 @pytest.mark.parametrize(
     "statement_compliance_state_12_week",
     [
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -1016,10 +1006,10 @@ def test_set_statement_compliance_state_12_week_no_audit(
 @pytest.mark.parametrize(
     "statement_compliance_state_12_week",
     [
-        STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.UNKNOWN,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -1037,17 +1027,17 @@ def test_set_statement_compliance_state_12_week__no_statement_page(
 
     assert (
         case.compliance.statement_compliance_state_12_week
-        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+        == CaseCompliance.StatementCompliance.NOT_COMPLIANT
     )
 
 
 @pytest.mark.parametrize(
     "statement_compliance_state_12_week",
     [
-        STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.UNKNOWN,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -1092,7 +1082,7 @@ def test_set_statement_compliance_state_12_week_to_compliant():
 
     assert (
         case.compliance.statement_compliance_state_12_week
-        == STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        == CaseCompliance.StatementCompliance.COMPLIANT
     )
 
 
@@ -1121,7 +1111,7 @@ def test_set_statement_compliance_state_12_week_to_not_compliant():
 
     assert (
         case.compliance.statement_compliance_state_12_week
-        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+        == CaseCompliance.StatementCompliance.NOT_COMPLIANT
     )
 
 

@@ -18,11 +18,7 @@ from ...audits.models import (
     StatementCheckResult,
     WcagDefinition,
 )
-from ...cases.models import (
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    Case,
-)
+from ...cases.models import Case, CaseCompliance
 from ...cases.utils import create_case_and_compliance
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
@@ -695,15 +691,15 @@ def test_get_policy_yearly_metrics(mock_datetime):
 
     case: Case = create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
     case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
@@ -711,7 +707,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
     )
     case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
@@ -719,8 +715,8 @@ def test_get_policy_yearly_metrics(mock_datetime):
     )
     case: Case = create_case_and_compliance(
         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)

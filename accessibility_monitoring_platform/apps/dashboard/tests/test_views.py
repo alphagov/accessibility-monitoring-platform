@@ -10,11 +10,7 @@ from pytest_django.asserts import assertContains
 
 from accessibility_monitoring_platform.apps.common.models import ChangeToPlatform
 
-from ...cases.models import (
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    Case,
-)
+from ...cases.models import Case, CaseCompliance
 from ...cases.utils import create_case_and_compliance
 from ...common.models import Boolean
 from ...reminders.models import Reminder
@@ -76,8 +72,8 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
@@ -108,8 +104,8 @@ def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
         case_completed=Case.CaseCompleted.COMPLETE_NO_SEND,
     )
 
@@ -174,8 +170,8 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
@@ -192,8 +188,8 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
@@ -269,10 +265,10 @@ def test_dashboard_shows_link_to_reminder(admin_client, admin_user):
         twelve_week_correspondence_acknowledged_date=datetime.now(),
     )
     case.compliance.statement_compliance_state_initial = (
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.StatementCompliance.COMPLIANT
     )
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.WebsiteCompliance.COMPLIANT
     )
     case.compliance.save()
     case.save()

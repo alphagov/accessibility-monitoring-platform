@@ -28,14 +28,7 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Sector, SubCategory
-from .models import (
-    PREFERRED_CHOICES,
-    Boolean,
-    Case,
-    CaseStatus,
-    Contact,
-    EqualityBodyCorrespondence,
-)
+from .models import Boolean, Case, CaseStatus, Contact, EqualityBodyCorrespondence
 
 status_choices = CaseStatus.Status.choices
 status_choices.insert(0, ("", "All"))
@@ -317,7 +310,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     job_title = AMPCharFieldWide(label="Job title")
     email = AMPCharFieldWide(label="Email")
     preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=PREFERRED_CHOICES
+        label="Preferred contact?", choices=Contact.Preferred.choices
     )
 
     class Meta:

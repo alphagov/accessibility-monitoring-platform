@@ -14,11 +14,7 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import Audit, CheckResult, Page, WcagDefinition
-from ...cases.models import (
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    Case,
-)
+from ...cases.models import Case, CaseCompliance
 from ...cases.utils import create_case_and_compliance
 from ...cases.views import calculate_report_followup_dates
 from ...notifications.models import Notification
@@ -465,7 +461,7 @@ def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client
     )
     fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
-        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
         case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
@@ -608,7 +604,7 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     )
     initially_compliant_website_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
@@ -666,9 +662,9 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
     initally_compliant_statement_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
         recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
-        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
         case=initally_compliant_statement_case,
@@ -683,7 +679,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
         recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
-        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
         case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
@@ -696,7 +692,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     fixed_case: Case = create_case_and_compliance(
         case_completed="complete-no-send",
         recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
-        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
         case=fixed_case, retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc)

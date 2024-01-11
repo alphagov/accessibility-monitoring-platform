@@ -5,13 +5,7 @@ from typing import Any, List, Tuple
 
 from django import forms
 
-from ..cases.models import (
-    STATEMENT_COMPLIANCE_STATE_CHOICES,
-    WEBSITE_COMPLIANCE_STATE_CHOICES,
-    Boolean,
-    Case,
-    CaseCompliance,
-)
+from ..cases.models import Boolean, Case, CaseCompliance
 from ..common.forms import (
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
@@ -275,7 +269,7 @@ class CaseComplianceWebsiteInitialUpdateForm(VersionForm):
     website_compliance_state_initial = AMPChoiceRadioField(
         label="Initial website compliance decision",
         help_text="This field effects the case status",
-        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
+        choices=CaseCompliance.WebsiteCompliance.choices,
     )
     website_compliance_notes_initial = AMPTextField(
         label="Initial website compliance notes"
@@ -603,7 +597,7 @@ class ArchiveCaseComplianceStatementInitialUpdateForm(VersionForm):
     statement_compliance_state_initial = AMPChoiceRadioField(
         label="Initial accessibility statement compliance decision",
         help_text="This field effects the case status",
-        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
+        choices=CaseCompliance.StatementCompliance.choices,
     )
     statement_compliance_notes_initial = AMPTextField(
         label="Initial accessibility statement compliance notes"
@@ -1031,7 +1025,7 @@ class CaseComplianceWebsite12WeekUpdateForm(VersionForm):
 
     website_compliance_state_12_week = AMPChoiceRadioField(
         label="12-week website compliance decision",
-        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
+        choices=CaseCompliance.WebsiteCompliance.choices,
     )
     website_compliance_notes_12_week = AMPTextField(
         label="12-week website compliance decision notes",
@@ -1338,7 +1332,7 @@ class ArchiveCaseComplianceStatement12WeekUpdateForm(VersionForm):
 
     statement_compliance_state_12_week = AMPChoiceRadioField(
         label="12-week accessibility statement compliance decision",
-        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
+        choices=CaseCompliance.StatementCompliance.choices,
     )
     statement_compliance_notes_12_week = AMPTextField(
         label="12-week accessibility statement compliance notes",

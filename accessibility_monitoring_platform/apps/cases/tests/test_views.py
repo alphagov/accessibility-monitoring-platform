@@ -46,9 +46,8 @@ from ...notifications.models import Notification
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
     Case,
+    CaseCompliance,
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
@@ -2329,8 +2328,8 @@ def test_platform_shows_notification_if_fully_compliant(
     notification to that effect on report details page.
     """
     case: Case = create_case_and_compliance(
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
     )
 
     response: HttpResponse = admin_client.get(

@@ -14,7 +14,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
-from ...cases.models import WEBSITE_COMPLIANCE_STATE_COMPLIANT, Case, CaseEvent, Contact
+from ...cases.models import Case, CaseCompliance, CaseEvent, Contact
 from ..models import (
     ADDED_STAGE_TWELVE_WEEK,
     ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
@@ -1043,7 +1043,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     case.auditor = user
     case.save()
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.WebsiteCompliance.COMPLIANT
     )
     case.compliance.save()
 

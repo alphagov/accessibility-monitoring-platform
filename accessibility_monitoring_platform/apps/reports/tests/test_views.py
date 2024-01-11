@@ -22,12 +22,7 @@ from ...audits.models import (
     WcagDefinition,
 )
 from ...audits.utils import report_data_updated
-from ...cases.models import (
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    Case,
-    CaseEvent,
-)
+from ...cases.models import Case, CaseCompliance, CaseEvent
 from ...cases.utils import create_case_and_compliance
 from ...common.models import Boolean
 from ...s3_read_write.models import S3Report
@@ -353,8 +348,8 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
     )
     Audit.objects.create(case=case)
@@ -380,8 +375,8 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
     )
     Audit.objects.create(case=case)
@@ -654,10 +649,10 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.auditor = user
     case.report_review_status = Boolean.YES
     case.compliance.statement_compliance_state_initial = (
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.StatementCompliance.COMPLIANT
     )
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.WebsiteCompliance.COMPLIANT
     )
     case.compliance.save()
     case.save()

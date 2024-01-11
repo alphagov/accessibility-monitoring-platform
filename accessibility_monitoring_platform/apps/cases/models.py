@@ -5,7 +5,7 @@ import json
 import re
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -20,34 +20,6 @@ from ..common.utils import (
     format_outstanding_issues,
     format_statement_check_overview,
 )
-
-STATEMENT_COMPLIANCE_STATE_DEFAULT: str = "unknown"
-STATEMENT_COMPLIANCE_STATE_COMPLIANT: str = "compliant"
-STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT: str = "not-compliant"
-STATEMENT_COMPLIANCE_STATE_NOT_FOUND: str = "not-found"
-STATEMENT_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
-    (STATEMENT_COMPLIANCE_STATE_COMPLIANT, "Compliant"),
-    (STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT, "Not compliant"),
-    (STATEMENT_COMPLIANCE_STATE_NOT_FOUND, "Not found"),
-    ("other", "Other"),
-    (STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not selected"),
-]
-
-WEBSITE_COMPLIANCE_STATE_DEFAULT: str = "not-known"
-WEBSITE_COMPLIANCE_STATE_COMPLIANT: str = "compliant"
-WEBSITE_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
-    (WEBSITE_COMPLIANCE_STATE_COMPLIANT, "Fully compliant"),
-    ("partially-compliant", "Partially compliant"),
-    (WEBSITE_COMPLIANCE_STATE_DEFAULT, "Not known"),
-]
-
-PREFERRED_DEFAULT: str = "unknown"
-PREFERRED_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (PREFERRED_DEFAULT, "Not known"),
-]
-
 
 MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
@@ -483,15 +455,15 @@ class Case(VersionModel):
                 if self.audit.uses_statement_checks:
                     if self.audit.failed_statement_check_results.count() > 0:
                         new_statement_compliance_state_initial = (
-                            STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+                            CaseCompliance.StatementCompliance.NOT_COMPLIANT
                         )
                     else:
                         new_statement_compliance_state_initial = (
-                            STATEMENT_COMPLIANCE_STATE_COMPLIANT
+                            CaseCompliance.StatementCompliance.COMPLIANT
                         )
             else:
                 new_statement_compliance_state_initial = (
-                    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+                    CaseCompliance.StatementCompliance.NOT_COMPLIANT
                 )
             if (
                 self.audit.accessibility_statement_initially_found
@@ -500,15 +472,15 @@ class Case(VersionModel):
                 if self.audit.uses_statement_checks:
                     if self.audit.failed_retest_statement_check_results.count() > 0:
                         new_statement_compliance_state_12_week = (
-                            STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+                            CaseCompliance.StatementCompliance.NOT_COMPLIANT
                         )
                     else:
                         new_statement_compliance_state_12_week = (
-                            STATEMENT_COMPLIANCE_STATE_COMPLIANT
+                            CaseCompliance.StatementCompliance.COMPLIANT
                         )
             else:
                 new_statement_compliance_state_12_week = (
-                    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+                    CaseCompliance.StatementCompliance.NOT_COMPLIANT
                 )
             if (
                 old_statement_compliance_state_initial
@@ -682,7 +654,7 @@ class Case(VersionModel):
     def website_compliance_display(self):
         if (
             self.compliance.website_compliance_state_12_week
-            == WEBSITE_COMPLIANCE_STATE_DEFAULT
+            == CaseCompliance.WebsiteCompliance.UNKNOWN
         ):
             return self.compliance.get_website_compliance_state_initial_display()
         return self.compliance.get_website_compliance_state_12_week_display()
@@ -691,7 +663,7 @@ class Case(VersionModel):
     def accessibility_statement_compliance_display(self):
         if (
             self.compliance.statement_compliance_state_12_week
-            == STATEMENT_COMPLIANCE_STATE_DEFAULT
+            == CaseCompliance.StatementCompliance.UNKNOWN
         ):
             return self.compliance.get_statement_compliance_state_initial_display()
         return self.compliance.get_statement_compliance_state_12_week_display()
@@ -737,7 +709,7 @@ class Case(VersionModel):
             return not self.audit.overview_statement_checks_complete
         return (
             self.compliance.statement_compliance_state_initial
-            == STATEMENT_COMPLIANCE_STATE_DEFAULT
+            == CaseCompliance.StatementCompliance.UNKNOWN
         )
 
     @property
@@ -884,13 +856,13 @@ class CaseStatus(models.Model):
         elif (
             compliance is None
             or self.case.compliance.website_compliance_state_initial
-            == WEBSITE_COMPLIANCE_STATE_DEFAULT
+            == CaseCompliance.WebsiteCompliance.UNKNOWN
             or self.case.statement_checks_still_initial
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
             self.case.compliance.website_compliance_state_initial
-            != WEBSITE_COMPLIANCE_STATE_DEFAULT
+            != CaseCompliance.WebsiteCompliance.UNKNOWN
             and not self.case.statement_checks_still_initial
             and self.case.report_review_status != Boolean.YES
         ):
@@ -937,31 +909,43 @@ class CaseCompliance(VersionModel):
     Model for website and accessibility statement compliance
     """
 
+    class WebsiteCompliance(models.TextChoices):
+        COMPLIANT = "compliant", "Fully compliant"
+        PARTIALLY = "partially-compliant", "Partially compliant"
+        UNKNOWN = "not-known", "Not known"
+
+    class StatementCompliance(models.TextChoices):
+        COMPLIANT = "compliant", "Compliant"
+        NOT_COMPLIANT = "not-compliant", "Not compliant"
+        NOT_FOUND = "not-found", "Not found"
+        OTHER = "other", "Other"
+        UNKNOWN = "unknown", "Not selected"
+
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="compliance"
     )
     website_compliance_state_initial = models.CharField(
         max_length=20,
-        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
-        default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
+        choices=WebsiteCompliance.choices,
+        default=WebsiteCompliance.UNKNOWN,
     )
     website_compliance_notes_initial = models.TextField(default="", blank=True)
     statement_compliance_state_initial = models.CharField(
         max_length=200,
-        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
-        default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
+        choices=StatementCompliance.choices,
+        default=StatementCompliance.UNKNOWN,
     )
     statement_compliance_notes_initial = models.TextField(default="", blank=True)
     website_compliance_state_12_week = models.CharField(
         max_length=200,
-        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
-        default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
+        choices=WebsiteCompliance.choices,
+        default=WebsiteCompliance.UNKNOWN,
     )
     website_compliance_notes_12_week = models.TextField(default="", blank=True)
     statement_compliance_state_12_week = models.CharField(
         max_length=200,
-        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
-        default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
+        choices=StatementCompliance.choices,
+        default=StatementCompliance.UNKNOWN,
     )
     statement_compliance_notes_12_week = models.TextField(default="", blank=True)
 
@@ -979,12 +963,17 @@ class Contact(models.Model):
     Model for cases Contact
     """
 
+    class Preferred(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        UNKNOWN = "unknown", "Not known"
+
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     name = models.TextField(default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
     email = models.CharField(max_length=200, default="", blank=True)
     preferred = models.CharField(
-        max_length=20, choices=PREFERRED_CHOICES, default=PREFERRED_DEFAULT
+        max_length=20, choices=Preferred.choices, default=Preferred.UNKNOWN
     )
     created = models.DateTimeField()
     updated = models.DateTimeField(null=True, blank=True)

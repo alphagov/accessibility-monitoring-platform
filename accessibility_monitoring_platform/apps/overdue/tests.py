@@ -8,11 +8,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ..cases.models import (
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    Case,
-)
+from ..cases.models import Case, CaseCompliance
 from ..cases.utils import create_case_and_compliance
 from ..cases.views import (
     calculate_report_followup_dates,
@@ -40,8 +36,8 @@ def create_case(user: User) -> Case:
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
         report_draft_url="https://www.report-draft.com",
         report_review_status=Boolean.YES,
         reviewer=user,
