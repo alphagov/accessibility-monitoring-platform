@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}{{ case.organisation_name }} | 12-week update requested{% endblock %}
 
 {% block content %}
@@ -63,4 +65,8 @@
         </div>
     </main>
 </div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/cases_copy_text.js' %}"></script>
 {% endblock %}

@@ -10,8 +10,16 @@
             <div class="govuk-details__text">
                 <ul class="govuk-list">
                     {% if case.contact_exists %}
-                        {% for contact in case.contact_set.all %}
-                            <li>{{ contact.email }}</li>
+                        {% for contact in case.contacts %}
+                            <li>
+                                {{ contact.email }} |
+                                <span
+                                    tabIndex="0"
+                                    class="amp-control amp-copy-text"
+                                    sourceText="{{ contact.email }}"
+                                    targetId="{{ field.auto_id }}">
+                                    Copy below</span>
+                            </li>
                         {% endfor %}
                     {% else %}
                         <li>None</li>

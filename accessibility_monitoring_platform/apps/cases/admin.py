@@ -97,6 +97,7 @@ class ContactAdmin(admin.ModelAdmin):
         "job_title",
         "email",
         "case__organisation_name",
+        "case__id",
     ]
     list_display = ["email", "name", "job_title", "case"]
     autocomplete_fields = ["case"]
