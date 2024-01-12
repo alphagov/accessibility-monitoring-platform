@@ -201,6 +201,27 @@ def test_case_status_in_12_week_correspondence(admin_client):
     )
 
 
+def test_case_status_skips_to_reviewing_changes_when_psb_respond_early(admin_client):
+    """Test case status returns in-12-week-correspondence"""
+    user: User = User.objects.create()
+    case: Case = create_case_and_compliance(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
+        report_review_status=BOOLEAN_TRUE,
+        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_sent_date=datetime.now(),
+        report_acknowledged_date=datetime.now(),
+        twelve_week_correspondence_acknowledged_date=datetime.now(),
+    )
+    assert case.status.status == "reviewing-changes"
+
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to reviewing changes"
+    )
+
 def test_case_status_reviewing_changes(admin_client):
     """Test case status returns reviewing-changes"""
     user: User = User.objects.create()

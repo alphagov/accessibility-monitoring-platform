@@ -882,7 +882,10 @@ class CaseStatus(models.Model):
             return CaseStatus.Status.IN_REPORT_CORES
         elif (
             self.case.report_acknowledged_date
-            and self.case.twelve_week_update_requested_date is None
+            and (
+                self.case.twelve_week_update_requested_date is None
+                and self.case.twelve_week_correspondence_acknowledged_date is None
+            )
         ):
             return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
         elif self.case.twelve_week_update_requested_date and (
