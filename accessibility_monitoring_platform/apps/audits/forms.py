@@ -22,7 +22,6 @@ from ..common.forms import (
 )
 from .models import (
     ACCESS_REQUIREMENTS_STATE_CHOICES,
-    ADDED_STAGE_CHOICES,
     ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
     ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
@@ -36,11 +35,7 @@ from .models import (
     NON_REGULATION_STATE_CHOICES,
     PREPARATION_DATE_STATE_CHOICES,
     REPORT_OPTIONS_NEXT_CHOICES,
-    RETEST_INITIAL_COMPLIANCE_CHOICES,
     REVIEW_STATE_CHOICES,
-    STATEMENT_CHECK_CHOICES,
-    STATEMENT_CHECK_TYPE_CHOICES,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
     Audit,
     CheckResult,
     Page,
@@ -434,7 +429,7 @@ class StatementCheckResultForm(forms.ModelForm):
 
     check_result_state = AMPChoiceRadioField(
         label="",
-        choices=STATEMENT_CHECK_CHOICES,
+        choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     report_comment = AMPTextField(label="Comments for report")
@@ -1163,7 +1158,7 @@ class AuditRetestStatementCheckResultForm(forms.ModelForm):
 
     retest_state = AMPChoiceRadioField(
         label="",
-        choices=STATEMENT_CHECK_CHOICES,
+        choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     retest_comment = AMPTextField(label="Retest comments")
@@ -1407,7 +1402,7 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
     date_start = AMPDateField(label="Start date")
     date_end = AMPDateField(label="End date")
     type = AMPChoiceField(
-        label="Statement section", choices=STATEMENT_CHECK_TYPE_CHOICES
+        label="Statement section", choices=StatementCheck.Type.choices
     )
     success_criteria = AMPCharFieldWide(label="Success criteria")
     report_text = AMPCharFieldWide(label="Report text")
@@ -1427,8 +1422,8 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["type"].choices = [
             (value, label)
-            for value, label in STATEMENT_CHECK_TYPE_CHOICES
-            if value != STATEMENT_CHECK_TYPE_OVERVIEW
+            for value, label in StatementCheck.Type.choices
+            if value != StatementCheck.Type.OVERVIEW
         ]
 
 
@@ -1519,7 +1514,7 @@ class RetestComplianceUpdateForm(forms.ModelForm):
 
     retest_compliance_state = AMPChoiceRadioField(
         label="Website compliance decision",
-        choices=RETEST_INITIAL_COMPLIANCE_CHOICES,
+        choices=Retest.Compliance.choices,
     )
     compliance_notes = AMPTextField(label="Notes")
     compliance_complete_date = AMPDatePageCompleteField()
@@ -1541,7 +1536,7 @@ class StatementPageUpdateForm(forms.ModelForm):
     url = AMPURLField(label="Link to statement")
     backup_url = AMPURLField(label="Statement backup")
     added_stage = AMPChoiceRadioField(
-        label="Statement added", choices=ADDED_STAGE_CHOICES
+        label="Statement added", choices=StatementPage.AddedStage.choices
     )
 
     class Meta:

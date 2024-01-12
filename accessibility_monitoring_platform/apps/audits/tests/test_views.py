@@ -16,12 +16,8 @@ from accessibility_monitoring_platform.apps.common.models import Boolean
 
 from ...cases.models import Case, CaseCompliance, CaseEvent, Contact
 from ..models import (
-    ADDED_STAGE_TWELVE_WEEK,
     ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     REPORT_OPTIONS_NEXT_DEFAULT,
-    STATEMENT_CHECK_TYPE_CUSTOM,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_YES,
     Audit,
     CheckResult,
     Page,
@@ -211,7 +207,7 @@ def test_audit_detail_shows_12_week_statement(admin_client):
     audit_pk: Dict[str, int] = {"pk": audit.id}
     StatementPage.objects.create(
         audit=audit,
-        added_stage=ADDED_STAGE_TWELVE_WEEK,
+        added_stage=StatementPage.AddedStage.TWELVE_WEEK,
         url=ACCESSIBILITY_STATEMENT_12_WEEK_URL,
     )
 
@@ -970,9 +966,9 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     for statement_check_result in StatementCheckResult.objects.filter(
-        audit=audit, type=STATEMENT_CHECK_TYPE_OVERVIEW
+        audit=audit, type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.post(
@@ -1122,7 +1118,9 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
-    StatementPage.objects.create(audit=audit, added_stage=ADDED_STAGE_TWELVE_WEEK)
+    StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
+    )
 
     case: Case = audit.case
     case.home_page_url = "https://www.website.com"
@@ -1176,7 +1174,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
 
     StatementPage.objects.create(
         audit=audit,
-        added_stage=ADDED_STAGE_TWELVE_WEEK,
+        added_stage=StatementPage.AddedStage.TWELVE_WEEK,
         url="https://www.website.com/statement",
     )
 
@@ -1871,7 +1869,7 @@ def test_add_custom_statement_check_result(admin_client):
     """Test adding a custom statement issue"""
     audit: Audit = create_audit_and_statement_check_results()
     StatementCheckResult.objects.filter(
-        audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM
+        audit=audit, type=StatementCheck.Type.CUSTOM
     ).delete()
 
     response: HttpResponse = admin_client.post(
@@ -1892,7 +1890,7 @@ def test_add_custom_statement_check_result(admin_client):
     assert response.status_code == 200
 
     custom_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.get(audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM)
+        StatementCheckResult.objects.get(audit=audit, type=StatementCheck.Type.CUSTOM)
     )
 
     assert custom_statement_check_result.report_comment == CUSTOM_STATEMENT_ISSUE
@@ -1904,7 +1902,7 @@ def test_delete_custom_statement_check_result(admin_client):
     """
     audit: Audit = create_audit_and_statement_check_results()
     custom_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.get(audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM)
+        StatementCheckResult.objects.get(audit=audit, type=StatementCheck.Type.CUSTOM)
     )
 
     response: HttpResponse = admin_client.post(
@@ -1923,7 +1921,7 @@ def test_delete_custom_statement_check_result(admin_client):
     assertContains(response, "No custom statement issues have been entered")
 
     result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
-        audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM
+        audit=audit, type=StatementCheck.Type.CUSTOM
     )
     assert result_on_database.is_deleted is True
 
@@ -2303,7 +2301,7 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
     assert response.status_code == 200
     assertContains(response, "View initial decision")
 
-    statement_page.added_stage = (ADDED_STAGE_TWELVE_WEEK,)
+    statement_page.added_stage = (StatementPage.AddedStage.TWELVE_WEEK,)
     statement_page.save()
 
     response: HttpResponse = admin_client.get(
@@ -2782,8 +2780,8 @@ def test_audit_statement_check_statment_comparison_includes_fixed(admin_client):
     statement_check_result: StatementCheckResult = (
         audit.overview_statement_check_results.first()
     )
-    statement_check_result.check_result_state = STATEMENT_CHECK_YES
-    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.check_result_state = StatementCheckResult.Result.YES
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
     statement_check_result.save()
 
     response: HttpResponse = admin_client.get(

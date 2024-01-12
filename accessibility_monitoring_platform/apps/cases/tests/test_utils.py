@@ -13,7 +13,7 @@ from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
-from ...audits.models import RETEST_INITIAL_COMPLIANCE_COMPLIANT, Audit, Retest
+from ...audits.models import Audit, Retest
 from ...common.models import Boolean, Sector, SubCategory
 from ..models import (
     Case,
@@ -770,7 +770,7 @@ def test_get_post_case_alerts_count():
 
     assert get_post_case_alerts_count(user=user) == 1
 
-    retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    retest.retest_compliance_state = Retest.Compliance.COMPLIANT
     retest.save()
 
     assert get_post_case_alerts_count(user=user) == 0
@@ -822,7 +822,7 @@ def test_get_post_case_alerts():
     assert post_case_alert.absolute_url == retest.get_absolute_url()
     assert post_case_alert.absolute_url_label == "View retest"
 
-    retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    retest.retest_compliance_state = Retest.Compliance.COMPLIANT
     retest.save()
 
     assert len(get_post_case_alerts(user=user)) == 0

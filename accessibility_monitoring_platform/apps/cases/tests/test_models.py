@@ -11,10 +11,6 @@ from django.contrib.auth.models import User
 
 from ...audits.models import (
     CONTENT_NOT_IN_SCOPE_VALID,
-    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
-    STATEMENT_CHECK_NO,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_YES,
     Audit,
     CheckResult,
     Page,
@@ -574,7 +570,7 @@ def test_case_statement_checks_still_initial():
 
     audit: Audit = Audit.objects.create(case=case)
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
@@ -585,7 +581,7 @@ def test_case_statement_checks_still_initial():
     assert case.statement_checks_still_initial is True
 
     for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert case.statement_checks_still_initial is False
@@ -792,7 +788,9 @@ def test_overview_issues_statement_with_statement_checks():
     audit: Audit = Audit.objects.create(case=case)
     for count, statement_check in enumerate(StatementCheck.objects.all()):
         check_result_state: str = (
-            STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
+            StatementCheckResult.Result.NO
+            if count % 2 == 0
+            else StatementCheckResult.Result.YES
         )
         StatementCheckResult.objects.create(
             audit=audit,
@@ -807,7 +805,7 @@ def test_overview_issues_statement_with_statement_checks():
         audit.failed_statement_check_results
     ):
         if count % 2 == 0:
-            statement_check_result.check_result_state = STATEMENT_CHECK_YES
+            statement_check_result.check_result_state = StatementCheckResult.Result.YES
             statement_check_result.save()
 
     assert case.overview_issues_statement == "10 checks failed on test"
@@ -922,7 +920,7 @@ def test_set_statement_compliance_state_initial_to_compliant():
     audit: Audit = Audit.objects.create(case=case)
     StatementPage.objects.create(audit=audit)
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
@@ -950,13 +948,13 @@ def test_set_statement_compliance_state_initial_to_not_compliant():
         audit=audit, page_type=Page.Type.STATEMENT, url="https://example.com"
     )
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
             type=statement_check.type,
             statement_check=statement_check,
-            check_result_state=STATEMENT_CHECK_NO,
+            check_result_state=StatementCheckResult.Result.NO,
         )
 
     case.set_statement_compliance_states()
@@ -1072,7 +1070,7 @@ def test_set_statement_compliance_state_12_week_to_compliant():
     audit: Audit = Audit.objects.create(case=case)
     StatementPage.objects.create(audit=audit)
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
@@ -1100,13 +1098,13 @@ def test_set_statement_compliance_state_12_week_to_not_compliant():
         audit=audit, page_type=Page.Type.STATEMENT, url="https://example.com"
     )
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
             type=statement_check.type,
             statement_check=statement_check,
-            retest_state=STATEMENT_CHECK_NO,
+            retest_state=StatementCheckResult.Result.NO,
         )
 
     case.set_statement_compliance_states()
@@ -1203,7 +1201,7 @@ def test_case_incomplete_retests_returns_incomplete_retests():
     assert len(case.incomplete_retests) == 1
     assert case.incomplete_retests[0] == incomplete_retest
 
-    incomplete_retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    incomplete_retest.retest_compliance_state = Retest.Compliance.COMPLIANT
     incomplete_retest.save()
 
     assert len(case.incomplete_retests) == 0

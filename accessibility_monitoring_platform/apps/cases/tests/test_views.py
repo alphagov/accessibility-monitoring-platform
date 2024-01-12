@@ -16,9 +16,6 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
-    ADDED_STAGE_TWELVE_WEEK,
-    STATEMENT_CHECK_NO,
-    STATEMENT_CHECK_YES,
     Audit,
     CheckResult,
     Page,
@@ -1817,7 +1814,9 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
         html=True,
     )
 
-    StatementPage.objects.create(audit=audit, added_stage=ADDED_STAGE_TWELVE_WEEK)
+    StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
@@ -2808,7 +2807,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     )
 
     for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.get(
@@ -3019,7 +3018,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     assertNotContains(response, label)
     assertNotContains(response, edit_url)
 
-    statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    statement_check_result.check_result_state = StatementCheckResult.Result.NO
     statement_check_result.save()
 
     response: HttpResponse = admin_client.get(url)
@@ -3028,7 +3027,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     assertContains(response, label)
     assertContains(response, edit_url)
 
-    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
     statement_check_result.save()
 
     response: HttpResponse = admin_client.get(url)
@@ -3113,9 +3112,9 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
         audit=audit,
         type=type,
         statement_check=statement_check,
-        check_result_state=STATEMENT_CHECK_NO,
+        check_result_state=StatementCheckResult.Result.NO,
         report_comment=STATEMENT_CHECK_RESULT_REPORT_COMMENT,
-        retest_state=STATEMENT_CHECK_NO,
+        retest_state=StatementCheckResult.Result.NO,
         retest_comment=STATEMENT_CHECK_RESULT_RETEST_COMMENT,
     )
 
@@ -3131,7 +3130,7 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
         check_result.retest_state = CheckResult.RetestResult.FIXED
         check_result.save()
 
-    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
     statement_check_result.save()
 
     url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})

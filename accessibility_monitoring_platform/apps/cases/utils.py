@@ -17,7 +17,7 @@ from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.urls import reverse
 
-from ..audits.models import RETEST_INITIAL_COMPLIANCE_DEFAULT, Audit, Retest
+from ..audits.models import Audit, Retest
 from ..common.utils import build_filters
 from .forms import DEFAULT_SORT, NO_FILTER, CaseSearchForm
 from .models import (
@@ -816,7 +816,7 @@ def get_post_case_alerts_count(user: User) -> int:
             + Retest.objects.filter(
                 is_deleted=False,
                 case__auditor=user,
-                retest_compliance_state=RETEST_INITIAL_COMPLIANCE_DEFAULT,
+                retest_compliance_state=Retest.Compliance.NOT_KNOWN,
                 id_within_case__gt=0,
             ).count()
         )
@@ -851,7 +851,7 @@ def get_post_case_alerts(user: User) -> List[PostCaseAlert]:
     retests: QuerySet[Retest] = Retest.objects.filter(
         is_deleted=False,
         case__auditor=user,
-        retest_compliance_state=RETEST_INITIAL_COMPLIANCE_DEFAULT,
+        retest_compliance_state=Retest.Compliance.NOT_KNOWN,
         id_within_case__gt=0,
     )
 

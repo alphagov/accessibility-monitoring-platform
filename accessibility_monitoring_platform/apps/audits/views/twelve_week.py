@@ -37,18 +37,12 @@ from ..forms import (
     TwelveWeekStatementPagesUpdateForm,
 )
 from ..models import (
-    ADDED_STAGE_TWELVE_WEEK,
-    STATEMENT_CHECK_TYPE_COMPLIANCE,
-    STATEMENT_CHECK_TYPE_CUSTOM,
-    STATEMENT_CHECK_TYPE_FEEDBACK,
-    STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_TYPE_PREPARATION,
-    STATEMENT_CHECK_TYPE_WEBSITE,
     Audit,
     CheckResult,
     Page,
+    StatementCheck,
     StatementCheckResult,
+    StatementPage,
 )
 from ..utils import get_next_retest_page_url, get_retest_view_tables_context
 from .base import (
@@ -243,7 +237,9 @@ class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         for form in context["statement_pages_formset"]:
             if form.instance.id is None:
-                form.fields["added_stage"].initial = ADDED_STAGE_TWELVE_WEEK
+                form.fields[
+                    "added_stage"
+                ].initial = StatementPage.AddedStage.TWELVE_WEEK
         return context
 
     def get_success_url(self) -> str:
@@ -363,7 +359,7 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
         AuditRetestStatementOverviewUpdateForm
     ] = AuditRetestStatementOverviewUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_overview.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_OVERVIEW
+    statement_check_type: str = StatementCheck.Type.OVERVIEW
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -387,7 +383,7 @@ class AuditRetestStatementWebsiteFormView(AuditRetestStatementCheckingView):
         AuditRetestStatementWebsiteUpdateForm
     ] = AuditRetestStatementWebsiteUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_website.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_WEBSITE
+    statement_check_type: str = StatementCheck.Type.WEBSITE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -407,7 +403,7 @@ class AuditRetestStatementComplianceFormView(AuditRetestStatementCheckingView):
         AuditRetestStatementComplianceUpdateForm
     ] = AuditRetestStatementComplianceUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_compliance.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_COMPLIANCE
+    statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -429,7 +425,7 @@ class AuditRetestStatementNonAccessibleFormView(AuditRetestStatementCheckingView
         AuditRetestStatementNonAccessibleUpdateForm
     ] = AuditRetestStatementNonAccessibleUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_non_accessible.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+    statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -449,7 +445,7 @@ class AuditRetestStatementPreparationFormView(AuditRetestStatementCheckingView):
         AuditRetestStatementPreparationUpdateForm
     ] = AuditRetestStatementPreparationUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_preparation.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_PREPARATION
+    statement_check_type: str = StatementCheck.Type.PREPARATION
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -469,7 +465,7 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
         AuditRetestStatementFeedbackUpdateForm
     ] = AuditRetestStatementFeedbackUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_feedback.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_FEEDBACK
+    statement_check_type: str = StatementCheck.Type.FEEDBACK
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -489,7 +485,7 @@ class AuditRetestStatementOtherFormView(AuditRetestStatementCheckingView):
         AuditRetestStatementOtherUpdateForm
     ] = AuditRetestStatementOtherUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_other.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_CUSTOM
+    statement_check_type: str = StatementCheck.Type.CUSTOM
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

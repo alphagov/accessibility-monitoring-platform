@@ -52,18 +52,10 @@ from ..forms import (
     CustomStatementCheckResultFormsetOneExtra,
 )
 from ..models import (
-    ADDED_STAGE_INITIAL,
-    STATEMENT_CHECK_NO,
-    STATEMENT_CHECK_TYPE_COMPLIANCE,
-    STATEMENT_CHECK_TYPE_CUSTOM,
-    STATEMENT_CHECK_TYPE_FEEDBACK,
-    STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_TYPE_PREPARATION,
-    STATEMENT_CHECK_TYPE_WEBSITE,
     Audit,
     CheckResult,
     Page,
+    StatementCheck,
     StatementCheckResult,
     StatementPage,
     WcagDefinition,
@@ -386,7 +378,7 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         for form in context["statement_pages_formset"]:
             if form.instance.id is None:
-                form.fields["added_stage"].initial = ADDED_STAGE_INITIAL
+                form.fields["added_stage"].initial = StatementPage.AddedStage.INITIAL
         return context
 
     def form_valid(self, form: ModelForm):
@@ -427,7 +419,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
         AuditStatementOverviewUpdateForm
     ] = AuditStatementOverviewUpdateForm
     template_name: str = "audits/statement_checks/statement_overview.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_OVERVIEW
+    statement_check_type: str = StatementCheck.Type.OVERVIEW
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -448,7 +440,7 @@ class AuditStatementWebsiteFormView(AuditStatementCheckingView):
 
     form_class: Type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
     template_name: str = "audits/statement_checks/statement_website.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_WEBSITE
+    statement_check_type: str = StatementCheck.Type.WEBSITE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -467,7 +459,7 @@ class AuditStatementComplianceFormView(AuditStatementCheckingView):
         AuditStatementComplianceUpdateForm
     ] = AuditStatementComplianceUpdateForm
     template_name: str = "audits/statement_checks/statement_compliance.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_COMPLIANCE
+    statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -486,7 +478,7 @@ class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
         AuditStatementNonAccessibleUpdateForm
     ] = AuditStatementNonAccessibleUpdateForm
     template_name: str = "audits/statement_checks/statement_non_accessible.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+    statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -505,7 +497,7 @@ class AuditStatementPreparationFormView(AuditStatementCheckingView):
         AuditStatementPreparationUpdateForm
     ] = AuditStatementPreparationUpdateForm
     template_name: str = "audits/statement_checks/statement_preparation.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_PREPARATION
+    statement_check_type: str = StatementCheck.Type.PREPARATION
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -524,7 +516,7 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
         AuditStatementFeedbackUpdateForm
     ] = AuditStatementFeedbackUpdateForm
     template_name: str = "audits/statement_checks/statement_feedback.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_FEEDBACK
+    statement_check_type: str = StatementCheck.Type.FEEDBACK
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -541,7 +533,7 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
 
     form_class: Type[AuditStatementCustomUpdateForm] = AuditStatementCustomUpdateForm
     template_name: str = "audits/statement_checks/statement_custom.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_CUSTOM
+    statement_check_type: str = StatementCheck.Type.CUSTOM
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -576,7 +568,7 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
                 if not custom_statement_check_result.audit_id:
                     custom_statement_check_result.audit = audit
                     custom_statement_check_result.check_result_state = (
-                        STATEMENT_CHECK_NO
+                        StatementCheckResult.Result.NO
                     )
                     custom_statement_check_result.save()
                     record_model_create_event(

@@ -190,46 +190,6 @@ ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
     "access_requirements": [ACCESS_REQUIREMENTS_VALID],
 }
 
-STATEMENT_CHECK_TYPE_OVERVIEW: str = "overview"
-STATEMENT_CHECK_TYPE_WEBSITE: str = "website"
-STATEMENT_CHECK_TYPE_COMPLIANCE: str = "compliance"
-STATEMENT_CHECK_TYPE_NON_ACCESSIBLE: str = "non-accessible"
-STATEMENT_CHECK_TYPE_PREPARATION: str = "preparation"
-STATEMENT_CHECK_TYPE_FEEDBACK: str = "feedback"
-STATEMENT_CHECK_TYPE_CUSTOM: str = "custom"
-STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (STATEMENT_CHECK_TYPE_OVERVIEW, "Statement overview"),
-    (STATEMENT_CHECK_TYPE_WEBSITE, "Statement information"),
-    (STATEMENT_CHECK_TYPE_COMPLIANCE, "Compliance status"),
-    (STATEMENT_CHECK_TYPE_NON_ACCESSIBLE, "Non-accessible content"),
-    (STATEMENT_CHECK_TYPE_PREPARATION, "Statement preparation"),
-    (STATEMENT_CHECK_TYPE_FEEDBACK, "Feedback and enforcement procedure"),
-    (STATEMENT_CHECK_TYPE_CUSTOM, "Custom statement issues"),
-]
-STATEMENT_CHECK_YES: str = "yes"
-STATEMENT_CHECK_NO: str = "no"
-STATEMENT_CHECK_NOT_TESTED: str = "not-tested"
-STATEMENT_CHECK_CHOICES: List[Tuple[str, str]] = [
-    (STATEMENT_CHECK_YES, "Yes"),
-    (STATEMENT_CHECK_NO, "No"),
-    (STATEMENT_CHECK_NOT_TESTED, "Not tested"),
-]
-RETEST_INITIAL_COMPLIANCE_DEFAULT: str = "not-known"
-RETEST_INITIAL_COMPLIANCE_COMPLIANT: str = "compliant"
-RETEST_INITIAL_COMPLIANCE_CHOICES: List[Tuple[str, str]] = [
-    (RETEST_INITIAL_COMPLIANCE_COMPLIANT, "Compliant"),
-    ("partially-compliant", "Partially compliant"),
-    (RETEST_INITIAL_COMPLIANCE_DEFAULT, "Not known"),
-]
-ADDED_STAGE_INITIAL: str = "initial"
-ADDED_STAGE_TWELVE_WEEK: str = "12-week-retest"
-ADDED_STAGE_RETEST: str = "retest"
-ADDED_STAGE_CHOICES: List[Tuple[str, str]] = [
-    (ADDED_STAGE_INITIAL, "Initial"),
-    (ADDED_STAGE_TWELVE_WEEK, "12-week retest"),
-    (ADDED_STAGE_RETEST, "Equality body retest"),
-]
-
 
 class ArchiveAccessibilityStatementCheck:
     """Accessibility statement check"""
@@ -890,13 +850,13 @@ class Audit(VersionModel):
 
     @property
     def overview_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_OVERVIEW)
+        return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
 
     @property
     def overview_statement_checks_complete(self) -> bool:
         return (
             self.overview_statement_check_results.filter(
-                check_result_state=STATEMENT_CHECK_NOT_TESTED
+                check_result_state=StatementCheckResult.Result.NOT_TESTED
             ).count()
             == 0
         )
@@ -905,7 +865,7 @@ class Audit(VersionModel):
     def statement_check_result_statement_found(self) -> bool:
         overview_statement_yes_count: CheckResult = (
             self.overview_statement_check_results.filter(
-                check_result_state=STATEMENT_CHECK_YES
+                check_result_state=StatementCheckResult.Result.YES
             ).count()
         )
         return (
@@ -915,91 +875,89 @@ class Audit(VersionModel):
 
     @property
     def website_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_WEBSITE)
+        return self.statement_check_results.filter(type=StatementCheck.Type.WEBSITE)
 
     @property
     def compliance_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_COMPLIANCE)
+        return self.statement_check_results.filter(type=StatementCheck.Type.COMPLIANCE)
 
     @property
     def non_accessible_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+            type=StatementCheck.Type.NON_ACCESSIBLE
         )
 
     @property
     def preparation_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_PREPARATION
-        )
+        return self.statement_check_results.filter(type=StatementCheck.Type.PREPARATION)
 
     @property
     def feedback_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_FEEDBACK)
+        return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
 
     @property
     def custom_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_CUSTOM)
+        return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 
     @property
     def failed_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(
-            check_result_state=STATEMENT_CHECK_NO
+            check_result_state=StatementCheckResult.Result.NO
         )
 
     @property
     def passed_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(
-            check_result_state=STATEMENT_CHECK_YES
+            check_result_state=StatementCheckResult.Result.YES
         )
 
     @property
     def outstanding_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(
-            Q(check_result_state=STATEMENT_CHECK_NO)
-            | Q(retest_state=STATEMENT_CHECK_NO)
-        ).exclude(retest_state=STATEMENT_CHECK_YES)
+            Q(check_result_state=StatementCheckResult.Result.NO)
+            | Q(retest_state=StatementCheckResult.Result.NO)
+        ).exclude(retest_state=StatementCheckResult.Result.YES)
 
     @property
     def overview_outstanding_statement_check_results(self) -> bool:
         return self.outstanding_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_OVERVIEW
+            type=StatementCheck.Type.OVERVIEW
         )
 
     @property
     def website_outstanding_statement_check_results(self) -> bool:
         return self.outstanding_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_WEBSITE
+            type=StatementCheck.Type.WEBSITE
         )
 
     @property
     def compliance_outstanding_statement_check_results(self) -> bool:
         return self.outstanding_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_COMPLIANCE
+            type=StatementCheck.Type.COMPLIANCE
         )
 
     @property
     def non_accessible_outstanding_statement_check_results(self) -> bool:
         return self.outstanding_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+            type=StatementCheck.Type.NON_ACCESSIBLE
         )
 
     @property
     def preparation_outstanding_statement_check_results(self) -> bool:
         return self.outstanding_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_PREPARATION
+            type=StatementCheck.Type.PREPARATION
         )
 
     @property
     def feedback_outstanding_statement_check_results(self) -> bool:
         return self.outstanding_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_FEEDBACK
+            type=StatementCheck.Type.FEEDBACK
         )
 
     @property
     def custom_outstanding_statement_check_results(self) -> bool:
         return self.outstanding_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_CUSTOM
+            type=StatementCheck.Type.CUSTOM
         )
 
     @property
@@ -1007,27 +965,31 @@ class Audit(VersionModel):
         """Check all overview statement checks have passed test or retest"""
         return (
             self.overview_statement_check_results.exclude(
-                check_result_state=STATEMENT_CHECK_YES
+                check_result_state=StatementCheckResult.Result.YES
             ).count()
             == 0
             or self.overview_statement_check_results.exclude(
-                retest_state=STATEMENT_CHECK_YES
+                retest_state=StatementCheckResult.Result.YES
             ).count()
             == 0
         )
 
     @property
     def failed_retest_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(retest_state=STATEMENT_CHECK_NO)
+        return self.statement_check_results.filter(
+            retest_state=StatementCheckResult.Result.NO
+        )
 
     @property
     def passed_retest_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(retest_state=STATEMENT_CHECK_YES)
+        return self.statement_check_results.filter(
+            retest_state=StatementCheckResult.Result.YES
+        )
 
     @property
     def fixed_statement_check_results(self) -> bool:
         return self.failed_statement_check_results.filter(
-            retest_state=STATEMENT_CHECK_YES
+            retest_state=StatementCheckResult.Result.YES
         )
 
     @property
@@ -1036,12 +998,20 @@ class Audit(VersionModel):
 
     @property
     def accessibility_statement_initially_found(self):
-        return self.statement_pages.filter(added_stage=ADDED_STAGE_INITIAL).count() > 0
+        return (
+            self.statement_pages.filter(
+                added_stage=StatementPage.AddedStage.INITIAL
+            ).count()
+            > 0
+        )
 
     @property
     def twelve_week_accessibility_statement_found(self):
         return (
-            self.statement_pages.filter(added_stage=ADDED_STAGE_TWELVE_WEEK).count() > 0
+            self.statement_pages.filter(
+                added_stage=StatementPage.AddedStage.TWELVE_WEEK
+            ).count()
+            > 0
         )
 
     @property
@@ -1244,10 +1214,19 @@ class StatementCheck(models.Model):
     Model for accessibilty statement-specific checks
     """
 
+    class Type(models.TextChoices):
+        OVERVIEW = "overview", "Statement overview"
+        WEBSITE = "website", "Statement information"
+        COMPLIANCE = "compliance", "Compliance status"
+        NON_ACCESSIBLE = "non-accessible", "Non-accessible content"
+        PREPARATION = "preparation", "Statement preparation"
+        FEEDBACK = "feedback", "Feedback and enforcement procedure"
+        CUSTOM = "custom", "Custom statement issues"
+
     type = models.CharField(
         max_length=20,
-        choices=STATEMENT_CHECK_TYPE_CHOICES,
-        default=STATEMENT_CHECK_TYPE_CUSTOM,
+        choices=Type.choices,
+        default=Type.CUSTOM,
     )
     label = models.TextField(default="", blank=True)
     success_criteria = models.TextField(default="", blank=True)
@@ -1277,26 +1256,31 @@ class StatementCheckResult(models.Model):
     Model for accessibility statement-specific check result
     """
 
+    class Result(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        NOT_TESTED = "not-tested", "Not tested"
+
     audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
     statement_check = models.ForeignKey(
         StatementCheck, on_delete=models.PROTECT, null=True, blank=True
     )
     type = models.CharField(
         max_length=20,
-        choices=STATEMENT_CHECK_TYPE_CHOICES,
-        default=STATEMENT_CHECK_TYPE_CUSTOM,
+        choices=StatementCheck.Type.choices,
+        default=StatementCheck.Type.CUSTOM,
     )
     check_result_state = models.CharField(
         max_length=10,
-        choices=STATEMENT_CHECK_CHOICES,
-        default=STATEMENT_CHECK_NOT_TESTED,
+        choices=Result.choices,
+        default=Result.NOT_TESTED,
     )
     report_comment = models.TextField(default="", blank=True)
     auditor_notes = models.TextField(default="", blank=True)
     retest_state = models.CharField(
         max_length=10,
-        choices=STATEMENT_CHECK_CHOICES,
-        default=STATEMENT_CHECK_NOT_TESTED,
+        choices=Result.choices,
+        default=Result.NOT_TESTED,
     )
     retest_comment = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
@@ -1323,14 +1307,19 @@ class Retest(VersionModel):
     Model for retest of outstanding issues requested by an equality body
     """
 
+    class Compliance(models.TextChoices):
+        COMPLIANT = "compliant", "Compliant"
+        PARTIAL = "partially-compliant", "Partially compliant"
+        NOT_KNOWN = "not-known", "Not known"
+
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     id_within_case = models.IntegerField(default=1, blank=True)
     date_of_retest = models.DateField(default=date.today)
     retest_notes = models.TextField(default="", blank=True)
     retest_compliance_state = models.CharField(
         max_length=20,
-        choices=RETEST_INITIAL_COMPLIANCE_CHOICES,
-        default=RETEST_INITIAL_COMPLIANCE_DEFAULT,
+        choices=Compliance.choices,
+        default=Compliance.NOT_KNOWN,
     )
     compliance_notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
@@ -1351,7 +1340,7 @@ class Retest(VersionModel):
 
     @property
     def is_incomplete(self) -> bool:
-        return self.retest_compliance_state == RETEST_INITIAL_COMPLIANCE_DEFAULT
+        return self.retest_compliance_state == Retest.Compliance.NOT_KNOWN
 
     @property
     def fixed_checks_count(self):
@@ -1496,13 +1485,18 @@ class StatementPage(models.Model):
     of a case.
     """
 
+    class AddedStage(models.TextChoices):
+        INITIAL = "initial", "Initial"
+        TWELVE_WEEK = "12-week-retest", "12-week retest"
+        RETEST = "retest", "Equality body retest"
+
     audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
     is_deleted = models.BooleanField(default=False)
 
     url = models.TextField(default="", blank=True)
     backup_url = models.TextField(default="", blank=True)
     added_stage = models.CharField(
-        max_length=20, choices=ADDED_STAGE_CHOICES, default=ADDED_STAGE_INITIAL
+        max_length=20, choices=AddedStage.choices, default=AddedStage.INITIAL
     )
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 

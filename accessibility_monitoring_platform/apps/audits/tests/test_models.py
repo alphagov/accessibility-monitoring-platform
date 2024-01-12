@@ -12,14 +12,7 @@ from pytest_django.asserts import assertQuerysetEqual
 from ...cases.models import Case
 from ...common.models import Boolean
 from ..models import (
-    ADDED_STAGE_INITIAL,
-    ADDED_STAGE_TWELVE_WEEK,
     ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
-    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
-    STATEMENT_CHECK_NO,
-    STATEMENT_CHECK_NOT_TESTED,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_YES,
     ArchiveAccessibilityStatementCheck,
     Audit,
     CheckResult,
@@ -140,7 +133,9 @@ def create_audit_and_statement_check_results() -> Audit:
     audit: Audit = Audit.objects.create(case=case)
     for count, statement_check in enumerate(StatementCheck.objects.all()):
         check_result_state: str = (
-            STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
+            StatementCheckResult.Result.NO
+            if count % 2 == 0
+            else StatementCheckResult.Result.YES
         )
         StatementCheckResult.objects.create(
             audit=audit,
@@ -448,7 +443,7 @@ def test_accessibility_statement_initially_found():
     # Not found flag not set
     assert audit.accessibility_statement_initially_found is True
 
-    statement_page.added_stage = ADDED_STAGE_TWELVE_WEEK
+    statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
     statement_page.save()
 
     # Not found flag set
@@ -465,7 +460,7 @@ def test_accessibility_statement_found():
 
     assert audit.accessibility_statement_found is True
 
-    statement_page.added_stage = ADDED_STAGE_TWELVE_WEEK
+    statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
     statement_page.save()
 
     assert audit.accessibility_statement_found is True
@@ -819,7 +814,9 @@ def test_audit_overview_statement_checks_complete():
     assert audit.overview_statement_checks_complete is True
 
     for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_NOT_TESTED
+        statement_check_result.check_result_state = (
+            StatementCheckResult.Result.NOT_TESTED
+        )
         statement_check_result.save()
         break
 
@@ -835,7 +832,7 @@ def test_audit_failed_statement_check_results():
     audit: Audit = create_audit_and_statement_check_results()
     failed_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
-            audit=audit, check_result_state=STATEMENT_CHECK_NO
+            audit=audit, check_result_state=StatementCheckResult.Result.NO
         )
     )
 
@@ -864,7 +861,7 @@ def test_audit_contains_specific_outstanding_statement_check_results(type, attr)
     audit: Audit = create_audit_and_statement_check_results()
     failed_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
-            audit=audit, type=type, check_result_state=STATEMENT_CHECK_NO
+            audit=audit, type=type, check_result_state=StatementCheckResult.Result.NO
         )
     )
 
@@ -883,10 +880,10 @@ def test_audit_outstanding_statement_check_results_includes_new_failures():
     audit: Audit = create_audit_and_statement_check_results()
     untested_statement_check_result: StatementCheckResult = (
         StatementCheckResult.objects.filter(
-            audit=audit, check_result_state=STATEMENT_CHECK_NOT_TESTED
+            audit=audit, check_result_state=StatementCheckResult.Result.NOT_TESTED
         ).first()
     )
-    untested_statement_check_result.retest_state = STATEMENT_CHECK_NO
+    untested_statement_check_result.retest_state = StatementCheckResult.Result.NO
     untested_statement_check_result.save()
 
     assert untested_statement_check_result in audit.outstanding_statement_check_results
@@ -903,7 +900,7 @@ def test_audit_statement_check_result_statement_found():
     assert audit.statement_check_result_statement_found is False
 
     for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert audit.statement_check_result_statement_found is True
@@ -922,23 +919,23 @@ def test_audit_all_overview_statement_checks_have_passed():
     overview_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             audit=audit,
-            type=STATEMENT_CHECK_TYPE_OVERVIEW,
+            type=StatementCheck.Type.OVERVIEW,
         )
     )
     for statement_check_result in overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is True
 
     for statement_check_result in overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_NO
+        statement_check_result.check_result_state = StatementCheckResult.Result.NO
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is False
 
     for statement_check_result in overview_statement_check_results:
-        statement_check_result.retest_state = STATEMENT_CHECK_YES
+        statement_check_result.retest_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is True
@@ -953,14 +950,16 @@ def test_all_overview_statement_checks_have_passed():
     overview_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             audit=audit,
-            type=STATEMENT_CHECK_TYPE_OVERVIEW,
+            type=StatementCheck.Type.OVERVIEW,
         )
     )
 
     assert audit.all_overview_statement_checks_have_passed is False
 
     for overview_statement_check_result in overview_statement_check_results:
-        overview_statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        overview_statement_check_result.check_result_state = (
+            StatementCheckResult.Result.YES
+        )
         overview_statement_check_result.save()
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
@@ -1020,14 +1019,14 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
     assert getattr(audit, attr_name).exists() is False
     assert audit.outstanding_statement_check_results.count() == 0
 
-    statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    statement_check_result.check_result_state = StatementCheckResult.Result.NO
     statement_check_result.save()
 
     assert getattr(audit, attr_name).exists() is True
     assert getattr(audit, attr_name).first() == statement_check_result
     assert audit.outstanding_statement_check_results.count() == 1
 
-    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
     statement_check_result.save()
 
     assert getattr(audit, attr_name).exists() is False
@@ -1052,13 +1051,13 @@ def test_fixed_statement_checks_are_returned():
     passed_statement_check_result: StatementCheckResult = (
         statement_check_results.first()
     )
-    passed_statement_check_result.check_result_state = STATEMENT_CHECK_YES
-    passed_statement_check_result.retest_state = STATEMENT_CHECK_YES
+    passed_statement_check_result.check_result_state = StatementCheckResult.Result.YES
+    passed_statement_check_result.retest_state = StatementCheckResult.Result.YES
     passed_statement_check_result.save()
 
     fixed_statement_check_result: StatementCheckResult = statement_check_results.last()
-    fixed_statement_check_result.check_result_state = STATEMENT_CHECK_NO
-    fixed_statement_check_result.retest_state = STATEMENT_CHECK_YES
+    fixed_statement_check_result.check_result_state = StatementCheckResult.Result.NO
+    fixed_statement_check_result.retest_state = StatementCheckResult.Result.YES
     fixed_statement_check_result.save()
 
     assert audit.passed_statement_check_results.first() == passed_statement_check_result
@@ -1202,7 +1201,7 @@ def test_retest_is_incomplete():
 
     assert retest.is_incomplete is True
 
-    retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    retest.retest_compliance_state = Retest.Compliance.COMPLIANT
 
     assert retest.is_incomplete is False
 
@@ -1439,7 +1438,7 @@ def test_audit_accessibility_statement_initially_found():
 
     assert audit.accessibility_statement_initially_found is True
 
-    statement_page.added_stage = ADDED_STAGE_TWELVE_WEEK
+    statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
     statement_page.save()
 
     assert audit.accessibility_statement_initially_found is False
@@ -1454,12 +1453,12 @@ def test_audit_twelve_week_accessibility_statement_found():
     assert audit.twelve_week_accessibility_statement_found is False
 
     statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit, added_stage=ADDED_STAGE_TWELVE_WEEK
+        audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
     )
 
     assert audit.twelve_week_accessibility_statement_found is True
 
-    statement_page.added_stage = ADDED_STAGE_INITIAL
+    statement_page.added_stage = StatementPage.AddedStage.INITIAL
     statement_page.save()
 
     assert audit.twelve_week_accessibility_statement_found is False
