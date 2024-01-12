@@ -39,47 +39,45 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <table class="govuk-table">
                         <tbody class="govuk-table__body">
-                        {% if contacts_formset.forms %}
-                            {% for contact_form in contacts_formset %}
-                                <tr class="govuk-table__row">
-                                    <td class="govuk-table__cell">
-                                        <div class="govuk-grid-row">
-                                            <div class="govuk-grid-column-full">
-                                                <h2 id="contact-{{ contact_form.instance.id }}" class="govuk-heading-m">Contact {{ forloop.counter }}</h2>
-                                                {% include 'common/form_errors.html' with errors=contact_form.non_field_errors %}
-                                                {% include 'common/form_hidden_fields.html' with hidden_fields=contact_form.hidden_fields %}
-                                                {% for field in contact_form.visible_fields %}
-                                                    {% if field.name != "preferred" or contacts_formset.total_form_count > 1 %}
-                                                        {% include 'common/amp_field.html' %}
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                            {% if contact_form.instance.id %}
-                                                <div class="govuk-grid-column-full">
-                                                    <input
-                                                        type="submit"
-                                                        value="Remove contact"
-                                                        name="remove_contact_{{ contact_form.instance.id }}"
-                                                        class="govuk-button govuk-button--secondary"
-                                                        data-module="govuk-button" />
-                                                </div>
-                                            {% endif %}
+                        {% for contact_form in contacts_formset %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            <h2 id="contact-{{ contact_form.instance.id }}" class="govuk-heading-m">Contact {{ forloop.counter }}</h2>
+                                            {% include 'common/form_errors.html' with errors=contact_form.non_field_errors %}
+                                            {% include 'common/form_hidden_fields.html' with hidden_fields=contact_form.hidden_fields %}
+                                            {% for field in contact_form.visible_fields %}
+                                                {% if field.name != "preferred" or contacts_formset.total_form_count > 1 %}
+                                                    {% include 'common/amp_field.html' %}
+                                                {% endif %}
+                                            {% endfor %}
                                         </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <p class="govuk-body-l">No contacts have been entered</p>
-                        {% endif %}
+                                        {% if contact_form.instance.id %}
+                                            <div class="govuk-grid-column-full">
+                                                <input
+                                                    type="submit"
+                                                    value="Remove contact"
+                                                    name="remove_contact_{{ contact_form.instance.id }}"
+                                                    class="govuk-button govuk-button--secondary"
+                                                    data-module="govuk-button" />
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
-                    <input
-                        type="submit"
-                        value={% if contacts_formset.forms %} "Save and add another contact" {% else %} "Create contact" {% endif %}
-                        name="add_contact"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    />
+                    {% if case.contact_exists %}
+                        <input
+                            type="submit"
+                            value="Save and add another contact"
+                            name="add_contact"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        />
+                    {% endif %}
                     {% include 'common/amp_field.html' with field=form.contact_notes %}
                     {% include 'common/amp_field.html' with field=form.contact_details_complete_date %}
                     <div class="govuk-button-group">

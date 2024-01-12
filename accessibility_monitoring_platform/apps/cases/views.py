@@ -565,7 +565,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
             contacts: QuerySet[Contact] = self.object.contact_set.filter(
                 is_deleted=False
             )
-            if "add_extra" in self.request.GET:
+            if "add_extra" in self.request.GET or not self.object.contact_exists:
                 contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
             else:
                 contacts_formset = CaseContactFormset(queryset=contacts)

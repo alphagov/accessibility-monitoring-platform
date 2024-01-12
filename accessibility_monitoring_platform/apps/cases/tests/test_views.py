@@ -1157,6 +1157,19 @@ def test_add_qa_comment_redirects_to_qa_process(admin_client):
     )
 
 
+def test_form_appears_to_add_first_contact(admin_client):
+    """Test that when a case has no contacts a form appears to add one"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Contact 1")
+    assertContains(response, "id_form-0-email-label")
+
+
 def test_add_contact_form_appears(admin_client):
     """Test that pressing the add contact button adds a new contact form"""
     case: Case = Case.objects.create()
@@ -1223,7 +1236,6 @@ def test_delete_contact(admin_client):
         follow=True,
     )
     assert response.status_code == 200
-    assertContains(response, "No contacts have been entered")
 
     contact_on_database = Contact.objects.get(pk=contact.id)
     assert contact_on_database.is_deleted is True
