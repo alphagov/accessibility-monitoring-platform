@@ -208,10 +208,10 @@ def test_case_status_skips_to_reviewing_changes_when_psb_respond_early(admin_cli
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
@@ -221,6 +221,7 @@ def test_case_status_skips_to_reviewing_changes_when_psb_respond_early(admin_cli
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to reviewing changes"
     )
+
 
 def test_case_status_reviewing_changes(admin_client):
     """Test case status returns reviewing-changes"""
