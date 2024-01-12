@@ -12,7 +12,6 @@ from django.contrib.auth.models import User
 from ...audits.models import (
     CHECK_RESULT_ERROR,
     CONTENT_NOT_IN_SCOPE_VALID,
-    PAGE_TYPE_STATEMENT,
     RETEST_CHECK_RESULT_FIXED,
     RETEST_INITIAL_COMPLIANCE_COMPLIANT,
     STATEMENT_CHECK_NO,
@@ -945,7 +944,7 @@ def test_set_statement_compliance_state_initial_to_not_compliant():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
+        audit=audit, page_type=Page.Type.STATEMENT, url="https://example.com"
     )
     for statement_check in StatementCheck.objects.filter(
         type=STATEMENT_CHECK_TYPE_OVERVIEW
@@ -1095,7 +1094,7 @@ def test_set_statement_compliance_state_12_week_to_not_compliant():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
+        audit=audit, page_type=Page.Type.STATEMENT, url="https://example.com"
     )
     for statement_check in StatementCheck.objects.filter(
         type=STATEMENT_CHECK_TYPE_OVERVIEW

@@ -7,8 +7,6 @@ import pytest
 
 from ...audits.models import (
     CHECK_RESULT_ERROR,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_PDF,
     TEST_TYPE_PDF,
     Audit,
     CheckResult,
@@ -42,7 +40,7 @@ def test_build_issue_table_rows():
     page: Page = Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
-        page_type=PAGE_TYPE_HOME,
+        page_type=Page.Type.HOME,
         url=HOME_PAGE_URL,
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
@@ -79,13 +77,13 @@ def test_report_boilerplate_shown_only_once():
     first_page: Page = Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
-        page_type=PAGE_TYPE_HOME,
+        page_type=Page.Type.HOME,
         url=HOME_PAGE_URL,
     )
     second_page: Page = Page.objects.create(
         audit=audit,
         name=PDF_PAGE_NAME,
-        page_type=PAGE_TYPE_PDF,
+        page_type=Page.Type.PDF,
         url=PDF_PAGE_URL,
     )
     Report.objects.create(case=case)
@@ -129,13 +127,13 @@ def test_generate_report_content_issues_tables():
     Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
-        page_type=PAGE_TYPE_HOME,
+        page_type=Page.Type.HOME,
         url="https://example.com",
     )
     Page.objects.create(
         audit=audit,
         name=PDF_PAGE_NAME,
-        page_type=PAGE_TYPE_PDF,
+        page_type=Page.Type.PDF,
         url="https://example.com/pdf",
     )
     Report.objects.create(case=case)

@@ -31,8 +31,6 @@ from .models import (
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
     ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
     CHECK_RESULT_NOT_TESTED,
-    MANDATORY_PAGE_TYPES,
-    PAGE_TYPE_HOME,
     Audit,
     CheckResult,
     Page,
@@ -231,8 +229,8 @@ def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
     Create mandatory pages for new audit.
     """
 
-    for page_type in MANDATORY_PAGE_TYPES:
-        if page_type == PAGE_TYPE_HOME:
+    for page_type in Page.MANDATORY_PAGE_TYPES:
+        if page_type == Page.Type.HOME:
             Page.objects.create(
                 audit=audit, page_type=page_type, url=audit.case.home_page_url
             )

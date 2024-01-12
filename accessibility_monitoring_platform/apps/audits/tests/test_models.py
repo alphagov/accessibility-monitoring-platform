@@ -17,12 +17,6 @@ from ..models import (
     ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NO_ERROR,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_EXTRA,
-    PAGE_TYPE_FORM,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_PDF,
-    PAGE_TYPE_STATEMENT,
     RETEST_CHECK_RESULT_DEFAULT,
     RETEST_CHECK_RESULT_FIXED,
     RETEST_CHECK_RESULT_NOT_FIXED,
@@ -70,9 +64,9 @@ def create_retest_and_retest_check_results(case: Optional[Case] = None):
     if case is None:
         case: Case = Case.objects.create()
         audit: Audit = Audit.objects.create(case=case)
-        home_page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
+        home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
         statement_page: Page = Page.objects.create(
-            audit=audit, page_type=PAGE_TYPE_STATEMENT
+            audit=audit, page_type=Page.Type.STATEMENT
         )
         home_page_check_result: CheckResult = CheckResult.objects.create(
             audit=audit,
@@ -136,15 +130,15 @@ def create_audit_and_pages() -> Audit:
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     for page_type in [
-        PAGE_TYPE_EXTRA,
-        PAGE_TYPE_HOME,
-        PAGE_TYPE_CONTACT,
-        PAGE_TYPE_STATEMENT,
-        PAGE_TYPE_PDF,
-        PAGE_TYPE_FORM,
+        Page.Type.EXTRA,
+        Page.Type.HOME,
+        Page.Type.CONTACT,
+        Page.Type.STATEMENT,
+        Page.Type.PDF,
+        Page.Type.FORM,
     ]:
         Page.objects.create(audit=audit, page_type=page_type)
-    Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA, is_deleted=True)
+    Page.objects.create(audit=audit, page_type=Page.Type.EXTRA, is_deleted=True)
     return audit
 
 
@@ -187,10 +181,10 @@ def create_audit_and_check_results() -> Audit:
     for page in pages:
         check_result_state: str = (
             CHECK_RESULT_ERROR
-            if page.page_type in [PAGE_TYPE_HOME, PAGE_TYPE_PDF]
+            if page.page_type in [Page.Type.HOME, Page.Type.PDF]
             else CHECK_RESULT_NO_ERROR
         )
-        if page.page_type == PAGE_TYPE_PDF:
+        if page.page_type == Page.Type.PDF:
             CheckResult.objects.create(
                 audit=audit,
                 page=page,
@@ -227,8 +221,8 @@ def test_audit_every_pages_returns_pdf_and_statement_last():
     """Statement page returned last. PDF page second-last"""
     audit: Audit = create_audit_and_pages()
 
-    assert audit.every_page.last().page_type == PAGE_TYPE_STATEMENT
-    assert list(audit.every_page)[-2].page_type == PAGE_TYPE_PDF
+    assert audit.every_page.last().page_type == Page.Type.STATEMENT
+    assert list(audit.every_page)[-2].page_type == Page.Type.PDF
 
 
 @pytest.mark.django_db
@@ -260,11 +254,11 @@ def test_audit_testable_pages_returns_expected_page():
     """
     audit: Audit = create_audit_and_pages()
     testable_page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com"
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
     Page.objects.create(
         audit=audit,
-        page_type=PAGE_TYPE_HOME,
+        page_type=Page.Type.HOME,
         url="https://example.com",
         not_found="yes",
     )
@@ -329,7 +323,7 @@ def test_audit_failed_check_results_for_deleted_page_not_returned():
 
     assert len(audit.failed_check_results) == 3
 
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
     page.is_deleted = True
     page.save()
 
@@ -346,7 +340,7 @@ def test_audit_failed_check_results_for_missing_page_not_returned():
 
     assert len(audit.failed_check_results) == 3
 
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
     page.retest_page_missing_date = date.today()
     page.save()
 
@@ -359,7 +353,7 @@ def test_audit_accessibility_state_ment_page_returns_page():
     Accessibility Statement page returned
     """
     audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.STATEMENT)
 
     assert audit.accessibility_statement_page == page
 
@@ -370,7 +364,7 @@ def test_page_all_check_results_returns_check_results():
     Test all_check_results attribute of page returns expected check results.
     """
     audit: Audit = create_audit_and_check_results()
-    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
 
     assert len(home_page.all_check_results) == 2
     assert home_page.all_check_results[0].type == TEST_TYPE_AXE
@@ -385,7 +379,7 @@ def test_page_all_check_results_returns_pdf_check_results_last():
     audit: Audit = create_audit_and_check_results()
 
     assert len(audit.failed_check_results) == 3
-    assert audit.failed_check_results.last().page.page_type == PAGE_TYPE_PDF
+    assert audit.failed_check_results.last().page.page_type == Page.Type.PDF
 
 
 @pytest.mark.django_db
@@ -394,7 +388,7 @@ def test_check_result_returns_id_and_fields_for_retest():
     Test check_result attribute of dict_for_retest returns id and fields for retest form.
     """
     audit: Audit = create_audit_and_check_results()
-    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = home_page.all_check_results[0]
 
     assert check_result.dict_for_retest == {
@@ -637,7 +631,7 @@ def test_audit_fixed_check_results():
 
     assert audit.fixed_check_results.count() == 0
 
-    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = home_page.all_check_results[0]
     check_result.retest_state = RETEST_CHECK_RESULT_FIXED
     check_result.save()
@@ -1081,7 +1075,7 @@ def test_set_accessibility_statement_state_called_on_statement_page_update():
     case.set_statement_compliance_states = mock_set_statement_compliance_states
     audit: Audit = Audit.objects.create(case=case)
 
-    Page.objects.create(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    Page.objects.create(audit=audit, page_type=Page.Type.STATEMENT)
 
     mock_set_statement_compliance_states.assert_called_once()
 
@@ -1258,7 +1252,7 @@ def test_returning_latest_retest():
 def test_retest_page_heading():
     """Test heading returned by retest page"""
     retest: Retest = create_retest_and_retest_check_results()
-    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=PAGE_TYPE_HOME)
+    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=Page.Type.HOME)
 
     assert retest_page.heading == "Retest #1 | Home"
 
@@ -1267,7 +1261,7 @@ def test_retest_page_heading():
 def test_retest_page_all_check_results():
     """Test all_check_results returned by retest page"""
     retest: Retest = create_retest_and_retest_check_results()
-    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=PAGE_TYPE_HOME)
+    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=Page.Type.HOME)
 
     assertQuerysetEqual(
         retest_page.all_check_results, retest_page.retestcheckresult_set.all()
@@ -1279,10 +1273,10 @@ def test_retest_page_unfixed_check_results():
     """Test unfixed_check_results returned by retest page"""
     retest: Retest = create_retest_and_retest_check_results()
     home_retest_page: RetestPage = retest.retestpage_set.get(
-        page__page_type=PAGE_TYPE_HOME
+        page__page_type=Page.Type.HOME
     )
     statement_retest_page: RetestPage = retest.retestpage_set.get(
-        page__page_type=PAGE_TYPE_STATEMENT
+        page__page_type=Page.Type.STATEMENT
     )
 
     assert home_retest_page.unfixed_check_results.count() == 1

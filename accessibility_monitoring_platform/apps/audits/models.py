@@ -15,29 +15,6 @@ from ..cases.models import Case
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date
 
-PAGE_TYPE_EXTRA: str = "extra"
-PAGE_TYPE_HOME: str = "home"
-PAGE_TYPE_CONTACT: str = "contact"
-PAGE_TYPE_STATEMENT: str = "statement"
-PAGE_TYPE_PDF: str = "pdf"
-PAGE_TYPE_FORM: str = "form"
-PAGE_TYPE_CORONAVIRUS: str = "coronavirus"
-PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (PAGE_TYPE_EXTRA, "Additional"),
-    (PAGE_TYPE_HOME, "Home"),
-    (PAGE_TYPE_CONTACT, "Contact"),
-    (PAGE_TYPE_STATEMENT, "Accessibility statement"),
-    (PAGE_TYPE_CORONAVIRUS, "Coronavirus"),
-    (PAGE_TYPE_PDF, "PDF"),
-    (PAGE_TYPE_FORM, "Form"),
-]
-MANDATORY_PAGE_TYPES: List[str] = [
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_STATEMENT,
-    PAGE_TYPE_PDF,
-    PAGE_TYPE_FORM,
-]
 TEST_TYPE_MANUAL: str = "manual"
 TEST_TYPE_AXE: str = "axe"
 TEST_TYPE_PDF: str = "pdf"
@@ -825,8 +802,8 @@ class Audit(VersionModel):
             self.page_audit.filter(is_deleted=False)
             .annotate(
                 position_pdfs_statements_last=DjangoCase(
-                    When(page_type=PAGE_TYPE_PDF, then=1),
-                    When(page_type=PAGE_TYPE_STATEMENT, then=2),
+                    When(page_type=Page.Type.PDF, then=1),
+                    When(page_type=Page.Type.STATEMENT, then=2),
                     default=0,
                 )
             )
@@ -839,23 +816,23 @@ class Audit(VersionModel):
 
     @property
     def html_pages(self):
-        return self.every_page.exclude(page_type=PAGE_TYPE_PDF)
+        return self.every_page.exclude(page_type=Page.Type.PDF)
 
     @property
     def accessibility_statement_page(self):
-        return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
+        return self.every_page.filter(page_type=Page.Type.STATEMENT).first()
 
     @property
     def contact_page(self):
-        return self.every_page.filter(page_type=PAGE_TYPE_CONTACT).first()
+        return self.every_page.filter(page_type=Page.Type.CONTACT).first()
 
     @property
     def standard_pages(self):
-        return self.every_page.exclude(page_type=PAGE_TYPE_EXTRA)
+        return self.every_page.exclude(page_type=Page.Type.EXTRA)
 
     @property
     def extra_pages(self):
-        return self.html_pages.filter(page_type=PAGE_TYPE_EXTRA)
+        return self.html_pages.filter(page_type=Page.Type.EXTRA)
 
     @property
     def failed_check_results(self):
@@ -869,7 +846,7 @@ class Audit(VersionModel):
             )
             .annotate(
                 position_pdf_page_last=DjangoCase(
-                    When(page__page_type=PAGE_TYPE_PDF, then=1), default=0
+                    When(page__page_type=Page.Type.PDF, then=1), default=0
                 )
             )
             .order_by("position_pdf_page_last", "page__id", "wcag_definition__id")
@@ -1098,13 +1075,29 @@ class Page(models.Model):
     Model for test/audit page
     """
 
+    class Type(models.TextChoices):
+        EXTRA = "extra", "Additional"
+        HOME = "home", "Home"
+        CONTACT = "contact", "Contact"
+        STATEMENT = "statement", "Accessibility statement"
+        CORONAVIRUS = "coronavirus", "Coronavirus"
+        PDF = "pdf", "PDF"
+        FORM = "form", "Form"
+
+    MANDATORY_PAGE_TYPES: List[str] = [
+        Type.HOME,
+        Type.CONTACT,
+        Type.STATEMENT,
+        Type.PDF,
+        Type.FORM,
+    ]
     audit = models.ForeignKey(
         Audit, on_delete=models.PROTECT, related_name="page_audit"
     )
     is_deleted = models.BooleanField(default=False)
 
     page_type = models.CharField(
-        max_length=20, choices=PAGE_TYPE_CHOICES, default=PAGE_TYPE_EXTRA
+        max_length=20, choices=Type.choices, default=Type.EXTRA
     )
     name = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
@@ -1130,7 +1123,7 @@ class Page(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
-        if self.page_type == PAGE_TYPE_STATEMENT:
+        if self.page_type == Page.Type.STATEMENT:
             self.audit.case.set_statement_compliance_states()
 
     def get_absolute_url(self) -> str:

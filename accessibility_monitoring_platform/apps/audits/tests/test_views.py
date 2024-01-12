@@ -20,9 +20,6 @@ from ..models import (
     ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NOT_TESTED,
-    PAGE_TYPE_EXTRA,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_PDF,
     REPORT_OPTIONS_NEXT_DEFAULT,
     RETEST_CHECK_RESULT_FIXED,
     RETEST_CHECK_RESULT_NOT_FIXED,
@@ -130,7 +127,7 @@ def create_equality_body_retest() -> Retest:
     )
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
+    page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
@@ -184,7 +181,7 @@ def test_audit_detail_shows_number_of_errors(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_PDF, url="https://example.com"
+        audit=audit, page_type=Page.Type.PDF, url="https://example.com"
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
     CheckResult.objects.create(
@@ -1386,7 +1383,7 @@ def test_two_extra_pages_appear_on_pages_page(admin_client):
         html=True,
     )
 
-    Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA)
+    Page.objects.create(audit=audit, page_type=Page.Type.EXTRA)
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),
@@ -1452,7 +1449,7 @@ def test_add_extra_page(admin_client):
     assert response.status_code == 200
 
     extra_pages: List[Page] = list(
-        Page.objects.filter(audit=audit, page_type=PAGE_TYPE_EXTRA)
+        Page.objects.filter(audit=audit, page_type=Page.Type.EXTRA)
     )
 
     assert len(extra_pages) == 1
@@ -1465,7 +1462,7 @@ def test_delete_extra_page(admin_client):
     audit: Audit = create_audit_and_pages()
     extra_page: Page = Page.objects.create(
         audit=audit,
-        page_type=PAGE_TYPE_EXTRA,
+        page_type=Page.Type.EXTRA,
     )
 
     response: HttpResponse = admin_client.post(

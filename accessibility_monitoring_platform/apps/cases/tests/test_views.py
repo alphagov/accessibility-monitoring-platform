@@ -17,9 +17,6 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
     ADDED_STAGE_TWELVE_WEEK,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_STATEMENT,
     RETEST_CHECK_RESULT_FIXED,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_YES,
@@ -1177,7 +1174,7 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+        audit=audit, page_type=Page.Type.STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
     )
 
     response: HttpResponse = admin_client.get(
@@ -2242,10 +2239,10 @@ def test_links_to_contact_and_accessibility_pages_shown(admin_client):
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+        audit=audit, page_type=Page.Type.STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
     )
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_CONTACT, url=CONTACT_STATEMENT_URL
+        audit=audit, page_type=Page.Type.CONTACT, url=CONTACT_STATEMENT_URL
     )
 
     response: HttpResponse = admin_client.get(
@@ -2964,7 +2961,7 @@ def test_outstanding_issues_overview_percentage(admin_client):
     audit: Audit = create_audit_and_check_results()
     audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
     audit.save()
-    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = home_page.all_check_results[0]
     check_result.retest_state = RETEST_CHECK_RESULT_FIXED
     check_result.save()
@@ -3070,7 +3067,7 @@ def test_twelve_week_email_template_contains_issues(admin_client):
     Test twelve week email template contains issues.
     """
     audit: Audit = create_audit_and_check_results()
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     page.url = "https://example.com"
     page.save()
     Report.objects.create(case=audit.case)
@@ -3107,7 +3104,7 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     Test outstanding issues email template contains only unfixed issues.
     """
     audit: Audit = create_audit_and_check_results()
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     page.url = "https://example.com"
     page.save()
     Report.objects.create(case=audit.case)

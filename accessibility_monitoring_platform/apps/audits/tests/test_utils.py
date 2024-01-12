@@ -15,13 +15,6 @@ from ..forms import CheckResultFormset
 from ..models import (
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NO_ERROR,
-    MANDATORY_PAGE_TYPES,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_EXTRA,
-    PAGE_TYPE_FORM,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_PDF,
-    PAGE_TYPE_STATEMENT,
     RETEST_CHECK_RESULT_NOT_FIXED,
     TEST_TYPE_AXE,
     TEST_TYPE_MANUAL,
@@ -56,11 +49,11 @@ HOME_PAGE_URL: str = "https://example.com/home"
 USER_FIRST_NAME = "John"
 USER_LAST_NAME = "Smith"
 TYPES_OF_OF_PAGES_CREATED_WITH_NEW_AUDIT: List[str] = [
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_STATEMENT,
-    PAGE_TYPE_PDF,
-    PAGE_TYPE_FORM,
+    Page.Type.HOME,
+    Page.Type.CONTACT,
+    Page.Type.STATEMENT,
+    Page.Type.PDF,
+    Page.Type.FORM,
 ]
 NUMBER_OF_PAGES_CREATED_WITH_NEW_AUDIT: int = len(
     TYPES_OF_OF_PAGES_CREATED_WITH_NEW_AUDIT
@@ -354,7 +347,7 @@ def create_audit_and_check_results() -> Audit:
     audit, _ = create_audit_and_user()
 
     page_home: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com"
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
     wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
         type=TEST_TYPE_MANUAL
@@ -367,7 +360,7 @@ def create_audit_and_check_results() -> Audit:
     )
 
     page_pdf: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_PDF, url="https://example.com/pdf"
+        audit=audit, page_type=Page.Type.PDF, url="https://example.com/pdf"
     )
     wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
     CheckResult.objects.create(
@@ -387,9 +380,9 @@ def test_create_mandatory_pages_for_new_audit():
     audit: Audit = Audit.objects.create(case=case)
     create_mandatory_pages_for_new_audit(audit=audit)
 
-    assert audit.page_audit.count() == len(MANDATORY_PAGE_TYPES)
+    assert audit.page_audit.count() == len(Page.MANDATORY_PAGE_TYPES)
 
-    home_page: Page = audit.page_audit.filter(page_type=PAGE_TYPE_HOME).first()
+    home_page: Page = audit.page_audit.filter(page_type=Page.Type.HOME).first()
 
     assert home_page.url == HOME_PAGE_URL
 
@@ -449,7 +442,7 @@ def test_get_audit_report_options_rows():
 def test_update_check_results_for_page():
     """Test update of check results for a page"""
     audit: Audit = create_audit_and_check_results()
-    page_home: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
 
     check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
 
@@ -500,7 +493,7 @@ def test_update_check_results_for_page():
 def test_create_check_results_for_page():
     """Test create of check results for a page"""
     audit: Audit = create_audit_and_check_results()
-    page_home: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
 
     check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
 
@@ -553,7 +546,7 @@ def test_create_check_results_for_page():
 def test_get_all_possible_check_results_for_page():
     """Test building list of all possible test results"""
     audit: Audit = create_audit_and_check_results()
-    page_home: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
     wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
 
@@ -689,12 +682,12 @@ def test_other_page_failed_check_results():
     check results entered for other pages
     """
     audit: Audit = create_audit_and_check_results()
-    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     extra_page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_EXTRA, url="https://example.com/extra"
+        audit=audit, page_type=Page.Type.EXTRA, url="https://example.com/extra"
     )
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_EXTRA, url="https://example.com/extra2"
+        audit=audit, page_type=Page.Type.EXTRA, url="https://example.com/extra2"
     )
     wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
         type=TEST_TYPE_MANUAL
@@ -873,7 +866,7 @@ def test_create_checkresults_for_retest():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com"
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
     unfixed_page_check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
@@ -963,7 +956,7 @@ def test_get_next_equality_body_retest_page_url_with_pages():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com"
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
     retest: Retest = Retest.objects.create(case=case)
 

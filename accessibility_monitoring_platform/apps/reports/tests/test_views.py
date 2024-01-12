@@ -13,7 +13,6 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
     CHECK_RESULT_ERROR,
-    PAGE_TYPE_STATEMENT,
     TEST_TYPE_AXE,
     Audit,
     CheckResult,
@@ -203,7 +202,7 @@ def test_old_published_report_includes_errors(admin_client):
     audit.archive_accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
     audit.save()
     page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=HOME_PAGE_URL
+        audit=audit, page_type=Page.Type.STATEMENT, url=HOME_PAGE_URL
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME

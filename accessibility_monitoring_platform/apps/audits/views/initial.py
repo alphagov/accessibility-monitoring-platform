@@ -53,7 +53,6 @@ from ..forms import (
 )
 from ..models import (
     ADDED_STAGE_INITIAL,
-    PAGE_TYPE_FORM,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_TYPE_COMPLIANCE,
     STATEMENT_CHECK_TYPE_CUSTOM,
@@ -193,7 +192,7 @@ class AuditPagesUpdateView(AuditUpdateView):
                         )
                     )
         for form in standard_pages_formset:
-            if form.instance.page_type == PAGE_TYPE_FORM:
+            if form.instance.page_type == Page.Type.FORM:
                 form.fields["is_contact_page"].label = "Form is on contact page"
                 form.fields["is_contact_page"].widget = AMPChoiceCheckboxWidget(
                     attrs={"label": "Mark as on contact page"}
