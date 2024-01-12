@@ -10,12 +10,7 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
-from ..audits.models import (
-    CHECK_RESULT_ERROR,
-    RETEST_CHECK_RESULT_FIXED,
-    Audit,
-    CheckResult,
-)
+from ..audits.models import Audit, CheckResult
 from ..cases.models import Case, CaseCompliance, CaseStatus
 from ..reports.models import ReportVisitsMetrics
 from ..s3_read_write.models import S3Report
@@ -317,13 +312,13 @@ def get_policy_total_metrics() -> List[TotalMetric]:
         TotalMetric(
             label="Total number of accessibility issues found",
             total=CheckResult.objects.filter(
-                check_result_state=CHECK_RESULT_ERROR
+                check_result_state=CheckResult.Result.ERROR
             ).count(),
         ),
         TotalMetric(
             label="Total number of accessibility issues fixed",
             total=CheckResult.objects.filter(
-                retest_state=RETEST_CHECK_RESULT_FIXED
+                retest_state=CheckResult.RetestResult.FIXED
             ).count(),
         ),
     ]

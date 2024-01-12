@@ -26,7 +26,6 @@ from .models import (
     ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
     ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
-    CHECK_RESULT_STATE_CHOICES,
     COMPLIANCE_STATE_CHOICES,
     CONTACT_INFORMATION_STATE_CHOICES,
     CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
@@ -37,13 +36,11 @@ from .models import (
     NON_REGULATION_STATE_CHOICES,
     PREPARATION_DATE_STATE_CHOICES,
     REPORT_OPTIONS_NEXT_CHOICES,
-    RETEST_CHECK_RESULT_STATE_CHOICES,
     RETEST_INITIAL_COMPLIANCE_CHOICES,
     REVIEW_STATE_CHOICES,
     STATEMENT_CHECK_CHOICES,
     STATEMENT_CHECK_TYPE_CHOICES,
     STATEMENT_CHECK_TYPE_OVERVIEW,
-    TEST_TYPE_CHOICES,
     Audit,
     CheckResult,
     Page,
@@ -56,15 +53,17 @@ from .models import (
     WcagDefinition,
 )
 
-CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
+CHECK_RESULT_TYPE_FILTER_CHOICES: List[
+    Tuple[str, str]
+] = WcagDefinition.Type.choices + [
     ("", "All"),
 ]
 TEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
     Tuple[str, str]
-] = CHECK_RESULT_STATE_CHOICES + [("", "All")]
+] = CheckResult.Result.choices + [("", "All")]
 RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
     Tuple[str, str]
-] = RETEST_CHECK_RESULT_STATE_CHOICES + [("", "All")]
+] = CheckResult.RetestResult.choices + [("", "All")]
 
 
 class AuditMetadataUpdateForm(VersionForm):
@@ -225,7 +224,7 @@ class CheckResultForm(forms.ModelForm):
     )
     check_result_state = AMPChoiceRadioField(
         label="",
-        choices=CHECK_RESULT_STATE_CHOICES,
+        choices=CheckResult.Result.choices,
         widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
     notes = AMPTextField(label="Error details")
@@ -980,7 +979,7 @@ class AuditRetestCheckResultForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput())
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        choices=CheckResult.RetestResult.choices,
         widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
     retest_notes = AMPTextField(label="Notes")
@@ -1366,7 +1365,7 @@ class WcagDefinitionCreateUpdateForm(forms.ModelForm):
     name = AMPCharFieldWide(label="Name", required=True)
     date_start = AMPDateField(label="Start date")
     date_end = AMPDateField(label="End Date")
-    type = AMPChoiceRadioField(label="Type", choices=TEST_TYPE_CHOICES)
+    type = AMPChoiceRadioField(label="Type", choices=WcagDefinition.Type.choices)
     url_on_w3 = AMPURLField(label="Link to WCAG", required=True)
     description = AMPCharFieldWide(label="Description")
     report_boilerplate = AMPTextField(label="Report boilerplate")
@@ -1480,7 +1479,7 @@ class RetestCheckResultForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput())
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        choices=CheckResult.RetestResult.choices,
         widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
     retest_notes = AMPTextField(label="Notes")

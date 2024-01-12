@@ -17,7 +17,6 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
     ADDED_STAGE_TWELVE_WEEK,
-    RETEST_CHECK_RESULT_FIXED,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_YES,
     Audit,
@@ -2963,7 +2962,7 @@ def test_outstanding_issues_overview_percentage(admin_client):
     audit.save()
     home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = home_page.all_check_results[0]
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
     url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
 
@@ -3129,7 +3128,7 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     assertContains(response, STATEMENT_CHECK_RESULT_RETEST_COMMENT)
 
     for check_result in audit.failed_check_results:
-        check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+        check_result.retest_state = CheckResult.RetestResult.FIXED
         check_result.save()
 
     statement_check_result.retest_state = STATEMENT_CHECK_YES

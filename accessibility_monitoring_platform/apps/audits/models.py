@@ -15,14 +15,6 @@ from ..cases.models import Case
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date
 
-TEST_TYPE_MANUAL: str = "manual"
-TEST_TYPE_AXE: str = "axe"
-TEST_TYPE_PDF: str = "pdf"
-TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (TEST_TYPE_MANUAL, "Manual"),
-    (TEST_TYPE_AXE, "Axe"),
-    (TEST_TYPE_PDF, "PDF"),
-]
 FEEDBACK_STATE_DEFAULT: str = "not-present"
 FEEDBACK_STATE_VALID: str = "present"
 FEEDBACK_STATE_CHOICES: List[Tuple[str, str]] = [
@@ -127,23 +119,6 @@ REPORT_OPTIONS_NEXT_DEFAULT: str = "errors"
 REPORT_OPTIONS_NEXT_CHOICES: List[Tuple[str, str]] = [
     (REPORT_OPTIONS_NEXT_DEFAULT, "Errors were found"),
     ("no-errors", "No serious errors were found"),
-]
-
-CHECK_RESULT_NOT_TESTED: str = "not-tested"
-CHECK_RESULT_ERROR: str = "error"
-CHECK_RESULT_NO_ERROR: str = "no-error"
-CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
-    (CHECK_RESULT_ERROR, "Error found"),
-    (CHECK_RESULT_NO_ERROR, "No issue"),
-    (CHECK_RESULT_NOT_TESTED, "Not tested"),
-]
-RETEST_CHECK_RESULT_DEFAULT: str = "not-retested"
-RETEST_CHECK_RESULT_FIXED: str = "fixed"
-RETEST_CHECK_RESULT_NOT_FIXED: str = "not-fixed"
-RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
-    (RETEST_CHECK_RESULT_FIXED, "Fixed"),
-    (RETEST_CHECK_RESULT_NOT_FIXED, "Not fixed"),
-    (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
 
 ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
@@ -839,7 +814,7 @@ class Audit(VersionModel):
         return (
             self.checkresult_audit.filter(
                 is_deleted=False,
-                check_result_state=CHECK_RESULT_ERROR,
+                check_result_state=CheckResult.Result.ERROR,
                 page__is_deleted=False,
                 page__not_found=Boolean.NO,
                 page__retest_page_missing_date=None,
@@ -856,11 +831,15 @@ class Audit(VersionModel):
 
     @property
     def fixed_check_results(self):
-        return self.failed_check_results.filter(retest_state=RETEST_CHECK_RESULT_FIXED)
+        return self.failed_check_results.filter(
+            retest_state=CheckResult.RetestResult.FIXED
+        )
 
     @property
     def unfixed_check_results(self):
-        return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
+        return self.failed_check_results.exclude(
+            retest_state=CheckResult.RetestResult.FIXED
+        )
 
     @property
     def accessibility_statement_checks(
@@ -1140,11 +1119,15 @@ class Page(models.Model):
 
     @property
     def failed_check_results(self):
-        return self.all_check_results.filter(check_result_state=CHECK_RESULT_ERROR)
+        return self.all_check_results.filter(
+            check_result_state=CheckResult.Result.ERROR
+        )
 
     @property
     def unfixed_check_results(self):
-        return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
+        return self.failed_check_results.exclude(
+            retest_state=CheckResult.RetestResult.FIXED
+        )
 
     @property
     def check_results_by_wcag_definition(self):
@@ -1163,9 +1146,12 @@ class WcagDefinition(models.Model):
     Model for WCAG tests captured by the platform
     """
 
-    type = models.CharField(
-        max_length=20, choices=TEST_TYPE_CHOICES, default=TEST_TYPE_MANUAL
-    )
+    class Type(models.TextChoices):
+        MANUAL = "manual", "Manual"
+        AXE = "axe", "Axe"
+        PDF = "pdf", "PDF"
+
+    type = models.CharField(max_length=20, choices=Type.choices, default=Type.MANUAL)
     name = models.TextField(default="", blank=True)
     description = models.TextField(default="", blank=True)
     url_on_w3 = models.TextField(default="", blank=True)
@@ -1192,6 +1178,16 @@ class CheckResult(models.Model):
     Model for test result
     """
 
+    class Result(models.TextChoices):
+        ERROR = "error", "Error found"
+        NO_ERROR = "no-error", "No issue"
+        NOT_TESTED = "not-tested", "Not tested"
+
+    class RetestResult(models.TextChoices):
+        FIXED = "fixed", "Fixed"
+        NOT_FIXED = "not-fixed", "Not fixed"
+        NOT_RETESTED = "not-retested", "Not retested"
+
     audit = models.ForeignKey(
         Audit, on_delete=models.PROTECT, related_name="checkresult_audit"
     )
@@ -1200,7 +1196,9 @@ class CheckResult(models.Model):
     )
     is_deleted = models.BooleanField(default=False)
     type = models.CharField(
-        max_length=20, choices=TEST_TYPE_CHOICES, default=TEST_TYPE_PDF
+        max_length=20,
+        choices=WcagDefinition.Type.choices,
+        default=WcagDefinition.Type.PDF,
     )
     wcag_definition = models.ForeignKey(
         WcagDefinition,
@@ -1210,14 +1208,14 @@ class CheckResult(models.Model):
 
     check_result_state = models.CharField(
         max_length=20,
-        choices=CHECK_RESULT_STATE_CHOICES,
-        default=CHECK_RESULT_NOT_TESTED,
+        choices=Result.choices,
+        default=Result.NOT_TESTED,
     )
     notes = models.TextField(default="", blank=True)
     retest_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=RetestResult.choices,
+        default=RetestResult.NOT_RETESTED,
     )
     retest_notes = models.TextField(default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
@@ -1363,7 +1361,7 @@ class Retest(VersionModel):
         """
         fixed_checks_count: int = (
             CheckResult.objects.filter(audit=self.case.audit)
-            .filter(retest_state=RETEST_CHECK_RESULT_FIXED)
+            .filter(retest_state=CheckResult.RetestResult.FIXED)
             .exclude(page__not_found="yes")
             .count()
         )
@@ -1372,7 +1370,7 @@ class Retest(VersionModel):
         ).exclude(id_within_case=0):
             fixed_checks_count += (
                 RetestCheckResult.objects.filter(retest=retest)
-                .filter(retest_state=RETEST_CHECK_RESULT_FIXED)
+                .filter(retest_state=CheckResult.RetestResult.FIXED)
                 .exclude(retest_page__page__not_found="yes")
                 .count()
             )
@@ -1427,7 +1425,9 @@ class RetestPage(models.Model):
 
     @property
     def unfixed_check_results(self):
-        return self.all_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
+        return self.all_check_results.exclude(
+            retest_state=CheckResult.RetestResult.FIXED
+        )
 
     @property
     def original_check_results(self):
@@ -1447,8 +1447,8 @@ class RetestCheckResult(models.Model):
     is_deleted = models.BooleanField(default=False)
     retest_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=CheckResult.RetestResult.choices,
+        default=CheckResult.RetestResult.NOT_RETESTED,
     )
     retest_notes = models.TextField(default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)

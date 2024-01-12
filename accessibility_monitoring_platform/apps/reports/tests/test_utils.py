@@ -5,14 +5,7 @@ from typing import Any, Dict, List, Set
 
 import pytest
 
-from ...audits.models import (
-    CHECK_RESULT_ERROR,
-    TEST_TYPE_PDF,
-    Audit,
-    CheckResult,
-    Page,
-    WcagDefinition,
-)
+from ...audits.models import Audit, CheckResult, Page, WcagDefinition
 from ...cases.models import Case
 from ..models import Report, ReportVisitsMetrics
 from ..utils import (
@@ -44,13 +37,13 @@ def test_build_issue_table_rows():
         url=HOME_PAGE_URL,
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
-        type=TEST_TYPE_PDF
+        type=WcagDefinition.Type.PDF
     ).first()
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
         notes=CHECK_RESULT_NOTES,
     )
     used_wcag_definitions: Set[WcagDefinition] = set()
@@ -88,19 +81,19 @@ def test_report_boilerplate_shown_only_once():
     )
     Report.objects.create(case=case)
     wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
-        type=TEST_TYPE_PDF
+        type=WcagDefinition.Type.PDF
     ).first()
     CheckResult.objects.create(
         audit=audit,
         page=first_page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
     CheckResult.objects.create(
         audit=audit,
         page=second_page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     issues_tables: List[IssueTable] = build_issues_tables(pages=audit.testable_pages)

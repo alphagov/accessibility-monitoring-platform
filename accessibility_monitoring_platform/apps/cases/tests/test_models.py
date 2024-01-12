@@ -10,14 +10,11 @@ import pytest
 from django.contrib.auth.models import User
 
 from ...audits.models import (
-    CHECK_RESULT_ERROR,
     CONTENT_NOT_IN_SCOPE_VALID,
-    RETEST_CHECK_RESULT_FIXED,
     RETEST_INITIAL_COMPLIANCE_COMPLIANT,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_TYPE_OVERVIEW,
     STATEMENT_CHECK_YES,
-    TEST_TYPE_AXE,
     Audit,
     CheckResult,
     Page,
@@ -486,14 +483,16 @@ def test_case_last_edited_from_check_result(
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
         page: Page = Page.objects.create(audit=last_edited_audit)
 
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
+    )
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_CREATED)
     ):
         check_result: CheckResult = CheckResult.objects.create(
             audit=last_edited_audit,
             page=page,
-            type=TEST_TYPE_AXE,
+            type=WcagDefinition.Type.AXE,
             wcag_definition=wcag_definition,
         )
 
@@ -709,18 +708,20 @@ def test_percentage_website_issues_fixed_with_audit_and_issues():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
+    )
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
-        type=TEST_TYPE_AXE,
+        type=WcagDefinition.Type.AXE,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     assert case.percentage_website_issues_fixed == 0
 
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     assert case.percentage_website_issues_fixed == 100
@@ -751,18 +752,20 @@ def test_overview_issues_website_with_audit():
     assert case.overview_issues_website == "0 of 0 fixed"
 
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
+    )
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
-        type=TEST_TYPE_AXE,
+        type=WcagDefinition.Type.AXE,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     assert case.overview_issues_website == "0 of 1 fixed (0%)"
 
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     assert case.overview_issues_website == "1 of 1 fixed (100%)"

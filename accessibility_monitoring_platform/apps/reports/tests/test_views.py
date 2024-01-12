@@ -12,8 +12,6 @@ from moto import mock_s3
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
-    CHECK_RESULT_ERROR,
-    TEST_TYPE_AXE,
     Audit,
     CheckResult,
     Page,
@@ -205,13 +203,13 @@ def test_old_published_report_includes_errors(admin_client):
         audit=audit, page_type=Page.Type.STATEMENT, url=HOME_PAGE_URL
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
         notes=CHECK_RESULTS_NOTES,
     )
 

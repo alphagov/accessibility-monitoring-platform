@@ -15,19 +15,11 @@ from ..models import (
     ADDED_STAGE_INITIAL,
     ADDED_STAGE_TWELVE_WEEK,
     ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
-    CHECK_RESULT_ERROR,
-    CHECK_RESULT_NO_ERROR,
-    RETEST_CHECK_RESULT_DEFAULT,
-    RETEST_CHECK_RESULT_FIXED,
-    RETEST_CHECK_RESULT_NOT_FIXED,
     RETEST_INITIAL_COMPLIANCE_COMPLIANT,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_NOT_TESTED,
     STATEMENT_CHECK_TYPE_OVERVIEW,
     STATEMENT_CHECK_YES,
-    TEST_TYPE_AXE,
-    TEST_TYPE_MANUAL,
-    TEST_TYPE_PDF,
     ArchiveAccessibilityStatementCheck,
     Audit,
     CheckResult,
@@ -59,7 +51,7 @@ ERROR_NOTES: str = "Error notes"
 def create_retest_and_retest_check_results(case: Optional[Case] = None):
     """Create retest and associated data"""
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     if case is None:
         case: Case = Case.objects.create()
@@ -71,15 +63,15 @@ def create_retest_and_retest_check_results(case: Optional[Case] = None):
         home_page_check_result: CheckResult = CheckResult.objects.create(
             audit=audit,
             page=home_page,
-            check_result_state=CHECK_RESULT_ERROR,
-            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+            check_result_state=CheckResult.Result.ERROR,
+            retest_state=CheckResult.RetestResult.NOT_FIXED,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
         )
         statement_page_check_result: CheckResult = CheckResult.objects.create(
             audit=audit,
             page=statement_page,
-            check_result_state=CHECK_RESULT_NO_ERROR,
+            check_result_state=CheckResult.Result.NO_ERROR,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
         )
@@ -97,13 +89,13 @@ def create_retest_and_retest_check_results(case: Optional[Case] = None):
             retest=retest,
             retest_page=home_retest_page,
             check_result=home_page_check_result,
-            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+            retest_state=CheckResult.RetestResult.NOT_FIXED,
         )
         RetestCheckResult.objects.create(
             retest=retest,
             retest_page=statement_retest_page,
             check_result=statement_page_check_result,
-            retest_state=RETEST_CHECK_RESULT_FIXED,
+            retest_state=CheckResult.RetestResult.FIXED,
         )
         return retest
     else:
@@ -166,13 +158,15 @@ def create_audit_and_statement_check_results() -> Audit:
 def create_audit_and_check_results() -> Audit:
     """Create an audit with failed check results"""
     html_wcag_definitions: List[WcagDefinition] = [
-        WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME),
         WcagDefinition.objects.create(
-            type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME
+            type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+        ),
+        WcagDefinition.objects.create(
+            type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
         ),
     ]
     pdf_wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME
+        type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
     )
 
     audit: Audit = create_audit_and_pages()
@@ -180,9 +174,9 @@ def create_audit_and_check_results() -> Audit:
 
     for page in pages:
         check_result_state: str = (
-            CHECK_RESULT_ERROR
+            CheckResult.Result.ERROR
             if page.page_type in [Page.Type.HOME, Page.Type.PDF]
-            else CHECK_RESULT_NO_ERROR
+            else CheckResult.Result.NO_ERROR
         )
         if page.page_type == Page.Type.PDF:
             CheckResult.objects.create(
@@ -306,7 +300,7 @@ def test_audit_failed_check_results_returns_only_failed_checks():
             [
                 check
                 for check in audit.failed_check_results
-                if check.check_result_state == CHECK_RESULT_ERROR
+                if check.check_result_state == CheckResult.Result.ERROR
             ]
         )
         == 3
@@ -367,8 +361,8 @@ def test_page_all_check_results_returns_check_results():
     home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
 
     assert len(home_page.all_check_results) == 2
-    assert home_page.all_check_results[0].type == TEST_TYPE_AXE
-    assert home_page.all_check_results[1].type == TEST_TYPE_MANUAL
+    assert home_page.all_check_results[0].type == WcagDefinition.Type.AXE
+    assert home_page.all_check_results[1].type == WcagDefinition.Type.MANUAL
 
 
 @pytest.mark.django_db
@@ -393,7 +387,7 @@ def test_check_result_returns_id_and_fields_for_retest():
 
     assert check_result.dict_for_retest == {
         "id": check_result.id,
-        "retest_state": RETEST_CHECK_RESULT_DEFAULT,
+        "retest_state": CheckResult.RetestResult.NOT_RETESTED,
         "retest_notes": "",
     }
 
@@ -403,12 +397,14 @@ def test_wcag_definition_strings():
     Test WCAG definitions return expected string values.
     """
     wcag_definition: WcagDefinition = WcagDefinition(
-        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME
+        type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
     )
     assert str(wcag_definition) == f"{WCAG_TYPE_PDF_NAME} (PDF)"
 
     wcag_definition_with_description: WcagDefinition = WcagDefinition(
-        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME, description=WCAG_DESCRIPTION
+        type=WcagDefinition.Type.PDF,
+        name=WCAG_TYPE_PDF_NAME,
+        description=WCAG_DESCRIPTION,
     )
     assert (
         str(wcag_definition_with_description)
@@ -506,9 +502,14 @@ def test_check_result_updated_updated():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
+    )
     check_result: CheckResult = CheckResult.objects.create(
-        audit=audit, page=page, type=TEST_TYPE_AXE, wcag_definition=wcag_definition
+        audit=audit,
+        page=page,
+        type=WcagDefinition.Type.AXE,
+        wcag_definition=wcag_definition,
     )
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
@@ -633,7 +634,7 @@ def test_audit_fixed_check_results():
 
     home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = home_page.all_check_results[0]
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     updated_audit: Audit = Audit.objects.get(id=audit.id)
@@ -652,7 +653,7 @@ def test_audit_unfixed_check_results():
     assert audit.unfixed_check_results.count() == 3
 
     check_result: CheckResult = audit.unfixed_check_results[0]
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     updated_audit: Audit = Audit.objects.get(id=audit.id)
@@ -1152,7 +1153,7 @@ def test_fixed_checks_count_at_12_week():
     assert retest.fixed_checks_count == 0
 
     check_result: CheckResult = audit.checkresult_audit.all().first()
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     assert retest.fixed_checks_count == 1
@@ -1182,7 +1183,7 @@ def test_fixed_checks_count_in_retests():
 
     assert retest.fixed_checks_count == 0
 
-    retest_check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    retest_check_result.retest_state = CheckResult.RetestResult.FIXED
     retest_check_result.save()
 
     assert retest.fixed_checks_count == 1
@@ -1282,7 +1283,7 @@ def test_retest_page_unfixed_check_results():
     assert home_retest_page.unfixed_check_results.count() == 1
     assert (
         home_retest_page.unfixed_check_results.first().retest_state
-        == RETEST_CHECK_RESULT_NOT_FIXED
+        == CheckResult.RetestResult.NOT_FIXED
     )
     assert statement_retest_page.unfixed_check_results.count() == 0
 

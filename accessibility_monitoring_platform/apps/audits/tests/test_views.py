@@ -18,16 +18,10 @@ from ...cases.models import Case, CaseCompliance, CaseEvent, Contact
 from ..models import (
     ADDED_STAGE_TWELVE_WEEK,
     ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
-    CHECK_RESULT_ERROR,
-    CHECK_RESULT_NOT_TESTED,
     REPORT_OPTIONS_NEXT_DEFAULT,
-    RETEST_CHECK_RESULT_FIXED,
-    RETEST_CHECK_RESULT_NOT_FIXED,
     STATEMENT_CHECK_TYPE_CUSTOM,
     STATEMENT_CHECK_TYPE_OVERVIEW,
     STATEMENT_CHECK_YES,
-    TEST_TYPE_AXE,
-    TEST_TYPE_PDF,
     Audit,
     CheckResult,
     Page,
@@ -99,8 +93,12 @@ def create_audit_and_pages() -> Audit:
 def create_audit_and_wcag() -> Audit:
     audit: Audit = create_audit_and_pages()
     WcagDefinition.objects.all().delete()
-    WcagDefinition.objects.create(id=1, type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
-    WcagDefinition.objects.create(id=2, type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
+    WcagDefinition.objects.create(
+        id=1, type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    WcagDefinition.objects.create(
+        id=2, type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
+    )
     return audit
 
 
@@ -123,7 +121,7 @@ def create_audit_and_statement_check_results() -> Audit:
 def create_equality_body_retest() -> Retest:
     """Create equality body retest and associated data"""
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
@@ -131,8 +129,8 @@ def create_equality_body_retest() -> Retest:
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
         type=wcag_definition.type,
         wcag_definition=wcag_definition,
     )
@@ -146,7 +144,7 @@ def create_equality_body_retest() -> Retest:
         retest=retest,
         retest_page=retest_page,
         check_result=check_result,
-        retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
     )
     return retest
 
@@ -183,18 +181,20 @@ def test_audit_detail_shows_number_of_errors(admin_client):
     page: Page = Page.objects.create(
         audit=audit, page_type=Page.Type.PDF, url="https://example.com"
     )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     response: HttpResponse = admin_client.get(
@@ -1547,8 +1547,12 @@ def test_page_checks_edit_saves_results(admin_client):
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-page-checks", kwargs=page_pk),
@@ -1560,10 +1564,10 @@ def test_page_checks_edit_saves_results(admin_client):
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-wcag_definition": wcag_definition_axe.id,
-            "form-0-check_result_state": CHECK_RESULT_ERROR,
+            "form-0-check_result_state": CheckResult.Result.ERROR,
             "form-0-notes": CHECK_RESULT_NOTES,
             "form-1-wcag_definition": wcag_definition_pdf.id,
-            "form-1-check_result_state": CHECK_RESULT_ERROR,
+            "form-1-check_result_state": CheckResult.Result.ERROR,
             "form-1-notes": CHECK_RESULT_NOTES,
             "complete_date": "on",
             "no_errors_date": "on",
@@ -1576,13 +1580,13 @@ def test_page_checks_edit_saves_results(admin_client):
     check_result_axe: CheckResult = CheckResult.objects.get(
         page=page, wcag_definition=wcag_definition_axe
     )
-    assert check_result_axe.check_result_state == CHECK_RESULT_ERROR
+    assert check_result_axe.check_result_state == CheckResult.Result.ERROR
     assert check_result_axe.notes == CHECK_RESULT_NOTES
 
     check_result_pdf: CheckResult = CheckResult.objects.get(
         page=page, wcag_definition=wcag_definition_pdf
     )
-    assert check_result_pdf.check_result_state == CHECK_RESULT_ERROR
+    assert check_result_pdf.check_result_state == CheckResult.Result.ERROR
     assert check_result_pdf.notes == CHECK_RESULT_NOTES
 
     updated_page: Page = Page.objects.get(id=page.id)
@@ -1608,10 +1612,10 @@ def test_page_checks_edit_stays_on_page(admin_client):
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-wcag_definition": 1,
-            "form-0-check_result_state": CHECK_RESULT_NOT_TESTED,
+            "form-0-check_result_state": CheckResult.Result.NOT_TESTED,
             "form-0-notes": "",
             "form-1-wcag_definition": 2,
-            "form-1-check_result_state": CHECK_RESULT_NOT_TESTED,
+            "form-1-check_result_state": CheckResult.Result.NOT_TESTED,
             "form-1-notes": "",
         },
     )
@@ -2058,19 +2062,23 @@ def test_retest_page_checks_edit_page_loads(admin_client):
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit, retest_notes=PAGE_RETEST_NOTES)
     page_pk: Dict[str, int] = {"pk": page.id}
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_pdf,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_axe,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     response: HttpResponse = admin_client.get(
@@ -2090,19 +2098,23 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
     check_result_axe: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_pdf,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
     check_result_pdf: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_axe,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     response: HttpResponse = admin_client.post(
@@ -2153,21 +2165,25 @@ def test_retest_page_shows_and_hides_fixed_errors(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_pdf,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
         notes=FIXED_ERROR_NOTES,
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_axe,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)

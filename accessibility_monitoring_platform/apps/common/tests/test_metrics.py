@@ -8,9 +8,6 @@ from unittest.mock import patch
 import pytest
 
 from ...audits.models import (
-    CHECK_RESULT_ERROR,
-    RETEST_CHECK_RESULT_FIXED,
-    TEST_TYPE_AXE,
     Audit,
     CheckResult,
     Page,
@@ -514,19 +511,21 @@ def test_get_policy_total_metrics():
     )
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
     )
 
     assert get_policy_total_metrics() == [
@@ -572,20 +571,22 @@ def test_get_policy_progress_metrics(mock_datetime):
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state="not-fixed",
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
     )
 
     assert get_policy_progress_metrics() == [
@@ -627,20 +628,22 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
     page: Page = Page.objects.create(
         audit=audit, retest_page_missing_date=datetime(2022, 1, 2, tzinfo=timezone.utc)
     )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state="not-fixed",
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
     )
 
     assert get_policy_progress_metrics() == [

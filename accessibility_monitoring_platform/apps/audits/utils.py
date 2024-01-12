@@ -30,7 +30,6 @@ from .forms import (
 from .models import (
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
     ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
-    CHECK_RESULT_NOT_TESTED,
     Audit,
     CheckResult,
     Page,
@@ -178,7 +177,7 @@ def create_or_update_check_results_for_page(
                 record_model_update_event(user=user, model_object=check_result)
                 report_data_updated(audit=check_result.audit)
                 check_result.save()
-        elif notes != "" or check_result_state != CHECK_RESULT_NOT_TESTED:
+        elif notes != "" or check_result_state != CheckResult.Result.NOT_TESTED:
             check_result: CheckResult = CheckResult.objects.create(
                 audit=page.audit,
                 page=page,
@@ -212,7 +211,7 @@ def get_all_possible_check_results_for_page(
             check_result_state: str = check_result.check_result_state
             notes: str = check_result.notes
         else:
-            check_result_state: str = CHECK_RESULT_NOT_TESTED
+            check_result_state: str = CheckResult.Result.NOT_TESTED
             notes: str = ""
         check_results.append(
             {
