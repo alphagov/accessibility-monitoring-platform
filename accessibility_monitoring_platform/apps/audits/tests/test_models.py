@@ -12,7 +12,6 @@ from pytest_django.asserts import assertQuerysetEqual
 from ...cases.models import Case
 from ...common.models import Boolean
 from ..models import (
-    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
     ArchiveAccessibilityStatementCheck,
     Audit,
     CheckResult,
@@ -665,7 +664,7 @@ def test_audit_accessibility_statement_checks():
     assert len(audit.accessibility_statement_checks) == 13
 
     for count, field_name_prefix in enumerate(
-        ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
+        Audit.ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
     ):
         assert (
             audit.accessibility_statement_checks[count].field_name_prefix

@@ -16,8 +16,6 @@ from accessibility_monitoring_platform.apps.common.models import Boolean
 
 from ...cases.models import Case, CaseCompliance, CaseEvent, Contact
 from ..models import (
-    ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
-    REPORT_OPTIONS_NEXT_DEFAULT,
     Audit,
     CheckResult,
     Page,
@@ -1977,8 +1975,8 @@ def test_report_options_field_updates_report_content(
         reverse("audits:edit-audit-report-options", kwargs=audit_pk),
         {
             "version": audit.version,
-            "archive_accessibility_statement_state": ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
-            "archive_report_options_next": REPORT_OPTIONS_NEXT_DEFAULT,
+            "archive_accessibility_statement_state": Audit.AccessibilityStatement.NOT_FOUND,
+            "archive_report_options_next": Audit.ReportOptionsNext.ERRORS,
             "save": "Button value",
             field_name: new_value,
             "archive_accessibility_statement_deadline_not_complete_wording": "it includes a deadline of XXX for fixing XXX issues and this has not been completed",

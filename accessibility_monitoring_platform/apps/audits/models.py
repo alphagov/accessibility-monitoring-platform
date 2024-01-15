@@ -2,7 +2,7 @@
 Models - audits (called tests by the users)
 """
 from datetime import date
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from django.db import models
 from django.db.models import Case as DjangoCase
@@ -14,112 +14,6 @@ from django.utils import timezone
 from ..cases.models import Case
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date
-
-FEEDBACK_STATE_DEFAULT: str = "not-present"
-FEEDBACK_STATE_VALID: str = "present"
-FEEDBACK_STATE_CHOICES: List[Tuple[str, str]] = [
-    (FEEDBACK_STATE_VALID, "Present"),
-    ("incomplete", "Present but missing detail"),
-    (FEEDBACK_STATE_DEFAULT, "Not present"),
-    ("other", "Other (Please specify)"),
-]
-CONTACT_INFORMATION_STATE_DEFAULT: str = "not-present"
-CONTACT_INFORMATION_VALID: str = "present"
-CONTACT_INFORMATION_STATE_CHOICES: List[Tuple[str, str]] = [
-    (CONTACT_INFORMATION_VALID, "Present"),
-    ("incomplete", "Present but missing detail"),
-    (CONTACT_INFORMATION_STATE_DEFAULT, "Not present"),
-    ("other", "Other (Please specify)"),
-]
-ENFORCEMENT_PROCEDURE_STATE_DEFAULT: str = "not-present"
-ENFORCEMENT_PROCEDURE_VALID: str = "present"
-ENFORCEMENT_PROCEDURE_STATE_CHOICES: List[Tuple[str, str]] = [
-    (ENFORCEMENT_PROCEDURE_VALID, "Present"),
-    (ENFORCEMENT_PROCEDURE_STATE_DEFAULT, "Not included"),
-    ("other", "Other (Please specify)"),
-]
-COMPLIANCE_STATE_DEFAULT: str = "not-present"
-COMPLIANCE_STATE_VALID: str = "present"
-COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
-    (COMPLIANCE_STATE_VALID, "Present and correct"),
-    ("incorrect", "Present but incorrect"),
-    (COMPLIANCE_STATE_DEFAULT, "Not present"),
-    ("other", "Other (Please specify)"),
-]
-NON_REGULATION_STATE_DEFAULT: str = "not-present"
-NON_REGULATION_VALID: str = "present"
-NON_REGULATION_STATE_CHOICES: List[Tuple[str, str]] = [
-    (NON_REGULATION_VALID, "Present and correct"),
-    ("incorrect", "Present but incorrect"),
-    (NON_REGULATION_STATE_DEFAULT, "Not present"),
-    ("n/a", "N/A"),
-    ("other", "Other (Please specify)"),
-]
-DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM: str = "no-claim"
-DISPROPORTIONATE_BURDEN_STATE_ASSESSMENT: str = "assessment"
-DISPROPORTIONATE_BURDEN_STATE_CHOICES: List[Tuple[str, str]] = [
-    (DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM, "No claim"),
-    (DISPROPORTIONATE_BURDEN_STATE_ASSESSMENT, "Claim with assessment"),
-    ("no-assessment", "Claim with no assessment"),
-]
-CONTENT_NOT_IN_SCOPE_STATE_DEFAULT: str = "not-present"
-CONTENT_NOT_IN_SCOPE_VALID: str = "present"
-CONTENT_NOT_IN_SCOPE_STATE_CHOICES: List[Tuple[str, str]] = [
-    (CONTENT_NOT_IN_SCOPE_VALID, "Present and correct"),
-    ("incorrect", "Present but incorrect"),
-    (CONTENT_NOT_IN_SCOPE_STATE_DEFAULT, "Not present"),
-    ("n/a", "N/A"),
-    ("other", "Other (Please specify)"),
-]
-PREPARATION_DATE_STATE_DEFAULT: str = "not-present"
-PREPARATION_DATE_VALID: str = "present"
-PREPARATION_DATE_STATE_CHOICES: List[Tuple[str, str]] = [
-    (PREPARATION_DATE_VALID, "Present"),
-    (PREPARATION_DATE_STATE_DEFAULT, "Not included"),
-    ("other", "Other (Please specify)"),
-]
-REVIEW_STATE_DEFAULT: str = "not-present"
-REVIEW_STATE_VALID: str = "present"
-REVIEW_STATE_CHOICES: List[Tuple[str, str]] = [
-    (REVIEW_STATE_VALID, "Present and correct"),
-    ("out-of-date", "Present but out of date"),
-    (REVIEW_STATE_DEFAULT, "Not included"),
-    ("n/a", "N/A"),
-    ("other", "Other (Please specify)"),
-]
-METHOD_STATE_DEFAULT: str = "not-present"
-METHOD_STATE_VALID: str = "present"
-METHOD_STATE_CHOICES: List[Tuple[str, str]] = [
-    (METHOD_STATE_VALID, "Present"),
-    ("incomplete", "Present but missing detail"),
-    (METHOD_STATE_DEFAULT, "Not present"),
-    ("other", "Other (Please specify)"),
-]
-ACCESS_REQUIREMENTS_STATE_DEFAULT: str = "req-not-met"
-ACCESS_REQUIREMENTS_VALID: str = "req-met"
-ACCESS_REQUIREMENTS_STATE_CHOICES: List[Tuple[str, str]] = [
-    (ACCESS_REQUIREMENTS_VALID, "Meets requirements"),
-    (ACCESS_REQUIREMENTS_STATE_DEFAULT, "Does not meet requirements"),
-    ("n/a", "N/A"),
-    ("other", "Other (Please specify)"),
-]
-ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT: str = "not-found"
-ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES: List[Tuple[str, str]] = [
-    (
-        ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
-        "An accessibility statement for the website was not found.",
-    ),
-    (
-        "found",
-        "An accessibility statement for the website was found in the correct format.",
-    ),
-    ("found-but", "An accessibility statement for the website was found but:"),
-]
-REPORT_OPTIONS_NEXT_DEFAULT: str = "errors"
-REPORT_OPTIONS_NEXT_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_OPTIONS_NEXT_DEFAULT, "Errors were found"),
-    ("no-errors", "No serious errors were found"),
-]
 
 ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
     "archive_accessibility_statement_not_correct_format": "it was not in the correct format",
@@ -156,39 +50,6 @@ ARCHIVE_REPORT_NEXT_ISSUE_TEXT: Dict[str, str] = {
     "archive_report_next_statement_matches": "Their statement matches",
     "archive_report_next_disproportionate_burden": "Disproportionate burden",
 }
-ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES: List[str] = [
-    "scope",
-    "feedback",
-    "contact_information",
-    "enforcement_procedure",
-    "declaration",
-    "compliance",
-    "non_regulation",
-    "disproportionate_burden",
-    "content_not_in_scope",
-    "preparation_date",
-    "review",
-    "method",
-    "access_requirements",
-]
-ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
-    "scope": ["present"],
-    "feedback": [FEEDBACK_STATE_VALID],
-    "contact_information": [CONTACT_INFORMATION_VALID],
-    "enforcement_procedure": [ENFORCEMENT_PROCEDURE_VALID],
-    "declaration": ["present"],
-    "compliance": [COMPLIANCE_STATE_VALID],
-    "non_regulation": [NON_REGULATION_VALID],
-    "disproportionate_burden": [
-        DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM,
-        DISPROPORTIONATE_BURDEN_STATE_ASSESSMENT,
-    ],
-    "content_not_in_scope": [CONTENT_NOT_IN_SCOPE_VALID],
-    "preparation_date": [PREPARATION_DATE_VALID],
-    "review": [REVIEW_STATE_VALID],
-    "method": [METHOD_STATE_VALID],
-    "access_requirements": [ACCESS_REQUIREMENTS_VALID],
-}
 
 
 class ArchiveAccessibilityStatementCheck:
@@ -206,8 +67,10 @@ class ArchiveAccessibilityStatementCheck:
 
     def __init__(self, field_name_prefix: str, audit: "Audit"):
         self.field_name_prefix = field_name_prefix
-        self.valid_values = ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
-            field_name_prefix, []
+        self.valid_values = (
+            Audit.ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
+                field_name_prefix, []
+            )
         )
         self.label = Audit._meta.get_field(
             f"archive_{field_name_prefix}_state"
@@ -255,16 +118,122 @@ class Audit(VersionModel):
         NO = "no", "No"
         UNKNOWN = "unknown", "Unknown"
 
-    class Declaration(models.TextChoices):
-        PRESENT = "present", "Present and correct"
-        NOT_PRESENT = "not-present", "Not included"
-        OTHER = "other", "Other"
-
     class Scope(models.TextChoices):
         PRESENT = "present", "Present and correct"
         NOT_PRESENT = "not-present", "Not included"
         INCOMPLETE = "incomplete", "Does not cover entire website"
         OTHER = "other", "Other"
+
+    class Feedback(models.TextChoices):
+        PRESENT = "present", "Present"
+        INCOMPLETE = "incomplete", "Present but missing detail"
+        NOT_PRESENT = "not-present", "Not present"
+        OTHER = "other", "Other (Please specify)"
+
+    class ContactInformation(models.TextChoices):
+        PRESENT = "present", "Present"
+        INCOMPLETE = "incomplete", "Present but missing detail"
+        NOT_PRESENT = "not-present", "Not present"
+        OTHER = "other", "Other (Please specify)"
+
+    class EnforcementProcedure(models.TextChoices):
+        PRESENT = "present", "Present"
+        NOT_PRESENT = "not-present", "Not included"
+        OTHER = "other", "Other (Please specify)"
+
+    class Declaration(models.TextChoices):
+        PRESENT = "present", "Present and correct"
+        NOT_PRESENT = "not-present", "Not included"
+        OTHER = "other", "Other"
+
+    class Compliance(models.TextChoices):
+        PRESENT = "present", "Present and correct"
+        INCORRECT = "incorrect", "Present but incorrect"
+        NOT_PRESENT = "not-present", "Not present"
+        OTHER = "other", "Other (Please specify)"
+
+    class NonRegulation(models.TextChoices):
+        PRESENT = "present", "Present and correct"
+        INCORRECT = "incorrect", "Present but incorrect"
+        NOT_PRESENT = "not-present", "Not present"
+        NA = "n/a", "N/A"
+        OTHER = "other", "Other (Please specify)"
+
+    class DisproportionateBurden(models.TextChoices):
+        NO_CLAIM = "no-claim", "No claim"
+        ASSESSMENT = "assessment", "Claim with assessment"
+        NO_ASSESSMENT = "no-assessment", "Claim with no assessment"
+
+    class ContentNotInScope(models.TextChoices):
+        PRESENT = "present", "Present and correct"
+        INCORRECT = "incorrect", "Present but incorrect"
+        NOT_PRESENT = "not-present", "Not present"
+        NA = "n/a", "N/A"
+        OTHER = "other", "Other (Please specify)"
+
+    class PreparationDate(models.TextChoices):
+        PRESENT = "present", "Present"
+        NOT_PRESENT = "not-present", "Not included"
+        OTHER = "other", "Other (Please specify)"
+
+    class Review(models.TextChoices):
+        PRESENT = "present", "Present and correct"
+        OUT_OF_DATE = "out-of-date", "Present but out of date"
+        NOT_PRESENT = "not-present", "Not included"
+        NA = "n/a", "N/A"
+        OTHER = "other", "Other (Please specify)"
+
+    class Method(models.TextChoices):
+        PRESENT = "present", "Present"
+        INCOMPLETE = "incomplete", "Present but missing detail"
+        NOT_PRESENT = "not-present", "Not present"
+        OTHER = "other", "Other (Please specify)"
+
+    class AccessRequirements(models.TextChoices):
+        MET = "req-met", "Meets requirements"
+        NOT_MET = "req-not-met", "Does not meet requirements"
+        NA = "n/a", "N/A"
+        OTHER = "other", "Other (Please specify)"
+
+    class AccessibilityStatement(models.TextChoices):
+        NOT_FOUND = (
+            "not-found",
+            "An accessibility statement for the website was not found.",
+        )
+        FOUND = (
+            "found",
+            "An accessibility statement for the website was found in the correct format.",
+        )
+        FOUND_BUT = (
+            "found-but",
+            "An accessibility statement for the website was found but:",
+        )
+
+    class ReportOptionsNext(models.TextChoices):
+        ERRORS = "errors", "Errors were found"
+        NO_ERRORS = "no-errors", "No serious errors were found"
+
+    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
+        "scope": [Scope.PRESENT],
+        "feedback": [Feedback.PRESENT],
+        "contact_information": [ContactInformation.PRESENT],
+        "enforcement_procedure": [EnforcementProcedure.PRESENT],
+        "declaration": [Declaration.PRESENT],
+        "compliance": [Compliance.PRESENT],
+        "non_regulation": [NonRegulation.PRESENT],
+        "disproportionate_burden": [
+            DisproportionateBurden.NO_CLAIM,
+            DisproportionateBurden.ASSESSMENT,
+        ],
+        "content_not_in_scope": [ContentNotInScope.PRESENT],
+        "preparation_date": [PreparationDate.PRESENT],
+        "review": [Review.PRESENT],
+        "method": [Method.PRESENT],
+        "access_requirements": [AccessRequirements.MET],
+    }
+    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES = (
+        ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.keys()
+    )
 
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="audit_case"
@@ -313,36 +282,36 @@ class Audit(VersionModel):
     archive_compliance_state = models.CharField(
         "Compliance Status",
         max_length=20,
-        choices=COMPLIANCE_STATE_CHOICES,
-        default=COMPLIANCE_STATE_DEFAULT,
+        choices=Compliance.choices,
+        default=Compliance.NOT_PRESENT,
     )
     archive_compliance_notes = models.TextField(default="", blank=True)
     archive_non_regulation_state = models.CharField(
         "Non-accessible Content - non compliance with regulations",
         max_length=20,
-        choices=NON_REGULATION_STATE_CHOICES,
-        default=NON_REGULATION_STATE_DEFAULT,
+        choices=NonRegulation.choices,
+        default=NonRegulation.NOT_PRESENT,
     )
     archive_non_regulation_notes = models.TextField(default="", blank=True)
     archive_disproportionate_burden_state = models.CharField(
         "Non-accessible Content - disproportionate burden",
         max_length=20,
-        choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
-        default=DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NO_CLAIM,
     )
     archive_disproportionate_burden_notes = models.TextField(default="", blank=True)
     archive_content_not_in_scope_state = models.CharField(
         "Non-accessible Content - the content is not within the scope of the applicable legislation",
         max_length=20,
-        choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
-        default=CONTENT_NOT_IN_SCOPE_STATE_DEFAULT,
+        choices=ContentNotInScope.choices,
+        default=ContentNotInScope.NOT_PRESENT,
     )
     archive_content_not_in_scope_notes = models.TextField(default="", blank=True)
     archive_preparation_date_state = models.CharField(
         "Preparation Date",
         max_length=20,
-        choices=PREPARATION_DATE_STATE_CHOICES,
-        default=PREPARATION_DATE_STATE_DEFAULT,
+        choices=PreparationDate.choices,
+        default=PreparationDate.NOT_PRESENT,
     )
     archive_preparation_date_notes = models.TextField(default="", blank=True)
     archive_audit_statement_1_complete_date = models.DateField(null=True, blank=True)
@@ -351,43 +320,43 @@ class Audit(VersionModel):
     archive_method_state = models.CharField(
         "Method",
         max_length=20,
-        choices=METHOD_STATE_CHOICES,
-        default=METHOD_STATE_DEFAULT,
+        choices=Method.choices,
+        default=Method.NOT_PRESENT,
     )
     archive_method_notes = models.TextField(default="", blank=True)
     archive_review_state = models.CharField(
         "Review",
         max_length=20,
-        choices=REVIEW_STATE_CHOICES,
-        default=REVIEW_STATE_DEFAULT,
+        choices=Review.choices,
+        default=Review.NOT_PRESENT,
     )
     archive_review_notes = models.TextField(default="", blank=True)
     archive_feedback_state = models.CharField(
         "Feedback",
         max_length=20,
-        choices=FEEDBACK_STATE_CHOICES,
-        default=FEEDBACK_STATE_DEFAULT,
+        choices=Feedback.choices,
+        default=Feedback.NOT_PRESENT,
     )
     archive_feedback_notes = models.TextField(default="", blank=True)
     archive_contact_information_state = models.CharField(
         "Contact Information",
         max_length=20,
-        choices=CONTACT_INFORMATION_STATE_CHOICES,
-        default=CONTACT_INFORMATION_STATE_DEFAULT,
+        choices=ContactInformation.choices,
+        default=ContactInformation.NOT_PRESENT,
     )
     archive_contact_information_notes = models.TextField(default="", blank=True)
     archive_enforcement_procedure_state = models.CharField(
         "Enforcement Procedure",
         max_length=20,
-        choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
-        default=ENFORCEMENT_PROCEDURE_STATE_DEFAULT,
+        choices=EnforcementProcedure.choices,
+        default=EnforcementProcedure.NOT_PRESENT,
     )
     archive_enforcement_procedure_notes = models.TextField(default="", blank=True)
     archive_access_requirements_state = models.CharField(
         "Access Requirements",
         max_length=20,
-        choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
-        default=ACCESS_REQUIREMENTS_STATE_DEFAULT,
+        choices=AccessRequirements.choices,
+        default=AccessRequirements.NOT_MET,
     )
     archive_access_requirements_notes = models.TextField(default="", blank=True)
     archive_audit_statement_2_complete_date = models.DateField(null=True, blank=True)
@@ -403,8 +372,8 @@ class Audit(VersionModel):
     # Report options
     archive_accessibility_statement_state = models.CharField(
         max_length=20,
-        choices=ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES,
-        default=ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
+        choices=AccessibilityStatement.choices,
+        default=AccessibilityStatement.NOT_FOUND,
     )
     archive_accessibility_statement_not_correct_format = models.CharField(
         max_length=20, choices=Boolean.choices, default=Boolean.NO
@@ -458,8 +427,8 @@ class Audit(VersionModel):
     )
     archive_report_options_next = models.CharField(
         max_length=20,
-        choices=REPORT_OPTIONS_NEXT_CHOICES,
-        default=REPORT_OPTIONS_NEXT_DEFAULT,
+        choices=ReportOptionsNext.choices,
+        default=ReportOptionsNext.ERRORS,
     )
     archive_report_next_change_statement = models.CharField(
         max_length=20, choices=Boolean.choices, default=Boolean.NO
@@ -548,36 +517,36 @@ class Audit(VersionModel):
     archive_audit_retest_scope_notes = models.TextField(default="", blank=True)
     archive_audit_retest_compliance_state = models.CharField(
         max_length=20,
-        choices=COMPLIANCE_STATE_CHOICES,
-        default=COMPLIANCE_STATE_DEFAULT,
+        choices=Compliance.choices,
+        default=Compliance.NOT_PRESENT,
     )
     archive_audit_retest_compliance_notes = models.TextField(default="", blank=True)
     archive_audit_retest_non_regulation_state = models.CharField(
         max_length=20,
-        choices=NON_REGULATION_STATE_CHOICES,
-        default=NON_REGULATION_STATE_DEFAULT,
+        choices=NonRegulation.choices,
+        default=NonRegulation.NOT_PRESENT,
     )
     archive_audit_retest_non_regulation_notes = models.TextField(default="", blank=True)
     archive_audit_retest_disproportionate_burden_state = models.CharField(
         max_length=20,
-        choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
-        default=DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NO_CLAIM,
     )
     archive_audit_retest_disproportionate_burden_notes = models.TextField(
         default="", blank=True
     )
     archive_audit_retest_content_not_in_scope_state = models.CharField(
         max_length=20,
-        choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
-        default=CONTENT_NOT_IN_SCOPE_STATE_DEFAULT,
+        choices=ContentNotInScope.choices,
+        default=ContentNotInScope.NOT_PRESENT,
     )
     archive_audit_retest_content_not_in_scope_notes = models.TextField(
         default="", blank=True
     )
     archive_audit_retest_preparation_date_state = models.CharField(
         max_length=20,
-        choices=PREPARATION_DATE_STATE_CHOICES,
-        default=PREPARATION_DATE_STATE_DEFAULT,
+        choices=PreparationDate.choices,
+        default=PreparationDate.NOT_PRESENT,
     )
     archive_audit_retest_preparation_date_notes = models.TextField(
         default="", blank=True
@@ -588,37 +557,37 @@ class Audit(VersionModel):
 
     # Retest accessibility statement 2
     archive_audit_retest_method_state = models.CharField(
-        max_length=20, choices=METHOD_STATE_CHOICES, default=METHOD_STATE_DEFAULT
+        max_length=20, choices=Method.choices, default=Method.NOT_PRESENT
     )
     archive_audit_retest_method_notes = models.TextField(default="", blank=True)
     archive_audit_retest_review_state = models.CharField(
-        max_length=20, choices=REVIEW_STATE_CHOICES, default=REVIEW_STATE_DEFAULT
+        max_length=20, choices=Review.choices, default=Review.NOT_PRESENT
     )
     archive_audit_retest_review_notes = models.TextField(default="", blank=True)
     archive_audit_retest_feedback_state = models.CharField(
-        max_length=20, choices=FEEDBACK_STATE_CHOICES, default=FEEDBACK_STATE_DEFAULT
+        max_length=20, choices=Feedback.choices, default=Feedback.NOT_PRESENT
     )
     archive_audit_retest_feedback_notes = models.TextField(default="", blank=True)
     archive_audit_retest_contact_information_state = models.CharField(
         max_length=20,
-        choices=CONTACT_INFORMATION_STATE_CHOICES,
-        default=CONTACT_INFORMATION_STATE_DEFAULT,
+        choices=ContactInformation.choices,
+        default=ContactInformation.NOT_PRESENT,
     )
     archive_audit_retest_contact_information_notes = models.TextField(
         default="", blank=True
     )
     archive_audit_retest_enforcement_procedure_state = models.CharField(
         max_length=20,
-        choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
-        default=ENFORCEMENT_PROCEDURE_STATE_DEFAULT,
+        choices=EnforcementProcedure.choices,
+        default=EnforcementProcedure.NOT_PRESENT,
     )
     archive_audit_retest_enforcement_procedure_notes = models.TextField(
         default="", blank=True
     )
     archive_audit_retest_access_requirements_state = models.CharField(
         max_length=20,
-        choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
-        default=ACCESS_REQUIREMENTS_STATE_DEFAULT,
+        choices=AccessRequirements.choices,
+        default=AccessRequirements.NOT_MET,
     )
     archive_audit_retest_access_requirements_notes = models.TextField(
         default="", blank=True
@@ -809,7 +778,7 @@ class Audit(VersionModel):
             ArchiveAccessibilityStatementCheck(
                 field_name_prefix=field_name_prefix, audit=self
             )
-            for field_name_prefix in ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
+            for field_name_prefix in Audit.ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
         ]
 
     @property
