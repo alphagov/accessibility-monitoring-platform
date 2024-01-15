@@ -19,7 +19,7 @@ from django.urls import reverse
 
 from ..audits.models import Audit, Retest
 from ..common.utils import build_filters
-from .forms import DEFAULT_SORT, NO_FILTER, CaseSearchForm
+from .forms import CaseSearchForm, Complaint, Sort
 from .models import (
     COMPLIANCE_FIELDS,
     Case,
@@ -474,7 +474,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
     filters: Dict = {}
     search_query = Q()
-    sort_by: str = DEFAULT_SORT
+    sort_by: str = Sort.NEWEST
 
     if hasattr(form, "cleaned_data"):
         field_and_filter_names: List[Tuple[str, str]] = copy.copy(
@@ -488,7 +488,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             cleaned_data=form.cleaned_data,
             field_and_filter_names=field_and_filter_names,
         )
-        sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
+        sort_by: str = form.cleaned_data.get("sort_by", Sort.NEWEST)
         if form.cleaned_data.get("case_search"):
             search: str = form.cleaned_data["case_search"]
             if (
@@ -508,8 +508,8 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
                     | Q(subcategory__name__icontains=search)
                 )
         for filter_name in ["is_complaint", "enforcement_body"]:
-            filter_value: str = form.cleaned_data.get(filter_name, NO_FILTER)
-            if filter_value != NO_FILTER:
+            filter_value: str = form.cleaned_data.get(filter_name, Complaint.ALL)
+            if filter_value != Complaint.ALL:
                 filters[filter_name] = filter_value
 
     if str(filters.get("status", "")) == CaseStatus.Status.READY_TO_QA:

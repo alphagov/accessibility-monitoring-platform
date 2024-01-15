@@ -17,7 +17,7 @@ from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from .models import EVENT_TYPE_MODEL_CREATE, ChangeToPlatform, Event, Platform
+from .models import ChangeToPlatform, Event, Platform
 
 
 def extract_domain_from_url(url: str) -> str:
@@ -151,7 +151,7 @@ def record_model_create_event(user: User, model_object: models.Model) -> None:
     Event.objects.create(
         created_by=user,
         parent=model_object,
-        type=EVENT_TYPE_MODEL_CREATE,
+        type=Event.Type.CREATE,
         value=json.dumps(value),
     )
 

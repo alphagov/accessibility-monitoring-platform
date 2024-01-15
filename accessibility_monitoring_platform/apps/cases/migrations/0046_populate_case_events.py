@@ -6,9 +6,9 @@ from unittest.mock import Mock, patch
 
 from django.db import migrations
 
-from ...common.models import EVENT_TYPE_MODEL_UPDATE
 from ...common.utils import amp_format_date
 
+EVENT_TYPE_MODEL_UPDATE: str = "model_update"
 CASE_EVENT_TYPE_CREATE: str = "create"
 CASE_EVENT_AUDITOR: str = "auditor"
 CASE_EVENT_CREATE_AUDIT: str = "create_audit"

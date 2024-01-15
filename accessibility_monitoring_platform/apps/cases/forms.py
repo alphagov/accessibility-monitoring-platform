@@ -8,6 +8,7 @@ import requests
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.db.models import QuerySet
 from django.utils.safestring import mark_safe
 
@@ -30,28 +31,26 @@ from ..common.forms import (
 from ..common.models import Sector, SubCategory
 from .models import Boolean, Case, CaseStatus, Contact, EqualityBodyCorrespondence
 
-status_choices = CaseStatus.Status.choices
-status_choices.insert(0, ("", "All"))
+ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + Case.EnforcementBody.choices
+STATUS_CHOICES: List[Tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices
 
-DEFAULT_SORT: str = ""
-SORT_CHOICES: List[Tuple[str, str]] = [
-    (DEFAULT_SORT, "Newest, Unassigned first"),
-    ("id", "Oldest"),
-    ("organisation_name", "Alphabetic"),
-]
-NO_FILTER: str = ""
-IS_COMPLAINT_CHOICES: List[Tuple[str, str]] = [
-    (NO_FILTER, "All"),
-    ("no", "No complaints"),
-    ("yes", "Only complaints"),
-]
-ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + Case.EnforcementBody.choices
 
-DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("audit_case__date_of_test", "Date test started"),
-    ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
-    ("case_updated_date", "Case updated"),
-]
+class Sort(models.TextChoices):
+    NEWEST = "", "Newest, Unassigned first"
+    OLDEST = "id", "Oldest"
+    NAME = "organisation_name", "Alphabetic"
+
+
+class Complaint(models.TextChoices):
+    ALL = "", "All"
+    NO = "no", "No complaints"
+    YES = "yes", "Only complaints"
+
+
+class DateType(models.TextChoices):
+    START = "audit_case__date_of_test", "Date test started"
+    SENT = "sent_to_enforcement_body_sent_date", "Date sent to EB"
+    UPDATED = "case_updated_date", "Case updated"
 
 
 def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[str, str]]:
@@ -70,18 +69,16 @@ class CaseSearchForm(AMPDateRangeForm):
     Form for searching for cases
     """
 
-    sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
+    sort_by = AMPChoiceField(label="Sort by", choices=Sort.choices)
     case_search = AMPCharFieldWide(label="Search")
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
-    status = AMPChoiceField(label="Status", choices=status_choices)
-    date_type = AMPChoiceField(label="Date filter", choices=DATE_TYPE_CHOICES)
+    status = AMPChoiceField(label="Status", choices=STATUS_CHOICES)
+    date_type = AMPChoiceField(label="Date filter", choices=DateType.choices)
     date_start = AMPDateField(label="Date start")
     date_end = AMPDateField(label="Date end")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
-    is_complaint = AMPChoiceField(
-        label="Filter complaints", choices=IS_COMPLAINT_CHOICES
-    )
+    is_complaint = AMPChoiceField(label="Filter complaints", choices=Complaint.choices)
     enforcement_body = AMPChoiceField(
         label="Enforcement body", choices=ENFORCEMENT_BODY_FILTER_CHOICES
     )

@@ -26,13 +26,7 @@ from ...audits.models import (
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
-from ...common.models import (
-    EVENT_TYPE_MODEL_CREATE,
-    EVENT_TYPE_MODEL_UPDATE,
-    Boolean,
-    Event,
-    Sector,
-)
+from ...common.models import Boolean, Event, Sector
 from ...common.utils import amp_format_date
 from ...notifications.models import Notification
 from ...reports.models import Report
@@ -1071,7 +1065,7 @@ def test_add_qa_comment(admin_client, admin_user):
     content_type: ContentType = ContentType.objects.get_for_model(Comment)
     event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
 
-    assert event.type == EVENT_TYPE_MODEL_CREATE
+    assert event.type == Event.Type.CREATE
 
 
 def test_add_qa_comment_redirects_to_qa_process(admin_client):
@@ -2169,7 +2163,7 @@ def test_updating_case_create_event(admin_client):
     content_type: ContentType = ContentType.objects.get_for_model(Case)
     event: Event = Event.objects.get(content_type=content_type, object_id=case.id)
 
-    assert event.type == EVENT_TYPE_MODEL_UPDATE
+    assert event.type == Event.Type.UPDATE
 
 
 def test_add_contact_also_creates_event(admin_client):
@@ -2201,7 +2195,7 @@ def test_add_contact_also_creates_event(admin_client):
     content_type: ContentType = ContentType.objects.get_for_model(Contact)
     event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
 
-    assert event.type == EVENT_TYPE_MODEL_CREATE
+    assert event.type == Event.Type.CREATE
 
 
 def test_delete_contact_adds_update_event(admin_client):
@@ -2226,7 +2220,7 @@ def test_delete_contact_adds_update_event(admin_client):
     content_type: ContentType = ContentType.objects.get_for_model(Contact)
     event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
 
-    assert event.type == EVENT_TYPE_MODEL_UPDATE
+    assert event.type == Event.Type.UPDATE
 
 
 def test_links_to_contact_and_accessibility_pages_shown(admin_client):

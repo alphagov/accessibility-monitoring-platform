@@ -17,13 +17,7 @@ from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from ..models import (
-    EVENT_TYPE_MODEL_CREATE,
-    EVENT_TYPE_MODEL_UPDATE,
-    ChangeToPlatform,
-    Event,
-    Platform,
-)
+from ..models import ChangeToPlatform, Event, Platform
 from ..utils import (
     amp_format_date,
     amp_format_datetime,
@@ -238,7 +232,7 @@ def test_record_model_create_event():
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
 
-    assert event.type == EVENT_TYPE_MODEL_CREATE
+    assert event.type == Event.Type.CREATE
 
 
 @pytest.mark.django_db
@@ -251,7 +245,7 @@ def test_record_model_update_event():
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
 
-    assert event.type == EVENT_TYPE_MODEL_UPDATE
+    assert event.type == Event.Type.UPDATE
 
 
 def test_list_to_dictionary_of_lists():
