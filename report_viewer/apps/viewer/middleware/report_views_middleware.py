@@ -7,9 +7,9 @@ from uuid import UUID
 
 from django.http import HttpRequest
 
-from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
-from accessibility_monitoring_platform.apps.reports.models import ReportVisitsMetrics
 from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
+from accessibility_monitoring_platform.apps.reports.models import ReportVisitsMetrics
+from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
 logger = logging.getLogger(__name__)
 

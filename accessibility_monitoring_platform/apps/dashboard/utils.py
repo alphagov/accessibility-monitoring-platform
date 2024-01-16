@@ -3,8 +3,10 @@ Utility functions used in dashboard
 """
 
 from typing import Dict, List
+
 from django.contrib.auth.models import User
-from ..cases.models import Case, STATUS_QA_IN_PROGRESS
+
+from ..cases.models import Case, CaseStatus
 
 
 def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
@@ -16,72 +18,72 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
     ] = [  # final dict key, status, and sort
         (
             "unknown",
-            "unknown",
+            CaseStatus.Status.UNKNOWN,
             "id",
         ),
         (
             "test_in_progress",
-            "test-in-progress",
+            CaseStatus.Status.TEST_IN_PROGRESS,
             "id",
         ),
         (
             "reports_in_progress",
-            "report-in-progress",
+            CaseStatus.Status.REPORT_IN_PROGRESS,
             "id",
         ),
         (
             "report_ready_to_send",
-            "report-ready-to-send",
+            CaseStatus.Status.REPORT_READY_TO_SEND,
             "id",
         ),
         (
             "qa_in_progress",
-            STATUS_QA_IN_PROGRESS,
+            CaseStatus.Status.QA_IN_PROGRESS,
             "id",
         ),
         (
             "in_report_correspondence",
-            "in-report-correspondence",
+            CaseStatus.Status.IN_REPORT_CORES,
             "next_action_due_date",
         ),
         (
             "in_probation_period",
-            "in-probation-period",
+            CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
             "next_action_due_date",
         ),
         (
             "in_12_week_correspondence",
-            "in-12-week-correspondence",
+            CaseStatus.Status.IN_12_WEEK_CORES,
             "next_action_due_date",
         ),
         (
             "reviewing_changes",
-            "reviewing-changes",
+            CaseStatus.Status.REVIEWING_CHANGES,
             "twelve_week_correspondence_acknowledged_date",
         ),
         (
             "final_decision_due",
-            "final-decision-due",
+            CaseStatus.Status.FINAL_DECISION_DUE,
             "report_followup_week_12_due_date",
         ),
         (
             "case_closed_waiting_to_be_sent",
-            "case-closed-waiting-to-be-sent",
+            CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND,
             "case_close_complete_date",
         ),
         (
             "case_closed_sent_to_equalities_body",
-            "case-closed-sent-to-equalities-body",
+            CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
             "sent_to_enforcement_body_sent_date",
         ),
         (
             "in_correspondence_with_equalities_body",
-            "in-correspondence-with-equalities-body",
+            CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY,
             "report_followup_week_12_due_date",
         ),
         (
             "completed",
-            "complete",
+            CaseStatus.Status.COMPLETE,
             "completed_date",
         ),
     ]
@@ -100,7 +102,11 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
 def get_all_cases_in_qa(all_cases: List[Case]) -> List[Case]:
     """Return all cases in QA"""
     cases_in_qa = sorted(
-        [case for case in all_cases if case.status.status == STATUS_QA_IN_PROGRESS],
+        [
+            case
+            for case in all_cases
+            if case.status.status == CaseStatus.Status.QA_IN_PROGRESS
+        ],
         key=lambda case, sort_key="id": getattr(case, sort_key),
     )
     return cases_in_qa

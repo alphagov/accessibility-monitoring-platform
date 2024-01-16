@@ -14,7 +14,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import requests
-
 from django.conf.urls import include
 from django.http import HttpResponse, StreamingHttpResponse
 from django.urls import path

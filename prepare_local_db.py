@@ -1,9 +1,9 @@
 """ Prepare Local DB - Downloads the latest db backup and uploads to local postgres instance """
-from typing import Any, List
 import os
-import boto3
 from pathlib import Path
+from typing import Any, List
 
+import boto3
 
 if __name__ == "__main__":
     s3_bucket: str = "amp-aurora-backup-prod"

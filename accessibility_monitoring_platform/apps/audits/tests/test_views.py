@@ -1,54 +1,31 @@
 """
 Tests for audits views
 """
-import pytest
 from datetime import date, timedelta
 from typing import Dict, List, Optional, Union
 
-from pytest_django.asserts import assertContains, assertNotContains
-
+import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
+from pytest_django.asserts import assertContains, assertNotContains
 
-from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
+from accessibility_monitoring_platform.apps.common.models import Boolean
 
-from ...cases.models import (
-    Case,
-    CaseEvent,
-    Contact,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_START_RETEST,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-)
+from ...cases.models import Case, CaseCompliance, CaseEvent, Contact
 from ..models import (
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_PDF,
     Audit,
     CheckResult,
     Page,
-    WcagDefinition,
-    ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
-    CHECK_RESULT_ERROR,
-    CHECK_RESULT_NOT_TESTED,
-    RETEST_CHECK_RESULT_FIXED,
-    RETEST_CHECK_RESULT_NOT_FIXED,
-    PAGE_TYPE_EXTRA,
-    TEST_TYPE_AXE,
-    TEST_TYPE_PDF,
-    REPORT_OPTIONS_NEXT_DEFAULT,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
     StatementCheck,
     StatementCheckResult,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_TYPE_CUSTOM,
-    STATEMENT_CHECK_YES,
-    Retest,
-    RetestPage,
-    RetestCheckResult,
     StatementPage,
-    ADDED_STAGE_TWELVE_WEEK,
+    WcagDefinition,
 )
 from ..utils import create_mandatory_pages_for_new_audit
 
@@ -110,8 +87,12 @@ def create_audit_and_pages() -> Audit:
 def create_audit_and_wcag() -> Audit:
     audit: Audit = create_audit_and_pages()
     WcagDefinition.objects.all().delete()
-    WcagDefinition.objects.create(id=1, type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
-    WcagDefinition.objects.create(id=2, type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
+    WcagDefinition.objects.create(
+        id=1, type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    WcagDefinition.objects.create(
+        id=2, type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
+    )
     return audit
 
 
@@ -134,16 +115,16 @@ def create_audit_and_statement_check_results() -> Audit:
 def create_equality_body_retest() -> Retest:
     """Create equality body retest and associated data"""
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
+    page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
         type=wcag_definition.type,
         wcag_definition=wcag_definition,
     )
@@ -157,7 +138,7 @@ def create_equality_body_retest() -> Retest:
         retest=retest,
         retest_page=retest_page,
         check_result=check_result,
-        retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
     )
     return retest
 
@@ -192,20 +173,22 @@ def test_audit_detail_shows_number_of_errors(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_PDF, url="https://example.com"
+        audit=audit, page_type=Page.Type.PDF, url="https://example.com"
     )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     response: HttpResponse = admin_client.get(
@@ -222,7 +205,7 @@ def test_audit_detail_shows_12_week_statement(admin_client):
     audit_pk: Dict[str, int] = {"pk": audit.id}
     StatementPage.objects.create(
         audit=audit,
-        added_stage=ADDED_STAGE_TWELVE_WEEK,
+        added_stage=StatementPage.AddedStage.TWELVE_WEEK,
         url=ACCESSIBILITY_STATEMENT_12_WEEK_URL,
     )
 
@@ -311,7 +294,7 @@ def test_create_audit_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_CREATE_AUDIT
+    assert case_event.event_type == CaseEvent.EventType.CREATE_AUDIT
     assert case_event.message == "Started test"
 
 
@@ -981,9 +964,9 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     for statement_check_result in StatementCheckResult.objects.filter(
-        audit=audit, type=STATEMENT_CHECK_TYPE_OVERVIEW
+        audit=audit, type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.post(
@@ -1051,7 +1034,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     case.auditor = user
     case.save()
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.WebsiteCompliance.COMPLIANT
     )
     case.compliance.save()
 
@@ -1133,7 +1116,9 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
-    StatementPage.objects.create(audit=audit, added_stage=ADDED_STAGE_TWELVE_WEEK)
+    StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
+    )
 
     case: Case = audit.case
     case.home_page_url = "https://www.website.com"
@@ -1187,7 +1172,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
 
     StatementPage.objects.create(
         audit=audit,
-        added_stage=ADDED_STAGE_TWELVE_WEEK,
+        added_stage=StatementPage.AddedStage.TWELVE_WEEK,
         url="https://www.website.com/statement",
     )
 
@@ -1253,7 +1238,7 @@ def test_retest_date_change_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_START_RETEST
+    assert case_event.event_type == CaseEvent.EventType.START_RETEST
     assert case_event.message == "Started retest (date set to 30 November 2022)"
 
 
@@ -1293,7 +1278,7 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     case: Case = audit.case
-    case.no_psb_contact = BOOLEAN_TRUE
+    case.no_psb_contact = Boolean.YES
     case.save()
 
     response: HttpResponse = admin_client.post(
@@ -1394,7 +1379,7 @@ def test_two_extra_pages_appear_on_pages_page(admin_client):
         html=True,
     )
 
-    Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA)
+    Page.objects.create(audit=audit, page_type=Page.Type.EXTRA)
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),
@@ -1460,7 +1445,7 @@ def test_add_extra_page(admin_client):
     assert response.status_code == 200
 
     extra_pages: List[Page] = list(
-        Page.objects.filter(audit=audit, page_type=PAGE_TYPE_EXTRA)
+        Page.objects.filter(audit=audit, page_type=Page.Type.EXTRA)
     )
 
     assert len(extra_pages) == 1
@@ -1473,7 +1458,7 @@ def test_delete_extra_page(admin_client):
     audit: Audit = create_audit_and_pages()
     extra_page: Page = Page.objects.create(
         audit=audit,
-        page_type=PAGE_TYPE_EXTRA,
+        page_type=Page.Type.EXTRA,
     )
 
     response: HttpResponse = admin_client.post(
@@ -1558,8 +1543,12 @@ def test_page_checks_edit_saves_results(admin_client):
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-page-checks", kwargs=page_pk),
@@ -1571,10 +1560,10 @@ def test_page_checks_edit_saves_results(admin_client):
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-wcag_definition": wcag_definition_axe.id,
-            "form-0-check_result_state": CHECK_RESULT_ERROR,
+            "form-0-check_result_state": CheckResult.Result.ERROR,
             "form-0-notes": CHECK_RESULT_NOTES,
             "form-1-wcag_definition": wcag_definition_pdf.id,
-            "form-1-check_result_state": CHECK_RESULT_ERROR,
+            "form-1-check_result_state": CheckResult.Result.ERROR,
             "form-1-notes": CHECK_RESULT_NOTES,
             "complete_date": "on",
             "no_errors_date": "on",
@@ -1587,13 +1576,13 @@ def test_page_checks_edit_saves_results(admin_client):
     check_result_axe: CheckResult = CheckResult.objects.get(
         page=page, wcag_definition=wcag_definition_axe
     )
-    assert check_result_axe.check_result_state == CHECK_RESULT_ERROR
+    assert check_result_axe.check_result_state == CheckResult.Result.ERROR
     assert check_result_axe.notes == CHECK_RESULT_NOTES
 
     check_result_pdf: CheckResult = CheckResult.objects.get(
         page=page, wcag_definition=wcag_definition_pdf
     )
-    assert check_result_pdf.check_result_state == CHECK_RESULT_ERROR
+    assert check_result_pdf.check_result_state == CheckResult.Result.ERROR
     assert check_result_pdf.notes == CHECK_RESULT_NOTES
 
     updated_page: Page = Page.objects.get(id=page.id)
@@ -1619,10 +1608,10 @@ def test_page_checks_edit_stays_on_page(admin_client):
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-wcag_definition": 1,
-            "form-0-check_result_state": CHECK_RESULT_NOT_TESTED,
+            "form-0-check_result_state": CheckResult.Result.NOT_TESTED,
             "form-0-notes": "",
             "form-1-wcag_definition": 2,
-            "form-1-check_result_state": CHECK_RESULT_NOT_TESTED,
+            "form-1-check_result_state": CheckResult.Result.NOT_TESTED,
             "form-1-notes": "",
         },
     )
@@ -1878,7 +1867,7 @@ def test_add_custom_statement_check_result(admin_client):
     """Test adding a custom statement issue"""
     audit: Audit = create_audit_and_statement_check_results()
     StatementCheckResult.objects.filter(
-        audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM
+        audit=audit, type=StatementCheck.Type.CUSTOM
     ).delete()
 
     response: HttpResponse = admin_client.post(
@@ -1899,7 +1888,7 @@ def test_add_custom_statement_check_result(admin_client):
     assert response.status_code == 200
 
     custom_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.get(audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM)
+        StatementCheckResult.objects.get(audit=audit, type=StatementCheck.Type.CUSTOM)
     )
 
     assert custom_statement_check_result.report_comment == CUSTOM_STATEMENT_ISSUE
@@ -1911,7 +1900,7 @@ def test_delete_custom_statement_check_result(admin_client):
     """
     audit: Audit = create_audit_and_statement_check_results()
     custom_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.get(audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM)
+        StatementCheckResult.objects.get(audit=audit, type=StatementCheck.Type.CUSTOM)
     )
 
     response: HttpResponse = admin_client.post(
@@ -1930,7 +1919,7 @@ def test_delete_custom_statement_check_result(admin_client):
     assertContains(response, "No custom statement issues have been entered")
 
     result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
-        audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM
+        audit=audit, type=StatementCheck.Type.CUSTOM
     )
     assert result_on_database.is_deleted is True
 
@@ -1986,8 +1975,8 @@ def test_report_options_field_updates_report_content(
         reverse("audits:edit-audit-report-options", kwargs=audit_pk),
         {
             "version": audit.version,
-            "archive_accessibility_statement_state": ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
-            "archive_report_options_next": REPORT_OPTIONS_NEXT_DEFAULT,
+            "archive_accessibility_statement_state": Audit.AccessibilityStatement.NOT_FOUND,
+            "archive_report_options_next": Audit.ReportOptionsNext.ERRORS,
             "save": "Button value",
             field_name: new_value,
             "archive_accessibility_statement_deadline_not_complete_wording": "it includes a deadline of XXX for fixing XXX issues and this has not been completed",
@@ -2038,7 +2027,7 @@ def test_start_retest_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_START_RETEST
+    assert case_event.event_type == CaseEvent.EventType.START_RETEST
     assert case_event.message == "Started retest"
 
 
@@ -2050,7 +2039,7 @@ def test_retest_details_renders_when_no_psb_response(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     case: Case = audit.case
-    case.no_psb_contact = BOOLEAN_TRUE
+    case.no_psb_contact = Boolean.YES
     case.save()
 
     response: HttpResponse = admin_client.get(
@@ -2069,19 +2058,23 @@ def test_retest_page_checks_edit_page_loads(admin_client):
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit, retest_notes=PAGE_RETEST_NOTES)
     page_pk: Dict[str, int] = {"pk": page.id}
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_pdf,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_axe,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     response: HttpResponse = admin_client.get(
@@ -2101,19 +2094,23 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
     check_result_axe: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_pdf,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
     check_result_pdf: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_axe,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     response: HttpResponse = admin_client.post(
@@ -2164,21 +2161,25 @@ def test_retest_page_shows_and_hides_fixed_errors(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_pdf,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
         notes=FIXED_ERROR_NOTES,
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition_axe,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
@@ -2298,7 +2299,7 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
     assert response.status_code == 200
     assertContains(response, "View initial decision")
 
-    statement_page.added_stage = (ADDED_STAGE_TWELVE_WEEK,)
+    statement_page.added_stage = (StatementPage.AddedStage.TWELVE_WEEK,)
     statement_page.save()
 
     response: HttpResponse = admin_client.get(
@@ -2777,8 +2778,8 @@ def test_audit_statement_check_statment_comparison_includes_fixed(admin_client):
     statement_check_result: StatementCheckResult = (
         audit.overview_statement_check_results.first()
     )
-    statement_check_result.check_result_state = STATEMENT_CHECK_YES
-    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.check_result_state = StatementCheckResult.Result.YES
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
     statement_check_result.save()
 
     response: HttpResponse = admin_client.get(

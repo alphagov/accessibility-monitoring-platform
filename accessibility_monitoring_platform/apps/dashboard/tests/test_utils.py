@@ -6,10 +6,9 @@ from typing import List, Union
 from django.contrib.auth.models import User
 
 from ...cases.models import Case
-
 from ..utils import (
-    group_cases_by_status,
     get_all_cases_in_qa,
+    group_cases_by_status,
     return_cases_requiring_user_review,
 )
 

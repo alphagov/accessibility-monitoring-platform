@@ -1,8 +1,9 @@
 """ECS Prepare DB - Launches on ECS that prepares the Aurora for the prototype"""
-import boto3
 import json
 import os
-from typing import List, Any
+from typing import Any, List
+
+import boto3
 
 # from main import get_copilot_s3_bucket
 

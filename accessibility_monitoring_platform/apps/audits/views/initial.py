@@ -5,86 +5,73 @@ from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from django.db.models.query import QuerySet
-from django.http import HttpRequest, HttpResponse
 from django.forms.models import ModelForm
-from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView
 
 from ...cases.models import Contact
-
+from ...common.form_extract_utils import extract_form_labels_and_values
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.utils import (
-    record_model_update_event,
-    record_model_create_event,
-    list_to_dictionary_of_lists,
     get_id_from_button_name,
+    list_to_dictionary_of_lists,
+    record_model_create_event,
+    record_model_update_event,
 )
-from ...common.form_extract_utils import (
-    extract_form_labels_and_values,
-)
-
 from ..forms import (
-    AuditMetadataUpdateForm,
-    AuditStandardPageFormset,
-    AuditExtraPageFormset,
-    AuditExtraPageFormsetOneExtra,
-    AuditExtraPageFormsetTwoExtra,
-    AuditPagesUpdateForm,
-    AuditPageChecksForm,
-    CheckResultFilterForm,
-    CheckResultForm,
-    CheckResultFormset,
-    AuditWebsiteDecisionUpdateForm,
-    CaseComplianceWebsiteInitialUpdateForm,
+    ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
     ArchiveAuditStatementDecisionUpdateForm,
     ArchiveCaseComplianceStatementInitialUpdateForm,
-    AuditStatementOverviewUpdateForm,
-    AuditStatementWebsiteUpdateForm,
+    AuditExtraPageFormset,
+    AuditExtraPageFormsetOneExtra,
+    AuditExtraPageFormsetTwoExtra,
+    AuditMetadataUpdateForm,
+    AuditPageChecksForm,
+    AuditPagesUpdateForm,
+    AuditStandardPageFormset,
     AuditStatementComplianceUpdateForm,
-    AuditStatementNonAccessibleUpdateForm,
-    AuditStatementPreparationUpdateForm,
-    AuditStatementFeedbackUpdateForm,
     AuditStatementCustomUpdateForm,
+    AuditStatementFeedbackUpdateForm,
+    AuditStatementNonAccessibleUpdateForm,
+    AuditStatementOverviewUpdateForm,
+    AuditStatementPagesUpdateForm,
+    AuditStatementPreparationUpdateForm,
+    AuditStatementWebsiteUpdateForm,
+    AuditSummaryUpdateForm,
+    AuditWebsiteDecisionUpdateForm,
+    CaseComplianceWebsiteInitialUpdateForm,
+    CheckResultFilterForm,
+    CheckResultForm,
+    CheckResultFormset,
     CustomStatementCheckResultFormset,
     CustomStatementCheckResultFormsetOneExtra,
-    AuditSummaryUpdateForm,
-    ArchiveAuditReportOptionsUpdateForm,
-    AuditStatementPagesUpdateForm,
 )
 from ..models import (
     Audit,
-    Page,
-    WcagDefinition,
     CheckResult,
-    PAGE_TYPE_FORM,
+    Page,
+    StatementCheck,
     StatementCheckResult,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_TYPE_WEBSITE,
-    STATEMENT_CHECK_TYPE_COMPLIANCE,
-    STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
-    STATEMENT_CHECK_TYPE_PREPARATION,
-    STATEMENT_CHECK_TYPE_FEEDBACK,
-    STATEMENT_CHECK_TYPE_CUSTOM,
-    STATEMENT_CHECK_NO,
     StatementPage,
-    ADDED_STAGE_INITIAL,
+    WcagDefinition,
 )
 from ..utils import (
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
     get_next_page_url,
+    get_test_view_tables_context,
     other_page_failed_check_results,
     report_data_updated,
-    get_test_view_tables_context,
 )
 from .base import (
-    AuditUpdateView,
     AuditCaseComplianceUpdateView,
     AuditStatementCheckingView,
+    AuditUpdateView,
     StatementPageFormsetUpdateView,
 )
 
@@ -197,7 +184,7 @@ class AuditPagesUpdateView(AuditUpdateView):
                         )
                     )
         for form in standard_pages_formset:
-            if form.instance.page_type == PAGE_TYPE_FORM:
+            if form.instance.page_type == Page.Type.FORM:
                 form.fields["is_contact_page"].label = "Form is on contact page"
                 form.fields["is_contact_page"].widget = AMPChoiceCheckboxWidget(
                     attrs={"label": "Mark as on contact page"}
@@ -391,7 +378,7 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         for form in context["statement_pages_formset"]:
             if form.instance.id is None:
-                form.fields["added_stage"].initial = ADDED_STAGE_INITIAL
+                form.fields["added_stage"].initial = StatementPage.AddedStage.INITIAL
         return context
 
     def form_valid(self, form: ModelForm):
@@ -432,7 +419,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
         AuditStatementOverviewUpdateForm
     ] = AuditStatementOverviewUpdateForm
     template_name: str = "audits/statement_checks/statement_overview.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_OVERVIEW
+    statement_check_type: str = StatementCheck.Type.OVERVIEW
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -453,7 +440,7 @@ class AuditStatementWebsiteFormView(AuditStatementCheckingView):
 
     form_class: Type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
     template_name: str = "audits/statement_checks/statement_website.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_WEBSITE
+    statement_check_type: str = StatementCheck.Type.WEBSITE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -472,7 +459,7 @@ class AuditStatementComplianceFormView(AuditStatementCheckingView):
         AuditStatementComplianceUpdateForm
     ] = AuditStatementComplianceUpdateForm
     template_name: str = "audits/statement_checks/statement_compliance.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_COMPLIANCE
+    statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -491,7 +478,7 @@ class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
         AuditStatementNonAccessibleUpdateForm
     ] = AuditStatementNonAccessibleUpdateForm
     template_name: str = "audits/statement_checks/statement_non_accessible.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+    statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -510,7 +497,7 @@ class AuditStatementPreparationFormView(AuditStatementCheckingView):
         AuditStatementPreparationUpdateForm
     ] = AuditStatementPreparationUpdateForm
     template_name: str = "audits/statement_checks/statement_preparation.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_PREPARATION
+    statement_check_type: str = StatementCheck.Type.PREPARATION
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -529,7 +516,7 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
         AuditStatementFeedbackUpdateForm
     ] = AuditStatementFeedbackUpdateForm
     template_name: str = "audits/statement_checks/statement_feedback.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_FEEDBACK
+    statement_check_type: str = StatementCheck.Type.FEEDBACK
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -546,7 +533,7 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
 
     form_class: Type[AuditStatementCustomUpdateForm] = AuditStatementCustomUpdateForm
     template_name: str = "audits/statement_checks/statement_custom.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_CUSTOM
+    statement_check_type: str = StatementCheck.Type.CUSTOM
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -581,7 +568,7 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
                 if not custom_statement_check_result.audit_id:
                     custom_statement_check_result.audit = audit
                     custom_statement_check_result.check_result_state = (
-                        STATEMENT_CHECK_NO
+                        StatementCheckResult.Result.NO
                     )
                     custom_statement_check_result.save()
                     record_model_create_event(

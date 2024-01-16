@@ -1,50 +1,30 @@
 """
 Tests for cases models
 """
-import pytest
-
 import json
 from datetime import date, datetime, timedelta, timezone
 from typing import List
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
+import pytest
+from django.contrib.auth.models import User
 
 from ...audits.models import (
     Audit,
     CheckResult,
     Page,
-    PAGE_TYPE_STATEMENT,
-    WcagDefinition,
-    TEST_TYPE_AXE,
-    CHECK_RESULT_ERROR,
-    RETEST_CHECK_RESULT_FIXED,
-    CONTENT_NOT_IN_SCOPE_VALID,
+    Retest,
     StatementCheck,
     StatementCheckResult,
-    STATEMENT_CHECK_NO,
-    STATEMENT_CHECK_YES,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    Retest,
-    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
     StatementPage,
+    WcagDefinition,
 )
 from ...comments.models import Comment
+from ...common.models import Boolean
 from ...reminders.models import Reminder
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
-from ..models import (
-    Case,
-    Contact,
-    EqualityBodyCorrespondence,
-    WEBSITE_COMPLIANCE_STATE_DEFAULT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
-    STATEMENT_COMPLIANCE_STATE_DEFAULT,
-    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
-    EQUALITY_BODY_CORRESPONDENCE_RETEST,
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
-)
+from ..models import Case, CaseCompliance, Contact, EqualityBodyCorrespondence
 from ..utils import create_case_and_compliance
 
 DOMAIN: str = "example.com"
@@ -530,14 +510,16 @@ def test_case_last_edited_from_check_result(
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
         page: Page = Page.objects.create(audit=last_edited_audit)
 
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
+    )
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_CREATED)
     ):
         check_result: CheckResult = CheckResult.objects.create(
             audit=last_edited_audit,
             page=page,
-            type=TEST_TYPE_AXE,
+            type=WcagDefinition.Type.AXE,
             wcag_definition=wcag_definition,
         )
 
@@ -612,14 +594,14 @@ def test_case_statement_checks_still_initial():
     assert case.statement_checks_still_initial is True
 
     case.compliance.statement_compliance_state_initial = (
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.StatementCompliance.COMPLIANT
     )
 
     assert case.statement_checks_still_initial is False
 
     audit: Audit = Audit.objects.create(case=case)
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
@@ -630,7 +612,7 @@ def test_case_statement_checks_still_initial():
     assert case.statement_checks_still_initial is True
 
     for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert case.statement_checks_still_initial is False
@@ -654,24 +636,24 @@ def test_contact_updated_updated():
     "website_compliance_state_initial, website_compliance_state_12_week, expected_result",
     [
         (
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
             "Not known",
         ),
-        (WEBSITE_COMPLIANCE_STATE_DEFAULT, "compliant", "Fully compliant"),
+        (CaseCompliance.WebsiteCompliance.UNKNOWN, "compliant", "Fully compliant"),
         (
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
             "partially-compliant",
             "Partially compliant",
         ),
         (
-            WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.WebsiteCompliance.COMPLIANT,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
             "Fully compliant",
         ),
         (
             "partially-compliant",
-            WEBSITE_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.WebsiteCompliance.UNKNOWN,
             "Partially compliant",
         ),
     ],
@@ -693,26 +675,26 @@ def test_website_compliance_display(
     "statement_compliance_state_initial, statement_compliance_state_12_week, expected_result",
     [
         (
-            STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-            STATEMENT_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.StatementCompliance.COMPLIANT,
+            CaseCompliance.StatementCompliance.UNKNOWN,
             "Compliant",
         ),
-        ("not-compliant", STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not compliant"),
-        ("not-found", STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not found"),
-        ("other", STATEMENT_COMPLIANCE_STATE_DEFAULT, "Other"),
+        ("not-compliant", CaseCompliance.StatementCompliance.UNKNOWN, "Not compliant"),
+        ("not-found", CaseCompliance.StatementCompliance.UNKNOWN, "Not found"),
+        ("other", CaseCompliance.StatementCompliance.UNKNOWN, "Other"),
         (
-            STATEMENT_COMPLIANCE_STATE_DEFAULT,
-            STATEMENT_COMPLIANCE_STATE_DEFAULT,
+            CaseCompliance.StatementCompliance.UNKNOWN,
+            CaseCompliance.StatementCompliance.UNKNOWN,
             "Not selected",
         ),
         (
-            STATEMENT_COMPLIANCE_STATE_DEFAULT,
-            STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+            CaseCompliance.StatementCompliance.UNKNOWN,
+            CaseCompliance.StatementCompliance.COMPLIANT,
             "Compliant",
         ),
-        (STATEMENT_COMPLIANCE_STATE_DEFAULT, "not-compliant", "Not compliant"),
-        (STATEMENT_COMPLIANCE_STATE_DEFAULT, "not-found", "Not found"),
-        (STATEMENT_COMPLIANCE_STATE_DEFAULT, "other", "Other"),
+        (CaseCompliance.StatementCompliance.UNKNOWN, "not-compliant", "Not compliant"),
+        (CaseCompliance.StatementCompliance.UNKNOWN, "not-found", "Not found"),
+        (CaseCompliance.StatementCompliance.UNKNOWN, "other", "Other"),
     ],
 )
 @pytest.mark.django_db
@@ -753,18 +735,20 @@ def test_percentage_website_issues_fixed_with_audit_and_issues():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
+    )
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
-        type=TEST_TYPE_AXE,
+        type=WcagDefinition.Type.AXE,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     assert case.percentage_website_issues_fixed == 0
 
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     assert case.percentage_website_issues_fixed == 100
@@ -795,18 +779,20 @@ def test_overview_issues_website_with_audit():
     assert case.overview_issues_website == "0 of 0 fixed"
 
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
+    )
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
-        type=TEST_TYPE_AXE,
+        type=WcagDefinition.Type.AXE,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     assert case.overview_issues_website == "0 of 1 fixed (0%)"
 
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     assert case.overview_issues_website == "1 of 1 fixed (100%)"
@@ -820,7 +806,9 @@ def test_overview_issues_statement_with_audit():
 
     assert case.overview_issues_statement == "0 of 12 fixed (0%)"
 
-    audit.archive_audit_retest_content_not_in_scope_state = CONTENT_NOT_IN_SCOPE_VALID
+    audit.archive_audit_retest_content_not_in_scope_state = (
+        Audit.ContentNotInScope.PRESENT
+    )
     audit.save()
 
     assert case.overview_issues_statement == "1 of 12 fixed (8%)"
@@ -833,7 +821,9 @@ def test_overview_issues_statement_with_statement_checks():
     audit: Audit = Audit.objects.create(case=case)
     for count, statement_check in enumerate(StatementCheck.objects.all()):
         check_result_state: str = (
-            STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
+            StatementCheckResult.Result.NO
+            if count % 2 == 0
+            else StatementCheckResult.Result.YES
         )
         StatementCheckResult.objects.create(
             audit=audit,
@@ -848,7 +838,7 @@ def test_overview_issues_statement_with_statement_checks():
         audit.failed_statement_check_results
     ):
         if count % 2 == 0:
-            statement_check_result.check_result_state = STATEMENT_CHECK_YES
+            statement_check_result.check_result_state = StatementCheckResult.Result.YES
             statement_check_result.save()
 
     assert case.overview_issues_statement == "10 checks failed on test"
@@ -863,16 +853,16 @@ def test_set_accessibility_statement_state_default():
 
     assert (
         case.compliance.statement_compliance_state_initial
-        == STATEMENT_COMPLIANCE_STATE_DEFAULT
+        == CaseCompliance.StatementCompliance.UNKNOWN
     )
 
 
 @pytest.mark.parametrize(
     "statement_compliance_state_initial",
     [
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -896,10 +886,10 @@ def test_set_statement_compliance_state_initial_no_audit(
 @pytest.mark.parametrize(
     "statement_compliance_state_initial",
     [
-        STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.UNKNOWN,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -917,17 +907,17 @@ def test_set_statement_compliance_state_initial_no_statement_page(
 
     assert (
         case.compliance.statement_compliance_state_initial
-        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+        == CaseCompliance.StatementCompliance.NOT_COMPLIANT
     )
 
 
 @pytest.mark.parametrize(
     "statement_compliance_state_initial",
     [
-        STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.UNKNOWN,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -963,7 +953,7 @@ def test_set_statement_compliance_state_initial_to_compliant():
     audit: Audit = Audit.objects.create(case=case)
     StatementPage.objects.create(audit=audit)
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
@@ -975,7 +965,7 @@ def test_set_statement_compliance_state_initial_to_compliant():
 
     assert (
         case.compliance.statement_compliance_state_initial
-        == STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        == CaseCompliance.StatementCompliance.COMPLIANT
     )
 
 
@@ -988,22 +978,22 @@ def test_set_statement_compliance_state_initial_to_not_compliant():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
+        audit=audit, page_type=Page.Type.STATEMENT, url="https://example.com"
     )
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
             type=statement_check.type,
             statement_check=statement_check,
-            check_result_state=STATEMENT_CHECK_NO,
+            check_result_state=StatementCheckResult.Result.NO,
         )
 
     case.set_statement_compliance_states()
     assert (
         case.compliance.statement_compliance_state_initial
-        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+        == CaseCompliance.StatementCompliance.NOT_COMPLIANT
     )
 
 
@@ -1016,16 +1006,16 @@ def test_set_statement_compliance_state_12_week_default():
 
     assert (
         case.compliance.statement_compliance_state_12_week
-        == STATEMENT_COMPLIANCE_STATE_DEFAULT
+        == CaseCompliance.StatementCompliance.UNKNOWN
     )
 
 
 @pytest.mark.parametrize(
     "statement_compliance_state_12_week",
     [
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -1049,10 +1039,10 @@ def test_set_statement_compliance_state_12_week_no_audit(
 @pytest.mark.parametrize(
     "statement_compliance_state_12_week",
     [
-        STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.UNKNOWN,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -1070,17 +1060,17 @@ def test_set_statement_compliance_state_12_week__no_statement_page(
 
     assert (
         case.compliance.statement_compliance_state_12_week
-        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+        == CaseCompliance.StatementCompliance.NOT_COMPLIANT
     )
 
 
 @pytest.mark.parametrize(
     "statement_compliance_state_12_week",
     [
-        STATEMENT_COMPLIANCE_STATE_DEFAULT,
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT,
-        STATEMENT_COMPLIANCE_STATE_NOT_FOUND,
+        CaseCompliance.StatementCompliance.UNKNOWN,
+        CaseCompliance.StatementCompliance.COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_COMPLIANT,
+        CaseCompliance.StatementCompliance.NOT_FOUND,
         "other",
     ],
 )
@@ -1113,7 +1103,7 @@ def test_set_statement_compliance_state_12_week_to_compliant():
     audit: Audit = Audit.objects.create(case=case)
     StatementPage.objects.create(audit=audit)
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
@@ -1125,7 +1115,7 @@ def test_set_statement_compliance_state_12_week_to_compliant():
 
     assert (
         case.compliance.statement_compliance_state_12_week
-        == STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        == CaseCompliance.StatementCompliance.COMPLIANT
     )
 
 
@@ -1138,23 +1128,23 @@ def test_set_statement_compliance_state_12_week_to_not_compliant():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
+        audit=audit, page_type=Page.Type.STATEMENT, url="https://example.com"
     )
     for statement_check in StatementCheck.objects.filter(
-        type=STATEMENT_CHECK_TYPE_OVERVIEW
+        type=StatementCheck.Type.OVERVIEW
     ):
         StatementCheckResult.objects.create(
             audit=audit,
             type=statement_check.type,
             statement_check=statement_check,
-            retest_state=STATEMENT_CHECK_NO,
+            retest_state=StatementCheckResult.Result.NO,
         )
 
     case.set_statement_compliance_states()
 
     assert (
         case.compliance.statement_compliance_state_12_week
-        == STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+        == CaseCompliance.StatementCompliance.NOT_COMPLIANT
     )
 
 
@@ -1244,7 +1234,7 @@ def test_case_incomplete_retests_returns_incomplete_retests():
     assert len(case.incomplete_retests) == 1
     assert case.incomplete_retests[0] == incomplete_retest
 
-    incomplete_retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    incomplete_retest.retest_compliance_state = Retest.Compliance.COMPLIANT
     incomplete_retest.save()
 
     assert len(case.incomplete_retests) == 0
@@ -1273,7 +1263,7 @@ def test_case_equality_body_questions_returns_equality_body_questions():
     case: Case = Case.objects.create()
     equality_body_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+            case=case, type=EqualityBodyCorrespondence.Type.QUESTION
         )
     )
 
@@ -1287,14 +1277,14 @@ def test_case_equality_body_questions_unresolved_returns_unresolved():
     case: Case = Case.objects.create()
     unresolved_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+            case=case, type=EqualityBodyCorrespondence.Type.QUESTION
         )
     )
 
     assert len(case.equality_body_questions_unresolved) == 1
     assert case.equality_body_questions_unresolved[0] == unresolved_question
 
-    unresolved_question.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    unresolved_question.status = EqualityBodyCorrespondence.Status.RESOLVED
     unresolved_question.save()
 
     assert len(case.equality_body_questions_unresolved) == 0
@@ -1306,7 +1296,7 @@ def test_case_equality_body_correspondence_retests_returns_equality_body_corresp
     case: Case = Case.objects.create()
     equality_body_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+            case=case, type=EqualityBodyCorrespondence.Type.RETEST
         )
     )
 
@@ -1320,14 +1310,45 @@ def test_case_equality_body_correspondence_retests_unresolved_returns_unresolved
     case: Case = Case.objects.create()
     unresolved_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+            case=case, type=EqualityBodyCorrespondence.Type.RETEST
         )
     )
 
     assert len(case.equality_body_correspondence_retests_unresolved) == 1
     assert case.equality_body_correspondence_retests_unresolved[0] == unresolved_retest
 
-    unresolved_retest.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    unresolved_retest.status = EqualityBodyCorrespondence.Status.RESOLVED
     unresolved_retest.save()
 
     assert len(case.equality_body_correspondence_retests_unresolved) == 0
+
+
+@pytest.mark.django_db
+def test_calulate_qa_status_unassigned():
+    """Test Case calulate_qa_status correctly returns unassigned"""
+    case: Case = Case.objects.create(report_review_status=Boolean.YES)
+
+    assert case.calulate_qa_status() == Case.QAStatus.UNASSIGNED
+
+
+@pytest.mark.django_db
+def test_calulate_qa_status_in_qa():
+    """Test Case calulate_qa_status correctly returns In-QA"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
+        reviewer=user,
+        report_review_status=Boolean.YES,
+    )
+
+    assert case.calulate_qa_status() == Case.QAStatus.IN_QA
+
+
+@pytest.mark.django_db
+def test_calulate_qa_status_approved():
+    """Test Case calulate_qa_status correctly returns approved"""
+    case: Case = Case.objects.create(
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+    )
+
+    assert case.calulate_qa_status() == Case.QAStatus.APPROVED

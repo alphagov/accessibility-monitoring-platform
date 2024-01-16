@@ -2,18 +2,13 @@
 Tests for comments views
 """
 import pytest
-
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.urls import reverse
 
 from ...cases.models import Case
-from ...common.models import (
-    Event,
-    EVENT_TYPE_MODEL_UPDATE,
-)
-
+from ...common.models import Event
 from ..models import Comment
 
 
@@ -54,7 +49,7 @@ def test_edit_qa_comment_redirects_based_on_button_pressed(
     content_type: ContentType = ContentType.objects.get_for_model(Comment)
     event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
 
-    assert event.type == EVENT_TYPE_MODEL_UPDATE
+    assert event.type == Event.Type.UPDATE
 
 
 def test_qa_comment_removal(admin_client, admin_user):

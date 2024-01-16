@@ -10,12 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
-from pathlib import Path
-import sys
-import os
 import json
-from dotenv import load_dotenv
+import os
+import sys
+from pathlib import Path
 
+from dotenv import load_dotenv
 
 DEBUG = os.getenv("DEBUG") == "TRUE"
 

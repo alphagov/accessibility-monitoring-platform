@@ -3,20 +3,20 @@ Form for users
 """
 from typing import Any, Optional
 
+from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django import forms
 from django.core.exceptions import ValidationError
 
 from ..common.forms import (
-    AMPChoiceCheckboxWidget,
     AMPCharFieldWide,
-    AMPPasswordField,
-    AMPNewPasswordField,
     AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
+    AMPNewPasswordField,
+    AMPPasswordField,
 )
-from ..common.models import BOOLEAN_CHOICES
+from ..common.models import Boolean
 from .models import AllowedEmail
 
 
@@ -90,14 +90,14 @@ class UserUpdateForm(forms.ModelForm):
 
     email_notifications = AMPChoiceCheckboxField(
         label="Enable email notifications?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the checkbox to enable email notifications"}
         ),
     )
     enable_2fa = AMPChoiceCheckboxField(
         label="Enable two-factor authentication?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the checkbox to enable two-factor authentication"}
         ),

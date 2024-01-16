@@ -1,35 +1,15 @@
 """
 Models for common data used across project
 """
-from datetime import date
-from typing import Dict, List, Tuple
-
 import json
+from datetime import date
 
-from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.urls import reverse
 
-BOOLEAN_DEFAULT: str = "no"
-BOOLEAN_FALSE: str = BOOLEAN_DEFAULT
-BOOLEAN_TRUE: str = "yes"
-BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    (BOOLEAN_TRUE, "Yes"),
-    (BOOLEAN_FALSE, "No"),
-]
-
-EVENT_TYPE_DEFAULT: str = "model_update"
-EVENT_TYPE_MODEL_UPDATE: str = EVENT_TYPE_DEFAULT
-EVENT_TYPE_MODEL_CREATE: str = "model_create"
-EVENT_TYPES: Dict[str, str] = {
-    EVENT_TYPE_DEFAULT: "Model update",
-    EVENT_TYPE_MODEL_CREATE: "Model create",
-}
-EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (key, value) for key, value in EVENT_TYPES.items()
-]
 ACCESSIBILITY_STATEMENT_DEFAULT: str = """# Accessibility statement
 
 Placeholder for platform."""
@@ -39,6 +19,11 @@ Placeholder for platform."""
 MORE_INFORMATION_ABOUT_MONITORING_DEFAULT: str = """# More Information
 
 More information about monitoring placeholder"""
+
+
+class Boolean(models.TextChoices):
+    YES = "yes"
+    NO = "no"
 
 
 class StartEndDateManager(models.Manager):
@@ -149,12 +134,14 @@ class Event(models.Model):
     Model to records events on platform
     """
 
+    class Type(models.TextChoices):
+        UPDATE = "model_update", "Model update"
+        CREATE = "model_create", "Model create"
+
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.PositiveIntegerField()
     parent = GenericForeignKey("content_type", "object_id")
-    type = models.CharField(
-        max_length=100, choices=EVENT_TYPE_CHOICES, default=EVENT_TYPE_DEFAULT
-    )
+    type = models.CharField(max_length=100, choices=Type.choices, default=Type.UPDATE)
     value = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,

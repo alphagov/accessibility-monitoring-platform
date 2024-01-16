@@ -7,15 +7,15 @@ from django.contrib import admin
 from ..common.admin import ExportCsvMixin
 from .models import (
     Audit,
-    Page,
     CheckResult,
-    WcagDefinition,
+    Page,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
     StatementCheck,
     StatementCheckResult,
-    Retest,
-    RetestPage,
-    RetestCheckResult,
     StatementPage,
+    WcagDefinition,
 )
 
 

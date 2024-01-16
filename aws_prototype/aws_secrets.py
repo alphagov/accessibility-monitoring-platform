@@ -3,9 +3,10 @@
 # or implementing the sample code, visit the AWS docs:
 # https://aws.amazon.com/developer/language/python/
 
+import json
+
 import boto3
 from botocore.exceptions import ClientError
-import json
 
 
 def get_notify_secret():

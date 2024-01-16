@@ -5,7 +5,6 @@ import csv
 
 from django.db import migrations
 
-
 INPUT_FILE_NAME = "accessibility_monitoring_platform/apps/reports/base_templates.csv"
 FIELD_NAMES = ["name", "template_type", "content", "position"]
 

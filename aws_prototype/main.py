@@ -7,11 +7,10 @@ from typing import List
 
 import boto3
 from django.core.management.utils import get_random_secret_key
-
 from utils import (
+    create_burner_account,
     get_aws_resource_tags,
     write_prototype_platform_metadata,
-    create_burner_account,
 )
 
 parser = argparse.ArgumentParser(description="Deploy feature branch to AWS")

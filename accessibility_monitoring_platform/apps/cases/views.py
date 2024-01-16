@@ -14,89 +14,75 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..audits.forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
 )
-from ..audits.utils import get_test_view_tables_context, get_retest_view_tables_context
-
+from ..audits.utils import get_retest_view_tables_context, get_test_view_tables_context
 from ..cases.utils import get_post_case_alerts
-
-from ..notifications.utils import add_notification, read_notification
-
-from ..reports.utils import get_report_visits_metrics
-
 from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
-
-from ..common.models import BOOLEAN_TRUE
-from ..common.utils import (
-    extract_domain_from_url,
-    get_id_from_button_name,
-    record_model_update_event,
-    record_model_create_event,
-    check_dict_for_truthy_values,
-    list_to_dictionary_of_lists,
-    get_dict_without_page_items,
-    get_url_parameters_for_pagination,
-)
 from ..common.form_extract_utils import (
-    extract_form_labels_and_values,
     FieldLabelAndValue,
+    extract_form_labels_and_values,
 )
-from ..common.utils import amp_format_date
-from ..reports.utils import build_issues_tables
-from .models import (
-    Case,
-    Contact,
-    EqualityBodyCorrespondence,
-    REPORT_APPROVED_STATUS_APPROVED,
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
-    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
-    CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE,
+from ..common.models import Boolean
+from ..common.utils import (
+    amp_format_date,
+    check_dict_for_truthy_values,
+    extract_domain_from_url,
+    get_dict_without_page_items,
+    get_id_from_button_name,
+    get_url_parameters_for_pagination,
+    list_to_dictionary_of_lists,
+    record_model_create_event,
+    record_model_update_event,
 )
+from ..notifications.utils import add_notification, read_notification
+from ..reports.utils import build_issues_tables, get_report_visits_metrics
 from .forms import (
-    CaseCreateForm,
-    CaseDetailUpdateForm,
+    CaseCloseUpdateForm,
     CaseContactFormset,
     CaseContactFormsetOneExtra,
     CaseContactsUpdateForm,
-    CaseSearchForm,
-    CaseTestResultsUpdateForm,
-    CaseReportDetailsUpdateForm,
-    CaseQAProcessUpdateForm,
-    CaseNoPSBContactUpdateForm,
-    CaseTwelveWeekRetestUpdateForm,
-    CaseReviewChangesUpdateForm,
-    CaseCloseUpdateForm,
-    PostCaseUpdateForm,
-    CaseDeactivateForm,
-    CaseStatementEnforcementUpdateForm,
-    CaseEqualityBodyMetadataUpdateForm,
-    ListCaseEqualityBodyCorrespondenceUpdateForm,
-    EqualityBodyCorrespondenceCreateForm,
     CaseCorrespondenceOverviewUpdateForm,
+    CaseCreateForm,
+    CaseDeactivateForm,
+    CaseDetailUpdateForm,
+    CaseEqualityBodyMetadataUpdateForm,
     CaseFindContactDetailsUpdateForm,
-    CaseReportSentOnUpdateForm,
-    CaseOneWeekFollowupUpdateForm,
     CaseFourWeekFollowupUpdateForm,
-    CaseReportAcknowledgedUpdateForm,
-    CaseTwelveWeekUpdateRequestedUpdateForm,
+    CaseNoPSBContactUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
+    CaseOneWeekFollowupUpdateForm,
+    CaseQAProcessUpdateForm,
+    CaseReportAcknowledgedUpdateForm,
+    CaseReportDetailsUpdateForm,
+    CaseReportSentOnUpdateForm,
+    CaseReviewChangesUpdateForm,
+    CaseSearchForm,
+    CaseStatementEnforcementUpdateForm,
+    CaseTestResultsUpdateForm,
+    CaseTwelveWeekRetestUpdateForm,
     CaseTwelveWeekUpdateAcknowledgedUpdateForm,
+    CaseTwelveWeekUpdateRequestedUpdateForm,
+    EqualityBodyCorrespondenceCreateForm,
+    ListCaseEqualityBodyCorrespondenceUpdateForm,
+    PostCaseUpdateForm,
 )
+from .models import Case, Contact, EqualityBodyCorrespondence
 from .utils import (
+    download_cases,
     download_equality_body_cases,
     download_feedback_survey_cases,
     filter_cases,
-    replace_search_key_with_case_search,
-    download_cases,
     record_case_event,
+    replace_search_key_with_case_search,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -238,7 +224,11 @@ class CaseDetailView(DetailView):
         context["equality_body_metadata_rows"] = get_case_rows(
             form=CaseEqualityBodyMetadataUpdateForm()
         )
-        if case.variant in ["archived", "reporting", "statement-content"]:
+        if case.variant in [
+            Case.Variant.ARCHIVED,
+            Case.Variant.REPORTING,
+            Case.Variant.STATEMENT_CONTENT,
+        ]:
             context["legacy_end_of_case_rows"] = get_case_rows(
                 form=PostCaseUpdateForm()
             )
@@ -454,7 +444,7 @@ class CaseQAProcessUpdateView(CaseUpdateView):
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Notify auditor if case has been QA approved."""
         if form.changed_data and "report_approved_status" in form.changed_data:
-            if self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED:
+            if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
                 case: Case = self.object
                 if case.auditor:
                     add_notification(
@@ -836,7 +826,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         """Work out url to redirect to on success"""
         case: Case = self.object
         case_pk: Dict[str, int] = {"pk": case.id}
-        if case.no_psb_contact == BOOLEAN_TRUE:
+        if case.no_psb_contact == Boolean.YES:
             return reverse("cases:edit-case-close", kwargs=case_pk)
         return reverse("cases:edit-find-contact-details", kwargs=case_pk)
 
@@ -887,7 +877,7 @@ class CaseCloseUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}
-            if case.variant == CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE:
+            if case.variant == Case.Variant.CLOSE_CASE:
                 return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
             else:
                 return reverse("cases:edit-equality-body-metadata", kwargs=case_pk)
@@ -1041,7 +1031,7 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}
-            if case.variant == CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE:
+            if case.variant == Case.Variant.CLOSE_CASE:
                 return reverse(
                     "cases:list-equality-body-correspondence", kwargs=case_pk
                 )
@@ -1071,7 +1061,7 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
             context[
                 "equality_body_correspondences"
             ] = case.equalitybodycorrespondence_set.filter(
-                status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                status=EqualityBodyCorrespondence.Status.UNRESOLVED
             )
         else:
             context[
@@ -1095,14 +1085,14 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
             )
             if (
                 equality_body_correspondence.status
-                == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                == EqualityBodyCorrespondence.Status.UNRESOLVED
             ):
                 equality_body_correspondence.status = (
-                    EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+                    EqualityBodyCorrespondence.Status.RESOLVED
                 )
             else:
                 equality_body_correspondence.status = (
-                    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                    EqualityBodyCorrespondence.Status.UNRESOLVED
                 )
             record_model_update_event(
                 user=self.request.user, model_object=equality_body_correspondence

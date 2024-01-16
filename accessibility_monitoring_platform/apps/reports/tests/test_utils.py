@@ -1,30 +1,18 @@
 """
 Test utility functions of reports app
 """
-import pytest
 from typing import Any, Dict, List, Set
 
-from ...audits.models import (
-    Audit,
-    CheckResult,
-    Page,
-    WcagDefinition,
-    CHECK_RESULT_ERROR,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_PDF,
-    TEST_TYPE_PDF,
-)
-from ...cases.models import Case
+import pytest
 
-from ..models import (
-    Report,
-    ReportVisitsMetrics,
-)
+from ...audits.models import Audit, CheckResult, Page, WcagDefinition
+from ...cases.models import Case
+from ..models import Report, ReportVisitsMetrics
 from ..utils import (
     IssueTable,
     TableRow,
-    build_issues_tables,
     build_issue_table_rows,
+    build_issues_tables,
     build_report_context,
     get_report_visits_metrics,
 )
@@ -45,17 +33,17 @@ def test_build_issue_table_rows():
     page: Page = Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
-        page_type=PAGE_TYPE_HOME,
+        page_type=Page.Type.HOME,
         url=HOME_PAGE_URL,
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
-        type=TEST_TYPE_PDF
+        type=WcagDefinition.Type.PDF
     ).first()
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
         notes=CHECK_RESULT_NOTES,
     )
     used_wcag_definitions: Set[WcagDefinition] = set()
@@ -82,30 +70,30 @@ def test_report_boilerplate_shown_only_once():
     first_page: Page = Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
-        page_type=PAGE_TYPE_HOME,
+        page_type=Page.Type.HOME,
         url=HOME_PAGE_URL,
     )
     second_page: Page = Page.objects.create(
         audit=audit,
         name=PDF_PAGE_NAME,
-        page_type=PAGE_TYPE_PDF,
+        page_type=Page.Type.PDF,
         url=PDF_PAGE_URL,
     )
     Report.objects.create(case=case)
     wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
-        type=TEST_TYPE_PDF
+        type=WcagDefinition.Type.PDF
     ).first()
     CheckResult.objects.create(
         audit=audit,
         page=first_page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
     CheckResult.objects.create(
         audit=audit,
         page=second_page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
     )
 
     issues_tables: List[IssueTable] = build_issues_tables(pages=audit.testable_pages)
@@ -132,13 +120,13 @@ def test_generate_report_content_issues_tables():
     Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
-        page_type=PAGE_TYPE_HOME,
+        page_type=Page.Type.HOME,
         url="https://example.com",
     )
     Page.objects.create(
         audit=audit,
         name=PDF_PAGE_NAME,
-        page_type=PAGE_TYPE_PDF,
+        page_type=Page.Type.PDF,
         url="https://example.com/pdf",
     )
     Report.objects.create(case=case)

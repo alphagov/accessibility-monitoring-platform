@@ -1,14 +1,7 @@
 """ Common utility functions """
 from dataclasses import dataclass
 from datetime import date
-from typing import (
-    Any,
-    ClassVar,
-    List,
-    Optional,
-    Type,
-    Union,
-)
+from typing import Any, ClassVar, List, Optional, Type, Union
 
 from django import forms
 from django.contrib.auth.models import User

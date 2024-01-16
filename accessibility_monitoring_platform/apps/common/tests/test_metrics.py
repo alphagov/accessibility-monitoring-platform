@@ -1,56 +1,46 @@
 """
 Test - common utility functions
 """
-import pytest
+from datetime import date, datetime, timezone
 from typing import Dict, List
 from unittest.mock import patch
 
-from datetime import date, datetime, timezone
+import pytest
 
 from ...audits.models import (
     Audit,
-    Page,
-    WcagDefinition,
     CheckResult,
+    Page,
     StatementCheck,
     StatementCheckResult,
-    CHECK_RESULT_ERROR,
-    RETEST_CHECK_RESULT_FIXED,
-    TEST_TYPE_AXE,
+    WcagDefinition,
 )
-from ...cases.models import (
-    Case,
-    CASE_COMPLETED_NO_SEND,
-    RECOMMENDATION_NO_ACTION,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-)
+from ...cases.models import Case, CaseCompliance
 from ...cases.utils import create_case_and_compliance
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
-
 from ..chart import Timeseries, TimeseriesDatapoint
 from ..metrics import (
-    TimeseriesHtmlTable,
-    ThirtyDayMetric,
-    YearlyMetric,
-    TotalMetric,
-    ProgressMetric,
+    FIRST_COLUMN_HEADER,
     EqualityBodyCasesMetric,
-    count_statement_issues,
-    group_timeseries_data_by_month,
+    ProgressMetric,
+    ThirtyDayMetric,
+    TimeseriesHtmlTable,
+    TotalMetric,
+    YearlyMetric,
     build_html_table,
     convert_timeseries_pair_to_ratio,
     convert_timeseries_to_cumulative,
+    count_statement_issues,
     get_case_progress_metrics,
     get_case_yearly_metrics,
-    get_policy_total_metrics,
-    get_policy_progress_metrics,
     get_equality_body_cases_metric,
+    get_policy_progress_metrics,
+    get_policy_total_metrics,
     get_policy_yearly_metrics,
     get_report_progress_metrics,
     get_report_yearly_metrics,
-    FIRST_COLUMN_HEADER,
+    group_timeseries_data_by_month,
 )
 
 METRIC_LABEL: str = "Metric label"
@@ -517,23 +507,25 @@ def test_get_policy_total_metrics():
     )
     Case.objects.create(
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
-        case_completed=CASE_COMPLETED_NO_SEND,
+        case_completed=Case.CaseCompleted.COMPLETE_NO_SEND,
     )
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
     )
 
     assert get_policy_total_metrics() == [
@@ -573,26 +565,28 @@ def test_get_policy_progress_metrics(mock_datetime):
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
     case: Case = Case.objects.create(
-        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     audit: Audit = Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state="not-fixed",
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
     )
 
     assert get_policy_progress_metrics() == [
@@ -626,7 +620,7 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
     case: Case = Case.objects.create(
-        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     audit: Audit = Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
@@ -634,20 +628,22 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
     page: Page = Page.objects.create(
         audit=audit, retest_page_missing_date=datetime(2022, 1, 2, tzinfo=timezone.utc)
     )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state="not-fixed",
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
-        retest_state=RETEST_CHECK_RESULT_FIXED,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
     )
 
     assert get_policy_progress_metrics() == [
@@ -698,32 +694,32 @@ def test_get_policy_yearly_metrics(mock_datetime):
 
     case: Case = create_case_and_compliance(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
     case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
     case: Case = create_case_and_compliance(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
     case: Case = create_case_and_compliance(
         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)

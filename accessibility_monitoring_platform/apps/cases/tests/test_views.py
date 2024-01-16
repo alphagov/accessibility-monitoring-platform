@@ -1,88 +1,60 @@
 """
 Tests for cases views
 """
-from datetime import date, datetime, timedelta
 import json
-import pytest
+from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional
 from zoneinfo import ZoneInfo
 
-from pytest_django.asserts import assertContains, assertNotContains
-
+import pytest
 from django.conf import settings
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
-
-from ...notifications.models import Notification
-
-from ...s3_read_write.models import S3Report
+from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
     Audit,
     CheckResult,
     Page,
+    Retest,
     StatementCheck,
     StatementCheckResult,
-    Retest,
     StatementPage,
-    PAGE_TYPE_STATEMENT,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_HOME,
-    RETEST_CHECK_RESULT_FIXED,
-    SCOPE_STATE_VALID,
-    STATEMENT_CHECK_YES,
-    STATEMENT_CHECK_NO,
-    ADDED_STAGE_TWELVE_WEEK,
 )
-from ...audits.tests.test_models import create_audit_and_check_results, ERROR_NOTES
-
+from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
-from ...common.models import (
-    BOOLEAN_TRUE,
-    Event,
-    Sector,
-    EVENT_TYPE_MODEL_CREATE,
-    EVENT_TYPE_MODEL_UPDATE,
-)
+from ...common.models import Boolean, Event, Sector
 from ...common.utils import amp_format_date
-
+from ...notifications.models import Notification
 from ...reports.models import Report
-
+from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
+    CaseCompliance,
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
-    REPORT_APPROVED_STATUS_APPROVED,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    CASE_COMPLETED_SEND,
-    CASE_EVENT_TYPE_CREATE,
-    CASE_EVENT_CASE_COMPLETED,
-    CASE_COMPLETED_NO_SEND,
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
-    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
 )
 from ..utils import (
-    create_case_and_compliance,
-    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
-    COLUMNS_FOR_EQUALITY_BODY,
-    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
     CASE_COLUMNS_FOR_EXPORT,
+    COLUMNS_FOR_EQUALITY_BODY,
     CONTACT_COLUMNS_FOR_EXPORT,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+    create_case_and_compliance,
 )
 from ..views import (
-    ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
+    ONE_WEEK_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
-    find_duplicate_cases,
+    CaseQAProcessUpdateView,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
+    find_duplicate_cases,
     format_due_date_help_text,
-    CaseQAProcessUpdateView,
 )
 
 CONTACT_EMAIL: str = "test@email.com"
@@ -397,7 +369,9 @@ def test_case_list_view_filters_by_case_number(admin_client):
 
 def test_case_list_view_filters_by_psb_location(admin_client):
     """Test that the case list view page can be filtered by case number"""
-    Case.objects.create(organisation_name="Included", psb_location="scotland")
+    Case.objects.create(
+        organisation_name="Included", psb_location=Case.PsbLocation.SCOTLAND
+    )
     Case.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
@@ -910,7 +884,7 @@ def test_create_case_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_TYPE_CREATE
+    assert case_event.event_type == CaseEvent.EventType.CREATE
     assert case_event.message == "Created case"
 
 
@@ -923,7 +897,7 @@ def test_updating_case_creates_case_event(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-case-close", kwargs={"pk": case.id}),
         {
-            "case_completed": CASE_COMPLETED_NO_SEND,
+            "case_completed": Case.CaseCompleted.COMPLETE_NO_SEND,
             "version": case.version,
             "save": "Button value",
         },
@@ -934,7 +908,7 @@ def test_updating_case_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_CASE_COMPLETED
+    assert case_event.event_type == CaseEvent.EventType.CASE_COMPLETED
     assert (
         case_event.message
         == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"
@@ -1103,7 +1077,7 @@ def test_platform_update_redirects_based_on_case_variant(
     Test that a case save and continue redirects as expected when case is not of the
     equality body close case variant.
     """
-    case: Case = Case.objects.create(variant="archived")
+    case: Case = Case.objects.create(variant=Case.Variant.ARCHIVED)
 
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),
@@ -1137,7 +1111,7 @@ def test_add_qa_comment(admin_client, admin_user):
     content_type: ContentType = ContentType.objects.get_for_model(Comment)
     event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
 
-    assert event.type == EVENT_TYPE_MODEL_CREATE
+    assert event.type == Event.Type.CREATE
 
 
 def test_add_qa_comment_redirects_to_qa_process(admin_client):
@@ -1248,7 +1222,7 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+        audit=audit, page_type=Page.Type.STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
     )
 
     response: HttpResponse = admin_client.get(
@@ -1476,7 +1450,7 @@ def test_case_report_twelve_week_1_week_chaser_contains_followup_due_date(admin_
 def test_no_psb_response_redirects_to_case_close(admin_client):
     """Test no PSB response redirects to case closing"""
     case: Case = Case.objects.create(
-        no_psb_contact=BOOLEAN_TRUE,
+        no_psb_contact=Boolean.YES,
     )
 
     response: HttpResponse = admin_client.post(
@@ -1942,7 +1916,9 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
         html=True,
     )
 
-    StatementPage.objects.create(audit=audit, added_stage=ADDED_STAGE_TWELVE_WEEK)
+    StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
@@ -2144,7 +2120,7 @@ def test_qa_process_approval_notifies_auditor(rf):
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
         {
             "version": case.version,
-            "report_approved_status": REPORT_APPROVED_STATUS_APPROVED,
+            "report_approved_status": Case.ReportApprovedStatus.APPROVED,
             "save": "Button value",
         },
     )
@@ -2291,7 +2267,7 @@ def test_updating_case_create_event(admin_client):
     content_type: ContentType = ContentType.objects.get_for_model(Case)
     event: Event = Event.objects.get(content_type=content_type, object_id=case.id)
 
-    assert event.type == EVENT_TYPE_MODEL_UPDATE
+    assert event.type == Event.Type.UPDATE
 
 
 def test_add_contact_also_creates_event(admin_client):
@@ -2323,7 +2299,7 @@ def test_add_contact_also_creates_event(admin_client):
     content_type: ContentType = ContentType.objects.get_for_model(Contact)
     event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
 
-    assert event.type == EVENT_TYPE_MODEL_CREATE
+    assert event.type == Event.Type.CREATE
 
 
 def test_delete_contact_adds_update_event(admin_client):
@@ -2348,7 +2324,7 @@ def test_delete_contact_adds_update_event(admin_client):
     content_type: ContentType = ContentType.objects.get_for_model(Contact)
     event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
 
-    assert event.type == EVENT_TYPE_MODEL_UPDATE
+    assert event.type == Event.Type.UPDATE
 
 
 def test_links_to_contact_and_accessibility_pages_shown(admin_client):
@@ -2359,10 +2335,10 @@ def test_links_to_contact_and_accessibility_pages_shown(admin_client):
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+        audit=audit, page_type=Page.Type.STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
     )
     Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_CONTACT, url=CONTACT_STATEMENT_URL
+        audit=audit, page_type=Page.Type.CONTACT, url=CONTACT_STATEMENT_URL
     )
 
     response: HttpResponse = admin_client.get(
@@ -2442,8 +2418,8 @@ def test_platform_shows_notification_if_fully_compliant(
     notification to that effect on report details page.
     """
     case: Case = create_case_and_compliance(
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
     )
 
     response: HttpResponse = admin_client.get(
@@ -2667,31 +2643,31 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "cases:edit-qa-process",
             "Report ready to be reviewed needs to be Yes",
             "report_review_status",
-            BOOLEAN_TRUE,
+            Boolean.YES,
         ),
         (
             "cases:edit-qa-process",
             "Report approved needs to be Yes",
             "report_approved_status",
-            REPORT_APPROVED_STATUS_APPROVED,
+            Case.ReportApprovedStatus.APPROVED,
         ),
         (
             "cases:edit-no-psb-response",
             "No response from PSB",
             "no_psb_contact",
-            BOOLEAN_TRUE,
+            Boolean.YES,
         ),
         (
             "cases:edit-review-changes",
             "Is this case ready for final decision? needs to be Yes",
             "is_ready_for_final_decision",
-            BOOLEAN_TRUE,
+            Boolean.YES,
         ),
         (
             "cases:edit-case-close",
             "Case completed requires a decision",
             "case_completed",
-            CASE_COMPLETED_SEND,
+            Case.CaseCompleted.COMPLETE_SEND,
         ),
     ],
 )
@@ -2774,7 +2750,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     )
 
     for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.get(
@@ -2951,11 +2927,11 @@ def test_outstanding_issues_overview_percentage(admin_client):
     correctly.
     """
     audit: Audit = create_audit_and_check_results()
-    audit.archive_audit_retest_scope_state = SCOPE_STATE_VALID
+    audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
     audit.save()
-    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = home_page.all_check_results[0]
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
     url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
 
@@ -3012,7 +2988,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     assertNotContains(response, label)
     assertNotContains(response, edit_url)
 
-    statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    statement_check_result.check_result_state = StatementCheckResult.Result.NO
     statement_check_result.save()
 
     response: HttpResponse = admin_client.get(url)
@@ -3021,7 +2997,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     assertContains(response, label)
     assertContains(response, edit_url)
 
-    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
     statement_check_result.save()
 
     response: HttpResponse = admin_client.get(url)
@@ -3059,7 +3035,7 @@ def test_twelve_week_email_template_contains_issues(admin_client):
     Test twelve week email template contains issues.
     """
     audit: Audit = create_audit_and_check_results()
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     page.url = "https://example.com"
     page.save()
     Report.objects.create(case=audit.case)
@@ -3096,7 +3072,7 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     Test outstanding issues email template contains only unfixed issues.
     """
     audit: Audit = create_audit_and_check_results()
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     page.url = "https://example.com"
     page.save()
     Report.objects.create(case=audit.case)
@@ -3106,9 +3082,9 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
         audit=audit,
         type=type,
         statement_check=statement_check,
-        check_result_state=STATEMENT_CHECK_NO,
+        check_result_state=StatementCheckResult.Result.NO,
         report_comment=STATEMENT_CHECK_RESULT_REPORT_COMMENT,
-        retest_state=STATEMENT_CHECK_NO,
+        retest_state=StatementCheckResult.Result.NO,
         retest_comment=STATEMENT_CHECK_RESULT_RETEST_COMMENT,
     )
 
@@ -3121,10 +3097,10 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     assertContains(response, STATEMENT_CHECK_RESULT_RETEST_COMMENT)
 
     for check_result in audit.failed_check_results:
-        check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+        check_result.retest_state = CheckResult.RetestResult.FIXED
         check_result.save()
 
-    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
     statement_check_result.save()
 
     url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
@@ -3162,7 +3138,7 @@ def test_equality_body_correspondence(admin_client):
         case=case,
         message=RESOLVED_EQUALITY_BODY_MESSAGE,
         notes=RESOLVED_EQUALITY_BODY_NOTES,
-        status=EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
+        status=EqualityBodyCorrespondence.Status.RESOLVED,
     )
     EqualityBodyCorrespondence.objects.create(
         case=case,
@@ -3206,7 +3182,8 @@ def test_equality_body_correspondence_status_toggle(admin_client):
     )
 
     assert (
-        equality_body_correspondence.status == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+        equality_body_correspondence.status
+        == EqualityBodyCorrespondence.Status.UNRESOLVED
     )
 
     response: HttpResponse = admin_client.post(
@@ -3225,7 +3202,7 @@ def test_equality_body_correspondence_status_toggle(admin_client):
 
     assert (
         updated_equality_body_correspondence.status
-        == EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+        == EqualityBodyCorrespondence.Status.RESOLVED
     )
 
     response: HttpResponse = admin_client.post(
@@ -3244,7 +3221,7 @@ def test_equality_body_correspondence_status_toggle(admin_client):
 
     assert (
         updated_equality_body_correspondence.status
-        == EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+        == EqualityBodyCorrespondence.Status.UNRESOLVED
     )
 
 

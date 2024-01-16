@@ -5,11 +5,7 @@ from typing import List
 
 from django import forms
 
-from ..common.forms import (
-    AMPTextField,
-    AMPDateField,
-    AMPDateWidget,
-)
+from ..common.forms import AMPDateField, AMPDateWidget, AMPTextField
 from .models import Reminder
 
 

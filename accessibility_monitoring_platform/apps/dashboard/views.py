@@ -10,12 +10,11 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
-from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
 from ..cases.models import Case
-
+from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
 from .utils import (
-    group_cases_by_status,
     get_all_cases_in_qa,
+    group_cases_by_status,
     return_cases_requiring_user_review,
 )
 

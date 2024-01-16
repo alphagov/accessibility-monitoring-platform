@@ -5,70 +5,51 @@ import re
 from typing import Any, List, Tuple
 
 import requests
-
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.db.models import QuerySet
 from django.utils.safestring import mark_safe
 
 from ..common.forms import (
-    VersionForm,
-    AMPChoiceCheckboxWidget,
-    AMPModelChoiceField,
     AMPAuditorModelChoiceField,
     AMPCharFieldWide,
-    AMPTextField,
+    AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
     AMPChoiceField,
     AMPChoiceRadioField,
-    AMPChoiceCheckboxField,
     AMPDateField,
     AMPDatePageCompleteField,
     AMPDateRangeForm,
+    AMPModelChoiceField,
+    AMPTextField,
     AMPURLField,
+    VersionForm,
 )
 from ..common.models import Sector, SubCategory
+from .models import Boolean, Case, CaseStatus, Contact, EqualityBodyCorrespondence
 
-from .models import (
-    Case,
-    Contact,
-    EqualityBodyCorrespondence,
-    STATUS_CHOICES,
-    CASE_COMPLETED_CHOICES,
-    BOOLEAN_CHOICES,
-    PREFERRED_CHOICES,
-    ENFORCEMENT_BODY_CHOICES,
-    ENFORCEMENT_BODY_CLOSED_CHOICES,
-    PSB_LOCATION_CHOICES,
-    REPORT_APPROVED_STATUS_CHOICES,
-    RECOMMENDATION_CHOICES,
-    EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
-    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
-    CONTACT_DETAILS_FOUND_CHOICES,
-)
+ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + Case.EnforcementBody.choices
+STATUS_CHOICES: List[Tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices
 
-status_choices = STATUS_CHOICES
-status_choices.insert(0, ("", "All"))
 
-DEFAULT_SORT: str = ""
-SORT_CHOICES: List[Tuple[str, str]] = [
-    (DEFAULT_SORT, "Newest, Unassigned first"),
-    ("id", "Oldest"),
-    ("organisation_name", "Alphabetic"),
-]
-NO_FILTER: str = ""
-IS_COMPLAINT_CHOICES: List[Tuple[str, str]] = [
-    (NO_FILTER, "All"),
-    ("no", "No complaints"),
-    ("yes", "Only complaints"),
-]
-ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + ENFORCEMENT_BODY_CHOICES
+class Sort(models.TextChoices):
+    NEWEST = "", "Newest, Unassigned first"
+    OLDEST = "id", "Oldest"
+    NAME = "organisation_name", "Alphabetic"
 
-DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("audit_case__date_of_test", "Date test started"),
-    ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
-    ("case_updated_date", "Case updated"),
-]
+
+class Complaint(models.TextChoices):
+    ALL = "", "All"
+    NO = "no", "No complaints"
+    YES = "yes", "Only complaints"
+
+
+class DateType(models.TextChoices):
+    START = "audit_case__date_of_test", "Date test started"
+    SENT = "sent_to_enforcement_body_sent_date", "Date sent to EB"
+    UPDATED = "case_updated_date", "Case updated"
 
 
 def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[str, str]]:
@@ -87,18 +68,16 @@ class CaseSearchForm(AMPDateRangeForm):
     Form for searching for cases
     """
 
-    sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
+    sort_by = AMPChoiceField(label="Sort by", choices=Sort.choices)
     case_search = AMPCharFieldWide(label="Search")
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
-    status = AMPChoiceField(label="Status", choices=status_choices)
-    date_type = AMPChoiceField(label="Date filter", choices=DATE_TYPE_CHOICES)
+    status = AMPChoiceField(label="Status", choices=STATUS_CHOICES)
+    date_type = AMPChoiceField(label="Date filter", choices=DateType.choices)
     date_start = AMPDateField(label="Date start")
     date_end = AMPDateField(label="Date end")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
-    is_complaint = AMPChoiceField(
-        label="Filter complaints", choices=IS_COMPLAINT_CHOICES
-    )
+    is_complaint = AMPChoiceField(label="Filter complaints", choices=Complaint.choices)
     enforcement_body = AMPChoiceField(
         label="Enforcement body", choices=ENFORCEMENT_BODY_FILTER_CHOICES
     )
@@ -127,11 +106,11 @@ class CaseCreateForm(forms.ModelForm):
     home_page_url = AMPURLField(label="Full URL")
     enforcement_body = AMPChoiceRadioField(
         label="Which equalities body will check the case?",
-        choices=ENFORCEMENT_BODY_CHOICES,
+        choices=Case.EnforcementBody.choices,
     )
     psb_location = AMPChoiceRadioField(
         label="Public sector body location",
-        choices=PSB_LOCATION_CHOICES,
+        choices=Case.PsbLocation.choices,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     previous_case_url = AMPURLField(
@@ -140,7 +119,7 @@ class CaseCreateForm(forms.ModelForm):
     )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Did this case originate from a complaint?"}
         ),
@@ -289,7 +268,7 @@ class CaseQAProcessUpdateForm(VersionForm):
 
     report_review_status = AMPChoiceRadioField(
         label="Report ready for QA process?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         help_text="This field affects the case status",
     )
     reviewer = AMPAuditorModelChoiceField(
@@ -298,7 +277,7 @@ class CaseQAProcessUpdateForm(VersionForm):
     )
     report_approved_status = AMPChoiceRadioField(
         label="Report approved?",
-        choices=REPORT_APPROVED_STATUS_CHOICES,
+        choices=Case.ReportApprovedStatus.choices,
         help_text="This field affects the case status",
     )
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
@@ -341,7 +320,7 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
     """
 
     contact_details_found = AMPChoiceRadioField(
-        label="Contact details found?", choices=CONTACT_DETAILS_FOUND_CHOICES
+        label="Contact details found?", choices=Case.ContactDetailsFound.choices
     )
     seven_day_no_contact_email_sent_date = AMPDateField(
         label="Seven day 'no contact details' email sent",
@@ -369,7 +348,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     job_title = AMPCharFieldWide(label="Job title")
     email = AMPCharFieldWide(label="Email")
     preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=PREFERRED_CHOICES
+        label="Preferred contact?", choices=Contact.Preferred.choices
     )
 
     class Meta:
@@ -607,7 +586,7 @@ class CaseNoPSBContactUpdateForm(VersionForm):
 
     no_psb_contact = AMPChoiceCheckboxField(
         label="Do you want to mark the PSB as unresponsive to this case?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         help_text="This field affects the case status",
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the PSB as unresponsive to this case"}
@@ -653,7 +632,7 @@ class CaseReviewChangesUpdateForm(VersionForm):
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
         help_text="This field affects the case status",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
     )
     review_changes_complete_date = AMPDatePageCompleteField()
 
@@ -681,7 +660,7 @@ class CaseCloseUpdateForm(VersionForm):
     )
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Recommendation for equality body",
-        choices=RECOMMENDATION_CHOICES,
+        choices=Case.RecommendationForEnforcement.choices,
     )
     recommendation_notes = AMPTextField(
         label="Enforcement recommendation notes including exemptions",
@@ -692,7 +671,7 @@ class CaseCloseUpdateForm(VersionForm):
     )
     case_completed = AMPChoiceRadioField(
         label="Case completed",
-        choices=CASE_COMPLETED_CHOICES,
+        choices=Case.CaseCompleted.choices,
         help_text="This field affects the case status",
     )
     case_close_complete_date = AMPDatePageCompleteField()
@@ -776,14 +755,14 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     )
     enforcement_body_closed_case = AMPChoiceRadioField(
         label="Equality body has officially closed the case?",
-        choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
+        choices=Case.EnforcementBodyClosedCase.choices,
     )
     enforcement_body_finished_date = AMPDateField(
         label="Date equality body completed the case",
     )
     is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Feedback survey sent to this organisation?"}
         ),
@@ -820,8 +799,8 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
 
     type = AMPChoiceRadioField(
         label="Type",
-        choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
-        initial=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+        choices=EqualityBodyCorrespondence.Type.choices,
+        initial=EqualityBodyCorrespondence.Type.QUESTION,
     )
     message = AMPTextField(label="Message/content")
     notes = AMPTextField(label="Notes")

@@ -2,10 +2,9 @@
 Test - cases admin filter
 """
 
-from pytest_django.asserts import assertContains, assertNotContains
-
 from django.http import HttpResponse
 from django.urls import reverse
+from pytest_django.asserts import assertContains, assertNotContains
 
 from ..models import Case
 

@@ -3,13 +3,13 @@ URLS for public reports
 """
 
 from django.urls import path
+
 from .views import (
     AccessibilityStatementTemplateView,
     MoreInformationTemplateView,
     PrivacyNoticeTemplateView,
     ViewReport,
 )
-
 
 app_name = "viewer"
 urlpatterns = [

@@ -2,6 +2,7 @@
 Test templatetags of common app
 """
 from datetime import date, datetime, timezone
+
 import pytest
 
 from ..templatetags.common_tags import (

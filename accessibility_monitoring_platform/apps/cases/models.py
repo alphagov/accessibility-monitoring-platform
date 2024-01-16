@@ -1,10 +1,11 @@
 """
 Models - cases
 """
-from datetime import date, datetime, timedelta, timezone as datetime_timezone
 import json
 import re
-from typing import List, Optional, Tuple
+from datetime import date, datetime, timedelta
+from datetime import timezone as datetime_timezone
+from typing import List, Optional
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -13,240 +14,16 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from ..common.models import Boolean, Sector, SubCategory, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
     format_outstanding_issues,
     format_statement_check_overview,
 )
-from ..common.models import (
-    BOOLEAN_FALSE,
-    BOOLEAN_TRUE,
-    Sector,
-    VersionModel,
-    BOOLEAN_CHOICES,
-    BOOLEAN_DEFAULT,
-    SubCategory,
-)
-
-STATUS_READY_TO_QA: str = "unassigned-qa-case"
-STATUS_QA_IN_PROGRESS: str = "qa-in-progress"
-STATUS_UNASSIGNED: str = "unassigned-case"
-STATUS_DEFAULT: str = STATUS_UNASSIGNED
-STATUS_DEACTIVATED: str = "deactivated"
-STATUS_CHOICES: List[Tuple[str, str]] = [
-    (
-        "unknown",
-        "Unknown",
-    ),
-    (
-        STATUS_DEFAULT,
-        "Unassigned case",
-    ),
-    (
-        "test-in-progress",
-        "Test in progress",
-    ),
-    (
-        "report-in-progress",
-        "Report in progress",
-    ),
-    (
-        STATUS_READY_TO_QA,
-        "Report ready to QA",
-    ),
-    (
-        STATUS_QA_IN_PROGRESS,
-        "QA in progress",
-    ),
-    (
-        "report-ready-to-send",
-        "Report ready to send",
-    ),
-    (
-        "in-report-correspondence",
-        "Report sent",
-    ),
-    (
-        "in-probation-period",
-        "Report acknowledged waiting for 12-week deadline",
-    ),
-    (
-        "in-12-week-correspondence",
-        "After 12-week correspondence",
-    ),
-    (
-        "reviewing-changes",
-        "Reviewing changes",
-    ),
-    (
-        "final-decision-due",
-        "Final decision due",
-    ),
-    (
-        "case-closed-waiting-to-be-sent",
-        "Case closed and waiting to be sent to equalities body",
-    ),
-    (
-        "case-closed-sent-to-equalities-body",
-        "Case closed and sent to equalities body",
-    ),
-    (
-        "in-correspondence-with-equalities-body",
-        "In correspondence with equalities body",
-    ),
-    (
-        "complete",
-        "Complete",
-    ),
-    (
-        STATUS_DEACTIVATED,
-        "Deactivated",
-    ),
-]
-
-DEFAULT_TEST_TYPE: str = "simplified"
-TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (DEFAULT_TEST_TYPE, "Simplified"),
-    ("detailed", "Detailed"),
-    ("mobile", "Mobile"),
-]
-
-ENFORCEMENT_BODY_DEFAULT: str = "ehrc"
-ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
-    (ENFORCEMENT_BODY_DEFAULT, "Equality and Human Rights Commission"),
-    ("ecni", "Equality Commission Northern Ireland"),
-]
-
-STATEMENT_COMPLIANCE_STATE_DEFAULT: str = "unknown"
-STATEMENT_COMPLIANCE_STATE_COMPLIANT: str = "compliant"
-STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT: str = "not-compliant"
-STATEMENT_COMPLIANCE_STATE_NOT_FOUND: str = "not-found"
-STATEMENT_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
-    (STATEMENT_COMPLIANCE_STATE_COMPLIANT, "Compliant"),
-    (STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT, "Not compliant"),
-    (STATEMENT_COMPLIANCE_STATE_NOT_FOUND, "Not found"),
-    ("other", "Other"),
-    (STATEMENT_COMPLIANCE_STATE_DEFAULT, "Not selected"),
-]
-
-WEBSITE_COMPLIANCE_STATE_DEFAULT: str = "not-known"
-WEBSITE_COMPLIANCE_STATE_COMPLIANT: str = "compliant"
-WEBSITE_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
-    (WEBSITE_COMPLIANCE_STATE_COMPLIANT, "Fully compliant"),
-    ("partially-compliant", "Partially compliant"),
-    (WEBSITE_COMPLIANCE_STATE_DEFAULT, "Not known"),
-]
-
-RECOMMENDATION_DEFAULT: str = "unknown"
-RECOMMENDATION_NO_ACTION: str = "no-further-action"
-RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
-    (RECOMMENDATION_NO_ACTION, "No further action"),
-    ("other", "For enforcement consideration"),
-    (RECOMMENDATION_DEFAULT, "Not selected"),
-]
-
-REPORT_APPROVED_STATUS_DEFAULT: str = "not-started"
-REPORT_APPROVED_STATUS_APPROVED: str = "yes"
-REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_APPROVED_STATUS_APPROVED, "Yes"),
-    ("in-progress", "Further work is needed"),
-    (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
-]
-
-
-IS_DISPROPORTIONATE_CLAIMED_DEFAULT: str = "unknown"
-IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "Not known"),
-]
-
-DEFAULT_CASE_COMPLETED: str = "no-decision"
-CASE_COMPLETED_SEND: str = "complete-send"
-CASE_COMPLETED_NO_SEND: str = "complete-no-send"
-CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    (CASE_COMPLETED_SEND, "Case is complete and is ready to send to the equality body"),
-    (CASE_COMPLETED_NO_SEND, "Case should not be sent to the equality body"),
-    (DEFAULT_CASE_COMPLETED, "Case still in progress"),
-]
-
-QA_STATUS_UNKNOWN: str = "unknown"
-QA_STATUS_UNASSIGNED: str = "unassigned-qa-case"
-QA_STATUS_IN_QA: str = "in-qa"
-QA_STATUS_QA_APPROVED: str = "qa-approved"
-QA_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (QA_STATUS_UNKNOWN, "Unknown"),
-    (QA_STATUS_UNASSIGNED, "Unassigned QA case"),
-    (QA_STATUS_IN_QA, "In QA"),
-    (QA_STATUS_QA_APPROVED, "QA approved"),
-]
-
-ENFORCEMENT_BODY_PURSUING_NO: str = "no"
-ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS: str = "yes-in-progress"
-ENFORCEMENT_BODY_PURSUING_YES_COMPLETED: str = "yes-completed"
-ENFORCEMENT_BODY_PURSUING_CHOICES: List[Tuple[str, str]] = [
-    (ENFORCEMENT_BODY_PURSUING_YES_COMPLETED, "Yes, completed"),
-    (ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS, "Yes, in progress"),
-    (ENFORCEMENT_BODY_PURSUING_NO, "No"),
-]
-ENFORCEMENT_BODY_CLOSED_NO: str = "no"
-ENFORCEMENT_BODY_CLOSED_IN_PROGRESS: str = "in-progress"
-ENFORCEMENT_BODY_CLOSED_YES: str = "yes"
-ENFORCEMENT_BODY_CLOSED_CHOICES: List[Tuple[str, str]] = [
-    (ENFORCEMENT_BODY_CLOSED_YES, "Yes"),
-    (ENFORCEMENT_BODY_CLOSED_IN_PROGRESS, "Case in progress"),
-    (ENFORCEMENT_BODY_CLOSED_NO, "No (or holding)"),
-]
-
-PREFERRED_DEFAULT: str = "unknown"
-PREFERRED_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (PREFERRED_DEFAULT, "Not known"),
-]
-
-PSB_LOCATION_DEFAULT: str = "unknown"
-PSB_LOCATION_CHOICES: List[Tuple[str, str]] = [
-    ("england", "England"),
-    ("scotland", "Scotland"),
-    ("wales", "Wales"),
-    ("northern_ireland", "Northern Ireland"),
-    ("uk_wide", "UK-wide"),
-    (PSB_LOCATION_DEFAULT, "Unknown"),
-]
 
 MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
-CASE_EVENT_TYPE_CREATE: str = "create"
-CASE_EVENT_AUDITOR: str = "auditor"
-CASE_EVENT_CREATE_AUDIT: str = "create_audit"
-CASE_EVENT_CREATE_REPORT: str = "create_report"
-CASE_EVENT_READY_FOR_QA: str = "ready_for_qa"
-CASE_EVENT_QA_AUDITOR: str = "qa_auditor"
-CASE_EVENT_APPROVE_REPORT: str = "approve_report"
-CASE_EVENT_START_RETEST: str = "retest"
-CASE_EVENT_READY_FOR_FINAL_DECISION: str = "read_for_final_decision"
-CASE_EVENT_CASE_COMPLETED: str = "completed"
-CASE_EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (CASE_EVENT_TYPE_CREATE, "Create"),
-    (CASE_EVENT_AUDITOR, "Change of auditor"),
-    (CASE_EVENT_CREATE_AUDIT, "Start test"),
-    (CASE_EVENT_CREATE_REPORT, "Create report"),
-    (CASE_EVENT_READY_FOR_QA, "Report readiness for QA"),
-    (CASE_EVENT_QA_AUDITOR, "Change of QA auditor"),
-    (CASE_EVENT_APPROVE_REPORT, "Report approval"),
-    (CASE_EVENT_START_RETEST, "Start retest"),
-    (CASE_EVENT_READY_FOR_FINAL_DECISION, "Ready for final decision"),
-    (CASE_EVENT_CASE_COMPLETED, "Completed"),
-]
-CLOSED_CASE_STATUSES: List[str] = [
-    "case-closed-sent-to-equalities-body",
-    "complete",
-    "case-closed-waiting-to-be-sent",
-    "in-correspondence-with-equalities-body",
-    "deactivated",
-]
 COMPLIANCE_FIELDS: List[str] = [
     "website_compliance_state_initial",
     "website_compliance_notes_initial",
@@ -258,42 +35,86 @@ COMPLIANCE_FIELDS: List[str] = [
     "statement_compliance_notes_12_week",
 ]
 
-EQUALITY_BODY_CORRESPONDENCE_QUESTION: str = "question"
-EQUALITY_BODY_CORRESPONDENCE_RETEST: str = "retest"
-EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (EQUALITY_BODY_CORRESPONDENCE_QUESTION, "Question"),
-    (EQUALITY_BODY_CORRESPONDENCE_RETEST, "Retest request"),
-]
-EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED: str = "outstanding"
-EQUALITY_BODY_CORRESPONDENCE_RESOLVED: str = "resolved"
-EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED, "Unresolved"),
-    (EQUALITY_BODY_CORRESPONDENCE_RESOLVED, "Resolved"),
-]
-CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE: str = "close-case"
-CASE_VARIANT_CHOICES: List[Tuple[str, str]] = [
-    (CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE, "Equality Body Close Case"),
-    ("statement-content", "Statement content yes/no"),
-    ("reporting", "Platform reports"),
-    ("archived", "Archived"),
-]
-CONTACT_DETAILS_FOUND_DEFAULT: str = "not-checked"
-CONTACT_DETAILS_FOUND_CHOICES: List[Tuple[str, str]] = [
-    ("found", "Contact details found"),
-    ("not-found", "No contact details found"),
-    (CONTACT_DETAILS_FOUND_DEFAULT, "Not checked"),
-]
-
 
 class Case(VersionModel):
     """
     Model for Case
     """
 
+    class Variant(models.TextChoices):
+        CLOSE_CASE = "close-case", "Equality Body Close Case"
+        STATEMENT_CONTENT = "statement-content", "Statement content yes/no"
+        REPORTING = "reporting", "Platform reports"
+        ARCHIVED = "archived", "Archived"
+
+    class TestType(models.TextChoices):
+        SIMPLIFIED = "simplified", "Simplified"
+        DETAILED = "detailed", "Detailed"
+        MOBILE = "mobile", "Mobile"
+
+    class PsbLocation(models.TextChoices):
+        ENGLAND = "england", "England"
+        SCOTLAND = "scotland", "Scotland"
+        WALES = "wales", "Wales"
+        NI = "northern_ireland", "Northern Ireland"
+        UK = "uk_wide", "UK-wide"
+        UNKNOWN = "unknown", "Unknown"
+
+    class EnforcementBody(models.TextChoices):
+        EHRC = "ehrc", "Equality and Human Rights Commission"
+        ECNI = "ecni", "Equality Commission Northern Ireland"
+
+    class ReportApprovedStatus(models.TextChoices):
+        APPROVED = "yes", "Yes"
+        IN_PROGRESS = "in-progress", "Further work is needed"
+        NOT_STARTED = "not-started", "Not started"
+
+    class ContactDetailsFound(models.TextChoices):
+        FOUND = "found", "Contact details found"
+        NOT_FOUND = "not-found", "No contact details found"
+        NOT_CHECKED = "not-checked", "Not checked"
+
     class TwelveWeekResponse(models.TextChoices):
-        YES = "yes", "Yes"
-        NO = "no", "No"
+        YES = "yes"
+        NO = "no"
         NOT_SELECTED = "not-selected", "Not selected"
+
+    class IsDisproportionateClaimed(models.TextChoices):
+        YES = "yes"
+        NO = "no"
+        NOT_KNOWN = "unknown", "Not known"
+
+    class RecommendationForEnforcement(models.TextChoices):
+        NO_FURTHER_ACTION = "no-further-action", "No further action"
+        OTHER = "other", "For enforcement consideration"
+        UNKNOWN = "unknown", "Not selected"
+
+    class CaseCompleted(models.TextChoices):
+        COMPLETE_SEND = (
+            "complete-send",
+            "Case is complete and is ready to send to the equality body",
+        )
+        COMPLETE_NO_SEND = (
+            "complete-no-send",
+            "Case should not be sent to the equality body",
+        )
+        NO_DECISION = "no-decision", "Case still in progress"
+
+    class EnforcementBodyPursuing(models.TextChoices):
+        YES_COMPLETED = "yes-completed", "Yes, completed"
+        YES_IN_PROGRESS = "yes-in-progress", "Yes, in progress"
+        NO = "no", "No"
+
+    class EnforcementBodyClosedCase(models.TextChoices):
+        YES = "yes", "Yes"
+        IN_PROGRESS = "in-progress", "Case in progress"
+        NO = "no", "No (or holding)"
+
+    class QAStatus(models.TextChoices):
+        UNKNOWN = "unknown", "Unknown"
+        UNASSIGNED = "unassigned-qa-case", "Unassigned QA case"
+        IN_QA = "in-qa", "In QA"
+        APPROVED = "qa-approved", "QA approved"
 
     class OrganisationResponse(models.TextChoices):
         NO_RESPONSE = "no-response", "Organisation did not respond to 12-week update"
@@ -313,8 +134,8 @@ class Case(VersionModel):
     updated = models.DateTimeField(null=True, blank=True)
     variant = models.CharField(
         max_length=20,
-        choices=CASE_VARIANT_CHOICES,
-        default=CASE_VARIANT_EQUALITY_BODY_CLOSE_CASE,
+        choices=Variant.choices,
+        default=Variant.CLOSE_CASE,
     )
 
     # Case details page
@@ -327,24 +148,24 @@ class Case(VersionModel):
         null=True,
     )
     test_type = models.CharField(
-        max_length=10, choices=TEST_TYPE_CHOICES, default=DEFAULT_TEST_TYPE
+        max_length=10, choices=TestType.choices, default=TestType.SIMPLIFIED
     )
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
     organisation_name = models.TextField(default="", blank=True)
     psb_location = models.CharField(
         max_length=20,
-        choices=PSB_LOCATION_CHOICES,
-        default=PSB_LOCATION_DEFAULT,
+        choices=PsbLocation.choices,
+        default=PsbLocation.UNKNOWN,
     )
     sector = models.ForeignKey(Sector, on_delete=models.PROTECT, null=True, blank=True)
     enforcement_body = models.CharField(
         max_length=20,
-        choices=ENFORCEMENT_BODY_CHOICES,
-        default=ENFORCEMENT_BODY_DEFAULT,
+        choices=EnforcementBody.choices,
+        default=EnforcementBody.EHRC,
     )
     is_complaint = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
@@ -371,8 +192,8 @@ class Case(VersionModel):
     # QA process
     report_review_status = models.CharField(
         max_length=200,
-        choices=BOOLEAN_CHOICES,
-        default=BOOLEAN_FALSE,
+        choices=Boolean.choices,
+        default=Boolean.NO,
     )
     reviewer = models.ForeignKey(
         User,
@@ -383,8 +204,8 @@ class Case(VersionModel):
     )
     report_approved_status = models.CharField(
         max_length=200,
-        choices=REPORT_APPROVED_STATUS_CHOICES,
-        default=REPORT_APPROVED_STATUS_DEFAULT,
+        choices=ReportApprovedStatus.choices,
+        default=ReportApprovedStatus.NOT_STARTED,
     )
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_pdf_url = models.TextField(default="", blank=True)
@@ -398,8 +219,8 @@ class Case(VersionModel):
     # Find contact details page
     contact_details_found = models.CharField(
         max_length=20,
-        choices=CONTACT_DETAILS_FOUND_CHOICES,
-        default=CONTACT_DETAILS_FOUND_DEFAULT,
+        choices=ContactDetailsFound.choices,
+        default=ContactDetailsFound.NOT_CHECKED,
     )
     seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
     correspondence_notes = models.TextField(default="", blank=True)
@@ -480,7 +301,7 @@ class Case(VersionModel):
 
     # Unable to send report or no response from public sector body page
     no_psb_contact = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     no_psb_contact_notes = models.TextField(default="", blank=True)
 
@@ -494,7 +315,7 @@ class Case(VersionModel):
     psb_progress_notes = models.TextField(default="", blank=True)
     retested_website_date = models.DateField(null=True, blank=True)
     is_ready_for_final_decision = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     review_changes_complete_date = models.DateField(null=True, blank=True)
 
@@ -504,8 +325,8 @@ class Case(VersionModel):
     # Final statement
     is_disproportionate_claimed = models.CharField(
         max_length=20,
-        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
-        default=IS_DISPROPORTIONATE_CLAIMED_DEFAULT,
+        choices=IsDisproportionateClaimed.choices,
+        default=IsDisproportionateClaimed.NOT_KNOWN,
     )
     disproportionate_notes = models.TextField(default="", blank=True)
     accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
@@ -518,12 +339,12 @@ class Case(VersionModel):
     )
     recommendation_for_enforcement = models.CharField(
         max_length=20,
-        choices=RECOMMENDATION_CHOICES,
-        default=RECOMMENDATION_DEFAULT,
+        choices=RecommendationForEnforcement.choices,
+        default=RecommendationForEnforcement.UNKNOWN,
     )
     recommendation_notes = models.TextField(default="", blank=True)
     case_completed = models.CharField(
-        max_length=30, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
+        max_length=30, choices=CaseCompleted.choices, default=CaseCompleted.NO_DECISION
     )
     completed_date = models.DateTimeField(null=True, blank=True)
     case_close_complete_date = models.DateField(null=True, blank=True)
@@ -537,13 +358,13 @@ class Case(VersionModel):
     case_updated_date = models.DateField(null=True, blank=True)
     enforcement_body_pursuing = models.CharField(
         max_length=20,
-        choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
-        default=ENFORCEMENT_BODY_PURSUING_NO,
+        choices=EnforcementBodyPursuing.choices,
+        default=EnforcementBodyPursuing.NO,
     )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_retest_document_url = models.TextField(default="", blank=True)
     is_feedback_requested = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
@@ -552,8 +373,8 @@ class Case(VersionModel):
     enforcement_body_case_owner = models.TextField(default="", blank=True)
     enforcement_body_closed_case = models.CharField(
         max_length=20,
-        choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
-        default=ENFORCEMENT_BODY_CLOSED_NO,
+        choices=EnforcementBodyClosedCase.choices,
+        default=EnforcementBodyClosedCase.NO,
     )
     enforcement_body_finished_date = models.DateField(null=True, blank=True)
 
@@ -564,7 +385,7 @@ class Case(VersionModel):
 
     # Dashboard page
     qa_status = models.CharField(
-        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_UNKNOWN
+        max_length=200, choices=QAStatus.choices, default=QAStatus.UNKNOWN
     )
 
     class Meta:
@@ -582,7 +403,10 @@ class Case(VersionModel):
         if not self.created:
             self.created = now
             self.domain = extract_domain_from_url(self.home_page_url)
-        if self.case_completed != DEFAULT_CASE_COMPLETED and not self.completed_date:
+        if (
+            self.case_completed != Case.CaseCompleted.NO_DECISION
+            and not self.completed_date
+        ):
             self.completed_date = now
         self.qa_status = self.calulate_qa_status()
         self.updated = now
@@ -659,21 +483,21 @@ class Case(VersionModel):
     def calulate_qa_status(self) -> str:
         if (
             self.reviewer is None
-            and self.report_review_status == BOOLEAN_TRUE
-            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
+            and self.report_review_status == Boolean.YES
+            and self.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
-            return QA_STATUS_UNASSIGNED
+            return Case.QAStatus.UNASSIGNED
         elif (
-            self.report_review_status == BOOLEAN_TRUE
-            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
+            self.report_review_status == Boolean.YES
+            and self.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
-            return QA_STATUS_IN_QA
+            return Case.QAStatus.IN_QA
         elif (
-            self.report_review_status == BOOLEAN_TRUE
-            and self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            self.report_review_status == Boolean.YES
+            and self.report_approved_status == Case.ReportApprovedStatus.APPROVED
         ):
-            return QA_STATUS_QA_APPROVED
-        return QA_STATUS_UNKNOWN
+            return Case.QAStatus.APPROVED
+        return Case.QAStatus.UNKNOWN
 
     def set_statement_compliance_states(self) -> None:
         if self.audit:
@@ -693,15 +517,15 @@ class Case(VersionModel):
                 if self.audit.uses_statement_checks:
                     if self.audit.failed_statement_check_results.count() > 0:
                         new_statement_compliance_state_initial = (
-                            STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+                            CaseCompliance.StatementCompliance.NOT_COMPLIANT
                         )
                     else:
                         new_statement_compliance_state_initial = (
-                            STATEMENT_COMPLIANCE_STATE_COMPLIANT
+                            CaseCompliance.StatementCompliance.COMPLIANT
                         )
             else:
                 new_statement_compliance_state_initial = (
-                    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+                    CaseCompliance.StatementCompliance.NOT_COMPLIANT
                 )
             if (
                 self.audit.accessibility_statement_initially_found
@@ -710,15 +534,15 @@ class Case(VersionModel):
                 if self.audit.uses_statement_checks:
                     if self.audit.failed_retest_statement_check_results.count() > 0:
                         new_statement_compliance_state_12_week = (
-                            STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+                            CaseCompliance.StatementCompliance.NOT_COMPLIANT
                         )
                     else:
                         new_statement_compliance_state_12_week = (
-                            STATEMENT_COMPLIANCE_STATE_COMPLIANT
+                            CaseCompliance.StatementCompliance.COMPLIANT
                         )
             else:
                 new_statement_compliance_state_12_week = (
-                    STATEMENT_COMPLIANCE_STATE_NOT_COMPLIANT
+                    CaseCompliance.StatementCompliance.NOT_COMPLIANT
                 )
             if (
                 old_statement_compliance_state_initial
@@ -823,7 +647,7 @@ class Case(VersionModel):
 
     @property
     def psb_response(self) -> bool:
-        return self.no_psb_contact == BOOLEAN_FALSE
+        return self.no_psb_contact == Boolean.NO
 
     @property
     def audit(self):
@@ -896,7 +720,7 @@ class Case(VersionModel):
     def website_compliance_display(self):
         if (
             self.compliance.website_compliance_state_12_week
-            == WEBSITE_COMPLIANCE_STATE_DEFAULT
+            == CaseCompliance.WebsiteCompliance.UNKNOWN
         ):
             return self.compliance.get_website_compliance_state_initial_display()
         return self.compliance.get_website_compliance_state_12_week_display()
@@ -905,7 +729,7 @@ class Case(VersionModel):
     def accessibility_statement_compliance_display(self):
         if (
             self.compliance.statement_compliance_state_12_week
-            == STATEMENT_COMPLIANCE_STATE_DEFAULT
+            == CaseCompliance.StatementCompliance.UNKNOWN
         ):
             return self.compliance.get_statement_compliance_state_initial_display()
         return self.compliance.get_statement_compliance_state_12_week_display()
@@ -951,7 +775,7 @@ class Case(VersionModel):
             return not self.audit.overview_statement_checks_complete
         return (
             self.compliance.statement_compliance_state_initial
-            == STATEMENT_COMPLIANCE_STATE_DEFAULT
+            == CaseCompliance.StatementCompliance.UNKNOWN
         )
 
     @property
@@ -985,27 +809,27 @@ class Case(VersionModel):
     @property
     def equality_body_questions(self):
         return self.equality_body_correspondences.filter(
-            type=EQUALITY_BODY_CORRESPONDENCE_QUESTION
+            type=EqualityBodyCorrespondence.Type.QUESTION
         )
 
     @property
     def equality_body_questions_unresolved(self):
         return self.equality_body_correspondences.filter(
-            type=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
-            status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+            type=EqualityBodyCorrespondence.Type.QUESTION,
+            status=EqualityBodyCorrespondence.Status.UNRESOLVED,
         )
 
     @property
     def equality_body_correspondence_retests(self):
         return self.equality_body_correspondences.filter(
-            type=EQUALITY_BODY_CORRESPONDENCE_RETEST
+            type=EqualityBodyCorrespondence.Type.RETEST
         )
 
     @property
     def equality_body_correspondence_retests_unresolved(self):
         return self.equality_body_correspondences.filter(
-            type=EQUALITY_BODY_CORRESPONDENCE_RETEST,
-            status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+            type=EqualityBodyCorrespondence.Type.RETEST,
+            status=EqualityBodyCorrespondence.Status.UNRESOLVED,
         )
 
 
@@ -1014,9 +838,48 @@ class CaseStatus(models.Model):
     Model for case status
     """
 
+    class Status(models.TextChoices):
+        UNKNOWN = "unknown", "Unknown"
+        UNASSIGNED = "unassigned-case", "Unassigned case"
+        TEST_IN_PROGRESS = "test-in-progress", "Test in progress"
+        REPORT_IN_PROGRESS = "report-in-progress", "Report in progress"
+        READY_TO_QA = "unassigned-qa-case", "Report ready to QA"
+        QA_IN_PROGRESS = "qa-in-progress", "QA in progress"
+        REPORT_READY_TO_SEND = "report-ready-to-send", "Report ready to send"
+        IN_REPORT_CORES = "in-report-correspondence", "Report sent"
+        AWAITING_12_WEEK_DEADLINE = (
+            "in-probation-period",
+            "Report acknowledged waiting for 12-week deadline",
+        )
+        IN_12_WEEK_CORES = "in-12-week-correspondence", "After 12-week correspondence"
+        REVIEWING_CHANGES = "reviewing-changes", "Reviewing changes"
+        FINAL_DECISION_DUE = "final-decision-due", "Final decision due"
+        CASE_CLOSED_WAITING_TO_SEND = (
+            "case-closed-waiting-to-be-sent",
+            "Case closed and waiting to be sent to equalities body",
+        )
+        CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
+            "case-closed-sent-to-equalities-body",
+            "Case closed and sent to equalities body",
+        )
+        IN_CORES_WITH_ENFORCEMENT_BODY = (
+            "in-correspondence-with-equalities-body",
+            "In correspondence with equalities body",
+        )
+        COMPLETE = "complete", "Complete"
+        DEACTIVATED = "deactivated", "Deactivated"
+
+    CLOSED_CASE_STATUSES: List[str] = [
+        Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+        Status.COMPLETE,
+        Status.CASE_CLOSED_WAITING_TO_SEND,
+        Status.IN_CORES_WITH_ENFORCEMENT_BODY,
+        Status.DEACTIVATED,
+    ]
+
     case = models.OneToOneField(Case, on_delete=models.PROTECT, related_name="status")
     status = models.CharField(
-        max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
+        max_length=200, choices=Status.choices, default=Status.UNASSIGNED
     )
 
     class Meta:
@@ -1040,81 +903,81 @@ class CaseStatus(models.Model):
             compliance = None
 
         if self.case.is_deactivated:
-            return STATUS_DEACTIVATED
+            return CaseStatus.Status.DEACTIVATED
         elif (
-            self.case.case_completed == CASE_COMPLETED_NO_SEND
+            self.case.case_completed == Case.CaseCompleted.COMPLETE_NO_SEND
             or self.case.enforcement_body_pursuing
-            == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
-            or self.case.enforcement_body_closed_case == ENFORCEMENT_BODY_CLOSED_YES
+            == Case.EnforcementBodyPursuing.YES_COMPLETED
+            or self.case.enforcement_body_closed_case
+            == Case.EnforcementBodyClosedCase.YES
         ):
-            return "complete"
+            return CaseStatus.Status.COMPLETE
         elif (
             self.case.enforcement_body_pursuing
-            == ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS
+            == Case.EnforcementBodyPursuing.YES_IN_PROGRESS
             or self.case.enforcement_body_closed_case
-            == ENFORCEMENT_BODY_CLOSED_IN_PROGRESS
+            == Case.EnforcementBodyClosedCase.IN_PROGRESS
         ):
-            return "in-correspondence-with-equalities-body"
+            return CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
         elif self.case.sent_to_enforcement_body_sent_date is not None:
-            return "case-closed-sent-to-equalities-body"
-        elif self.case.case_completed == "complete-send":
-            return "case-closed-waiting-to-be-sent"
-        elif self.case.no_psb_contact == "yes":
-            return "final-decision-due"
+            return CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
+        elif self.case.case_completed == Case.CaseCompleted.COMPLETE_SEND:
+            return CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
+        elif self.case.no_psb_contact == Boolean.YES:
+            return CaseStatus.Status.FINAL_DECISION_DUE
         elif self.case.auditor is None:
-            return "unassigned-case"
+            return CaseStatus.Status.UNASSIGNED
         elif (
             compliance is None
             or self.case.compliance.website_compliance_state_initial
-            == WEBSITE_COMPLIANCE_STATE_DEFAULT
+            == CaseCompliance.WebsiteCompliance.UNKNOWN
             or self.case.statement_checks_still_initial
         ):
-            return "test-in-progress"
+            return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
             self.case.compliance.website_compliance_state_initial
-            != WEBSITE_COMPLIANCE_STATE_DEFAULT
+            != CaseCompliance.WebsiteCompliance.UNKNOWN
             and not self.case.statement_checks_still_initial
-            and self.case.report_review_status != BOOLEAN_TRUE
+            and self.case.report_review_status != Boolean.YES
         ):
-            return "report-in-progress"
+            return CaseStatus.Status.REPORT_IN_PROGRESS
         elif (
-            self.case.report_review_status == BOOLEAN_TRUE
-            and self.case.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
+            self.case.report_review_status == Boolean.YES
+            and self.case.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
-            return STATUS_QA_IN_PROGRESS
+            return CaseStatus.Status.QA_IN_PROGRESS
         elif (
-            self.case.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            self.case.report_approved_status == Case.ReportApprovedStatus.APPROVED
             and self.case.report_sent_date is None
         ):
-            return "report-ready-to-send"
+            return CaseStatus.Status.REPORT_READY_TO_SEND
         elif self.case.report_sent_date and self.case.report_acknowledged_date is None:
-            return "in-report-correspondence"
-        elif (
-            self.case.report_acknowledged_date
-            and (
-                self.case.twelve_week_update_requested_date is None
-                and self.case.twelve_week_correspondence_acknowledged_date is None
-            )
+            return CaseStatus.Status.IN_REPORT_CORES
+        elif self.case.report_acknowledged_date and (
+            self.case.twelve_week_update_requested_date is None
+            and self.case.twelve_week_correspondence_acknowledged_date is None
         ):
-            return "in-probation-period"
+            return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
         elif self.case.twelve_week_update_requested_date and (
             self.case.twelve_week_correspondence_acknowledged_date is None
+            and self.case.twelve_week_response_state
+            == Case.TwelveWeekResponse.NOT_SELECTED
             and self.case.organisation_response
             == Case.OrganisationResponse.NOT_APPLICABLE
         ):
-            return "in-12-week-correspondence"
+            return CaseStatus.Status.IN_12_WEEK_CORES
         elif (
             self.case.twelve_week_correspondence_acknowledged_date
             or self.case.organisation_response
             != Case.OrganisationResponse.NOT_APPLICABLE
-        ) and self.case.is_ready_for_final_decision == BOOLEAN_FALSE:
-            return "reviewing-changes"
+        ) and self.case.is_ready_for_final_decision == Boolean.NO:
+            return CaseStatus.Status.REVIEWING_CHANGES
         elif (
-            self.case.is_ready_for_final_decision == BOOLEAN_TRUE
-            and self.case.case_completed == DEFAULT_CASE_COMPLETED
+            self.case.is_ready_for_final_decision == Boolean.YES
+            and self.case.case_completed == Case.CaseCompleted.NO_DECISION
         ):
-            return "final-decision-due"
-        return "unknown"
+            return CaseStatus.Status.FINAL_DECISION_DUE
+        return CaseStatus.Status.UNKNOWN
 
 
 class CaseCompliance(VersionModel):
@@ -1122,31 +985,43 @@ class CaseCompliance(VersionModel):
     Model for website and accessibility statement compliance
     """
 
+    class WebsiteCompliance(models.TextChoices):
+        COMPLIANT = "compliant", "Fully compliant"
+        PARTIALLY = "partially-compliant", "Partially compliant"
+        UNKNOWN = "not-known", "Not known"
+
+    class StatementCompliance(models.TextChoices):
+        COMPLIANT = "compliant", "Compliant"
+        NOT_COMPLIANT = "not-compliant", "Not compliant"
+        NOT_FOUND = "not-found", "Not found"
+        OTHER = "other", "Other"
+        UNKNOWN = "unknown", "Not selected"
+
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="compliance"
     )
     website_compliance_state_initial = models.CharField(
         max_length=20,
-        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
-        default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
+        choices=WebsiteCompliance.choices,
+        default=WebsiteCompliance.UNKNOWN,
     )
     website_compliance_notes_initial = models.TextField(default="", blank=True)
     statement_compliance_state_initial = models.CharField(
         max_length=200,
-        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
-        default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
+        choices=StatementCompliance.choices,
+        default=StatementCompliance.UNKNOWN,
     )
     statement_compliance_notes_initial = models.TextField(default="", blank=True)
     website_compliance_state_12_week = models.CharField(
         max_length=200,
-        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
-        default=WEBSITE_COMPLIANCE_STATE_DEFAULT,
+        choices=WebsiteCompliance.choices,
+        default=WebsiteCompliance.UNKNOWN,
     )
     website_compliance_notes_12_week = models.TextField(default="", blank=True)
     statement_compliance_state_12_week = models.CharField(
         max_length=200,
-        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
-        default=STATEMENT_COMPLIANCE_STATE_DEFAULT,
+        choices=StatementCompliance.choices,
+        default=StatementCompliance.UNKNOWN,
     )
     statement_compliance_notes_12_week = models.TextField(default="", blank=True)
 
@@ -1164,12 +1039,17 @@ class Contact(models.Model):
     Model for cases Contact
     """
 
+    class Preferred(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        UNKNOWN = "unknown", "Not known"
+
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     name = models.TextField(default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
     email = models.CharField(max_length=200, default="", blank=True)
     preferred = models.CharField(
-        max_length=20, choices=PREFERRED_CHOICES, default=PREFERRED_DEFAULT
+        max_length=20, choices=Preferred.choices, default=Preferred.UNKNOWN
     )
     created = models.DateTimeField()
     updated = models.DateTimeField(null=True, blank=True)
@@ -1196,9 +1076,21 @@ class CaseEvent(models.Model):
     Model to records events on a case
     """
 
+    class EventType(models.TextChoices):
+        CREATE = "create", "Create"
+        AUDITOR = "auditor", "Change of auditor"
+        CREATE_AUDIT = "create_audit", "Start test"
+        CREATE_REPORT = "create_report", "Create report"
+        READY_FOR_QA = "ready_for_qa", "Report readiness for QA"
+        QA_AUDITOR = "qa_auditor", "Change of QA auditor"
+        APPROVE_REPORT = "approve_report", "Report approval"
+        START_RETEST = "retest", "Start retest"
+        READY_FOR_FINAL_DECISION = "read_for_final_decision", "Ready for final decision"
+        CASE_COMPLETED = "completed", "Completed"
+
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     event_type = models.CharField(
-        max_length=100, choices=CASE_EVENT_TYPE_CHOICES, default=CASE_EVENT_TYPE_CREATE
+        max_length=100, choices=EventType.choices, default=EventType.CREATE
     )
     message = models.TextField(default="Created case", blank=True)
     done_by = models.ForeignKey(
@@ -1220,20 +1112,28 @@ class EqualityBodyCorrespondence(models.Model):
     Model for cases equality body correspondence
     """
 
+    class Type(models.TextChoices):
+        QUESTION = "question", "Question"
+        RETEST = "retest", "Retest request"
+
+    class Status(models.TextChoices):
+        UNRESOLVED = "outstanding", "Unresolved"
+        RESOLVED = "resolved", "Resolved"
+
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     id_within_case = models.IntegerField(default=1, blank=True)
     type = models.CharField(
         max_length=20,
-        choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
-        default=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+        choices=Type.choices,
+        default=Type.QUESTION,
     )
     message = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
     zendesk_url = models.TextField(default="", blank=True)
     status = models.CharField(
         max_length=20,
-        choices=EQUALITY_BODY_CORRESPONDENCE_STATUS_CHOICES,
-        default=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+        choices=Status.choices,
+        default=Status.UNRESOLVED,
     )
     created = models.DateTimeField()
     updated = models.DateTimeField()

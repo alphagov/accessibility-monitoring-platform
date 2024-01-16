@@ -1,9 +1,9 @@
 """ Reset staging DB - Wipes postgres DB and uploads a backup of prod db"""
-import boto3
 import json
 import os
 from typing import Any, List
 
+import boto3
 from dotenv import load_dotenv
 
 load_dotenv()

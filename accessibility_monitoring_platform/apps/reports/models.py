@@ -12,8 +12,8 @@ from django.utils import timezone
 
 from ..cases.models import Case
 from ..common.models import VersionModel
-from ..s3_read_write.models import S3Report
 from ..common.utils import amp_format_datetime
+from ..s3_read_write.models import S3Report
 
 REPORT_VERSION_DEFAULT: str = "v1_2_0__20230523"
 WRAPPER_TEXT_FIELDS: List[str] = [

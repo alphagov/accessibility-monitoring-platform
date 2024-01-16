@@ -1,5 +1,6 @@
 """Forms for comment box"""
 from django import forms
+
 from ..common.forms import AMPTextField
 from .models import Comment
 

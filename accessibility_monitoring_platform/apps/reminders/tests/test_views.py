@@ -1,13 +1,12 @@
 """
 Tests for reminders views
 """
-import pytest
 from datetime import date
 
-from pytest_django.asserts import assertContains, assertNotContains
-
+import pytest
 from django.http import HttpResponse
 from django.urls import reverse
+from pytest_django.asserts import assertContains, assertNotContains
 
 from ...cases.models import Case
 from ..models import Reminder

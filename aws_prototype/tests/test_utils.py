@@ -1,14 +1,15 @@
 """
 Test aws prototype utilities
 """
-import pytest
 import re
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
+
+import pytest
 
 from ..utils import (
+    create_burner_account,
     get_aws_resource_tags,
     write_prototype_platform_metadata,
-    create_burner_account,
 )
 
 GIT_BRANCH_NAME: str = "0001-branch-name"

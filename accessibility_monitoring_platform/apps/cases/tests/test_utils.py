@@ -1,61 +1,48 @@
 """
 Test utility functions of cases app
 """
-import pytest
-
 import csv
+import io
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-import io
 from typing import Any, Dict, List, Optional, Tuple
 
+import pytest
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
-from ...audits.models import Audit, Retest, RETEST_INITIAL_COMPLIANCE_COMPLIANT
-from ...common.models import Sector, SubCategory, BOOLEAN_TRUE
-
+from ...audits.models import Audit, Retest
+from ...common.models import Boolean, Sector, SubCategory
 from ..models import (
     Case,
     CaseCompliance,
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
-    CASE_EVENT_TYPE_CREATE,
-    CASE_EVENT_AUDITOR,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_READY_FOR_QA,
-    CASE_EVENT_QA_AUDITOR,
-    CASE_EVENT_APPROVE_REPORT,
-    CASE_EVENT_READY_FOR_FINAL_DECISION,
-    CASE_EVENT_CASE_COMPLETED,
-    REPORT_APPROVED_STATUS_APPROVED,
-    CASE_COMPLETED_NO_SEND,
-    EQUALITY_BODY_CORRESPONDENCE_RESOLVED,
 )
 from ..utils import (
-    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
-    COLUMNS_FOR_EQUALITY_BODY,
-    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
     CASE_COLUMNS_FOR_EXPORT,
+    COLUMNS_FOR_EQUALITY_BODY,
     CONTACT_COLUMNS_FOR_EXPORT,
-    get_sent_date,
-    filter_cases,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     ColumnAndFieldNames,
-    format_model_field,
-    format_contacts,
-    replace_search_key_with_case_search,
-    download_feedback_survey_cases,
-    download_equality_body_cases,
-    download_cases,
-    record_case_event,
+    PostCaseAlert,
     build_edit_link_html,
     create_case_and_compliance,
-    get_post_case_alerts_count,
-    PostCaseAlert,
+    download_cases,
+    download_equality_body_cases,
+    download_feedback_survey_cases,
+    filter_cases,
+    format_contacts,
+    format_model_field,
     get_post_case_alerts,
+    get_post_case_alerts_count,
+    get_sent_date,
+    record_case_event,
+    replace_search_key_with_case_search,
 )
 
 ORGANISATION_NAME: str = "Organisation name one"
@@ -616,29 +603,29 @@ def test_download_cases():
 @pytest.mark.parametrize(
     "new_case_params, old_case_params, event_type, message",
     [
-        ({}, None, CASE_EVENT_TYPE_CREATE, "Created case"),
+        ({}, None, CaseEvent.EventType.CREATE, "Created case"),
         (
-            {"report_review_status": BOOLEAN_TRUE},
+            {"report_review_status": Boolean.YES},
             {},
-            CASE_EVENT_READY_FOR_QA,
+            CaseEvent.EventType.READY_FOR_QA,
             "Report ready to be reviewed changed from 'No' to 'Yes'",
         ),
         (
-            {"report_approved_status": REPORT_APPROVED_STATUS_APPROVED},
+            {"report_approved_status": Case.ReportApprovedStatus.APPROVED},
             {},
-            CASE_EVENT_APPROVE_REPORT,
+            CaseEvent.EventType.APPROVE_REPORT,
             "Report approved changed from 'Not started' to 'Yes'",
         ),
         (
-            {"is_ready_for_final_decision": BOOLEAN_TRUE},
+            {"is_ready_for_final_decision": Boolean.YES},
             {},
-            CASE_EVENT_READY_FOR_FINAL_DECISION,
+            CaseEvent.EventType.READY_FOR_FINAL_DECISION,
             "Case ready for final decision changed from 'No' to 'Yes'",
         ),
         (
-            {"case_completed": CASE_COMPLETED_NO_SEND},
+            {"case_completed": Case.CaseCompleted.COMPLETE_NO_SEND},
             {},
-            CASE_EVENT_CASE_COMPLETED,
+            CaseEvent.EventType.CASE_COMPLETED,
             "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'",
         ),
     ],
@@ -683,7 +670,7 @@ def test_record_case_event_auditor_change():
     assert case_events.count() == 1
 
     case_event = case_events[0]
-    assert case_event.event_type == CASE_EVENT_AUDITOR
+    assert case_event.event_type == CaseEvent.EventType.AUDITOR
     assert case_event.message == "Auditor changed from Old User to New User"
 
 
@@ -701,7 +688,7 @@ def test_record_case_event_audit_create():
     assert case_events.count() == 1
 
     case_event = case_events[0]
-    assert case_event.event_type == CASE_EVENT_CREATE_AUDIT
+    assert case_event.event_type == CaseEvent.EventType.CREATE_AUDIT
     assert case_event.message == "Start of test"
 
 
@@ -724,7 +711,7 @@ def test_record_case_event_reviewer_change():
     assert case_events.count() == 1
 
     case_event = case_events[0]
-    assert case_event.event_type == CASE_EVENT_QA_AUDITOR
+    assert case_event.event_type == CaseEvent.EventType.QA_AUDITOR
     assert case_event.message == "QA auditor changed from Old User to New User"
 
 
@@ -774,7 +761,7 @@ def test_get_post_case_alerts_count():
 
     assert get_post_case_alerts_count(user=user) == 1
 
-    equality_body_correspondence.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    equality_body_correspondence.status = EqualityBodyCorrespondence.Status.RESOLVED
     equality_body_correspondence.save()
 
     assert get_post_case_alerts_count(user=user) == 0
@@ -783,7 +770,7 @@ def test_get_post_case_alerts_count():
 
     assert get_post_case_alerts_count(user=user) == 1
 
-    retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    retest.retest_compliance_state = Retest.Compliance.COMPLIANT
     retest.save()
 
     assert get_post_case_alerts_count(user=user) == 0
@@ -816,7 +803,7 @@ def test_get_post_case_alerts():
     )
     assert post_case_alert.absolute_url_label == "View correspondence"
 
-    equality_body_correspondence.status = EQUALITY_BODY_CORRESPONDENCE_RESOLVED
+    equality_body_correspondence.status = EqualityBodyCorrespondence.Status.RESOLVED
     equality_body_correspondence.save()
 
     assert len(get_post_case_alerts(user=user)) == 0
@@ -835,7 +822,7 @@ def test_get_post_case_alerts():
     assert post_case_alert.absolute_url == retest.get_absolute_url()
     assert post_case_alert.absolute_url_label == "View retest"
 
-    retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    retest.retest_compliance_state = Retest.Compliance.COMPLIANT
     retest.save()
 
     assert len(get_post_case_alerts(user=user)) == 0

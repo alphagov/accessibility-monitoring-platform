@@ -1,38 +1,35 @@
 """
 Test - common widgets and forms
 """
-import pytest
-
-from datetime import date, datetime
 import logging
-from typing import List, Tuple
+from datetime import date, datetime
 from unittest import mock
 from zoneinfo import ZoneInfo
 
+import pytest
+from django import forms
 from pytest_django.asserts import assertHTMLEqual
 
-from django import forms
-
+from ...cases.forms import CaseQAProcessUpdateForm
+from ...cases.models import Case
 from ..forms import (
-    AMPRadioSelectWidget,
-    AMPChoiceCheckboxWidget,
-    AMPDateCheckboxWidget,
-    AMPDateWidget,
     AMPCharField,
     AMPCharFieldWide,
-    AMPTextField,
+    AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
     AMPChoiceField,
     AMPChoiceRadioField,
-    AMPChoiceCheckboxField,
+    AMPDateCheckboxWidget,
     AMPDateField,
     AMPDatePageCompleteField,
     AMPDateRangeForm,
-    AMPPasswordField,
+    AMPDateWidget,
     AMPNewPasswordField,
+    AMPPasswordField,
+    AMPRadioSelectWidget,
+    AMPTextField,
 )
-from ...cases.models import Case
-from ...cases.forms import CaseQAProcessUpdateForm
-
+from ..models import Boolean
 
 EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
 <div class="govuk-radios">
@@ -84,17 +81,12 @@ EXPECTED_DATE_WIDGET_HTML: str = """
     </span>
 </p>"""
 
-BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-]
-
 
 class MockForm(forms.Form):
     """Form used to test fields and widgets"""
 
     date_as_checkbox = AMPDatePageCompleteField(label="Label1")
-    choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=BOOLEAN_CHOICES)
+    choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=Boolean.choices)
 
 
 def test_amp_widget_html_uses_govuk_classes():

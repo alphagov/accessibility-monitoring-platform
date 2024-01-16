@@ -11,8 +11,8 @@ from ..cases.utils import get_post_case_alerts_count
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
 from ..common.utils import get_platform_settings
 from ..notifications.utils import get_number_of_unread_notifications
-from ..reminders.utils import get_number_of_reminders_for_user
 from ..overdue.utils import get_overdue_cases
+from ..reminders.utils import get_number_of_reminders_for_user
 from .forms import AMPTopMenuForm
 
 
