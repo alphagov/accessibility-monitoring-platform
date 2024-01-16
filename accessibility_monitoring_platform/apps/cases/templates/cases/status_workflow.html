@@ -70,7 +70,7 @@
                 <h2 class="govuk-heading-s amp-margin-bottom-0">Report ready to send</h2>
                 <ul class="govuk-list">
                     <li>
-                        <a href="{% url 'cases:edit-report-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'cases:edit-report-sent-on' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             Report sent on requires a date
                         </a>
                         {% if case.report_sent_date %}&check;{% endif %}
@@ -80,7 +80,7 @@
                 <h2 class="govuk-heading-s amp-margin-bottom-0">Report sent</h2>
                 <ul class="govuk-list">
                     <li>
-                        <a href="{% url 'cases:edit-report-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'cases:edit-report-acknowledged' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             Report acknowledged requires a date
                         </a>
                         {% if case.report_acknowledged_date %}&check;{% endif %}
@@ -97,17 +97,17 @@
                 <h2 class="govuk-heading-s amp-margin-bottom-0">Report acknowledged waiting for 12-week deadline</h2>
                 <ul class="govuk-list">
                     <li>
-                        <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             12-week update requested requires a date
                         </a>
                         {% if case.twelve_week_update_requested_date %}&check;{% endif %}
                     </li>
                 </ul>
 
-                <h2 class="govuk-heading-s amp-margin-bottom-0">After 12-week correspondence</h2>
+                <h2 class="govuk-heading-s amp-margin-bottom-0">12-week update request acknowledged</h2>
                 <ul class="govuk-list">
                     <li>
-                        <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'cases:edit-12-week-update-request-ack' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             12-week update received requires a date or mark the case as having no response
                         </a>
                         {% if case.twelve_week_correspondence_acknowledged_date or case.no_psb_contact == 'yes' %}&check;{% endif %}

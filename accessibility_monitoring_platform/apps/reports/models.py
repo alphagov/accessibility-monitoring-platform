@@ -114,6 +114,17 @@ class Report(VersionModel):
         """The most recently published report"""
         return self.case.s3report_set.filter(latest_published=True).last()
 
+    @property
+    def visits_metrics(self) -> Dict[str, int]:
+        return {
+            "number_of_visits": self.case.reportvisitsmetrics_set.all().count(),
+            "number_of_unique_visitors": self.case.reportvisitsmetrics_set.values_list(
+                "fingerprint_hash"
+            )
+            .distinct()
+            .count(),
+        }
+
 
 class ReportVisitsMetrics(models.Model):
     created = models.DateTimeField(auto_now_add=True)

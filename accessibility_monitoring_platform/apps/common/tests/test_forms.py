@@ -21,8 +21,8 @@ from ..forms import (
     AMPChoiceRadioField,
     AMPDateCheckboxWidget,
     AMPDateField,
+    AMPDatePageCompleteField,
     AMPDateRangeForm,
-    AMPDateSentField,
     AMPDateWidget,
     AMPNewPasswordField,
     AMPPasswordField,
@@ -85,7 +85,7 @@ EXPECTED_DATE_WIDGET_HTML: str = """
 class MockForm(forms.Form):
     """Form used to test fields and widgets"""
 
-    date_as_checkbox = AMPDateSentField(label="Label1")
+    date_as_checkbox = AMPDatePageCompleteField(label="Label1")
     choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=Boolean.choices)
 
 
@@ -333,7 +333,7 @@ def test_amp_choice_checkbox_field_and_widget_return_no_when_not_checked():
 
 
 def test_amp_date_sent_field_and_widget_return_today_when_checked():
-    """Tests AMPDateSentField and AMPDateCheckboxWidget return today when checked"""
+    """Tests AMPDatePageCompleteField and AMPDateCheckboxWidget return today when checked"""
     form: MockForm = MockForm(
         data={
             "date_as_checkbox": "on",
@@ -344,7 +344,7 @@ def test_amp_date_sent_field_and_widget_return_today_when_checked():
 
 
 def test_amp_date_sent_field_and_widget_return_none_when_not_checked():
-    """Tests AMPDateSentField and AMPDateCheckboxWidget return none when not checked"""
+    """Tests AMPDatePageCompleteField and AMPDateCheckboxWidget return none when not checked"""
     form: MockForm = MockForm(data={})
     assert form.is_valid()
     assert form.cleaned_data["date_as_checkbox"] is None

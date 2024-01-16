@@ -548,7 +548,7 @@ def test_download_cases():
         "",
         "",
         "",
-        "Not selected",
+        "Not applicable or organisation responded to 12-week update",
         "",
         "",
         "",

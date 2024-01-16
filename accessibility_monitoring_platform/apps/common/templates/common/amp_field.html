@@ -4,7 +4,7 @@
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                 <label id="{{ field.auto_id }}-label" class="govuk-label"><b>{{ field.label }}</b></label>
             </legend>
-            {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
+            {% if field.help_text %}<div class="govuk-hint">{{ field.help_text|safe }}</div>{% endif %}
             {% include 'common/field_errors.html' with errors=field.errors %}
             {{ field }}
         </fieldset>
@@ -13,13 +13,13 @@
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l amp-margin-bottom-0">
                 <span class="govuk-label"><b>{{ field.label }}</b></span>
             </legend>
-            {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
+            {% if field.help_text %}<div class="govuk-hint">{{ field.help_text|safe }}</div>{% endif %}
             {% include 'common/field_errors.html' with errors=field.errors %}
             {{ field }}
         </fieldset>
     {% else %}
         <label id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
-        {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
+        {% if field.help_text %}<div class="govuk-hint">{{ field.help_text|safe }}</div>{% endif %}
         {% include 'common/field_errors.html' with errors=field.errors %}
         {{ field }}
     {% endif %}

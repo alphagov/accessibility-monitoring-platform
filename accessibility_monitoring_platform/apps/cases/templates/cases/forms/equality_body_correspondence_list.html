@@ -61,7 +61,7 @@
                                 <p class="govuk-body-m">{{ equality_body_correspondence.created|amp_datetime }}</p>
                                 <p class="govuk-body-m amp-margin-bottom-5"><b>Type</b></p>
                                 <p class="govuk-body-m">{{ equality_body_correspondence.get_type_display }}</p>
-                                <p class="govuk-body-m amp-margin-bottom-5"><b>Zendesk nessage</b></p>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Zendesk message</b></p>
                                 <div class="amp-report-wrapper">
                                     {% if equality_body_correspondence.message %}
                                         {{ equality_body_correspondence.message|markdown_to_html }}

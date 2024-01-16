@@ -183,10 +183,30 @@ def test_most_recently_created_contact_returned_first():
     contact1: Contact = Contact.objects.create(case=case)
     contact2: Contact = Contact.objects.create(case=case)
 
-    contacts: List[Contact] = list(Contact.objects.filter(case=case))
+    contacts: List[Contact] = list(case.contacts)
 
     assert contacts[0].id == contact2.id
     assert contacts[1].id == contact1.id
+
+
+@pytest.mark.django_db
+def test_deleted_contacts_not_returned():
+    """Test that deleted contacts are not returned"""
+    case: Case = Case.objects.create()
+    contact1: Contact = Contact.objects.create(case=case)
+    contact2: Contact = Contact.objects.create(case=case)
+
+    contacts: List[Contact] = list(case.contacts)
+
+    assert len(contacts) == 2
+
+    contact1.is_deleted = True
+    contact1.save()
+
+    contacts: List[Contact] = list(case.contacts)
+
+    assert len(contacts) == 1
+    assert contacts[0].id == contact2.id
 
 
 @pytest.mark.django_db
@@ -199,11 +219,23 @@ def test_preferred_contact_returned_first():
     contact1: Contact = Contact.objects.create(case=case)
     contact2: Contact = Contact.objects.create(case=case)
 
-    contacts: List[Contact] = list(Contact.objects.filter(case=case))
+    contacts: List[Contact] = list(case.contacts)
 
     assert contacts[0].id == preferred_contact.id
     assert contacts[1].id == contact2.id
     assert contacts[2].id == contact1.id
+
+
+@pytest.mark.django_db
+def test_contact_exists():
+    """Test the contacts exists"""
+    case: Case = Case.objects.create()
+
+    assert case.contact_exists is False
+
+    Contact.objects.create(case=case)
+
+    assert case.contact_exists is True
 
 
 @pytest.mark.parametrize(

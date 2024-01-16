@@ -50,34 +50,37 @@ from .forms import (
     CaseContactFormset,
     CaseContactFormsetOneExtra,
     CaseContactsUpdateForm,
+    CaseCorrespondenceOverviewUpdateForm,
     CaseCreateForm,
     CaseDeactivateForm,
     CaseDetailUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
+    CaseFindContactDetailsUpdateForm,
+    CaseFourWeekFollowupUpdateForm,
     CaseNoPSBContactUpdateForm,
+    CaseOneWeekFollowupFinalUpdateForm,
+    CaseOneWeekFollowupUpdateForm,
     CaseQAProcessUpdateForm,
-    CaseReportCorrespondenceUpdateForm,
+    CaseReportAcknowledgedUpdateForm,
     CaseReportDetailsUpdateForm,
-    CaseReportFollowupDueDatesUpdateForm,
+    CaseReportSentOnUpdateForm,
     CaseReviewChangesUpdateForm,
     CaseSearchForm,
     CaseStatementEnforcementUpdateForm,
     CaseTestResultsUpdateForm,
-    CaseTwelveWeekCorrespondenceDueDatesUpdateForm,
-    CaseTwelveWeekCorrespondenceUpdateForm,
     CaseTwelveWeekRetestUpdateForm,
+    CaseTwelveWeekUpdateAcknowledgedUpdateForm,
+    CaseTwelveWeekUpdateRequestedUpdateForm,
     EqualityBodyCorrespondenceCreateForm,
     ListCaseEqualityBodyCorrespondenceUpdateForm,
     PostCaseUpdateForm,
 )
 from .models import Case, Contact, EqualityBodyCorrespondence
 from .utils import (
-    build_edit_link_html,
     download_cases,
     download_equality_body_cases,
     download_feedback_survey_cases,
     filter_cases,
-    get_sent_date,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -189,7 +192,31 @@ class CaseDetailView(DetailView):
         context["report_details_rows"] = get_case_rows(
             form=CaseReportDetailsUpdateForm()
         )
+        context["corres_overview"] = get_case_rows(
+            form=CaseCorrespondenceOverviewUpdateForm()
+        )
+        context["find_contact_details"] = get_case_rows(
+            form=CaseFindContactDetailsUpdateForm()
+        )
         context["contact_rows"] = get_case_rows(form=CaseContactsUpdateForm())
+        context["report_sent_on"] = get_case_rows(form=CaseReportSentOnUpdateForm())
+        context["one_week_followup"] = get_case_rows(
+            form=CaseOneWeekFollowupUpdateForm()
+        )
+        context["four_week_followup"] = get_case_rows(
+            form=CaseFourWeekFollowupUpdateForm()
+        )
+        context["report_ack"] = get_case_rows(form=CaseReportAcknowledgedUpdateForm())
+        context["twelve_week_update_req"] = get_case_rows(
+            form=CaseTwelveWeekUpdateRequestedUpdateForm()
+        )
+        context["one_week_chaser_final"] = get_case_rows(
+            form=CaseOneWeekFollowupFinalUpdateForm()
+        )
+        context["twelve_week_update_ack"] = get_case_rows(
+            form=CaseTwelveWeekUpdateAcknowledgedUpdateForm()
+        )
+        context["no_psb_contact"] = get_case_rows(form=CaseNoPSBContactUpdateForm())
         context["review_changes_rows"] = get_case_rows(
             form=CaseReviewChangesUpdateForm()
         )
@@ -434,7 +461,7 @@ class CaseQAProcessUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
-            return reverse("cases:edit-contact-details", kwargs={"pk": self.object.id})
+            return reverse("cases:edit-cores-overview", kwargs={"pk": self.object.id})
         return super().get_success_url()
 
 
@@ -471,6 +498,46 @@ class QACommentCreateView(CreateView):
         return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?#qa-discussion"
 
 
+class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):
+    """
+    View to update Correspondence overview
+    """
+
+    form_class: Type[
+        CaseCorrespondenceOverviewUpdateForm
+    ] = CaseCorrespondenceOverviewUpdateForm
+    template_name: str = "cases/forms/cores_overview.html"
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-find-contact-details", kwargs={"pk": self.object.id}
+            )
+        return super().get_success_url()
+
+
+class CaseFindContactDetailsUpdateView(CaseUpdateView):
+    """
+    View to update Find contact details
+    """
+
+    form_class: Type[
+        CaseFindContactDetailsUpdateForm
+    ] = CaseFindContactDetailsUpdateForm
+    template_name: str = "cases/forms/find_contact_details.html"
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse("cases:edit-contact-details", kwargs={"pk": self.object.id})
+        return super().get_success_url()
+
+
 class CaseContactFormsetUpdateView(CaseUpdateView):
     """
     View to update case contacts
@@ -488,7 +555,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
             contacts: QuerySet[Contact] = self.object.contact_set.filter(
                 is_deleted=False
             )
-            if "add_extra" in self.request.GET:
+            if "add_extra" in self.request.GET or not self.object.contact_exists:
                 contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
             else:
                 contacts_formset = CaseContactFormset(queryset=contacts)
@@ -535,7 +602,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if "save" in self.request.POST:
             return super().get_success_url()
         elif "save_continue" in self.request.POST:
-            return reverse("cases:edit-report-correspondence", kwargs=case_pk)
+            return reverse("cases:edit-report-sent-on", kwargs=case_pk)
         elif "add_contact" in self.request.POST:
             return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true#contact-None"
         else:
@@ -548,113 +615,112 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                 return reverse("cases:case-detail", kwargs=case_pk)
 
 
-class CaseReportCorrespondenceUpdateView(CaseUpdateView):
+class CaseReportSentOnUpdateView(CaseUpdateView):
     """
-    View to update case post report details
+    View to update Report sent on
     """
 
-    form_class: Type[
-        CaseReportCorrespondenceUpdateForm
-    ] = CaseReportCorrespondenceUpdateForm
-    template_name: str = "cases/forms/report_correspondence.html"
+    form_class: Type[CaseReportSentOnUpdateForm] = CaseReportSentOnUpdateForm
+    template_name: str = "cases/forms/report_sent_on.html"
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(get_report_visits_metrics(self.object))
-        return context
-
-    def get_form(self):
-        """Populate help text with dates"""
-        form = super().get_form()
-        case: Case = form.instance
-        edit_link_html: str = build_edit_link_html(
-            case=form.instance, url_name="cases:edit-report-followup-due-dates"
-        )
-
-        form.fields[
-            "report_followup_week_1_sent_date"
-        ].help_text = f"{format_due_date_help_text(case.report_followup_week_1_due_date)} | {edit_link_html}"
-        form.fields[
-            "report_followup_week_4_sent_date"
-        ].help_text = f"{format_due_date_help_text(case.report_followup_week_4_due_date)} | {edit_link_html}"
-        return form
-
-    def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
+    def form_valid(self, form: CaseReportSentOnUpdateForm):
         """
         Recalculate followup dates if report sent date has changed;
         Otherwise set sent dates based on followup date checkboxes.
         """
         self.object: Case = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)
         if "report_sent_date" in form.changed_data:
             self.object = calculate_report_followup_dates(
                 case=self.object, report_sent_date=form.cleaned_data["report_sent_date"]
             )
-        else:
-            for sent_date_name in [
-                "report_followup_week_1_sent_date",
-                "report_followup_week_4_sent_date",
-            ]:
-                setattr(
-                    self.object,
-                    sent_date_name,
-                    get_sent_date(form, case_from_db, sent_date_name),
-                )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
+        """
+        Detect the submit button used and act accordingly.
+        """
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
+            return reverse(
+                "cases:edit-one-week-followup", kwargs={"pk": self.object.id}
+            )
         return super().get_success_url()
 
 
-class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
+class CaseOneWeekFollowupUpdateView(CaseUpdateView):
     """
-    View to update report followup due dates
+    View to update One week followup
     """
 
-    form_class: Type[
-        CaseReportFollowupDueDatesUpdateForm
-    ] = CaseReportFollowupDueDatesUpdateForm
-    template_name: str = "cases/forms/report_followup_due_dates.html"
+    form_class: Type[CaseOneWeekFollowupUpdateForm] = CaseOneWeekFollowupUpdateForm
+    template_name: str = "cases/forms/one_week_followup.html"
 
     def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}
-        return reverse("cases:edit-report-correspondence", kwargs=case_pk)
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-four-week-followup", kwargs={"pk": self.object.id}
+            )
+        return super().get_success_url()
 
 
-class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
+class CaseFourWeekFollowupUpdateView(CaseUpdateView):
     """
-    View to record week twelve correspondence details
+    View to update Four week followup
+    """
+
+    form_class: Type[CaseFourWeekFollowupUpdateForm] = CaseFourWeekFollowupUpdateForm
+    template_name: str = "cases/forms/four_week_followup.html"
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-report-acknowledged", kwargs={"pk": self.object.id}
+            )
+        return super().get_success_url()
+
+
+class CaseReportAcknowledgedUpdateView(CaseUpdateView):
+    """
+    View to update Report acknowledged
     """
 
     form_class: Type[
-        CaseTwelveWeekCorrespondenceUpdateForm
-    ] = CaseTwelveWeekCorrespondenceUpdateForm
-    template_name: str = "cases/forms/twelve_week_correspondence.html"
+        CaseReportAcknowledgedUpdateForm
+    ] = CaseReportAcknowledgedUpdateForm
+    template_name: str = "cases/forms/report_acknowledged.html"
 
-    def get_form(self):
-        """Populate help text with dates"""
-        form = super().get_form()
-        edit_link_html: str = build_edit_link_html(
-            case=form.instance,
-            url_name="cases:edit-twelve-week-correspondence-due-dates",
-        )
-        form.fields[
-            "twelve_week_1_week_chaser_sent_date"
-        ].help_text = f"{format_due_date_help_text(form.instance.twelve_week_1_week_chaser_due_date)} | {edit_link_html}"
-        return form
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-12-week-update-requested", kwargs={"pk": self.object.id}
+            )
+        return super().get_success_url()
 
-    def form_valid(self, form: CaseTwelveWeekCorrespondenceUpdateForm):
+
+class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
+    """
+    View to update 12-week update requested
+    """
+
+    form_class: Type[
+        CaseTwelveWeekUpdateRequestedUpdateForm
+    ] = CaseTwelveWeekUpdateRequestedUpdateForm
+    template_name: str = "cases/forms/12_week_update_requested.html"
+
+    def form_valid(self, form: CaseTwelveWeekUpdateRequestedUpdateForm):
         """
         Recalculate chaser dates if twelve week update requested date has changed;
         Otherwise set sent dates based on chaser date checkboxes.
         """
         self.object: Case = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)
         if "twelve_week_update_requested_date" in form.changed_data:
             self.object = calculate_twelve_week_chaser_dates(
                 case=self.object,
@@ -662,41 +728,59 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
                     "twelve_week_update_requested_date"
                 ],
             )
-        else:
-            for sent_date_name in [
-                "twelve_week_1_week_chaser_sent_date",
-                "twelve_week_4_week_chaser_sent_date",
-            ]:
-                setattr(
-                    self.object,
-                    sent_date_name,
-                    get_sent_date(form, case_from_db, sent_date_name),
-                )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
+        """
+        Detect the submit button used and act accordingly.
+        """
         if "save_continue" in self.request.POST:
-            case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}
-            return reverse("cases:edit-twelve-week-retest", kwargs=case_pk)
+            return reverse(
+                "cases:edit-one-week-followup-final", kwargs={"pk": self.object.id}
+            )
         return super().get_success_url()
 
 
-class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
+class CaseOneWeekFollowupFinalUpdateView(CaseUpdateView):
     """
-    View to update twelve week correspondence followup due dates
+    View to update One week followup for final update
     """
 
     form_class: Type[
-        CaseTwelveWeekCorrespondenceDueDatesUpdateForm
-    ] = CaseTwelveWeekCorrespondenceDueDatesUpdateForm
-    template_name: str = "cases/forms/twelve_week_correspondence_due_dates.html"
+        CaseOneWeekFollowupFinalUpdateForm
+    ] = CaseOneWeekFollowupFinalUpdateForm
+    template_name: str = "cases/forms/one_week_followup_final.html"
 
     def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}
-        return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-12-week-update-request-ack", kwargs={"pk": self.object.id}
+            )
+        return super().get_success_url()
+
+
+class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
+    """
+    View to update 12-week update request acknowledged
+    """
+
+    form_class: Type[
+        CaseTwelveWeekUpdateAcknowledgedUpdateForm
+    ] = CaseTwelveWeekUpdateAcknowledgedUpdateForm
+    template_name: str = "cases/forms/12_week_update_request_ack.html"
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-twelve-week-retest", kwargs={"pk": self.object.id}
+            )
+        return super().get_success_url()
 
 
 class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
@@ -744,7 +828,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         case_pk: Dict[str, int] = {"pk": case.id}
         if case.no_psb_contact == Boolean.YES:
             return reverse("cases:edit-case-close", kwargs=case_pk)
-        return reverse("cases:edit-report-correspondence", kwargs=case_pk)
+        return reverse("cases:edit-find-contact-details", kwargs=case_pk)
 
 
 class CaseTwelveWeekRetestUpdateView(CaseUpdateView):
