@@ -264,7 +264,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Report correspondence page complete",
-        field_name="report_correspondence_complete_date",
+        field_name="report_acknowledged_complete_date",
     ),
     ColumnAndFieldNames(
         column_name="1-week followup due date",
@@ -300,11 +300,11 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Mark the case as having no response to 12 week deadline",
-        field_name="twelve_week_response_state",
+        field_name="organisation_response",
     ),
     ColumnAndFieldNames(
-        column_name="12-week correspondence page complete",
-        field_name="twelve_week_correspondence_complete_date",
+        column_name="12-week update request acknowledged page complete",
+        field_name="twelve_week_update_request_ack_complete_date",
     ),
     ColumnAndFieldNames(
         column_name="12-week chaser 1-week followup due date",

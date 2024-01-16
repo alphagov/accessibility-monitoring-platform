@@ -9,8 +9,8 @@
             {% include 'common/breadcrumb_home.html' %}
             {% include 'cases/helpers/breadcrumb_case.html' %}
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-report-correspondence' case.id %}">
-                    Report correpondence</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-find-contact-details' case.id %}">
+                    Find contact details</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">Public sector body is unresponsive</li>
         </ol>
@@ -40,13 +40,13 @@
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
-                                value="Save and continue"
-                                name="save_continue"
+                                value="Save and return"
+                                name="save"
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'cases:edit-report-correspondence' case.id %}"
+                                href="{% url 'cases:edit-find-contact-details' case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel

@@ -1,4 +1,4 @@
-""""
+"""
 Models - cases
 """
 from datetime import date, datetime, timedelta, timezone as datetime_timezone
@@ -153,12 +153,6 @@ REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
     (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
 ]
 
-TWELVE_WEEK_RESPONSE_DEFAULT = "not-selected"
-TWELVE_WEEK_RESPONSE_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (TWELVE_WEEK_RESPONSE_DEFAULT, "Not selected"),
-]
 
 IS_DISPROPORTIONATE_CLAIMED_DEFAULT: str = "unknown"
 IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
@@ -283,12 +277,30 @@ CASE_VARIANT_CHOICES: List[Tuple[str, str]] = [
     ("reporting", "Platform reports"),
     ("archived", "Archived"),
 ]
+CONTACT_DETAILS_FOUND_DEFAULT: str = "not-checked"
+CONTACT_DETAILS_FOUND_CHOICES: List[Tuple[str, str]] = [
+    ("found", "Contact details found"),
+    ("not-found", "No contact details found"),
+    (CONTACT_DETAILS_FOUND_DEFAULT, "Not checked"),
+]
 
 
 class Case(VersionModel):
     """
     Model for Case
     """
+
+    class TwelveWeekResponse(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        NOT_SELECTED = "not-selected", "Not selected"
+
+    class OrganisationResponse(models.TextChoices):
+        NO_RESPONSE = "no-response", "Organisation did not respond to 12-week update"
+        NOT_APPLICABLE = (
+            "not-applicable",
+            "Not applicable or organisation responded to 12-week update",
+        )
 
     archive = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
@@ -379,47 +391,101 @@ class Case(VersionModel):
     report_final_odt_url = models.TextField(default="", blank=True)
     qa_process_complete_date = models.DateField(null=True, blank=True)
 
+    # Correspondence overview page
+    zendesk_url = models.TextField(default="", blank=True)
+    cores_overview_complete_date = models.DateField(null=True, blank=True)
+
+    # Find contact details page
+    contact_details_found = models.CharField(
+        max_length=20,
+        choices=CONTACT_DETAILS_FOUND_CHOICES,
+        default=CONTACT_DETAILS_FOUND_DEFAULT,
+    )
+    seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
+    correspondence_notes = models.TextField(default="", blank=True)
+    find_contact_details_complete_date = models.DateField(null=True, blank=True)
+
     # Contact details page
     contact_notes = models.TextField(default="", blank=True)
     contact_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Report correspondence page
-    seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
+    # Report sent on page
     report_sent_date = models.DateField(null=True, blank=True)
-    report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
-    report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
-    report_acknowledged_date = models.DateField(null=True, blank=True)
-    zendesk_url = models.TextField(default="", blank=True)
-    correspondence_notes = models.TextField(default="", blank=True)
-    report_correspondence_complete_date = models.DateField(null=True, blank=True)
+    report_sent_to_email = models.CharField(max_length=200, default="", blank=True)
+    report_sent_on_complete_date = models.DateField(null=True, blank=True)
 
-    # Report followup dates page
+    # One week followup page
+    report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_1_due_date = models.DateField(null=True, blank=True)
+    one_week_followup_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    one_week_followup_complete_date = models.DateField(null=True, blank=True)
+
+    # Four week followup page
+    report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_4_due_date = models.DateField(null=True, blank=True)
+    four_week_followup_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    four_week_followup_complete_date = models.DateField(null=True, blank=True)
+
+    # Report acknowledged page
+    report_acknowledged_date = models.DateField(null=True, blank=True)
+    report_acknowledged_by_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    report_acknowledged_complete_date = models.DateField(null=True, blank=True)
+
+    # 12-week update requested page
+    twelve_week_update_requested_date = models.DateField(null=True, blank=True)
     report_followup_week_12_due_date = models.DateField(null=True, blank=True)
+    twelve_week_update_request_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    twelve_week_correspondence_notes = models.TextField(default="", blank=True)
+    twelve_week_update_requested_complete_date = models.DateField(null=True, blank=True)
+
+    # One week followup for final update page
+    twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
+    twelve_week_1_week_chaser_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    one_week_followup_final_complete_date = models.DateField(null=True, blank=True)
+
+    # 12-week update request acknowledged page
+    twelve_week_correspondence_acknowledged_date = models.DateField(
+        null=True, blank=True
+    )
+    twelve_week_correspondence_acknowledged_by_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    twelve_week_response_state = models.CharField(
+        max_length=20,
+        choices=TwelveWeekResponse.choices,
+        default=TwelveWeekResponse.NOT_SELECTED,
+    )
+    organisation_response = models.CharField(
+        max_length=20,
+        choices=OrganisationResponse.choices,
+        default=OrganisationResponse.NOT_APPLICABLE,
+    )
+    twelve_week_update_request_ack_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Report correspondence page
+    report_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Unable to send report or no response from public sector body page
     no_psb_contact = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    no_psb_contact_notes = models.TextField(default="", blank=True)
 
     # 12-week correspondence page
-    twelve_week_update_requested_date = models.DateField(null=True, blank=True)
-    twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
-    twelve_week_correspondence_acknowledged_date = models.DateField(
-        null=True, blank=True
-    )
-    twelve_week_correspondence_notes = models.TextField(default="", blank=True)
-    twelve_week_response_state = models.CharField(
-        max_length=20,
-        choices=TWELVE_WEEK_RESPONSE_CHOICES,
-        default=TWELVE_WEEK_RESPONSE_DEFAULT,
-    )
     twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
-
-    # 12-week correspondence dates
-    # report_followup_week_12_due_date from report followup dates page
-    twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
 
     # Twelve week retest
     twelve_week_retest_complete_date = models.DateField(null=True, blank=True)
@@ -446,13 +512,16 @@ class Case(VersionModel):
     final_statement_complete_date = models.DateField(null=True, blank=True)
 
     # Case close
+    compliance_email_sent_date = models.DateField(null=True, blank=True)
+    compliance_decision_sent_to_email = models.CharField(
+        max_length=200, default="", blank=True
+    )
     recommendation_for_enforcement = models.CharField(
         max_length=20,
         choices=RECOMMENDATION_CHOICES,
         default=RECOMMENDATION_DEFAULT,
     )
     recommendation_notes = models.TextField(default="", blank=True)
-    compliance_email_sent_date = models.DateField(null=True, blank=True)
     case_completed = models.CharField(
         max_length=30, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )
@@ -737,8 +806,12 @@ class Case(VersionModel):
         return "Unknown"
 
     @property
+    def contacts(self) -> bool:
+        return self.contact_set.filter(is_deleted=False)
+
+    @property
     def contact_exists(self) -> bool:
-        return Contact.objects.filter(case_id=self.id).exists()
+        return self.contacts.exists()
 
     @property
     def psb_appeal_deadline(self) -> Optional[date]:
@@ -1026,12 +1099,14 @@ class CaseStatus(models.Model):
             return "in-probation-period"
         elif self.case.twelve_week_update_requested_date and (
             self.case.twelve_week_correspondence_acknowledged_date is None
-            and self.case.twelve_week_response_state == TWELVE_WEEK_RESPONSE_DEFAULT
+            and self.case.organisation_response
+            == Case.OrganisationResponse.NOT_APPLICABLE
         ):
             return "in-12-week-correspondence"
         elif (
             self.case.twelve_week_correspondence_acknowledged_date
-            or self.case.twelve_week_response_state != TWELVE_WEEK_RESPONSE_DEFAULT
+            or self.case.organisation_response
+            != Case.OrganisationResponse.NOT_APPLICABLE
         ) and self.case.is_ready_for_final_decision == BOOLEAN_FALSE:
             return "reviewing-changes"
         elif (

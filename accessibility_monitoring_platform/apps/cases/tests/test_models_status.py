@@ -126,7 +126,7 @@ def test_case_status_report_ready_to_send(admin_client):
     assert case.status.status == "report-ready-to-send"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to contact details"
+        admin_client, case=case, expected_link_label="Go to Report sent on"
     )
 
 
@@ -146,7 +146,7 @@ def test_case_status_in_report_correspondence(admin_client):
     assert case.status.status == "in-report-correspondence"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to report correspondence"
+        admin_client, case=case, expected_link_label="Go to One week followup"
     )
 
 
@@ -187,7 +187,7 @@ def test_case_status_in_probation_period(admin_client):
     assert case.status.status == "in-probation-period"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to 12-week correspondence"
+        admin_client, case=case, expected_link_label="Go to 12-week update requested"
     )
 
 
@@ -209,7 +209,7 @@ def test_case_status_in_12_week_correspondence(admin_client):
     assert case.status.status == "in-12-week-correspondence"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to 12-week correspondence"
+        admin_client, case=case, expected_link_label="Go to 12-week update requested"
     )
 
 

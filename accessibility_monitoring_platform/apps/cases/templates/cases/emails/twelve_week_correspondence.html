@@ -13,8 +13,8 @@
             {% include 'common/breadcrumb_home.html' %}
             {% include 'cases/helpers/breadcrumb_case.html' %}
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-twelve-week-correspondence' case.id %}">
-                    12-week correspondence</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-12-week-update-requested' case.id %}">
+                    12-week update requested</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">Email template</li>
         </ol>
@@ -42,10 +42,10 @@
                     Copy email template
                 </button>
                 <a
-                    href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
+                    href="{% url 'cases:edit-12-week-update-requested' case.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >
-                    Return to 12-week correspondence
+                    Return to 12-week update requested
                 </a>
             </div>
         </div>
@@ -201,10 +201,10 @@
                     Copy email template
                 </button>
                 <a
-                    href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
+                    href="{% url 'cases:edit-12-week-update-requested' case.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >
-                    Return to 12-week correspondence
+                    Return to 12-week update requested
                 </a>
             </div>
         </div>
