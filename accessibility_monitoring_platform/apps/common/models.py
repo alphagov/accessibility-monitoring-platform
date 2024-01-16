@@ -136,7 +136,7 @@ class Event(models.Model):
 
     class Type(models.TextChoices):
         UPDATE = "model_update", "Model update"
-        CREATE = "model_create", "model_create"
+        CREATE = "model_create", "Model create"
 
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.PositiveIntegerField()
