@@ -142,10 +142,10 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Report sent on`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | One week followup`)
+    cy.title().should('eq', `${newOrganisationName} | One week follow-up`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Four week followup`)
+    cy.title().should('eq', `${newOrganisationName} | Four week follow-up`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report acknowledged`)
@@ -154,7 +154,7 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week update requested`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | One week followup for final update`)
+    cy.title().should('eq', `${newOrganisationName} | One week follow-up for final update`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week update request acknowledged`)

@@ -568,37 +568,37 @@ class Case(VersionModel):
             and self.report_followup_week_1_due_date > now
             and self.report_followup_week_1_sent_date is None
         ):
-            return "1-week followup to report coming up"
+            return "1-week follow-up to report coming up"
         elif (
             self.report_followup_week_1_due_date
             and self.report_followup_week_1_due_date <= now
             and self.report_followup_week_1_sent_date is None
         ):
-            return "1-week followup to report due"
+            return "1-week follow-up to report due"
         elif (
             self.report_followup_week_1_sent_date
             and self.report_followup_week_4_due_date
             and self.report_followup_week_4_due_date > now
             and self.report_followup_week_4_sent_date is None
         ):
-            return "4-week followup to report coming up"
+            return "4-week follow-up to report coming up"
         elif (
             self.report_followup_week_1_sent_date
             and self.report_followup_week_4_due_date
             and self.report_followup_week_4_due_date <= now
             and self.report_followup_week_4_sent_date is None
         ):
-            return "4-week followup to report due"
+            return "4-week follow-up to report due"
         elif (
             self.report_followup_week_4_sent_date is not None
             and self.report_followup_week_4_sent_date > seven_days_ago
         ):
-            return "4-week followup to report sent, waiting five days for response"
+            return "4-week follow-up to report sent, waiting five days for response"
         elif (
             self.report_followup_week_4_sent_date is not None
             and self.report_followup_week_4_sent_date <= seven_days_ago
         ):
-            return "4-week followup to report sent, case needs to progress"
+            return "4-week follow-up to report sent, case needs to progress"
         return "Unknown"
 
     @property
@@ -610,23 +610,23 @@ class Case(VersionModel):
             and self.twelve_week_1_week_chaser_due_date > now
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
-            return "1-week followup coming up"
+            return "1-week follow-up coming up"
         elif (
             self.twelve_week_update_requested_date
             and self.twelve_week_update_requested_date < now
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
-            return "1-week followup due"
+            return "1-week follow-up due"
         elif (
             self.twelve_week_1_week_chaser_sent_date is not None
             and self.twelve_week_1_week_chaser_sent_date > seven_days_ago
         ):
-            return "1-week followup sent, waiting five days for response"
+            return "1-week follow-up sent, waiting five days for response"
         elif (
             self.twelve_week_1_week_chaser_sent_date is not None
             and self.twelve_week_1_week_chaser_sent_date <= seven_days_ago
         ):
-            return "1-week followup sent, case needs to progress"
+            return "1-week follow-up sent, case needs to progress"
         return "Unknown"
 
     @property

@@ -416,7 +416,7 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
         label="Initial report follow-up one-week due date"
     )
     one_week_followup_sent_to_email = AMPCharFieldWide(
-        label="One week followup sent to (email address)"
+        label="One week follow-up sent to (email address)"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     one_week_followup_complete_date = AMPDatePageCompleteField()
@@ -445,7 +445,7 @@ class CaseFourWeekFollowupUpdateForm(VersionForm):
         label="Initial report follow-up four-week due date"
     )
     four_week_followup_sent_to_email = AMPCharFieldWide(
-        label="Four week followup sent to (email address)"
+        label="Four week follow-up sent to (email address)"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     four_week_followup_complete_date = AMPDatePageCompleteField()
@@ -529,7 +529,7 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
         label="Final update one-week follow-up due date"
     )
     twelve_week_1_week_chaser_sent_to_email = AMPCharFieldWide(
-        label="One week followup for final update sent to (email address)"
+        label="One week follow-up for final update sent to (email address)"
     )
     twelve_week_correspondence_notes = AMPTextField(
         label="12-week correspondence notes"
