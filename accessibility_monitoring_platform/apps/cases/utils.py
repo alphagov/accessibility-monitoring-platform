@@ -106,7 +106,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
         column_name="Report acknowledged", field_name="report_acknowledged_date"
     ),
     ColumnAndFieldNames(
-        column_name="Followup date - 12-week deadline",
+        column_name="Follow-up date - 12-week deadline",
         field_name="report_followup_week_12_due_date",
     ),
     ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
@@ -236,11 +236,11 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
     ColumnAndFieldNames(
-        column_name="1-week followup sent date",
+        column_name="1-week follow-up sent date",
         field_name="report_followup_week_1_sent_date",
     ),
     ColumnAndFieldNames(
-        column_name="4-week followup sent date",
+        column_name="4-week follow-up sent date",
         field_name="report_followup_week_4_sent_date",
     ),
     ColumnAndFieldNames(
@@ -255,15 +255,15 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         field_name="report_acknowledged_complete_date",
     ),
     ColumnAndFieldNames(
-        column_name="1-week followup due date",
+        column_name="1-week follow-up due date",
         field_name="report_followup_week_1_due_date",
     ),
     ColumnAndFieldNames(
-        column_name="4-week followup due date",
+        column_name="4-week follow-up due date",
         field_name="report_followup_week_4_due_date",
     ),
     ColumnAndFieldNames(
-        column_name="12-week followup due date",
+        column_name="12-week follow-up due date",
         field_name="report_followup_week_12_due_date",
     ),
     ColumnAndFieldNames(
@@ -275,7 +275,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         field_name="twelve_week_update_requested_date",
     ),
     ColumnAndFieldNames(
-        column_name="12-week chaser 1-week followup sent date",
+        column_name="12-week chaser 1-week follow-up sent date",
         field_name="twelve_week_1_week_chaser_sent_date",
     ),
     ColumnAndFieldNames(
@@ -295,7 +295,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         field_name="twelve_week_update_request_ack_complete_date",
     ),
     ColumnAndFieldNames(
-        column_name="12-week chaser 1-week followup due date",
+        column_name="12-week chaser 1-week follow-up due date",
         field_name="twelve_week_1_week_chaser_due_date",
     ),
     ColumnAndFieldNames(

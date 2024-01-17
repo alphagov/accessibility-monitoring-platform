@@ -134,7 +134,7 @@ def test_case_status_in_report_correspondence(admin_client):
     assert case.status.status == "in-report-correspondence"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to One week followup"
+        admin_client, case=case, expected_link_label="Go to One week follow-up"
     )
 
 

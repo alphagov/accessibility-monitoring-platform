@@ -721,13 +721,13 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-find-contact-details", "<li>Find contact details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-report-sent-on", "<li>Report sent on</li>"),
-        ("cases:edit-one-week-followup", "<li>One week followup</li>"),
-        ("cases:edit-four-week-followup", "<li>Four week followup</li>"),
+        ("cases:edit-one-week-followup", "<li>One week follow-up</li>"),
+        ("cases:edit-four-week-followup", "<li>Four week follow-up</li>"),
         ("cases:edit-report-acknowledged", "<li>Report acknowledged</li>"),
         ("cases:edit-12-week-update-requested", "<li>12-week update requested</li>"),
         (
             "cases:edit-one-week-followup-final",
-            "<li>One week followup for final update</li>",
+            "<li>One week follow-up for final update</li>",
         ),
         (
             "cases:edit-12-week-update-request-ack",
@@ -1594,12 +1594,12 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ("report_sent_on_complete_date", "Report sent on", "edit-report-sent-on"),
         (
             "one_week_followup_complete_date",
-            "One week followup",
+            "One week follow-up",
             "edit-one-week-followup",
         ),
         (
             "four_week_followup_complete_date",
-            "Four week followup",
+            "Four week follow-up",
             "edit-four-week-followup",
         ),
         (
@@ -1614,7 +1614,7 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ),
         (
             "one_week_followup_final_complete_date",
-            "One week followup for final update",
+            "One week follow-up for final update",
             "edit-one-week-followup-final",
         ),
         (
@@ -1693,12 +1693,12 @@ def test_section_complete_check_displayed(
         (
             "cases:edit-one-week-followup",
             "one_week_followup_complete_date",
-            "One week followup",
+            "One week follow-up",
         ),
         (
             "cases:edit-four-week-followup",
             "four_week_followup_complete_date",
-            "Four week followup",
+            "Four week follow-up",
         ),
         (
             "cases:edit-report-acknowledged",
@@ -1713,7 +1713,7 @@ def test_section_complete_check_displayed(
         (
             "cases:edit-one-week-followup-final",
             "one_week_followup_final_complete_date",
-            "One week followup for final update",
+            "One week follow-up for final update",
         ),
         (
             "cases:edit-12-week-update-request-ack",
@@ -2802,12 +2802,12 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         (
             "cases:edit-case-details",
             "cases:edit-one-week-followup",
-            "One week followup",
+            "One week follow-up",
         ),
         (
             "cases:edit-case-details",
             "cases:edit-four-week-followup",
-            "Four week followup",
+            "Four week follow-up",
         ),
         (
             "cases:edit-case-details",
@@ -2822,7 +2822,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         (
             "cases:edit-case-details",
             "cases:edit-one-week-followup-final",
-            "One week followup for final update",
+            "One week follow-up for final update",
         ),
         (
             "cases:edit-case-details",

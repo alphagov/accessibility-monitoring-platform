@@ -116,7 +116,7 @@
         {% else %}
             None
         {% endif %}
-        (<a href="{% url 'cases:edit-report-sent-on' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+        (<a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
     </p>
 </div>
 
@@ -136,7 +136,7 @@
 </div>
 
 <div class="govuk-form-group">
-    <label class="govuk-label"><b>One week follow up for final update</b></label>
+    <label class="govuk-label"><b>One week follow-up for final update</b></label>
     <p class="govuk-body-m">
         {% if case.twelve_week_1_week_chaser_sent_date %}
             Sent {{ case.twelve_week_1_week_chaser_sent_date|amp_date }}

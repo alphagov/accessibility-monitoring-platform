@@ -410,13 +410,13 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
     """
 
     report_followup_week_1_sent_date = AMPDateField(
-        label="1-week followup to report date"
+        label="One-week follow-up sent date"
     )
     report_followup_week_1_due_date = AMPDateField(
-        label="Report followup week 1 due date"
+        label="Initial report follow-up one-week due date"
     )
     one_week_followup_sent_to_email = AMPCharFieldWide(
-        label="One week followup sent to (email address)"
+        label="One week follow-up sent to (email address)"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     one_week_followup_complete_date = AMPDatePageCompleteField()
@@ -439,13 +439,13 @@ class CaseFourWeekFollowupUpdateForm(VersionForm):
     """
 
     report_followup_week_4_sent_date = AMPDateField(
-        label="4-week followup to report date"
+        label="Four-week follow-up sent date"
     )
     report_followup_week_4_due_date = AMPDateField(
-        label="Report followup week 4 due date"
+        label="Initial report follow-up four-week due date"
     )
     four_week_followup_sent_to_email = AMPCharFieldWide(
-        label="Four week followup sent to (email address)"
+        label="Four week follow-up sent to (email address)"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     four_week_followup_complete_date = AMPDatePageCompleteField()
@@ -468,7 +468,7 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
     """
 
     report_acknowledged_date = AMPDateField(
-        label="Report acknowledged", help_text="This field affects the case status"
+        label="Report acknowledged date", help_text="This field affects the case status"
     )
     report_acknowledged_by_email = AMPCharFieldWide(
         label="Report acknowledged by (email address)"
@@ -493,7 +493,7 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
     """
 
     twelve_week_update_requested_date = AMPDateField(
-        label="12-week update requested",
+        label="12-week update requested date",
         help_text="This field affects the case status",
     )
     report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
@@ -522,12 +522,14 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
     Form to update One week followup for final update
     """
 
-    twelve_week_1_week_chaser_sent_date = AMPDateField(label="1-week followup")
+    twelve_week_1_week_chaser_sent_date = AMPDateField(
+        label="One week follow-up for final update sent date"
+    )
     twelve_week_1_week_chaser_due_date = AMPDateField(
-        label="Twelve week 1 week chaser due date"
+        label="Final update one-week follow-up due date"
     )
     twelve_week_1_week_chaser_sent_to_email = AMPCharFieldWide(
-        label="One week followup for final update sent to (email address)"
+        label="One week follow-up for final update sent to (email address)"
     )
     twelve_week_correspondence_notes = AMPTextField(
         label="12-week correspondence notes"
