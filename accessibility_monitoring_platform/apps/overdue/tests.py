@@ -203,7 +203,7 @@ def test_in_probation_period_overdue():
 def test_in_12_week_correspondence_1_week_followup_overdue():
     """
     Creates two cases; one that is not overdue and another that needs
-    a one-week follow-up after the 12-week waiting period.
+    a one-week followup after the 12-week waiting period.
     """
     user: User = User.objects.create()
     create_case(user)
