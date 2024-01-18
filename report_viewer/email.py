@@ -1,8 +1,8 @@
 """
 Custom email backend for sending messages using GOV.UK Notify
 """
-from django.core.mail.backends.base import BaseEmailBackend
 from django.conf import settings
+from django.core.mail.backends.base import BaseEmailBackend
 from notifications_python_client import NotificationsAPIClient  # type: ignore
 
 

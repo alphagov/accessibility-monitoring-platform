@@ -1,27 +1,20 @@
 """ Tests for overdue app """
 
+from datetime import date, datetime, timedelta
+
 import pytest
-
-from datetime import datetime, timedelta, date
-
-from pytest_django.asserts import assertContains
-
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.urls import reverse
+from pytest_django.asserts import assertContains
 
-from ..cases.models import (
-    Case,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-    REPORT_APPROVED_STATUS_APPROVED,
-)
+from ..cases.models import Case, CaseCompliance
+from ..cases.utils import create_case_and_compliance
 from ..cases.views import (
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
 )
-from ..cases.utils import create_case_and_compliance
-from ..common.models import BOOLEAN_TRUE
+from ..common.models import Boolean
 from .utils import get_overdue_cases
 
 TODAY = date.today()
@@ -43,12 +36,12 @@ def create_case(user: User) -> Case:
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
         report_draft_url="https://www.report-draft.com",
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         reviewer=user,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_final_pdf_url="https://www.report-pdf.com",
         report_final_odt_url="https://www.report-odt.com",
     )
@@ -149,7 +142,7 @@ def test_in_report_correspondence_week_1_overdue():
 
     assert len(Case.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
-    assert case.in_report_correspondence_progress == "1-week followup to report due"
+    assert case.in_report_correspondence_progress == "1-week follow-up to report due"
 
 
 @pytest.mark.django_db
@@ -166,7 +159,7 @@ def test_in_report_correspondence_week_4_overdue():
 
     assert len(Case.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
-    assert case.in_report_correspondence_progress == "4-week followup to report due"
+    assert case.in_report_correspondence_progress == "4-week follow-up to report due"
 
 
 @pytest.mark.django_db
@@ -186,7 +179,7 @@ def test_in_report_correspondence_psb_overdue_after_four_week_reminder():
     assert len(get_overdue_cases(user)) == 1
     assert (
         case.in_report_correspondence_progress
-        == "4-week followup to report sent, case needs to progress"
+        == "4-week follow-up to report sent, case needs to progress"
     )
 
 
@@ -210,7 +203,7 @@ def test_in_probation_period_overdue():
 def test_in_12_week_correspondence_1_week_followup_overdue():
     """
     Creates two cases; one that is not overdue and another that needs
-    a one-week follow-up after the 12-week waiting period.
+    a one-week followup after the 12-week waiting period.
     """
     user: User = User.objects.create()
     create_case(user)
@@ -227,7 +220,7 @@ def test_in_12_week_correspondence_1_week_followup_overdue():
 
     assert len(Case.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
-    assert case.twelve_week_correspondence_progress == "1-week followup due"
+    assert case.twelve_week_correspondence_progress == "1-week follow-up due"
 
 
 @pytest.mark.django_db
@@ -254,7 +247,7 @@ def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
     assert len(get_overdue_cases(user)) == 1
     assert (
         case.twelve_week_correspondence_progress
-        == "1-week followup sent, case needs to progress"
+        == "1-week follow-up sent, case needs to progress"
     )
 
 

@@ -1,8 +1,8 @@
 """Test utilities used to archive data"""
-import pytest
-
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
+
+import pytest
 
 from ..archive_utils import build_field, build_section
 

@@ -1,13 +1,12 @@
 """
 Test - reminders models
 """
+from datetime import date, datetime, timedelta, timezone
+from unittest.mock import Mock, patch
+
 import pytest
 
-from datetime import date, datetime, timedelta, timezone
-from unittest.mock import patch, Mock
-
 from ...cases.models import Case
-
 from ..models import Reminder
 
 REMINDER_DESCRIPTION = "Reminder"

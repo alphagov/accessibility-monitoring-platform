@@ -1,8 +1,8 @@
 """Models for comment and comment history"""
 from typing import List
 
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
 
 from accessibility_monitoring_platform.apps.cases.models import Case

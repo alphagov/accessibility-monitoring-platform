@@ -8,7 +8,6 @@ from django.urls import reverse
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
 from ..notifications.utils import add_notification
-
 from .models import Comment
 
 

@@ -5,76 +5,47 @@ from typing import Any, List, Tuple
 
 from django import forms
 
+from ..cases.models import Boolean, Case, CaseCompliance
 from ..common.forms import (
-    VersionForm,
     AMPCharFieldWide,
-    AMPTextField,
+    AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
     AMPChoiceField,
     AMPChoiceRadioField,
     AMPDateCheckboxWidget,
-    AMPRadioSelectWidget,
-    AMPChoiceCheckboxField,
-    AMPChoiceCheckboxWidget,
     AMPDateField,
     AMPDatePageCompleteField,
+    AMPRadioSelectWidget,
+    AMPTextField,
     AMPURLField,
-)
-from ..cases.models import (
-    Case,
-    CaseCompliance,
-    BOOLEAN_CHOICES,
-    STATEMENT_COMPLIANCE_STATE_CHOICES,
-    WEBSITE_COMPLIANCE_STATE_CHOICES,
+    VersionForm,
 )
 from .models import (
-    Audit,
-    Page,
-    CheckResult,
-    ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES,
-    SCREEN_SIZE_CHOICES,
-    EXEMPTIONS_STATE_CHOICES,
-    DECLARATION_STATE_CHOICES,
-    SCOPE_STATE_CHOICES,
-    COMPLIANCE_STATE_CHOICES,
-    NON_REGULATION_STATE_CHOICES,
-    DISPROPORTIONATE_BURDEN_STATE_CHOICES,
-    CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
-    PREPARATION_DATE_STATE_CHOICES,
-    METHOD_STATE_CHOICES,
-    REVIEW_STATE_CHOICES,
-    FEEDBACK_STATE_CHOICES,
-    CONTACT_INFORMATION_STATE_CHOICES,
-    ENFORCEMENT_PROCEDURE_STATE_CHOICES,
-    ACCESS_REQUIREMENTS_STATE_CHOICES,
-    REPORT_OPTIONS_NEXT_CHOICES,
-    CHECK_RESULT_STATE_CHOICES,
-    RETEST_CHECK_RESULT_STATE_CHOICES,
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
     ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
-    WcagDefinition,
-    TEST_TYPE_CHOICES,
+    Audit,
+    CheckResult,
+    Page,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
     StatementCheck,
     StatementCheckResult,
-    STATEMENT_CHECK_CHOICES,
-    STATEMENT_CHECK_TYPE_CHOICES,
-    Retest,
-    RetestPage,
-    RetestCheckResult,
-    RETEST_INITIAL_COMPLIANCE_CHOICES,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
     StatementPage,
-    ADDED_STAGE_CHOICES,
+    WcagDefinition,
 )
 
-CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
+CHECK_RESULT_TYPE_FILTER_CHOICES: List[
+    Tuple[str, str]
+] = WcagDefinition.Type.choices + [
     ("", "All"),
 ]
 TEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
     Tuple[str, str]
-] = CHECK_RESULT_STATE_CHOICES + [("", "All")]
+] = CheckResult.Result.choices + [("", "All")]
 RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
     Tuple[str, str]
-] = RETEST_CHECK_RESULT_STATE_CHOICES + [("", "All")]
+] = CheckResult.RetestResult.choices + [("", "All")]
 
 
 class AuditMetadataUpdateForm(VersionForm):
@@ -83,10 +54,10 @@ class AuditMetadataUpdateForm(VersionForm):
     """
 
     date_of_test = AMPDateField(label="Date of test")
-    screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
+    screen_size = AMPChoiceField(label="Screen size", choices=Audit.ScreenSize.choices)
     exemptions_state = AMPChoiceRadioField(
         label="Exemptions?",
-        choices=EXEMPTIONS_STATE_CHOICES,
+        choices=Audit.Exemptions.choices,
     )
     exemptions_notes = AMPTextField(label="Notes")
     audit_metadata_complete_date = AMPDatePageCompleteField()
@@ -137,12 +108,12 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
 
     not_found = AMPChoiceCheckboxField(
         label="Not found?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "Mark page as not found"}),
     )
     is_contact_page = AMPChoiceCheckboxField(
         label="Page is a contact",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=forms.HiddenInput(),
     )
 
@@ -235,7 +206,7 @@ class CheckResultForm(forms.ModelForm):
     )
     check_result_state = AMPChoiceRadioField(
         label="",
-        choices=CHECK_RESULT_STATE_CHOICES,
+        choices=CheckResult.Result.choices,
         widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
     notes = AMPTextField(label="Error details")
@@ -275,7 +246,7 @@ class CaseComplianceWebsiteInitialUpdateForm(VersionForm):
     website_compliance_state_initial = AMPChoiceRadioField(
         label="Initial website compliance decision",
         help_text="This field effects the case status",
-        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
+        choices=CaseCompliance.WebsiteCompliance.choices,
     )
     website_compliance_notes_initial = AMPTextField(
         label="Initial website compliance notes"
@@ -300,37 +271,37 @@ class ArchiveAuditStatement1UpdateForm(VersionForm):
     )
     archive_scope_state = AMPChoiceRadioField(
         label="Scope",
-        choices=SCOPE_STATE_CHOICES,
+        choices=Audit.Scope.choices,
     )
     archive_scope_notes = AMPTextField(label="Notes")
     archive_feedback_state = AMPChoiceRadioField(
         label="Feedback",
-        choices=FEEDBACK_STATE_CHOICES,
+        choices=Audit.Feedback.choices,
     )
     archive_feedback_notes = AMPTextField(label="Notes")
     archive_contact_information_state = AMPChoiceRadioField(
         label="Contact Information",
-        choices=CONTACT_INFORMATION_STATE_CHOICES,
+        choices=Audit.ContactInformation.choices,
     )
     archive_contact_information_notes = AMPTextField(label="Notes")
     archive_enforcement_procedure_state = AMPChoiceRadioField(
         label="Enforcement Procedure",
-        choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
+        choices=Audit.EnforcementProcedure.choices,
     )
     archive_enforcement_procedure_notes = AMPTextField(label="Notes")
     archive_declaration_state = AMPChoiceRadioField(
         label="Declaration",
-        choices=DECLARATION_STATE_CHOICES,
+        choices=Audit.Declaration.choices,
     )
     archive_declaration_notes = AMPTextField(label="Notes")
     archive_compliance_state = AMPChoiceRadioField(
         label="Compliance Status",
-        choices=COMPLIANCE_STATE_CHOICES,
+        choices=Audit.Compliance.choices,
     )
     archive_compliance_notes = AMPTextField(label="Notes")
     archive_non_regulation_state = AMPChoiceRadioField(
         label="Non-accessible Content - non compliance with regulations",
-        choices=NON_REGULATION_STATE_CHOICES,
+        choices=Audit.NonRegulation.choices,
     )
     archive_non_regulation_notes = AMPTextField(label="Notes")
     archive_audit_statement_1_complete_date = AMPDatePageCompleteField()
@@ -372,32 +343,32 @@ class ArchiveAuditStatement2UpdateForm(VersionForm):
     )
     archive_disproportionate_burden_state = AMPChoiceRadioField(
         label="Non-accessible Content - disproportionate burden",
-        choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
+        choices=Audit.DisproportionateBurden.choices,
     )
     archive_disproportionate_burden_notes = AMPTextField(label="Notes")
     archive_content_not_in_scope_state = AMPChoiceRadioField(
         label="Non-accessible Content - the content is not within the scope of the applicable legislation",
-        choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
+        choices=Audit.ContentNotInScope.choices,
     )
     archive_content_not_in_scope_notes = AMPTextField(label="Notes")
     archive_preparation_date_state = AMPChoiceRadioField(
         label="Preparation Date",
-        choices=PREPARATION_DATE_STATE_CHOICES,
+        choices=Audit.PreparationDate.choices,
     )
     archive_preparation_date_notes = AMPTextField(label="Notes")
     archive_review_state = AMPChoiceRadioField(
         label="Review",
-        choices=REVIEW_STATE_CHOICES,
+        choices=Audit.Review.choices,
     )
     archive_review_notes = AMPTextField(label="Notes")
     archive_method_state = AMPChoiceRadioField(
         label="Method",
-        choices=METHOD_STATE_CHOICES,
+        choices=Audit.Method.choices,
     )
     archive_method_notes = AMPTextField(label="Notes")
     archive_access_requirements_state = AMPChoiceRadioField(
         label="Access Requirements",
-        choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
+        choices=Audit.AccessRequirements.choices,
     )
     archive_access_requirements_notes = AMPTextField(label="Notes")
     archive_audit_statement_2_complete_date = AMPDatePageCompleteField()
@@ -445,7 +416,7 @@ class StatementCheckResultForm(forms.ModelForm):
 
     check_result_state = AMPChoiceRadioField(
         label="",
-        choices=STATEMENT_CHECK_CHOICES,
+        choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     report_comment = AMPTextField(label="Comments for report")
@@ -603,7 +574,7 @@ class ArchiveCaseComplianceStatementInitialUpdateForm(VersionForm):
     statement_compliance_state_initial = AMPChoiceRadioField(
         label="Initial accessibility statement compliance decision",
         help_text="This field effects the case status",
-        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
+        choices=CaseCompliance.StatementCompliance.choices,
     )
     statement_compliance_notes_initial = AMPTextField(
         label="Initial accessibility statement compliance notes"
@@ -640,11 +611,11 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
 
     archive_accessibility_statement_state = AMPChoiceRadioField(
         label="Accessibility statement",
-        choices=ARCHIVE_ACCESSIBILITY_STATEMENT_STATE_CHOICES,
+        choices=Audit.AccessibilityStatement.choices,
     )
     archive_accessibility_statement_not_correct_format = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -655,7 +626,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_not_specific_enough = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -667,7 +638,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     archive_accessibility_statement_missing_accessibility_issues = (
         AMPChoiceCheckboxField(
             label="",
-            choices=BOOLEAN_CHOICES,
+            choices=Boolean.choices,
             widget=AMPChoiceCheckboxWidget(
                 attrs={
                     "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -679,7 +650,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_missing_mandatory_wording = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -694,7 +665,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     archive_accessibility_statement_needs_more_re_disproportionate = (
         AMPChoiceCheckboxField(
             label="",
-            choices=BOOLEAN_CHOICES,
+            choices=Boolean.choices,
             widget=AMPChoiceCheckboxWidget(
                 attrs={
                     "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -707,7 +678,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     archive_accessibility_statement_needs_more_re_accessibility = (
         AMPChoiceCheckboxField(
             label="",
-            choices=BOOLEAN_CHOICES,
+            choices=Boolean.choices,
             widget=AMPChoiceCheckboxWidget(
                 attrs={
                     "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -719,7 +690,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_deadline_not_complete = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -733,7 +704,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_deadline_not_sufficient = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -747,7 +718,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_out_of_date = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -758,7 +729,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_eass_link = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -769,7 +740,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_template_update = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -780,7 +751,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_accessible = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -791,7 +762,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_accessibility_statement_prominent = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT[
@@ -805,11 +776,11 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_options_next = AMPChoiceRadioField(
         label="What to do next",
-        choices=REPORT_OPTIONS_NEXT_CHOICES,
+        choices=Audit.ReportOptionsNext.choices,
     )
     archive_report_next_change_statement = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
@@ -820,7 +791,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_next_no_statement = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
@@ -831,7 +802,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_next_statement_not_right = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
@@ -842,7 +813,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_next_statement_matches = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
@@ -853,7 +824,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
     )
     archive_report_next_disproportionate_burden = AMPChoiceCheckboxField(
         label="",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={
                 "label": ARCHIVE_REPORT_NEXT_ISSUE_TEXT[
@@ -990,7 +961,7 @@ class AuditRetestCheckResultForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput())
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        choices=CheckResult.RetestResult.choices,
         widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
     retest_notes = AMPTextField(label="Notes")
@@ -1031,7 +1002,7 @@ class CaseComplianceWebsite12WeekUpdateForm(VersionForm):
 
     website_compliance_state_12_week = AMPChoiceRadioField(
         label="12-week website compliance decision",
-        choices=WEBSITE_COMPLIANCE_STATE_CHOICES,
+        choices=CaseCompliance.WebsiteCompliance.choices,
     )
     website_compliance_notes_12_week = AMPTextField(
         label="12-week website compliance decision notes",
@@ -1053,37 +1024,37 @@ class ArchiveAuditRetestStatement1UpdateForm(VersionForm):
 
     archive_audit_retest_scope_state = AMPChoiceRadioField(
         label="",
-        choices=SCOPE_STATE_CHOICES,
+        choices=Audit.Scope.choices,
     )
     archive_audit_retest_scope_notes = AMPTextField(label="Notes")
     archive_audit_retest_feedback_state = AMPChoiceRadioField(
         label="",
-        choices=FEEDBACK_STATE_CHOICES,
+        choices=Audit.Feedback.choices,
     )
     archive_audit_retest_feedback_notes = AMPTextField(label="Notes")
     archive_audit_retest_contact_information_state = AMPChoiceRadioField(
         label="",
-        choices=CONTACT_INFORMATION_STATE_CHOICES,
+        choices=Audit.ContactInformation.choices,
     )
     archive_audit_retest_contact_information_notes = AMPTextField(label="Notes")
     archive_audit_retest_enforcement_procedure_state = AMPChoiceRadioField(
         label="",
-        choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
+        choices=Audit.EnforcementProcedure.choices,
     )
     archive_audit_retest_enforcement_procedure_notes = AMPTextField(label="Notes")
     archive_audit_retest_declaration_state = AMPChoiceRadioField(
         label="",
-        choices=DECLARATION_STATE_CHOICES,
+        choices=Audit.Declaration.choices,
     )
     archive_audit_retest_declaration_notes = AMPTextField(label="Notes")
     archive_audit_retest_compliance_state = AMPChoiceRadioField(
         label="",
-        choices=COMPLIANCE_STATE_CHOICES,
+        choices=Audit.Compliance.choices,
     )
     archive_audit_retest_compliance_notes = AMPTextField(label="Notes")
     archive_audit_retest_non_regulation_state = AMPChoiceRadioField(
         label="",
-        choices=NON_REGULATION_STATE_CHOICES,
+        choices=Audit.NonRegulation.choices,
     )
     archive_audit_retest_non_regulation_notes = AMPTextField(label="Notes")
     archive_audit_retest_statement_1_complete_date = AMPDatePageCompleteField()
@@ -1117,32 +1088,32 @@ class ArchiveAuditRetestStatement2UpdateForm(VersionForm):
 
     archive_audit_retest_disproportionate_burden_state = AMPChoiceRadioField(
         label="",
-        choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
+        choices=Audit.DisproportionateBurden.choices,
     )
     archive_audit_retest_disproportionate_burden_notes = AMPTextField(label="Notes")
     archive_audit_retest_content_not_in_scope_state = AMPChoiceRadioField(
         label="",
-        choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
+        choices=Audit.ContentNotInScope.choices,
     )
     archive_audit_retest_content_not_in_scope_notes = AMPTextField(label="Notes")
     archive_audit_retest_preparation_date_state = AMPChoiceRadioField(
         label="",
-        choices=PREPARATION_DATE_STATE_CHOICES,
+        choices=Audit.PreparationDate.choices,
     )
     archive_audit_retest_preparation_date_notes = AMPTextField(label="Notes")
     archive_audit_retest_review_state = AMPChoiceRadioField(
         label="",
-        choices=REVIEW_STATE_CHOICES,
+        choices=Audit.Review.choices,
     )
     archive_audit_retest_review_notes = AMPTextField(label="Notes")
     archive_audit_retest_method_state = AMPChoiceRadioField(
         label="",
-        choices=METHOD_STATE_CHOICES,
+        choices=Audit.Method.choices,
     )
     archive_audit_retest_method_notes = AMPTextField(label="Notes")
     archive_audit_retest_access_requirements_state = AMPChoiceRadioField(
         label="",
-        choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
+        choices=Audit.AccessRequirements.choices,
     )
     archive_audit_retest_access_requirements_notes = AMPTextField(label="Notes")
     archive_audit_retest_statement_2_complete_date = AMPDatePageCompleteField()
@@ -1174,7 +1145,7 @@ class AuditRetestStatementCheckResultForm(forms.ModelForm):
 
     retest_state = AMPChoiceRadioField(
         label="",
-        choices=STATEMENT_CHECK_CHOICES,
+        choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     retest_comment = AMPTextField(label="Retest comments")
@@ -1338,7 +1309,7 @@ class ArchiveCaseComplianceStatement12WeekUpdateForm(VersionForm):
 
     statement_compliance_state_12_week = AMPChoiceRadioField(
         label="12-week accessibility statement compliance decision",
-        choices=STATEMENT_COMPLIANCE_STATE_CHOICES,
+        choices=CaseCompliance.StatementCompliance.choices,
     )
     statement_compliance_notes_12_week = AMPTextField(
         label="12-week accessibility statement compliance notes",
@@ -1376,7 +1347,7 @@ class WcagDefinitionCreateUpdateForm(forms.ModelForm):
     name = AMPCharFieldWide(label="Name", required=True)
     date_start = AMPDateField(label="Start date")
     date_end = AMPDateField(label="End Date")
-    type = AMPChoiceRadioField(label="Type", choices=TEST_TYPE_CHOICES)
+    type = AMPChoiceRadioField(label="Type", choices=WcagDefinition.Type.choices)
     url_on_w3 = AMPURLField(label="Link to WCAG", required=True)
     description = AMPCharFieldWide(label="Description")
     report_boilerplate = AMPTextField(label="Report boilerplate")
@@ -1418,7 +1389,7 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
     date_start = AMPDateField(label="Start date")
     date_end = AMPDateField(label="End date")
     type = AMPChoiceField(
-        label="Statement section", choices=STATEMENT_CHECK_TYPE_CHOICES
+        label="Statement section", choices=StatementCheck.Type.choices
     )
     success_criteria = AMPCharFieldWide(label="Success criteria")
     report_text = AMPCharFieldWide(label="Report text")
@@ -1438,8 +1409,8 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["type"].choices = [
             (value, label)
-            for value, label in STATEMENT_CHECK_TYPE_CHOICES
-            if value != STATEMENT_CHECK_TYPE_OVERVIEW
+            for value, label in StatementCheck.Type.choices
+            if value != StatementCheck.Type.OVERVIEW
         ]
 
 
@@ -1490,7 +1461,7 @@ class RetestCheckResultForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput())
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        choices=CheckResult.RetestResult.choices,
         widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
     retest_notes = AMPTextField(label="Notes")
@@ -1530,7 +1501,7 @@ class RetestComplianceUpdateForm(forms.ModelForm):
 
     retest_compliance_state = AMPChoiceRadioField(
         label="Website compliance decision",
-        choices=RETEST_INITIAL_COMPLIANCE_CHOICES,
+        choices=Retest.Compliance.choices,
     )
     compliance_notes = AMPTextField(label="Notes")
     compliance_complete_date = AMPDatePageCompleteField()
@@ -1552,7 +1523,7 @@ class StatementPageUpdateForm(forms.ModelForm):
     url = AMPURLField(label="Link to statement")
     backup_url = AMPURLField(label="Statement backup")
     added_stage = AMPChoiceRadioField(
-        label="Statement added", choices=ADDED_STAGE_CHOICES
+        label="Statement added", choices=StatementPage.AddedStage.choices
     )
 
     class Meta:

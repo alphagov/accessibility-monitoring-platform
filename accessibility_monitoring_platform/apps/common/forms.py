@@ -1,13 +1,13 @@
 """
 Common widgets and form fields
 """
-from datetime import date, datetime
 import logging
+from datetime import date, datetime
 from typing import Any, Dict, Iterable, List, Mapping, Tuple, Union
 from zoneinfo import ZoneInfo
 
-from django.contrib.auth.models import User
 from django import forms
+from django.contrib.auth.models import User
 
 from .models import FooterLink, FrequentlyUsedLink, IssueReport, Platform
 from .utils import convert_date_to_datetime, validate_url
@@ -338,16 +338,6 @@ class AMPDateField(forms.DateField):
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
         kwargs.setdefault("widget", AMPDateWidget())
-        super().__init__(*args, **kwargs)
-
-
-class AMPDateSentField(forms.DateField):
-    """Checkbox input field in the style of GDS design system. Stores today's date when ticked."""
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault("widget", AMPDateCheckboxWidget(attrs={"label": "Sent?"}))
-        kwargs.setdefault("help_text", "None")
         super().__init__(*args, **kwargs)
 
 

@@ -2,40 +2,19 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime, timezone as datetime_timezone, timedelta
-from typing import (
-    Dict,
-    List,
-    Optional,
-    Tuple,
-)
+from datetime import datetime, timedelta
+from datetime import timezone as datetime_timezone
+from typing import Dict, List, Optional, Tuple
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
-from ..audits.models import (
-    Audit,
-    CheckResult,
-    CHECK_RESULT_ERROR,
-    RETEST_CHECK_RESULT_FIXED,
-)
-from ..cases.models import (
-    Case,
-    RECOMMENDATION_NO_ACTION,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    CLOSED_CASE_STATUSES,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-)
-from ..s3_read_write.models import S3Report
+from ..audits.models import Audit, CheckResult
+from ..cases.models import Case, CaseCompliance, CaseStatus
 from ..reports.models import ReportVisitsMetrics
-
-from .chart import (
-    LineChart,
-    Timeseries,
-    TimeseriesDatapoint,
-    build_yearly_metric_chart,
-)
+from ..s3_read_write.models import S3Report
+from .chart import LineChart, Timeseries, TimeseriesDatapoint, build_yearly_metric_chart
 from .utils import get_days_ago_timestamp, get_first_of_this_month_last_year
 
 ARCHIVE_ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: Dict[str, str] = {
@@ -326,18 +305,20 @@ def get_policy_total_metrics() -> List[TotalMetric]:
         ),
         TotalMetric(
             label="Total cases closed",
-            total=Case.objects.filter(status__status__in=CLOSED_CASE_STATUSES).count(),
+            total=Case.objects.filter(
+                status__status__in=CaseStatus.CLOSED_CASE_STATUSES
+            ).count(),
         ),
         TotalMetric(
             label="Total number of accessibility issues found",
             total=CheckResult.objects.filter(
-                check_result_state=CHECK_RESULT_ERROR
+                check_result_state=CheckResult.Result.ERROR
             ).count(),
         ),
         TotalMetric(
             label="Total number of accessibility issues fixed",
             total=CheckResult.objects.filter(
-                retest_state=RETEST_CHECK_RESULT_FIXED
+                retest_state=CheckResult.RetestResult.FIXED
             ).count(),
         ),
     ]
@@ -350,11 +331,11 @@ def get_policy_progress_metrics() -> List[ProgressMetric]:
     retested_audits: QuerySet[Audit] = Audit.objects.filter(retest_date__gte=start_date)
     retested_audits_count: int = retested_audits.count()
     fixed_audits: QuerySet[Audit] = retested_audits.filter(
-        case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        case__recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     fixed_audits_count: int = fixed_audits.count()
     compliant_audits: QuerySet[Audit] = retested_audits.filter(
-        case__compliance__statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
     )
     compliant_audits_count: int = compliant_audits.count()
     check_results_of_last_90_days: QuerySet[CheckResult] = CheckResult.objects.filter(
@@ -428,22 +409,22 @@ def get_policy_yearly_metrics() -> List[YearlyMetric]:
     thirteen_month_website_initial_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__compliance__website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT
+        case__compliance__website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT
     )
     thirteen_month_statement_initial_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__compliance__statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        case__compliance__statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT
     )
     thirteen_month_final_no_action: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        case__recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     thirteen_month_statement_final_compliant: QuerySet[
         Audit
     ] = thirteen_month_retested_audits.filter(
-        case__compliance__statement_compliance_state_12_week=STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
     )
 
     retested_by_month: Timeseries = Timeseries(

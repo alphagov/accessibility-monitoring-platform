@@ -2,8 +2,8 @@
 
 import logging
 
-from report_viewer.apps.viewer.middleware.report_views_middleware import ReportMetrics
 from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
+from report_viewer.apps.viewer.middleware.report_views_middleware import ReportMetrics
 
 logger = logging.getLogger(__name__)
 

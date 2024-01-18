@@ -1,9 +1,9 @@
 """
 Test - reminders utility functions
 """
-import pytest
 from datetime import date
 
+import pytest
 from django.contrib.auth.models import User
 
 from ...cases.models import Case

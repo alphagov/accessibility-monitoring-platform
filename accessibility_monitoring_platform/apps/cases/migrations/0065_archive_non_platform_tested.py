@@ -2,8 +2,8 @@
     Build object from all the data shown on View case page and store as a JSON string
     in Case.archive.
 """
-from datetime import datetime
 import json
+from datetime import datetime
 
 from django.db import migrations
 

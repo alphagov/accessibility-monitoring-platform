@@ -1,38 +1,35 @@
 """
 Test - common widgets and forms
 """
-import pytest
-
-from datetime import date, datetime
 import logging
-from typing import List, Tuple
+from datetime import date, datetime
 from unittest import mock
 from zoneinfo import ZoneInfo
 
+import pytest
+from django import forms
 from pytest_django.asserts import assertHTMLEqual
 
-from django import forms
-
+from ...cases.forms import CaseQAProcessUpdateForm
+from ...cases.models import Case
 from ..forms import (
-    AMPRadioSelectWidget,
-    AMPChoiceCheckboxWidget,
-    AMPDateCheckboxWidget,
-    AMPDateWidget,
     AMPCharField,
     AMPCharFieldWide,
-    AMPTextField,
+    AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
     AMPChoiceField,
     AMPChoiceRadioField,
-    AMPChoiceCheckboxField,
+    AMPDateCheckboxWidget,
     AMPDateField,
-    AMPDateSentField,
+    AMPDatePageCompleteField,
     AMPDateRangeForm,
-    AMPPasswordField,
+    AMPDateWidget,
     AMPNewPasswordField,
+    AMPPasswordField,
+    AMPRadioSelectWidget,
+    AMPTextField,
 )
-from ...cases.models import Case
-from ...cases.forms import CaseQAProcessUpdateForm
-
+from ..models import Boolean
 
 EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
 <div class="govuk-radios">
@@ -84,17 +81,12 @@ EXPECTED_DATE_WIDGET_HTML: str = """
     </span>
 </p>"""
 
-BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-]
-
 
 class MockForm(forms.Form):
     """Form used to test fields and widgets"""
 
-    date_as_checkbox = AMPDateSentField(label="Label1")
-    choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=BOOLEAN_CHOICES)
+    date_as_checkbox = AMPDatePageCompleteField(label="Label1")
+    choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=Boolean.choices)
 
 
 def test_amp_widget_html_uses_govuk_classes():
@@ -341,7 +333,7 @@ def test_amp_choice_checkbox_field_and_widget_return_no_when_not_checked():
 
 
 def test_amp_date_sent_field_and_widget_return_today_when_checked():
-    """Tests AMPDateSentField and AMPDateCheckboxWidget return today when checked"""
+    """Tests AMPDatePageCompleteField and AMPDateCheckboxWidget return today when checked"""
     form: MockForm = MockForm(
         data={
             "date_as_checkbox": "on",
@@ -352,7 +344,7 @@ def test_amp_date_sent_field_and_widget_return_today_when_checked():
 
 
 def test_amp_date_sent_field_and_widget_return_none_when_not_checked():
-    """Tests AMPDateSentField and AMPDateCheckboxWidget return none when not checked"""
+    """Tests AMPDatePageCompleteField and AMPDateCheckboxWidget return none when not checked"""
     form: MockForm = MockForm(data={})
     assert form.is_valid()
     assert form.cleaned_data["date_as_checkbox"] is None

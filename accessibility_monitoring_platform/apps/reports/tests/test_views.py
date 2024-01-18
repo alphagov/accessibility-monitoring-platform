@@ -1,46 +1,29 @@
 """
 Tests for reports views
 """
-import pytest
 from typing import Dict
 
-from moto import mock_s3
-
-from pytest_django.asserts import assertContains, assertNotContains
-
+import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
+from moto import mock_s3
+from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
     Audit,
     CheckResult,
     Page,
-    WcagDefinition,
     StatementCheckResult,
-    PAGE_TYPE_STATEMENT,
-    TEST_TYPE_AXE,
-    CHECK_RESULT_ERROR,
+    WcagDefinition,
 )
 from ...audits.utils import report_data_updated
-from ...cases.models import (
-    Case,
-    CaseEvent,
-    REPORT_APPROVED_STATUS_APPROVED,
-    CASE_EVENT_CREATE_REPORT,
-    STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-    WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-)
+from ...cases.models import Case, CaseCompliance, CaseEvent
 from ...cases.utils import create_case_and_compliance
-from ...common.models import BOOLEAN_TRUE
+from ...common.models import Boolean
 from ...s3_read_write.models import S3Report
-
-from ..models import (
-    Report,
-    ReportVisitsMetrics,
-    REPORT_VERSION_DEFAULT,
-)
+from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 HOME_PAGE_URL: str = "https://example.com"
@@ -147,7 +130,7 @@ def test_create_report_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CASE_EVENT_CREATE_REPORT
+    assert case_event.event_type == CaseEvent.EventType.CREATE_REPORT
     assert case_event.message == "Created report"
 
 
@@ -217,16 +200,16 @@ def test_old_published_report_includes_errors(admin_client):
     audit.archive_accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
     audit.save()
     page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=HOME_PAGE_URL
+        audit=audit, page_type=Page.Type.STATEMENT, url=HOME_PAGE_URL
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     CheckResult.objects.create(
         audit=audit,
         page=page,
         wcag_definition=wcag_definition,
-        check_result_state=CHECK_RESULT_ERROR,
+        check_result_state=CheckResult.Result.ERROR,
         notes=CHECK_RESULTS_NOTES,
     )
 
@@ -362,9 +345,9 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        report_review_status=Boolean.YES,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -389,9 +372,9 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        statement_compliance_state_initial=STATEMENT_COMPLIANCE_STATE_COMPLIANT,
-        website_compliance_state_initial=WEBSITE_COMPLIANCE_STATE_COMPLIANT,
-        report_review_status=BOOLEAN_TRUE,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        report_review_status=Boolean.YES,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -412,8 +395,8 @@ def test_report_next_step_for_case_report_approved(admin_client):
     Test report next step for case report approved status is 'yes'
     """
     case: Case = Case.objects.create(
-        report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -436,8 +419,8 @@ def test_report_next_step_for_published_report_out_of_date(admin_client):
     Test report next step for published report is out of date
     """
     case: Case = Case.objects.create(
-        report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     audit: Audit = Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -463,8 +446,8 @@ def test_report_next_step_for_published_report(admin_client):
     Test report next step for published report
     """
     case: Case = Case.objects.create(
-        report_review_status=BOOLEAN_TRUE,
-        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -486,7 +469,7 @@ def test_report_next_step_default(admin_client):
     Test report next stepdefault
     """
     case: Case = Case.objects.create(
-        report_review_status=BOOLEAN_TRUE,
+        report_review_status=Boolean.YES,
         report_approved_status="in-progress",
     )
     Audit.objects.create(case=case)
@@ -586,7 +569,7 @@ def test_approved_report_confirm_publish_does_not_ask_for_approval(admin_client)
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     case: Case = report.case
-    case.report_approved_status = REPORT_APPROVED_STATUS_APPROVED
+    case.report_approved_status = Case.ReportApprovedStatus.APPROVED
     case.save()
 
     response: HttpResponse = admin_client.get(
@@ -661,12 +644,12 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.home_page_url = "https://www.website.com"
     case.organisation_name = "org name"
     case.auditor = user
-    case.report_review_status = BOOLEAN_TRUE
+    case.report_review_status = Boolean.YES
     case.compliance.statement_compliance_state_initial = (
-        STATEMENT_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.StatementCompliance.COMPLIANT
     )
     case.compliance.website_compliance_state_initial = (
-        WEBSITE_COMPLIANCE_STATE_COMPLIANT
+        CaseCompliance.WebsiteCompliance.COMPLIANT
     )
     case.compliance.save()
     case.save()

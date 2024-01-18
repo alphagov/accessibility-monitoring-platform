@@ -7,41 +7,35 @@ from django.db.models.query import Q, QuerySet
 from django.forms import Form
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from ...cases.models import (
-    Case,
-    CaseEvent,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_START_RETEST,
-)
+from ...cases.models import Case, CaseEvent
 from ...common.utils import (
-    record_model_update_event,
-    record_model_create_event,
     amp_format_date,
-    get_url_parameters_for_pagination,
     get_id_from_button_name,
+    get_url_parameters_for_pagination,
+    record_model_create_event,
+    record_model_update_event,
 )
-
 from ..forms import (
-    StatementCheckResultFormset,
-    WcagDefinitionSearchForm,
-    WcagDefinitionCreateUpdateForm,
-    StatementCheckSearchForm,
     StatementCheckCreateUpdateForm,
+    StatementCheckResultFormset,
+    StatementCheckSearchForm,
     StatementPageFormset,
     StatementPageFormsetOneExtra,
+    WcagDefinitionCreateUpdateForm,
+    WcagDefinitionSearchForm,
 )
 from ..models import (
     Audit,
     Page,
-    WcagDefinition,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagDefinition,
 )
 from ..utils import (
     create_mandatory_pages_for_new_audit,
@@ -73,7 +67,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     CaseEvent.objects.create(
         case=case,
         done_by=request.user,
-        event_type=CASE_EVENT_CREATE_AUDIT,
+        event_type=CaseEvent.EventType.CREATE_AUDIT,
         message="Started test",
     )
     return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))
@@ -133,7 +127,7 @@ class AuditUpdateView(UpdateView):
                 CaseEvent.objects.create(
                     case=self.object.case,
                     done_by=self.request.user,
-                    event_type=CASE_EVENT_START_RETEST,
+                    event_type=CaseEvent.EventType.START_RETEST,
                     message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",
                 )
             self.object.save()

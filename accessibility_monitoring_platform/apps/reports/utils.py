@@ -7,10 +7,8 @@ from typing import Dict, List, Optional, Set, Union
 from django.template import Context, Template
 from django.utils.text import slugify
 
+from ..audits.models import Audit, CheckResult, Page, WcagDefinition
 from ..cases.models import Case
-
-from ..audits.models import Audit, Page, WcagDefinition, CheckResult
-
 from .models import Report
 
 WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% endif %}{% if wcag_definition.description and wcag_definition.type != 'manual' %}{{ wcag_definition.description|safe }}.{% endif %}

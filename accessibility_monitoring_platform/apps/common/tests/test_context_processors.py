@@ -1,18 +1,17 @@
 """
 Test context processor of common app
 """
-import pytest
-from pytest_django.asserts import assertContains
-
 from typing import Dict, List, Union
 
+import pytest
 from django.contrib.auth.models import User
 from django.http.response import HttpResponse
+from pytest_django.asserts import assertContains
 
-from ..context_processors import platform_page
-from ..forms import AMPTopMenuForm
 from ...common.models import FooterLink, FrequentlyUsedLink, Platform
 from ...common.utils import get_platform_settings
+from ..context_processors import platform_page
+from ..forms import AMPTopMenuForm
 
 ORGANISATION_NAME: str = "Organisation name two"
 USER_FIRST_NAME: str = "Userone"

@@ -2,43 +2,31 @@
 Utility functions for cases app
 """
 
-from collections import namedtuple
 import copy
 import csv
+from collections import namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from django import forms
 from django.contrib.auth.models import User
-from django.db.models import Q, QuerySet, Case as DjangoCase, When
-
+from django.db.models import Case as DjangoCase
+from django.db.models import Q, QuerySet, When
 from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.urls import reverse
 
-from ..audits.models import Audit, Retest, RETEST_INITIAL_COMPLIANCE_DEFAULT
+from ..audits.models import Audit, Retest
 from ..common.utils import build_filters
-
-from .forms import CaseSearchForm, DEFAULT_SORT, NO_FILTER
-
+from .forms import CaseSearchForm, Complaint, Sort
 from .models import (
+    COMPLIANCE_FIELDS,
     Case,
     CaseEvent,
+    CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
-    STATUS_UNASSIGNED,
-    STATUS_READY_TO_QA,
-    CASE_EVENT_TYPE_CREATE,
-    CASE_EVENT_AUDITOR,
-    CASE_EVENT_CREATE_AUDIT,
-    CASE_EVENT_READY_FOR_QA,
-    CASE_EVENT_QA_AUDITOR,
-    CASE_EVENT_APPROVE_REPORT,
-    CASE_EVENT_READY_FOR_FINAL_DECISION,
-    CASE_EVENT_CASE_COMPLETED,
-    COMPLIANCE_FIELDS,
-    EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
@@ -118,7 +106,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
         column_name="Report acknowledged", field_name="report_acknowledged_date"
     ),
     ColumnAndFieldNames(
-        column_name="Followup date - 12-week deadline",
+        column_name="Follow-up date - 12-week deadline",
         field_name="report_followup_week_12_due_date",
     ),
     ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
@@ -248,11 +236,11 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
     ColumnAndFieldNames(
-        column_name="1-week followup sent date",
+        column_name="1-week follow-up sent date",
         field_name="report_followup_week_1_sent_date",
     ),
     ColumnAndFieldNames(
-        column_name="4-week followup sent date",
+        column_name="4-week follow-up sent date",
         field_name="report_followup_week_4_sent_date",
     ),
     ColumnAndFieldNames(
@@ -264,18 +252,18 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Report correspondence page complete",
-        field_name="report_correspondence_complete_date",
+        field_name="report_acknowledged_complete_date",
     ),
     ColumnAndFieldNames(
-        column_name="1-week followup due date",
+        column_name="1-week follow-up due date",
         field_name="report_followup_week_1_due_date",
     ),
     ColumnAndFieldNames(
-        column_name="4-week followup due date",
+        column_name="4-week follow-up due date",
         field_name="report_followup_week_4_due_date",
     ),
     ColumnAndFieldNames(
-        column_name="12-week followup due date",
+        column_name="12-week follow-up due date",
         field_name="report_followup_week_12_due_date",
     ),
     ColumnAndFieldNames(
@@ -287,7 +275,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         field_name="twelve_week_update_requested_date",
     ),
     ColumnAndFieldNames(
-        column_name="12-week chaser 1-week followup sent date",
+        column_name="12-week chaser 1-week follow-up sent date",
         field_name="twelve_week_1_week_chaser_sent_date",
     ),
     ColumnAndFieldNames(
@@ -300,14 +288,14 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Mark the case as having no response to 12 week deadline",
-        field_name="twelve_week_response_state",
+        field_name="organisation_response",
     ),
     ColumnAndFieldNames(
-        column_name="12-week correspondence page complete",
-        field_name="twelve_week_correspondence_complete_date",
+        column_name="12-week update request acknowledged page complete",
+        field_name="twelve_week_update_request_ack_complete_date",
     ),
     ColumnAndFieldNames(
-        column_name="12-week chaser 1-week followup due date",
+        column_name="12-week chaser 1-week follow-up due date",
         field_name="twelve_week_1_week_chaser_due_date",
     ),
     ColumnAndFieldNames(
@@ -486,7 +474,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
     filters: Dict = {}
     search_query = Q()
-    sort_by: str = DEFAULT_SORT
+    sort_by: str = Sort.NEWEST
 
     if hasattr(form, "cleaned_data"):
         field_and_filter_names: List[Tuple[str, str]] = copy.copy(
@@ -500,7 +488,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             cleaned_data=form.cleaned_data,
             field_and_filter_names=field_and_filter_names,
         )
-        sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
+        sort_by: str = form.cleaned_data.get("sort_by", Sort.NEWEST)
         if form.cleaned_data.get("case_search"):
             search: str = form.cleaned_data["case_search"]
             if (
@@ -520,12 +508,12 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
                     | Q(subcategory__name__icontains=search)
                 )
         for filter_name in ["is_complaint", "enforcement_body"]:
-            filter_value: str = form.cleaned_data.get(filter_name, NO_FILTER)
-            if filter_value != NO_FILTER:
+            filter_value: str = form.cleaned_data.get(filter_name, Complaint.ALL)
+            if filter_value != Complaint.ALL:
                 filters[filter_name] = filter_value
 
-    if str(filters.get("status", "")) == STATUS_READY_TO_QA:
-        filters["qa_status"] = STATUS_READY_TO_QA
+    if str(filters.get("status", "")) == CaseStatus.Status.READY_TO_QA:
+        filters["qa_status"] = CaseStatus.Status.READY_TO_QA
         del filters["status"]
 
     if "status" in filters:
@@ -543,7 +531,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             Case.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
-                    When(status__status=STATUS_UNASSIGNED, then=0), default=1
+                    When(status__status=CaseStatus.Status.UNASSIGNED, then=0), default=1
                 )
             )
             .order_by("position_unassigned_first", "-id")
@@ -711,7 +699,7 @@ def record_case_event(
     """Create a case event based on the changes between the old and new cases"""
     if old_case is None:
         CaseEvent.objects.create(
-            case=new_case, done_by=user, event_type=CASE_EVENT_TYPE_CREATE
+            case=new_case, done_by=user, event_type=CaseEvent.EventType.CREATE
         )
         return
     if old_case.auditor != new_case.auditor:
@@ -724,14 +712,14 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_AUDITOR,
+            event_type=CaseEvent.EventType.AUDITOR,
             message=f"Auditor changed from {old_user_name} to {new_user_name}",
         )
     if old_case.audit is None and new_case.audit is not None:
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_CREATE_AUDIT,
+            event_type=CaseEvent.EventType.CREATE_AUDIT,
             message="Start of test",
         )
     if old_case.report_review_status != new_case.report_review_status:
@@ -740,7 +728,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_READY_FOR_QA,
+            event_type=CaseEvent.EventType.READY_FOR_QA,
             message=f"Report ready to be reviewed changed from '{old_status}' to '{new_status}'",
         )
     if old_case.reviewer != new_case.reviewer:
@@ -757,7 +745,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_QA_AUDITOR,
+            event_type=CaseEvent.EventType.QA_AUDITOR,
             message=f"QA auditor changed from {old_user_name} to {new_user_name}",
         )
     if old_case.report_approved_status != new_case.report_approved_status:
@@ -766,7 +754,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_APPROVE_REPORT,
+            event_type=CaseEvent.EventType.APPROVE_REPORT,
             message=f"Report approved changed from '{old_status}' to '{new_status}'",
         )
     if old_case.is_ready_for_final_decision != new_case.is_ready_for_final_decision:
@@ -775,7 +763,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_READY_FOR_FINAL_DECISION,
+            event_type=CaseEvent.EventType.READY_FOR_FINAL_DECISION,
             message=f"Case ready for final decision changed from '{old_status}' to '{new_status}'",
         )
     if old_case.case_completed != new_case.case_completed:
@@ -784,7 +772,7 @@ def record_case_event(
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
-            event_type=CASE_EVENT_CASE_COMPLETED,
+            event_type=CaseEvent.EventType.CASE_COMPLETED,
             message=f"Case completed changed from '{old_status}' to '{new_status}'",
         )
 
@@ -823,12 +811,12 @@ def get_post_case_alerts_count(user: User) -> int:
     if user.id:
         return (
             EqualityBodyCorrespondence.objects.filter(
-                case__auditor=user, status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED
+                case__auditor=user, status=EqualityBodyCorrespondence.Status.UNRESOLVED
             ).count()
             + Retest.objects.filter(
                 is_deleted=False,
                 case__auditor=user,
-                retest_compliance_state=RETEST_INITIAL_COMPLIANCE_DEFAULT,
+                retest_compliance_state=Retest.Compliance.NOT_KNOWN,
                 id_within_case__gt=0,
             ).count()
         )
@@ -846,7 +834,7 @@ def get_post_case_alerts(user: User) -> List[PostCaseAlert]:
         EqualityBodyCorrespondence
     ] = EqualityBodyCorrespondence.objects.filter(
         case__auditor=user,
-        status=EQUALITY_BODY_CORRESPONDENCE_UNRESOLVED,
+        status=EqualityBodyCorrespondence.Status.UNRESOLVED,
     )
 
     for equality_body_correspondence in equality_body_correspondences:
@@ -863,7 +851,7 @@ def get_post_case_alerts(user: User) -> List[PostCaseAlert]:
     retests: QuerySet[Retest] = Retest.objects.filter(
         is_deleted=False,
         case__auditor=user,
-        retest_compliance_state=RETEST_INITIAL_COMPLIANCE_DEFAULT,
+        retest_compliance_state=Retest.Compliance.NOT_KNOWN,
         id_within_case__gt=0,
     )
 

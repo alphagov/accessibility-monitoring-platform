@@ -1,22 +1,19 @@
 """
 Tests for users views
 """
-import pytest
-
 from typing import Dict, List, TypedDict, Union
 
+import pytest
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.http import HttpResponse
-
+from django.urls import reverse
 from django_otp.plugins.otp_email.models import EmailDevice
 from pytest_django.asserts import assertContains
 
 from ...notifications.models import NotificationSetting
 from ..models import AllowedEmail
-
 from .test_forms import UserCreateFormData
 
 FIRST_NAME: str = "Joe"

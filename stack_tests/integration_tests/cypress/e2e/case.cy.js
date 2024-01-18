@@ -22,10 +22,10 @@ describe('View case', () => {
   it('can search within case', () => {
     cy.get('[name="search_in_case"]').clear().type('report sent')
     cy.get('#search-in-case').click()
-    cy.contains('Found 3 results for report sent')
+    cy.contains('Found 1 result for report sent')
     cy.contains('Report sent')
     cy.get('#clear-search-in-case').click()
-    cy.contains('Found 3 results for report sent').should('not.exist')
+    cy.contains('Found 1 result for report sent').should('not.exist')
   })
 
   it('can edit case details', () => {
@@ -70,32 +70,6 @@ describe('View case', () => {
     cy.contains('Case').click()
     cy.contains(contactName)
     cy.contains(contactEmail)
-  })
-
-  it('can edit report correspondence', () => {
-    cy.get('#edit-report-correspondence').click()
-    cy.contains('Populate with today\'s date').click()
-    cy.get('[name="report_followup_week_1_sent_date"]').click()
-    cy.get('[name="report_followup_week_4_sent_date"]').click()
-    cy.get('[name="zendesk_url"]').clear().type(zendeskUrl)
-    cy.get('[name="correspondence_notes"]').clear().type(correspondenceNote)
-    cy.get('[name="report_correspondence_complete_date"]').click()
-    cy.contains('Save').click()
-    cy.contains('Case').click()
-    cy.contains(zendeskUrl)
-    cy.contains(correspondenceNote)
-  })
-
-  it('can edit 12-week correspondence', () => {
-    cy.get('#edit-twelve-week-correspondence').click()
-    cy.contains('Populate with today\'s date').click()
-    cy.get('[name="twelve_week_1_week_chaser_sent_date"]').click()
-    cy.get('[name="twelve_week_correspondence_notes"]').clear().type(twelveWeekCorrespondenceNote)
-    cy.get('[name="twelve_week_response_state"]').check('no')
-    cy.get('[name="twelve_week_correspondence_complete_date"]').click()
-    cy.contains('Save').click()
-    cy.contains('Case').click()
-    cy.contains(twelveWeekCorrespondenceNote)
   })
 
   it('can edit 12-week retest', () => {

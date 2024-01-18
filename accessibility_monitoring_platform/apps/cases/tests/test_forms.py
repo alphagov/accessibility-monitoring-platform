@@ -1,13 +1,13 @@
 """
 Test forms of cases app
 """
-from unittest.mock import MagicMock, patch
-import pytest
 from typing import List, Tuple
+from unittest.mock import MagicMock, patch
 
+import pytest
 from django.contrib.auth.models import Group, User
 
-from ..forms import CaseSearchForm, CaseDetailUpdateForm
+from ..forms import CaseDetailUpdateForm, CaseSearchForm
 from ..models import Case
 
 USER_CHOICES: List[Tuple[str, str]] = [("", "-----"), ("none", "Unassigned")]

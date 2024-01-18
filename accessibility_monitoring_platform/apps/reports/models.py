@@ -12,8 +12,8 @@ from django.utils import timezone
 
 from ..cases.models import Case
 from ..common.models import VersionModel
-from ..s3_read_write.models import S3Report
 from ..common.utils import amp_format_datetime
+from ..s3_read_write.models import S3Report
 
 REPORT_VERSION_DEFAULT: str = "v1_2_0__20230523"
 WRAPPER_TEXT_FIELDS: List[str] = [
@@ -113,6 +113,17 @@ class Report(VersionModel):
     def latest_s3_report(self) -> Optional[S3Report]:
         """The most recently published report"""
         return self.case.s3report_set.filter(latest_published=True).last()
+
+    @property
+    def visits_metrics(self) -> Dict[str, int]:
+        return {
+            "number_of_visits": self.case.reportvisitsmetrics_set.all().count(),
+            "number_of_unique_visitors": self.case.reportvisitsmetrics_set.values_list(
+                "fingerprint_hash"
+            )
+            .distinct()
+            .count(),
+        }
 
 
 class ReportVisitsMetrics(models.Model):

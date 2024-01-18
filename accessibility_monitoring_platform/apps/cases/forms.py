@@ -5,71 +5,51 @@ import re
 from typing import Any, List, Tuple
 
 import requests
-
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.db.models import QuerySet
 from django.utils.safestring import mark_safe
 
 from ..common.forms import (
-    VersionForm,
-    AMPChoiceCheckboxWidget,
-    AMPModelChoiceField,
     AMPAuditorModelChoiceField,
     AMPCharFieldWide,
-    AMPTextField,
+    AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
     AMPChoiceField,
     AMPChoiceRadioField,
-    AMPChoiceCheckboxField,
     AMPDateField,
-    AMPDateSentField,
     AMPDatePageCompleteField,
     AMPDateRangeForm,
+    AMPModelChoiceField,
+    AMPTextField,
     AMPURLField,
+    VersionForm,
 )
 from ..common.models import Sector, SubCategory
+from .models import Boolean, Case, CaseStatus, Contact, EqualityBodyCorrespondence
 
-from .models import (
-    Case,
-    Contact,
-    EqualityBodyCorrespondence,
-    STATUS_CHOICES,
-    CASE_COMPLETED_CHOICES,
-    BOOLEAN_CHOICES,
-    PREFERRED_CHOICES,
-    TWELVE_WEEK_RESPONSE_CHOICES,
-    ENFORCEMENT_BODY_CHOICES,
-    ENFORCEMENT_BODY_CLOSED_CHOICES,
-    PSB_LOCATION_CHOICES,
-    REPORT_APPROVED_STATUS_CHOICES,
-    RECOMMENDATION_CHOICES,
-    EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
-    EQUALITY_BODY_CORRESPONDENCE_QUESTION,
-)
+ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + Case.EnforcementBody.choices
+STATUS_CHOICES: List[Tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices
 
-status_choices = STATUS_CHOICES
-status_choices.insert(0, ("", "All"))
 
-DEFAULT_SORT: str = ""
-SORT_CHOICES: List[Tuple[str, str]] = [
-    (DEFAULT_SORT, "Newest, Unassigned first"),
-    ("id", "Oldest"),
-    ("organisation_name", "Alphabetic"),
-]
-NO_FILTER: str = ""
-IS_COMPLAINT_CHOICES: List[Tuple[str, str]] = [
-    (NO_FILTER, "All"),
-    ("no", "No complaints"),
-    ("yes", "Only complaints"),
-]
-ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + ENFORCEMENT_BODY_CHOICES
+class Sort(models.TextChoices):
+    NEWEST = "", "Newest, Unassigned first"
+    OLDEST = "id", "Oldest"
+    NAME = "organisation_name", "Alphabetic"
 
-DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("audit_case__date_of_test", "Date test started"),
-    ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
-    ("case_updated_date", "Case updated"),
-]
+
+class Complaint(models.TextChoices):
+    ALL = "", "All"
+    NO = "no", "No complaints"
+    YES = "yes", "Only complaints"
+
+
+class DateType(models.TextChoices):
+    START = "audit_case__date_of_test", "Date test started"
+    SENT = "sent_to_enforcement_body_sent_date", "Date sent to EB"
+    UPDATED = "case_updated_date", "Case updated"
 
 
 def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[str, str]]:
@@ -88,18 +68,16 @@ class CaseSearchForm(AMPDateRangeForm):
     Form for searching for cases
     """
 
-    sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
+    sort_by = AMPChoiceField(label="Sort by", choices=Sort.choices)
     case_search = AMPCharFieldWide(label="Search")
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
-    status = AMPChoiceField(label="Status", choices=status_choices)
-    date_type = AMPChoiceField(label="Date filter", choices=DATE_TYPE_CHOICES)
+    status = AMPChoiceField(label="Status", choices=STATUS_CHOICES)
+    date_type = AMPChoiceField(label="Date filter", choices=DateType.choices)
     date_start = AMPDateField(label="Date start")
     date_end = AMPDateField(label="Date end")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
-    is_complaint = AMPChoiceField(
-        label="Filter complaints", choices=IS_COMPLAINT_CHOICES
-    )
+    is_complaint = AMPChoiceField(label="Filter complaints", choices=Complaint.choices)
     enforcement_body = AMPChoiceField(
         label="Enforcement body", choices=ENFORCEMENT_BODY_FILTER_CHOICES
     )
@@ -128,11 +106,11 @@ class CaseCreateForm(forms.ModelForm):
     home_page_url = AMPURLField(label="Full URL")
     enforcement_body = AMPChoiceRadioField(
         label="Which equalities body will check the case?",
-        choices=ENFORCEMENT_BODY_CHOICES,
+        choices=Case.EnforcementBody.choices,
     )
     psb_location = AMPChoiceRadioField(
         label="Public sector body location",
-        choices=PSB_LOCATION_CHOICES,
+        choices=Case.PsbLocation.choices,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     previous_case_url = AMPURLField(
@@ -141,7 +119,7 @@ class CaseCreateForm(forms.ModelForm):
     )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Did this case originate from a complaint?"}
         ),
@@ -290,7 +268,7 @@ class CaseQAProcessUpdateForm(VersionForm):
 
     report_review_status = AMPChoiceRadioField(
         label="Report ready for QA process?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         help_text="This field affects the case status",
     )
     reviewer = AMPAuditorModelChoiceField(
@@ -299,7 +277,7 @@ class CaseQAProcessUpdateForm(VersionForm):
     )
     report_approved_status = AMPChoiceRadioField(
         label="Report approved?",
-        choices=REPORT_APPROVED_STATUS_CHOICES,
+        choices=Case.ReportApprovedStatus.choices,
         help_text="This field affects the case status",
     )
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
@@ -319,6 +297,48 @@ class CaseQAProcessUpdateForm(VersionForm):
         ]
 
 
+class CaseCorrespondenceOverviewUpdateForm(VersionForm):
+    """
+    Form to update Correspondence overview
+    """
+
+    zendesk_url = AMPURLField(label="Zendesk ticket URL")
+    cores_overview_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "zendesk_url",
+            "cores_overview_complete_date",
+        ]
+
+
+class CaseFindContactDetailsUpdateForm(VersionForm):
+    """
+    Form to update Find contact details
+    """
+
+    contact_details_found = AMPChoiceRadioField(
+        label="Contact details found?", choices=Case.ContactDetailsFound.choices
+    )
+    seven_day_no_contact_email_sent_date = AMPDateField(
+        label="Seven day 'no contact details' email sent",
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
+    find_contact_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "contact_details_found",
+            "seven_day_no_contact_email_sent_date",
+            "correspondence_notes",
+            "find_contact_details_complete_date",
+        ]
+
+
 class CaseContactUpdateForm(forms.ModelForm):
     """
     Form for updating a contact
@@ -328,7 +348,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     job_title = AMPCharFieldWide(label="Job title")
     email = AMPCharFieldWide(label="Email")
     preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=PREFERRED_CHOICES
+        label="Preferred contact?", choices=Contact.Preferred.choices
     )
 
     class Meta:
@@ -361,61 +381,203 @@ class CaseContactsUpdateForm(VersionForm):
         ]
 
 
-class CaseReportCorrespondenceUpdateForm(VersionForm):
+class CaseReportSentOnUpdateForm(VersionForm):
     """
-    Form for updating report correspondence details
+    Form to update Report sent on
     """
 
-    seven_day_no_contact_email_sent_date = AMPDateField(
-        label="Seven day 'no contact details' email sent",
-    )
     report_sent_date = AMPDateField(
         label="Report sent on", help_text="This field affects the case status"
     )
-    report_followup_week_1_sent_date = AMPDateSentField(
-        label="1-week followup to report date"
-    )
-    report_followup_week_4_sent_date = AMPDateSentField(
-        label="4-week followup to report date"
-    )
-    report_acknowledged_date = AMPDateField(
-        label="Report acknowledged", help_text="This field affects the case status"
-    )
-    zendesk_url = AMPURLField(label="Zendesk ticket URL")
+    report_sent_to_email = AMPCharFieldWide(label="Report sent to (email address)")
     correspondence_notes = AMPTextField(label="Correspondence notes")
-    report_correspondence_complete_date = AMPDatePageCompleteField()
+    report_sent_on_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "seven_day_no_contact_email_sent_date",
             "report_sent_date",
-            "report_followup_week_1_sent_date",
-            "report_followup_week_4_sent_date",
-            "report_acknowledged_date",
-            "zendesk_url",
+            "report_sent_to_email",
             "correspondence_notes",
-            "report_correspondence_complete_date",
+            "report_sent_on_complete_date",
         ]
 
 
-class CaseReportFollowupDueDatesUpdateForm(VersionForm):
+class CaseOneWeekFollowupUpdateForm(VersionForm):
     """
-    Form for updating report followup due dates
+    Form to update One week followup
     """
 
-    report_followup_week_1_due_date = AMPDateField(label="1-week followup to report")
-    report_followup_week_4_due_date = AMPDateField(label="4-week followup to report")
-    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
+    report_followup_week_1_sent_date = AMPDateField(
+        label="One-week follow-up sent date"
+    )
+    report_followup_week_1_due_date = AMPDateField(
+        label="Initial report follow-up one-week due date"
+    )
+    one_week_followup_sent_to_email = AMPCharFieldWide(
+        label="One week follow-up sent to (email address)"
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
+    one_week_followup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "report_followup_week_1_sent_date",
             "report_followup_week_1_due_date",
+            "one_week_followup_sent_to_email",
+            "correspondence_notes",
+            "one_week_followup_complete_date",
+        ]
+
+
+class CaseFourWeekFollowupUpdateForm(VersionForm):
+    """
+    Form to update Four week followup
+    """
+
+    report_followup_week_4_sent_date = AMPDateField(
+        label="Four-week follow-up sent date"
+    )
+    report_followup_week_4_due_date = AMPDateField(
+        label="Initial report follow-up four-week due date"
+    )
+    four_week_followup_sent_to_email = AMPCharFieldWide(
+        label="Four week follow-up sent to (email address)"
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
+    four_week_followup_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "report_followup_week_4_sent_date",
             "report_followup_week_4_due_date",
+            "four_week_followup_sent_to_email",
+            "correspondence_notes",
+            "four_week_followup_complete_date",
+        ]
+
+
+class CaseReportAcknowledgedUpdateForm(VersionForm):
+    """
+    Form to update Report acknowledged
+    """
+
+    report_acknowledged_date = AMPDateField(
+        label="Report acknowledged date", help_text="This field affects the case status"
+    )
+    report_acknowledged_by_email = AMPCharFieldWide(
+        label="Report acknowledged by (email address)"
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
+    report_acknowledged_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "report_acknowledged_date",
+            "report_acknowledged_by_email",
+            "correspondence_notes",
+            "report_acknowledged_complete_date",
+        ]
+
+
+class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
+    """
+    Form to update 12-week update requested
+    """
+
+    twelve_week_update_requested_date = AMPDateField(
+        label="12-week update requested date",
+        help_text="This field affects the case status",
+    )
+    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
+    twelve_week_update_request_sent_to_email = AMPCharFieldWide(
+        label="12-week request sent to (email address)"
+    )
+    twelve_week_correspondence_notes = AMPTextField(
+        label="12-week correspondence notes"
+    )
+    twelve_week_update_requested_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "twelve_week_update_requested_date",
             "report_followup_week_12_due_date",
+            "twelve_week_update_request_sent_to_email",
+            "twelve_week_correspondence_notes",
+            "twelve_week_update_requested_complete_date",
+        ]
+
+
+class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
+    """
+    Form to update One week followup for final update
+    """
+
+    twelve_week_1_week_chaser_sent_date = AMPDateField(
+        label="One week follow-up for final update sent date"
+    )
+    twelve_week_1_week_chaser_due_date = AMPDateField(
+        label="Final update one-week follow-up due date"
+    )
+    twelve_week_1_week_chaser_sent_to_email = AMPCharFieldWide(
+        label="One week follow-up for final update sent to (email address)"
+    )
+    twelve_week_correspondence_notes = AMPTextField(
+        label="12-week correspondence notes"
+    )
+    one_week_followup_final_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "twelve_week_1_week_chaser_sent_date",
+            "twelve_week_1_week_chaser_due_date",
+            "twelve_week_1_week_chaser_sent_to_email",
+            "twelve_week_correspondence_notes",
+            "one_week_followup_final_complete_date",
+        ]
+
+
+class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
+    """
+    Form to update 12-week update request acknowledged
+    """
+
+    twelve_week_correspondence_acknowledged_date = AMPDateField(
+        label="12-week update received", help_text="This field affects the case status"
+    )
+    twelve_week_correspondence_acknowledged_by_email = AMPCharFieldWide(
+        label="12-week update request acknowledged by (email address)"
+    )
+    organisation_response = AMPChoiceRadioField(
+        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’",
+        help_text="This field affects the case status",
+        choices=Case.OrganisationResponse.choices,
+    )
+    twelve_week_correspondence_notes = AMPTextField(
+        label="12-week correspondence notes"
+    )
+    twelve_week_update_request_ack_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "twelve_week_correspondence_acknowledged_date",
+            "twelve_week_correspondence_acknowledged_by_email",
+            "organisation_response",
+            "twelve_week_correspondence_notes",
+            "twelve_week_update_request_ack_complete_date",
         ]
 
 
@@ -426,11 +588,14 @@ class CaseNoPSBContactUpdateForm(VersionForm):
 
     no_psb_contact = AMPChoiceCheckboxField(
         label="Do you want to mark the PSB as unresponsive to this case?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         help_text="This field affects the case status",
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the PSB as unresponsive to this case"}
         ),
+    )
+    no_psb_contact_notes = AMPTextField(
+        label="Public sector body is unresponsive notes"
     )
 
     class Meta:
@@ -438,59 +603,7 @@ class CaseNoPSBContactUpdateForm(VersionForm):
         fields = [
             "version",
             "no_psb_contact",
-        ]
-
-
-class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
-    """
-    Form for updating week twelve correspondence details
-    """
-
-    twelve_week_update_requested_date = AMPDateField(
-        label="12-week update requested",
-        help_text="Enter todays date if PSB sends an update before the deadline<br>This field affects the case status",
-    )
-    twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1-week followup")
-    twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12-week update received", help_text="This field affects the case status"
-    )
-    twelve_week_correspondence_notes = AMPTextField(
-        label="12-week correspondence notes"
-    )
-    twelve_week_response_state = AMPChoiceRadioField(
-        label="Mark the case as having no response to 12 week deadline",
-        help_text="This field affects the case status",
-        choices=TWELVE_WEEK_RESPONSE_CHOICES,
-    )
-    twelve_week_correspondence_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "twelve_week_update_requested_date",
-            "twelve_week_1_week_chaser_sent_date",
-            "twelve_week_correspondence_acknowledged_date",
-            "twelve_week_correspondence_notes",
-            "twelve_week_response_state",
-            "twelve_week_correspondence_complete_date",
-        ]
-
-
-class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(VersionForm):
-    """
-    Form for updating twelve week correspondence followup due dates
-    """
-
-    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
-    twelve_week_1_week_chaser_due_date = AMPDateField(label="1-week followup")
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "report_followup_week_12_due_date",
-            "twelve_week_1_week_chaser_due_date",
+            "no_psb_contact_notes",
         ]
 
 
@@ -521,7 +634,7 @@ class CaseReviewChangesUpdateForm(VersionForm):
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
         help_text="This field affects the case status",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
     )
     review_changes_complete_date = AMPDatePageCompleteField()
 
@@ -544,9 +657,12 @@ class CaseCloseUpdateForm(VersionForm):
     compliance_email_sent_date = AMPDateField(
         label="Date when compliance decision email sent to public sector body"
     )
+    compliance_decision_sent_to_email = AMPCharFieldWide(
+        label="Compliance decision sent to (email address)"
+    )
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Recommendation for equality body",
-        choices=RECOMMENDATION_CHOICES,
+        choices=Case.RecommendationForEnforcement.choices,
     )
     recommendation_notes = AMPTextField(
         label="Enforcement recommendation notes including exemptions",
@@ -557,7 +673,7 @@ class CaseCloseUpdateForm(VersionForm):
     )
     case_completed = AMPChoiceRadioField(
         label="Case completed",
-        choices=CASE_COMPLETED_CHOICES,
+        choices=Case.CaseCompleted.choices,
         help_text="This field affects the case status",
     )
     case_close_complete_date = AMPDatePageCompleteField()
@@ -567,6 +683,7 @@ class CaseCloseUpdateForm(VersionForm):
         fields = [
             "version",
             "compliance_email_sent_date",
+            "compliance_decision_sent_to_email",
             "recommendation_for_enforcement",
             "recommendation_notes",
             "case_completed",
@@ -640,14 +757,14 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     )
     enforcement_body_closed_case = AMPChoiceRadioField(
         label="Equality body has officially closed the case?",
-        choices=ENFORCEMENT_BODY_CLOSED_CHOICES,
+        choices=Case.EnforcementBodyClosedCase.choices,
     )
     enforcement_body_finished_date = AMPDateField(
         label="Date equality body completed the case",
     )
     is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent?",
-        choices=BOOLEAN_CHOICES,
+        choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Feedback survey sent to this organisation?"}
         ),
@@ -684,8 +801,8 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
 
     type = AMPChoiceRadioField(
         label="Type",
-        choices=EQUALITY_BODY_CORRESPONDENCE_TYPE_CHOICES,
-        initial=EQUALITY_BODY_CORRESPONDENCE_QUESTION,
+        choices=EqualityBodyCorrespondence.Type.choices,
+        initial=EqualityBodyCorrespondence.Type.QUESTION,
     )
     message = AMPTextField(label="Message/content")
     notes = AMPTextField(label="Notes")

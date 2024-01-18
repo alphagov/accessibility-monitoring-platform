@@ -2,7 +2,6 @@
 Test top-level urls
 """
 import pytest
-
 from django.http.response import HttpResponse
 from pytest_django.asserts import assertContains
 

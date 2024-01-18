@@ -1,7 +1,6 @@
 """Reset integration test data in the database"""
-from typing import List, Type
-
 import logging
+from typing import List, Type
 
 from django.contrib.auth.models import Group, User
 from django.core.management import call_command
@@ -10,40 +9,35 @@ from django.db import connection, models
 from django.db.utils import OperationalError
 
 from accessibility_monitoring_platform.apps.common.models import (
-    UserCacheUniqueHash,
     FrequentlyUsedLink,
+    UserCacheUniqueHash,
 )
 
 from ....audits.models import (
     Audit,
     CheckResult,
     Page,
-    WcagDefinition,
-    StatementCheckResult,
     Retest,
-    RetestPage,
     RetestCheckResult,
+    RetestPage,
+    StatementCheckResult,
     StatementPage,
+    WcagDefinition,
 )
 from ....cases.models import (
     Case,
     CaseCompliance,
-    CaseStatus,
     CaseEvent,
+    CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
 )
 from ....comments.models import Comment
 from ....notifications.models import Notification, NotificationSetting
 from ....reminders.models import Reminder
-from ....reports.models import (
-    Report,
-    ReportVisitsMetrics,
-    ReportWrapper,
-)
+from ....reports.models import Report, ReportVisitsMetrics, ReportWrapper
 from ....s3_read_write.models import S3Report
 from ....users.models import AllowedEmail
-
 from ...models import ChangeToPlatform, Event, IssueReport, Platform, Sector
 
 

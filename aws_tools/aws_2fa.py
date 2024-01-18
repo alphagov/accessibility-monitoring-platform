@@ -1,7 +1,8 @@
 import argparse
-import boto3
 import configparser
 import os
+
+import boto3
 
 
 def main(user: str, mfa_token: str):

@@ -1,28 +1,28 @@
 """
 Test - common utility functions
 """
-import pytest
+from datetime import datetime, timezone
 from unittest.mock import patch
 
-from datetime import datetime, timezone
+import pytest
 
 from ..chart import (
-    Timeseries,
-    TimeseriesDatapoint,
+    Y_AXIS_PERCENT,
     ChartAxisTick,
+    LegendEntry,
+    LineChart,
     Point,
     Polyline,
-    LineChart,
-    LegendEntry,
     PolylineStroke,
-    calculate_x_position_from_datapoint_datetime,
-    calculate_timeseries_point,
+    Timeseries,
+    TimeseriesDatapoint,
     build_13_month_x_axis,
     build_y_axis,
-    calculate_y_tick_size,
     build_yearly_metric_chart,
+    calculate_timeseries_point,
+    calculate_x_position_from_datapoint_datetime,
+    calculate_y_tick_size,
     get_polyline_stroke,
-    Y_AXIS_PERCENT,
 )
 
 

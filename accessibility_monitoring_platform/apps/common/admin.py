@@ -7,15 +7,15 @@ from django.contrib import admin
 from django.http import HttpResponse
 
 from .models import (
+    ChangeToPlatform,
     Event,
+    FooterLink,
+    FrequentlyUsedLink,
     IssueReport,
     Platform,
-    ChangeToPlatform,
     Sector,
-    UserCacheUniqueHash,
-    FrequentlyUsedLink,
-    FooterLink,
     SubCategory,
+    UserCacheUniqueHash,
 )
 
 

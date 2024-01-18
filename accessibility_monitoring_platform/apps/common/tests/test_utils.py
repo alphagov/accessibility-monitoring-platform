@@ -1,13 +1,13 @@
 """
 Test - common utility functions
 """
-import pytest
-
-from datetime import date, datetime, timedelta, timezone as datetime_timezone
+from datetime import date, datetime, timedelta
+from datetime import timezone as datetime_timezone
 from typing import Any, Dict, List, Tuple
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
+import pytest
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -15,42 +15,34 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.http.request import QueryDict
 from django.utils import timezone
-
 from django_otp.plugins.otp_email.models import EmailDevice
 
-
-from ..models import (
-    Event,
-    Platform,
-    EVENT_TYPE_MODEL_CREATE,
-    EVENT_TYPE_MODEL_UPDATE,
-    ChangeToPlatform,
-)
+from ..models import ChangeToPlatform, Event, Platform
 from ..utils import (
-    build_filters,
-    extract_domain_from_url,
-    sanitise_domain,
     amp_format_date,
     amp_format_datetime,
     amp_format_time,
-    get_id_from_button_name,
-    convert_date_to_datetime,
-    validate_url,
-    get_platform_settings,
-    get_recent_changes_to_platform,
-    record_model_create_event,
-    record_model_update_event,
-    list_to_dictionary_of_lists,
-    undo_double_escapes,
-    checks_if_2fa_is_enabled,
+    build_filters,
     check_dict_for_truthy_values,
+    checks_if_2fa_is_enabled,
+    convert_date_to_datetime,
+    extract_domain_from_url,
     format_outstanding_issues,
     format_statement_check_overview,
-    get_dict_without_page_items,
-    get_url_parameters_for_pagination,
     get_days_ago_timestamp,
+    get_dict_without_page_items,
     get_first_of_this_month_last_year,
+    get_id_from_button_name,
     get_one_year_ago,
+    get_platform_settings,
+    get_recent_changes_to_platform,
+    get_url_parameters_for_pagination,
+    list_to_dictionary_of_lists,
+    record_model_create_event,
+    record_model_update_event,
+    sanitise_domain,
+    undo_double_escapes,
+    validate_url,
 )
 
 
@@ -240,7 +232,7 @@ def test_record_model_create_event():
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
 
-    assert event.type == EVENT_TYPE_MODEL_CREATE
+    assert event.type == Event.Type.CREATE
 
 
 @pytest.mark.django_db
@@ -253,7 +245,7 @@ def test_record_model_update_event():
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
 
-    assert event.type == EVENT_TYPE_MODEL_UPDATE
+    assert event.type == Event.Type.UPDATE
 
 
 def test_list_to_dictionary_of_lists():

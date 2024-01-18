@@ -1,20 +1,17 @@
 """
 Testing s3 read write
 """
-import pytest
-
 from datetime import datetime
 
 import boto3
-from moto import mock_s3
-
+import pytest
 from django.contrib.auth.models import User
+from moto import mock_s3
 
 from ...settings.base import DATABASES, S3_MOCK_ENDPOINT
 from ..cases.models import Case
-
-from .utils import S3ReadWriteReport, NO_REPORT_HTML
 from .models import S3Report
+from .utils import NO_REPORT_HTML, S3ReadWriteReport
 
 
 @pytest.mark.django_db

@@ -1,16 +1,15 @@
 """ Tests - test for notifications template tags """
-import pytest
-
 from typing import Optional
 
+import pytest
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 
 from ..models import Notification, NotificationSetting
 from ..utils import (
-    read_notification,
     add_notification,
     get_number_of_unread_notifications,
+    read_notification,
 )
 
 

@@ -2,11 +2,10 @@
 Project URL Configuration
 """
 import requests
-
-from django.contrib import admin
-from django.urls import path
 from django.conf.urls import include
+from django.contrib import admin
 from django.http import HttpResponse, StreamingHttpResponse
+from django.urls import path
 from django.views.generic import RedirectView
 from two_factor.urls import urlpatterns as tf_urls
 

@@ -2,8 +2,8 @@
 Production deployment settings
 """
 import os
-from .base import *
 
+from .base import *
 
 AUTH_PASSWORD_VALIDATORS = [
     {

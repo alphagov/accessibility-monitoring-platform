@@ -2,15 +2,15 @@
 URLS for notifications
 """
 
-from django.urls import path
 from django.contrib.auth.decorators import login_required
+from django.urls import path
+
 from .views import (
     ReminderCreateView,
     ReminderListView,
     ReminderUpdateView,
     delete_reminder,
 )
-
 
 app_name = "reminders"
 urlpatterns = [

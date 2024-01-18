@@ -3,7 +3,6 @@ Test urls of cases app
 """
 
 import pytest
-
 from django.http.response import HttpResponse
 from django.urls import reverse
 
@@ -19,9 +18,7 @@ from django.urls import reverse
         ("post", reverse("cases:edit-contact-details", kwargs={"pk": 1})),
         ("post", reverse("cases:edit-test-results", kwargs={"pk": 1})),
         ("post", reverse("cases:edit-report-details", kwargs={"pk": 1})),
-        ("post", reverse("cases:edit-report-correspondence", kwargs={"pk": 1})),
         ("post", reverse("cases:edit-no-psb-response", kwargs={"pk": 1})),
-        ("post", reverse("cases:edit-report-followup-due-dates", kwargs={"pk": 1})),
         ("get", reverse("cases:outstanding-issues", kwargs={"pk": 1})),
     ],
 )

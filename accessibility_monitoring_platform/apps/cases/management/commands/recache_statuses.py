@@ -1,6 +1,7 @@
 """Command to recalculate and recache statuses"""
-from ...models import Case
 from django.core.management.base import BaseCommand
+
+from ...models import Case
 
 
 class Command(BaseCommand):

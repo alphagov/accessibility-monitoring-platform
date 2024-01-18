@@ -5,16 +5,8 @@ from typing import List
 
 from django import forms
 
-from .models import (
-    Report,
-    ReportWrapper,
-)
-
-from ..common.forms import (
-    VersionForm,
-    AMPCharFieldWide,
-    AMPTextField,
-)
+from ..common.forms import AMPCharFieldWide, AMPTextField, VersionForm
+from .models import Report, ReportWrapper
 
 
 class ReportNotesUpdateForm(VersionForm):

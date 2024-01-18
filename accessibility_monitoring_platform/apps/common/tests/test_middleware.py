@@ -1,13 +1,13 @@
 """ test_middleware - Tests for common middleware"""
-import pytest
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
+import pytest
 from django.conf import settings
 from django.core.exceptions import DisallowedHost
 from django.urls import reverse
 
-from ..models import UserCacheUniqueHash
 from ..middleware.healthcheck_middleware import HealthcheckMiddleware
+from ..models import UserCacheUniqueHash
 
 
 @pytest.mark.django_db

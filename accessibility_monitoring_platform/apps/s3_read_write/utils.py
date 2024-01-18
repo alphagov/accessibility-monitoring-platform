@@ -1,17 +1,14 @@
 """
 S3 readwrite utilities
 """
-import uuid
 import re
+import uuid
 
 import boto3
-
 from django.contrib.auth.models import User
 
-from ...settings.base import DEBUG, DATABASES, UNDER_TEST, S3_MOCK_ENDPOINT
-
+from ...settings.base import DATABASES, DEBUG, S3_MOCK_ENDPOINT, UNDER_TEST
 from ..cases.models import Case
-
 from .models import S3Report
 
 NO_REPORT_HTML: str = "<p>Does not exist</p>"
@@ -44,9 +41,7 @@ class S3ReadWriteReport:
             if DATABASES["aws-s3-bucket"]["bucket_name"] not in bucket_names:
                 self.s3_client.create_bucket(
                     Bucket=DATABASES["aws-s3-bucket"]["bucket_name"],
-                    CreateBucketConfiguration={
-                        "LocationConstraint": "us-west-1"
-                    },
+                    CreateBucketConfiguration={"LocationConstraint": "us-west-1"},
                 )
 
         self.bucket: str = DATABASES["aws-s3-bucket"]["bucket_name"]

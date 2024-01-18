@@ -1,9 +1,11 @@
 """Utilities for overdue"""
-from datetime import datetime, timedelta, date
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
+from datetime import date, datetime, timedelta
+
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.db.models.query import QuerySet
+from django.shortcuts import get_object_or_404
+
 from ..cases.models import Case
 
 

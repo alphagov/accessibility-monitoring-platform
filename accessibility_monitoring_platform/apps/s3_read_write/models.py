@@ -1,6 +1,7 @@
 """Models for s3 read write app"""
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+
 from ..cases.models import Case
 from ..common.utils import amp_format_datetime
 

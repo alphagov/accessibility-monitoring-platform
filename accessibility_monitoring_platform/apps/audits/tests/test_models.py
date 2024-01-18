@@ -1,53 +1,28 @@
 """
 Tests for cases models
 """
-import pytest
-
 from datetime import date, datetime, timezone
 from typing import List, Optional
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
+import pytest
+from django.db.models.query import QuerySet
 from pytest_django.asserts import assertQuerysetEqual
 
-from django.db.models.query import QuerySet
-
 from ...cases.models import Case
-from ...common.models import BOOLEAN_TRUE
+from ...common.models import Boolean
 from ..models import (
-    Audit,
-    Page,
-    CheckResult,
-    PAGE_TYPE_EXTRA,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_STATEMENT,
-    PAGE_TYPE_PDF,
-    PAGE_TYPE_FORM,
-    TEST_TYPE_AXE,
-    TEST_TYPE_MANUAL,
-    TEST_TYPE_PDF,
-    WcagDefinition,
-    CHECK_RESULT_ERROR,
-    CHECK_RESULT_NO_ERROR,
-    RETEST_CHECK_RESULT_DEFAULT,
     ArchiveAccessibilityStatementCheck,
-    RETEST_CHECK_RESULT_FIXED,
-    RETEST_CHECK_RESULT_NOT_FIXED,
-    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
-    SCOPE_STATE_VALID,
+    Audit,
+    CheckResult,
+    Page,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
     StatementCheck,
     StatementCheckResult,
-    STATEMENT_CHECK_TYPE_OVERVIEW,
-    STATEMENT_CHECK_NOT_TESTED,
-    STATEMENT_CHECK_NO,
-    STATEMENT_CHECK_YES,
-    Retest,
-    RETEST_INITIAL_COMPLIANCE_COMPLIANT,
-    RetestPage,
-    RetestCheckResult,
     StatementPage,
-    ADDED_STAGE_INITIAL,
-    ADDED_STAGE_TWELVE_WEEK,
+    WcagDefinition,
 )
 
 PAGE_NAME = "Page name"
@@ -68,27 +43,27 @@ ERROR_NOTES: str = "Error notes"
 def create_retest_and_retest_check_results(case: Optional[Case] = None):
     """Create retest and associated data"""
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     if case is None:
         case: Case = Case.objects.create()
         audit: Audit = Audit.objects.create(case=case)
-        home_page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
+        home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
         statement_page: Page = Page.objects.create(
-            audit=audit, page_type=PAGE_TYPE_STATEMENT
+            audit=audit, page_type=Page.Type.STATEMENT
         )
         home_page_check_result: CheckResult = CheckResult.objects.create(
             audit=audit,
             page=home_page,
-            check_result_state=CHECK_RESULT_ERROR,
-            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+            check_result_state=CheckResult.Result.ERROR,
+            retest_state=CheckResult.RetestResult.NOT_FIXED,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
         )
         statement_page_check_result: CheckResult = CheckResult.objects.create(
             audit=audit,
             page=statement_page,
-            check_result_state=CHECK_RESULT_NO_ERROR,
+            check_result_state=CheckResult.Result.NO_ERROR,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
         )
@@ -106,13 +81,13 @@ def create_retest_and_retest_check_results(case: Optional[Case] = None):
             retest=retest,
             retest_page=home_retest_page,
             check_result=home_page_check_result,
-            retest_state=RETEST_CHECK_RESULT_NOT_FIXED,
+            retest_state=CheckResult.RetestResult.NOT_FIXED,
         )
         RetestCheckResult.objects.create(
             retest=retest,
             retest_page=statement_retest_page,
             check_result=statement_page_check_result,
-            retest_state=RETEST_CHECK_RESULT_FIXED,
+            retest_state=CheckResult.RetestResult.FIXED,
         )
         return retest
     else:
@@ -139,15 +114,15 @@ def create_audit_and_pages() -> Audit:
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     for page_type in [
-        PAGE_TYPE_EXTRA,
-        PAGE_TYPE_HOME,
-        PAGE_TYPE_CONTACT,
-        PAGE_TYPE_STATEMENT,
-        PAGE_TYPE_PDF,
-        PAGE_TYPE_FORM,
+        Page.Type.EXTRA,
+        Page.Type.HOME,
+        Page.Type.CONTACT,
+        Page.Type.STATEMENT,
+        Page.Type.PDF,
+        Page.Type.FORM,
     ]:
         Page.objects.create(audit=audit, page_type=page_type)
-    Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA, is_deleted=True)
+    Page.objects.create(audit=audit, page_type=Page.Type.EXTRA, is_deleted=True)
     return audit
 
 
@@ -157,7 +132,9 @@ def create_audit_and_statement_check_results() -> Audit:
     audit: Audit = Audit.objects.create(case=case)
     for count, statement_check in enumerate(StatementCheck.objects.all()):
         check_result_state: str = (
-            STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
+            StatementCheckResult.Result.NO
+            if count % 2 == 0
+            else StatementCheckResult.Result.YES
         )
         StatementCheckResult.objects.create(
             audit=audit,
@@ -175,13 +152,15 @@ def create_audit_and_statement_check_results() -> Audit:
 def create_audit_and_check_results() -> Audit:
     """Create an audit with failed check results"""
     html_wcag_definitions: List[WcagDefinition] = [
-        WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME),
         WcagDefinition.objects.create(
-            type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME
+            type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+        ),
+        WcagDefinition.objects.create(
+            type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
         ),
     ]
     pdf_wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME
+        type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
     )
 
     audit: Audit = create_audit_and_pages()
@@ -189,11 +168,11 @@ def create_audit_and_check_results() -> Audit:
 
     for page in pages:
         check_result_state: str = (
-            CHECK_RESULT_ERROR
-            if page.page_type in [PAGE_TYPE_HOME, PAGE_TYPE_PDF]
-            else CHECK_RESULT_NO_ERROR
+            CheckResult.Result.ERROR
+            if page.page_type in [Page.Type.HOME, Page.Type.PDF]
+            else CheckResult.Result.NO_ERROR
         )
-        if page.page_type == PAGE_TYPE_PDF:
+        if page.page_type == Page.Type.PDF:
             CheckResult.objects.create(
                 audit=audit,
                 page=page,
@@ -230,8 +209,8 @@ def test_audit_every_pages_returns_pdf_and_statement_last():
     """Statement page returned last. PDF page second-last"""
     audit: Audit = create_audit_and_pages()
 
-    assert audit.every_page.last().page_type == PAGE_TYPE_STATEMENT
-    assert list(audit.every_page)[-2].page_type == PAGE_TYPE_PDF
+    assert audit.every_page.last().page_type == Page.Type.STATEMENT
+    assert list(audit.every_page)[-2].page_type == Page.Type.PDF
 
 
 @pytest.mark.django_db
@@ -263,11 +242,11 @@ def test_audit_testable_pages_returns_expected_page():
     """
     audit: Audit = create_audit_and_pages()
     testable_page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com"
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
     Page.objects.create(
         audit=audit,
-        page_type=PAGE_TYPE_HOME,
+        page_type=Page.Type.HOME,
         url="https://example.com",
         not_found="yes",
     )
@@ -315,7 +294,7 @@ def test_audit_failed_check_results_returns_only_failed_checks():
             [
                 check
                 for check in audit.failed_check_results
-                if check.check_result_state == CHECK_RESULT_ERROR
+                if check.check_result_state == CheckResult.Result.ERROR
             ]
         )
         == 3
@@ -332,7 +311,7 @@ def test_audit_failed_check_results_for_deleted_page_not_returned():
 
     assert len(audit.failed_check_results) == 3
 
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
     page.is_deleted = True
     page.save()
 
@@ -349,7 +328,7 @@ def test_audit_failed_check_results_for_missing_page_not_returned():
 
     assert len(audit.failed_check_results) == 3
 
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
     page.retest_page_missing_date = date.today()
     page.save()
 
@@ -362,7 +341,7 @@ def test_audit_accessibility_state_ment_page_returns_page():
     Accessibility Statement page returned
     """
     audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.STATEMENT)
 
     assert audit.accessibility_statement_page == page
 
@@ -373,11 +352,11 @@ def test_page_all_check_results_returns_check_results():
     Test all_check_results attribute of page returns expected check results.
     """
     audit: Audit = create_audit_and_check_results()
-    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
 
     assert len(home_page.all_check_results) == 2
-    assert home_page.all_check_results[0].type == TEST_TYPE_AXE
-    assert home_page.all_check_results[1].type == TEST_TYPE_MANUAL
+    assert home_page.all_check_results[0].type == WcagDefinition.Type.AXE
+    assert home_page.all_check_results[1].type == WcagDefinition.Type.MANUAL
 
 
 @pytest.mark.django_db
@@ -388,7 +367,7 @@ def test_page_all_check_results_returns_pdf_check_results_last():
     audit: Audit = create_audit_and_check_results()
 
     assert len(audit.failed_check_results) == 3
-    assert audit.failed_check_results.last().page.page_type == PAGE_TYPE_PDF
+    assert audit.failed_check_results.last().page.page_type == Page.Type.PDF
 
 
 @pytest.mark.django_db
@@ -397,12 +376,12 @@ def test_check_result_returns_id_and_fields_for_retest():
     Test check_result attribute of dict_for_retest returns id and fields for retest form.
     """
     audit: Audit = create_audit_and_check_results()
-    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = home_page.all_check_results[0]
 
     assert check_result.dict_for_retest == {
         "id": check_result.id,
-        "retest_state": RETEST_CHECK_RESULT_DEFAULT,
+        "retest_state": CheckResult.RetestResult.NOT_RETESTED,
         "retest_notes": "",
     }
 
@@ -412,12 +391,14 @@ def test_wcag_definition_strings():
     Test WCAG definitions return expected string values.
     """
     wcag_definition: WcagDefinition = WcagDefinition(
-        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME
+        type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
     )
     assert str(wcag_definition) == f"{WCAG_TYPE_PDF_NAME} (PDF)"
 
     wcag_definition_with_description: WcagDefinition = WcagDefinition(
-        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME, description=WCAG_DESCRIPTION
+        type=WcagDefinition.Type.PDF,
+        name=WCAG_TYPE_PDF_NAME,
+        description=WCAG_DESCRIPTION,
     )
     assert (
         str(wcag_definition_with_description)
@@ -461,7 +442,7 @@ def test_accessibility_statement_initially_found():
     # Not found flag not set
     assert audit.accessibility_statement_initially_found is True
 
-    statement_page.added_stage = ADDED_STAGE_TWELVE_WEEK
+    statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
     statement_page.save()
 
     # Not found flag set
@@ -478,7 +459,7 @@ def test_accessibility_statement_found():
 
     assert audit.accessibility_statement_found is True
 
-    statement_page.added_stage = ADDED_STAGE_TWELVE_WEEK
+    statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
     statement_page.save()
 
     assert audit.accessibility_statement_found is True
@@ -515,9 +496,14 @@ def test_check_result_updated_updated():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
+    )
     check_result: CheckResult = CheckResult.objects.create(
-        audit=audit, page=page, type=TEST_TYPE_AXE, wcag_definition=wcag_definition
+        audit=audit,
+        page=page,
+        type=WcagDefinition.Type.AXE,
+        wcag_definition=wcag_definition,
     )
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
@@ -640,9 +626,9 @@ def test_audit_fixed_check_results():
 
     assert audit.fixed_check_results.count() == 0
 
-    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = home_page.all_check_results[0]
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     updated_audit: Audit = Audit.objects.get(id=audit.id)
@@ -661,7 +647,7 @@ def test_audit_unfixed_check_results():
     assert audit.unfixed_check_results.count() == 3
 
     check_result: CheckResult = audit.unfixed_check_results[0]
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     updated_audit: Audit = Audit.objects.get(id=audit.id)
@@ -678,7 +664,7 @@ def test_audit_accessibility_statement_checks():
     assert len(audit.accessibility_statement_checks) == 13
 
     for count, field_name_prefix in enumerate(
-        ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
+        Audit.ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
     ):
         assert (
             audit.accessibility_statement_checks[count].field_name_prefix
@@ -695,7 +681,7 @@ def test_audit_accessibility_statement_initially_invalid_count():
 
     assert audit.accessibility_statement_initially_invalid_checks_count == 12
 
-    audit.archive_scope_state = SCOPE_STATE_VALID
+    audit.archive_scope_state = Audit.Scope.PRESENT
 
     assert audit.accessibility_statement_initially_invalid_checks_count == 11
 
@@ -709,7 +695,7 @@ def test_audit_accessibility_statement_fixed_count():
 
     assert audit.fixed_accessibility_statement_checks_count == 0
 
-    audit.archive_audit_retest_scope_state = SCOPE_STATE_VALID
+    audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
 
     assert audit.fixed_accessibility_statement_checks_count == 1
 
@@ -723,7 +709,7 @@ def test_audit_accessibility_statement_finally_invalid():
 
     assert len(audit.finally_invalid_accessibility_statement_checks) == 12
 
-    audit.archive_audit_retest_scope_state = SCOPE_STATE_VALID
+    audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
 
     assert len(audit.finally_invalid_accessibility_statement_checks) == 11
 
@@ -827,7 +813,9 @@ def test_audit_overview_statement_checks_complete():
     assert audit.overview_statement_checks_complete is True
 
     for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_NOT_TESTED
+        statement_check_result.check_result_state = (
+            StatementCheckResult.Result.NOT_TESTED
+        )
         statement_check_result.save()
         break
 
@@ -843,7 +831,7 @@ def test_audit_failed_statement_check_results():
     audit: Audit = create_audit_and_statement_check_results()
     failed_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
-            audit=audit, check_result_state=STATEMENT_CHECK_NO
+            audit=audit, check_result_state=StatementCheckResult.Result.NO
         )
     )
 
@@ -872,7 +860,7 @@ def test_audit_contains_specific_outstanding_statement_check_results(type, attr)
     audit: Audit = create_audit_and_statement_check_results()
     failed_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
-            audit=audit, type=type, check_result_state=STATEMENT_CHECK_NO
+            audit=audit, type=type, check_result_state=StatementCheckResult.Result.NO
         )
     )
 
@@ -891,10 +879,10 @@ def test_audit_outstanding_statement_check_results_includes_new_failures():
     audit: Audit = create_audit_and_statement_check_results()
     untested_statement_check_result: StatementCheckResult = (
         StatementCheckResult.objects.filter(
-            audit=audit, check_result_state=STATEMENT_CHECK_NOT_TESTED
+            audit=audit, check_result_state=StatementCheckResult.Result.NOT_TESTED
         ).first()
     )
-    untested_statement_check_result.retest_state = STATEMENT_CHECK_NO
+    untested_statement_check_result.retest_state = StatementCheckResult.Result.NO
     untested_statement_check_result.save()
 
     assert untested_statement_check_result in audit.outstanding_statement_check_results
@@ -911,7 +899,7 @@ def test_audit_statement_check_result_statement_found():
     assert audit.statement_check_result_statement_found is False
 
     for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert audit.statement_check_result_statement_found is True
@@ -930,23 +918,23 @@ def test_audit_all_overview_statement_checks_have_passed():
     overview_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             audit=audit,
-            type=STATEMENT_CHECK_TYPE_OVERVIEW,
+            type=StatementCheck.Type.OVERVIEW,
         )
     )
     for statement_check_result in overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is True
 
     for statement_check_result in overview_statement_check_results:
-        statement_check_result.check_result_state = STATEMENT_CHECK_NO
+        statement_check_result.check_result_state = StatementCheckResult.Result.NO
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is False
 
     for statement_check_result in overview_statement_check_results:
-        statement_check_result.retest_state = STATEMENT_CHECK_YES
+        statement_check_result.retest_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is True
@@ -961,14 +949,16 @@ def test_all_overview_statement_checks_have_passed():
     overview_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             audit=audit,
-            type=STATEMENT_CHECK_TYPE_OVERVIEW,
+            type=StatementCheck.Type.OVERVIEW,
         )
     )
 
     assert audit.all_overview_statement_checks_have_passed is False
 
     for overview_statement_check_result in overview_statement_check_results:
-        overview_statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        overview_statement_check_result.check_result_state = (
+            StatementCheckResult.Result.YES
+        )
         overview_statement_check_result.save()
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
@@ -985,11 +975,11 @@ def test_report_accessibility_issues():
 
     assert audit.report_accessibility_issues == []
 
-    audit.archive_accessibility_statement_deadline_not_complete = BOOLEAN_TRUE
+    audit.archive_accessibility_statement_deadline_not_complete = Boolean.YES
 
     assert audit.report_accessibility_issues == [INCOMPLETE_DEADLINE_TEXT]
 
-    audit.archive_accessibility_statement_deadline_not_sufficient = BOOLEAN_TRUE
+    audit.archive_accessibility_statement_deadline_not_sufficient = Boolean.YES
 
     assert audit.report_accessibility_issues == [
         INCOMPLETE_DEADLINE_TEXT,
@@ -1028,14 +1018,14 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
     assert getattr(audit, attr_name).exists() is False
     assert audit.outstanding_statement_check_results.count() == 0
 
-    statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    statement_check_result.check_result_state = StatementCheckResult.Result.NO
     statement_check_result.save()
 
     assert getattr(audit, attr_name).exists() is True
     assert getattr(audit, attr_name).first() == statement_check_result
     assert audit.outstanding_statement_check_results.count() == 1
 
-    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
     statement_check_result.save()
 
     assert getattr(audit, attr_name).exists() is False
@@ -1060,13 +1050,13 @@ def test_fixed_statement_checks_are_returned():
     passed_statement_check_result: StatementCheckResult = (
         statement_check_results.first()
     )
-    passed_statement_check_result.check_result_state = STATEMENT_CHECK_YES
-    passed_statement_check_result.retest_state = STATEMENT_CHECK_YES
+    passed_statement_check_result.check_result_state = StatementCheckResult.Result.YES
+    passed_statement_check_result.retest_state = StatementCheckResult.Result.YES
     passed_statement_check_result.save()
 
     fixed_statement_check_result: StatementCheckResult = statement_check_results.last()
-    fixed_statement_check_result.check_result_state = STATEMENT_CHECK_NO
-    fixed_statement_check_result.retest_state = STATEMENT_CHECK_YES
+    fixed_statement_check_result.check_result_state = StatementCheckResult.Result.NO
+    fixed_statement_check_result.retest_state = StatementCheckResult.Result.YES
     fixed_statement_check_result.save()
 
     assert audit.passed_statement_check_results.first() == passed_statement_check_result
@@ -1084,7 +1074,7 @@ def test_set_accessibility_statement_state_called_on_statement_page_update():
     case.set_statement_compliance_states = mock_set_statement_compliance_states
     audit: Audit = Audit.objects.create(case=case)
 
-    Page.objects.create(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    Page.objects.create(audit=audit, page_type=Page.Type.STATEMENT)
 
     mock_set_statement_compliance_states.assert_called_once()
 
@@ -1161,12 +1151,12 @@ def test_fixed_checks_count_at_12_week():
     assert retest.fixed_checks_count == 0
 
     check_result: CheckResult = audit.checkresult_audit.all().first()
-    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
     assert retest.fixed_checks_count == 1
 
-    check_result.page.not_found = BOOLEAN_TRUE
+    check_result.page.not_found = Boolean.YES
     check_result.page.save()
 
     assert retest.fixed_checks_count == 0
@@ -1191,12 +1181,12 @@ def test_fixed_checks_count_in_retests():
 
     assert retest.fixed_checks_count == 0
 
-    retest_check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    retest_check_result.retest_state = CheckResult.RetestResult.FIXED
     retest_check_result.save()
 
     assert retest.fixed_checks_count == 1
 
-    retest_page.page.not_found = BOOLEAN_TRUE
+    retest_page.page.not_found = Boolean.YES
     retest_page.page.save()
 
     assert retest.fixed_checks_count == 0
@@ -1210,7 +1200,7 @@ def test_retest_is_incomplete():
 
     assert retest.is_incomplete is True
 
-    retest.retest_compliance_state = RETEST_INITIAL_COMPLIANCE_COMPLIANT
+    retest.retest_compliance_state = Retest.Compliance.COMPLIANT
 
     assert retest.is_incomplete is False
 
@@ -1236,7 +1226,7 @@ def test_returning_previous_retest():
     retest_1: Retest = Retest.objects.create(case=case, id_within_case=1)
     retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
 
-    assert retest_0.previous_retest == None
+    assert retest_0.previous_retest is None
     assert retest_1.previous_retest == retest_0
     assert retest_2.previous_retest == retest_1
 
@@ -1261,7 +1251,7 @@ def test_returning_latest_retest():
 def test_retest_page_heading():
     """Test heading returned by retest page"""
     retest: Retest = create_retest_and_retest_check_results()
-    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=PAGE_TYPE_HOME)
+    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=Page.Type.HOME)
 
     assert retest_page.heading == "Retest #1 | Home"
 
@@ -1270,7 +1260,7 @@ def test_retest_page_heading():
 def test_retest_page_all_check_results():
     """Test all_check_results returned by retest page"""
     retest: Retest = create_retest_and_retest_check_results()
-    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=PAGE_TYPE_HOME)
+    retest_page: RetestPage = retest.retestpage_set.get(page__page_type=Page.Type.HOME)
 
     assertQuerysetEqual(
         retest_page.all_check_results, retest_page.retestcheckresult_set.all()
@@ -1282,16 +1272,16 @@ def test_retest_page_unfixed_check_results():
     """Test unfixed_check_results returned by retest page"""
     retest: Retest = create_retest_and_retest_check_results()
     home_retest_page: RetestPage = retest.retestpage_set.get(
-        page__page_type=PAGE_TYPE_HOME
+        page__page_type=Page.Type.HOME
     )
     statement_retest_page: RetestPage = retest.retestpage_set.get(
-        page__page_type=PAGE_TYPE_STATEMENT
+        page__page_type=Page.Type.STATEMENT
     )
 
     assert home_retest_page.unfixed_check_results.count() == 1
     assert (
         home_retest_page.unfixed_check_results.first().retest_state
-        == RETEST_CHECK_RESULT_NOT_FIXED
+        == CheckResult.RetestResult.NOT_FIXED
     )
     assert statement_retest_page.unfixed_check_results.count() == 0
 
@@ -1447,7 +1437,7 @@ def test_audit_accessibility_statement_initially_found():
 
     assert audit.accessibility_statement_initially_found is True
 
-    statement_page.added_stage = ADDED_STAGE_TWELVE_WEEK
+    statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
     statement_page.save()
 
     assert audit.accessibility_statement_initially_found is False
@@ -1462,12 +1452,12 @@ def test_audit_twelve_week_accessibility_statement_found():
     assert audit.twelve_week_accessibility_statement_found is False
 
     statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit, added_stage=ADDED_STAGE_TWELVE_WEEK
+        audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
     )
 
     assert audit.twelve_week_accessibility_statement_found is True
 
-    statement_page.added_stage = ADDED_STAGE_INITIAL
+    statement_page.added_stage = StatementPage.AddedStage.INITIAL
     statement_page.save()
 
     assert audit.twelve_week_accessibility_statement_found is False

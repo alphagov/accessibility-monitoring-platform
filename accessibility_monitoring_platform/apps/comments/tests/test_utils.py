@@ -1,7 +1,7 @@
 """ Tests - test for comments model """
-import pytest
 from datetime import datetime
 
+import pytest
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.urls import reverse
@@ -10,7 +10,6 @@ from ...cases.models import Case
 from ...common.models import Platform
 from ...common.utils import get_platform_settings
 from ...notifications.models import Notification
-
 from ..models import Comment
 from ..utils import add_comment_notification
 

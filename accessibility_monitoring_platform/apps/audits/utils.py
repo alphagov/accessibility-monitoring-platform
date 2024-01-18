@@ -11,38 +11,34 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..cases.models import Case
-
-from ..common.utils import record_model_create_event, record_model_update_event
 from ..common.form_extract_utils import (
-    extract_form_labels_and_values,
     FieldLabelAndValue,
+    extract_form_labels_and_values,
 )
+from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import (
-    AuditMetadataUpdateForm,
-    CaseComplianceWebsiteInitialUpdateForm,
+    ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
-    ArchiveCaseComplianceStatementInitialUpdateForm,
-    ArchiveAuditReportOptionsUpdateForm,
-    CheckResultForm,
-    CaseComplianceWebsite12WeekUpdateForm,
     ArchiveCaseComplianceStatement12WeekUpdateForm,
+    ArchiveCaseComplianceStatementInitialUpdateForm,
+    AuditMetadataUpdateForm,
+    CaseComplianceWebsite12WeekUpdateForm,
+    CaseComplianceWebsiteInitialUpdateForm,
+    CheckResultForm,
 )
 from .models import (
-    Audit,
-    Page,
-    WcagDefinition,
-    CheckResult,
-    StatementCheck,
-    StatementCheckResult,
-    Retest,
-    RetestPage,
-    RetestCheckResult,
-    CHECK_RESULT_NOT_TESTED,
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
     ARCHIVE_REPORT_NEXT_ISSUE_TEXT,
-    MANDATORY_PAGE_TYPES,
-    PAGE_TYPE_HOME,
+    Audit,
+    CheckResult,
+    Page,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
+    StatementCheck,
+    StatementCheckResult,
+    WcagDefinition,
 )
 
 MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
@@ -181,7 +177,7 @@ def create_or_update_check_results_for_page(
                 record_model_update_event(user=user, model_object=check_result)
                 report_data_updated(audit=check_result.audit)
                 check_result.save()
-        elif notes != "" or check_result_state != CHECK_RESULT_NOT_TESTED:
+        elif notes != "" or check_result_state != CheckResult.Result.NOT_TESTED:
             check_result: CheckResult = CheckResult.objects.create(
                 audit=page.audit,
                 page=page,
@@ -215,7 +211,7 @@ def get_all_possible_check_results_for_page(
             check_result_state: str = check_result.check_result_state
             notes: str = check_result.notes
         else:
-            check_result_state: str = CHECK_RESULT_NOT_TESTED
+            check_result_state: str = CheckResult.Result.NOT_TESTED
             notes: str = ""
         check_results.append(
             {
@@ -232,8 +228,8 @@ def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
     Create mandatory pages for new audit.
     """
 
-    for page_type in MANDATORY_PAGE_TYPES:
-        if page_type == PAGE_TYPE_HOME:
+    for page_type in Page.MANDATORY_PAGE_TYPES:
+        if page_type == Page.Type.HOME:
             Page.objects.create(
                 audit=audit, page_type=page_type, url=audit.case.home_page_url
             )
