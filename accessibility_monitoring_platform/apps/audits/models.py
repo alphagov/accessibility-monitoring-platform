@@ -1362,6 +1362,7 @@ class RetestPage(models.Model):
     retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
     page = models.ForeignKey(Page, on_delete=models.PROTECT)
     missing_date = models.DateField(null=True, blank=True)
+    additional_issues_notes = models.TextField(default="", blank=True)
     complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
@@ -1392,6 +1393,11 @@ class RetestPage(models.Model):
         return self.retest.original_retest.retestpage_set.get(
             page=self.page
         ).all_check_results
+
+    @property
+    def all_retest_pages(self):
+        """Return all retest pages for this page"""
+        return RetestPage.objects.filter(page=self.page)
 
 
 class RetestCheckResult(models.Model):
