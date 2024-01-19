@@ -1444,12 +1444,14 @@ class RetestPageChecksForm(forms.ModelForm):
         label="",
         widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
     )
+    additional_issues_notes = AMPTextField(label="Additional issues found on page")
 
     class Meta:
         model = RetestPage
         fields: List[str] = [
             "complete_date",
             "missing_date",
+            "additional_issues_notes",
         ]
 
 

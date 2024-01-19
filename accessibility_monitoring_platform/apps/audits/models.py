@@ -2,7 +2,7 @@
 Models - audits (called tests by the users)
 """
 from datetime import date
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from django.db import models
 from django.db.models import Case as DjangoCase
@@ -966,7 +966,13 @@ class Audit(VersionModel):
         return self.statementpage_set.filter(is_deleted=False)
 
     @property
-    def accessibility_statement_initially_found(self):
+    def latest_statement_link(self) -> Optional[str]:
+        for statement_page in self.statement_pages:
+            if statement_page.url:
+                return statement_page.url
+
+    @property
+    def accessibility_statement_initially_found(self) -> bool:
         return (
             self.statement_pages.filter(
                 added_stage=StatementPage.AddedStage.INITIAL
@@ -975,7 +981,7 @@ class Audit(VersionModel):
         )
 
     @property
-    def twelve_week_accessibility_statement_found(self):
+    def twelve_week_accessibility_statement_found(self) -> bool:
         return (
             self.statement_pages.filter(
                 added_stage=StatementPage.AddedStage.TWELVE_WEEK
@@ -984,8 +990,8 @@ class Audit(VersionModel):
         )
 
     @property
-    def accessibility_statement_found(self):
-        return self.statement_pages.count() > 0
+    def accessibility_statement_found(self) -> bool:
+        return self.statement_pages.count() > 0 and self.latest_statement_link != ""
 
 
 class Page(models.Model):
@@ -1362,6 +1368,7 @@ class RetestPage(models.Model):
     retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
     page = models.ForeignKey(Page, on_delete=models.PROTECT)
     missing_date = models.DateField(null=True, blank=True)
+    additional_issues_notes = models.TextField(default="", blank=True)
     complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
@@ -1392,6 +1399,11 @@ class RetestPage(models.Model):
         return self.retest.original_retest.retestpage_set.get(
             page=self.page
         ).all_check_results
+
+    @property
+    def all_retest_pages(self):
+        """Return all retest pages for this page"""
+        return RetestPage.objects.filter(page=self.page)
 
 
 class RetestCheckResult(models.Model):

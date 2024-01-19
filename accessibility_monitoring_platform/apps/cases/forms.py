@@ -432,6 +432,14 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
             "one_week_followup_complete_date",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        case: Case = self.instance
+        if case and case.report_acknowledged_date:
+            self.fields["report_followup_week_1_sent_date"].widget = forms.HiddenInput()
+            self.fields["report_followup_week_1_due_date"].widget = forms.HiddenInput()
+            self.fields["one_week_followup_sent_to_email"].widget = forms.HiddenInput()
+
 
 class CaseFourWeekFollowupUpdateForm(VersionForm):
     """
@@ -460,6 +468,14 @@ class CaseFourWeekFollowupUpdateForm(VersionForm):
             "correspondence_notes",
             "four_week_followup_complete_date",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        case: Case = self.instance
+        if case and case.report_acknowledged_date:
+            self.fields["report_followup_week_4_sent_date"].widget = forms.HiddenInput()
+            self.fields["report_followup_week_4_due_date"].widget = forms.HiddenInput()
+            self.fields["four_week_followup_sent_to_email"].widget = forms.HiddenInput()
 
 
 class CaseReportAcknowledgedUpdateForm(VersionForm):
@@ -546,6 +562,20 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
             "twelve_week_correspondence_notes",
             "one_week_followup_final_complete_date",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        case: Case = self.instance
+        if case and case.twelve_week_correspondence_acknowledged_date:
+            self.fields[
+                "twelve_week_1_week_chaser_sent_date"
+            ].widget = forms.HiddenInput()
+            self.fields[
+                "twelve_week_1_week_chaser_due_date"
+            ].widget = forms.HiddenInput()
+            self.fields[
+                "twelve_week_1_week_chaser_sent_to_email"
+            ].widget = forms.HiddenInput()
 
 
 class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):

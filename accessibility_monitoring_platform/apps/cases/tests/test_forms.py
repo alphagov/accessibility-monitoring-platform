@@ -1,19 +1,27 @@
 """
 Test forms of cases app
 """
+from datetime import date
 from typing import List, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
 from django.contrib.auth.models import Group, User
 
-from ..forms import CaseDetailUpdateForm, CaseSearchForm
+from ..forms import (
+    CaseDetailUpdateForm,
+    CaseFourWeekFollowupUpdateForm,
+    CaseOneWeekFollowupFinalUpdateForm,
+    CaseOneWeekFollowupUpdateForm,
+    CaseSearchForm,
+)
 from ..models import Case
 
 USER_CHOICES: List[Tuple[str, str]] = [("", "-----"), ("none", "Unassigned")]
 FIRST_NAME: str = "Mock"
 LAST_NAME: str = "User"
 HOME_PAGE_URL: str = "https://example.com"
+TODAY = date.today()
 
 
 @pytest.mark.parametrize("fieldname", ["auditor", "reviewer"])
@@ -96,3 +104,79 @@ def test_clean_previous_case_url(
         }
     else:
         assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_one_week_followup_hidden_when_report_ack():
+    """
+    Tests one week folloup fields are hidden when report has been
+    acknowledged
+    """
+    case: Case = Case.objects.create()
+    form: CaseOneWeekFollowupUpdateForm = CaseOneWeekFollowupUpdateForm(instance=case)
+
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version"]
+
+    case.report_acknowledged_date = TODAY
+    form: CaseOneWeekFollowupUpdateForm = CaseOneWeekFollowupUpdateForm(instance=case)
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+
+    assert hidden_fields == [
+        "version",
+        "report_followup_week_1_sent_date",
+        "report_followup_week_1_due_date",
+        "one_week_followup_sent_to_email",
+    ]
+
+
+@pytest.mark.django_db
+def test_four_week_followup_hidden_when_report_ack():
+    """
+    Tests four week folloup fields are hidden when report has been
+    acknowledged
+    """
+    case: Case = Case.objects.create()
+    form: CaseFourWeekFollowupUpdateForm = CaseFourWeekFollowupUpdateForm(instance=case)
+
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version"]
+
+    case.report_acknowledged_date = TODAY
+    form: CaseFourWeekFollowupUpdateForm = CaseFourWeekFollowupUpdateForm(instance=case)
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+
+    assert hidden_fields == [
+        "version",
+        "report_followup_week_4_sent_date",
+        "report_followup_week_4_due_date",
+        "four_week_followup_sent_to_email",
+    ]
+
+
+@pytest.mark.django_db
+def test_one_week_followup_final_hidden_when_12_week_cores_ack():
+    """
+    Tests four week folloup fields are hidden when 12-week correspondence
+    has been acknowledged
+    """
+    case: Case = Case.objects.create()
+    form: CaseOneWeekFollowupFinalUpdateForm = CaseOneWeekFollowupFinalUpdateForm(
+        instance=case
+    )
+
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version"]
+
+    case.twelve_week_correspondence_acknowledged_date = TODAY
+    form: CaseOneWeekFollowupFinalUpdateForm = CaseOneWeekFollowupFinalUpdateForm(
+        instance=case
+    )
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+
+    assert hidden_fields == [
+        "version",
+        "twelve_week_1_week_chaser_sent_date",
+        "twelve_week_1_week_chaser_due_date",
+        "twelve_week_1_week_chaser_sent_to_email",
+    ]

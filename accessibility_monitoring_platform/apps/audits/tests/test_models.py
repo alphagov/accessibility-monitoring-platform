@@ -38,6 +38,7 @@ FINAL_NOTES: str = "Final notes"
 INCOMPLETE_DEADLINE_TEXT: str = "Incomplete deadline text"
 INSUFFICIENT_DEADLINE_TEXT: str = "Insufficient deadline text"
 ERROR_NOTES: str = "Error notes"
+STATEMENT_LINK: str = "https://example.com/accessibility-statement"
 
 
 def create_retest_and_retest_check_results(case: Optional[Case] = None):
@@ -455,7 +456,9 @@ def test_accessibility_statement_found():
     Test that an accessibility statement was found.
     """
     audit: Audit = create_audit_and_pages()
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, url=STATEMENT_LINK
+    )
 
     assert audit.accessibility_statement_found is True
 
@@ -1471,7 +1474,9 @@ def test_audit_accessibility_statement_found():
 
     assert audit.accessibility_statement_found is False
 
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, url=STATEMENT_LINK
+    )
 
     assert audit.accessibility_statement_found is True
 
@@ -1497,3 +1502,36 @@ def test_statement_page_str():
     statement_page.url = "url"
 
     assert str(statement_page) == "url"
+
+
+@pytest.mark.django_db
+def test_latest_statement_link_found():
+    """
+    Test that the latest statement link is returned even when
+    it is not on the latest statement page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    early_statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    StatementPage.objects.create(audit=audit)
+
+    assert audit.latest_statement_link is None
+
+    early_statement_page.url = STATEMENT_LINK
+    early_statement_page.save()
+
+    assert audit.latest_statement_link == STATEMENT_LINK
+
+
+@pytest.mark.django_db
+def test_all_retest_pages():
+    """Test all_retest_pages for page returned by retest"""
+    retest: Retest = create_retest_and_retest_check_results()
+    retest_pages: QuerySet[RetestPage] = RetestPage.objects.filter(retest=retest)
+    retest_page: RetestPage = retest_pages.first()
+    page: Page = retest_page.page
+    all_retest_pages_for_page: QuerySet[RetestPage] = RetestPage.objects.filter(
+        page=page
+    )
+
+    assertQuerysetEqual(retest_page.all_retest_pages, all_retest_pages_for_page)
