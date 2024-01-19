@@ -347,7 +347,9 @@ def create_checkresults_for_retest(retest: Retest) -> None:
         for page in audit.testable_pages:
             if page.unfixed_check_results:
                 retest_page: RetestPage = RetestPage.objects.create(
-                    retest=retest_0, page=page
+                    retest=retest_0,
+                    page=page,
+                    additional_issues_notes=page.retest_notes,
                 )
                 for check_result in page.unfixed_check_results:
                     RetestCheckResult.objects.create(

@@ -195,6 +195,16 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
+                            <b>Additional issues found</b>
+                            {% if retest_page.additional_issues_notes %}
+                                {{ retest_page.additional_issues_notes|markdown_to_html }}
+                            {% else %}
+                                <br>
+                                <br>
+                                None
+                                <br>
+                                <br>
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                     <br>

@@ -1497,3 +1497,17 @@ def test_statement_page_str():
     statement_page.url = "url"
 
     assert str(statement_page) == "url"
+
+
+@pytest.mark.django_db
+def test_all_retest_pages():
+    """Test all_retest_pages for page returned by retest"""
+    retest: Retest = create_retest_and_retest_check_results()
+    retest_pages: QuerySet[RetestPage] = RetestPage.objects.filter(retest=retest)
+    retest_page: RetestPage = retest_pages.first()
+    page: Page = retest_page.page
+    all_retest_pages_for_page: QuerySet[RetestPage] = RetestPage.objects.filter(
+        page=page
+    )
+
+    assertQuerysetEqual(retest_page.all_retest_pages, all_retest_pages_for_page)
