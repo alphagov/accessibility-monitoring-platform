@@ -456,7 +456,9 @@ def test_accessibility_statement_found():
     Test that an accessibility statement was found.
     """
     audit: Audit = create_audit_and_pages()
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, url=STATEMENT_LINK
+    )
 
     assert audit.accessibility_statement_found is True
 
@@ -1472,7 +1474,9 @@ def test_audit_accessibility_statement_found():
 
     assert audit.accessibility_statement_found is False
 
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, url=STATEMENT_LINK
+    )
 
     assert audit.accessibility_statement_found is True
 

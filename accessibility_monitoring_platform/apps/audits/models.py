@@ -2,7 +2,7 @@
 Models - audits (called tests by the users)
 """
 from datetime import date
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from django.db import models
 from django.db.models import Case as DjangoCase
@@ -966,13 +966,13 @@ class Audit(VersionModel):
         return self.statementpage_set.filter(is_deleted=False)
 
     @property
-    def latest_statement_link(self) -> bool:
+    def latest_statement_link(self) -> Optional[str]:
         for statement_page in self.statement_pages:
             if statement_page.url:
                 return statement_page.url
 
     @property
-    def accessibility_statement_initially_found(self):
+    def accessibility_statement_initially_found(self) -> bool:
         return (
             self.statement_pages.filter(
                 added_stage=StatementPage.AddedStage.INITIAL
@@ -981,7 +981,7 @@ class Audit(VersionModel):
         )
 
     @property
-    def twelve_week_accessibility_statement_found(self):
+    def twelve_week_accessibility_statement_found(self) -> bool:
         return (
             self.statement_pages.filter(
                 added_stage=StatementPage.AddedStage.TWELVE_WEEK
@@ -990,8 +990,8 @@ class Audit(VersionModel):
         )
 
     @property
-    def accessibility_statement_found(self):
-        return self.statement_pages.count() > 0
+    def accessibility_statement_found(self) -> bool:
+        return self.statement_pages.count() > 0 and self.latest_statement_link != ""
 
 
 class Page(models.Model):
