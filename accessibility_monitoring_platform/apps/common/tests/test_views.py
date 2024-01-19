@@ -13,7 +13,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import Audit, CheckResult, Page, WcagDefinition
+from ...audits.models import Audit, CheckResult, Page, StatementPage, WcagDefinition
 from ...cases.models import Case, CaseCompliance
 from ...cases.utils import create_case_and_compliance
 from ...cases.views import calculate_report_followup_dates
@@ -1278,3 +1278,33 @@ def test_platform_checking_deletes_old_events(admin_client, admin_user, caplog):
             "admin@example.com deleted 1 old events",
         )
     ]
+
+
+@pytest.mark.django_db
+def test_latest_statement_frequently_used_link(admin_client):
+    """
+    Test latest accessibility statement link in frequently used links
+    is displayed only when one has been entered.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "No accessibility statement URL found")
+    assertNotContains(response, "View latest accessibility statement")
+
+    audit: Audit = Audit.objects.create(case=case)
+    StatementPage.objects.create(audit=audit, url="https://example.com/statement")
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "No accessibility statement URL found")
+    assertContains(response, "View latest accessibility statement")

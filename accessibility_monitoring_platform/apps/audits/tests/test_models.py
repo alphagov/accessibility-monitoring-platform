@@ -1512,7 +1512,12 @@ def test_latest_statement_link_found():
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    StatementPage.objects.create(audit=audit, url=STATEMENT_LINK)
+    early_statement_page: StatementPage = StatementPage.objects.create(audit=audit)
     StatementPage.objects.create(audit=audit)
+
+    assert audit.latest_statement_link is None
+
+    early_statement_page.url = STATEMENT_LINK
+    early_statement_page.save()
 
     assert audit.latest_statement_link == STATEMENT_LINK

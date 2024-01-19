@@ -64,12 +64,12 @@
         </li>
     {% endif %}
     <li>
-        {% if case.audit.statement_pages %}
+        {% if case.audit.latest_statement_link %}
             <a href="{{ case.audit.latest_statement_link }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 View latest accessibility statement
             </a>
         {% else %}
-            No accessibility statement
+            No accessibility statement URL found
         {% endif %}
     </li>
     {% if in_testing_ui %}
