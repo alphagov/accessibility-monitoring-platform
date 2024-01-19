@@ -38,6 +38,7 @@ FINAL_NOTES: str = "Final notes"
 INCOMPLETE_DEADLINE_TEXT: str = "Incomplete deadline text"
 INSUFFICIENT_DEADLINE_TEXT: str = "Insufficient deadline text"
 ERROR_NOTES: str = "Error notes"
+STATEMENT_LINK: str = "https://example.com/accessibility-statement"
 
 
 def create_retest_and_retest_check_results(case: Optional[Case] = None):
@@ -1497,3 +1498,17 @@ def test_statement_page_str():
     statement_page.url = "url"
 
     assert str(statement_page) == "url"
+
+
+@pytest.mark.django_db
+def test_latest_statement_link_found():
+    """
+    Test that the latest statement link is returned even when
+    it is not on the latest statement page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    StatementPage.objects.create(audit=audit, url=STATEMENT_LINK)
+    StatementPage.objects.create(audit=audit)
+
+    assert audit.latest_statement_link == STATEMENT_LINK

@@ -966,6 +966,12 @@ class Audit(VersionModel):
         return self.statementpage_set.filter(is_deleted=False)
 
     @property
+    def latest_statement_link(self) -> bool:
+        for statement_page in self.statement_pages:
+            if statement_page.url:
+                return statement_page.url
+
+    @property
     def accessibility_statement_initially_found(self):
         return (
             self.statement_pages.filter(

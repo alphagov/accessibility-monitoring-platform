@@ -422,9 +422,7 @@ class StatementPageFormsetUpdateView(AuditUpdateView):
         if self.request.POST:
             statement_pages_formset = StatementPageFormset(self.request.POST)
         else:
-            statement_pages: QuerySet[
-                StatementPage
-            ] = self.object.statementpage_set.filter(is_deleted=False)
+            statement_pages: QuerySet[StatementPage] = self.object.statement_pages
             if "add_extra" in self.request.GET:
                 statement_pages_formset = StatementPageFormsetOneExtra(
                     queryset=statement_pages
