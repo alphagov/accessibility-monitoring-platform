@@ -2223,6 +2223,29 @@ def test_retest_pages_shows_missing_pages(admin_client):
     assertContains(response, MISSING_PAGE_ON_RETEST)
 
 
+def test_retest_pages_comparison_groups_by_page_or_wcag(admin_client):
+    """
+    Test that 12-week pages comparison page groups content by page or
+    WCAG based on URL parameter.
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | Page view")
+
+    response: HttpResponse = admin_client.get(f"{url}?view=WCAG view")
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | WCAG view")
+
+
 def test_retest_website_decision_saved_on_case(admin_client):
     """Test that a retest website decision is saved on case"""
     audit: Audit = create_audit_and_wcag()
