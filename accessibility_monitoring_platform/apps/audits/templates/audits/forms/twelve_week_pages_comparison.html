@@ -34,14 +34,14 @@
                         {% endif %}
                         {% if hide_fixed %}
                             <a
-                                href="?show-all=true&{% if show_failures_by_page %}view=Page view{% else %}view=WCAG view{% endif %}"
+                                href="?show-all=true&{% if show_failures_by_wcag %}view=WCAG view{% else %}view=Page view{% endif %}"
                                 class="govuk-button govuk-button--secondary"
                             >
                                 Show all
                             </a>
                         {% else %}
                             <a
-                                href="?hide-fixed=true&{% if show_failures_by_page %}view=Page view{% else %}view=WCAG view{% endif %}"
+                                href="?hide-fixed=true&{% if show_failures_by_wcag %}view=WCAG view{% else %}view=Page view{% endif %}"
                                 class="govuk-button govuk-button--secondary"
                             >
                                 Hide fixed
