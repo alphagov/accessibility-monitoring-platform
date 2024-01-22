@@ -17,19 +17,34 @@
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full govuk-button-group">
-                        {% if hide_fixed %}
-                           <a
-                                href="?show-all=true"
+                        {% if show_failures_by_wcag %}
+                            <a
+                                href="?view=Page view&{% if hide_fixed %}hide-fixed=true{% else %}show-all=true{% endif %}"
                                 class="govuk-button govuk-button--secondary"
                             >
-                                Show all errors
+                                Group by page
                             </a>
                         {% else %}
                             <a
-                                href="?hide-fixed=true"
+                                href="?view=WCAG view&{% if hide_fixed %}hide-fixed=true{% else %}show-all=true{% endif %}"
                                 class="govuk-button govuk-button--secondary"
                             >
-                                Hide fixed errors
+                                Group by WCAG
+                            </a>
+                        {% endif %}
+                        {% if hide_fixed %}
+                            <a
+                                href="?show-all=true&{% if show_failures_by_page %}view=Page view{% else %}view=WCAG view{% endif %}"
+                                class="govuk-button govuk-button--secondary"
+                            >
+                                Show all
+                            </a>
+                        {% else %}
+                            <a
+                                href="?hide-fixed=true&{% if show_failures_by_page %}view=Page view{% else %}view=WCAG view{% endif %}"
+                                class="govuk-button govuk-button--secondary"
+                            >
+                                Hide fixed
                             </a>
                         {% endif %}
                         <a
@@ -41,60 +56,102 @@
                     </div>
                 </div>
                 {% include 'common/error_summary.html' %}
-                {% for page in audit.testable_pages %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-l amp-margin-bottom-5">{{ page }}</h2>
-                        </div>
-                    </div>
-                    {% if page.retest_page_missing_date %}
+                {% if show_failures_by_wcag %}
+                    <h2 class="govuk-heading-l">Test summary | WCAG view</h2>
+                    {% for wcag_definition, failures in audit_failures_by_wcag.items %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
-                                <p class="govuk-body-m">
-                                    This page has been removed by the organisation.
-                                    Update the
-                                    <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
-                                        retest page</a>
-                                    if this is incorrect.
-                                </p>
+                                <h3 class="govuk-heading-m">{{ wcag_definition.name }}</h3>
+                                <p class="govuk-body-m">{{ wcag_definition.description }}</p>
+                                <table class="govuk-table">
+                                    <thead class="govuk-table__head">
+                                        <tr class="govuk-table__row">
+                                            <th scope="col" class="govuk-table__header amp-width-one-third">Page</th>
+                                            <th scope="col" class="govuk-table__header amp-width-one-third">Initial notes</th>
+                                            <th scope="col" class="govuk-table__header amp-width-one-third">Fixed at 12-weeks?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="govuk-table__body">
+                                        {% for failure in failures %}
+                                            <tr class="govuk-table__row ">
+                                                <td scope="row" class="govuk-table__cell amp-width-one-third">
+                                                    <ul class="govuk-list">
+                                                        <li>{{ failure.page }}</li>
+                                                        {% if failure.page.failed_check_results %}
+                                                            <li>
+                                                                <a href="{% url 'audits:edit-audit-retest-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
+                                                                    Edit retest
+                                                                </a>
+                                                            </li>
+                                                        {% endif %}
+                                                        <li>
+                                                            <a href="{{ failure.page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
+                                                                Link to {% if failure.page.page_type == 'pdf' %}{{ failure.page }}{% else %}{{ failure.page|lower }}{% endif %}
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                                <td scope="row" class="govuk-table__cell amp-width-one-third amp-notes">
+                                                    {{ failure.notes|markdown_to_html }}
+                                                </td>
+                                                <td class="govuk-table__cell amp-width-one-third amp-notes">
+                                                    {{ failure.get_retest_state_display }}<br>
+                                                    {{ failure.retest_notes|markdown_to_html }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    {% else %}
-                        <div class="govuk-grid-row">
-                            <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-5">
-                                {% if page.failed_check_results %}
-                                    <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
-                                        Edit retest
-                                    </a>
-                                {% endif %}
-                                <a href="{{ page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
-                                    Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
-                                </a>
-                            </div>
-                        </div>
+                    {% endfor %}
+                {% else %}
+                    <h2 class="govuk-heading-l">Test summary | Page view</h2>
+                    {% for page, failures in audit_failures_by_page.items %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
-                                {% if page.failed_check_results %}
-                                    {% if hide_fixed %}
-                                        {% if page.unfixed_check_results %}
-                                            <table class="govuk-table amp-accordion-table">
-                                                {% include 'audits/helpers/retest_page_comparison.html' with check_results=page.unfixed_check_results %}
-                                            </table>
-                                        {% else %}
-                                            <p class="govuk-body-m">There are no unfixed errors on this page</p>
+                                <h3 class="govuk-heading-m">{{ page }}</h3>
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-5">
+                                        {% if page.failed_check_results %}
+                                            <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
+                                                Edit retest
+                                            </a>
                                         {% endif %}
-                                    {% else %}
-                                        <table class="govuk-table amp-accordion-table">
-                                            {% include 'audits/helpers/retest_page_comparison.html' with check_results=page.failed_check_results %}
-                                        </table>
-                                    {% endif %}
-                                {% else %}
-                                    <p class="govuk-body-m">There are no recorded errors on this page</p>
-                                {% endif %}
+                                        <a href="{{ page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
+                                            Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
+                                        </a>
+                                    </div>
+                                </div>
+                                <table class="govuk-table">
+                                    <thead class="govuk-table__head">
+                                        <tr class="govuk-table__row">
+                                            <th scope="col" class="govuk-table__header amp-width-one-third">Initial WCAG issues</th>
+                                            <th scope="col" class="govuk-table__header amp-width-one-third">Initial notes</th>
+                                            <th scope="col" class="govuk-table__header amp-width-one-third">Fixed at 12-weeks?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="govuk-table__body">
+                                        {% for failure in failures %}
+                                            <tr class="govuk-table__row ">
+                                                <td scope="row" class="govuk-table__cell amp-width-one-third">
+                                                    {{ failure.wcag_definition.name }}
+                                                </td>
+                                                <td scope="row" class="govuk-table__cell amp-width-one-third amp-notes">
+                                                    {{ failure.notes|markdown_to_html }}
+                                                </td>
+                                                <td class="govuk-table__cell amp-width-one-third amp-notes">
+                                                    {{ failure.get_retest_state_display }}<br>
+                                                    {{ failure.retest_notes|markdown_to_html }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    {% endif %}
-                {% endfor %}
+                    {% endfor %}
+                {% endif %}
                 <form method="post" action="{% url 'audits:edit-audit-retest-pages' audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">

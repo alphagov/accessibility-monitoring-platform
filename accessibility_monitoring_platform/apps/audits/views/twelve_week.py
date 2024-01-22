@@ -2,8 +2,9 @@
 Views for audits app (called tests by users)
 """
 from datetime import date
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type, Union
 
+from django.db.models import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -11,7 +12,7 @@ from django.urls import reverse
 from django.views.generic.detail import DetailView
 
 from ...cases.models import CaseEvent
-from ...common.utils import record_model_update_event
+from ...common.utils import list_to_dictionary_of_lists, record_model_update_event
 from ..forms import (
     ArchiveAuditRetestStatement1UpdateForm,
     ArchiveAuditRetestStatement2UpdateForm,
@@ -103,7 +104,27 @@ class AuditRetestPagesUpdateView(AuditUpdateView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["hide_fixed"] = "hide-fixed" in self.request.GET
+        audit: Audit = self.object
+
+        hide_fixed = "hide-fixed" in self.request.GET
+        context["hide_fixed"] = hide_fixed
+
+        check_results: QuerySet[CheckResult] = (
+            audit.unfixed_check_results if hide_fixed else audit.failed_check_results
+        )
+
+        view_url_param: Union[str, None] = self.request.GET.get("view")
+        show_failures_by_wcag: bool = view_url_param == "WCAG view"
+        context["show_failures_by_wcag"] = show_failures_by_wcag
+
+        if show_failures_by_wcag:
+            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+                items=check_results, group_by_attr="wcag_definition"
+            )
+        else:
+            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+                items=check_results, group_by_attr="page"
+            )
         return context
 
     def get_success_url(self) -> str:
