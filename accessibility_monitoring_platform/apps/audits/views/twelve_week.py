@@ -125,6 +125,11 @@ class AuditRetestPagesUpdateView(AuditUpdateView):
             context["audit_failures_by_page"] = list_to_dictionary_of_lists(
                 items=check_results, group_by_attr="page"
             )
+
+        context["missing_pages"] = Page.objects.filter(audit=audit).exclude(
+            retest_page_missing_date=None
+        )
+
         return context
 
     def get_success_url(self) -> str:
