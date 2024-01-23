@@ -782,6 +782,9 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     sent_to_enforcement_body_sent_date = AMPDateField(
         label="Date sent to equality body",
     )
+    equality_body_case_start_date = AMPDateField(
+        label="Date equality body started case",
+    )
     enforcement_body_case_owner = AMPCharFieldWide(
         label="Equality body case owner (first name only)",
     )
@@ -805,6 +808,7 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
         fields = [
             "version",
             "sent_to_enforcement_body_sent_date",
+            "equality_body_case_start_date",
             "enforcement_body_case_owner",
             "enforcement_body_closed_case",
             "enforcement_body_finished_date",
