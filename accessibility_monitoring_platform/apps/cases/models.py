@@ -370,6 +370,7 @@ class Case(VersionModel):
 
     # Equality body metadata
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
+    equality_body_case_start_date = models.DateField(null=True, blank=True)
     enforcement_body_case_owner = models.TextField(default="", blank=True)
     enforcement_body_closed_case = models.CharField(
         max_length=20,
