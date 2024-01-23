@@ -93,7 +93,7 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditRetestPagesUpdateView(AuditUpdateView):
+class AuditRetestPagesComparisonView(AuditUpdateView):
     """
     View to update audit retest pages page
     """

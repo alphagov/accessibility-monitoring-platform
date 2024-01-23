@@ -169,7 +169,7 @@
                         </div>
                     {% endfor %}
                 {% endif %}
-                <form method="post" action="{% url 'audits:edit-audit-retest-pages' audit.id %}">
+                <form method="post" action="{% url 'audits:edit-audit-retest-pages-comparison' audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
@@ -182,7 +182,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-pages' %}
+                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-pages-comparison' %}
             </div>
         </div>
     </main>
