@@ -70,6 +70,7 @@ id="id_form-0-added_stage_0" checked="">"""
 STATEMENT_PAGE_TWELVE_WEEK_CHECKED: str = """<input class="govuk-radios__input"
 type="radio" name="form-0-added_stage" value="12-week-retest"
 id="id_form-0-added_stage_1" checked="">"""
+STATEMENT_PAGE_URL: str = "https://example.com/statement"
 
 
 def create_audit() -> Audit:
@@ -616,70 +617,6 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed_no_stateme
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
     assert response.url == expected_path
-
-
-def test_audit_statement_pages_edit_add_from_wcag_shown(
-    admin_client,
-):
-    """
-    Test that add link from WCAG button shown on statement link page
-    when an accessibility statem,ent page exists with a URL.
-    """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = audit.accessibility_statement_page
-    url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-
-    assertNotContains(response, "Add link from WCAG assessment")
-
-    page.url = "https://example.com/statement"
-    page.save()
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-
-    assertContains(response, "Add link from WCAG assessment")
-
-
-def test_audit_statement_pages_edit_add_from_wcag(
-    admin_client,
-):
-    """
-    Test that add link from WCAG button creates a new statement
-    page with the URL from the WCAG page.
-    """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = audit.accessibility_statement_page
-    page.url = "https://example.com/statement"
-    page.save()
-
-    assert StatementPage.objects.filter(audit=audit).count() == 0
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-pages", kwargs=audit_pk),
-        {
-            "version": audit.version,
-            "add_wcag_statement_page": "Add link from WCAG assessment",
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-        },
-    )
-
-    assert response.status_code == 302
-
-    assert StatementPage.objects.filter(audit=audit).count() == 1
-
-    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
-
-    assert statement_page.url == "https://example.com/statement"
 
 
 def test_audit_statement_pages_default_added_stage(
@@ -1482,6 +1419,48 @@ def test_delete_extra_page(admin_client):
     updated_extra_page: Page = Page.objects.get(id=extra_page.id)
 
     assert updated_extra_page.is_deleted
+
+
+def test_initial_statement_page_url_creates_statement_page(admin_client):
+    """
+    Test that the first time a statement page url is saved a statement page
+    is created with that url
+    """
+    audit: Audit = create_audit_and_pages()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    page: Page = audit.accessibility_statement_page
+
+    assert page.url == ""
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-pages", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Save",
+            "standard-TOTAL_FORMS": "1",
+            "standard-INITIAL_FORMS": "1",
+            "standard-MIN_NUM_FORMS": "0",
+            "standard-MAX_NUM_FORMS": "1000",
+            "extra-TOTAL_FORMS": "0",
+            "extra-INITIAL_FORMS": "0",
+            "extra-MIN_NUM_FORMS": "0",
+            "extra-MAX_NUM_FORMS": "1000",
+            "standard-0-is_contact_page": "no",
+            "standard-0-id": page.id,
+            "standard-0-name": "",
+            "standard-0-url": STATEMENT_PAGE_URL,
+        },
+    )
+
+    assert response.status_code == 302
+
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.STATEMENT)
+
+    assert page.url == STATEMENT_PAGE_URL
+
+    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+
+    assert statement_page.url == STATEMENT_PAGE_URL
 
 
 def test_page_checks_edit_page_loads(admin_client):
