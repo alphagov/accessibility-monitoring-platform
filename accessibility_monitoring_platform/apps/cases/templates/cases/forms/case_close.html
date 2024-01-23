@@ -102,7 +102,14 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                            {% include 'common/amp_field.html' with field=form.compliance_email_sent_date %}
+                            {% include 'cases/helpers/amp_email_field.html' with field=form.compliance_decision_sent_to_email %}
+                            {% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
+                            {% include 'common/amp_field.html' with field=form.recommendation_notes %}
+                            {% include 'common/amp_field.html' with field=form.case_completed %}
+                            {% include 'common/amp_field.html' with field=form.case_close_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'cases/helpers/save_continue_cancel.html' %}
@@ -121,4 +128,5 @@
 {% block extrascript %}
 <textarea id="copy-summary-source" hidden>{{ case.psb_progress_notes }}</textarea>
 <script src="{% static 'js/cases_copy_summary.js' %}"></script>
+<script src="{% static 'js/cases_copy_text.js' %}"></script>
 {% endblock %}
