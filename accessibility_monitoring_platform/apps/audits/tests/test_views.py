@@ -1463,6 +1463,49 @@ def test_initial_statement_page_url_creates_statement_page(admin_client):
     assert statement_page.url == STATEMENT_PAGE_URL
 
 
+def test_page_url_changes_do_not_create_statement_page(admin_client):
+    """
+    Test that the changes to the Page of type statement URL do not
+    create StatementPage rows if one already exists
+    """
+    audit: Audit = create_audit_and_pages()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    page: Page = audit.accessibility_statement_page
+    StatementPage.objects.create(audit=audit)
+
+    assert page.url == ""
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-pages", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Save",
+            "standard-TOTAL_FORMS": "1",
+            "standard-INITIAL_FORMS": "1",
+            "standard-MIN_NUM_FORMS": "0",
+            "standard-MAX_NUM_FORMS": "1000",
+            "extra-TOTAL_FORMS": "0",
+            "extra-INITIAL_FORMS": "0",
+            "extra-MIN_NUM_FORMS": "0",
+            "extra-MAX_NUM_FORMS": "1000",
+            "standard-0-is_contact_page": "no",
+            "standard-0-id": page.id,
+            "standard-0-name": "",
+            "standard-0-url": STATEMENT_PAGE_URL,
+        },
+    )
+
+    assert response.status_code == 302
+
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.STATEMENT)
+
+    assert page.url == STATEMENT_PAGE_URL
+
+    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+
+    assert statement_page.url == ""
+
+
 def test_page_checks_edit_page_loads(admin_client):
     """Test page checks edit view page loads and contains all WCAG definitions"""
     audit: Audit = create_audit_and_wcag()
