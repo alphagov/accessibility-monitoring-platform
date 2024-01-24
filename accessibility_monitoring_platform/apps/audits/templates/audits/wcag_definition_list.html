@@ -106,6 +106,14 @@
                                         None
                                     {% endif %}
                                 </p>
+                                <p class="govuk-body-m amp-label">Hint</p>
+                                <p class="govuk-body-m">
+                                    {% if wcag_definition.hint %}
+                                        {{ wcag_definition.hint }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </p>
                                 <p class="govuk-body-m amp-label">Report boilerplate</p>
                                 <p class="govuk-body-m">
                                     {% if wcag_definition.report_boilerplate %}

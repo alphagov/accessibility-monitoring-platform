@@ -1350,6 +1350,7 @@ class WcagDefinitionCreateUpdateForm(forms.ModelForm):
     type = AMPChoiceRadioField(label="Type", choices=WcagDefinition.Type.choices)
     url_on_w3 = AMPURLField(label="Link to WCAG", required=True)
     description = AMPCharFieldWide(label="Description")
+    hint = AMPCharFieldWide(label="Hint")
     report_boilerplate = AMPTextField(label="Report boilerplate")
 
     class Meta:
@@ -1361,6 +1362,7 @@ class WcagDefinitionCreateUpdateForm(forms.ModelForm):
             "type",
             "url_on_w3",
             "description",
+            "hint",
             "report_boilerplate",
         ]
 
