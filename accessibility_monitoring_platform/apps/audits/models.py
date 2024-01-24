@@ -1099,6 +1099,7 @@ class WcagDefinition(models.Model):
     type = models.CharField(max_length=20, choices=Type.choices, default=Type.MANUAL)
     name = models.TextField(default="", blank=True)
     description = models.TextField(default="", blank=True)
+    hint = models.TextField(default="", blank=True)
     url_on_w3 = models.TextField(default="", blank=True)
     report_boilerplate = models.TextField(default="", blank=True)
     date_start = models.DateField(null=True, blank=True)

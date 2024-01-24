@@ -71,6 +71,7 @@ STATEMENT_PAGE_TWELVE_WEEK_CHECKED: str = """<input class="govuk-radios__input"
 type="radio" name="form-0-added_stage" value="12-week-retest"
 id="id_form-0-added_stage_1" checked="">"""
 STATEMENT_PAGE_URL: str = "https://example.com/statement"
+WCAG_DEFINITION_HINT: str = "WCAG definition hint text"
 
 
 def create_audit() -> Audit:
@@ -1524,6 +1525,28 @@ def test_page_checks_edit_page_loads(admin_client):
     assertContains(response, WCAG_TYPE_PDF_NAME)
 
 
+def test_page_checks_edit_page_contains_hint_text(admin_client):
+    """
+    Test page checks page loads and contains WCAG definitoon hint text
+    """
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: Dict[str, int] = {"pk": page.id}
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    wcag_definition.hint = WCAG_DEFINITION_HINT
+    wcag_definition.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, WCAG_DEFINITION_HINT)
+
+
 def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
     """Test page checks edit view page loads and hides future WCAG definitions"""
     audit: Audit = create_audit_and_wcag()
@@ -2436,7 +2459,7 @@ def test_wcag_definition_list_view_shows_all(admin_client):
 
 @pytest.mark.parametrize(
     "fieldname",
-    ["type", "name", "description", "url_on_w3", "report_boilerplate"],
+    ["type", "name", "description", "hint", "url_on_w3", "report_boilerplate"],
 )
 def test_wcag_definition_list_view_filters(fieldname, admin_client):
     """Test WCAG definition list cab be filtered by each field"""

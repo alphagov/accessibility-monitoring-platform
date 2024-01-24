@@ -270,6 +270,7 @@ class WcagDefinitionListView(ListView):
                     )
                     | Q(type__icontains=search_str)
                     | Q(description__icontains=search_str)
+                    | Q(hint__icontains=search_str)
                     | Q(url_on_w3__icontains=search_str)
                     | Q(report_boilerplate__icontains=search_str)
                 )
