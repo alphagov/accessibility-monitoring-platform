@@ -146,9 +146,19 @@
                         {% elif retest_page.all_check_results %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full amp-markdown">
-                                    <table class="govuk-table amp-accordion-table">
-                                        {% include 'audits/helpers/equality_body_retest_page_comparison_table.html' with check_results=page.unfixed_check_results %}
-                                    </table>
+                                    {% if hide_fixed %}
+                                        {% if retest_page.unfixed_check_results %}
+                                            <table class="govuk-table amp-accordion-table">
+                                                {% include 'audits/helpers/equality_body_retest_page_comparison_table.html' with retest_check_results=retest_page.unfixed_check_results %}
+                                            </table>
+                                        {% else %}
+                                            <p class="govuk-body-m">No unfixed issues</p>
+                                        {% endif %}
+                                    {% else %}
+                                        <table class="govuk-table amp-accordion-table">
+                                            {% include 'audits/helpers/equality_body_retest_page_comparison_table.html' with retest_check_results=retest_page.all_check_results %}
+                                        </table>
+                                    {% endif %}
                                     <label class="govuk-label amp-margin-bottom-15"><b>Additional issues found</b></label>
                                     {% if retest_page.additional_issues_notes %}
                                         {{ retest_page.additional_issues_notes|markdown_to_html }}
