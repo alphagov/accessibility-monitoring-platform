@@ -50,24 +50,24 @@
                     </div>
                 </div>
                 {% include 'common/error_summary.html' %}
-                {% if missing_pages %}
-                    <h2 class="govuk-heading-l">Pages removed by the organisation</h2>
-                    {% for retest_page in missing_pages %}
-                        <div class="govuk-grid-row">
-                            <div class="govuk-grid-column-full">
-                                <h3 class="govuk-heading-m">{{ retest_page.page }}</h3>
-                                <p class="govuk-body-m">
-                                    This page has been removed by the organisation.
-                                    Update the
-                                    <a href="{% url 'audits:edit-retest-page-checks' retest_page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
-                                        retest page</a>
-                                    if this is incorrect.
-                                </p>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
                 {% if show_failures_by_wcag %}
+                    {% if missing_pages %}
+                        <h2 class="govuk-heading-l">Pages removed by the organisation</h2>
+                        {% for retest_page in missing_pages %}
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <h3 class="govuk-heading-m">{{ retest_page.page }}</h3>
+                                    <p class="govuk-body-m">
+                                        This page has been removed by the organisation.
+                                        Update the
+                                        <a href="{% url 'audits:edit-retest-page-checks' retest_page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
+                                            retest page</a>
+                                        if this is incorrect.
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                     <h2 class="govuk-heading-l">Test summary | WCAG view</h2>
                     {% for wcag_definition, retest_check_results in audit_failures_by_wcag.items %}
                         <div class="govuk-grid-row">
@@ -117,48 +117,55 @@
                     {% endfor %}
                 {% else %}
                     <h2 class="govuk-heading-l">Test summary | Page view</h2>
-                    {% for retest_page, retest_check_results in audit_failures_by_page.items %}
+                    {% for retest_page in retest.retestpage_set.all %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
-                                <h3 class="govuk-heading-m">{{ retest_page.page }}</h3>
-                                <div class="govuk-grid-row">
-                                    <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-5">
-                                        <a href="{% url 'audits:edit-retest-page-checks' retest_page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
-                                            Edit retest
-                                        </a>
-                                        <a href="{{ retest_page.page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
-                                            Link to {% if retest_page.page.page_type == 'pdf' %}{{ retest_page.page }}{% else %}{{ retest_page.page|lower }}{% endif %}
-                                        </a>
-                                    </div>
-                                </div>
-                                <table class="govuk-table">
-                                    <thead class="govuk-table__head">
-                                        <tr class="govuk-table__row">
-                                            <th scope="row" class="govuk-table__header amp-width-one-third">WCAG Issue</th>
-                                            <th scope="row" class="govuk-table__header amp-width-one-third">{{ retest.previous_retest }}</th>
-                                            <th scope="row" class="govuk-table__header amp-width-one-third">{{ retest }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="govuk-table__body">
-                                        {% for retest_check_result in retest_check_results %}
-                                            <tr class="govuk-table__row ">
-                                                <td class="govuk-table__cell amp-width-one-third">
-                                                    <label class="govuk-label">{{ retest_check_result.check_result.wcag_definition }}</label>
-                                                </td>
-                                                <td class="govuk-table__cell amp-width-one-third">
-                                                    <label class="govuk-label">{{ retest_check_result.previous_retest_check_result.get_retest_state_display }}</label>
-                                                    <div class="govuk-hint">{{ retest_check_result.previous_retest_check_result.retest_notes|markdown_to_html }}</div>
-                                                </td>
-                                                <td class="govuk-table__cell amp-width-one-third">
-                                                    <label class="govuk-label">{{ retest_check_result.get_retest_state_display }}</label>
-                                                    <div class="govuk-hint">{{ retest_check_result.retest_notes|markdown_to_html }}</div>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                <h2 class="govuk-heading-l amp-margin-bottom-5">{{ retest_page }}</h2>
                             </div>
                         </div>
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-5">
+                                {% if retest_page.unfixed_check_results %}
+                                    <a href="{% url 'audits:edit-retest-page-checks' retest_page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
+                                        Edit retest
+                                    </a>
+                                {% endif %}
+                                <a href="{{ retest_page.page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
+                                    Link to {{ retest_page }}
+                                </a>
+                            </div>
+                        </div>
+                        {% if retest_page.missing_date %}
+                            <div class="govuk-grid-row amp-margin-bottom-30">
+                                <div class="govuk-grid-column-full">
+                                    <p class="govuk-body-m">
+                                        This page has been removed by the organisation.
+                                    </p>
+                                </div>
+                            </div>
+                        {% elif retest_page.all_check_results %}
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full amp-markdown">
+                                    <table class="govuk-table amp-accordion-table">
+                                        {% include 'audits/helpers/equality_body_retest_page_comparison_table.html' with check_results=page.unfixed_check_results %}
+                                    </table>
+                                    <label class="govuk-label amp-margin-bottom-15"><b>Additional issues found</b></label>
+                                    {% if retest_page.additional_issues_notes %}
+                                        {{ retest_page.additional_issues_notes|markdown_to_html }}
+                                    {% else %}
+                                        <p>None</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="govuk-grid-row amp-margin-bottom-30">
+                                <div class="govuk-grid-column-full">
+                                    <p class="govuk-body-m">
+                                        All errors have been fixed in a previous retest.
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
                     {% endfor %}
                 {% endif %}
                 <div class="govuk-grid-row">

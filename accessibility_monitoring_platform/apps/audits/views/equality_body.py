@@ -166,10 +166,6 @@ class RetestComparisonUpdateView(UpdateView):
             context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
                 items=retest_check_results, group_by_attr="wcag_definition"
             )
-        else:
-            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                items=retest_check_results, group_by_attr="retest_page"
-            )
 
         context["missing_pages"] = RetestPage.objects.filter(retest=retest).exclude(
             missing_date=None
