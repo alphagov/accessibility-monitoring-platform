@@ -1,8 +1,9 @@
 """
 Views for audits app (called tests by users)
 """
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, Type, Union
 
+from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -11,7 +12,11 @@ from django.views.generic.edit import UpdateView
 
 from ...cases.models import Case
 from ...common.models import Boolean
-from ...common.utils import record_model_create_event, record_model_update_event
+from ...common.utils import (
+    list_to_dictionary_of_lists,
+    record_model_create_event,
+    record_model_update_event,
+)
 from ..forms import (
     RetestCheckResultFormset,
     RetestComparisonUpdateForm,
@@ -19,7 +24,7 @@ from ..forms import (
     RetestPageChecksForm,
     RetestUpdateForm,
 )
-from ..models import Retest, RetestPage
+from ..models import Retest, RetestCheckResult, RetestPage
 from ..utils import (
     create_checkresults_for_retest,
     get_next_equality_body_retest_page_url,
@@ -140,6 +145,37 @@ class RetestComparisonUpdateView(UpdateView):
     form_class: Type[RetestComparisonUpdateForm] = RetestComparisonUpdateForm
     template_name: str = "audits/forms/equality_body_retest_comparison_update.html"
     context_object_name: str = "retest"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        retest: Retest = self.object
+
+        hide_fixed = "hide-fixed" in self.request.GET
+        context["hide_fixed"] = hide_fixed
+
+        retest_check_results: QuerySet[RetestCheckResult] = (
+            retest.unfixed_check_results if hide_fixed else retest.check_results
+        )
+
+        view_url_param: Union[str, None] = self.request.GET.get("view")
+        show_failures_by_wcag: bool = view_url_param == "WCAG view"
+        context["show_failures_by_wcag"] = show_failures_by_wcag
+
+        if show_failures_by_wcag:
+            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+                items=retest_check_results, group_by_attr="wcag_definition"
+            )
+        else:
+            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+                items=retest_check_results, group_by_attr="retest_page"
+            )
+
+        context["missing_pages"] = RetestPage.objects.filter(retest=retest).exclude(
+            missing_date=None
+        )
+
+        return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add record event on change"""
