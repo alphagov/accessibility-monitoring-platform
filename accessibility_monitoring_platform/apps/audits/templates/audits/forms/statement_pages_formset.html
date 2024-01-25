@@ -20,18 +20,6 @@
                     {% csrf_token %}
                     {{ statement_pages_formset.management_form }}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% if audit.accessibility_statement_page.url %}
-                        <div class="govuk-grid-row">
-                            <div class="govuk-grid-column-full">
-                                <input
-                                    type="submit"
-                                    value="Add link from WCAG assessment"
-                                    name="add_wcag_statement_page"
-                                    class="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button" />
-                            </div>
-                        </div>
-                    {% endif %}
                     <table class="govuk-table">
                         <tbody class="govuk-table__body">
                         {% if statement_pages_formset.forms %}

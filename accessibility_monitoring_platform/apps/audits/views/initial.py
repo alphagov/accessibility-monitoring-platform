@@ -206,6 +206,16 @@ class AuditPagesUpdateView(AuditUpdateView):
         if standard_pages_formset.is_valid():
             pages: List[Page] = standard_pages_formset.save(commit=False)
             for page in pages:
+                if page.page_type == Page.Type.STATEMENT and page.url:
+                    if audit.statement_pages.count() == 0:
+                        # Create first statement link
+                        statement_page: StatementPage = StatementPage.objects.create(
+                            audit=audit,
+                            url=page.url,
+                        )
+                        record_model_create_event(
+                            user=self.request.user, model_object=statement_page
+                        )
                 record_model_update_event(user=self.request.user, model_object=page)
                 page.save()
         else:
@@ -380,20 +390,6 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
             if form.instance.id is None:
                 form.fields["added_stage"].initial = StatementPage.AddedStage.INITIAL
         return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        audit: Audit = self.object
-        if "add_wcag_statement_page" in self.request.POST:
-            statement_page: StatementPage = StatementPage.objects.create(
-                audit=audit,
-                url=audit.accessibility_statement_page.url,
-                backup_url=audit.accessibility_statement_backup_url,
-            )
-            record_model_create_event(
-                user=self.request.user, model_object=statement_page
-            )
-        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
