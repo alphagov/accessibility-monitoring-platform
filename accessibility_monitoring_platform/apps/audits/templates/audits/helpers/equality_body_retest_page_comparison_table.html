@@ -4,7 +4,7 @@
         <th scope="row" class="govuk-table__header amp-width-one-third">{{ retest.previous_retest }}</th>
         <th scope="row" class="govuk-table__header amp-width-one-third">{{ retest }}</th>
     </tr>
-    {% for retest_check_result in retest_page.all_check_results %}
+    {% for retest_check_result in retest_check_results %}
         <tr class="govuk-table__row">
             <td class="govuk-table__cell amp-width-one-third">
                 <label class="govuk-label">{{ retest_check_result.check_result.wcag_definition }}</label>

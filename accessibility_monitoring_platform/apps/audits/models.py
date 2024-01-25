@@ -810,7 +810,7 @@ class Audit(VersionModel):
         ]
 
     @property
-    def statement_check_results(self) -> bool:
+    def statement_check_results(self):
         return self.statementcheckresult_set.filter(is_deleted=False)
 
     @property
@@ -818,7 +818,7 @@ class Audit(VersionModel):
         return self.statement_check_results.count() > 0
 
     @property
-    def overview_statement_check_results(self) -> bool:
+    def overview_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
 
     @property
@@ -843,88 +843,88 @@ class Audit(VersionModel):
         )
 
     @property
-    def website_statement_check_results(self) -> bool:
+    def website_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.WEBSITE)
 
     @property
-    def compliance_statement_check_results(self) -> bool:
+    def compliance_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.COMPLIANCE)
 
     @property
-    def non_accessible_statement_check_results(self) -> bool:
+    def non_accessible_statement_check_results(self):
         return self.statement_check_results.filter(
             type=StatementCheck.Type.NON_ACCESSIBLE
         )
 
     @property
-    def preparation_statement_check_results(self) -> bool:
+    def preparation_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.PREPARATION)
 
     @property
-    def feedback_statement_check_results(self) -> bool:
+    def feedback_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
 
     @property
-    def custom_statement_check_results(self) -> bool:
+    def custom_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 
     @property
-    def failed_statement_check_results(self) -> bool:
+    def failed_statement_check_results(self):
         return self.statement_check_results.filter(
             check_result_state=StatementCheckResult.Result.NO
         )
 
     @property
-    def passed_statement_check_results(self) -> bool:
+    def passed_statement_check_results(self):
         return self.statement_check_results.filter(
             check_result_state=StatementCheckResult.Result.YES
         )
 
     @property
-    def outstanding_statement_check_results(self) -> bool:
+    def outstanding_statement_check_results(self):
         return self.statement_check_results.filter(
             Q(check_result_state=StatementCheckResult.Result.NO)
             | Q(retest_state=StatementCheckResult.Result.NO)
         ).exclude(retest_state=StatementCheckResult.Result.YES)
 
     @property
-    def overview_outstanding_statement_check_results(self) -> bool:
+    def overview_outstanding_statement_check_results(self):
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.OVERVIEW
         )
 
     @property
-    def website_outstanding_statement_check_results(self) -> bool:
+    def website_outstanding_statement_check_results(self):
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.WEBSITE
         )
 
     @property
-    def compliance_outstanding_statement_check_results(self) -> bool:
+    def compliance_outstanding_statement_check_results(self):
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.COMPLIANCE
         )
 
     @property
-    def non_accessible_outstanding_statement_check_results(self) -> bool:
+    def non_accessible_outstanding_statement_check_results(self):
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.NON_ACCESSIBLE
         )
 
     @property
-    def preparation_outstanding_statement_check_results(self) -> bool:
+    def preparation_outstanding_statement_check_results(self):
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.PREPARATION
         )
 
     @property
-    def feedback_outstanding_statement_check_results(self) -> bool:
+    def feedback_outstanding_statement_check_results(self):
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.FEEDBACK
         )
 
     @property
-    def custom_outstanding_statement_check_results(self) -> bool:
+    def custom_outstanding_statement_check_results(self):
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.CUSTOM
         )
@@ -944,25 +944,25 @@ class Audit(VersionModel):
         )
 
     @property
-    def failed_retest_statement_check_results(self) -> bool:
+    def failed_retest_statement_check_results(self):
         return self.statement_check_results.filter(
             retest_state=StatementCheckResult.Result.NO
         )
 
     @property
-    def passed_retest_statement_check_results(self) -> bool:
+    def passed_retest_statement_check_results(self):
         return self.statement_check_results.filter(
             retest_state=StatementCheckResult.Result.YES
         )
 
     @property
-    def fixed_statement_check_results(self) -> bool:
+    def fixed_statement_check_results(self):
         return self.failed_statement_check_results.filter(
             retest_state=StatementCheckResult.Result.YES
         )
 
     @property
-    def statement_pages(self) -> bool:
+    def statement_pages(self):
         return self.statementpage_set.filter(is_deleted=False)
 
     @property
@@ -1360,6 +1360,28 @@ class Retest(VersionModel):
         """Return latest retest"""
         return self.case.retests.first()
 
+    @property
+    def check_results(self):
+        return (
+            self.retestcheckresult_set.filter(
+                retest_page__missing_date=None,
+            )
+            .annotate(
+                position_pdf_page_last=DjangoCase(
+                    When(retest_page__page__page_type=Page.Type.PDF, then=1), default=0
+                )
+            )
+            .order_by(
+                "position_pdf_page_last",
+                "retest_page__id",
+                "check_result__wcag_definition__id",
+            )
+        )
+
+    @property
+    def unfixed_check_results(self):
+        return self.check_results.exclude(retest_state=CheckResult.RetestResult.FIXED)
+
 
 class RetestPage(models.Model):
     """
@@ -1433,6 +1455,10 @@ class RetestCheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
+
+    @property
+    def wcag_definition(self):
+        return self.check_result.wcag_definition
 
     @property
     def original_retest_check_result(self):

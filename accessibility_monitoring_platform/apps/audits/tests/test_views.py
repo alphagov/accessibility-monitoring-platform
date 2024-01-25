@@ -27,7 +27,7 @@ from ..models import (
     StatementPage,
     WcagDefinition,
 )
-from ..utils import create_mandatory_pages_for_new_audit
+from ..utils import create_checkresults_for_retest, create_mandatory_pages_for_new_audit
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 WCAG_TYPE_MANUAL_NAME: str = "WCAG Manual name"
@@ -70,6 +70,7 @@ id="id_form-0-added_stage_0" checked="">"""
 STATEMENT_PAGE_TWELVE_WEEK_CHECKED: str = """<input class="govuk-radios__input"
 type="radio" name="form-0-added_stage" value="12-week-retest"
 id="id_form-0-added_stage_1" checked="">"""
+STATEMENT_PAGE_URL: str = "https://example.com/statement"
 WCAG_DEFINITION_HINT: str = "WCAG definition hint text"
 
 
@@ -316,7 +317,7 @@ def test_create_audit_creates_case_event(admin_client):
         ("audits:edit-audit-summary", "Test summary"),
         ("audits:audit-retest-detail", "View 12-week test"),
         ("audits:edit-audit-retest-metadata", "12-week test metadata"),
-        ("audits:edit-audit-retest-pages", "12-week pages comparison"),
+        ("audits:edit-audit-retest-pages-comparison", "12-week pages comparison"),
         (
             "audits:edit-audit-retest-website-decision",
             "12-week website compliance decision",
@@ -430,9 +431,13 @@ def test_audit_statement_check_specific_page_loads(
         (
             "audits:edit-audit-retest-metadata",
             "save_continue",
-            "audits:edit-audit-retest-pages",
+            "audits:edit-audit-retest-pages-comparison",
         ),
-        ("audits:edit-audit-retest-pages", "save", "audits:edit-audit-retest-pages"),
+        (
+            "audits:edit-audit-retest-pages-comparison",
+            "save",
+            "audits:edit-audit-retest-pages-comparison",
+        ),
         (
             "audits:edit-audit-retest-statement-1",
             "save",
@@ -513,7 +518,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
             "audits:edit-audit-report-options",
         ),
         (
-            "audits:edit-audit-retest-pages",
+            "audits:edit-audit-retest-pages-comparison",
             "save_continue",
             "audits:edit-audit-retest-website-decision",
         ),
@@ -617,70 +622,6 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed_no_stateme
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
     assert response.url == expected_path
-
-
-def test_audit_statement_pages_edit_add_from_wcag_shown(
-    admin_client,
-):
-    """
-    Test that add link from WCAG button shown on statement link page
-    when an accessibility statem,ent page exists with a URL.
-    """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = audit.accessibility_statement_page
-    url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-
-    assertNotContains(response, "Add link from WCAG assessment")
-
-    page.url = "https://example.com/statement"
-    page.save()
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-
-    assertContains(response, "Add link from WCAG assessment")
-
-
-def test_audit_statement_pages_edit_add_from_wcag(
-    admin_client,
-):
-    """
-    Test that add link from WCAG button creates a new statement
-    page with the URL from the WCAG page.
-    """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = audit.accessibility_statement_page
-    page.url = "https://example.com/statement"
-    page.save()
-
-    assert StatementPage.objects.filter(audit=audit).count() == 0
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-pages", kwargs=audit_pk),
-        {
-            "version": audit.version,
-            "add_wcag_statement_page": "Add link from WCAG assessment",
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-        },
-    )
-
-    assert response.status_code == 302
-
-    assert StatementPage.objects.filter(audit=audit).count() == 1
-
-    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
-
-    assert statement_page.url == "https://example.com/statement"
 
 
 def test_audit_statement_pages_default_added_stage(
@@ -1485,6 +1426,91 @@ def test_delete_extra_page(admin_client):
     assert updated_extra_page.is_deleted
 
 
+def test_initial_statement_page_url_creates_statement_page(admin_client):
+    """
+    Test that the first time a statement page url is saved a statement page
+    is created with that url
+    """
+    audit: Audit = create_audit_and_pages()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    page: Page = audit.accessibility_statement_page
+
+    assert page.url == ""
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-pages", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Save",
+            "standard-TOTAL_FORMS": "1",
+            "standard-INITIAL_FORMS": "1",
+            "standard-MIN_NUM_FORMS": "0",
+            "standard-MAX_NUM_FORMS": "1000",
+            "extra-TOTAL_FORMS": "0",
+            "extra-INITIAL_FORMS": "0",
+            "extra-MIN_NUM_FORMS": "0",
+            "extra-MAX_NUM_FORMS": "1000",
+            "standard-0-is_contact_page": "no",
+            "standard-0-id": page.id,
+            "standard-0-name": "",
+            "standard-0-url": STATEMENT_PAGE_URL,
+        },
+    )
+
+    assert response.status_code == 302
+
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.STATEMENT)
+
+    assert page.url == STATEMENT_PAGE_URL
+
+    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+
+    assert statement_page.url == STATEMENT_PAGE_URL
+
+
+def test_page_url_changes_do_not_create_statement_page(admin_client):
+    """
+    Test that the changes to the Page of type statement URL do not
+    create StatementPage rows if one already exists
+    """
+    audit: Audit = create_audit_and_pages()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    page: Page = audit.accessibility_statement_page
+    StatementPage.objects.create(audit=audit)
+
+    assert page.url == ""
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-pages", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Save",
+            "standard-TOTAL_FORMS": "1",
+            "standard-INITIAL_FORMS": "1",
+            "standard-MIN_NUM_FORMS": "0",
+            "standard-MAX_NUM_FORMS": "1000",
+            "extra-TOTAL_FORMS": "0",
+            "extra-INITIAL_FORMS": "0",
+            "extra-MIN_NUM_FORMS": "0",
+            "extra-MAX_NUM_FORMS": "1000",
+            "standard-0-is_contact_page": "no",
+            "standard-0-id": page.id,
+            "standard-0-name": "",
+            "standard-0-url": STATEMENT_PAGE_URL,
+        },
+    )
+
+    assert response.status_code == 302
+
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.STATEMENT)
+
+    assert page.url == STATEMENT_PAGE_URL
+
+    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+
+    assert statement_page.url == ""
+
+
 def test_page_checks_edit_page_loads(admin_client):
     """Test page checks edit view page loads and contains all WCAG definitions"""
     audit: Audit = create_audit_and_wcag()
@@ -2205,7 +2231,7 @@ def test_retest_page_shows_and_hides_fixed_errors(admin_client):
         check_result_state=CheckResult.Result.ERROR,
     )
 
-    url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
+    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
 
     response: HttpResponse = admin_client.get(url)
 
@@ -2226,7 +2252,7 @@ def test_retest_pages_shows_missing_pages(admin_client):
     audit_pk: Dict[str, int] = {"pk": audit.id}
     Page.objects.create(audit=audit, url="https://example.com")
 
-    url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
+    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
 
     response: HttpResponse = admin_client.get(url)
 
@@ -2244,6 +2270,29 @@ def test_retest_pages_shows_missing_pages(admin_client):
     assert response.status_code == 200
 
     assertContains(response, MISSING_PAGE_ON_RETEST)
+
+
+def test_retest_pages_comparison_groups_by_page_or_wcag(admin_client):
+    """
+    Test that 12-week pages comparison page groups content by page or
+    WCAG based on URL parameter.
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | Page view")
+
+    response: HttpResponse = admin_client.get(f"{url}?view=WCAG view")
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | WCAG view")
 
 
 def test_retest_website_decision_saved_on_case(admin_client):
@@ -3045,3 +3094,27 @@ def test_equality_body_page_checks_page_missing(
 
     assert updated_retest_page.missing_date is not None
     assert updated_retest_page.page.not_found == "yes"
+
+
+def test_retest_comparison_page_groups_by_page_or_wcag(admin_client):
+    """
+    Test that equality body retest comparison page groups content by page or
+    WCAG based on URL parameter.
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+    create_checkresults_for_retest(retest=retest)
+
+    url: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | Page view")
+
+    response: HttpResponse = admin_client.get(f"{url}?view=WCAG view")
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | WCAG view")
