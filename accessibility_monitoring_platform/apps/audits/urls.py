@@ -52,7 +52,7 @@ from .views.twelve_week import (
     AuditRetestDetailView,
     AuditRetestMetadataUpdateView,
     AuditRetestPageChecksFormView,
-    AuditRetestPagesUpdateView,
+    AuditRetestPagesComparisonView,
     AuditRetestStatement1UpdateView,
     AuditRetestStatement2UpdateView,
     AuditRetestStatementComparisonUpdateView,
@@ -190,9 +190,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-retest-metadata",
     ),
     path(
-        "<int:pk>/edit-audit-retest-pages/",
-        login_required(AuditRetestPagesUpdateView.as_view()),
-        name="edit-audit-retest-pages",
+        "<int:pk>/edit-audit-retest-pages-comparison/",
+        login_required(AuditRetestPagesComparisonView.as_view()),
+        name="edit-audit-retest-pages-comparison",
     ),
     path(
         "pages/<int:pk>/edit-audit-retest-page-checks/",

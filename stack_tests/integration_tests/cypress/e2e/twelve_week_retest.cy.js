@@ -35,7 +35,7 @@ describe('View test', () => {
   })
 
   it('can edit 12-week pages comparison', () => {
-    cy.get('#edit-audit-retest-pages').click()
+    cy.get('#edit-audit-retest-pages-comparison').click()
     cy.get('[name="audit_retest_pages_complete_date"]').click()
     cy.contains('Save').click()
   })

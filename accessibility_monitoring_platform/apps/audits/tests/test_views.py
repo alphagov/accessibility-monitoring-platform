@@ -317,7 +317,7 @@ def test_create_audit_creates_case_event(admin_client):
         ("audits:edit-audit-summary", "Test summary"),
         ("audits:audit-retest-detail", "View 12-week test"),
         ("audits:edit-audit-retest-metadata", "12-week test metadata"),
-        ("audits:edit-audit-retest-pages", "12-week pages comparison"),
+        ("audits:edit-audit-retest-pages-comparison", "12-week pages comparison"),
         (
             "audits:edit-audit-retest-website-decision",
             "12-week website compliance decision",
@@ -431,9 +431,13 @@ def test_audit_statement_check_specific_page_loads(
         (
             "audits:edit-audit-retest-metadata",
             "save_continue",
-            "audits:edit-audit-retest-pages",
+            "audits:edit-audit-retest-pages-comparison",
         ),
-        ("audits:edit-audit-retest-pages", "save", "audits:edit-audit-retest-pages"),
+        (
+            "audits:edit-audit-retest-pages-comparison",
+            "save",
+            "audits:edit-audit-retest-pages-comparison",
+        ),
         (
             "audits:edit-audit-retest-statement-1",
             "save",
@@ -514,7 +518,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
             "audits:edit-audit-report-options",
         ),
         (
-            "audits:edit-audit-retest-pages",
+            "audits:edit-audit-retest-pages-comparison",
             "save_continue",
             "audits:edit-audit-retest-website-decision",
         ),
@@ -2227,7 +2231,7 @@ def test_retest_page_shows_and_hides_fixed_errors(admin_client):
         check_result_state=CheckResult.Result.ERROR,
     )
 
-    url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
+    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
 
     response: HttpResponse = admin_client.get(url)
 
@@ -2248,7 +2252,7 @@ def test_retest_pages_shows_missing_pages(admin_client):
     audit_pk: Dict[str, int] = {"pk": audit.id}
     Page.objects.create(audit=audit, url="https://example.com")
 
-    url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
+    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
 
     response: HttpResponse = admin_client.get(url)
 
@@ -2266,6 +2270,29 @@ def test_retest_pages_shows_missing_pages(admin_client):
     assert response.status_code == 200
 
     assertContains(response, MISSING_PAGE_ON_RETEST)
+
+
+def test_retest_pages_comparison_groups_by_page_or_wcag(admin_client):
+    """
+    Test that 12-week pages comparison page groups content by page or
+    WCAG based on URL parameter.
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | Page view")
+
+    response: HttpResponse = admin_client.get(f"{url}?view=WCAG view")
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | WCAG view")
 
 
 def test_retest_website_decision_saved_on_case(admin_client):
