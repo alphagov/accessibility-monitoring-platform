@@ -27,7 +27,7 @@ from ..models import (
     StatementPage,
     WcagDefinition,
 )
-from ..utils import create_mandatory_pages_for_new_audit
+from ..utils import create_checkresults_for_retest, create_mandatory_pages_for_new_audit
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 WCAG_TYPE_MANUAL_NAME: str = "WCAG Manual name"
@@ -3094,3 +3094,27 @@ def test_equality_body_page_checks_page_missing(
 
     assert updated_retest_page.missing_date is not None
     assert updated_retest_page.page.not_found == "yes"
+
+
+def test_retest_comparison_page_groups_by_page_or_wcag(admin_client):
+    """
+    Test that equality body retest comparison page groups content by page or
+    WCAG based on URL parameter.
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+    create_checkresults_for_retest(retest=retest)
+
+    url: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | Page view")
+
+    response: HttpResponse = admin_client.get(f"{url}?view=WCAG view")
+
+    assert response.status_code == 200
+
+    assertContains(response, "Test summary | WCAG view")

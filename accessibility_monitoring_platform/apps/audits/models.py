@@ -1360,6 +1360,28 @@ class Retest(VersionModel):
         """Return latest retest"""
         return self.case.retests.first()
 
+    @property
+    def check_results(self):
+        return (
+            self.retestcheckresult_set.filter(
+                retest_page__missing_date=None,
+            )
+            .annotate(
+                position_pdf_page_last=DjangoCase(
+                    When(retest_page__page__page_type=Page.Type.PDF, then=1), default=0
+                )
+            )
+            .order_by(
+                "position_pdf_page_last",
+                "retest_page__id",
+                "check_result__wcag_definition__id",
+            )
+        )
+
+    @property
+    def unfixed_check_results(self):
+        return self.check_results.exclude(retest_state=CheckResult.RetestResult.FIXED)
+
 
 class RetestPage(models.Model):
     """
@@ -1433,6 +1455,10 @@ class RetestCheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
+
+    @property
+    def wcag_definition(self):
+        return self.check_result.wcag_definition
 
     @property
     def original_retest_check_result(self):
