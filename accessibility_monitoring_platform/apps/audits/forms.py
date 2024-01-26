@@ -566,6 +566,30 @@ CustomStatementCheckResultFormsetOneExtra: Any = forms.modelformset_factory(
 )
 
 
+class InitialDisproportionateBurdenUpdateForm(VersionForm):
+    """
+    Form for editing initial disproportional burden claim
+    """
+
+    initial_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Initial disproportionate burden claim (included in equality body export)",
+        choices=CaseCompliance.StatementCompliance.choices,
+    )
+    initial_disproportionate_burden_notes = AMPTextField(
+        label="Initial disproportionate burden claim details (included in equality body export)"
+    )
+    initial_disproportionate_burden_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "initial_disproportionate_burden_claim",
+            "initial_disproportionate_burden_notes",
+            "initial_disproportionate_burden_complete_date",
+        ]
+
+
 class ArchiveCaseComplianceStatementInitialUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision
@@ -1299,6 +1323,30 @@ class ArchiveAuditRetestStatementDecisionUpdateForm(VersionForm):
             "version",
             "audit_retest_accessibility_statement_backup_url",
             "archive_audit_retest_statement_decision_complete_date",
+        ]
+
+
+class TwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
+    """
+    Form for editing twelve_week disproportional burden claim
+    """
+
+    twelve_week_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="12-week disproportionate burden claim (included in equality body export)",
+        choices=CaseCompliance.StatementCompliance.choices,
+    )
+    twelve_week_disproportionate_burden_notes = AMPTextField(
+        label="12-week disproportionate burden claim details (included in equality body export)"
+    )
+    twelve_week_disproportionate_burden_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "twelve_week_disproportionate_burden_claim",
+            "twelve_week_disproportionate_burden_notes",
+            "twelve_week_disproportionate_burden_complete_date",
         ]
 
 

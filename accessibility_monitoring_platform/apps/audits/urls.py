@@ -43,6 +43,7 @@ from .views.initial import (
     AuditStatementPreparationFormView,
     AuditStatementWebsiteFormView,
     AuditSummaryUpdateView,
+    InitialDisproportionateBurdenUpdateView,
     InitialStatementPageFormsetUpdateView,
     clear_published_report_data_updated_time,
 )
@@ -63,6 +64,7 @@ from .views.twelve_week import (
     AuditRetestStatementOverviewFormView,
     AuditRetestStatementPreparationFormView,
     AuditRetestStatementWebsiteFormView,
+    TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementPageFormsetUpdateView,
     start_retest,
 )
@@ -175,6 +177,11 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-report-options",
     ),
     path(
+        "<int:pk>/edit-initial-disproportionate-burden/",
+        login_required(InitialDisproportionateBurdenUpdateView.as_view()),
+        name="edit-initial-disproportionate-burden",
+    ),
+    path(
         "<int:pk>/audit-retest-start/",
         login_required(start_retest),
         name="audit-retest-start",
@@ -258,6 +265,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-retest-statement-comparison/",
         login_required(AuditRetestStatementComparisonUpdateView.as_view()),
         name="edit-audit-retest-statement-comparison",
+    ),
+    path(
+        "<int:pk>/edit-twelve-week-disproportionate-burden/",
+        login_required(TwelveWeekDisproportionateBurdenUpdateView.as_view()),
+        name="edit-twelve-week-disproportionate-burden",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-decision/",

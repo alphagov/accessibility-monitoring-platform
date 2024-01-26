@@ -35,6 +35,7 @@ from ..forms import (
     AuditRetestStatementWebsiteUpdateForm,
     AuditRetestWebsiteDecisionUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
+    TwelveWeekDisproportionateBurdenUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
 )
 from ..models import (
@@ -543,6 +544,25 @@ class AuditRetestStatementComparisonUpdateView(AuditUpdateView):
             )
         elif "save_exit" in self.request.POST:
             return reverse("audits:audit-retest-detail", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class TwelveWeekDisproportionateBurdenUpdateView(AuditUpdateView):
+    """
+    View to update 12-week disproportionate burden fields
+    """
+
+    form_class: Type[
+        TwelveWeekDisproportionateBurdenUpdateForm
+    ] = TwelveWeekDisproportionateBurdenUpdateForm
+    template_name: str = "audits/forms/twelve_week_disproportionate_burden.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit: Audit = self.object
+            audit_pk: Dict[str, int] = {"pk": audit.id}
+            return reverse("audits:edit-statement-pages", kwargs=audit_pk)
         return super().get_success_url()
 
 

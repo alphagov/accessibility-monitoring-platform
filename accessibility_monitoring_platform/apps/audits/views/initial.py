@@ -50,6 +50,7 @@ from ..forms import (
     CheckResultFormset,
     CustomStatementCheckResultFormset,
     CustomStatementCheckResultFormsetOneExtra,
+    InitialDisproportionateBurdenUpdateForm,
 )
 from ..models import (
     Audit,
@@ -653,6 +654,25 @@ class AuditStatement2UpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-decision", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
+    """
+    View to update initial disproportionate burden fields
+    """
+
+    form_class: Type[
+        InitialDisproportionateBurdenUpdateForm
+    ] = InitialDisproportionateBurdenUpdateForm
+    template_name: str = "audits/forms/initial_disproportionate_burden.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit: Audit = self.object
+            audit_pk: Dict[str, int] = {"pk": audit.id}
+            return reverse("audits:edit-statement-pages", kwargs=audit_pk)
         return super().get_success_url()
 
 
