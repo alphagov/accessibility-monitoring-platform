@@ -438,7 +438,7 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
 
 class CaseQAReadyForProcessUpdateView(CaseUpdateView):
     """
-    View to update QA process
+    View to update Report ready for QA process
     """
 
     form_class: Type[CaseQAReadyForProcessUpdateForm] = CaseQAReadyForProcessUpdateForm
