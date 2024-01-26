@@ -573,7 +573,7 @@ class InitialDisproportionateBurdenUpdateForm(VersionForm):
 
     initial_disproportionate_burden_claim = AMPChoiceRadioField(
         label="Initial disproportionate burden claim (included in equality body export)",
-        choices=CaseCompliance.StatementCompliance.choices,
+        choices=Audit.DisproportionateBurden.choices,
     )
     initial_disproportionate_burden_notes = AMPTextField(
         label="Initial disproportionate burden claim details (included in equality body export)"
@@ -1333,7 +1333,7 @@ class TwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
 
     twelve_week_disproportionate_burden_claim = AMPChoiceRadioField(
         label="12-week disproportionate burden claim (included in equality body export)",
-        choices=CaseCompliance.StatementCompliance.choices,
+        choices=Audit.DisproportionateBurden.choices,
     )
     twelve_week_disproportionate_burden_notes = AMPTextField(
         label="12-week disproportionate burden claim details (included in equality body export)"

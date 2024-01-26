@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='12-week disproportionate burden claim' %}
+    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading='12-week disproportionate burden claim' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -29,7 +29,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-twelve-week-disproportionate-burden' %}
+                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-twelve-week-disproportionate-burden' %}
             </div>
         </div>
     </main>
