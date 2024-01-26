@@ -478,6 +478,16 @@ class CaseQACommentsUpdateView(CaseUpdateView):
     form_class: Type[CaseQACommentsUpdateForm] = CaseQACommentsUpdateForm
     template_name: str = "cases/forms/qa_comments.html"
 
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        case: Case = self.object
+        comment: Comment = Comment.objects.create(
+            case=case, user=self.request.user, body=form.cleaned_data.get("body")
+        )
+        record_model_create_event(user=self.request.user, model_object=comment)
+        add_comment_notification(self.request, comment)
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self) -> str:
         """
         Detect the submit button used and act accordingly.
@@ -506,8 +516,10 @@ class CaseQAReportApprovedUpdateView(CaseUpdateView):
                     add_notification(
                         user=case.auditor,
                         body=f"{self.request.user.get_full_name()} QA approved Case {case}",
-                        path=reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-                        list_description=f"{case} - QA process",
+                        path=reverse(
+                            "cases:edit-qa-report-approved", kwargs={"pk": case.id}
+                        ),
+                        list_description=f"{case} - Report approved",
                         request=self.request,
                     )
         return super().form_valid(form=form)
@@ -551,7 +563,7 @@ class QACommentCreateView(CreateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         case_pk: Dict[str, int] = {"pk": self.case.id}  # type: ignore
-        return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?#qa-discussion"
+        return f"{reverse('cases:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
 
 
 class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):

@@ -333,7 +333,7 @@ def test_report_next_step_for_not_started(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Mark the report as ready to review")
-    assertContains(response, "Go to QA process")
+    assertContains(response, "Go to Report ready for QA process")
 
 
 def test_report_next_step_for_case_unassigned_qa(admin_client):
@@ -360,7 +360,7 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "The report is waiting to be reviewed")
-    assertContains(response, "Go to QA process")
+    assertContains(response, "Go to QA comments")
 
 
 def test_report_next_step_for_case_qa_in_progress(admin_client):
@@ -387,7 +387,7 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "The report is waiting to be reviewed")
-    assertContains(response, "Go to QA process")
+    assertContains(response, "Go to QA comments")
 
 
 def test_report_next_step_for_case_report_approved(admin_client):
