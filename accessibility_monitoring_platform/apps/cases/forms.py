@@ -101,11 +101,11 @@ class CaseCreateForm(forms.ModelForm):
     """
 
     organisation_name = AMPCharFieldWide(
-        label="Organisation name",
+        label="Organisation name (included in equality body export)",
     )
-    home_page_url = AMPURLField(label="Full URL")
+    home_page_url = AMPURLField(label="Full URL (included in equality body export)")
     enforcement_body = AMPChoiceRadioField(
-        label="Which equalities body will check the case?",
+        label="Which equalities body will check the case? (included in equality body export)",
         choices=Case.EnforcementBody.choices,
     )
     psb_location = AMPChoiceRadioField(
@@ -114,20 +114,25 @@ class CaseCreateForm(forms.ModelForm):
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     previous_case_url = AMPURLField(
-        label="URL to previous case",
+        label="URL to previous case (included in equality body export)",
         help_text="If the website has been previously audited, include a link to the case below",
     )
     is_complaint = AMPChoiceCheckboxField(
-        label="Complaint?",
+        label="Complaint? (included in equality body export)",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Did this case originate from a complaint?"}
         ),
     )
-    parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
-    website_name = AMPCharFieldWide(label="Website name")
+    parental_organisation_name = AMPCharFieldWide(
+        label="Parent organisation name (included in equality body export)"
+    )
+    website_name = AMPCharFieldWide(
+        label="Website name (included in equality body export)"
+    )
     subcategory = AMPModelChoiceField(
-        label="Sub-category", queryset=SubCategory.objects.all()
+        label="Sub-category (included in equality body export)",
+        queryset=SubCategory.objects.all(),
     )
 
     class Meta:
@@ -344,9 +349,9 @@ class CaseContactUpdateForm(forms.ModelForm):
     Form for updating a contact
     """
 
-    name = AMPCharFieldWide(label="Name")
-    job_title = AMPCharFieldWide(label="Job title")
-    email = AMPCharFieldWide(label="Email")
+    name = AMPCharFieldWide(label="Name (included in equality body export)")
+    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
+    email = AMPCharFieldWide(label="Email (included in equality body export)")
     preferred = AMPChoiceRadioField(
         label="Preferred contact?", choices=Contact.Preferred.choices
     )
@@ -659,7 +664,7 @@ class CaseReviewChangesUpdateForm(VersionForm):
 
     retested_website_date = AMPDateField(label="Retested website?")
     psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body"
+        label="Summary of progress made from public sector body (included in equality body export)"
     )
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
@@ -691,11 +696,11 @@ class CaseCloseUpdateForm(VersionForm):
         label="Compliance decision sent to (email address)"
     )
     recommendation_for_enforcement = AMPChoiceRadioField(
-        label="Recommendation for equality body",
+        label="Recommendation for equality body (included in equality body export)",
         choices=Case.RecommendationForEnforcement.choices,
     )
     recommendation_notes = AMPTextField(
-        label="Enforcement recommendation notes including exemptions",
+        label="Enforcement recommendation notes including exemptions (included in equality body export)",
         help_text=mark_safe(
             '<span id="amp-copy-text-control" class="amp-control" tabindex="0">Fill text field</span>'
             " with notes from Summary of progress made from public sector body"
