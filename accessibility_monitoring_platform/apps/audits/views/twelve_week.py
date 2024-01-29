@@ -27,9 +27,9 @@ from ..forms import (
     AuditRetestStatementCheckResultFormset,
     AuditRetestStatementComparisonUpdateForm,
     AuditRetestStatementComplianceUpdateForm,
+    AuditRetestStatementCustomUpdateForm,
     AuditRetestStatementFeedbackUpdateForm,
     AuditRetestStatementNonAccessibleUpdateForm,
-    AuditRetestStatementOtherUpdateForm,
     AuditRetestStatementOverviewUpdateForm,
     AuditRetestStatementPreparationUpdateForm,
     AuditRetestStatementWebsiteUpdateForm,
@@ -503,16 +503,37 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
         return super().get_success_url()
 
 
-class AuditRetestStatementOtherFormView(AuditRetestStatementCheckingView):
+class AuditRetestStatementCustomFormView(AuditRetestStatementCheckingView):
     """
-    View to update statement other check results retest
+    View to update statement custom check results retest
     """
 
     form_class: Type[
-        AuditRetestStatementOtherUpdateForm
-    ] = AuditRetestStatementOtherUpdateForm
+        AuditRetestStatementCustomUpdateForm
+    ] = AuditRetestStatementCustomUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_other.html"
     statement_check_type: str = StatementCheck.Type.CUSTOM
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit: Audit = self.object
+            audit_pk: Dict[str, int] = {"pk": audit.id}
+            return reverse(
+                "audits:edit-twelve-week-disproportionate-burden", kwargs=audit_pk
+            )
+        return super().get_success_url()
+
+
+class TwelveWeekDisproportionateBurdenUpdateView(AuditUpdateView):
+    """
+    View to update 12-week disproportionate burden fields
+    """
+
+    form_class: Type[
+        TwelveWeekDisproportionateBurdenUpdateForm
+    ] = TwelveWeekDisproportionateBurdenUpdateForm
+    template_name: str = "audits/forms/twelve_week_disproportionate_burden.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -544,27 +565,6 @@ class AuditRetestStatementComparisonUpdateView(AuditUpdateView):
             )
         elif "save_exit" in self.request.POST:
             return reverse("audits:audit-retest-detail", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class TwelveWeekDisproportionateBurdenUpdateView(AuditUpdateView):
-    """
-    View to update 12-week disproportionate burden fields
-    """
-
-    form_class: Type[
-        TwelveWeekDisproportionateBurdenUpdateForm
-    ] = TwelveWeekDisproportionateBurdenUpdateForm
-    template_name: str = "audits/forms/twelve_week_disproportionate_burden.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit: Audit = self.object
-            audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse(
-                "audits:edit-audit-retest-statement-comparison", kwargs=audit_pk
-            )
         return super().get_success_url()
 
 

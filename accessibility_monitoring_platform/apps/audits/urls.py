@@ -58,9 +58,9 @@ from .views.twelve_week import (
     AuditRetestStatement2UpdateView,
     AuditRetestStatementComparisonUpdateView,
     AuditRetestStatementComplianceFormView,
+    AuditRetestStatementCustomFormView,
     AuditRetestStatementFeedbackFormView,
     AuditRetestStatementNonAccessibleFormView,
-    AuditRetestStatementOtherFormView,
     AuditRetestStatementOverviewFormView,
     AuditRetestStatementPreparationFormView,
     AuditRetestStatementWebsiteFormView,
@@ -167,6 +167,11 @@ urlpatterns: List[URLPattern] = [
         name="edit-statement-custom",
     ),
     path(
+        "<int:pk>/edit-initial-disproportionate-burden/",
+        login_required(InitialDisproportionateBurdenUpdateView.as_view()),
+        name="edit-initial-disproportionate-burden",
+    ),
+    path(
         "<int:pk>/edit-audit-summary/",
         login_required(AuditSummaryUpdateView.as_view()),
         name="edit-audit-summary",
@@ -175,11 +180,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-report-options/",
         login_required(AuditReportOptionsUpdateView.as_view()),
         name="edit-audit-report-options",
-    ),
-    path(
-        "<int:pk>/edit-initial-disproportionate-burden/",
-        login_required(InitialDisproportionateBurdenUpdateView.as_view()),
-        name="edit-initial-disproportionate-burden",
     ),
     path(
         "<int:pk>/audit-retest-start/",
@@ -258,18 +258,18 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-retest-statement-custom/",
-        login_required(AuditRetestStatementOtherFormView.as_view()),
+        login_required(AuditRetestStatementCustomFormView.as_view()),
         name="edit-retest-statement-custom",
-    ),
-    path(
-        "<int:pk>/edit-audit-retest-statement-comparison/",
-        login_required(AuditRetestStatementComparisonUpdateView.as_view()),
-        name="edit-audit-retest-statement-comparison",
     ),
     path(
         "<int:pk>/edit-twelve-week-disproportionate-burden/",
         login_required(TwelveWeekDisproportionateBurdenUpdateView.as_view()),
         name="edit-twelve-week-disproportionate-burden",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-statement-comparison/",
+        login_required(AuditRetestStatementComparisonUpdateView.as_view()),
+        name="edit-audit-retest-statement-comparison",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-decision/",

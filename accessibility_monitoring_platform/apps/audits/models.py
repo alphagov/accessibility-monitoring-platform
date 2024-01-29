@@ -159,11 +159,6 @@ class Audit(VersionModel):
         NA = "n/a", "N/A"
         OTHER = "other", "Other (Please specify)"
 
-    class ArchiveDisproportionateBurden(models.TextChoices):
-        NO_CLAIM = "no-claim", "No claim"
-        ASSESSMENT = "assessment", "Claim with assessment"
-        NO_ASSESSMENT = "no-assessment", "Claim with no assessment"
-
     class DisproportionateBurden(models.TextChoices):
         NO_ASSESSMENT = "no-assessment", "Claim with no assessment"
         ASSESSMENT = "assessment", "Claim with assessment"
@@ -228,8 +223,8 @@ class Audit(VersionModel):
         "compliance": [Compliance.PRESENT],
         "non_regulation": [NonRegulation.PRESENT],
         "disproportionate_burden": [
-            ArchiveDisproportionateBurden.NO_CLAIM,
-            ArchiveDisproportionateBurden.ASSESSMENT,
+            DisproportionateBurden.NO_CLAIM,
+            DisproportionateBurden.ASSESSMENT,
         ],
         "content_not_in_scope": [ContentNotInScope.PRESENT],
         "preparation_date": [PreparationDate.PRESENT],
@@ -302,8 +297,8 @@ class Audit(VersionModel):
     archive_disproportionate_burden_state = models.CharField(
         "Non-accessible Content - disproportionate burden",
         max_length=20,
-        choices=ArchiveDisproportionateBurden.choices,
-        default=ArchiveDisproportionateBurden.NO_CLAIM,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NO_CLAIM,
     )
     archive_disproportionate_burden_notes = models.TextField(default="", blank=True)
     archive_content_not_in_scope_state = models.CharField(
@@ -546,8 +541,8 @@ class Audit(VersionModel):
     archive_audit_retest_non_regulation_notes = models.TextField(default="", blank=True)
     archive_audit_retest_disproportionate_burden_state = models.CharField(
         max_length=20,
-        choices=ArchiveDisproportionateBurden.choices,
-        default=ArchiveDisproportionateBurden.NO_CLAIM,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NO_CLAIM,
     )
     archive_audit_retest_disproportionate_burden_notes = models.TextField(
         default="", blank=True
