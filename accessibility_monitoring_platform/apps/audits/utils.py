@@ -26,6 +26,8 @@ from .forms import (
     CaseComplianceWebsite12WeekUpdateForm,
     CaseComplianceWebsiteInitialUpdateForm,
     CheckResultForm,
+    InitialDisproportionateBurdenUpdateForm,
+    TwelveWeekDisproportionateBurdenUpdateForm,
 )
 from .models import (
     ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT,
@@ -117,6 +119,9 @@ def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndVa
         "website_decision_rows": get_compliance_rows(
             form=CaseComplianceWebsiteInitialUpdateForm()
         ),
+        "initial_disproportionate_burden": get_audit_rows(
+            form=InitialDisproportionateBurdenUpdateForm()
+        ),
         "audit_statement_1_rows": get_audit_rows(
             form=ArchiveAuditStatement1UpdateForm()
         ),
@@ -132,12 +137,18 @@ def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndVa
 
 def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndValue]]:
     """Get context for 12-week retest view tables"""
+    get_audit_rows: Callable = partial(
+        extract_form_labels_and_values, instance=case.audit
+    )
     get_compliance_rows: Callable = partial(
         extract_form_labels_and_values, instance=case.compliance
     )
     return {
         "audit_retest_website_decision_rows": get_compliance_rows(
             form=CaseComplianceWebsite12WeekUpdateForm()
+        ),
+        "twelve_week_disproportionate_burden": get_audit_rows(
+            form=TwelveWeekDisproportionateBurdenUpdateForm()
         ),
         "audit_retest_statement_decision_rows": get_compliance_rows(
             form=ArchiveCaseComplianceStatement12WeekUpdateForm()

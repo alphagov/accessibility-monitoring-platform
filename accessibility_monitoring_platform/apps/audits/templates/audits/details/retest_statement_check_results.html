@@ -120,3 +120,7 @@
         <p class="govuk-body-m">No custom statement issues have been entered</p>
     {% endif %}
 </div>
+
+<div{% if case.audit %} data-search-target-page-name="12-week disproportionate burden" data-search-target-label="Edit test > 12-week disproportionate burden" data-search-target-url="{% url 'audits:edit-twelve-week-disproportionate-burden' case.audit.id %}"{% endif %}>
+    {% include 'audits/details/twelve_week_disproportionate_burden.html' with on_view_case=True %}
+</div>

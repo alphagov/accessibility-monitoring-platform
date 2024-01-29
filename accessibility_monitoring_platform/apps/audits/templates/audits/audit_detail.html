@@ -363,6 +363,22 @@
                     </div>
                 {% endif %}
 
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="initial-disproportionate-burden" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-initial-disporportionate-burden">
+                                Initial disproportionate burden claim
+                                {% if audit.initial_disproportionate_burden_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-initial-disporportionate-burden" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-initial-disporportionate-burden">
+                        {% include 'audits/details/initial_disproportionate_burden.html' %}
+                    </div>
+                </div>
             {% else %}
                 <div class="govuk-accordion__section">
                     <div class="govuk-accordion__section-header">

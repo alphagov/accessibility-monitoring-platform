@@ -369,6 +369,22 @@
                         </div>
                     </div>
                 {% endif %}
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="twelve-week-disproportionate-burden" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-12-week-disporportionate-burden">
+                                12-week disproportionate burden claim
+                                {% if audit.twelve_week_disproportionate_burden_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-12-week-disporportionate-burden" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-12-week-disporportionate-burden">
+                        {% include 'audits/details/twelve_week_disproportionate_burden.html' %}
+                    </div>
+                </div>
 
             {% else %}
 
