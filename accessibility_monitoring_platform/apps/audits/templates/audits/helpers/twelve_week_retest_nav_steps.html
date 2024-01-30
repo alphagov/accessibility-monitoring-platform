@@ -32,6 +32,7 @@
                         {% include './nav_step.html' with edit_name='audits:edit-retest-statement-feedback' name='12-week feedback and enforcement procedure' complete=audit.audit_retest_statement_feedback_complete_date %}
                         {% include './nav_step.html' with edit_name='audits:edit-retest-statement-custom' name='12-week custom statement issues' complete=audit.audit_retest_statement_custom_complete_date %}
                         {% include './nav_step.html' with edit_name='audits:edit-twelve-week-disproportionate-burden' name='12-week disproportionate burden claim' complete=audit.twelve_week_disproportionate_burden_complete_date %}
+                        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-decision' name='12-week statement compliance decision' complete=audit.archive_audit_retest_statement_decision_complete_date %}
                     </ul>
                 </li>
             {% endif %}

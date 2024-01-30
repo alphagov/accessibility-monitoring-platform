@@ -124,3 +124,7 @@
 <div{% if case.audit %} data-search-target-page-name="Initial disproportionate burden" data-search-target-label="Edit test > Initial disproportionate burden" data-search-target-url="{% url 'audits:edit-initial-disproportionate-burden' case.audit.id %}"{% endif %}>
     {% include 'audits/details/initial_disproportionate_burden.html' with on_view_case=True %}
 </div>
+
+<div{% if case.audit %} data-search-target-page-name="Initial statement compliance decision" data-search-target-label="Edit test > Initial statement compliance decision" data-search-target-url="{% url 'audits:edit-statement-decision' case.audit.id %}"{% endif %}>
+    {% include 'audits/details/statement_decision.html' with on_view_case=True %}
+</div>

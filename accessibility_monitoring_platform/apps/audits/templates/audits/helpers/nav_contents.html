@@ -29,6 +29,7 @@
                             {% include './nav_content.html' with id='edit-statement-feedback' anchor="statement-feedback" edit_name='audits:edit-statement-feedback' name='Feedback and enforcement procedure' complete=audit.audit_statement_feedback_complete_date %}
                             {% include './nav_content.html' with id='edit-statement-custom' anchor="statement-custom" edit_name='audits:edit-statement-custom' name='Custom statement issues' complete=audit.audit_statement_custom_complete_date %}
                             {% include './nav_content.html' with id='edit-initial-disproportionate-burden' anchor="initial-disproportionate-burden" edit_name='audits:edit-initial-disproportionate-burden' name='Initial disproportionate burden claim' complete=audit.initial_disproportionate_burden_complete_date %}
+                            {% include './nav_content.html' with id='edit-statement-decision' anchor="statement-decision" edit_name='audits:edit-statement-decision' name='Initial statement compliance decision' complete=audit.archive_audit_statement_decision_complete_date %}
                         </ul>
                     </li>
                 {% endif %}

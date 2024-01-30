@@ -596,12 +596,9 @@ class ArchiveCaseComplianceStatementInitialUpdateForm(VersionForm):
     """
 
     statement_compliance_state_initial = AMPChoiceRadioField(
-        label="Initial accessibility statement compliance decision",
+        label="Initial statement compliance decision (included in equality body export)",
         help_text="This field effects the case status",
         choices=CaseCompliance.StatementCompliance.choices,
-    )
-    statement_compliance_notes_initial = AMPTextField(
-        label="Initial accessibility statement compliance notes"
     )
 
     class Meta:
@@ -609,7 +606,6 @@ class ArchiveCaseComplianceStatementInitialUpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "statement_compliance_state_initial",
-            "statement_compliance_notes_initial",
         ]
 
 
@@ -1356,11 +1352,8 @@ class ArchiveCaseComplianceStatement12WeekUpdateForm(VersionForm):
     """
 
     statement_compliance_state_12_week = AMPChoiceRadioField(
-        label="12-week accessibility statement compliance decision",
+        label="12-week  statement compliance decision (included in equality body export)",
         choices=CaseCompliance.StatementCompliance.choices,
-    )
-    statement_compliance_notes_12_week = AMPTextField(
-        label="12-week accessibility statement compliance notes",
     )
 
     class Meta:
@@ -1368,7 +1361,6 @@ class ArchiveCaseComplianceStatement12WeekUpdateForm(VersionForm):
         fields = [
             "version",
             "statement_compliance_state_12_week",
-            "statement_compliance_notes_12_week",
         ]
 
 
