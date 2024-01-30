@@ -1,0 +1,25 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>QA auditor</b>
+            |
+            <a href="{% url 'cases:edit-qa-auditor' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit
+            </a>
+        </p>
+    </div>
+</div>
+<table class="govuk-table amp-accordion-table">
+    <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                QA Auditor
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.reviewer.get_full_name }}
+            </td>
+        </tr>
+    </tbody>
+</table>

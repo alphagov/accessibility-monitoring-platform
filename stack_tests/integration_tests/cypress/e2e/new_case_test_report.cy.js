@@ -83,6 +83,9 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Custom statement issues`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | Initial disproportionate burden claim`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
     cy.contains('Save and exit').click()
 
@@ -98,11 +101,20 @@ describe('Create case, tests and report', () => {
 
     cy.title().should('eq', `${newOrganisationName} | Report publisher`)
     cy.contains('Mark the report as ready to review')
-    cy.contains('Go to QA process').click()
+    cy.contains('Go to Report ready for QA process').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA process`)
+    cy.title().should('eq', `${newOrganisationName} | Report ready for QA process`)
     cy.get('[name="report_review_status"]').check('yes')
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | QA auditor`)
     cy.get('#id_reviewer').select('QA Auditor')
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | QA comments`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Report approved`)
     cy.get('[name="report_approved_status"]').check('yes')
     cy.contains('Save').click()
 
@@ -127,7 +139,16 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Report details`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA process`)
+    cy.title().should('eq', `${newOrganisationName} | Report ready for QA process`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | QA auditor`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | QA comments`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Report approved`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Correspondence overview`)
@@ -198,6 +219,9 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week custom statement issues`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week disproportionate burden claim`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement comparison`)

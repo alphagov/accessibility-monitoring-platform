@@ -95,7 +95,7 @@ def test_case_status_qa_in_progress(admin_client):
     assert case.status.status == "qa-in-progress"
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to QA process"
+        admin_client, case=case, expected_link_label="Go to QA auditor"
     )
 
 

@@ -101,11 +101,11 @@ class CaseCreateForm(forms.ModelForm):
     """
 
     organisation_name = AMPCharFieldWide(
-        label="Organisation name",
+        label="Organisation name (included in equality body export)",
     )
-    home_page_url = AMPURLField(label="Full URL")
+    home_page_url = AMPURLField(label="Full URL (included in equality body export)")
     enforcement_body = AMPChoiceRadioField(
-        label="Which equalities body will check the case?",
+        label="Which equalities body will check the case? (included in equality body export)",
         choices=Case.EnforcementBody.choices,
     )
     psb_location = AMPChoiceRadioField(
@@ -114,20 +114,25 @@ class CaseCreateForm(forms.ModelForm):
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     previous_case_url = AMPURLField(
-        label="URL to previous case",
+        label="URL to previous case (included in equality body export)",
         help_text="If the website has been previously audited, include a link to the case below",
     )
     is_complaint = AMPChoiceCheckboxField(
-        label="Complaint?",
+        label="Complaint? (included in equality body export)",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Did this case originate from a complaint?"}
         ),
     )
-    parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
-    website_name = AMPCharFieldWide(label="Website name")
+    parental_organisation_name = AMPCharFieldWide(
+        label="Parent organisation name (included in equality body export)"
+    )
+    website_name = AMPCharFieldWide(
+        label="Website name (included in equality body export)"
+    )
     subcategory = AMPModelChoiceField(
-        label="Sub-category", queryset=SubCategory.objects.all()
+        label="Sub-category (included in equality body export)",
+        queryset=SubCategory.objects.all(),
     )
 
     class Meta:
@@ -261,9 +266,9 @@ class CaseReportDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseQAProcessUpdateForm(VersionForm):
+class CaseQAReadyForProcessUpdateForm(VersionForm):
     """
-    Form for updating QA process
+    Form for updating Report ready for QA process
     """
 
     report_review_status = AMPChoiceRadioField(
@@ -271,29 +276,73 @@ class CaseQAProcessUpdateForm(VersionForm):
         choices=Boolean.choices,
         help_text="This field affects the case status",
     )
-    reviewer = AMPAuditorModelChoiceField(
-        label="QA Auditor",
-        help_text="This field affects the case status",
-    )
-    report_approved_status = AMPChoiceRadioField(
-        label="Report approved?",
-        choices=Case.ReportApprovedStatus.choices,
-        help_text="This field affects the case status",
-    )
-    report_final_odt_url = AMPURLField(label="Link to final ODT report")
-    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
-    qa_process_complete_date = AMPDatePageCompleteField()
+    report_ready_for_qa_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
             "report_review_status",
+            "report_ready_for_qa_complete_date",
+        ]
+
+
+class CaseQAAuditorUpdateForm(VersionForm):
+    """
+    Form for updating QA auditor
+    """
+
+    reviewer = AMPAuditorModelChoiceField(
+        label="QA Auditor",
+        help_text="This field affects the case status",
+    )
+    qa_auditor_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
             "reviewer",
+            "qa_auditor_complete_date",
+        ]
+
+
+class CaseQACommentsUpdateForm(VersionForm):
+    """
+    Form for updating QA comments page
+    """
+
+    body: AMPTextField = AMPTextField(
+        label="Add comment",
+        widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "12"}),
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "body",
+        ]
+
+
+class CaseQAReportApprovedForm(VersionForm):
+    """
+    Form for updating Report approved
+    """
+
+    report_approved_status = AMPChoiceRadioField(
+        label="Report approved?",
+        choices=Case.ReportApprovedStatus.choices,
+        help_text="This field affects the case status",
+    )
+    qa_approved_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
             "report_approved_status",
-            "report_final_odt_url",
-            "report_final_pdf_url",
-            "qa_process_complete_date",
+            "qa_approved_complete_date",
         ]
 
 
@@ -344,9 +393,9 @@ class CaseContactUpdateForm(forms.ModelForm):
     Form for updating a contact
     """
 
-    name = AMPCharFieldWide(label="Name")
-    job_title = AMPCharFieldWide(label="Job title")
-    email = AMPCharFieldWide(label="Email")
+    name = AMPCharFieldWide(label="Name (included in equality body export)")
+    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
+    email = AMPCharFieldWide(label="Email (included in equality body export)")
     preferred = AMPChoiceRadioField(
         label="Preferred contact?", choices=Contact.Preferred.choices
     )
@@ -387,7 +436,8 @@ class CaseReportSentOnUpdateForm(VersionForm):
     """
 
     report_sent_date = AMPDateField(
-        label="Report sent on", help_text="This field affects the case status"
+        label="Report sent on (included in equality body export)",
+        help_text="This field affects the case status",
     )
     report_sent_to_email = AMPCharFieldWide(label="Report sent to (email address)")
     correspondence_notes = AMPTextField(label="Correspondence notes")
@@ -484,7 +534,8 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
     """
 
     report_acknowledged_date = AMPDateField(
-        label="Report acknowledged date", help_text="This field affects the case status"
+        label="Report acknowledged date (included in equality body export)",
+        help_text="This field affects the case status",
     )
     report_acknowledged_by_email = AMPCharFieldWide(
         label="Report acknowledged by (email address)"
@@ -512,7 +563,9 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         label="12-week update requested date",
         help_text="This field affects the case status",
     )
-    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
+    report_followup_week_12_due_date = AMPDateField(
+        label="12-week deadline (included in equality body export)"
+    )
     twelve_week_update_request_sent_to_email = AMPCharFieldWide(
         label="12-week request sent to (email address)"
     )
@@ -590,7 +643,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
         label="12-week update request acknowledged by (email address)"
     )
     organisation_response = AMPChoiceRadioField(
-        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’",
+        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’  (included in equality body export)",
         help_text="This field affects the case status",
         choices=Case.OrganisationResponse.choices,
     )
@@ -657,9 +710,11 @@ class CaseReviewChangesUpdateForm(VersionForm):
     Form to record review of changes made by PSB
     """
 
-    retested_website_date = AMPDateField(label="Retested website?")
+    retested_website_date = AMPDateField(
+        label="Retested website? (included in equality body export)"
+    )
     psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body"
+        label="Summary of progress made from public sector body (included in equality body export)"
     )
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
@@ -685,17 +740,17 @@ class CaseCloseUpdateForm(VersionForm):
     """
 
     compliance_email_sent_date = AMPDateField(
-        label="Date when compliance decision email sent to public sector body"
+        label="Date when compliance decision email sent to public sector body (included in equality body export)"
     )
     compliance_decision_sent_to_email = AMPCharFieldWide(
         label="Compliance decision sent to (email address)"
     )
     recommendation_for_enforcement = AMPChoiceRadioField(
-        label="Recommendation for equality body",
+        label="Recommendation for equality body (included in equality body export)",
         choices=Case.RecommendationForEnforcement.choices,
     )
     recommendation_notes = AMPTextField(
-        label="Enforcement recommendation notes including exemptions",
+        label="Enforcement recommendation notes including exemptions (included in equality body export)",
         help_text=mark_safe(
             '<span id="amp-copy-text-control" class="amp-control" tabindex="0">Fill text field</span>'
             " with notes from Summary of progress made from public sector body"

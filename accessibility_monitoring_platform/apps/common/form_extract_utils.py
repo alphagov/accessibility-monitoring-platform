@@ -15,7 +15,9 @@ EXCLUDED_FIELDS = [
     "case_details_complete_date",
     "testing_details_complete_date",
     "reporting_details_complete_date",
-    "qa_process_complete_date",
+    "report_ready_for_qa_complete_date",
+    "qa_auditor_complete_date",
+    "qa_approved_complete_date",
     "cores_overview_complete_date",
     "find_contact_details_complete_date",
     "contact_details_complete_date",
@@ -46,6 +48,8 @@ EXCLUDED_FIELDS = [
     "twelve_week_retest_complete_date",
     "add_contact_email",
     "add_contact_notes",
+    "initial_disproportionate_burden_complete_date",
+    "twelve_week_disproportionate_burden_complete_date",
 ]
 EXTRA_LABELS = {
     "report_draft_url": "Report draft",

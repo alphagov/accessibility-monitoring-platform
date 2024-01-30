@@ -9,7 +9,7 @@
             {% include 'common/breadcrumb_home.html' %}
             {% include 'cases/helpers/breadcrumb_case.html' with case=comment.case %}
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-qa-process' comment.case.id %}">QA process</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-qa-comments' comment.case.id %}">QA comments</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">Edit or delete comment</li>
         </ol>
@@ -38,7 +38,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'cases:edit-qa-process' comment.case.id %}?#qa-discussion"
+                                href="{% url 'cases:edit-qa-comments' comment.case.id %}?#qa-discussion"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel
@@ -57,7 +57,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-qa-process' case=comment.case %}
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-qa-comments' case=comment.case %}
             </div>
         </div>
     </main>

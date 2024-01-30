@@ -7,7 +7,6 @@ from typing import Dict, List, Optional
 from zoneinfo import ZoneInfo
 
 import pytest
-from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
@@ -30,7 +29,6 @@ from ...common.models import Boolean, Event, Sector
 from ...common.utils import amp_format_date
 from ...notifications.models import Notification
 from ...reports.models import Report
-from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     CaseCompliance,
@@ -50,7 +48,7 @@ from ..views import (
     FOUR_WEEKS_IN_DAYS,
     ONE_WEEK_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
-    CaseQAProcessUpdateView,
+    CaseQAReportApprovedUpdateView,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
     find_duplicate_cases,
@@ -720,7 +718,10 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
-        ("cases:edit-qa-process", "<li>QA process</li>"),
+        ("cases:edit-qa-ready-for-process", "<li>Report ready for QA process</li>"),
+        ("cases:edit-qa-auditor", "<li>QA auditor</li>"),
+        ("cases:edit-qa-comments", "<li>QA comments</li>"),
+        ("cases:edit-qa-report-approved", "<li>Report approved</li>"),
         ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
         ("cases:edit-find-contact-details", "<li>Find contact details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
@@ -927,9 +928,19 @@ def test_updating_case_creates_case_event(admin_client):
         ("cases:edit-test-results", "save", "cases:edit-test-results"),
         ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
         ("cases:edit-report-details", "save", "cases:edit-report-details"),
-        ("cases:edit-report-details", "save_continue", "cases:edit-qa-process"),
-        ("cases:edit-qa-process", "save", "cases:edit-qa-process"),
-        ("cases:edit-qa-process", "save_continue", "cases:edit-cores-overview"),
+        (
+            "cases:edit-report-details",
+            "save_continue",
+            "cases:edit-qa-ready-for-process",
+        ),
+        ("cases:edit-qa-ready-for-process", "save", "cases:edit-qa-ready-for-process"),
+        ("cases:edit-qa-ready-for-process", "save_continue", "cases:edit-qa-auditor"),
+        ("cases:edit-qa-auditor", "save", "cases:edit-qa-auditor"),
+        ("cases:edit-qa-auditor", "save_continue", "cases:edit-qa-comments"),
+        ("cases:edit-qa-comments", "save", "cases:edit-qa-comments"),
+        ("cases:edit-qa-comments", "save_continue", "cases:edit-qa-report-approved"),
+        ("cases:edit-qa-report-approved", "save", "cases:edit-qa-report-approved"),
+        ("cases:edit-qa-report-approved", "save_continue", "cases:edit-cores-overview"),
         ("cases:edit-cores-overview", "save", "cases:edit-cores-overview"),
         (
             "cases:edit-cores-overview",
@@ -1118,8 +1129,8 @@ def test_add_qa_comment(admin_client, admin_user):
     assert event.type == Event.Type.CREATE
 
 
-def test_add_qa_comment_redirects_to_qa_process(admin_client):
-    """Test adding a QA comment redirects to QA process page"""
+def test_add_qa_comment_redirects_to_qa_comments(admin_client):
+    """Test adding a QA comment redirects to QA comments page"""
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
@@ -1131,7 +1142,7 @@ def test_add_qa_comment_redirects_to_qa_process(admin_client):
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?#qa-discussion'
+        == f'{reverse("cases:edit-qa-comments", kwargs={"pk": case.id})}?#qa-discussion'
     )
 
 
@@ -1666,7 +1677,13 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ("case_details_complete_date", "Case details", "edit-case-details"),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
-        ("qa_process_complete_date", "QA process", "edit-qa-process"),
+        (
+            "report_ready_for_qa_complete_date",
+            "Report ready for QA process",
+            "edit-qa-ready-for-process",
+        ),
+        ("qa_auditor_complete_date", "QA auditor", "edit-qa-auditor"),
+        ("qa_approved_complete_date", "Report approved", "edit-qa-report-approved"),
         (
             "cores_overview_complete_date",
             "Correspondence overview",
@@ -1760,7 +1777,17 @@ def test_section_complete_check_displayed(
             "reporting_details_complete_date",
             "Report details",
         ),
-        ("cases:edit-qa-process", "qa_process_complete_date", "QA process"),
+        (
+            "cases:edit-qa-ready-for-process",
+            "report_ready_for_qa_complete_date",
+            "Report ready for QA process",
+        ),
+        ("cases:edit-qa-auditor", "qa_auditor_complete_date", "QA auditor"),
+        (
+            "cases:edit-qa-report-approved",
+            "qa_approved_complete_date",
+            "Report approved",
+        ),
         (
             "cases:edit-cores-overview",
             "cores_overview_complete_date",
@@ -2141,7 +2168,10 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
         "edit-case-details",
         "edit-test-results",
         "edit-report-details",
-        "edit-qa-process",
+        "edit-qa-ready-for-process",
+        "edit-qa-auditor",
+        "edit-qa-comments",
+        "edit-qa-report-approved",
         "edit-contact-details",
         "edit-twelve-week-retest",
         "edit-review-changes",
@@ -2195,8 +2225,8 @@ def test_status_change_message_shown(admin_client):
 
 
 @pytest.mark.django_db
-def test_qa_process_approval_notifies_auditor(rf):
-    """Test approving the report on the QA process page notifies the auditor"""
+def test_qa_report_approved_notifies_auditor(rf):
+    """Test approving the report on the QA report approved page notifies the auditor"""
     user: User = User.objects.create()
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME, auditor=user)
 
@@ -2204,7 +2234,7 @@ def test_qa_process_approval_notifies_auditor(rf):
         username="johnsmith", first_name="John", last_name="Smith"
     )
     request = rf.post(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
+        reverse("cases:edit-qa-report-approved", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "report_approved_status": Case.ReportApprovedStatus.APPROVED,
@@ -2213,7 +2243,9 @@ def test_qa_process_approval_notifies_auditor(rf):
     )
     request.user = request_user
 
-    response: HttpResponse = CaseQAProcessUpdateView.as_view()(request, pk=case.id)
+    response: HttpResponse = CaseQAReportApprovedUpdateView.as_view()(
+        request, pk=case.id
+    )
 
     assert response.status_code == 302
 
@@ -2234,7 +2266,7 @@ def test_qa_process_approval_notifies_auditor(rf):
         ("trello_url", "edit-contact-details"),
         ("zendesk_url", "edit-test-results"),
         ("trello_url", "edit-report-details"),
-        ("trello_url", "edit-qa-process"),
+        ("trello_url", "edit-qa-ready-for-process"),
         ("zendesk_url", "edit-review-changes"),
         ("zendesk_url", "edit-case-close"),
     ],
@@ -2489,7 +2521,10 @@ def test_update_case_checks_version(admin_client):
         "edit-case-details",
         "edit-test-results",
         "edit-report-details",
-        "edit-qa-process",
+        "edit-qa-ready-for-process",
+        "edit-qa-auditor",
+        "edit-qa-comments",
+        "edit-qa-report-approved",
         "edit-contact-details",
         "edit-twelve-week-retest",
         "edit-review-changes",
@@ -2521,164 +2556,6 @@ def test_platform_shows_notification_if_fully_compliant(
         </h3>""",
         html=True,
     )
-
-
-def test_non_platform_qa_process_shows_no_link_to_draft_report(admin_client):
-    """
-    Test that the QA process page shows that the link to report draft is none
-    when none is set and the report methodology is not platform.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<div class="govuk-form-group">
-            <label class="govuk-label"><b>Link to report draft</b></label>
-            <div class="govuk-hint">None</div>
-        </div>""",
-        html=True,
-    )
-
-
-def test_platform_qa_process_shows_no_link_to_preview_report(admin_client):
-    """
-    Test that the QA process page shows that the link to report draft is none
-    when no report exists and the report methodology is platform.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<div class="govuk-form-group">
-            <label class="govuk-label"><b>Link to report draft</b></label>
-            <div class="govuk-hint">None</div>
-        </div>""",
-        html=True,
-    )
-
-
-def test_platform_qa_process_shows_link_to_preview_report(admin_client):
-    """
-    Test that the QA process page shows the link to preview draft
-    when the report methodology is platform.
-    """
-    case: Case = Case.objects.create()
-
-    report: Report = Report.objects.create(case=case)
-    report_publisher_url: str = reverse(
-        "reports:report-publisher", kwargs={"pk": report.id}
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        f"""<div class="govuk-form-group">
-            <label class="govuk-label"><b>Link to report draft</b></label>
-            <div class="govuk-hint">
-                <a href="{report_publisher_url}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
-                    Report publisher
-                </a>
-            </div>
-        </div>""",
-        html=True,
-    )
-
-
-def test_platform_qa_process_shows_link_to_publish_report(admin_client):
-    """
-    Test that the QA process page shows the link to publish the report
-    when the report methodology is platform and report has not been published.
-    """
-    case: Case = Case.objects.create()
-
-    report: Report = Report.objects.create(case=case)
-    report_confirm_publish_url: str = reverse(
-        "reports:report-confirm-publish", kwargs={"pk": report.id}
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<div class="govuk-form-group">
-            <label class="govuk-label"><b>Published report</b></label>
-            <div class="govuk-hint">
-                HTML report has not been published. Publish report in
-                <a href="{report_confirm_publish_url}" class="govuk-link govuk-link--no-visited-state">
-                    Case > Report publisher > Publish HTML report</a>
-            </div>
-        </div>""",
-        html=True,
-    )
-
-
-def test_platform_qa_process_shows_link_to_s3_report(admin_client):
-    """
-    Test that the QA process page shows the link to report on S3
-    when the report methodology is platform and report has been published.
-    """
-    case: Case = Case.objects.create()
-    Report.objects.create(case=case)
-    s3_report: S3Report = S3Report.objects.create(
-        case=case, guid="guid", version=0, latest_published=True
-    )
-    s3_report_url: str = (
-        f"{settings.AMP_PROTOCOL}{settings.AMP_VIEWER_DOMAIN}/reports/{s3_report.guid}"
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<div class="govuk-form-group">
-            <label class="govuk-label"><b>Published report</b></label>
-            <div class="govuk-hint">
-                <a href="{s3_report_url}" rel="noreferrer noopener"
-                    target="_blank" class="govuk-link">
-                    View published HTML report
-                </a>
-            </div>
-        </div>""",
-        html=True,
-    )
-
-
-def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
-    """
-    Test that the QA process page does not show the published report fields
-    when the report methodology is platform.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertNotContains(response, "Link to final PDF report")
-    assertNotContains(response, "Link to final ODT report")
 
 
 def test_status_workflow_assign_an_auditor(admin_client, admin_user):
@@ -2727,13 +2604,13 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     "path_name,label,field_name,field_value",
     [
         (
-            "cases:edit-qa-process",
+            "cases:edit-qa-ready-for-process",
             "Report ready to be reviewed needs to be Yes",
             "report_review_status",
             Boolean.YES,
         ),
         (
-            "cases:edit-qa-process",
+            "cases:edit-qa-report-approved",
             "Report approved needs to be Yes",
             "report_approved_status",
             Case.ReportApprovedStatus.APPROVED,
@@ -2857,79 +2734,77 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
 
 
 @pytest.mark.parametrize(
-    "edit_case_url_name, nav_link_name,nav_link_label",
+    "nav_link_name,nav_link_label",
     [
         (
-            "cases:edit-case-details",
             "cases:edit-test-results",
             "Testing details",
         ),
         (
-            "cases:edit-case-details",
             "cases:edit-report-details",
             "Report details",
         ),
         (
-            "cases:edit-case-details",
-            "cases:edit-qa-process",
-            "QA process",
+            "cases:edit-qa-ready-for-process",
+            "Report ready for QA process",
         ),
         (
-            "cases:edit-case-details",
+            "cases:edit-qa-auditor",
+            "QA auditor",
+        ),
+        (
+            "cases:edit-qa-comments",
+            "QA comments",
+        ),
+        (
+            "cases:edit-qa-report-approved",
+            "Report approved",
+        ),
+        (
             "cases:edit-cores-overview",
             "Correspondence overview",
         ),
         (
-            "cases:edit-case-details",
             "cases:edit-find-contact-details",
             "Find contact details",
         ),
-        ("cases:edit-case-details", "cases:edit-contact-details", "Contact details"),
-        ("cases:edit-case-details", "cases:edit-report-sent-on", "Report sent on"),
+        ("cases:edit-contact-details", "Contact details"),
+        ("cases:edit-report-sent-on", "Report sent on"),
         (
-            "cases:edit-case-details",
             "cases:edit-one-week-followup",
             "One week follow-up",
         ),
         (
-            "cases:edit-case-details",
             "cases:edit-four-week-followup",
             "Four week follow-up",
         ),
         (
-            "cases:edit-case-details",
             "cases:edit-report-acknowledged",
             "Report acknowledged",
         ),
         (
-            "cases:edit-case-details",
             "cases:edit-12-week-update-requested",
             "12-week update requested",
         ),
         (
-            "cases:edit-case-details",
             "cases:edit-one-week-followup-final",
             "One week follow-up for final update",
         ),
         (
-            "cases:edit-case-details",
             "cases:edit-12-week-update-request-ack",
             "12-week update request acknowledged",
         ),
         (
-            "cases:edit-case-details",
             "cases:edit-twelve-week-retest",
             "12-week retest",
         ),
         (
-            "cases:edit-case-details",
             "cases:edit-review-changes",
             "Reviewing changes",
         ),
     ],
 )
 def test_navigation_links_shown(
-    edit_case_url_name,
     nav_link_name,
     nav_link_label,
     admin_client,
@@ -2941,7 +2816,7 @@ def test_navigation_links_shown(
     nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
-        reverse(edit_case_url_name, kwargs={"pk": case.id}),
+        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
