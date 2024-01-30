@@ -386,23 +386,6 @@
                     </div>
                 </div>
 
-                <div class="govuk-accordion__section ">
-                    <div class="govuk-accordion__section-header">
-                        <h2 id="audit-retest-statement-decision" class="govuk-accordion__section-heading">
-                            <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-statement-decision">
-                                12-week statement compliance decision
-                                {% if audit.archive_audit_retest_statement_decision_complete_date %}
-                                    <span class="govuk-visually-hidden">complete</span>
-                                    &check;
-                                {% endif %}
-                            </span>
-                        </h2>
-                    </div>
-                    <div id="accordion-content-audit-retest-statement-decision" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-statement-decision">
-                        {% include 'audits/details/retest_statement_decision.html' %}
-                    </div>
-                </div>
-
             {% else %}
 
                 <div class="govuk-accordion__section ">
@@ -439,6 +422,23 @@
                     </div>
                 </div>
             {% endif %}
+
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-retest-statement-decision" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-statement-decision">
+                            12-week statement compliance decision
+                            {% if audit.archive_audit_retest_statement_decision_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-retest-statement-decision" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-statement-decision">
+                    {% include 'audits/details/retest_statement_decision.html' %}
+                </div>
+            </div>
 
             <div class="govuk-accordion__section ">
                 <div class="govuk-accordion__section-header">
