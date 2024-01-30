@@ -775,6 +775,16 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-custom",
             "save_continue",
+            "audits:edit-initial-disproportionate-burden",
+        ),
+        (
+            "audits:edit-initial-disproportionate-burden",
+            "save",
+            "audits:edit-initial-disproportionate-burden",
+        ),
+        (
+            "audits:edit-initial-disproportionate-burden",
+            "save_continue",
             "audits:edit-audit-summary",
         ),
         (
@@ -859,6 +869,16 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         ),
         (
             "audits:edit-retest-statement-custom",
+            "save_continue",
+            "audits:edit-twelve-week-disproportionate-burden",
+        ),
+        (
+            "audits:edit-twelve-week-disproportionate-burden",
+            "save",
+            "audits:edit-twelve-week-disproportionate-burden",
+        ),
+        (
+            "audits:edit-twelve-week-disproportionate-burden",
             "save_continue",
             "audits:edit-audit-retest-statement-comparison",
         ),
