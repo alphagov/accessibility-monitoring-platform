@@ -49,10 +49,10 @@
                                 />
                             {% endif %}
                             <a
-                                href="{{ audit.get_absolute_url }}"
+                                href="{% url 'audits:audit-retest-detail' audit.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
-                                Cancel and return to test view
+                                Cancel and return to 12-week test view
                             </a>
                         </div>
                     </div>
