@@ -392,7 +392,8 @@ class CaseReportSentOnUpdateForm(VersionForm):
     """
 
     report_sent_date = AMPDateField(
-        label="Report sent on", help_text="This field affects the case status"
+        label="Report sent on (included in equality body export)",
+        help_text="This field affects the case status",
     )
     report_sent_to_email = AMPCharFieldWide(label="Report sent to (email address)")
     correspondence_notes = AMPTextField(label="Correspondence notes")
@@ -489,7 +490,8 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
     """
 
     report_acknowledged_date = AMPDateField(
-        label="Report acknowledged date", help_text="This field affects the case status"
+        label="Report acknowledged date (included in equality body export)",
+        help_text="This field affects the case status",
     )
     report_acknowledged_by_email = AMPCharFieldWide(
         label="Report acknowledged by (email address)"
@@ -517,7 +519,9 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         label="12-week update requested date",
         help_text="This field affects the case status",
     )
-    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
+    report_followup_week_12_due_date = AMPDateField(
+        label="12-week deadline (included in equality body export)"
+    )
     twelve_week_update_request_sent_to_email = AMPCharFieldWide(
         label="12-week request sent to (email address)"
     )
@@ -595,7 +599,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
         label="12-week update request acknowledged by (email address)"
     )
     organisation_response = AMPChoiceRadioField(
-        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’",
+        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’  (included in equality body export)",
         help_text="This field affects the case status",
         choices=Case.OrganisationResponse.choices,
     )
@@ -662,7 +666,9 @@ class CaseReviewChangesUpdateForm(VersionForm):
     Form to record review of changes made by PSB
     """
 
-    retested_website_date = AMPDateField(label="Retested website?")
+    retested_website_date = AMPDateField(
+        label="Retested website? (included in equality body export)"
+    )
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body (included in equality body export)"
     )
@@ -690,7 +696,7 @@ class CaseCloseUpdateForm(VersionForm):
     """
 
     compliance_email_sent_date = AMPDateField(
-        label="Date when compliance decision email sent to public sector body"
+        label="Date when compliance decision email sent to public sector body (included in equality body export)"
     )
     compliance_decision_sent_to_email = AMPCharFieldWide(
         label="Compliance decision sent to (email address)"
