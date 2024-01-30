@@ -160,9 +160,10 @@ class Audit(VersionModel):
         OTHER = "other", "Other (Please specify)"
 
     class DisproportionateBurden(models.TextChoices):
-        NO_CLAIM = "no-claim", "No claim"
-        ASSESSMENT = "assessment", "Claim with assessment"
         NO_ASSESSMENT = "no-assessment", "Claim with no assessment"
+        ASSESSMENT = "assessment", "Claim with assessment"
+        NO_CLAIM = "no-claim", "No claim"
+        NOT_CHECKED = "not-checked", "Not checked"
 
     class ContentNotInScope(models.TextChoices):
         PRESENT = "present", "Present and correct"
@@ -479,6 +480,17 @@ class Audit(VersionModel):
     # Statement checking other
     audit_statement_custom_complete_date = models.DateField(null=True, blank=True)
 
+    # Initial disproportionate burden claim
+    initial_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    initial_disproportionate_burden_notes = models.TextField(default="", blank=True)
+    initial_disproportionate_burden_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
     # Report text
     archive_audit_report_text_complete_date = models.DateField(null=True, blank=True)
 
@@ -631,6 +643,17 @@ class Audit(VersionModel):
 
     # Retest statement checking other
     audit_retest_statement_custom_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # 12-week disproportionate burden claim
+    twelve_week_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    twelve_week_disproportionate_burden_notes = models.TextField(default="", blank=True)
+    twelve_week_disproportionate_burden_complete_date = models.DateField(
         null=True, blank=True
     )
 
