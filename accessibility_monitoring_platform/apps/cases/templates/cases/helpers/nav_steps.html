@@ -22,7 +22,10 @@
             {% include './nav_step.html' with edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-qa-process' name='QA process' complete=case.qa_process_complete_date %}
+            {% include './nav_step.html' with edit_name='cases:edit-qa-ready-for-process' name='Report ready for QA process' complete=case.report_ready_for_qa_complete_date %}
+            {% include './nav_step.html' with edit_name='cases:edit-qa-auditor' name='QA auditor' complete=case.qa_auditor_complete_date %}
+            {% include './nav_step.html' with edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
+            {% include './nav_step.html' with edit_name='cases:edit-qa-report-approved' name='Report approved' complete=case.qa_approved_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-cores-overview' name='Correspondence overview' complete=case.cores_overview_complete_date %}
             <li>
                 <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
