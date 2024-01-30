@@ -83,6 +83,9 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Custom statement issues`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | Initial disproportionate burden claim`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
     cy.contains('Save and exit').click()
 
@@ -198,6 +201,9 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week custom statement issues`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week disproportionate burden claim`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement comparison`)

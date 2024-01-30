@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}{{ audit.case.organisation_name }} | 12-week disproportionate burden claim{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading='12-week disproportionate burden claim' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='12-week disproportionate burden claim' case=audit.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'audits/helpers/statement_pages.html' %}
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'audits:edit-twelve-week-disproportionate-burden' audit.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            {% include 'audits/helpers/save_continue_cancel.html' %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-twelve-week-disproportionate-burden' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
