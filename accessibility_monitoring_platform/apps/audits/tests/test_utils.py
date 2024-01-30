@@ -106,14 +106,14 @@ EXPECTED_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
 EXPECTED_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
         value="Not selected",
-        label="Initial accessibility statement compliance decision",
+        label="Initial statement compliance decision (included in equality body export)",
         type="text",
         extra_label="",
         external_url=True,
     ),
     FieldLabelAndValue(
         value="",
-        label="Initial accessibility statement compliance notes",
+        label="Initial statement compliance notes",
         type="notes",
         extra_label="",
         external_url=True,
@@ -298,14 +298,14 @@ EXPECTED_RETEST_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
 EXPECTED_RETEST_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
         value="Not selected",
-        label="12-week accessibility statement compliance decision",
+        label="12-week statement compliance decision (included in equality body export)",
         type="text",
         extra_label="",
         external_url=True,
     ),
     FieldLabelAndValue(
         value="",
-        label="12-week accessibility statement compliance notes",
+        label="12-week statement compliance notes",
         type="notes",
         extra_label="",
         external_url=True,

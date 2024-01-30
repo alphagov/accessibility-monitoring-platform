@@ -515,7 +515,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-decision",
             "save_continue",
-            "audits:edit-audit-report-options",
+            "audits:edit-audit-summary",
         ),
         (
             "audits:edit-audit-retest-pages-comparison",
@@ -539,8 +539,8 @@ def test_audit_edit_redirects_based_on_button_pressed(
         ),
         (
             "audits:edit-audit-retest-statement-decision",
-            "save_exit",
-            "audits:audit-retest-detail",
+            "save_continue",
+            "audits:edit-audit-retest-statement-comparison",
         ),
     ],
 )
@@ -785,7 +785,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-initial-disproportionate-burden",
             "save_continue",
-            "audits:edit-audit-summary",
+            "audits:edit-statement-decision",
         ),
         (
             "audits:edit-audit-retest-website-decision",
@@ -880,7 +880,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-twelve-week-disproportionate-burden",
             "save_continue",
-            "audits:edit-audit-retest-statement-comparison",
+            "audits:edit-audit-retest-statement-decision",
         ),
     ],
 )

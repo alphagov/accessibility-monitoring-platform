@@ -600,12 +600,16 @@ class ArchiveCaseComplianceStatementInitialUpdateForm(VersionForm):
         help_text="This field effects the case status",
         choices=CaseCompliance.StatementCompliance.choices,
     )
+    statement_compliance_notes_initial = AMPTextField(
+        label="Initial statement compliance notes"
+    )
 
     class Meta:
         model = CaseCompliance
         fields: List[str] = [
             "version",
             "statement_compliance_state_initial",
+            "statement_compliance_notes_initial",
         ]
 
 
@@ -1352,8 +1356,11 @@ class ArchiveCaseComplianceStatement12WeekUpdateForm(VersionForm):
     """
 
     statement_compliance_state_12_week = AMPChoiceRadioField(
-        label="12-week  statement compliance decision (included in equality body export)",
+        label="12-week statement compliance decision (included in equality body export)",
         choices=CaseCompliance.StatementCompliance.choices,
+    )
+    statement_compliance_notes_12_week = AMPTextField(
+        label="12-week statement compliance notes",
     )
 
     class Meta:
@@ -1361,6 +1368,7 @@ class ArchiveCaseComplianceStatement12WeekUpdateForm(VersionForm):
         fields = [
             "version",
             "statement_compliance_state_12_week",
+            "statement_compliance_notes_12_week",
         ]
 
 

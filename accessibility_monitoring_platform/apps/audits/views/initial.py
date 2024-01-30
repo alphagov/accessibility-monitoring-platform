@@ -628,6 +628,27 @@ class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
+            return reverse("audits:edit-statement-decision", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateView):
+    """
+    View to update statement decision fields
+    """
+
+    form_class: Type[
+        ArchiveAuditStatementDecisionUpdateForm
+    ] = ArchiveAuditStatementDecisionUpdateForm
+    case_compliance_form_class: Type[
+        ArchiveCaseComplianceStatementInitialUpdateForm
+    ] = ArchiveCaseComplianceStatementInitialUpdateForm
+    template_name: str = "audits/forms/statement_decision.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-summary", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -675,27 +696,6 @@ class AuditStatement2UpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-decision", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateView):
-    """
-    View to update statement decision fields
-    """
-
-    form_class: Type[
-        ArchiveAuditStatementDecisionUpdateForm
-    ] = ArchiveAuditStatementDecisionUpdateForm
-    case_compliance_form_class: Type[
-        ArchiveCaseComplianceStatementInitialUpdateForm
-    ] = ArchiveCaseComplianceStatementInitialUpdateForm
-    template_name: str = "audits/forms/statement_decision.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-audit-report-options", kwargs=audit_pk)
         return super().get_success_url()
 
 

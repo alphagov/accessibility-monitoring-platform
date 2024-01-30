@@ -308,7 +308,7 @@ def test_view_case_includes_tests(admin_client):
 
     assertContains(response, "Test metadata")
     assertContains(response, "Date of test")
-    assertContains(response, "Initial accessibility statement compliance decision")
+    assertContains(response, "Initial statement compliance decision")
 
     assertContains(response, "12-week test metadata")
     assertContains(response, "Retest date")
@@ -1602,8 +1602,8 @@ def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_plat
         ("Exemptions"),
         ("Initial website compliance decision"),
         ("Initial website compliance notes"),
-        ("Initial accessibility statement compliance decision"),
-        ("Initial accessibility statement compliance notes"),
+        ("Initial statement compliance decision"),
+        ("Initial statement compliance notes"),
     ],
 )
 def test_audit_shows_table_when_audit_exists_and_audit_is_platform(
