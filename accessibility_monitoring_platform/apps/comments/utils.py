@@ -69,7 +69,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
         add_notification(
             user=target_user,
             body=body,
-            path=reverse("cases:edit-qa-process", kwargs={"pk": comment.case.id}),  # type: ignore
+            path=reverse("cases:edit-qa-comments", kwargs={"pk": comment.case.id}),  # type: ignore
             list_description=list_description,
             request=request,
         )
