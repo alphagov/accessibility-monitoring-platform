@@ -1352,3 +1352,102 @@ def test_calulate_qa_status_approved():
     )
 
     assert case.calulate_qa_status() == Case.QAStatus.APPROVED
+
+
+@pytest.mark.django_db
+def test_total_website_issues():
+    """Test Case total_website_issues returns number found or n/a if none"""
+    case: Case = Case.objects.create()
+
+    assert case.total_website_issues == "n/a"
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.total_website_issues == "n/a"
+
+    home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert case.total_website_issues == 2
+
+
+@pytest.mark.django_db
+def test_total_website_issues_fixed():
+    """Test Case total_website_issues_fixed returns number found or n/a if none"""
+    case: Case = Case.objects.create()
+
+    assert case.total_website_issues_fixed == "n/a"
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.total_website_issues_fixed == "n/a"
+
+    home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert case.total_website_issues_fixed == 1
+
+
+@pytest.mark.django_db
+def test_total_website_issues_unfixed():
+    """Test Case total_website_issues_unfixed returns number found or n/a if none"""
+    case: Case = Case.objects.create()
+
+    assert case.total_website_issues_unfixed == "n/a"
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.total_website_issues_unfixed == "n/a"
+
+    home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert case.total_website_issues_unfixed == 1

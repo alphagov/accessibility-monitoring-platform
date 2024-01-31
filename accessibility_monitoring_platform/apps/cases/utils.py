@@ -37,10 +37,7 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("subcategory", "subcategory_id"),
 ]
 
-CONTACT_NAME_COLUMN_NAME: str = "Contact name"
-JOB_TITLE_COLUMN_NAME: str = "Job title"
 CONTACT_DETAIL_COLUMN_NAME: str = "Contact detail"
-CONTACT_NOTES_COLUMN_NUMBER: str = "Contact notes"
 CONTACT_FIELDS: List[str] = ["email"]
 
 
@@ -547,7 +544,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     )
 
 
-def format_contacts(contacts: List[Contact]) -> str:
+def format_contacts(contacts: QuerySet[Contact]) -> str:
     """
     For a contact-related field, concatenate the values for all the contacts
     and return as a single string.
@@ -635,7 +632,7 @@ def download_equality_body_cases(
 
     output: List[List[str]] = []
     for case in cases:
-        contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))
+        contact_details: str = format_contacts(contacts=case.contacts)
         row = []
         for column in COLUMNS_FOR_EQUALITY_BODY:
             if column.field_name in COMPLIANCE_FIELDS:
@@ -643,7 +640,7 @@ def download_equality_body_cases(
                     format_model_field(model_instance=case.compliance, column=column)
                 )
             elif column.column_name == CONTACT_DETAILS_COLUMN_NAME:
-                row.append(format_contacts(contacts=contacts))
+                row.append(contact_details)
             else:
                 row.append(format_model_field(model_instance=case, column=column))
         for column in EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY:

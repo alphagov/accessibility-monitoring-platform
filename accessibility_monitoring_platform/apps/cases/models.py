@@ -643,7 +643,7 @@ class Case(VersionModel):
         return "Unknown"
 
     @property
-    def contacts(self) -> bool:
+    def contacts(self):
         return self.contact_set.filter(is_deleted=False)
 
     @property
