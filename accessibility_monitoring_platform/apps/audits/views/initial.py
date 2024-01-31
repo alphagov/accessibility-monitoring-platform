@@ -25,8 +25,6 @@ from ..forms import (
     ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
-    ArchiveAuditStatementDecisionUpdateForm,
-    ArchiveCaseComplianceStatementInitialUpdateForm,
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
     AuditExtraPageFormsetTwoExtra,
@@ -36,6 +34,7 @@ from ..forms import (
     AuditStandardPageFormset,
     AuditStatementComplianceUpdateForm,
     AuditStatementCustomUpdateForm,
+    AuditStatementDecisionUpdateForm,
     AuditStatementFeedbackUpdateForm,
     AuditStatementNonAccessibleUpdateForm,
     AuditStatementOverviewUpdateForm,
@@ -51,6 +50,7 @@ from ..forms import (
     CustomStatementCheckResultFormset,
     CustomStatementCheckResultFormsetOneExtra,
     InitialDisproportionateBurdenUpdateForm,
+    plianceStatementInitialUpdateForm,
 )
 from ..models import (
     Audit,
@@ -638,11 +638,11 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
     """
 
     form_class: Type[
-        ArchiveAuditStatementDecisionUpdateForm
-    ] = ArchiveAuditStatementDecisionUpdateForm
+        AuditStatementDecisionUpdateForm
+    ] = AuditStatementDecisionUpdateForm
     case_compliance_form_class: Type[
-        ArchiveCaseComplianceStatementInitialUpdateForm
-    ] = ArchiveCaseComplianceStatementInitialUpdateForm
+        plianceStatementInitialUpdateForm
+    ] = plianceStatementInitialUpdateForm
     template_name: str = "audits/forms/statement_decision.html"
 
     def get_success_url(self) -> str:

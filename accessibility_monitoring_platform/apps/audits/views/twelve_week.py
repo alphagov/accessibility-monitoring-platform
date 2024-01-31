@@ -16,8 +16,6 @@ from ...common.utils import list_to_dictionary_of_lists, record_model_update_eve
 from ..forms import (
     ArchiveAuditRetestStatement1UpdateForm,
     ArchiveAuditRetestStatement2UpdateForm,
-    ArchiveAuditRetestStatementDecisionUpdateForm,
-    ArchiveCaseComplianceStatement12WeekUpdateForm,
     AuditRetestCheckResultFilterForm,
     AuditRetestCheckResultForm,
     AuditRetestCheckResultFormset,
@@ -28,12 +26,14 @@ from ..forms import (
     AuditRetestStatementComparisonUpdateForm,
     AuditRetestStatementComplianceUpdateForm,
     AuditRetestStatementCustomUpdateForm,
+    AuditRetestStatementDecisionUpdateForm,
     AuditRetestStatementFeedbackUpdateForm,
     AuditRetestStatementNonAccessibleUpdateForm,
     AuditRetestStatementOverviewUpdateForm,
     AuditRetestStatementPreparationUpdateForm,
     AuditRetestStatementWebsiteUpdateForm,
     AuditRetestWebsiteDecisionUpdateForm,
+    CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
     TwelveWeekDisproportionateBurdenUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
@@ -552,11 +552,11 @@ class AuditRetestCaseComplianceStatement12WeekUpdateView(AuditCaseComplianceUpda
     """
 
     form_class: Type[
-        ArchiveAuditRetestStatementDecisionUpdateForm
-    ] = ArchiveAuditRetestStatementDecisionUpdateForm
+        AuditRetestStatementDecisionUpdateForm
+    ] = AuditRetestStatementDecisionUpdateForm
     case_compliance_form_class: Type[
-        ArchiveCaseComplianceStatement12WeekUpdateForm
-    ] = ArchiveCaseComplianceStatement12WeekUpdateForm
+        CaseComplianceStatement12WeekUpdateForm
+    ] = CaseComplianceStatement12WeekUpdateForm
     template_name: str = "audits/forms/retest_statement_decision.html"
 
     def get_success_url(self) -> str:

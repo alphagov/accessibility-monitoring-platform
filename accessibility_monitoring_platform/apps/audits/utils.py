@@ -20,9 +20,9 @@ from .forms import (
     ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
-    ArchiveCaseComplianceStatement12WeekUpdateForm,
-    ArchiveCaseComplianceStatementInitialUpdateForm,
     AuditMetadataUpdateForm,
+    CaseComplianceStatement12WeekUpdateForm,
+    CaseComplianceStatementInitialUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
     CaseComplianceWebsiteInitialUpdateForm,
     CheckResultForm,
@@ -129,7 +129,7 @@ def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndVa
             form=ArchiveAuditStatement2UpdateForm()
         ),
         "statement_decision_rows": get_compliance_rows(
-            form=ArchiveCaseComplianceStatementInitialUpdateForm()
+            form=CaseComplianceStatementInitialUpdateForm()
         ),
         "audit_report_options_rows": get_audit_report_options_rows(audit=audit),
     }
@@ -151,7 +151,7 @@ def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndVa
             form=TwelveWeekDisproportionateBurdenUpdateForm()
         ),
         "audit_retest_statement_decision_rows": get_compliance_rows(
-            form=ArchiveCaseComplianceStatement12WeekUpdateForm()
+            form=CaseComplianceStatement12WeekUpdateForm()
         ),
     }
 

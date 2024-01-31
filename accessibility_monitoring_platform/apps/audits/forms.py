@@ -394,7 +394,7 @@ class ArchiveAuditStatement2UpdateForm(VersionForm):
         ]
 
 
-class ArchiveAuditStatementDecisionUpdateForm(VersionForm):
+class AuditStatementDecisionUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision completion
     """
@@ -590,7 +590,7 @@ class InitialDisproportionateBurdenUpdateForm(VersionForm):
         ]
 
 
-class ArchiveCaseComplianceStatementInitialUpdateForm(VersionForm):
+class CaseComplianceStatementInitialUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision
     """
@@ -1307,7 +1307,7 @@ class AuditRetestStatementComparisonUpdateForm(VersionForm):
         ]
 
 
-class ArchiveAuditRetestStatementDecisionUpdateForm(VersionForm):
+class AuditRetestStatementDecisionUpdateForm(VersionForm):
     """
     Form for retesting statement decision
     """
@@ -1350,7 +1350,7 @@ class TwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
         ]
 
 
-class ArchiveCaseComplianceStatement12WeekUpdateForm(VersionForm):
+class CaseComplianceStatement12WeekUpdateForm(VersionForm):
     """
     Form to record final accessibility statement compliance decision
     """
