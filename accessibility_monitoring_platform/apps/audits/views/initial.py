@@ -43,6 +43,7 @@ from ..forms import (
     AuditStatementWebsiteUpdateForm,
     AuditSummaryUpdateForm,
     AuditWebsiteDecisionUpdateForm,
+    CaseComplianceStatementInitialUpdateForm,
     CaseComplianceWebsiteInitialUpdateForm,
     CheckResultFilterForm,
     CheckResultForm,
@@ -50,7 +51,6 @@ from ..forms import (
     CustomStatementCheckResultFormset,
     CustomStatementCheckResultFormsetOneExtra,
     InitialDisproportionateBurdenUpdateForm,
-    plianceStatementInitialUpdateForm,
 )
 from ..models import (
     Audit,
@@ -641,8 +641,8 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
         AuditStatementDecisionUpdateForm
     ] = AuditStatementDecisionUpdateForm
     case_compliance_form_class: Type[
-        plianceStatementInitialUpdateForm
-    ] = plianceStatementInitialUpdateForm
+        CaseComplianceStatementInitialUpdateForm
+    ] = CaseComplianceStatementInitialUpdateForm
     template_name: str = "audits/forms/statement_decision.html"
 
     def get_success_url(self) -> str:
