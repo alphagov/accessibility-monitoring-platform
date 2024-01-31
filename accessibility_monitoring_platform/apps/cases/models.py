@@ -748,6 +748,30 @@ class Case(VersionModel):
         return self.compliance.get_statement_compliance_state_12_week_display()
 
     @property
+    def total_website_issues(self) -> int:
+        if self.audit is None:
+            return "n/a"
+        failed_checks_count: int = self.audit.failed_check_results.count()
+        if failed_checks_count == 0:
+            return "n/a"
+        return failed_checks_count
+
+    @property
+    def total_website_issues_fixed(self) -> int:
+        if self.audit is None:
+            return "n/a"
+        fixed_checks_count: int = self.audit.fixed_check_results.count()
+        if fixed_checks_count == 0:
+            return "n/a"
+        return fixed_checks_count
+
+    @property
+    def total_website_issues_unfixed(self) -> int:
+        if self.audit is None or self.total_website_issues == "n/a":
+            return "n/a"
+        return self.total_website_issues - self.total_website_issues_fixed
+
+    @property
     def percentage_website_issues_fixed(self) -> int:
         if self.audit is None:
             return "n/a"

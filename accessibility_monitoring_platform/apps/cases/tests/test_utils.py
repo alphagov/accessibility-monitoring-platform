@@ -62,6 +62,14 @@ CONTACTS: List[Contact] = [
         email="email2",
     ),
 ]
+EXPECTED_FORMATTED_CONTACTS: str = """Name 1
+Job title 1
+email1
+
+Name 2
+Job title 2
+email2
+"""
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
 CONTACT_NOTES: str = "Contact notes"
@@ -316,26 +324,9 @@ def test_format_case_field(column, case_value, expected_formatted_value):
     )
 
 
-@pytest.mark.parametrize(
-    "column, expected_formatted_value",
-    [
-        (
-            ColumnAndFieldNames(column_name="Contact name", field_name=None),
-            "Name 1\nName 2",
-        ),
-        (
-            ColumnAndFieldNames(column_name="Job title", field_name=None),
-            "Job title 1\nJob title 2",
-        ),
-        (
-            ColumnAndFieldNames(column_name="Contact detail", field_name=None),
-            "email1\nemail2",
-        ),
-    ],
-)
-def test_format_contacts(column, expected_formatted_value):
+def test_format_contacts():
     """Test that contacts fields values are contatenated"""
-    assert expected_formatted_value == format_contacts(contacts=CONTACTS, column=column)
+    assert format_contacts(contacts=CONTACTS) == EXPECTED_FORMATTED_CONTACTS
 
 
 @pytest.mark.parametrize(
@@ -435,14 +426,14 @@ def test_download_equality_body_cases():
         "",
         "",
         "",
+        "",
+        "",
+        "",
         "No",
         "",
         "Not selected",
         "",
         "",
-        "Not known",
-        "",
-        "Not selected",
         "",
         "",
         "",
@@ -450,18 +441,16 @@ def test_download_equality_body_cases():
         "",
         "",
         "",
-        "",
-        "",
-        "",
-        "No",
         "n/a",
+        "n/a",
+        "n/a",
+        "n/a",
+        "Not selected",
+        "Not selected",
+        "Not checked",
         "",
+        "Not checked",
         "",
-        "",
-        "No claim",
-        "",
-        "No claim",
-        "Audit for CSV export",
     ]
 
     validate_csv_response(
