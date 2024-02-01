@@ -91,10 +91,10 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
         field_name="psb_progress_notes",
     ),
     ColumnAndFieldNames(column_name=CONTACT_DETAILS_COLUMN_NAME, field_name=None),
-    ColumnAndFieldNames(
-        column_name="Organisation responded to report?",
-        field_name="report_acknowledged_date",
-    ),
+    # ColumnAndFieldNames(
+    #     column_name="Organisation responded to report?",
+    #     field_name="report_acknowledged_date",
+    # ),
     ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
     ColumnAndFieldNames(
         column_name="Report acknowledged", field_name="report_acknowledged_date"
@@ -105,7 +105,8 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
     ColumnAndFieldNames(
-        column_name="Compliance decision sent", field_name="compliance_email_sent_date"
+        column_name="Date when compliance decision email sent to public sector body",
+        field_name="compliance_email_sent_date",
     ),
     ColumnAndFieldNames(
         column_name="Total number of accessibility issues",

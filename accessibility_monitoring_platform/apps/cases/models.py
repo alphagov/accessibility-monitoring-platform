@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 
@@ -643,7 +644,7 @@ class Case(VersionModel):
         return "Unknown"
 
     @property
-    def contacts(self):
+    def contacts(self) -> QuerySet["Contact"]:
         return self.contact_set.filter(is_deleted=False)
 
     @property
@@ -750,25 +751,19 @@ class Case(VersionModel):
     @property
     def total_website_issues(self) -> int:
         if self.audit is None:
-            return "n/a"
-        failed_checks_count: int = self.audit.failed_check_results.count()
-        if failed_checks_count == 0:
-            return "n/a"
-        return failed_checks_count
+            return 0
+        return self.audit.failed_check_results.count()
 
     @property
     def total_website_issues_fixed(self) -> int:
         if self.audit is None:
-            return "n/a"
-        fixed_checks_count: int = self.audit.fixed_check_results.count()
-        if fixed_checks_count == 0:
-            return "n/a"
-        return fixed_checks_count
+            return 0
+        return self.audit.fixed_check_results.count()
 
     @property
     def total_website_issues_unfixed(self) -> int:
-        if self.audit is None or self.total_website_issues == "n/a":
-            return "n/a"
+        if self.audit is None or self.total_website_issues == 0:
+            return 0
         return self.total_website_issues - self.total_website_issues_fixed
 
     @property

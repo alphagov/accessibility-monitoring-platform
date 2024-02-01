@@ -1359,11 +1359,11 @@ def test_total_website_issues():
     """Test Case total_website_issues returns number found or n/a if none"""
     case: Case = Case.objects.create()
 
-    assert case.total_website_issues == "n/a"
+    assert case.total_website_issues == 0
 
     audit: Audit = Audit.objects.create(case=case)
 
-    assert case.total_website_issues == "n/a"
+    assert case.total_website_issues == 0
 
     home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
@@ -1392,11 +1392,11 @@ def test_total_website_issues_fixed():
     """Test Case total_website_issues_fixed returns number found or n/a if none"""
     case: Case = Case.objects.create()
 
-    assert case.total_website_issues_fixed == "n/a"
+    assert case.total_website_issues_fixed == 0
 
     audit: Audit = Audit.objects.create(case=case)
 
-    assert case.total_website_issues_fixed == "n/a"
+    assert case.total_website_issues_fixed == 0
 
     home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
@@ -1425,11 +1425,11 @@ def test_total_website_issues_unfixed():
     """Test Case total_website_issues_unfixed returns number found or n/a if none"""
     case: Case = Case.objects.create()
 
-    assert case.total_website_issues_unfixed == "n/a"
+    assert case.total_website_issues_unfixed == 0
 
     audit: Audit = Audit.objects.create(case=case)
 
-    assert case.total_website_issues_unfixed == "n/a"
+    assert case.total_website_issues_unfixed == 0
 
     home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
