@@ -777,6 +777,22 @@ class Case(VersionModel):
         return int(fixed_checks_count * 100 / failed_checks_count)
 
     @property
+    def csv_export_statement_initially_found(self) -> int:
+        if self.audit is None or not self.audit.uses_statement_checks:
+            return ""
+        if self.audit.statement_initially_found:
+            return "Yes"
+        return "No"
+
+    @property
+    def csv_export_statement_found_at_12_week_retest(self) -> int:
+        if self.audit is None or not self.audit.uses_statement_checks:
+            return ""
+        if self.audit.statement_found_at_12_week_retest:
+            return "Yes"
+        return "No"
+
+    @property
     def overview_issues_website(self) -> str:
         if self.audit is None:
             return "No test exists"

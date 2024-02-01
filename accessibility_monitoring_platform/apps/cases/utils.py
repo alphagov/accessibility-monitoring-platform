@@ -124,6 +124,14 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
         field_name="percentage_website_issues_fixed",
     ),
     ColumnAndFieldNames(
+        column_name="Was a accessibility statement found during initial assessment?",
+        field_name="csv_export_statement_initially_found",
+    ),
+    ColumnAndFieldNames(
+        column_name="Was a accessibility statement found during the 12-week assessment",
+        field_name="csv_export_statement_found_at_12_week_retest",
+    ),
+    ColumnAndFieldNames(
         column_name="Initial Accessibility Statement Decision",
         field_name="statement_compliance_state_initial",
     ),

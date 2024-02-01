@@ -444,6 +444,8 @@ def test_download_equality_body_cases():
         "0",
         "0",
         "n/a",
+        "",
+        "",
         "Not selected",
         "Not selected",
         "Not checked",
