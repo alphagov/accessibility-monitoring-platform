@@ -22,7 +22,11 @@ from ..audits.forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
 )
-from ..audits.utils import get_retest_view_tables_context, get_test_view_tables_context
+from ..audits.utils import (
+    get_retest_view_tables_context,
+    get_test_view_tables_context,
+    report_data_updated,
+)
 from ..cases.utils import get_post_case_alerts
 from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
@@ -386,6 +390,13 @@ class CaseDetailUpdateView(CaseUpdateView):
 
     form_class: Type[CaseDetailUpdateForm] = CaseDetailUpdateForm
     template_name: str = "cases/forms/details.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        case: Case = self.object
+        if "enforcement_body" in form.changed_data and case.published_report_url:
+            report_data_updated(audit=case.audit)
+        return super().form_valid(form=form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

@@ -29,6 +29,7 @@ from ...common.models import Boolean, Event, Sector
 from ...common.utils import amp_format_date
 from ...notifications.models import Notification
 from ...reports.models import Report
+from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     CaseCompliance,
@@ -3303,3 +3304,33 @@ def test_post_case_alerts(admin_client, admin_user):
     assertContains(response, "Unresolved correspondence")
     assertContains(response, "Incomplete retest")
     assertContains(response, "Post case (2)")
+
+
+def test_updating_equality_body_updates_published_report_data_updated_time(
+    admin_client,
+):
+    """
+    Test that updating the equality body updates the published report data updated
+    time (so a notification banner to republish the report is shown).
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+
+    assert audit.published_report_data_updated_time is None
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        {
+            "enforcement_body": Case.EnforcementBody.ECNI,
+            "version": case.version,
+            "save": "Button value",
+            "home_page_url": "https://example.com",
+        },
+    )
+    assert response.status_code == 302
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+
+    assert audit_from_db.published_report_data_updated_time is not None
