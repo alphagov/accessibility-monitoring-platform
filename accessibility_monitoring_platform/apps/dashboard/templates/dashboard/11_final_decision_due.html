@@ -36,6 +36,10 @@
                                 Closing the case
                             </a>
                         {% endif %}
+                        {% if case.reminder %}
+                            |
+                            <a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">View reminder</a>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

@@ -452,11 +452,11 @@ class Case(VersionModel):
 
     @property
     def next_action_due_date(self) -> Optional[date]:
-        if self.status.status == "report-ready-to-send":
+        if self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
             if self.seven_day_no_contact_email_sent_date:
                 return self.seven_day_no_contact_email_sent_date + timedelta(days=7)
 
-        if self.status.status == "in-report-correspondence":
+        if self.status.status == CaseStatus.Status.IN_REPORT_CORES:
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date
             elif self.report_followup_week_4_sent_date is None:
@@ -467,10 +467,10 @@ class Case(VersionModel):
                 "Case is in-report-correspondence but neither sent date is set"
             )
 
-        if self.status.status == "in-probation-period":
+        if self.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
             return self.report_followup_week_12_due_date
 
-        if self.status.status == "in-12-week-correspondence":
+        if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
             return self.twelve_week_1_week_chaser_sent_date + timedelta(days=5)

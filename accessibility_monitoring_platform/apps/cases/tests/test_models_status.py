@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ..models import Boolean, Case, CaseCompliance
+from ..models import Boolean, Case, CaseCompliance, CaseStatus
 from ..utils import create_case_and_compliance
 
 
@@ -28,7 +28,7 @@ def test_case_status_deactivated(admin_client):
         organisation_name="org name",
         is_deactivated=True,
     )
-    assert case.status.status == "deactivated"
+    assert case.status.status == CaseStatus.Status.DEACTIVATED
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to case details"
@@ -41,7 +41,7 @@ def test_case_status_unassigned(admin_client):
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
-    assert case.status.status == "unassigned-case"
+    assert case.status.status == CaseStatus.Status.UNASSIGNED
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to case details"
@@ -56,7 +56,7 @@ def test_case_status_test_in_progress(admin_client):
         organisation_name="org name",
         auditor=user,
     )
-    assert case.status.status == "test-in-progress"
+    assert case.status.status == CaseStatus.Status.TEST_IN_PROGRESS
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to testing details"
@@ -74,7 +74,7 @@ def test_case_status_report_in_progress(admin_client):
         statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
     )
 
-    assert case.status.status == "report-in-progress"
+    assert case.status.status == CaseStatus.Status.REPORT_IN_PROGRESS
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to report details"
@@ -92,7 +92,7 @@ def test_case_status_qa_in_progress(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
     )
-    assert case.status.status == "qa-in-progress"
+    assert case.status.status == CaseStatus.Status.QA_IN_PROGRESS
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to QA auditor"
@@ -111,7 +111,7 @@ def test_case_status_report_ready_to_send(admin_client):
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
-    assert case.status.status == "report-ready-to-send"
+    assert case.status.status == CaseStatus.Status.REPORT_READY_TO_SEND
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to Report sent on"
@@ -131,7 +131,7 @@ def test_case_status_in_report_correspondence(admin_client):
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
     )
-    assert case.status.status == "in-report-correspondence"
+    assert case.status.status == CaseStatus.Status.IN_REPORT_CORES
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to One week follow-up"
@@ -151,7 +151,7 @@ def test_case_status_when_no_psb_contact(admin_client):
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         no_psb_contact=Boolean.YES,
     )
-    assert case.status.status == "final-decision-due"
+    assert case.status.status == CaseStatus.Status.FINAL_DECISION_DUE
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Closing the case"
@@ -172,7 +172,7 @@ def test_case_status_in_probation_period(admin_client):
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
     )
-    assert case.status.status == "in-probation-period"
+    assert case.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to 12-week update requested"
@@ -194,7 +194,7 @@ def test_case_status_in_12_week_correspondence(admin_client):
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
     )
-    assert case.status.status == "in-12-week-correspondence"
+    assert case.status.status == CaseStatus.Status.IN_12_WEEK_CORES
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to 12-week update requested"
@@ -216,7 +216,7 @@ def test_case_status_skips_to_reviewing_changes_when_psb_respond_early(admin_cli
         report_acknowledged_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
     )
-    assert case.status.status == "reviewing-changes"
+    assert case.status.status == CaseStatus.Status.REVIEWING_CHANGES
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to reviewing changes"
@@ -239,7 +239,7 @@ def test_case_status_reviewing_changes(admin_client):
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
     )
-    assert case.status.status == "reviewing-changes"
+    assert case.status.status == CaseStatus.Status.REVIEWING_CHANGES
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to reviewing changes"
@@ -263,7 +263,7 @@ def test_case_status_final_decision_due(admin_client):
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         is_ready_for_final_decision=Boolean.YES,
     )
-    assert case.status.status == "final-decision-due"
+    assert case.status.status == CaseStatus.Status.FINAL_DECISION_DUE
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to closing the case"
@@ -287,7 +287,7 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
     )
-    assert case.status.status == "case-closed-waiting-to-be-sent"
+    assert case.status.status == CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to closing the case"
@@ -312,7 +312,7 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
         sent_to_enforcement_body_sent_date=datetime.now(),
     )
-    assert case.status.status == "case-closed-sent-to-equalities-body"
+    assert case.status.status == CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to equality body metadata"
@@ -338,7 +338,7 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
         sent_to_enforcement_body_sent_date=datetime.now(),
         enforcement_body_pursuing=Case.EnforcementBodyPursuing.YES_IN_PROGRESS,
     )
-    assert case.status.status == "in-correspondence-with-equalities-body"
+    assert case.status.status == CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to equality body metadata"
@@ -364,7 +364,7 @@ def test_case_status_equality_bodies_complete(admin_client):
         sent_to_enforcement_body_sent_date=datetime.now(),
         enforcement_body_pursuing=Case.EnforcementBodyPursuing.YES_COMPLETED,
     )
-    assert case.status.status == "complete"
+    assert case.status.status == CaseStatus.Status.COMPLETE
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to post case summary"
@@ -383,7 +383,7 @@ def test_case_status_complete():
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         case_completed=Case.CaseCompleted.COMPLETE_NO_SEND,
     )
-    assert case.status.status == "complete"
+    assert case.status.status == CaseStatus.Status.COMPLETE
 
 
 @pytest.mark.django_db
@@ -398,7 +398,7 @@ def test_case_qa_status_unassigned_qa_case():
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
     )
-    assert case.qa_status == "unassigned-qa-case"
+    assert case.qa_status == Case.QAStatus.UNASSIGNED
 
 
 @pytest.mark.django_db
@@ -415,7 +415,7 @@ def test_case_qa_status_in_qa():
         report_review_status=Boolean.YES,
         reviewer=user2,
     )
-    assert case.qa_status == "in-qa"
+    assert case.qa_status == Case.QAStatus.IN_QA
 
 
 @pytest.mark.django_db
@@ -433,4 +433,4 @@ def test_case_qa_status_qa_approved():
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         reviewer=user2,
     )
-    assert case.qa_status == "qa-approved"
+    assert case.qa_status == Case.QAStatus.APPROVED

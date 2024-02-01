@@ -10,7 +10,7 @@ from pytest_django.asserts import assertContains
 
 from accessibility_monitoring_platform.apps.common.models import ChangeToPlatform
 
-from ...cases.models import Case, CaseCompliance
+from ...cases.models import Case, CaseCompliance, CaseStatus
 from ...cases.utils import create_case_and_compliance
 from ...common.models import Boolean
 from ...reminders.models import Reminder
@@ -248,7 +248,7 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
     )
 
 
-def test_dashboard_shows_link_to_reminder(admin_client, admin_user):
+def test_dashboard_shows_link_to_reminder_reviewing(admin_client, admin_user):
     """
     Tests dashboard shows link to reminder for cases of status
     reviewing changes
@@ -275,6 +275,44 @@ def test_dashboard_shows_link_to_reminder(admin_client, admin_user):
     reminder: Reminder = Reminder.objects.create(
         case=case, due_date=date.today() + timedelta(days=10)
     )
+
+    assert case.status.status == CaseStatus.Status.REVIEWING_CHANGES
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, reverse("reminders:edit-reminder", kwargs={"pk": reminder.id})
+    )
+
+
+def test_dashboard_shows_link_to_reminder_final(admin_client, admin_user):
+    """
+    Tests dashboard shows link to reminder for cases of status
+    final decision due
+    """
+    case: Case = Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=admin_user,
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+        no_psb_contact=Boolean.YES,
+    )
+    case.compliance.statement_compliance_state_initial = (
+        CaseCompliance.StatementCompliance.COMPLIANT
+    )
+    case.compliance.website_compliance_state_initial = (
+        CaseCompliance.WebsiteCompliance.COMPLIANT
+    )
+    case.compliance.save()
+    case.save()
+    reminder: Reminder = Reminder.objects.create(
+        case=case, due_date=date.today() + timedelta(days=10)
+    )
+
+    assert case.status.status == CaseStatus.Status.FINAL_DECISION_DUE
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
