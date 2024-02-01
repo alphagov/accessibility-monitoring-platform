@@ -394,8 +394,13 @@ class CaseDetailUpdateView(CaseUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         case: Case = self.object
-        if "enforcement_body" in form.changed_data and case.published_report_url:
-            report_data_updated(audit=case.audit)
+        if case.published_report_url:
+            if (
+                "enforcement_body" in form.changed_data
+                or "home_page_url" in form.changed_data
+                or "organisation_name" in form.changed_data
+            ):
+                report_data_updated(audit=case.audit)
         return super().form_valid(form=form)
 
     def get_success_url(self) -> str:
