@@ -1451,3 +1451,67 @@ def test_total_website_issues_unfixed():
     )
 
     assert case.total_website_issues_unfixed == 1
+
+
+@pytest.mark.django_db
+def test_csv_export_statement_initially_found():
+    """Test Case csv_export_statement_initially_found"""
+    case: Case = Case.objects.create()
+
+    assert case.csv_export_statement_initially_found == "unknown"
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.csv_export_statement_initially_found == "unknown"
+
+    for statement_check in StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ):
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+            check_result_state=StatementCheckResult.Result.NO,
+        )
+
+    assert case.csv_export_statement_initially_found == "No"
+
+    for statement_check_result in StatementCheckResult.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ):
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
+        statement_check_result.save()
+
+    assert case.csv_export_statement_initially_found == "Yes"
+
+
+@pytest.mark.django_db
+def test_csv_export_statement_found_at_12_week_retest():
+    """Test Case csv_export_statement_found_at_12_week_retest"""
+    case: Case = Case.objects.create()
+
+    assert case.csv_export_statement_found_at_12_week_retest == "unknown"
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.csv_export_statement_found_at_12_week_retest == "unknown"
+
+    for statement_check in StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ):
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+            retest_state=StatementCheckResult.Result.NO,
+        )
+
+    assert case.csv_export_statement_found_at_12_week_retest == "No"
+
+    for statement_check_result in StatementCheckResult.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ):
+        statement_check_result.retest_state = StatementCheckResult.Result.YES
+        statement_check_result.save()
+
+    assert case.csv_export_statement_found_at_12_week_retest == "Yes"

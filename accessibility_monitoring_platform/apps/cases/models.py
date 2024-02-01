@@ -779,7 +779,7 @@ class Case(VersionModel):
     @property
     def csv_export_statement_initially_found(self) -> int:
         if self.audit is None or not self.audit.uses_statement_checks:
-            return ""
+            return "unknown"
         if self.audit.statement_initially_found:
             return "Yes"
         return "No"
@@ -787,7 +787,7 @@ class Case(VersionModel):
     @property
     def csv_export_statement_found_at_12_week_retest(self) -> int:
         if self.audit is None or not self.audit.uses_statement_checks:
-            return ""
+            return "unknown"
         if self.audit.statement_found_at_12_week_retest:
             return "Yes"
         return "No"
