@@ -67,7 +67,7 @@ describe('View test', () => {
     cy.get('#edit-audit-retest-statement-decision').click()
     cy.get('[name="case-compliance-statement_compliance_state_12_week"]').check('compliant')
     cy.get('[name="case-compliance-statement_compliance_notes_12_week"]').clear().type(statementComplianceNote)
-    cy.get('[name="archive_audit_retest_statement_decision_complete_date"]').click()
+    cy.get('[name="audit_retest_statement_decision_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('12-week test').click()
     cy.contains(statementComplianceNote)

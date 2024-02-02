@@ -4,7 +4,7 @@
 
 {% load static %}
 
-{% block title %}{{ audit.case.organisation_name }} | 12-week accessibility statement compliance decision{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | 12-week statement compliance decision{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -12,7 +12,7 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='12-week accessibility statement compliance decision' case=audit.case %}
+                {% include "cases/helpers/edit_header.html" with page_heading='12-week statement compliance decision' case=audit.case %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -20,7 +20,6 @@
                 {% include 'audits/helpers/statement_pages.html' %}
                 {% include 'common/error_summary.html' with form=case_compliance_form %}
                 {% include 'common/error_summary.html' %}
-                {% include 'audits/helpers/end_of_test.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-retest-statement-decision' audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
@@ -32,29 +31,10 @@
                                 <p class="govuk-body-m">Statement missing during initial test</p>
                             {% endif %}
                             {% include 'common/amp_form_snippet.html' with form=case_compliance_form %}
-                            {% include 'common/amp_field.html' with field=form.archive_audit_retest_statement_decision_complete_date %}
+                            {% include 'common/amp_field.html' with field=form.audit_retest_statement_decision_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and exit"
-                                name="save_exit"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{{ audit.get_absolute_url }}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel and return to test view
-                            </a>
+                            {% include 'audits/helpers/retest_save_continue_cancel.html' %}
                         </div>
                     </div>
                 </form>

@@ -69,7 +69,7 @@ describe('View test', () => {
     cy.get('#edit-statement-decision').click()
     cy.get('[name="case-compliance-statement_compliance_state_initial"]').check('not-compliant')
     cy.get('[name="case-compliance-statement_compliance_notes_initial"]').clear().type(accessibilityStatementComplianceNote)
-    cy.get('[name="archive_audit_statement_decision_complete_date"]').click()
+    cy.get('[name="audit_statement_decision_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Test').click()
     cy.contains(accessibilityStatementComplianceNote)
