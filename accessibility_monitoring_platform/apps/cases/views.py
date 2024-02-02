@@ -481,11 +481,13 @@ class CaseQACommentsUpdateView(CaseUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         case: Case = self.object
-        comment: Comment = Comment.objects.create(
-            case=case, user=self.request.user, body=form.cleaned_data.get("body")
-        )
-        record_model_create_event(user=self.request.user, model_object=comment)
-        add_comment_notification(self.request, comment)
+        body: str = form.cleaned_data.get("body")
+        if body:
+            comment: Comment = Comment.objects.create(
+                case=case, user=self.request.user, body=form.cleaned_data.get("body")
+            )
+            record_model_create_event(user=self.request.user, model_object=comment)
+            add_comment_notification(self.request, comment)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:

@@ -1146,6 +1146,48 @@ def test_add_qa_comment_redirects_to_qa_comments(admin_client):
     )
 
 
+def test_qa_comments_creates_comment(admin_client, admin_user):
+    """Test adding a comment using QA comments page"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-comments", kwargs={"pk": case.id}),
+        {
+            "save": "Button value",
+            "version": case.version,
+            "body": QA_COMMENT_BODY,
+        },
+    )
+    assert response.status_code == 302
+
+    comment: Comment = Comment.objects.get(case=case)
+
+    assert comment.body == QA_COMMENT_BODY
+    assert comment.user == admin_user
+
+    content_type: ContentType = ContentType.objects.get_for_model(Comment)
+    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
+
+    assert event.type == Event.Type.CREATE
+
+
+def test_qa_comments_does_not_create_comment(admin_client, admin_user):
+    """Test QA comments page does not create a blank comment"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-comments", kwargs={"pk": case.id}),
+        {
+            "save": "Button value",
+            "version": case.version,
+            "body": "",
+        },
+    )
+    assert response.status_code == 302
+
+    assert Comment.objects.filter(case=case).count() == 0
+
+
 def test_form_appears_to_add_first_contact(admin_client):
     """Test that when a case has no contacts a form appears to add one"""
     case: Case = Case.objects.create()
