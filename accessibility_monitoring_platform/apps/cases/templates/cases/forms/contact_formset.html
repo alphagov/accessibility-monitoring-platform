@@ -33,6 +33,7 @@
                         No accessibility statement page.
                     {% endif %}
                 </p>
+                {% include 'cases/helpers/no_response_link.html' %}
                 <form method="post" action="{% url 'cases:edit-contact-details' case.id %}">
                     {% csrf_token %}
                     {{ contacts_formset.management_form }}

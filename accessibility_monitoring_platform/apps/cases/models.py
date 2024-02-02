@@ -451,11 +451,11 @@ class Case(VersionModel):
 
     @property
     def next_action_due_date(self) -> Optional[date]:
-        if self.status.status == "report-ready-to-send":
+        if self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
             if self.seven_day_no_contact_email_sent_date:
                 return self.seven_day_no_contact_email_sent_date + timedelta(days=7)
 
-        if self.status.status == "in-report-correspondence":
+        if self.status.status == CaseStatus.Status.IN_REPORT_CORES:
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date
             elif self.report_followup_week_4_sent_date is None:
@@ -466,10 +466,10 @@ class Case(VersionModel):
                 "Case is in-report-correspondence but neither sent date is set"
             )
 
-        if self.status.status == "in-probation-period":
+        if self.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
             return self.report_followup_week_12_due_date
 
-        if self.status.status == "in-12-week-correspondence":
+        if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
             return self.twelve_week_1_week_chaser_sent_date + timedelta(days=5)
@@ -511,66 +511,6 @@ class Case(VersionModel):
         ):
             return Case.QAStatus.APPROVED
         return Case.QAStatus.UNKNOWN
-
-    def set_statement_compliance_states(self) -> None:
-        if self.audit:
-            old_statement_compliance_state_initial: str = (
-                self.compliance.statement_compliance_state_initial
-            )
-            old_statement_compliance_state_12_week: str = (
-                self.compliance.statement_compliance_state_12_week
-            )
-            new_statement_compliance_state_initial: str = (
-                old_statement_compliance_state_initial
-            )
-            new_statement_compliance_state_12_week: str = (
-                old_statement_compliance_state_12_week
-            )
-            if self.audit.accessibility_statement_initially_found:
-                if self.audit.uses_statement_checks:
-                    if self.audit.failed_statement_check_results.count() > 0:
-                        new_statement_compliance_state_initial = (
-                            CaseCompliance.StatementCompliance.NOT_COMPLIANT
-                        )
-                    else:
-                        new_statement_compliance_state_initial = (
-                            CaseCompliance.StatementCompliance.COMPLIANT
-                        )
-            else:
-                new_statement_compliance_state_initial = (
-                    CaseCompliance.StatementCompliance.NOT_COMPLIANT
-                )
-            if (
-                self.audit.accessibility_statement_initially_found
-                or self.audit.twelve_week_accessibility_statement_found
-            ):
-                if self.audit.uses_statement_checks:
-                    if self.audit.failed_retest_statement_check_results.count() > 0:
-                        new_statement_compliance_state_12_week = (
-                            CaseCompliance.StatementCompliance.NOT_COMPLIANT
-                        )
-                    else:
-                        new_statement_compliance_state_12_week = (
-                            CaseCompliance.StatementCompliance.COMPLIANT
-                        )
-            else:
-                new_statement_compliance_state_12_week = (
-                    CaseCompliance.StatementCompliance.NOT_COMPLIANT
-                )
-            if (
-                old_statement_compliance_state_initial
-                != new_statement_compliance_state_initial
-                or old_statement_compliance_state_12_week
-                != new_statement_compliance_state_12_week
-            ):
-                self.compliance.statement_compliance_state_initial = (
-                    new_statement_compliance_state_initial
-                )
-                self.compliance.statement_compliance_state_12_week = (
-                    new_statement_compliance_state_12_week
-                )
-                self.compliance.save()
-                self.save()
 
     @property
     def in_report_correspondence_progress(self) -> str:
@@ -1006,9 +946,7 @@ class CaseCompliance(VersionModel):
     class StatementCompliance(models.TextChoices):
         COMPLIANT = "compliant", "Compliant"
         NOT_COMPLIANT = "not-compliant", "Not compliant"
-        NOT_FOUND = "not-found", "Not found"
-        OTHER = "other", "Other"
-        UNKNOWN = "unknown", "Not selected"
+        UNKNOWN = "unknown", "Not assessed"
 
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="compliance"

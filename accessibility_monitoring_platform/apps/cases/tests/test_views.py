@@ -29,6 +29,7 @@ from ...common.models import Boolean, Event, Sector
 from ...common.utils import amp_format_date
 from ...notifications.models import Notification
 from ...reports.models import Report
+from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     CaseCompliance,
@@ -306,7 +307,7 @@ def test_view_case_includes_tests(admin_client):
 
     assertContains(response, "Test metadata")
     assertContains(response, "Date of test")
-    assertContains(response, "Initial accessibility statement compliance decision")
+    assertContains(response, "Initial statement compliance decision")
 
     assertContains(response, "12-week test metadata")
     assertContains(response, "Retest date")
@@ -1146,6 +1147,48 @@ def test_add_qa_comment_redirects_to_qa_comments(admin_client):
     )
 
 
+def test_qa_comments_creates_comment(admin_client, admin_user):
+    """Test adding a comment using QA comments page"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-comments", kwargs={"pk": case.id}),
+        {
+            "save": "Button value",
+            "version": case.version,
+            "body": QA_COMMENT_BODY,
+        },
+    )
+    assert response.status_code == 302
+
+    comment: Comment = Comment.objects.get(case=case)
+
+    assert comment.body == QA_COMMENT_BODY
+    assert comment.user == admin_user
+
+    content_type: ContentType = ContentType.objects.get_for_model(Comment)
+    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
+
+    assert event.type == Event.Type.CREATE
+
+
+def test_qa_comments_does_not_create_comment(admin_client, admin_user):
+    """Test QA comments page does not create a blank comment"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-comments", kwargs={"pk": case.id}),
+        {
+            "save": "Button value",
+            "version": case.version,
+            "body": "",
+        },
+    )
+    assert response.status_code == 302
+
+    assert Comment.objects.filter(case=case).count() == 0
+
+
 def test_form_appears_to_add_first_contact(admin_client):
     """Test that when a case has no contacts a form appears to add one"""
     case: Case = Case.objects.create()
@@ -1613,8 +1656,8 @@ def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_plat
         ("Exemptions"),
         ("Initial website compliance decision"),
         ("Initial website compliance notes"),
-        ("Initial accessibility statement compliance decision"),
-        ("Initial accessibility statement compliance notes"),
+        ("Initial statement compliance decision"),
+        ("Initial statement compliance notes"),
     ],
 )
 def test_audit_shows_table_when_audit_exists_and_audit_is_platform(
@@ -3303,3 +3346,95 @@ def test_post_case_alerts(admin_client, admin_user):
     assertContains(response, "Unresolved correspondence")
     assertContains(response, "Incomplete retest")
     assertContains(response, "Post case (2)")
+
+
+def test_updating_equality_body_updates_published_report_data_updated_time(
+    admin_client,
+):
+    """
+    Test that updating the equality body updates the published report data updated
+    time (so a notification banner to republish the report is shown).
+    """
+    case: Case = Case.objects.create(home_page_url="https://example.com")
+    audit: Audit = Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+
+    assert audit.published_report_data_updated_time is None
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        {
+            "enforcement_body": Case.EnforcementBody.ECNI,
+            "version": case.version,
+            "save": "Button value",
+            "home_page_url": "https://example.com",
+        },
+    )
+    assert response.status_code == 302
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+
+    assert audit_from_db.published_report_data_updated_time is not None
+
+
+def test_updating_home_page_url_updates_published_report_data_updated_time(
+    admin_client,
+):
+    """
+    Test that updating the home page URL updates the published report data updated
+    time (so a notification banner to republish the report is shown).
+    """
+    case: Case = Case.objects.create(home_page_url="https://example.com")
+    audit: Audit = Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+
+    assert audit.published_report_data_updated_time is None
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        {
+            "home_page_url": "https://example.com/updated",
+            "version": case.version,
+            "save": "Button value",
+            "enforcement_body": Case.EnforcementBody.ECNI,
+        },
+    )
+    assert response.status_code == 302
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+
+    assert audit_from_db.published_report_data_updated_time is not None
+
+
+def test_updating_organisation_name_updates_published_report_data_updated_time(
+    admin_client,
+):
+    """
+    Test that updating the organisation name updates the published report data updated
+    time (so a notification banner to republish the report is shown).
+    """
+    case: Case = Case.objects.create(home_page_url="https://example.com")
+    audit: Audit = Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+
+    assert audit.published_report_data_updated_time is None
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        {
+            "organisation_name": "New name",
+            "version": case.version,
+            "save": "Button value",
+            "home_page_url": "https://example.com",
+            "enforcement_body": Case.EnforcementBody.ECNI,
+        },
+    )
+
+    assert response.status_code == 302
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+
+    assert audit_from_db.published_report_data_updated_time is not None

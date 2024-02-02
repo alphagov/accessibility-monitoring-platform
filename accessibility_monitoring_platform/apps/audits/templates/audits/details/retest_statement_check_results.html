@@ -124,3 +124,7 @@
 <div{% if case.audit %} data-search-target-page-name="12-week disproportionate burden" data-search-target-label="Edit test > 12-week disproportionate burden" data-search-target-url="{% url 'audits:edit-twelve-week-disproportionate-burden' case.audit.id %}"{% endif %}>
     {% include 'audits/details/twelve_week_disproportionate_burden.html' with on_view_case=True %}
 </div>
+
+<div{% if case.audit %} data-search-target-page-name="12-week statement compliance decision" data-search-target-label="Edit 12-week test > 12-week statement compliance decision" data-search-target-url="{% url 'audits:edit-audit-retest-statement-decision' case.audit.id %}"{% endif %}>
+    {% include 'audits/details/retest_statement_decision.html' with on_view_case=True %}
+</div>
