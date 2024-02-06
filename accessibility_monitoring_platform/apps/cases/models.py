@@ -913,8 +913,6 @@ class CaseStatus(models.Model):
             return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
         elif self.case.twelve_week_update_requested_date and (
             self.case.twelve_week_correspondence_acknowledged_date is None
-            and self.case.twelve_week_response_state
-            == Case.TwelveWeekResponse.NOT_SELECTED
             and self.case.organisation_response
             == Case.OrganisationResponse.NOT_APPLICABLE
         ):
