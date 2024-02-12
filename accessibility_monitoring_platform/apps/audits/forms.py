@@ -394,18 +394,18 @@ class ArchiveAuditStatement2UpdateForm(VersionForm):
         ]
 
 
-class ArchiveAuditStatementDecisionUpdateForm(VersionForm):
+class AuditStatementDecisionUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision completion
     """
 
-    archive_audit_statement_decision_complete_date = AMPDatePageCompleteField()
+    audit_statement_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
-            "archive_audit_statement_decision_complete_date",
+            "audit_statement_decision_complete_date",
         ]
 
 
@@ -590,18 +590,18 @@ class InitialDisproportionateBurdenUpdateForm(VersionForm):
         ]
 
 
-class ArchiveCaseComplianceStatementInitialUpdateForm(VersionForm):
+class CaseComplianceStatementInitialUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision
     """
 
     statement_compliance_state_initial = AMPChoiceRadioField(
-        label="Initial accessibility statement compliance decision",
+        label="Initial statement compliance decision (included in equality body export)",
         help_text="This field effects the case status",
         choices=CaseCompliance.StatementCompliance.choices,
     )
     statement_compliance_notes_initial = AMPTextField(
-        label="Initial accessibility statement compliance notes"
+        label="Initial statement compliance notes"
     )
 
     class Meta:
@@ -1307,7 +1307,7 @@ class AuditRetestStatementComparisonUpdateForm(VersionForm):
         ]
 
 
-class ArchiveAuditRetestStatementDecisionUpdateForm(VersionForm):
+class AuditRetestStatementDecisionUpdateForm(VersionForm):
     """
     Form for retesting statement decision
     """
@@ -1315,14 +1315,14 @@ class ArchiveAuditRetestStatementDecisionUpdateForm(VersionForm):
     audit_retest_accessibility_statement_backup_url = AMPURLField(
         label="Link to 12-week saved accessibility statement, only if not compliant",
     )
-    archive_audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
+    audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
             "audit_retest_accessibility_statement_backup_url",
-            "archive_audit_retest_statement_decision_complete_date",
+            "audit_retest_statement_decision_complete_date",
         ]
 
 
@@ -1350,17 +1350,17 @@ class TwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
         ]
 
 
-class ArchiveCaseComplianceStatement12WeekUpdateForm(VersionForm):
+class CaseComplianceStatement12WeekUpdateForm(VersionForm):
     """
     Form to record final accessibility statement compliance decision
     """
 
     statement_compliance_state_12_week = AMPChoiceRadioField(
-        label="12-week accessibility statement compliance decision",
+        label="12-week statement compliance decision (included in equality body export)",
         choices=CaseCompliance.StatementCompliance.choices,
     )
     statement_compliance_notes_12_week = AMPTextField(
-        label="12-week accessibility statement compliance notes",
+        label="12-week statement compliance notes",
     )
 
     class Meta:

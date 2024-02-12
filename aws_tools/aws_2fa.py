@@ -23,7 +23,27 @@ def main(user: str, mfa_token: str):
     )
 
     iam_response = iam_client.list_mfa_devices()
-    serial_number: str = iam_response["MFADevices"][0]["SerialNumber"]
+
+    if len(iam_response["MFADevices"]) > 1:
+        for n, device in enumerate(iam_response["MFADevices"]):
+            print(f"""#{n+1}: SerialNumber - {device["SerialNumber"]} | EnableDate: {str(device["EnableDate"])}""")
+
+        while True:
+            print("Pick which MFA device you want to use:")
+            option = input()
+            if option.isdigit() is False:
+                print("Please input a number...")
+            elif int(option) > len(iam_response["MFADevices"]):
+                print(f"{option} is greater than the number of options. Please select from the options provided...")
+            elif int(option) <= 0:
+                print("Please input a positive integer...")
+            else:
+                option = int(option) - 1
+                print(f""">>> Selected {iam_response["MFADevices"][option]["SerialNumber"]}""")
+                serial_number: str = iam_response["MFADevices"][option]["SerialNumber"]
+                break
+    else:
+        serial_number: str = iam_response["MFADevices"][0]["SerialNumber"]
 
     sts_client = boto3.client(
         "sts",
@@ -33,7 +53,8 @@ def main(user: str, mfa_token: str):
     )
 
     sts_response = sts_client.get_session_token(
-        SerialNumber=serial_number, TokenCode=mfa_token
+        SerialNumber=serial_number,
+        TokenCode=mfa_token,
     )
 
     config["mfa"] = {

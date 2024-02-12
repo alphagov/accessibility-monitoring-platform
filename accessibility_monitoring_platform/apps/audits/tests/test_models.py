@@ -1067,38 +1067,6 @@ def test_fixed_statement_checks_are_returned():
 
 
 @pytest.mark.django_db
-def test_set_accessibility_statement_state_called_on_statement_page_update():
-    """
-    Test that saving a statement page triggers a setting of the statement
-    state on the case.
-    """
-    case: Case = Case.objects.create()
-    mock_set_statement_compliance_states = Mock()
-    case.set_statement_compliance_states = mock_set_statement_compliance_states
-    audit: Audit = Audit.objects.create(case=case)
-
-    Page.objects.create(audit=audit, page_type=Page.Type.STATEMENT)
-
-    mock_set_statement_compliance_states.assert_called_once()
-
-
-@pytest.mark.django_db
-def test_set_accessibility_statement_state_not_called_on_non_statement_page_update():
-    """
-    Test that saving a non-statement page does not trigger a setting of the statement
-    state on the case.
-    """
-    case: Case = Case.objects.create()
-    mock_set_statement_compliance_states = Mock()
-    case.set_statement_compliance_states = mock_set_statement_compliance_states
-    audit: Audit = Audit.objects.create(case=case)
-
-    Page.objects.create(audit=audit)
-
-    mock_set_statement_compliance_states.assert_not_called()
-
-
-@pytest.mark.django_db
 def test_statement_check_start_end_date_range():
     """
     Test that an statement check within a date range returned.
@@ -1116,27 +1084,6 @@ def test_statement_check_start_end_date_range():
     assert StatementCheck.objects.on_date(current_date).count() == 1
 
     assert StatementCheck.objects.on_date(current_date).first() == wcag_definition
-
-
-@pytest.mark.django_db
-def test_set_accessibility_statement_state_called_on_statement_check_update():
-    """
-    Test that saving a statement check triggers a setting of the statement
-    state on the case.
-    """
-    case: Case = Case.objects.create()
-    mock_set_statement_compliance_states = Mock()
-    case.set_statement_compliance_states = mock_set_statement_compliance_states
-    audit: Audit = Audit.objects.create(case=case)
-    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
-
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=type,
-        statement_check=statement_check,
-    )
-
-    mock_set_statement_compliance_states.assert_called_once()
 
 
 def test_retest_str():

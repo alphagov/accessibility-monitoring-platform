@@ -45,7 +45,7 @@ urlpatterns = [
     ),
     path("accounts/", include("django.contrib.auth.urls")),
     path(r"platform-admin/", admin.site.urls),
-    path(r"favicon.ico", RedirectView.as_view(url="/static/images/favicon.ico")),
+    path(r"favicon.ico", RedirectView.as_view(url="/static/assets/images/favicon.ico")),
     path("security.txt", get_security_txt),
     path("robots.txt", robots_txt),
     path(".well-known/security.txt", get_security_txt),

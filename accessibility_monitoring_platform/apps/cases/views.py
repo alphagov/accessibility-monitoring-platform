@@ -22,7 +22,11 @@ from ..audits.forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
 )
-from ..audits.utils import get_retest_view_tables_context, get_test_view_tables_context
+from ..audits.utils import (
+    get_retest_view_tables_context,
+    get_test_view_tables_context,
+    report_data_updated,
+)
 from ..cases.utils import get_post_case_alerts
 from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
@@ -387,6 +391,18 @@ class CaseDetailUpdateView(CaseUpdateView):
     form_class: Type[CaseDetailUpdateForm] = CaseDetailUpdateForm
     template_name: str = "cases/forms/details.html"
 
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        case: Case = self.object
+        if case.published_report_url:
+            if (
+                "enforcement_body" in form.changed_data
+                or "home_page_url" in form.changed_data
+                or "organisation_name" in form.changed_data
+            ):
+                report_data_updated(audit=case.audit)
+        return super().form_valid(form=form)
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
@@ -481,11 +497,13 @@ class CaseQACommentsUpdateView(CaseUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         case: Case = self.object
-        comment: Comment = Comment.objects.create(
-            case=case, user=self.request.user, body=form.cleaned_data.get("body")
-        )
-        record_model_create_event(user=self.request.user, model_object=comment)
-        add_comment_notification(self.request, comment)
+        body: str = form.cleaned_data.get("body")
+        if body:
+            comment: Comment = Comment.objects.create(
+                case=case, user=self.request.user, body=form.cleaned_data.get("body")
+            )
+            record_model_create_event(user=self.request.user, model_object=comment)
+            add_comment_notification(self.request, comment)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
