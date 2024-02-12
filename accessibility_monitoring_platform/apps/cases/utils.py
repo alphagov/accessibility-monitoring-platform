@@ -55,6 +55,7 @@ class PostCaseAlert:
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
 CONTACT_DETAILS_COLUMN_NAME: str = "Contact details"
+ORGANISATION_RESPONDED_COLUMN_NAME: str = "Organisation responded to report?"
 
 COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
@@ -91,10 +92,10 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
         field_name="psb_progress_notes",
     ),
     ColumnAndFieldNames(column_name=CONTACT_DETAILS_COLUMN_NAME, field_name=None),
-    # ColumnAndFieldNames(
-    #     column_name="Organisation responded to report?",
-    #     field_name="report_acknowledged_date",
-    # ),
+    ColumnAndFieldNames(
+        column_name=ORGANISATION_RESPONDED_COLUMN_NAME,
+        field_name="report_acknowledged_date",
+    ),
     ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
     ColumnAndFieldNames(
         column_name="Report acknowledged", field_name="report_acknowledged_date"
@@ -107,6 +108,10 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Date when compliance decision email sent to public sector body",
         field_name="compliance_email_sent_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Compliance decision email sent to",
+        field_name="compliance_decision_sent_to_email",
     ),
     ColumnAndFieldNames(
         column_name="Total number of accessibility issues",
@@ -571,6 +576,20 @@ def format_contacts(contacts: QuerySet[Contact]) -> str:
     return contact_details
 
 
+def format_field_as_yes_no(
+    model_instance: Union[Audit, Case, Contact, None], column: ColumnAndFieldNames
+) -> str:
+    """
+    If the field contains a truthy value return Yes otherwise return No.
+    """
+    if model_instance is None:
+        return "No"
+    value: Any = getattr(model_instance, column.field_name, False)
+    if value:
+        return "Yes"
+    return "No"
+
+
 def format_model_field(
     model_instance: Union[Audit, Case, Contact, None], column: ColumnAndFieldNames
 ) -> str:
@@ -650,6 +669,8 @@ def download_equality_body_cases(
                 )
             elif column.column_name == CONTACT_DETAILS_COLUMN_NAME:
                 row.append(contact_details)
+            elif column.column_name == ORGANISATION_RESPONDED_COLUMN_NAME:
+                row.append(format_field_as_yes_no(model_instance=case, column=column))
             else:
                 row.append(format_model_field(model_instance=case, column=column))
         for column in EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY:

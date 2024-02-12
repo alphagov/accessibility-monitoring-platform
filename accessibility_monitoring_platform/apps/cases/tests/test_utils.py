@@ -37,6 +37,7 @@ from ..utils import (
     download_feedback_survey_cases,
     filter_cases,
     format_contacts,
+    format_field_as_yes_no,
     format_model_field,
     get_post_case_alerts,
     get_post_case_alerts_count,
@@ -324,6 +325,30 @@ def test_format_case_field(column, case_value, expected_formatted_value):
     )
 
 
+def test_format_field_as_yes_no():
+    """Test field formatted as Yes if it contains a truthy value, otherwise No"""
+    case: Case = Case()
+
+    assert (
+        format_field_as_yes_no(
+            model_instance=case,
+            column=ColumnAndFieldNames(
+                column_name="Falsey field", field_name="report_sent_date"
+            ),
+        )
+        == "No"
+    )
+    assert (
+        format_field_as_yes_no(
+            model_instance=case,
+            column=ColumnAndFieldNames(
+                column_name="Truthy field", field_name="test_type"
+            ),
+        )
+        == "Yes"
+    )
+
+
 def test_format_contacts():
     """Test that contacts fields values are contatenated"""
     assert format_contacts(contacts=CONTACTS) == EXPECTED_FORMATTED_CONTACTS
@@ -434,9 +459,8 @@ def test_download_equality_body_cases():
         "Not selected",
         "",
         "",
-        "Not known",
         "",
-        "Not assessed",
+        "No",
         "",
         "",
         "",
@@ -449,8 +473,8 @@ def test_download_equality_body_cases():
         "n/a",
         "unknown",
         "unknown",
-        "Not selected",
-        "Not selected",
+        "Not assessed",
+        "Not assessed",
         "Not checked",
         "",
         "Not checked",
