@@ -918,7 +918,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         case: Case = self.object
         case_pk: Dict[str, int] = {"pk": case.id}
         if case.no_psb_contact == Boolean.YES:
-            return reverse("cases:edit-case-close", kwargs=case_pk)
+            return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
         return reverse("cases:edit-find-contact-details", kwargs=case_pk)
 
 

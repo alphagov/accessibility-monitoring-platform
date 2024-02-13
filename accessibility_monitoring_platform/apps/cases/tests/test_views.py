@@ -1599,8 +1599,8 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     assertContains(response, TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING)
 
 
-def test_no_psb_response_redirects_to_case_close(admin_client):
-    """Test no PSB response redirects to case closing"""
+def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
+    """Test no PSB response redirects to enforcement recommendation"""
     case: Case = Case.objects.create(
         no_psb_contact=Boolean.YES,
     )
@@ -1614,7 +1614,10 @@ def test_no_psb_response_redirects_to_case_close(admin_client):
         },
     )
     assert response.status_code == 302
-    assert response.url == f'{reverse("cases:edit-case-close", kwargs={"pk": case.id})}'
+    assert (
+        response.url
+        == f'{reverse("cases:edit-enforcement-recommendation", kwargs={"pk": case.id})}'
+    )
 
 
 @pytest.mark.parametrize(
