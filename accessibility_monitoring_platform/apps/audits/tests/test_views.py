@@ -715,7 +715,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-overview",
             "save_continue",
-            "audits:edit-audit-summary",
+            "audits:edit-initial-disproportionate-burden",
         ),
         (
             "audits:edit-statement-website",
@@ -810,7 +810,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-retest-statement-overview",
             "save_continue",
-            "audits:edit-audit-retest-statement-comparison",
+            "audits:edit-twelve-week-disproportionate-burden",
         ),
         (
             "audits:edit-retest-statement-website",
