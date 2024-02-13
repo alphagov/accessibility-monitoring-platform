@@ -31,10 +31,10 @@
                             {% include './nav_content.html' with id='edit-retest-statement-preparation' anchor='retest-statement-preparation' edit_name='audits:edit-retest-statement-preparation' name='12-week statement preparation' complete=audit.audit_retest_statement_preparation_complete_date %}
                             {% include './nav_content.html' with id='edit-retest-statement-feedback' anchor='retest-statement-feedback' edit_name='audits:edit-retest-statement-feedback' name='12-week feedback and enforcement procedure' complete=audit.audit_retest_statement_feedback_complete_date %}
                             {% include './nav_content.html' with id='edit-retest-statement-custom' anchor='retest-statement-custom' edit_name='audits:edit-retest-statement-custom' name='12-week custom statement issues' complete=audit.audit_retest_statement_custom_complete_date %}
-                            {% include './nav_content.html' with id='edit-twelve-week-disproportionate-burden' anchor="twelve-week-disproportionate-burden" edit_name='audits:edit-twelve-week-disproportionate-burden' name='12-week disproportionate burden claim' complete=audit.twelve_week_disproportionate_burden_complete_date %}
-                            {% include './nav_content.html' with id='edit-audit-retest-statement-decision' anchor="audit-retest-statement-decision" edit_name='audits:edit-audit-retest-statement-decision' name='12-week statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
                         </ul>
                     </li>
+                    {% include './nav_content.html' with id='edit-twelve-week-disproportionate-burden' anchor="twelve-week-disproportionate-burden" edit_name='audits:edit-twelve-week-disproportionate-burden' name='12-week disproportionate burden claim' complete=audit.twelve_week_disproportionate_burden_complete_date %}
+                    {% include './nav_content.html' with id='edit-audit-retest-statement-decision' anchor="audit-retest-statement-decision" edit_name='audits:edit-audit-retest-statement-decision' name='12-week statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
                 {% endif %}
             {% else %}
                 {% include './nav_content.html' with id='edit-audit-retest-statement-1' anchor='audit-retest-statement-1' edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.archive_audit_retest_statement_1_complete_date %}

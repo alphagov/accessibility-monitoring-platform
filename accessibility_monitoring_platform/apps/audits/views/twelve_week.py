@@ -396,7 +396,7 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
             if audit.all_overview_statement_checks_have_passed:
                 return reverse("audits:edit-retest-statement-website", kwargs=audit_pk)
             return reverse(
-                "audits:edit-audit-retest-statement-comparison", kwargs=audit_pk
+                "audits:edit-twelve-week-disproportionate-burden", kwargs=audit_pk
             )
         return super().get_success_url()
 
