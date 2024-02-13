@@ -1,6 +1,7 @@
 """
 Tests for cases views
 """
+
 import json
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional
@@ -1021,6 +1022,16 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-review-changes",
             "save_continue",
+            "cases:edit-enforcement-recommendation",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "save",
+            "cases:edit-enforcement-recommendation",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "save_continue",
             "cases:edit-case-close",
         ),
         ("cases:edit-case-close", "save", "cases:edit-case-close"),
@@ -1775,6 +1786,11 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "12-week retest",
             "edit-twelve-week-retest",
         ),
+        (
+            "enforcement_recommendation_complete_date",
+            "Enforcement recommendation",
+            "edit-enforcement-recommendation",
+        ),
         ("case_close_complete_date", "Closing the case", "edit-case-close"),
     ],
 )
@@ -1886,6 +1902,11 @@ def test_section_complete_check_displayed(
             "cases:edit-review-changes",
             "review_changes_complete_date",
             "Reviewing changes",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "enforcement_recommendation_complete_date",
+            "Enforcement recommendation",
         ),
         ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
     ],

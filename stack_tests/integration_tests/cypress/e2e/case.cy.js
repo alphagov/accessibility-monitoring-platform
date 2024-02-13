@@ -113,11 +113,19 @@ describe('View case', () => {
     cy.contains(psbProgressNote)
   })
 
-  it('can edit closing the case', () => {
-    cy.get('#edit-case-close').click()
+  it('can edit enforcement recommendation', () => {
+    cy.get('#edit-enforcement-recommendation').click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="recommendation_for_enforcement"]').check('no-further-action')
     cy.get('[name="recommendation_notes"]').clear().type(recommendationNote)
+    cy.get('[name="enforcement_recommendation_complete_date"]').click()
+    cy.contains('Save').click()
+    cy.contains('Case').click()
+    cy.contains(recommendationNote)
+  })
+
+  it('can edit closing the case', () => {
+    cy.get('#edit-case-close').click()
     cy.get('[name="case_completed"]').check('complete-send')
     cy.get('[name="case_close_complete_date"]').click()
     cy.contains('Save').click()

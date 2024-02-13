@@ -1,6 +1,7 @@
 """
 Views for cases app
 """
+
 from datetime import date, timedelta
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Type, Union
@@ -58,6 +59,7 @@ from .forms import (
     CaseCreateForm,
     CaseDeactivateForm,
     CaseDetailUpdateForm,
+    CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
     CaseFindContactDetailsUpdateForm,
     CaseFourWeekFollowupUpdateForm,
@@ -226,6 +228,9 @@ class CaseDetailView(DetailView):
         context["no_psb_contact"] = get_case_rows(form=CaseNoPSBContactUpdateForm())
         context["review_changes_rows"] = get_case_rows(
             form=CaseReviewChangesUpdateForm()
+        )
+        context["enforcement_recommendation_rows"] = get_case_rows(
+            form=CaseEnforcementRecommendationUpdateForm()
         )
         context["case_close_rows"] = get_case_rows(form=CaseCloseUpdateForm())
         context["equality_body_metadata_rows"] = get_case_rows(
@@ -940,6 +945,25 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
 
     form_class: Type[CaseReviewChangesUpdateForm] = CaseReviewChangesUpdateForm
     template_name: str = "cases/forms/review_changes.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case: Case = self.object
+            case_pk: Dict[str, int] = {"pk": case.id}
+            return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseEnforcementRecommendationUpdateView(CaseUpdateView):
+    """
+    View to record the enforcement recommendation
+    """
+
+    form_class: Type[
+        CaseEnforcementRecommendationUpdateForm
+    ] = CaseEnforcementRecommendationUpdateForm
+    template_name: str = "cases/forms/enforcement_recommendation.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

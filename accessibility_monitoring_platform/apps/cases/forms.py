@@ -1,6 +1,7 @@
 """
 Forms - cases
 """
+
 import re
 from typing import Any, List, Tuple
 
@@ -734,9 +735,9 @@ class CaseReviewChangesUpdateForm(VersionForm):
         ]
 
 
-class CaseCloseUpdateForm(VersionForm):
+class CaseEnforcementRecommendationUpdateForm(VersionForm):
     """
-    Form to record sending the compliance decision
+    Form to record sending the enforcement recommendation decision
     """
 
     compliance_email_sent_date = AMPDateField(
@@ -756,6 +757,25 @@ class CaseCloseUpdateForm(VersionForm):
             " with notes from Summary of progress made from public sector body"
         ),
     )
+    enforcement_recommendation_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "compliance_email_sent_date",
+            "compliance_decision_sent_to_email",
+            "recommendation_for_enforcement",
+            "recommendation_notes",
+            "enforcement_recommendation_complete_date",
+        ]
+
+
+class CaseCloseUpdateForm(VersionForm):
+    """
+    Form to record the case close decision
+    """
+
     case_completed = AMPChoiceRadioField(
         label="Case completed",
         choices=Case.CaseCompleted.choices,
@@ -767,10 +787,6 @@ class CaseCloseUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
-            "compliance_email_sent_date",
-            "compliance_decision_sent_to_email",
-            "recommendation_for_enforcement",
-            "recommendation_notes",
             "case_completed",
             "case_close_complete_date",
         ]
