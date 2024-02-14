@@ -965,6 +965,26 @@ class Audit(VersionModel):
         )
 
     @property
+    def statement_initially_found(self) -> bool:
+        """Check an accesibility statement was initially found"""
+        return (
+            self.overview_statement_check_results.exclude(
+                check_result_state=StatementCheckResult.Result.YES
+            ).count()
+            == 0
+        )
+
+    @property
+    def statement_found_at_12_week_retest(self) -> bool:
+        """Check an accessibility statement was found at 12-week retest"""
+        return (
+            self.overview_statement_check_results.exclude(
+                retest_state=StatementCheckResult.Result.YES
+            ).count()
+            == 0
+        )
+
+    @property
     def failed_retest_statement_check_results(self):
         return self.statement_check_results.filter(
             retest_state=StatementCheckResult.Result.NO

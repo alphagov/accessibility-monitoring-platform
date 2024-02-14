@@ -1007,3 +1007,166 @@ def test_calulate_qa_status_approved():
     )
 
     assert case.calulate_qa_status() == Case.QAStatus.APPROVED
+
+
+@pytest.mark.django_db
+def test_total_website_issues():
+    """Test Case total_website_issues returns number found or n/a if none"""
+    case: Case = Case.objects.create()
+
+    assert case.total_website_issues == 0
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.total_website_issues == 0
+
+    home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert case.total_website_issues == 2
+
+
+@pytest.mark.django_db
+def test_total_website_issues_fixed():
+    """Test Case total_website_issues_fixed returns number found or n/a if none"""
+    case: Case = Case.objects.create()
+
+    assert case.total_website_issues_fixed == 0
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.total_website_issues_fixed == 0
+
+    home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert case.total_website_issues_fixed == 1
+
+
+@pytest.mark.django_db
+def test_total_website_issues_unfixed():
+    """Test Case total_website_issues_unfixed returns number found or n/a if none"""
+    case: Case = Case.objects.create()
+
+    assert case.total_website_issues_unfixed == 0
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.total_website_issues_unfixed == 0
+
+    home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert case.total_website_issues_unfixed == 1
+
+
+@pytest.mark.django_db
+def test_csv_export_statement_initially_found():
+    """Test Case csv_export_statement_initially_found"""
+    case: Case = Case.objects.create()
+
+    assert case.csv_export_statement_initially_found == "unknown"
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.csv_export_statement_initially_found == "unknown"
+
+    for statement_check in StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ):
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+            check_result_state=StatementCheckResult.Result.NO,
+        )
+
+    assert case.csv_export_statement_initially_found == "No"
+
+    for statement_check_result in StatementCheckResult.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ):
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
+        statement_check_result.save()
+
+    assert case.csv_export_statement_initially_found == "Yes"
+
+
+@pytest.mark.django_db
+def test_csv_export_statement_found_at_12_week_retest():
+    """Test Case csv_export_statement_found_at_12_week_retest"""
+    case: Case = Case.objects.create()
+
+    assert case.csv_export_statement_found_at_12_week_retest == "unknown"
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.csv_export_statement_found_at_12_week_retest == "unknown"
+
+    for statement_check in StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ):
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+            retest_state=StatementCheckResult.Result.NO,
+        )
+
+    assert case.csv_export_statement_found_at_12_week_retest == "No"
+
+    for statement_check_result in StatementCheckResult.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ):
+        statement_check_result.retest_state = StatementCheckResult.Result.YES
+        statement_check_result.save()
+
+    assert case.csv_export_statement_found_at_12_week_retest == "Yes"
