@@ -37,10 +37,7 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("subcategory", "subcategory_id"),
 ]
 
-CONTACT_NAME_COLUMN_NAME: str = "Contact name"
-JOB_TITLE_COLUMN_NAME: str = "Job title"
 CONTACT_DETAIL_COLUMN_NAME: str = "Contact detail"
-CONTACT_NOTES_COLUMN_NUMBER: str = "Contact notes"
 CONTACT_FIELDS: List[str] = ["email"]
 
 
@@ -57,19 +54,30 @@ class PostCaseAlert:
 
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
+CONTACT_DETAILS_COLUMN_NAME: str = "Contact details"
+ORGANISATION_RESPONDED_COLUMN_NAME: str = "Organisation responded to report?"
+
 COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Equality body",
         field_name="enforcement_body",
     ),
     ColumnAndFieldNames(column_name="Test type", field_name="test_type"),
-    ColumnAndFieldNames(column_name="Case No.", field_name="id"),
-    ColumnAndFieldNames(column_name="Case completed date", field_name="completed_date"),
+    ColumnAndFieldNames(column_name="Case number", field_name="id"),
     ColumnAndFieldNames(column_name="Organisation", field_name="organisation_name"),
     ColumnAndFieldNames(column_name="Website URL", field_name="home_page_url"),
+    ColumnAndFieldNames(
+        column_name="Parent organisation name",
+        field_name="parental_organisation_name",
+    ),
+    ColumnAndFieldNames(column_name="Sub-category", field_name="subcategory"),
+    ColumnAndFieldNames(column_name="Website name", field_name="website_name"),
+    ColumnAndFieldNames(
+        column_name="Previous Case Number", field_name="previous_case_number"
+    ),
     ColumnAndFieldNames(column_name="Is it a complaint?", field_name="is_complaint"),
     ColumnAndFieldNames(
-        column_name="Link to report", field_name="report_final_pdf_url"
+        column_name="Published report", field_name="published_report_url"
     ),
     ColumnAndFieldNames(
         column_name="Enforcement recommendation",
@@ -83,71 +91,77 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
         column_name="Summary of progress made / response from PSB",
         field_name="psb_progress_notes",
     ),
+    ColumnAndFieldNames(column_name=CONTACT_DETAILS_COLUMN_NAME, field_name=None),
     ColumnAndFieldNames(
-        column_name="Disproportionate Burden Claimed?",
-        field_name="is_disproportionate_claimed",
+        column_name=ORGANISATION_RESPONDED_COLUMN_NAME,
+        field_name="report_acknowledged_date",
     ),
-    ColumnAndFieldNames(
-        column_name="Disproportionate Burden Notes", field_name="disproportionate_notes"
-    ),
-    ColumnAndFieldNames(
-        column_name="Accessibility Statement Decision",
-        field_name="statement_compliance_state_12_week",
-    ),
-    ColumnAndFieldNames(
-        column_name="Notes on accessibility statement",
-        field_name="statement_compliance_notes_12_week",
-    ),
-    ColumnAndFieldNames(column_name=CONTACT_DETAIL_COLUMN_NAME, field_name=None),
-    ColumnAndFieldNames(column_name=CONTACT_NAME_COLUMN_NAME, field_name=None),
-    ColumnAndFieldNames(column_name=JOB_TITLE_COLUMN_NAME, field_name=None),
     ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
     ColumnAndFieldNames(
         column_name="Report acknowledged", field_name="report_acknowledged_date"
     ),
     ColumnAndFieldNames(
-        column_name="Follow-up date - 12-week deadline",
+        column_name="12-week deadline",
         field_name="report_followup_week_12_due_date",
     ),
     ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
     ColumnAndFieldNames(
-        column_name="Published report", field_name="published_report_url"
+        column_name="Date when compliance decision email sent to public sector body",
+        field_name="compliance_email_sent_date",
     ),
     ColumnAndFieldNames(
-        column_name="Previous Case No.", field_name="previous_case_number"
+        column_name="Compliance decision email sent to",
+        field_name="compliance_decision_sent_to_email",
     ),
     ColumnAndFieldNames(
-        column_name="No response to report",
-        field_name="no_psb_contact",
+        column_name="Total number of accessibility issues",
+        field_name="total_website_issues",
     ),
     ColumnAndFieldNames(
-        column_name="% of issues fixed",
+        column_name="Number of issues fixed", field_name="total_website_issues_fixed"
+    ),
+    ColumnAndFieldNames(
+        column_name="Number of issues unfixed",
+        field_name="total_website_issues_unfixed",
+    ),
+    ColumnAndFieldNames(
+        column_name="Issues fixed as a percentage",
         field_name="percentage_website_issues_fixed",
     ),
     ColumnAndFieldNames(
-        column_name="Parental organisation name",
-        field_name="parental_organisation_name",
+        column_name="Was a accessibility statement found during initial assessment?",
+        field_name="csv_export_statement_initially_found",
     ),
-    ColumnAndFieldNames(column_name="Website name", field_name="website_name"),
-    ColumnAndFieldNames(column_name="Sub-category", field_name="subcategory"),
+    ColumnAndFieldNames(
+        column_name="Was a accessibility statement found during the 12-week assessment",
+        field_name="csv_export_statement_found_at_12_week_retest",
+    ),
+    ColumnAndFieldNames(
+        column_name="Initial Accessibility Statement Decision",
+        field_name="statement_compliance_state_initial",
+    ),
+    ColumnAndFieldNames(
+        column_name="Retest Accessibility Statement Decision",
+        field_name="statement_compliance_state_12_week",
+    ),
 ]
 
 EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
-        column_name="Initial disproportionate burden claimed?",
-        field_name="archive_disproportionate_burden_state",
+        column_name="Initial disproportionate burden claim",
+        field_name="initial_disproportionate_burden_claim",
     ),
     ColumnAndFieldNames(
-        column_name="Initial disproportionate notes",
-        field_name="archive_disproportionate_burden_notes",
+        column_name="Initial disproportionate burden details",
+        field_name="initial_disproportionate_burden_notes",
     ),
     ColumnAndFieldNames(
-        column_name="Final disproportionate burden claimed?",
-        field_name="archive_audit_retest_disproportionate_burden_state",
+        column_name="Retest disproportionate burden claimed?",
+        field_name="twelve_week_disproportionate_burden_claim",
     ),
     ColumnAndFieldNames(
-        column_name="Final disproportionate notes",
-        field_name="archive_audit_retest_disproportionate_burden_notes",
+        column_name="Retest disproportionate burden details",
+        field_name="twelve_week_disproportionate_burden_notes",
     ),
 ]
 
@@ -544,20 +558,36 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     )
 
 
-def format_contacts(contacts: List[Contact], column: ColumnAndFieldNames) -> str:
+def format_contacts(contacts: QuerySet[Contact]) -> str:
     """
     For a contact-related field, concatenate the values for all the contacts
     and return as a single string.
     """
-    if column.column_name == CONTACT_NAME_COLUMN_NAME:
-        return "\n".join([contact.name for contact in contacts])
-    elif column.column_name == JOB_TITLE_COLUMN_NAME:
-        return "\n".join([contact.job_title for contact in contacts])
-    elif column.column_name == CONTACT_DETAIL_COLUMN_NAME:
-        return "\n".join([contact.email for contact in contacts])
-    elif column.column_name == CONTACT_NOTES_COLUMN_NUMBER:
-        return "\n\n".join([contact.notes for contact in contacts])
-    return ""
+    contact_details: str = ""
+    for contact in contacts:
+        if contact_details:
+            contact_details += "\n"
+        if contact.name:
+            contact_details += f"{contact.name}\n"
+        if contact.job_title:
+            contact_details += f"{contact.job_title}\n"
+        if contact.email:
+            contact_details += f"{contact.email}\n"
+    return contact_details
+
+
+def format_field_as_yes_no(
+    model_instance: Union[Audit, Case, Contact, None], column: ColumnAndFieldNames
+) -> str:
+    """
+    If the field contains a truthy value return Yes otherwise return No.
+    """
+    if model_instance is None:
+        return "No"
+    value: Any = getattr(model_instance, column.field_name, False)
+    if value:
+        return "Yes"
+    return "No"
 
 
 def format_model_field(
@@ -630,15 +660,17 @@ def download_equality_body_cases(
 
     output: List[List[str]] = []
     for case in cases:
-        contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))
+        contact_details: str = format_contacts(contacts=case.contacts)
         row = []
         for column in COLUMNS_FOR_EQUALITY_BODY:
             if column.field_name in COMPLIANCE_FIELDS:
                 row.append(
                     format_model_field(model_instance=case.compliance, column=column)
                 )
-            elif column.field_name is None:
-                row.append(format_contacts(contacts=contacts, column=column))
+            elif column.column_name == CONTACT_DETAILS_COLUMN_NAME:
+                row.append(contact_details)
+            elif column.column_name == ORGANISATION_RESPONDED_COLUMN_NAME:
+                row.append(format_field_as_yes_no(model_instance=case, column=column))
             else:
                 row.append(format_model_field(model_instance=case, column=column))
         for column in EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY:
