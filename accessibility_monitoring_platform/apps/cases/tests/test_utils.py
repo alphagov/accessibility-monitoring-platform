@@ -37,6 +37,7 @@ from ..utils import (
     download_feedback_survey_cases,
     filter_cases,
     format_contacts,
+    format_field_as_yes_no,
     format_model_field,
     get_post_case_alerts,
     get_post_case_alerts_count,
@@ -62,6 +63,14 @@ CONTACTS: List[Contact] = [
         email="email2",
     ),
 ]
+EXPECTED_FORMATTED_CONTACTS: str = """Name 1
+Job title 1
+email1
+
+Name 2
+Job title 2
+email2
+"""
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
 CONTACT_NOTES: str = "Contact notes"
@@ -316,26 +325,33 @@ def test_format_case_field(column, case_value, expected_formatted_value):
     )
 
 
-@pytest.mark.parametrize(
-    "column, expected_formatted_value",
-    [
-        (
-            ColumnAndFieldNames(column_name="Contact name", field_name=None),
-            "Name 1\nName 2",
-        ),
-        (
-            ColumnAndFieldNames(column_name="Job title", field_name=None),
-            "Job title 1\nJob title 2",
-        ),
-        (
-            ColumnAndFieldNames(column_name="Contact detail", field_name=None),
-            "email1\nemail2",
-        ),
-    ],
-)
-def test_format_contacts(column, expected_formatted_value):
+def test_format_field_as_yes_no():
+    """Test field formatted as Yes if it contains a truthy value, otherwise No"""
+    case: Case = Case()
+
+    assert (
+        format_field_as_yes_no(
+            model_instance=case,
+            column=ColumnAndFieldNames(
+                column_name="Falsey field", field_name="report_sent_date"
+            ),
+        )
+        == "No"
+    )
+    assert (
+        format_field_as_yes_no(
+            model_instance=case,
+            column=ColumnAndFieldNames(
+                column_name="Truthy field", field_name="test_type"
+            ),
+        )
+        == "Yes"
+    )
+
+
+def test_format_contacts():
     """Test that contacts fields values are contatenated"""
-    assert expected_formatted_value == format_contacts(contacts=CONTACTS, column=column)
+    assert format_contacts(contacts=CONTACTS) == EXPECTED_FORMATTED_CONTACTS
 
 
 @pytest.mark.parametrize(
@@ -435,33 +451,34 @@ def test_download_equality_body_cases():
         "",
         "",
         "",
+        "",
+        "",
+        "",
         "No",
         "",
         "Not selected",
         "",
         "",
-        "Not known",
-        "",
-        "Not assessed",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
         "",
         "No",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "0",
+        "0",
+        "0",
         "n/a",
+        "unknown",
+        "unknown",
+        "Not assessed",
+        "Not assessed",
+        "Not checked",
         "",
+        "Not checked",
         "",
-        "",
-        "No claim",
-        "",
-        "No claim",
-        "Audit for CSV export",
     ]
 
     validate_csv_response(

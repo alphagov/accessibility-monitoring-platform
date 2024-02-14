@@ -1482,3 +1482,31 @@ def test_all_retest_pages():
     )
 
     assertQuerysetEqual(retest_page.all_retest_pages, all_retest_pages_for_page)
+
+
+@pytest.mark.django_db
+def test_statement_initially_found_using_overview_statement_check_results():
+    """Tests an all the overview statement check results are 'Yes'"""
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.statement_initially_found is False
+
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
+        statement_check_result.save()
+
+    assert audit.statement_initially_found is True
+
+
+@pytest.mark.django_db
+def test_statement_found_at_12_week_retest_using_overview_statement_check_results():
+    """Tests an all the overview statement check results retest states are 'Yes'"""
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.statement_found_at_12_week_retest is False
+
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.retest_state = StatementCheckResult.Result.YES
+        statement_check_result.save()
+
+    assert audit.statement_found_at_12_week_retest is True

@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 
@@ -583,7 +584,7 @@ class Case(VersionModel):
         return "Unknown"
 
     @property
-    def contacts(self) -> bool:
+    def contacts(self) -> QuerySet["Contact"]:
         return self.contact_set.filter(is_deleted=False)
 
     @property
@@ -688,6 +689,24 @@ class Case(VersionModel):
         return self.compliance.get_statement_compliance_state_12_week_display()
 
     @property
+    def total_website_issues(self) -> int:
+        if self.audit is None:
+            return 0
+        return self.audit.failed_check_results.count()
+
+    @property
+    def total_website_issues_fixed(self) -> int:
+        if self.audit is None:
+            return 0
+        return self.audit.fixed_check_results.count()
+
+    @property
+    def total_website_issues_unfixed(self) -> int:
+        if self.audit is None or self.total_website_issues == 0:
+            return 0
+        return self.total_website_issues - self.total_website_issues_fixed
+
+    @property
     def percentage_website_issues_fixed(self) -> int:
         if self.audit is None:
             return "n/a"
@@ -696,6 +715,22 @@ class Case(VersionModel):
             return "n/a"
         fixed_checks_count: int = self.audit.fixed_check_results.count()
         return int(fixed_checks_count * 100 / failed_checks_count)
+
+    @property
+    def csv_export_statement_initially_found(self) -> int:
+        if self.audit is None or not self.audit.uses_statement_checks:
+            return "unknown"
+        if self.audit.statement_initially_found:
+            return "Yes"
+        return "No"
+
+    @property
+    def csv_export_statement_found_at_12_week_retest(self) -> int:
+        if self.audit is None or not self.audit.uses_statement_checks:
+            return "unknown"
+        if self.audit.statement_found_at_12_week_retest:
+            return "Yes"
+        return "No"
 
     @property
     def overview_issues_website(self) -> str:
