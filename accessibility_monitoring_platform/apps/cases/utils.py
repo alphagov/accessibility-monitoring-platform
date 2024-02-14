@@ -23,6 +23,7 @@ from .forms import CaseSearchForm, Complaint, Sort
 from .models import (
     COMPLIANCE_FIELDS,
     Case,
+    CaseCompliance,
     CaseEvent,
     CaseStatus,
     Contact,
@@ -53,115 +54,214 @@ class PostCaseAlert:
 
 
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
+EqualityBodyColumn = namedtuple(
+    "EqualityBodyColumn", ["column_name", "source_class", "field_name", "edit_url"]
+)
 
 CONTACT_DETAILS_COLUMN_NAME: str = "Contact details"
 ORGANISATION_RESPONDED_COLUMN_NAME: str = "Organisation responded to report?"
 
-COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
-    ColumnAndFieldNames(
+COLUMNS_FOR_EQUALITY_BODY: List[EqualityBodyColumn] = [
+    EqualityBodyColumn(
         column_name="Equality body",
+        source_class=Case,
         field_name="enforcement_body",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(column_name="Test type", field_name="test_type"),
-    ColumnAndFieldNames(column_name="Case number", field_name="id"),
-    ColumnAndFieldNames(column_name="Organisation", field_name="organisation_name"),
-    ColumnAndFieldNames(column_name="Website URL", field_name="home_page_url"),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
+        column_name="Test type",
+        source_class=Case,
+        field_name="test_type",
+        edit_url=None,
+    ),
+    EqualityBodyColumn(
+        column_name="Case number", source_class=Case, field_name="id", edit_url=None
+    ),
+    EqualityBodyColumn(
+        column_name="Organisation",
+        source_class=Case,
+        field_name="organisation_name",
+        edit_url=None,
+    ),
+    EqualityBodyColumn(
+        column_name="Website URL",
+        source_class=Case,
+        field_name="home_page_url",
+        edit_url=None,
+    ),
+    EqualityBodyColumn(
         column_name="Parent organisation name",
+        source_class=Case,
         field_name="parental_organisation_name",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(column_name="Sub-category", field_name="subcategory"),
-    ColumnAndFieldNames(column_name="Website name", field_name="website_name"),
-    ColumnAndFieldNames(
-        column_name="Previous Case Number", field_name="previous_case_number"
+    EqualityBodyColumn(
+        column_name="Sub-category",
+        source_class=Case,
+        field_name="subcategory",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(column_name="Is it a complaint?", field_name="is_complaint"),
-    ColumnAndFieldNames(
-        column_name="Published report", field_name="published_report_url"
+    EqualityBodyColumn(
+        column_name="Website name",
+        source_class=Case,
+        field_name="website_name",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
+        column_name="Previous Case Number",
+        source_class=Case,
+        field_name="previous_case_number",
+        edit_url=None,
+    ),
+    EqualityBodyColumn(
+        column_name="Is it a complaint?",
+        source_class=Case,
+        field_name="is_complaint",
+        edit_url=None,
+    ),
+    EqualityBodyColumn(
+        column_name="Published report",
+        source_class=Case,
+        field_name="published_report_url",
+        edit_url=None,
+    ),
+    EqualityBodyColumn(
         column_name="Enforcement recommendation",
+        source_class=Case,
         field_name="recommendation_for_enforcement",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Enforcement recommendation notes including exemptions",
+        source_class=Case,
         field_name="recommendation_notes",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Summary of progress made / response from PSB",
+        source_class=Case,
         field_name="psb_progress_notes",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(column_name=CONTACT_DETAILS_COLUMN_NAME, field_name=None),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
+        column_name=CONTACT_DETAILS_COLUMN_NAME,
+        source_class=Case,
+        field_name=None,
+        edit_url=None,
+    ),
+    EqualityBodyColumn(
         column_name=ORGANISATION_RESPONDED_COLUMN_NAME,
+        source_class=Case,
         field_name="report_acknowledged_date",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
-    ColumnAndFieldNames(
-        column_name="Report acknowledged", field_name="report_acknowledged_date"
+    EqualityBodyColumn(
+        column_name="Report sent on",
+        source_class=Case,
+        field_name="report_sent_date",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
+        column_name="Report acknowledged",
+        source_class=Case,
+        field_name="report_acknowledged_date",
+        edit_url=None,
+    ),
+    EqualityBodyColumn(
         column_name="12-week deadline",
+        source_class=Case,
         field_name="report_followup_week_12_due_date",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
+        column_name="Retest date",
+        source_class=Case,
+        field_name="retested_website_date",
+        edit_url=None,
+    ),
+    EqualityBodyColumn(
         column_name="Date when compliance decision email sent to public sector body",
+        source_class=Case,
         field_name="compliance_email_sent_date",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Compliance decision email sent to",
+        source_class=Case,
         field_name="compliance_decision_sent_to_email",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Total number of accessibility issues",
+        source_class=Case,
         field_name="total_website_issues",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
-        column_name="Number of issues fixed", field_name="total_website_issues_fixed"
+    EqualityBodyColumn(
+        column_name="Number of issues fixed",
+        source_class=Case,
+        field_name="total_website_issues_fixed",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Number of issues unfixed",
+        source_class=Case,
         field_name="total_website_issues_unfixed",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Issues fixed as a percentage",
+        source_class=Case,
         field_name="percentage_website_issues_fixed",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Was a accessibility statement found during initial assessment?",
+        source_class=Case,
         field_name="csv_export_statement_initially_found",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Was a accessibility statement found during the 12-week assessment",
+        source_class=Case,
         field_name="csv_export_statement_found_at_12_week_retest",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Initial Accessibility Statement Decision",
+        source_class=CaseCompliance,
         field_name="statement_compliance_state_initial",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Retest Accessibility Statement Decision",
+        source_class=CaseCompliance,
         field_name="statement_compliance_state_12_week",
+        edit_url=None,
     ),
-]
-
-EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Initial disproportionate burden claim",
+        source_class=Audit,
         field_name="initial_disproportionate_burden_claim",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Initial disproportionate burden details",
+        source_class=Audit,
         field_name="initial_disproportionate_burden_notes",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Retest disproportionate burden claimed?",
+        source_class=Audit,
         field_name="twelve_week_disproportionate_burden_claim",
+        edit_url=None,
     ),
-    ColumnAndFieldNames(
+    EqualityBodyColumn(
         column_name="Retest disproportionate burden details",
+        source_class=Audit,
         field_name="twelve_week_disproportionate_burden_notes",
+        edit_url=None,
     ),
 ]
 
@@ -650,31 +750,28 @@ def download_equality_body_cases(
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow(
-        [
-            column.column_name
-            for column in COLUMNS_FOR_EQUALITY_BODY
-            + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
-        ]
-    )
+    writer.writerow([column.column_name for column in COLUMNS_FOR_EQUALITY_BODY])
 
     output: List[List[str]] = []
     for case in cases:
         contact_details: str = format_contacts(contacts=case.contacts)
+        source: Dict = {
+            Case: case,
+            Audit: case.audit,
+            CaseCompliance: case.compliance,
+        }
         row = []
         for column in COLUMNS_FOR_EQUALITY_BODY:
-            if column.field_name in COMPLIANCE_FIELDS:
-                row.append(
-                    format_model_field(model_instance=case.compliance, column=column)
-                )
-            elif column.column_name == CONTACT_DETAILS_COLUMN_NAME:
+            if column.column_name == CONTACT_DETAILS_COLUMN_NAME:
                 row.append(contact_details)
             elif column.column_name == ORGANISATION_RESPONDED_COLUMN_NAME:
                 row.append(format_field_as_yes_no(model_instance=case, column=column))
             else:
-                row.append(format_model_field(model_instance=case, column=column))
-        for column in EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY:
-            row.append(format_model_field(model_instance=case.audit, column=column))
+                row.append(
+                    format_model_field(
+                        model_instance=source[column.source_class], column=column
+                    )
+                )
         output.append(row)
     writer.writerows(output)
 

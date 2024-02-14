@@ -1,6 +1,7 @@
 """
 Test utility functions of cases app
 """
+
 import csv
 import io
 from dataclasses import dataclass
@@ -26,7 +27,6 @@ from ..utils import (
     CASE_COLUMNS_FOR_EXPORT,
     COLUMNS_FOR_EQUALITY_BODY,
     CONTACT_COLUMNS_FOR_EXPORT,
-    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     ColumnAndFieldNames,
     PostCaseAlert,
@@ -440,8 +440,7 @@ def test_download_equality_body_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: List[str] = [
-        column.column_name
-        for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
+        column.column_name for column in COLUMNS_FOR_EQUALITY_BODY
     ]
 
     expected_first_data_row: List[str] = [
