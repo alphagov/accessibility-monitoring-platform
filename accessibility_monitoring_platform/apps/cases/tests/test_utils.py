@@ -27,7 +27,7 @@ from ..utils import (
     CASE_COLUMNS_FOR_EXPORT,
     COLUMNS_FOR_EQUALITY_BODY,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
-    ColumnAndFieldNames,
+    CSVColumn,
     PostCaseAlert,
     build_edit_link_html,
     create_case_and_compliance,
@@ -276,7 +276,7 @@ def test_format_case_field_with_no_data():
     assert (
         format_model_field(
             model_instance=None,
-            column=ColumnAndFieldNames(column_name="A", field_name="a"),
+            column=CSVColumn(column_name="A", source_class=Case, source_attr="a"),
         )
         == ""
     )
@@ -286,29 +286,35 @@ def test_format_case_field_with_no_data():
     "column, case_value, expected_formatted_value",
     [
         (
-            ColumnAndFieldNames(column_name="Test type", field_name="test_type"),
+            CSVColumn(
+                column_name="Test type", source_class=Case, source_attr="test_type"
+            ),
             "simplified",
             "Simplified",
         ),
         (
-            ColumnAndFieldNames(
-                column_name="Report sent on", field_name="report_sent_date"
+            CSVColumn(
+                column_name="Report sent on",
+                source_class=Case,
+                source_attr="report_sent_date",
             ),
             date(2020, 12, 31),
             "31/12/2020",
         ),
         (
-            ColumnAndFieldNames(
+            CSVColumn(
                 column_name="Enforcement recommendation",
-                field_name="recommendation_for_enforcement",
+                source_class=Case,
+                source_attr="recommendation_for_enforcement",
             ),
             "no-further-action",
             "No further action",
         ),
         (
-            ColumnAndFieldNames(
+            CSVColumn(
                 column_name="Which equality body will check the case",
-                field_name="enforcement_body",
+                source_class=Case,
+                source_attr="enforcement_body",
             ),
             "ehrc",
             "EHRC",
@@ -318,7 +324,7 @@ def test_format_case_field_with_no_data():
 def test_format_case_field(column, case_value, expected_formatted_value):
     """Test that case fields are formatted correctly"""
     case: Case = Case()
-    setattr(case, column.field_name, case_value)
+    setattr(case, column.source_attr, case_value)
     assert expected_formatted_value == format_model_field(
         model_instance=case, column=column
     )
@@ -331,8 +337,10 @@ def test_format_field_as_yes_no():
     assert (
         format_field_as_yes_no(
             model_instance=case,
-            column=ColumnAndFieldNames(
-                column_name="Falsey field", field_name="report_sent_date"
+            column=CSVColumn(
+                column_name="Falsey field",
+                source_class=Case,
+                source_attr="report_sent_date",
             ),
         )
         == "No"
@@ -340,8 +348,8 @@ def test_format_field_as_yes_no():
     assert (
         format_field_as_yes_no(
             model_instance=case,
-            column=ColumnAndFieldNames(
-                column_name="Truthy field", field_name="test_type"
+            column=CSVColumn(
+                column_name="Truthy field", source_class=Case, source_attr="test_type"
             ),
         )
         == "Yes"
