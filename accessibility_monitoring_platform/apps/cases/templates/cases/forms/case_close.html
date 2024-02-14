@@ -21,7 +21,7 @@
                 {% include 'common/error_summary.html' %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
-                        <p class="govuk-body-m"><b>Guidance on closing the case</b></p>
+                        <p class="govuk-body-m amp-margin-bottom-5"><b>Guidance on closing the case</b></p>
                         <p class="govuk-body-m">
                             Select "Case should not be sent to the equality body" if the case does not require further action,
                             closing it immediately.
@@ -30,13 +30,13 @@
                             If the case <b>needs to be sent to the equality body</b>,
                             complete and verify all required fields before proceeding.
                         </p>
-                        <p class="govuk-body-m"><b>Missing data</b></p>
+                        <p class="govuk-body-m amp-margin-bottom-5"><b>Missing data</b></p>
                         <p class="govuk-body-m">
                             What is the definition of 'missing'?
                         </p>
                         {% for equality_body_column in equality_body_columns %}
-                            <p class="govuk-body-m"><b>{{ equality_body_column.column_name }}</b></p>
-                            <p class="govuk-body-m">
+                            <p class="govuk-body-m amp-margin-bottom-5"><b>{{ equality_body_column.column_name }}</b></p>
+                            <p class="govuk-body-m{% if equality_body_column.edit_url %} amp-margin-bottom-5{% endif %}">
                                 {% if equality_body_column.formatted_data or equality_body_column.formatted_data == 0 %}
                                     {{ equality_body_column.formatted_data }}
                                 {% else %}
