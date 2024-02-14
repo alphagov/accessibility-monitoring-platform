@@ -19,6 +19,23 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <p class="govuk-body-m"><b>Guidance on closing the case</b></p>
+                        <p class="govuk-body-m">
+                            Select "Case should not be sent to the equality body" if the case does not require further action,
+                            closing it immediately.
+                        </p>
+                        <p class="govuk-body-m">
+                            If the case <b>needs to be sent to the equality body</b>,
+                            complete and verify all required fields before proceeding.
+                        </p>
+                        <p class="govuk-body-m"><b>Missing data</b></p>
+                        <p class="govuk-body-m">
+                            Where is the missing data?
+                        </p>
+                    </div>
+                </div>
                 <form method="post" action="{% url 'cases:edit-case-close' case.id %}">
                     {% csrf_token %}
                     {% include 'common/amp_form_snippet.html' %}
