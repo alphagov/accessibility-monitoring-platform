@@ -26,7 +26,6 @@ from ..models import (
 from ..utils import (
     CASE_COLUMNS_FOR_EXPORT,
     COLUMNS_FOR_EQUALITY_BODY,
-    CONTACT_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     ColumnAndFieldNames,
     PostCaseAlert,
@@ -510,8 +509,7 @@ def test_download_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: List[str] = [
-        column.column_name
-        for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+        column.column_name for column in CASE_COLUMNS_FOR_EXPORT
     ]
 
     expected_first_data_row: List[str] = [

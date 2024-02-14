@@ -55,6 +55,19 @@ class PostCaseAlert:
 
 
 @dataclass
+class CSVColumn:
+    """Data to use when building export CSV"""
+
+    column_name: str
+    source_class: Union[Case, CaseCompliance, CaseStatus, Contact]
+    field_name: str
+    edit_url_class: Union[Audit, Case, CaseCompliance, Report] = None
+    edit_url_name: Optional[str] = None
+    edit_url: Optional[str] = None
+    formatted_data: str = ""
+
+
+@dataclass
 class EqualityBodyColumn:
     """Data to use when building export CSV for equality body and to mirror such in UI"""
 
@@ -231,22 +244,22 @@ COLUMNS_FOR_EQUALITY_BODY: List[EqualityBodyColumn] = [
         column_name="Total number of accessibility issues",
         source_class=Case,
         field_name="total_website_issues",
-        edit_url_class=Case,
-        edit_url_name=None,
+        edit_url_class=Audit,
+        edit_url_name="audits:audit-detail",
     ),
     EqualityBodyColumn(
         column_name="Number of issues fixed",
         source_class=Case,
         field_name="total_website_issues_fixed",
-        edit_url_class=Case,
-        edit_url_name=None,
+        edit_url_class=Audit,
+        edit_url_name="audits:audit-retest-detail",
     ),
     EqualityBodyColumn(
         column_name="Number of issues unfixed",
         source_class=Case,
         field_name="total_website_issues_unfixed",
-        edit_url_class=Case,
-        edit_url_name=None,
+        edit_url_class=Audit,
+        edit_url_name="audits:audit-retest-detail",
     ),
     EqualityBodyColumn(
         column_name="Issues fixed as a percentage",
@@ -313,305 +326,412 @@ COLUMNS_FOR_EQUALITY_BODY: List[EqualityBodyColumn] = [
     ),
 ]
 
-CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
-    ColumnAndFieldNames(column_name="Case no.", field_name="id"),
-    ColumnAndFieldNames(column_name="Version", field_name="version"),
-    ColumnAndFieldNames(column_name="Created by", field_name="created_by"),
-    ColumnAndFieldNames(column_name="Date created", field_name="created"),
-    ColumnAndFieldNames(column_name="Status", field_name="status"),
-    ColumnAndFieldNames(column_name="Auditor", field_name="auditor"),
-    ColumnAndFieldNames(column_name="Type of test", field_name="test_type"),
-    ColumnAndFieldNames(column_name="Full URL", field_name="home_page_url"),
-    ColumnAndFieldNames(column_name="Domain name", field_name="domain"),
-    ColumnAndFieldNames(
-        column_name="Organisation name", field_name="organisation_name"
+CASE_COLUMNS_FOR_EXPORT: List[CSVColumn] = [
+    CSVColumn(column_name="Case no.", source_class=Case, field_name="id"),
+    CSVColumn(column_name="Version", source_class=Case, field_name="version"),
+    CSVColumn(column_name="Created by", source_class=Case, field_name="created_by"),
+    CSVColumn(column_name="Date created", source_class=Case, field_name="created"),
+    CSVColumn(column_name="Status", source_class=CaseStatus, field_name="status"),
+    CSVColumn(column_name="Auditor", source_class=Case, field_name="auditor"),
+    CSVColumn(column_name="Type of test", source_class=Case, field_name="test_type"),
+    CSVColumn(column_name="Full URL", source_class=Case, field_name="home_page_url"),
+    CSVColumn(column_name="Domain name", source_class=Case, field_name="domain"),
+    CSVColumn(
+        column_name="Organisation name",
+        source_class=Case,
+        field_name="organisation_name",
     ),
-    ColumnAndFieldNames(
-        column_name="Public sector body location", field_name="psb_location"
+    CSVColumn(
+        column_name="Public sector body location",
+        source_class=Case,
+        field_name="psb_location",
     ),
-    ColumnAndFieldNames(column_name="Sector", field_name="sector"),
-    ColumnAndFieldNames(
+    CSVColumn(column_name="Sector", source_class=Case, field_name="sector"),
+    CSVColumn(
         column_name="Which equalities body will check the case?",
+        source_class=Case,
         field_name="enforcement_body",
     ),
-    ColumnAndFieldNames(column_name="Complaint?", field_name="is_complaint"),
-    ColumnAndFieldNames(
-        column_name="URL to previous case", field_name="previous_case_url"
+    CSVColumn(column_name="Complaint?", source_class=Case, field_name="is_complaint"),
+    CSVColumn(
+        column_name="URL to previous case",
+        source_class=Case,
+        field_name="previous_case_url",
     ),
-    ColumnAndFieldNames(column_name="Trello ticket URL", field_name="trello_url"),
-    ColumnAndFieldNames(column_name="Case details notes", field_name="notes"),
-    ColumnAndFieldNames(
+    CSVColumn(
+        column_name="Trello ticket URL", source_class=Case, field_name="trello_url"
+    ),
+    CSVColumn(column_name="Case details notes", source_class=Case, field_name="notes"),
+    CSVColumn(
         column_name="Case details page complete",
+        source_class=Case,
         field_name="case_details_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Initial accessibility statement compliance decision",
+        source_class=CaseCompliance,
         field_name="statement_compliance_state_initial",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Initial accessibility statement compliance notes",
+        source_class=CaseCompliance,
         field_name="statement_compliance_notes_initial",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Initial website compliance decision",
+        source_class=CaseCompliance,
         field_name="website_compliance_state_initial",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Initial website compliance notes",
+        source_class=CaseCompliance,
         field_name="website_compliance_notes_initial",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Testing details page complete",
+        source_class=Case,
         field_name="testing_details_complete_date",
     ),
-    ColumnAndFieldNames(
-        column_name="Link to report draft", field_name="report_draft_url"
+    CSVColumn(
+        column_name="Link to report draft",
+        source_class=Case,
+        field_name="report_draft_url",
     ),
-    ColumnAndFieldNames(column_name="Report details notes", field_name="report_notes"),
-    ColumnAndFieldNames(
+    CSVColumn(
+        column_name="Report details notes", source_class=Case, field_name="report_notes"
+    ),
+    CSVColumn(
         column_name="Report details page complete",
+        source_class=Case,
         field_name="reporting_details_complete_date",
     ),
-    ColumnAndFieldNames(
-        column_name="Report ready to be reviewed?", field_name="report_review_status"
+    CSVColumn(
+        column_name="Report ready to be reviewed?",
+        source_class=Case,
+        field_name="report_review_status",
     ),
-    ColumnAndFieldNames(column_name="QA auditor", field_name="reviewer"),
-    ColumnAndFieldNames(
-        column_name="Report approved?", field_name="report_approved_status"
+    CSVColumn(column_name="QA auditor", source_class=Case, field_name="reviewer"),
+    CSVColumn(
+        column_name="Report approved?",
+        source_class=Case,
+        field_name="report_approved_status",
     ),
-    ColumnAndFieldNames(
-        column_name="Link to final PDF report", field_name="report_final_pdf_url"
+    CSVColumn(
+        column_name="Link to final PDF report",
+        source_class=Case,
+        field_name="report_final_pdf_url",
     ),
-    ColumnAndFieldNames(
-        column_name="Link to final ODT report", field_name="report_final_odt_url"
+    CSVColumn(
+        column_name="Link to final ODT report",
+        source_class=Case,
+        field_name="report_final_odt_url",
     ),
-    ColumnAndFieldNames(
-        column_name="QA process page complete", field_name="qa_process_complete_date"
+    CSVColumn(
+        column_name="QA process page complete",
+        source_class=Case,
+        field_name="qa_process_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Contact details page complete",
+        source_class=Case,
         field_name="contact_details_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Seven day 'no contact details' email sent",
+        source_class=Case,
         field_name="seven_day_no_contact_email_sent_date",
     ),
-    ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
-    ColumnAndFieldNames(
+    CSVColumn(
+        column_name="Report sent on", source_class=Case, field_name="report_sent_date"
+    ),
+    CSVColumn(
         column_name="1-week follow-up sent date",
+        source_class=Case,
         field_name="report_followup_week_1_sent_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="4-week follow-up sent date",
+        source_class=Case,
         field_name="report_followup_week_4_sent_date",
     ),
-    ColumnAndFieldNames(
-        column_name="Report acknowledged", field_name="report_acknowledged_date"
+    CSVColumn(
+        column_name="Report acknowledged",
+        source_class=Case,
+        field_name="report_acknowledged_date",
     ),
-    ColumnAndFieldNames(column_name="Zendesk ticket URL", field_name="zendesk_url"),
-    ColumnAndFieldNames(
-        column_name="Report correspondence notes", field_name="correspondence_notes"
+    CSVColumn(
+        column_name="Zendesk ticket URL", source_class=Case, field_name="zendesk_url"
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
+        column_name="Report correspondence notes",
+        source_class=Case,
+        field_name="correspondence_notes",
+    ),
+    CSVColumn(
         column_name="Report correspondence page complete",
+        source_class=Case,
         field_name="report_acknowledged_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="1-week follow-up due date",
+        source_class=Case,
         field_name="report_followup_week_1_due_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="4-week follow-up due date",
+        source_class=Case,
         field_name="report_followup_week_4_due_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week follow-up due date",
+        source_class=Case,
         field_name="report_followup_week_12_due_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Do you want to mark the PSB as unresponsive to this case?",
+        source_class=Case,
         field_name="no_psb_contact",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week update requested",
+        source_class=Case,
         field_name="twelve_week_update_requested_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week chaser 1-week follow-up sent date",
+        source_class=Case,
         field_name="twelve_week_1_week_chaser_sent_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week update received",
+        source_class=Case,
         field_name="twelve_week_correspondence_acknowledged_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week correspondence notes",
+        source_class=Case,
         field_name="twelve_week_correspondence_notes",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Mark the case as having no response to 12 week deadline",
+        source_class=Case,
         field_name="organisation_response",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week update request acknowledged page complete",
+        source_class=Case,
         field_name="twelve_week_update_request_ack_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week chaser 1-week follow-up due date",
+        source_class=Case,
         field_name="twelve_week_1_week_chaser_due_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week retest page complete",
+        source_class=Case,
         field_name="twelve_week_retest_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Summary of progress made from public sector body",
+        source_class=Case,
         field_name="psb_progress_notes",
     ),
-    ColumnAndFieldNames(
-        column_name="Retested website?", field_name="retested_website_date"
+    CSVColumn(
+        column_name="Retested website?",
+        source_class=Case,
+        field_name="retested_website_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Is this case ready for final decision?",
+        source_class=Case,
         field_name="is_ready_for_final_decision",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Reviewing changes page complete",
+        source_class=Case,
         field_name="review_changes_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week website compliance decision",
+        source_class=CaseCompliance,
         field_name="website_compliance_state_12_week",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week website compliance decision notes",
+        source_class=CaseCompliance,
         field_name="website_compliance_notes_12_week",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Final website compliance decision page complete (spreadsheet testing)",
+        source_class=Case,
         field_name="final_website_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Disproportionate burden claimed? (spreadsheet testing)",
+        source_class=Case,
         field_name="is_disproportionate_claimed",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Disproportionate burden notes (spreadsheet testing)",
+        source_class=Case,
         field_name="disproportionate_notes",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Link to accessibility statement screenshot (spreadsheet testing)",
+        source_class=Case,
         field_name="accessibility_statement_screenshot_url",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week accessibility statement compliance decision",
+        source_class=CaseCompliance,
         field_name="statement_compliance_state_12_week",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="12-week accessibility statement compliance notes",
+        source_class=CaseCompliance,
         field_name="statement_compliance_notes_12_week",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Final accessibility statement compliance decision page complete (spreadsheet testing)",
+        source_class=Case,
         field_name="final_statement_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Recommendation for equality body",
+        source_class=Case,
         field_name="recommendation_for_enforcement",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Enforcement recommendation notes including exemptions",
+        source_class=Case,
         field_name="recommendation_notes",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Date when compliance decision email sent to public sector body",
+        source_class=Case,
         field_name="compliance_email_sent_date",
     ),
-    ColumnAndFieldNames(column_name="Case completed", field_name="case_completed"),
-    ColumnAndFieldNames(
-        column_name="Date case completed first updated", field_name="completed_date"
+    CSVColumn(
+        column_name="Case completed", source_class=Case, field_name="case_completed"
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
+        column_name="Date case completed first updated",
+        source_class=Case,
+        field_name="completed_date",
+    ),
+    CSVColumn(
         column_name="Closing the case page complete",
+        source_class=Case,
         field_name="case_close_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Public sector body statement appeal notes",
+        source_class=Case,
         field_name="psb_appeal_notes",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Summary of events after the case was closed",
+        source_class=Case,
         field_name="post_case_notes",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Post case summary page complete",
+        source_class=Case,
         field_name="post_case_complete_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Case updated (on post case summary page)",
+        source_class=Case,
         field_name="case_updated_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Date sent to equality body",
+        source_class=Case,
         field_name="sent_to_enforcement_body_sent_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Equality body pursuing this case?",
+        source_class=Case,
         field_name="enforcement_body_pursuing",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Equality body correspondence notes",
+        source_class=Case,
         field_name="enforcement_body_correspondence_notes",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Equality body summary page complete",
+        source_class=Case,
         field_name="enforcement_correspondence_complete_date",
     ),
-    ColumnAndFieldNames(column_name="Deactivated case", field_name="is_deactivated"),
-    ColumnAndFieldNames(column_name="Date deactivated", field_name="deactivate_date"),
-    ColumnAndFieldNames(
-        column_name="Reason why (deactivated)", field_name="deactivate_notes"
+    CSVColumn(
+        column_name="Deactivated case", source_class=Case, field_name="is_deactivated"
     ),
-    ColumnAndFieldNames(column_name="QA status", field_name="qa_status"),
-    ColumnAndFieldNames(column_name="Contact detail notes", field_name="contact_notes"),
-    ColumnAndFieldNames(
+    CSVColumn(
+        column_name="Date deactivated", source_class=Case, field_name="deactivate_date"
+    ),
+    CSVColumn(
+        column_name="Reason why (deactivated)",
+        source_class=Case,
+        field_name="deactivate_notes",
+    ),
+    CSVColumn(column_name="QA status", source_class=Case, field_name="qa_status"),
+    CSVColumn(
+        column_name="Contact detail notes",
+        source_class=Case,
+        field_name="contact_notes",
+    ),
+    CSVColumn(
         column_name="Date equality body completed the case",
+        source_class=Case,
         field_name="enforcement_body_finished_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="% of issues fixed",
+        source_class=Case,
         field_name="percentage_website_issues_fixed",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Parental organisation name",
+        source_class=Case,
         field_name="parental_organisation_name",
     ),
-    ColumnAndFieldNames(column_name="Website name", field_name="website_name"),
-    ColumnAndFieldNames(column_name="Sub-category", field_name="subcategory"),
+    CSVColumn(column_name="Website name", source_class=Case, field_name="website_name"),
+    CSVColumn(column_name="Sub-category", source_class=Case, field_name="subcategory"),
+    CSVColumn(column_name="Contact email", source_class=Contact, field_name="email"),
 ]
-CONTACT_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
-    ColumnAndFieldNames(column_name="Contact email", field_name="email"),
-]
-FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
-    ColumnAndFieldNames(column_name="Case no.", field_name="id"),
-    ColumnAndFieldNames(
-        column_name="Organisation name", field_name="organisation_name"
+
+FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[CSVColumn] = [
+    CSVColumn(column_name="Case no.", source_class=Case, field_name="id"),
+    CSVColumn(
+        column_name="Organisation name",
+        source_class=Case,
+        field_name="organisation_name",
     ),
-    ColumnAndFieldNames(
-        column_name="Closing the case date", field_name="compliance_email_sent_date"
+    CSVColumn(
+        column_name="Closing the case date",
+        source_class=Case,
+        field_name="compliance_email_sent_date",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Enforcement recommendation",
+        source_class=Case,
         field_name="recommendation_for_enforcement",
     ),
-    ColumnAndFieldNames(
+    CSVColumn(
         column_name="Enforcement recommendation notes",
+        source_class=Case,
         field_name="recommendation_notes",
     ),
-    ColumnAndFieldNames(column_name="Contact email", field_name="email"),
-    ColumnAndFieldNames(column_name="Contact notes", field_name="contact_notes"),
-    ColumnAndFieldNames(
-        column_name="Feedback survey sent?", field_name="is_feedback_requested"
+    CSVColumn(column_name="Contact email", source_class=Contact, field_name="email"),
+    CSVColumn(
+        column_name="Contact notes", source_class=Case, field_name="contact_notes"
+    ),
+    CSVColumn(
+        column_name="Feedback survey sent?",
+        source_class=Case,
+        field_name="is_feedback_requested",
     ),
 ]
 
@@ -817,40 +937,60 @@ def download_equality_body_cases(
     return response
 
 
+def populate_case_columns(case: Case) -> List[EqualityBodyColumn]:
+    """
+    Collect data for a case to export
+    """
+    source: Dict = {
+        Case: case,
+        CaseCompliance: case.compliance,
+        CaseStatus: case.status,
+        Contact: case.contact_set.filter(is_deleted=False).first(),
+    }
+    columns: List[EqualityBodyColumn] = CASE_COLUMNS_FOR_EXPORT.copy()
+    for column in columns:
+        model_instance: Union[Case, CaseCompliance, CaseStatus, Contact] = source.get(
+            column.source_class
+        )
+        column.formatted_data = format_model_field(
+            model_instance=model_instance, column=column
+        )
+    return columns
+
+
 def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpResponse:
     """Given a Case queryset, download the data in csv format"""
     response: Any = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow(
-        [
-            column.column_name
-            for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
-        ]
-    )
+    writer.writerow([column.column_name for column in CASE_COLUMNS_FOR_EXPORT])
 
     output: List[List[str]] = []
     for case in cases:
-        contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
-        row = []
-        for column in CASE_COLUMNS_FOR_EXPORT:
-            if column.field_name == "status":
-                row.append(
-                    format_model_field(model_instance=case.status, column=column)
-                )
-            elif column.field_name in COMPLIANCE_FIELDS:
-                row.append(
-                    format_model_field(model_instance=case.compliance, column=column)
-                )
-            else:
-                row.append(format_model_field(model_instance=case, column=column))
-        for column in CONTACT_COLUMNS_FOR_EXPORT:
-            row.append(format_model_field(model_instance=contact, column=column))
+        case_columns: List[EqualityBodyColumn] = populate_case_columns(case=case)
+        row = [column.formatted_data for column in case_columns]
         output.append(row)
     writer.writerows(output)
 
     return response
+
+
+def populate_feedback_survey_columns(case: Case) -> List[EqualityBodyColumn]:
+    """
+    Collect data for a case to export feedback survey
+    """
+    source: Dict = {
+        Case: case,
+        CaseStatus: case.status,
+    }
+    columns: List[EqualityBodyColumn] = FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT.copy()
+    for column in columns:
+        model_instance: Union[Case, Contact] = source.get(column.source_class)
+        column.formatted_data = format_model_field(
+            model_instance=model_instance, column=column
+        )
+    return columns
 
 
 def download_feedback_survey_cases(
@@ -867,17 +1007,10 @@ def download_feedback_survey_cases(
 
     output: List[List[str]] = []
     for case in cases:
-        contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
-        row = []
-        for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT:
-            if column.field_name in COMPLIANCE_FIELDS:
-                row.append(
-                    format_model_field(model_instance=case.compliance, column=column)
-                )
-            if column.field_name in CONTACT_FIELDS:
-                row.append(format_model_field(model_instance=contact, column=column))
-            else:
-                row.append(format_model_field(model_instance=case, column=column))
+        case_columns: List[EqualityBodyColumn] = populate_feedback_survey_columns(
+            case=case
+        )
+        row = [column.formatted_data for column in case_columns]
         output.append(row)
     writer.writerows(output)
 

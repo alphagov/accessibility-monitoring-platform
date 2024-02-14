@@ -41,7 +41,6 @@ from ..models import (
 from ..utils import (
     CASE_COLUMNS_FOR_EXPORT,
     COLUMNS_FOR_EQUALITY_BODY,
-    CONTACT_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     create_case_and_compliance,
 )
@@ -86,8 +85,7 @@ case_equality_body_columns_to_export_str: str = ",".join(
     column.column_name for column in COLUMNS_FOR_EQUALITY_BODY
 )
 case_columns_to_export_str: str = ",".join(
-    column.column_name
-    for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+    column.column_name for column in CASE_COLUMNS_FOR_EXPORT
 )
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
