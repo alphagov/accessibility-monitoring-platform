@@ -32,8 +32,23 @@
                         </p>
                         <p class="govuk-body-m"><b>Missing data</b></p>
                         <p class="govuk-body-m">
-                            Where is the missing data?
+                            What is the definition of 'missing'?
                         </p>
+                        {% for equality_body_column in equality_body_columns %}
+                            <p class="govuk-body-m"><b>{{ equality_body_column.column_name }}</b></p>
+                            <p class="govuk-body-m">
+                                {% if equality_body_column.formatted_data or equality_body_column.formatted_data == 0 %}
+                                    {{ equality_body_column.formatted_data }}
+                                {% else %}
+                                    None
+                                {% endif %}
+                            </p>
+                            {% if equality_body_column.edit_url %}
+                                <p class="govuk-body-m">
+                                    <a href="{{ equality_body_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
+                                </p>
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
                 <form method="post" action="{% url 'cases:edit-case-close' case.id %}">

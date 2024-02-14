@@ -28,7 +28,6 @@ from ..audits.utils import (
     get_test_view_tables_context,
     report_data_updated,
 )
-from ..cases.utils import get_post_case_alerts
 from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
@@ -90,6 +89,8 @@ from .utils import (
     download_equality_body_cases,
     download_feedback_survey_cases,
     filter_cases,
+    get_post_case_alerts,
+    populate_equality_body_columns,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -981,6 +982,13 @@ class CaseCloseUpdateView(CaseUpdateView):
 
     form_class: Type[CaseCloseUpdateForm] = CaseCloseUpdateForm
     template_name: str = "cases/forms/case_close.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        context["equality_body_columns"] = populate_equality_body_columns(case=case)
+        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
