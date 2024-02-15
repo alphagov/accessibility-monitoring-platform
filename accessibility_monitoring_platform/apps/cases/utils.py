@@ -6,7 +6,7 @@ import copy
 import csv
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 from django import forms
 from django.contrib.auth.models import User
@@ -52,12 +52,15 @@ class PostCaseAlert:
 
 @dataclass
 class CSVColumn:
-    """Data to use when building export CSV for equality body and to mirror such in UI"""
+    """Data to use when building export CSV and to show in UI"""
 
     column_header: str
     source_class: Union[Audit, Case, CaseCompliance]
     source_attr: str
+    data_type: Literal["str", "url", "markdown"] = "str"
+    required: bool = False
     formatted_data: str = ""
+    default_data: str = ""
     edit_url_class: Union[Audit, Case, CaseCompliance, Report] = None
     edit_url_name: Optional[str] = None
     edit_url: Optional[str] = None
@@ -71,6 +74,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Equality body",
         source_class=Case,
         source_attr="enforcement_body",
+        required=True,
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
@@ -78,6 +82,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Test type",
         source_class=Case,
         source_attr="test_type",
+        required=True,
         edit_url_class=Case,
         edit_url_name=None,
     ),
@@ -85,6 +90,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Case number",
         source_class=Case,
         source_attr="id",
+        required=True,
         edit_url_class=Case,
         edit_url_name=None,
     ),
@@ -92,6 +98,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Organisation",
         source_class=Case,
         source_attr="organisation_name",
+        required=True,
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
@@ -99,6 +106,8 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Website URL",
         source_class=Case,
         source_attr="home_page_url",
+        required=True,
+        data_type="url",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
@@ -141,6 +150,8 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Published report",
         source_class=Case,
         source_attr="published_report_url",
+        required=True,
+        data_type="url",
         edit_url_class=Report,
         edit_url_name="reports:report-publisher",
     ),
@@ -148,6 +159,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Enforcement recommendation",
         source_class=Case,
         source_attr="recommendation_for_enforcement",
+        required=True,
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
@@ -155,6 +167,8 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Enforcement recommendation notes including exemptions",
         source_class=Case,
         source_attr="recommendation_notes",
+        required=True,
+        data_type="markdown",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
@@ -162,6 +176,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Summary of progress made / response from PSB",
         source_class=Case,
         source_attr="psb_progress_notes",
+        data_type="markdown",
         edit_url_class=Case,
         edit_url_name="cases:edit-review-changes",
     ),
@@ -253,6 +268,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Was a accessibility statement found during initial assessment?",
         source_class=Case,
         source_attr="csv_export_statement_initially_found",
+        required=True,
         edit_url_class=Audit,
         edit_url_name="audits:edit-statement-overview",
     ),
@@ -267,6 +283,8 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Initial Accessibility Statement Decision",
         source_class=CaseCompliance,
         source_attr="statement_compliance_state_initial",
+        required=True,
+        default_data="Not assessed",
         edit_url_class=Audit,
         edit_url_name="audits:edit-statement-decision",
     ),
@@ -288,6 +306,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Initial disproportionate burden details",
         source_class=Audit,
         source_attr="initial_disproportionate_burden_notes",
+        data_type="markdown",
         edit_url_class=Audit,
         edit_url_name="audits:edit-initial-disproportionate-burden",
     ),
@@ -302,6 +321,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         column_header="Retest disproportionate burden details",
         source_class=Audit,
         source_attr="twelve_week_disproportionate_burden_notes",
+        data_type="markdown",
         edit_url_class=Audit,
         edit_url_name="audits:edit-twelve-week-disproportionate-burden",
     ),

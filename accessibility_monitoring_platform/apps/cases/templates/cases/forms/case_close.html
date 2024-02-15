@@ -20,7 +20,7 @@
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
                 <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-full">
+                    <div class="govuk-grid-column-full amp-markdown">
                         <p class="govuk-body-m amp-margin-bottom-5"><b>Guidance on closing the case</b></p>
                         <p class="govuk-body-m">
                             Select "Case should not be sent to the equality body" if the case does not require further action,
@@ -35,10 +35,26 @@
                             What is the definition of 'missing'?
                         </p>
                         {% for equality_body_column in equality_body_columns %}
-                            <p class="govuk-body-m amp-margin-bottom-5"><b>{{ equality_body_column.column_header }}</b></p>
+                            <p class="govuk-body-m amp-margin-bottom-5"><b>
+                                {{ equality_body_column.column_header }}
+                                {% if equality_body_column.required %}
+                                    | Required
+                                    {% if not equality_body_column.formatted_data or equality_body_column.formatted_data == equality_body_column.default_data %}
+                                        and incomplete
+                                    {% endif %}
+                                {% endif %}
+                            </b></p>
                             <p class="govuk-body-m{% if equality_body_column.edit_url %} amp-margin-bottom-5{% endif %}">
                                 {% if equality_body_column.formatted_data or equality_body_column.formatted_data == 0 %}
-                                    {{ equality_body_column.formatted_data }}
+                                    {% if equality_body_column.data_type == 'url' %}
+                                        <a href="{{ equality_body_column.formatted_data }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                                            {{ equality_body_column.formatted_data }}
+                                        </a>
+                                    {% elif equality_body_column.data_type == 'markdown' %}
+                                        {{ equality_body_column.formatted_data|markdown_to_html }}
+                                    {% else %}
+                                        {{ equality_body_column.formatted_data }}
+                                    {% endif %}
                                 {% else %}
                                     None
                                 {% endif %}
