@@ -35,7 +35,7 @@
                             What is the definition of 'missing'?
                         </p>
                         {% for equality_body_column in equality_body_columns %}
-                            <p class="govuk-body-m amp-margin-bottom-5"><b>{{ equality_body_column.column_name }}</b></p>
+                            <p class="govuk-body-m amp-margin-bottom-5"><b>{{ equality_body_column.column_header }}</b></p>
                             <p class="govuk-body-m{% if equality_body_column.edit_url %} amp-margin-bottom-5{% endif %}">
                                 {% if equality_body_column.formatted_data or equality_body_column.formatted_data == 0 %}
                                     {{ equality_body_column.formatted_data }}

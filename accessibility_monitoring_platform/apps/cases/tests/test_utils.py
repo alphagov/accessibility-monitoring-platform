@@ -41,6 +41,8 @@ from ..utils import (
     get_post_case_alerts,
     get_post_case_alerts_count,
     get_sent_date,
+    populate_csv_columns,
+    populate_equality_body_columns,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -73,6 +75,7 @@ email2
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
 CONTACT_NOTES: str = "Contact notes"
+CONTACT_EMAIL: str = "example@example.com"
 
 
 @dataclass
@@ -275,8 +278,8 @@ def test_format_case_field_with_no_data():
     """
     assert (
         format_model_field(
-            model_instance=None,
-            column=CSVColumn(column_name="A", source_class=Case, source_attr="a"),
+            source_instance=None,
+            column=CSVColumn(column_header="A", source_class=Case, source_attr="a"),
         )
         == ""
     )
@@ -287,14 +290,14 @@ def test_format_case_field_with_no_data():
     [
         (
             CSVColumn(
-                column_name="Test type", source_class=Case, source_attr="test_type"
+                column_header="Test type", source_class=Case, source_attr="test_type"
             ),
             "simplified",
             "Simplified",
         ),
         (
             CSVColumn(
-                column_name="Report sent on",
+                column_header="Report sent on",
                 source_class=Case,
                 source_attr="report_sent_date",
             ),
@@ -303,7 +306,7 @@ def test_format_case_field_with_no_data():
         ),
         (
             CSVColumn(
-                column_name="Enforcement recommendation",
+                column_header="Enforcement recommendation",
                 source_class=Case,
                 source_attr="recommendation_for_enforcement",
             ),
@@ -312,7 +315,7 @@ def test_format_case_field_with_no_data():
         ),
         (
             CSVColumn(
-                column_name="Which equality body will check the case",
+                column_header="Which equality body will check the case",
                 source_class=Case,
                 source_attr="enforcement_body",
             ),
@@ -326,7 +329,7 @@ def test_format_case_field(column, case_value, expected_formatted_value):
     case: Case = Case()
     setattr(case, column.source_attr, case_value)
     assert expected_formatted_value == format_model_field(
-        model_instance=case, column=column
+        source_instance=case, column=column
     )
 
 
@@ -336,9 +339,9 @@ def test_format_field_as_yes_no():
 
     assert (
         format_field_as_yes_no(
-            model_instance=case,
+            source_instance=case,
             column=CSVColumn(
-                column_name="Falsey field",
+                column_header="Falsey field",
                 source_class=Case,
                 source_attr="report_sent_date",
             ),
@@ -347,9 +350,9 @@ def test_format_field_as_yes_no():
     )
     assert (
         format_field_as_yes_no(
-            model_instance=case,
+            source_instance=case,
             column=CSVColumn(
-                column_name="Truthy field", source_class=Case, source_attr="test_type"
+                column_header="Truthy field", source_class=Case, source_attr="test_type"
             ),
         )
         == "Yes"
@@ -402,7 +405,7 @@ def test_download_feedback_survey_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: List[str] = [
-        column.column_name for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+        column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
     ]
     expected_first_data_row: List[str] = [
         "1",  # Case no.
@@ -447,7 +450,7 @@ def test_download_equality_body_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: List[str] = [
-        column.column_name for column in COLUMNS_FOR_EQUALITY_BODY
+        column.column_header for column in COLUMNS_FOR_EQUALITY_BODY
     ]
 
     expected_first_data_row: List[str] = [
@@ -517,7 +520,7 @@ def test_download_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: List[str] = [
-        column.column_name for column in CASE_COLUMNS_FOR_EXPORT
+        column.column_header for column in CASE_COLUMNS_FOR_EXPORT
     ]
 
     expected_first_data_row: List[str] = [
@@ -848,3 +851,73 @@ def test_get_post_case_alerts():
     retest.save()
 
     assert len(get_post_case_alerts(user=user)) == 0
+
+
+@pytest.mark.django_db
+def test_populate_equality_body_columns():
+    """Test collection of case data for equality body export"""
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case, email=CONTACT_EMAIL)
+    row: List[CSVColumn] = populate_equality_body_columns(case=case)
+
+    assert len(row) == 34
+
+    contact_details: List[CSVColumn] = [
+        cell for cell in row if cell.column_header == "Contact details"
+    ]
+
+    assert len(contact_details) == 1
+
+    contact_details_cell: CSVColumn = contact_details[0]
+
+    assert contact_details_cell.formatted_data == f"{CONTACT_EMAIL}\n"
+    assert contact_details_cell.edit_url_name == "cases:edit-contact-details"
+    assert contact_details_cell.edit_url == "/cases/1/edit-contact-details/"
+
+    organisation_responded: List[CSVColumn] = [
+        cell
+        for cell in row
+        if cell.column_header == "Organisation responded to report?"
+    ]
+
+    assert len(organisation_responded) == 1
+
+    organisation_responded_cell: CSVColumn = organisation_responded[0]
+
+    assert organisation_responded_cell.formatted_data == "No"
+    assert organisation_responded_cell.edit_url_name == "cases:edit-report-acknowledged"
+    assert organisation_responded_cell.edit_url == "/cases/1/edit-report-acknowledged/"
+
+
+@pytest.mark.django_db
+def test_populate_csv_columns():
+    """Test collection of case data for CSV export"""
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case, email=CONTACT_EMAIL)
+    row: List[CSVColumn] = populate_csv_columns(
+        case=case, column_definitions=CASE_COLUMNS_FOR_EXPORT
+    )
+
+    assert len(row) == 91
+
+    contact_email: List[CSVColumn] = [
+        cell for cell in row if cell.column_header == "Contact email"
+    ]
+
+    assert len(contact_email) == 1
+
+    contact_email_cell: CSVColumn = contact_email[0]
+
+    assert contact_email_cell.formatted_data == CONTACT_EMAIL
+
+
+@pytest.mark.django_db
+def test_populate_feedback_survey_columns():
+    """Test collection of case data for feedback survey export"""
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case, email=CONTACT_EMAIL)
+    row: List[CSVColumn] = populate_csv_columns(
+        case=case, column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+    )
+
+    assert len(row) == 8

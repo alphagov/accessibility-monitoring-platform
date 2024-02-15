@@ -38,9 +38,6 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("subcategory", "subcategory_id"),
 ]
 
-CONTACT_DETAIL_COLUMN_NAME: str = "Contact detail"
-CONTACT_FIELDS: List[str] = ["email"]
-
 
 @dataclass
 class PostCaseAlert:
@@ -57,7 +54,7 @@ class PostCaseAlert:
 class CSVColumn:
     """Data to use when building export CSV for equality body and to mirror such in UI"""
 
-    column_name: str
+    column_header: str
     source_class: Union[Audit, Case, CaseCompliance]
     source_attr: str
     formatted_data: str = ""
@@ -66,243 +63,243 @@ class CSVColumn:
     edit_url: Optional[str] = None
 
 
-CONTACT_DETAILS_COLUMN_NAME: str = "Contact details"
-ORGANISATION_RESPONDED_COLUMN_NAME: str = "Organisation responded to report?"
+CONTACT_DETAILS_COLUMN_HEADER: str = "Contact details"
+ORGANISATION_RESPONDED_COLUMN_HEADER: str = "Organisation responded to report?"
 
 COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
     CSVColumn(
-        column_name="Equality body",
+        column_header="Equality body",
         source_class=Case,
         source_attr="enforcement_body",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
     CSVColumn(
-        column_name="Test type",
+        column_header="Test type",
         source_class=Case,
         source_attr="test_type",
         edit_url_class=Case,
         edit_url_name=None,
     ),
     CSVColumn(
-        column_name="Case number",
+        column_header="Case number",
         source_class=Case,
         source_attr="id",
         edit_url_class=Case,
         edit_url_name=None,
     ),
     CSVColumn(
-        column_name="Organisation",
+        column_header="Organisation",
         source_class=Case,
         source_attr="organisation_name",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
     CSVColumn(
-        column_name="Website URL",
+        column_header="Website URL",
         source_class=Case,
         source_attr="home_page_url",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
     CSVColumn(
-        column_name="Parent organisation name",
+        column_header="Parent organisation name",
         source_class=Case,
         source_attr="parental_organisation_name",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
     CSVColumn(
-        column_name="Sub-category",
+        column_header="Sub-category",
         source_class=Case,
         source_attr="subcategory",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
     CSVColumn(
-        column_name="Website name",
+        column_header="Website name",
         source_class=Case,
         source_attr="website_name",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
     CSVColumn(
-        column_name="Previous Case Number",
+        column_header="Previous Case Number",
         source_class=Case,
         source_attr="previous_case_number",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
     CSVColumn(
-        column_name="Is it a complaint?",
+        column_header="Is it a complaint?",
         source_class=Case,
         source_attr="is_complaint",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
     CSVColumn(
-        column_name="Published report",
+        column_header="Published report",
         source_class=Case,
         source_attr="published_report_url",
         edit_url_class=Report,
         edit_url_name="reports:report-publisher",
     ),
     CSVColumn(
-        column_name="Enforcement recommendation",
+        column_header="Enforcement recommendation",
         source_class=Case,
         source_attr="recommendation_for_enforcement",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
     CSVColumn(
-        column_name="Enforcement recommendation notes including exemptions",
+        column_header="Enforcement recommendation notes including exemptions",
         source_class=Case,
         source_attr="recommendation_notes",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
     CSVColumn(
-        column_name="Summary of progress made / response from PSB",
+        column_header="Summary of progress made / response from PSB",
         source_class=Case,
         source_attr="psb_progress_notes",
         edit_url_class=Case,
         edit_url_name="cases:edit-review-changes",
     ),
     CSVColumn(
-        column_name=CONTACT_DETAILS_COLUMN_NAME,
+        column_header=CONTACT_DETAILS_COLUMN_HEADER,
         source_class=Case,
         source_attr=None,
         edit_url_class=Case,
         edit_url_name="cases:edit-contact-details",
     ),
     CSVColumn(
-        column_name=ORGANISATION_RESPONDED_COLUMN_NAME,
+        column_header=ORGANISATION_RESPONDED_COLUMN_HEADER,
         source_class=Case,
         source_attr="report_acknowledged_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-acknowledged",
     ),
     CSVColumn(
-        column_name="Report sent on",
+        column_header="Report sent on",
         source_class=Case,
         source_attr="report_sent_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-sent-on",
     ),
     CSVColumn(
-        column_name="Report acknowledged",
+        column_header="Report acknowledged",
         source_class=Case,
         source_attr="report_acknowledged_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-acknowledged",
     ),
     CSVColumn(
-        column_name="12-week deadline",
+        column_header="12-week deadline",
         source_class=Case,
         source_attr="report_followup_week_12_due_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-12-week-update-requested",
     ),
     CSVColumn(
-        column_name="Retest date",
+        column_header="Retest date",
         source_class=Case,
         source_attr="retested_website_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-review-changes",
     ),
     CSVColumn(
-        column_name="Date when compliance decision email sent to public sector body",
+        column_header="Date when compliance decision email sent to public sector body",
         source_class=Case,
         source_attr="compliance_email_sent_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
     CSVColumn(
-        column_name="Compliance decision email sent to",
+        column_header="Compliance decision email sent to",
         source_class=Case,
         source_attr="compliance_decision_sent_to_email",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
     CSVColumn(
-        column_name="Total number of accessibility issues",
+        column_header="Total number of accessibility issues",
         source_class=Case,
         source_attr="total_website_issues",
         edit_url_class=Audit,
         edit_url_name="audits:audit-detail",
     ),
     CSVColumn(
-        column_name="Number of issues fixed",
+        column_header="Number of issues fixed",
         source_class=Case,
         source_attr="total_website_issues_fixed",
         edit_url_class=Audit,
         edit_url_name="audits:audit-retest-detail",
     ),
     CSVColumn(
-        column_name="Number of issues unfixed",
+        column_header="Number of issues unfixed",
         source_class=Case,
         source_attr="total_website_issues_unfixed",
         edit_url_class=Audit,
         edit_url_name="audits:audit-retest-detail",
     ),
     CSVColumn(
-        column_name="Issues fixed as a percentage",
+        column_header="Issues fixed as a percentage",
         source_class=Case,
         source_attr="percentage_website_issues_fixed",
         edit_url_class=Case,
         edit_url_name=None,
     ),
     CSVColumn(
-        column_name="Was a accessibility statement found during initial assessment?",
+        column_header="Was a accessibility statement found during initial assessment?",
         source_class=Case,
         source_attr="csv_export_statement_initially_found",
         edit_url_class=Audit,
         edit_url_name="audits:edit-statement-overview",
     ),
     CSVColumn(
-        column_name="Was a accessibility statement found during the 12-week assessment",
+        column_header="Was a accessibility statement found during the 12-week assessment",
         source_class=Case,
         source_attr="csv_export_statement_found_at_12_week_retest",
         edit_url_class=Audit,
         edit_url_name="audits:edit-retest-statement-overview",
     ),
     CSVColumn(
-        column_name="Initial Accessibility Statement Decision",
+        column_header="Initial Accessibility Statement Decision",
         source_class=CaseCompliance,
         source_attr="statement_compliance_state_initial",
         edit_url_class=Audit,
         edit_url_name="audits:edit-statement-decision",
     ),
     CSVColumn(
-        column_name="Retest Accessibility Statement Decision",
+        column_header="Retest Accessibility Statement Decision",
         source_class=CaseCompliance,
         source_attr="statement_compliance_state_12_week",
         edit_url_class=Audit,
         edit_url_name="audits:edit-audit-retest-statement-decision",
     ),
     CSVColumn(
-        column_name="Initial disproportionate burden claim",
+        column_header="Initial disproportionate burden claim",
         source_class=Audit,
         source_attr="initial_disproportionate_burden_claim",
         edit_url_class=Audit,
         edit_url_name="audits:edit-initial-disproportionate-burden",
     ),
     CSVColumn(
-        column_name="Initial disproportionate burden details",
+        column_header="Initial disproportionate burden details",
         source_class=Audit,
         source_attr="initial_disproportionate_burden_notes",
         edit_url_class=Audit,
         edit_url_name="audits:edit-initial-disproportionate-burden",
     ),
     CSVColumn(
-        column_name="Retest disproportionate burden claimed?",
+        column_header="Retest disproportionate burden claimed?",
         source_class=Audit,
         source_attr="twelve_week_disproportionate_burden_claim",
         edit_url_class=Audit,
         edit_url_name="audits:edit-twelve-week-disproportionate-burden",
     ),
     CSVColumn(
-        column_name="Retest disproportionate burden details",
+        column_header="Retest disproportionate burden details",
         source_class=Audit,
         source_attr="twelve_week_disproportionate_burden_notes",
         edit_url_class=Audit,
@@ -311,413 +308,425 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
 ]
 
 CASE_COLUMNS_FOR_EXPORT: List[CSVColumn] = [
-    CSVColumn(column_name="Case no.", source_class=Case, source_attr="id"),
-    CSVColumn(column_name="Version", source_class=Case, source_attr="version"),
-    CSVColumn(column_name="Created by", source_class=Case, source_attr="created_by"),
-    CSVColumn(column_name="Date created", source_class=Case, source_attr="created"),
-    CSVColumn(column_name="Status", source_class=CaseStatus, source_attr="status"),
-    CSVColumn(column_name="Auditor", source_class=Case, source_attr="auditor"),
-    CSVColumn(column_name="Type of test", source_class=Case, source_attr="test_type"),
-    CSVColumn(column_name="Full URL", source_class=Case, source_attr="home_page_url"),
-    CSVColumn(column_name="Domain name", source_class=Case, source_attr="domain"),
+    CSVColumn(column_header="Case no.", source_class=Case, source_attr="id"),
+    CSVColumn(column_header="Version", source_class=Case, source_attr="version"),
+    CSVColumn(column_header="Created by", source_class=Case, source_attr="created_by"),
+    CSVColumn(column_header="Date created", source_class=Case, source_attr="created"),
+    CSVColumn(column_header="Status", source_class=CaseStatus, source_attr="status"),
+    CSVColumn(column_header="Auditor", source_class=Case, source_attr="auditor"),
+    CSVColumn(column_header="Type of test", source_class=Case, source_attr="test_type"),
+    CSVColumn(column_header="Full URL", source_class=Case, source_attr="home_page_url"),
+    CSVColumn(column_header="Domain name", source_class=Case, source_attr="domain"),
     CSVColumn(
-        column_name="Organisation name",
+        column_header="Organisation name",
         source_class=Case,
         source_attr="organisation_name",
     ),
     CSVColumn(
-        column_name="Public sector body location",
+        column_header="Public sector body location",
         source_class=Case,
         source_attr="psb_location",
     ),
-    CSVColumn(column_name="Sector", source_class=Case, source_attr="sector"),
+    CSVColumn(column_header="Sector", source_class=Case, source_attr="sector"),
     CSVColumn(
-        column_name="Which equalities body will check the case?",
+        column_header="Which equalities body will check the case?",
         source_class=Case,
         source_attr="enforcement_body",
     ),
-    CSVColumn(column_name="Complaint?", source_class=Case, source_attr="is_complaint"),
     CSVColumn(
-        column_name="URL to previous case",
+        column_header="Complaint?", source_class=Case, source_attr="is_complaint"
+    ),
+    CSVColumn(
+        column_header="URL to previous case",
         source_class=Case,
         source_attr="previous_case_url",
     ),
     CSVColumn(
-        column_name="Trello ticket URL", source_class=Case, source_attr="trello_url"
+        column_header="Trello ticket URL", source_class=Case, source_attr="trello_url"
     ),
-    CSVColumn(column_name="Case details notes", source_class=Case, source_attr="notes"),
     CSVColumn(
-        column_name="Case details page complete",
+        column_header="Case details notes", source_class=Case, source_attr="notes"
+    ),
+    CSVColumn(
+        column_header="Case details page complete",
         source_class=Case,
         source_attr="case_details_complete_date",
     ),
     CSVColumn(
-        column_name="Initial accessibility statement compliance decision",
+        column_header="Initial accessibility statement compliance decision",
         source_class=CaseCompliance,
         source_attr="statement_compliance_state_initial",
     ),
     CSVColumn(
-        column_name="Initial accessibility statement compliance notes",
+        column_header="Initial accessibility statement compliance notes",
         source_class=CaseCompliance,
         source_attr="statement_compliance_notes_initial",
     ),
     CSVColumn(
-        column_name="Initial website compliance decision",
+        column_header="Initial website compliance decision",
         source_class=CaseCompliance,
         source_attr="website_compliance_state_initial",
     ),
     CSVColumn(
-        column_name="Initial website compliance notes",
+        column_header="Initial website compliance notes",
         source_class=CaseCompliance,
         source_attr="website_compliance_notes_initial",
     ),
     CSVColumn(
-        column_name="Testing details page complete",
+        column_header="Testing details page complete",
         source_class=Case,
         source_attr="testing_details_complete_date",
     ),
     CSVColumn(
-        column_name="Link to report draft",
+        column_header="Link to report draft",
         source_class=Case,
         source_attr="report_draft_url",
     ),
     CSVColumn(
-        column_name="Report details notes",
+        column_header="Report details notes",
         source_class=Case,
         source_attr="report_notes",
     ),
     CSVColumn(
-        column_name="Report details page complete",
+        column_header="Report details page complete",
         source_class=Case,
         source_attr="reporting_details_complete_date",
     ),
     CSVColumn(
-        column_name="Report ready to be reviewed?",
+        column_header="Report ready to be reviewed?",
         source_class=Case,
         source_attr="report_review_status",
     ),
-    CSVColumn(column_name="QA auditor", source_class=Case, source_attr="reviewer"),
+    CSVColumn(column_header="QA auditor", source_class=Case, source_attr="reviewer"),
     CSVColumn(
-        column_name="Report approved?",
+        column_header="Report approved?",
         source_class=Case,
         source_attr="report_approved_status",
     ),
     CSVColumn(
-        column_name="Link to final PDF report",
+        column_header="Link to final PDF report",
         source_class=Case,
         source_attr="report_final_pdf_url",
     ),
     CSVColumn(
-        column_name="Link to final ODT report",
+        column_header="Link to final ODT report",
         source_class=Case,
         source_attr="report_final_odt_url",
     ),
     CSVColumn(
-        column_name="QA process page complete",
+        column_header="QA process page complete",
         source_class=Case,
         source_attr="qa_process_complete_date",
     ),
     CSVColumn(
-        column_name="Contact details page complete",
+        column_header="Contact details page complete",
         source_class=Case,
         source_attr="contact_details_complete_date",
     ),
     CSVColumn(
-        column_name="Seven day 'no contact details' email sent",
+        column_header="Seven day 'no contact details' email sent",
         source_class=Case,
         source_attr="seven_day_no_contact_email_sent_date",
     ),
     CSVColumn(
-        column_name="Report sent on", source_class=Case, source_attr="report_sent_date"
+        column_header="Report sent on",
+        source_class=Case,
+        source_attr="report_sent_date",
     ),
     CSVColumn(
-        column_name="1-week follow-up sent date",
+        column_header="1-week follow-up sent date",
         source_class=Case,
         source_attr="report_followup_week_1_sent_date",
     ),
     CSVColumn(
-        column_name="4-week follow-up sent date",
+        column_header="4-week follow-up sent date",
         source_class=Case,
         source_attr="report_followup_week_4_sent_date",
     ),
     CSVColumn(
-        column_name="Report acknowledged",
+        column_header="Report acknowledged",
         source_class=Case,
         source_attr="report_acknowledged_date",
     ),
     CSVColumn(
-        column_name="Zendesk ticket URL", source_class=Case, source_attr="zendesk_url"
+        column_header="Zendesk ticket URL", source_class=Case, source_attr="zendesk_url"
     ),
     CSVColumn(
-        column_name="Report correspondence notes",
+        column_header="Report correspondence notes",
         source_class=Case,
         source_attr="correspondence_notes",
     ),
     CSVColumn(
-        column_name="Report correspondence page complete",
+        column_header="Report correspondence page complete",
         source_class=Case,
         source_attr="report_acknowledged_complete_date",
     ),
     CSVColumn(
-        column_name="1-week follow-up due date",
+        column_header="1-week follow-up due date",
         source_class=Case,
         source_attr="report_followup_week_1_due_date",
     ),
     CSVColumn(
-        column_name="4-week follow-up due date",
+        column_header="4-week follow-up due date",
         source_class=Case,
         source_attr="report_followup_week_4_due_date",
     ),
     CSVColumn(
-        column_name="12-week follow-up due date",
+        column_header="12-week follow-up due date",
         source_class=Case,
         source_attr="report_followup_week_12_due_date",
     ),
     CSVColumn(
-        column_name="Do you want to mark the PSB as unresponsive to this case?",
+        column_header="Do you want to mark the PSB as unresponsive to this case?",
         source_class=Case,
         source_attr="no_psb_contact",
     ),
     CSVColumn(
-        column_name="12-week update requested",
+        column_header="12-week update requested",
         source_class=Case,
         source_attr="twelve_week_update_requested_date",
     ),
     CSVColumn(
-        column_name="12-week chaser 1-week follow-up sent date",
+        column_header="12-week chaser 1-week follow-up sent date",
         source_class=Case,
         source_attr="twelve_week_1_week_chaser_sent_date",
     ),
     CSVColumn(
-        column_name="12-week update received",
+        column_header="12-week update received",
         source_class=Case,
         source_attr="twelve_week_correspondence_acknowledged_date",
     ),
     CSVColumn(
-        column_name="12-week correspondence notes",
+        column_header="12-week correspondence notes",
         source_class=Case,
         source_attr="twelve_week_correspondence_notes",
     ),
     CSVColumn(
-        column_name="Mark the case as having no response to 12 week deadline",
+        column_header="Mark the case as having no response to 12 week deadline",
         source_class=Case,
         source_attr="organisation_response",
     ),
     CSVColumn(
-        column_name="12-week update request acknowledged page complete",
+        column_header="12-week update request acknowledged page complete",
         source_class=Case,
         source_attr="twelve_week_update_request_ack_complete_date",
     ),
     CSVColumn(
-        column_name="12-week chaser 1-week follow-up due date",
+        column_header="12-week chaser 1-week follow-up due date",
         source_class=Case,
         source_attr="twelve_week_1_week_chaser_due_date",
     ),
     CSVColumn(
-        column_name="12-week retest page complete",
+        column_header="12-week retest page complete",
         source_class=Case,
         source_attr="twelve_week_retest_complete_date",
     ),
     CSVColumn(
-        column_name="Summary of progress made from public sector body",
+        column_header="Summary of progress made from public sector body",
         source_class=Case,
         source_attr="psb_progress_notes",
     ),
     CSVColumn(
-        column_name="Retested website?",
+        column_header="Retested website?",
         source_class=Case,
         source_attr="retested_website_date",
     ),
     CSVColumn(
-        column_name="Is this case ready for final decision?",
+        column_header="Is this case ready for final decision?",
         source_class=Case,
         source_attr="is_ready_for_final_decision",
     ),
     CSVColumn(
-        column_name="Reviewing changes page complete",
+        column_header="Reviewing changes page complete",
         source_class=Case,
         source_attr="review_changes_complete_date",
     ),
     CSVColumn(
-        column_name="12-week website compliance decision",
+        column_header="12-week website compliance decision",
         source_class=CaseCompliance,
         source_attr="website_compliance_state_12_week",
     ),
     CSVColumn(
-        column_name="12-week website compliance decision notes",
+        column_header="12-week website compliance decision notes",
         source_class=CaseCompliance,
         source_attr="website_compliance_notes_12_week",
     ),
     CSVColumn(
-        column_name="Final website compliance decision page complete (spreadsheet testing)",
+        column_header="Final website compliance decision page complete (spreadsheet testing)",
         source_class=Case,
         source_attr="final_website_complete_date",
     ),
     CSVColumn(
-        column_name="Disproportionate burden claimed? (spreadsheet testing)",
+        column_header="Disproportionate burden claimed? (spreadsheet testing)",
         source_class=Case,
         source_attr="is_disproportionate_claimed",
     ),
     CSVColumn(
-        column_name="Disproportionate burden notes (spreadsheet testing)",
+        column_header="Disproportionate burden notes (spreadsheet testing)",
         source_class=Case,
         source_attr="disproportionate_notes",
     ),
     CSVColumn(
-        column_name="Link to accessibility statement screenshot (spreadsheet testing)",
+        column_header="Link to accessibility statement screenshot (spreadsheet testing)",
         source_class=Case,
         source_attr="accessibility_statement_screenshot_url",
     ),
     CSVColumn(
-        column_name="12-week accessibility statement compliance decision",
+        column_header="12-week accessibility statement compliance decision",
         source_class=CaseCompliance,
         source_attr="statement_compliance_state_12_week",
     ),
     CSVColumn(
-        column_name="12-week accessibility statement compliance notes",
+        column_header="12-week accessibility statement compliance notes",
         source_class=CaseCompliance,
         source_attr="statement_compliance_notes_12_week",
     ),
     CSVColumn(
-        column_name="Final accessibility statement compliance decision page complete (spreadsheet testing)",
+        column_header="Final accessibility statement compliance decision page complete (spreadsheet testing)",
         source_class=Case,
         source_attr="final_statement_complete_date",
     ),
     CSVColumn(
-        column_name="Recommendation for equality body",
+        column_header="Recommendation for equality body",
         source_class=Case,
         source_attr="recommendation_for_enforcement",
     ),
     CSVColumn(
-        column_name="Enforcement recommendation notes including exemptions",
+        column_header="Enforcement recommendation notes including exemptions",
         source_class=Case,
         source_attr="recommendation_notes",
     ),
     CSVColumn(
-        column_name="Date when compliance decision email sent to public sector body",
+        column_header="Date when compliance decision email sent to public sector body",
         source_class=Case,
         source_attr="compliance_email_sent_date",
     ),
     CSVColumn(
-        column_name="Case completed", source_class=Case, source_attr="case_completed"
+        column_header="Case completed", source_class=Case, source_attr="case_completed"
     ),
     CSVColumn(
-        column_name="Date case completed first updated",
+        column_header="Date case completed first updated",
         source_class=Case,
         source_attr="completed_date",
     ),
     CSVColumn(
-        column_name="Closing the case page complete",
+        column_header="Closing the case page complete",
         source_class=Case,
         source_attr="case_close_complete_date",
     ),
     CSVColumn(
-        column_name="Public sector body statement appeal notes",
+        column_header="Public sector body statement appeal notes",
         source_class=Case,
         source_attr="psb_appeal_notes",
     ),
     CSVColumn(
-        column_name="Summary of events after the case was closed",
+        column_header="Summary of events after the case was closed",
         source_class=Case,
         source_attr="post_case_notes",
     ),
     CSVColumn(
-        column_name="Post case summary page complete",
+        column_header="Post case summary page complete",
         source_class=Case,
         source_attr="post_case_complete_date",
     ),
     CSVColumn(
-        column_name="Case updated (on post case summary page)",
+        column_header="Case updated (on post case summary page)",
         source_class=Case,
         source_attr="case_updated_date",
     ),
     CSVColumn(
-        column_name="Date sent to equality body",
+        column_header="Date sent to equality body",
         source_class=Case,
         source_attr="sent_to_enforcement_body_sent_date",
     ),
     CSVColumn(
-        column_name="Equality body pursuing this case?",
+        column_header="Equality body pursuing this case?",
         source_class=Case,
         source_attr="enforcement_body_pursuing",
     ),
     CSVColumn(
-        column_name="Equality body correspondence notes",
+        column_header="Equality body correspondence notes",
         source_class=Case,
         source_attr="enforcement_body_correspondence_notes",
     ),
     CSVColumn(
-        column_name="Equality body summary page complete",
+        column_header="Equality body summary page complete",
         source_class=Case,
         source_attr="enforcement_correspondence_complete_date",
     ),
     CSVColumn(
-        column_name="Deactivated case", source_class=Case, source_attr="is_deactivated"
+        column_header="Deactivated case",
+        source_class=Case,
+        source_attr="is_deactivated",
     ),
     CSVColumn(
-        column_name="Date deactivated", source_class=Case, source_attr="deactivate_date"
+        column_header="Date deactivated",
+        source_class=Case,
+        source_attr="deactivate_date",
     ),
     CSVColumn(
-        column_name="Reason why (deactivated)",
+        column_header="Reason why (deactivated)",
         source_class=Case,
         source_attr="deactivate_notes",
     ),
-    CSVColumn(column_name="QA status", source_class=Case, source_attr="qa_status"),
+    CSVColumn(column_header="QA status", source_class=Case, source_attr="qa_status"),
     CSVColumn(
-        column_name="Contact detail notes",
+        column_header="Contact detail notes",
         source_class=Case,
         source_attr="contact_notes",
     ),
     CSVColumn(
-        column_name="Date equality body completed the case",
+        column_header="Date equality body completed the case",
         source_class=Case,
         source_attr="enforcement_body_finished_date",
     ),
     CSVColumn(
-        column_name="% of issues fixed",
+        column_header="% of issues fixed",
         source_class=Case,
         source_attr="percentage_website_issues_fixed",
     ),
     CSVColumn(
-        column_name="Parental organisation name",
+        column_header="Parental organisation name",
         source_class=Case,
         source_attr="parental_organisation_name",
     ),
     CSVColumn(
-        column_name="Website name", source_class=Case, source_attr="website_name"
+        column_header="Website name", source_class=Case, source_attr="website_name"
     ),
-    CSVColumn(column_name="Sub-category", source_class=Case, source_attr="subcategory"),
-    CSVColumn(column_name="Contact email", source_class=Contact, source_attr="email"),
+    CSVColumn(
+        column_header="Sub-category", source_class=Case, source_attr="subcategory"
+    ),
+    CSVColumn(column_header="Contact email", source_class=Contact, source_attr="email"),
 ]
 
 FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[CSVColumn] = [
-    CSVColumn(column_name="Case no.", source_class=Case, source_attr="id"),
+    CSVColumn(column_header="Case no.", source_class=Case, source_attr="id"),
     CSVColumn(
-        column_name="Organisation name",
+        column_header="Organisation name",
         source_class=Case,
         source_attr="organisation_name",
     ),
     CSVColumn(
-        column_name="Closing the case date",
+        column_header="Closing the case date",
         source_class=Case,
         source_attr="compliance_email_sent_date",
     ),
     CSVColumn(
-        column_name="Enforcement recommendation",
+        column_header="Enforcement recommendation",
         source_class=Case,
         source_attr="recommendation_for_enforcement",
     ),
     CSVColumn(
-        column_name="Enforcement recommendation notes",
+        column_header="Enforcement recommendation notes",
         source_class=Case,
         source_attr="recommendation_notes",
     ),
-    CSVColumn(column_name="Contact email", source_class=Contact, source_attr="email"),
+    CSVColumn(column_header="Contact email", source_class=Contact, source_attr="email"),
     CSVColumn(
-        column_name="Contact notes", source_class=Case, source_attr="contact_notes"
+        column_header="Contact notes", source_class=Case, source_attr="contact_notes"
     ),
     CSVColumn(
-        column_name="Feedback survey sent?",
+        column_header="Feedback survey sent?",
         source_class=Case,
         source_attr="is_feedback_requested",
     ),
@@ -833,35 +842,35 @@ def format_contacts(contacts: QuerySet[Contact]) -> str:
 
 
 def format_field_as_yes_no(
-    model_instance: Union[Audit, Case, Contact, None], column: CSVColumn
+    source_instance: Union[Audit, Case, Contact, None], column: CSVColumn
 ) -> str:
     """
     If the field contains a truthy value return Yes otherwise return No.
     """
-    if model_instance is None:
+    if source_instance is None:
         return "No"
-    value: Any = getattr(model_instance, column.source_attr, False)
+    value: Any = getattr(source_instance, column.source_attr, False)
     if value:
         return "Yes"
     return "No"
 
 
 def format_model_field(
-    model_instance: Union[Audit, Case, Contact, None], column: CSVColumn
+    source_instance: Union[Audit, Case, Contact, None], column: CSVColumn
 ) -> str:
     """
     For a model field, return the value, suitably formatted.
     """
-    if model_instance is None:
+    if source_instance is None:
         return ""
-    value: Any = getattr(model_instance, column.source_attr, "")
+    value: Any = getattr(source_instance, column.source_attr, "")
     get_display_name: str = f"get_{column.source_attr}_display"
     if isinstance(value, date) or isinstance(value, datetime):
         return value.strftime("%d/%m/%Y")
     elif column.source_attr == "enforcement_body":
         return value.upper()
-    elif hasattr(model_instance, get_display_name):
-        return getattr(model_instance, get_display_name)()
+    elif hasattr(source_instance, get_display_name):
+        return getattr(source_instance, get_display_name)()
     else:
         return value
 
@@ -871,7 +880,7 @@ def populate_equality_body_columns(case: Case) -> List[CSVColumn]:
     Collect data for a case to export to the equality body
     """
     contact_details: str = format_contacts(contacts=case.contacts)
-    source: Dict = {
+    source_instances: Dict = {
         Case: case,
         Audit: case.audit,
         CaseCompliance: case.compliance,
@@ -879,21 +888,21 @@ def populate_equality_body_columns(case: Case) -> List[CSVColumn]:
     }
     columns: List[CSVColumn] = COLUMNS_FOR_EQUALITY_BODY.copy()
     for column in columns:
-        model_instance: Union[Audit, Case, CaseCompliance, Report] = source.get(
-            column.source_class
-        )
-        edit_url_instance: Union[Audit, Case, CaseCompliance, Report] = source.get(
-            column.edit_url_class
-        )
-        if column.column_name == CONTACT_DETAILS_COLUMN_NAME:
+        source_instance: Union[
+            Audit, Case, CaseCompliance, Report
+        ] = source_instances.get(column.source_class)
+        edit_url_instance: Union[
+            Audit, Case, CaseCompliance, Report
+        ] = source_instances.get(column.edit_url_class)
+        if column.column_header == CONTACT_DETAILS_COLUMN_HEADER:
             column.formatted_data = contact_details
-        elif column.column_name == ORGANISATION_RESPONDED_COLUMN_NAME:
+        elif column.column_header == ORGANISATION_RESPONDED_COLUMN_HEADER:
             column.formatted_data = format_field_as_yes_no(
-                model_instance=case, column=column
+                source_instance=case, column=column
             )
         else:
             column.formatted_data = format_model_field(
-                model_instance=model_instance, column=column
+                source_instance=source_instance, column=column
             )
         if column.edit_url_name is not None and edit_url_instance is not None:
             column.edit_url = reverse(
@@ -911,7 +920,7 @@ def download_equality_body_cases(
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow([column.column_name for column in COLUMNS_FOR_EQUALITY_BODY])
+    writer.writerow([column.column_header for column in COLUMNS_FOR_EQUALITY_BODY])
 
     output: List[List[str]] = []
     for case in cases:
@@ -929,7 +938,7 @@ def populate_csv_columns(
     """
     Collect data for a case to export
     """
-    source: Dict = {
+    source_instances: Dict = {
         Case: case,
         CaseCompliance: case.compliance,
         CaseStatus: case.status,
@@ -937,11 +946,11 @@ def populate_csv_columns(
     }
     columns: List[CSVColumn] = column_definitions.copy()
     for column in columns:
-        model_instance: Union[
+        source_instance: Union[
             Case, CaseCompliance, CaseStatus, Contact, None
-        ] = source.get(column.source_class)
+        ] = source_instances.get(column.source_class)
         column.formatted_data = format_model_field(
-            model_instance=model_instance, column=column
+            source_instance=source_instance, column=column
         )
     return columns
 
@@ -952,7 +961,7 @@ def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpRe
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow([column.column_name for column in CASE_COLUMNS_FOR_EXPORT])
+    writer.writerow([column.column_header for column in CASE_COLUMNS_FOR_EXPORT])
 
     output: List[List[str]] = []
     for case in cases:
@@ -975,7 +984,7 @@ def download_feedback_survey_cases(
 
     writer: Any = csv.writer(response)
     writer.writerow(
-        [column.column_name for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT]
+        [column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT]
     )
 
     output: List[List[str]] = []

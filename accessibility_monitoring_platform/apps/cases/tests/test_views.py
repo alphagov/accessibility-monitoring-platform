@@ -79,13 +79,13 @@ STATEMENT_COMPLIANCE_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_feedback_survey_columns_to_export_str: str = ",".join(
-    column.column_name for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+    column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
 )
 case_equality_body_columns_to_export_str: str = ",".join(
-    column.column_name for column in COLUMNS_FOR_EQUALITY_BODY
+    column.column_header for column in COLUMNS_FOR_EQUALITY_BODY
 )
 case_columns_to_export_str: str = ",".join(
-    column.column_name for column in CASE_COLUMNS_FOR_EXPORT
+    column.column_header for column in CASE_COLUMNS_FOR_EXPORT
 )
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
