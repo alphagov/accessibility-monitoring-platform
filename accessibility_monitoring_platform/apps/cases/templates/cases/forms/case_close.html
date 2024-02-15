@@ -60,7 +60,7 @@
                             </p>
                             {% if equality_body_column.edit_url %}
                                 <p class="govuk-body-m">
-                                    <a href="{{ equality_body_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
+                                    <a href="{{ equality_body_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">{{ equality_body_column.edit_url_label }}</a>
                                 </p>
                             {% endif %}
                         {% endfor %}

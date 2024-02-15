@@ -63,6 +63,7 @@ class CSVColumn:
     default_data: str = ""
     edit_url_class: Union[Audit, Case, CaseCompliance, Report] = None
     edit_url_name: Optional[str] = None
+    edit_url_label: str = "Edit"
     edit_url: Optional[str] = None
 
 
@@ -186,6 +187,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         source_attr=None,
         edit_url_class=Case,
         edit_url_name="cases:edit-contact-details",
+        edit_url_label="Go to contact details",
     ),
     CSVColumn(
         column_header=ORGANISATION_RESPONDED_COLUMN_HEADER,
@@ -242,6 +244,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         source_attr="total_website_issues",
         edit_url_class=Audit,
         edit_url_name="audits:audit-detail",
+        edit_url_label="Go to view test",
     ),
     CSVColumn(
         column_header="Number of issues fixed",
@@ -249,6 +252,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         source_attr="total_website_issues_fixed",
         edit_url_class=Audit,
         edit_url_name="audits:audit-retest-detail",
+        edit_url_label="Go to view 12-week test",
     ),
     CSVColumn(
         column_header="Number of issues unfixed",
@@ -256,6 +260,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         source_attr="total_website_issues_unfixed",
         edit_url_class=Audit,
         edit_url_name="audits:audit-retest-detail",
+        edit_url_label="Go to view 12-week test",
     ),
     CSVColumn(
         column_header="Issues fixed as a percentage",
