@@ -3509,3 +3509,108 @@ def test_case_close(admin_client):
 
     # Extra label for percentage shown
     assertContains(response, "(Derived from retest results)")
+
+
+def test_case_close_missing_data(admin_client):
+    """
+    Test that case close renders as expected when data is missing
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, "The case has missing data and can not be submitted to EHRC."
+    )
+    assertNotContains(
+        response, "All fields are complete and the case can now be closed."
+    )
+
+    assertContains(
+        response,
+        """<li>
+            <b>Organisation</b> is missing
+            (<a href="/cases/1/edit-case-details/" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            <b>Website URL</b> is missing
+            (<a href="/cases/1/edit-case-details/" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        "<li><b>Published report</b> is missing</li>",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            <b>Enforcement recommendation</b> is missing
+            (<a href="/cases/1/edit-enforcement-recommendation/" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            <b>Enforcement recommendation notes including exemptions</b> is missing
+            (<a href="/cases/1/edit-enforcement-recommendation/" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            <b>Date when compliance decision email sent to public sector body</b> is missing
+            (<a href="/cases/1/edit-enforcement-recommendation/" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        "<li><b>Initial Accessibility Statement Decision</b> is missing</li>",
+        html=True,
+    )
+
+
+def test_case_close_no_missing_data(admin_client):
+    """
+    Test that case close renders as expected when no data is missing
+    """
+    case: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        home_page_url=HOME_PAGE_URL,
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_notes=RECOMMENDATION_NOTE,
+        compliance_email_sent_date=date.today(),
+    )
+    case.compliance.statement_compliance_state_initial = (
+        CaseCompliance.StatementCompliance.COMPLIANT
+    )
+    case.compliance.save()
+    Audit.objects.create(
+        case=case,
+        initial_disproportionate_burden_claim=Audit.DisproportionateBurden.NO_CLAIM,
+    )
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(
+        response, "The case has missing data and can not be submitted to EHRC."
+    )
+    assertContains(response, "All fields are complete and the case can now be closed.")
