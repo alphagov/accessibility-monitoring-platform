@@ -19,6 +19,24 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                {% if not required_data_missing_columns %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <div class="govuk-notification-banner" role="region" aria-labelledby="banner-title-no-missing-columns" data-module="govuk-notification-banner">
+                                <div class="govuk-notification-banner__header">
+                                  <h2 class="govuk-notification-banner__title" id="banner-title-no-missing-columns">
+                                    Important
+                                  </h2>
+                                </div>
+                                <div class="govuk-notification-banner__content">
+                                    <h3 class="govuk-notification-banner__heading">
+                                        All fields are complete and the case can now be closed. Ensure the information below is correct.
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
                         <p class="govuk-body-m amp-margin-bottom-5"><b>Guidance on closing the case</b></p>
@@ -30,10 +48,28 @@
                             If the case <b>needs to be sent to the equality body</b>,
                             complete and verify all required fields before proceeding.
                         </p>
+                        {% if required_data_missing_columns %}
                         <p class="govuk-body-m amp-margin-bottom-5"><b>Missing data</b></p>
+                        {% if not case.audit %}
+                            <p class="govuk-body-m">
+                                There isn't an initial test
+                                (<a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to testing details</a>)
+                            </p>
+                        {% endif %}
                         <p class="govuk-body-m">
-                            What is the definition of 'missing'?
+                            The case has missing data and can not be submitted to EHRC. Please correct the following fields.
                         </p>
+                        <ul class="govuk-list govuk-list--bullet">
+                            {% for required_data_missing_column in required_data_missing_columns %}
+                                <li>
+                                    <b>{{ required_data_missing_column.column_header }}</b> is missing
+                                    {% if required_data_missing_column.edit_url %}
+                                        (<a href="{{ required_data_missing_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">{{ required_data_missing_column.edit_url_label }}</a>)
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
                         {% for equality_body_column in equality_body_columns %}
                             <p class="govuk-body-m amp-margin-bottom-5"><b>
                                 {{ equality_body_column.column_header }}

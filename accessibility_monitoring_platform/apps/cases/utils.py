@@ -72,6 +72,12 @@ class EqualityBodyCSVColumn(CSVColumn):
     edit_url_label: str = "Edit"
     edit_url: Optional[str] = None
 
+    @property
+    def required_data_missing(self):
+        return self.required and (
+            self.formatted_data is None or self.formatted_data == self.default_data
+        )
+
 
 CONTACT_DETAILS_COLUMN_HEADER: str = "Contact details"
 ORGANISATION_RESPONDED_COLUMN_HEADER: str = "Organisation responded to report?"
@@ -167,6 +173,7 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="recommendation_for_enforcement",
         required=True,
+        default_data="Not selected",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
@@ -234,6 +241,7 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         column_header="Date when compliance decision email sent to public sector body",
         source_class=Case,
         source_attr="compliance_email_sent_date",
+        required=True,
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
@@ -276,7 +284,7 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_name=None,
     ),
     EqualityBodyCSVColumn(
-        column_header="Was a accessibility statement found during initial assessment?",
+        column_header="Was an accessibility statement found during initial assessment?",
         source_class=Case,
         source_attr="csv_export_statement_initially_found",
         required=True,
@@ -284,7 +292,7 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_name="audits:edit-statement-overview",
     ),
     EqualityBodyCSVColumn(
-        column_header="Was a accessibility statement found during the 12-week assessment",
+        column_header="Was an accessibility statement found during the 12-week assessment",
         source_class=Case,
         source_attr="csv_export_statement_found_at_12_week_retest",
         edit_url_class=Audit,
@@ -310,6 +318,8 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         column_header="Initial disproportionate burden claim",
         source_class=Audit,
         source_attr="initial_disproportionate_burden_claim",
+        required=True,
+        default_data="Not checked",
         edit_url_class=Audit,
         edit_url_name="audits:edit-initial-disproportionate-burden",
     ),
@@ -917,13 +927,15 @@ def populate_equality_body_columns(case: Case) -> List[EqualityBodyCSVColumn]:
         CaseCompliance: case.compliance,
         Report: case.report,
     }
-    columns: List[EqualityBodyCSVColumn] = EQUALITY_BODY_COLUMNS_FOR_EXPORT.copy()
+    columns: List[EqualityBodyCSVColumn] = copy.deepcopy(
+        EQUALITY_BODY_COLUMNS_FOR_EXPORT
+    )
     for column in columns:
         source_instance: Union[
-            Audit, Case, CaseCompliance, Report
+            Audit, Case, CaseCompliance, Report, None
         ] = source_instances.get(column.source_class)
         edit_url_instance: Union[
-            Audit, Case, CaseCompliance, Report
+            Audit, Case, CaseCompliance, Report, None
         ] = source_instances.get(column.edit_url_class)
         if column.column_header == CONTACT_DETAILS_COLUMN_HEADER:
             column.formatted_data = contact_details
@@ -979,7 +991,7 @@ def populate_csv_columns(
         CaseStatus: case.status,
         Contact: case.contact_set.filter(is_deleted=False).first(),
     }
-    columns: List[CSVColumn] = column_definitions.copy()
+    columns: List[CSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
         source_instance: Union[
             Case, CaseCompliance, CaseStatus, Contact, None

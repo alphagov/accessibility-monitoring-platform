@@ -85,6 +85,7 @@ from .forms import (
 )
 from .models import Case, Contact, EqualityBodyCorrespondence
 from .utils import (
+    EqualityBodyCSVColumn,
     download_cases,
     download_equality_body_cases,
     download_feedback_survey_cases,
@@ -987,7 +988,14 @@ class CaseCloseUpdateView(CaseUpdateView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        context["equality_body_columns"] = populate_equality_body_columns(case=case)
+        equality_body_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(case=case)
+        required_data_missing_columns: List[EqualityBodyCSVColumn] = [
+            column for column in equality_body_columns if column.required_data_missing
+        ]
+        context["equality_body_columns"] = equality_body_columns
+        context["required_data_missing_columns"] = required_data_missing_columns
         return context
 
     def get_success_url(self) -> str:
