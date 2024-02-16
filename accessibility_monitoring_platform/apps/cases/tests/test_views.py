@@ -894,14 +894,14 @@ def test_create_case_creates_case_event(admin_client):
 
 def test_updating_case_creates_case_event(admin_client):
     """
-    Test that updating a case (changing case completed) creates a case event
+    Test that updating a case creates a case event
     """
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id}),
         {
-            "case_completed": Case.CaseCompleted.COMPLETE_NO_SEND,
+            "is_ready_for_final_decision": "yes",
             "version": case.version,
             "save": "Button value",
         },
@@ -912,10 +912,9 @@ def test_updating_case_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CaseEvent.EventType.CASE_COMPLETED
+    assert case_event.event_type == CaseEvent.EventType.READY_FOR_FINAL_DECISION
     assert (
-        case_event.message
-        == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"
+        case_event.message == "Case ready for final decision changed from 'No' to 'Yes'"
     )
 
 
@@ -1079,6 +1078,7 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
             "form-MAX_NUM_FORMS": "1000",
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
+            "case_completed": "no-decision",
             "version": case.version,
             button_name: "Button value",
         },
@@ -1106,6 +1106,7 @@ def test_platform_update_redirects_based_on_case_variant(
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),
         {
+            "case_completed": "no-decision",
             "version": case.version,
             "save_continue": "Button value",
         },
