@@ -163,6 +163,7 @@ REPORT_ACKNOWLEDGED_WARNING: str = "The report has been acknowledged by the orga
 TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
     "The request for a final update has been acknowledged by the organisation"
 )
+RECOMMENDATION_NOTE: str = "Recommendation note"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -3458,3 +3459,52 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
 
     assert audit_from_db.published_report_data_updated_time is not None
+
+
+def test_case_close(admin_client):
+    """
+    Test that case close renders as expected:
+    """
+    case: Case = Case.objects.create(
+        home_page_url=HOME_PAGE_URL, recommendation_notes=f"* {RECOMMENDATION_NOTE}"
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    # Required columns labelled as such; Missing data labelled as incomplete
+    assertContains(response, "Published report | Required and incomplete", html=True)
+
+    # Required data with default value labelled as incomplete
+    assertContains(
+        response,
+        "Initial Accessibility Statement Decision | Required and incomplete",
+        html=True,
+    )
+
+    # URL data rendered as link
+    assertContains(
+        response,
+        f"""<a href="{HOME_PAGE_URL}"
+            class="govuk-link" target="_blank">
+            {HOME_PAGE_URL}</a>""",
+        html=True,
+    )
+
+    # Edit link label used
+    assertContains(
+        response,
+        """<a href="/cases/1/edit-contact-details/"
+            class="govuk-link govuk-link--no-visited-state">
+            Go to contact details</a>""",
+        html=True,
+    )
+
+    # Markdown data rendered as html
+    assertContains(response, f"<li>{RECOMMENDATION_NOTE}</li>")
+
+    # Extra label for percentage shown
+    assertContains(response, "(Derived from retest results)")
