@@ -38,6 +38,18 @@ COMPLIANCE_FIELDS: List[str] = [
 ]
 
 
+class Sort(models.TextChoices):
+    NEWEST = "", "Newest, Unassigned first"
+    OLDEST = "id", "Oldest"
+    NAME = "organisation_name", "Alphabetic"
+
+
+class Complaint(models.TextChoices):
+    ALL = "", "All"
+    NO = "no", "No complaints"
+    YES = "yes", "Only complaints"
+
+
 class Case(VersionModel):
     """
     Model for Case

@@ -29,22 +29,19 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Sector, SubCategory
-from .models import Boolean, Case, CaseStatus, Contact, EqualityBodyCorrespondence
+from .models import (
+    Boolean,
+    Case,
+    CaseStatus,
+    Complaint,
+    Contact,
+    EqualityBodyCorrespondence,
+    Sort,
+)
+from .utils import EqualityBodyCSVColumn, populate_equality_body_columns
 
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + Case.EnforcementBody.choices
 STATUS_CHOICES: List[Tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices
-
-
-class Sort(models.TextChoices):
-    NEWEST = "", "Newest, Unassigned first"
-    OLDEST = "id", "Oldest"
-    NAME = "organisation_name", "Alphabetic"
-
-
-class Complaint(models.TextChoices):
-    ALL = "", "All"
-    NO = "no", "No complaints"
-    YES = "yes", "Only complaints"
 
 
 class DateType(models.TextChoices):
@@ -790,6 +787,24 @@ class CaseCloseUpdateForm(VersionForm):
             "case_completed",
             "case_close_complete_date",
         ]
+
+    def clean(self):
+        case_completed: str = self.cleaned_data["case_completed"]
+        if case_completed != Case.CaseCompleted.NO_DECISION:
+            case: Case = self.instance
+            equality_body_columns: List[
+                EqualityBodyCSVColumn
+            ] = populate_equality_body_columns(case=case)
+            required_data_missing_columns: List[EqualityBodyCSVColumn] = [
+                column
+                for column in equality_body_columns
+                if column.required_data_missing
+            ]
+            if required_data_missing_columns:
+                raise ValidationError(
+                    "Ensure all the required fields are complete before you close the case to send to the equalities body"
+                )
+        return self.cleaned_data
 
 
 class PostCaseUpdateForm(VersionForm):

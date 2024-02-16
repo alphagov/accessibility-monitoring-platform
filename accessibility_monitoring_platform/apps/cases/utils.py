@@ -19,15 +19,16 @@ from django.urls import reverse
 from ..audits.models import Audit, Retest
 from ..common.utils import build_filters
 from ..reports.models import Report
-from .forms import CaseSearchForm, Complaint, Sort
 from .models import (
     COMPLIANCE_FIELDS,
     Case,
     CaseCompliance,
     CaseEvent,
     CaseStatus,
+    Complaint,
     Contact,
     EqualityBodyCorrespondence,
+    Sort,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
@@ -790,7 +791,7 @@ def get_sent_date(
     return date_on_db if date_on_db else date_on_form
 
 
-def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
+def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
     filters: Dict = {}
     search_query = Q()
