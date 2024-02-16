@@ -52,11 +52,17 @@ class PostCaseAlert:
 
 @dataclass
 class CSVColumn:
-    """Data to use when building export CSV and to show in UI"""
+    """Data to use when building export CSV"""
 
     column_header: str
     source_class: Union[Audit, Case, CaseCompliance]
     source_attr: str
+
+
+@dataclass
+class EqualityBodyCSVColumn(CSVColumn):
+    """Data to use when building export CSV for equality body and to show in UI"""
+
     data_type: Literal["str", "url", "markdown"] = "str"
     required: bool = False
     formatted_data: str = ""
@@ -70,8 +76,8 @@ class CSVColumn:
 CONTACT_DETAILS_COLUMN_HEADER: str = "Contact details"
 ORGANISATION_RESPONDED_COLUMN_HEADER: str = "Organisation responded to report?"
 
-COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
-    CSVColumn(
+EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
+    EqualityBodyCSVColumn(
         column_header="Equality body",
         source_class=Case,
         source_attr="enforcement_body",
@@ -79,7 +85,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Test type",
         source_class=Case,
         source_attr="test_type",
@@ -87,7 +93,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Case,
         edit_url_name=None,
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Case number",
         source_class=Case,
         source_attr="id",
@@ -95,7 +101,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Case,
         edit_url_name=None,
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Organisation",
         source_class=Case,
         source_attr="organisation_name",
@@ -103,7 +109,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Website URL",
         source_class=Case,
         source_attr="home_page_url",
@@ -112,42 +118,42 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Parent organisation name",
         source_class=Case,
         source_attr="parental_organisation_name",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Sub-category",
         source_class=Case,
         source_attr="subcategory",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Website name",
         source_class=Case,
         source_attr="website_name",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Previous Case Number",
         source_class=Case,
         source_attr="previous_case_number",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Is it a complaint?",
         source_class=Case,
         source_attr="is_complaint",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Published report",
         source_class=Case,
         source_attr="published_report_url",
@@ -156,7 +162,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Report,
         edit_url_name="reports:report-publisher",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Enforcement recommendation",
         source_class=Case,
         source_attr="recommendation_for_enforcement",
@@ -164,7 +170,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Enforcement recommendation notes including exemptions",
         source_class=Case,
         source_attr="recommendation_notes",
@@ -173,7 +179,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Summary of progress made / response from PSB",
         source_class=Case,
         source_attr="psb_progress_notes",
@@ -181,7 +187,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Case,
         edit_url_name="cases:edit-review-changes",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header=CONTACT_DETAILS_COLUMN_HEADER,
         source_class=Case,
         source_attr=None,
@@ -189,56 +195,56 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_name="cases:edit-contact-details",
         edit_url_label="Go to contact details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header=ORGANISATION_RESPONDED_COLUMN_HEADER,
         source_class=Case,
         source_attr="report_acknowledged_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-acknowledged",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Report sent on",
         source_class=Case,
         source_attr="report_sent_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-sent-on",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Report acknowledged",
         source_class=Case,
         source_attr="report_acknowledged_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-acknowledged",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="12-week deadline",
         source_class=Case,
         source_attr="report_followup_week_12_due_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-12-week-update-requested",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Retest date",
         source_class=Case,
         source_attr="retested_website_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-review-changes",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Date when compliance decision email sent to public sector body",
         source_class=Case,
         source_attr="compliance_email_sent_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Compliance decision email sent to",
         source_class=Case,
         source_attr="compliance_decision_sent_to_email",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Total number of accessibility issues",
         source_class=Case,
         source_attr="total_website_issues",
@@ -246,7 +252,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_name="audits:audit-detail",
         edit_url_label="Go to view test",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Number of issues fixed",
         source_class=Case,
         source_attr="total_website_issues_fixed",
@@ -254,7 +260,7 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_name="audits:audit-retest-detail",
         edit_url_label="Go to view 12-week test",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Number of issues unfixed",
         source_class=Case,
         source_attr="total_website_issues_unfixed",
@@ -262,14 +268,14 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_name="audits:audit-retest-detail",
         edit_url_label="Go to view 12-week test",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Issues fixed as a percentage",
         source_class=Case,
         source_attr="percentage_website_issues_fixed",
         edit_url_class=Case,
         edit_url_name=None,
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Was a accessibility statement found during initial assessment?",
         source_class=Case,
         source_attr="csv_export_statement_initially_found",
@@ -277,14 +283,14 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Audit,
         edit_url_name="audits:edit-statement-overview",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Was a accessibility statement found during the 12-week assessment",
         source_class=Case,
         source_attr="csv_export_statement_found_at_12_week_retest",
         edit_url_class=Audit,
         edit_url_name="audits:edit-retest-statement-overview",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Initial Accessibility Statement Decision",
         source_class=CaseCompliance,
         source_attr="statement_compliance_state_initial",
@@ -293,21 +299,21 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Audit,
         edit_url_name="audits:edit-statement-decision",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Retest Accessibility Statement Decision",
         source_class=CaseCompliance,
         source_attr="statement_compliance_state_12_week",
         edit_url_class=Audit,
         edit_url_name="audits:edit-audit-retest-statement-decision",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Initial disproportionate burden claim",
         source_class=Audit,
         source_attr="initial_disproportionate_burden_claim",
         edit_url_class=Audit,
         edit_url_name="audits:edit-initial-disproportionate-burden",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Initial disproportionate burden details",
         source_class=Audit,
         source_attr="initial_disproportionate_burden_notes",
@@ -315,14 +321,14 @@ COLUMNS_FOR_EQUALITY_BODY: List[CSVColumn] = [
         edit_url_class=Audit,
         edit_url_name="audits:edit-initial-disproportionate-burden",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Retest disproportionate burden claimed?",
         source_class=Audit,
         source_attr="twelve_week_disproportionate_burden_claim",
         edit_url_class=Audit,
         edit_url_name="audits:edit-twelve-week-disproportionate-burden",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Retest disproportionate burden details",
         source_class=Audit,
         source_attr="twelve_week_disproportionate_burden_notes",
@@ -900,7 +906,7 @@ def format_model_field(
         return value
 
 
-def populate_equality_body_columns(case: Case) -> List[CSVColumn]:
+def populate_equality_body_columns(case: Case) -> List[EqualityBodyCSVColumn]:
     """
     Collect data for a case to export to the equality body
     """
@@ -911,7 +917,7 @@ def populate_equality_body_columns(case: Case) -> List[CSVColumn]:
         CaseCompliance: case.compliance,
         Report: case.report,
     }
-    columns: List[CSVColumn] = COLUMNS_FOR_EQUALITY_BODY.copy()
+    columns: List[EqualityBodyCSVColumn] = EQUALITY_BODY_COLUMNS_FOR_EXPORT.copy()
     for column in columns:
         source_instance: Union[
             Audit, Case, CaseCompliance, Report
@@ -940,16 +946,20 @@ def download_equality_body_cases(
     cases: QuerySet[Case],
     filename: str = "ehrc_cases.csv",
 ) -> HttpResponse:
-    """Given a Case queryset, download the data in csv format for EHRC and ECNI"""
+    """Given a Case queryset, download the data in csv format for equality body"""
     response: Any = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow([column.column_header for column in COLUMNS_FOR_EQUALITY_BODY])
+    writer.writerow(
+        [column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT]
+    )
 
     output: List[List[str]] = []
     for case in cases:
-        case_columns: List[CSVColumn] = populate_equality_body_columns(case=case)
+        case_columns: List[EqualityBodyCSVColumn] = populate_equality_body_columns(
+            case=case
+        )
         row = [column.formatted_data for column in case_columns]
         output.append(row)
     writer.writerows(output)

@@ -25,9 +25,10 @@ from ..models import (
 )
 from ..utils import (
     CASE_COLUMNS_FOR_EXPORT,
-    COLUMNS_FOR_EQUALITY_BODY,
+    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     CSVColumn,
+    EqualityBodyCSVColumn,
     PostCaseAlert,
     build_edit_link_html,
     create_case_and_compliance,
@@ -450,7 +451,7 @@ def test_download_equality_body_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: List[str] = [
-        column.column_header for column in COLUMNS_FOR_EQUALITY_BODY
+        column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT
     ]
 
     expected_first_data_row: List[str] = [
@@ -862,19 +863,19 @@ def test_populate_equality_body_columns():
 
     assert len(row) == 34
 
-    contact_details: List[CSVColumn] = [
+    contact_details: List[EqualityBodyCSVColumn] = [
         cell for cell in row if cell.column_header == "Contact details"
     ]
 
     assert len(contact_details) == 1
 
-    contact_details_cell: CSVColumn = contact_details[0]
+    contact_details_cell: EqualityBodyCSVColumn = contact_details[0]
 
     assert contact_details_cell.formatted_data == f"{CONTACT_EMAIL}\n"
     assert contact_details_cell.edit_url_name == "cases:edit-contact-details"
     assert contact_details_cell.edit_url == "/cases/1/edit-contact-details/"
 
-    organisation_responded: List[CSVColumn] = [
+    organisation_responded: List[EqualityBodyCSVColumn] = [
         cell
         for cell in row
         if cell.column_header == "Organisation responded to report?"
@@ -882,7 +883,7 @@ def test_populate_equality_body_columns():
 
     assert len(organisation_responded) == 1
 
-    organisation_responded_cell: CSVColumn = organisation_responded[0]
+    organisation_responded_cell: EqualityBodyCSVColumn = organisation_responded[0]
 
     assert organisation_responded_cell.formatted_data == "No"
     assert organisation_responded_cell.edit_url_name == "cases:edit-report-acknowledged"

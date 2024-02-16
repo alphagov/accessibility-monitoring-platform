@@ -40,7 +40,7 @@ from ..models import (
 )
 from ..utils import (
     CASE_COLUMNS_FOR_EXPORT,
-    COLUMNS_FOR_EQUALITY_BODY,
+    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     create_case_and_compliance,
 )
@@ -82,7 +82,7 @@ case_feedback_survey_columns_to_export_str: str = ",".join(
     column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
 )
 case_equality_body_columns_to_export_str: str = ",".join(
-    column.column_header for column in COLUMNS_FOR_EQUALITY_BODY
+    column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT
 )
 case_columns_to_export_str: str = ",".join(
     column.column_header for column in CASE_COLUMNS_FOR_EXPORT
