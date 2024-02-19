@@ -540,6 +540,7 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
     report_acknowledged_by_email = AMPCharFieldWide(
         label="Report acknowledged by (email address)"
     )
+    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 
@@ -549,6 +550,7 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
             "version",
             "report_acknowledged_date",
             "report_acknowledged_by_email",
+            "zendesk_url",
             "correspondence_notes",
             "report_acknowledged_complete_date",
         ]
