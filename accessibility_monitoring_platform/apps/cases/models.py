@@ -1,6 +1,7 @@
 """
 Models - cases
 """
+
 import json
 import re
 from datetime import date, datetime, timedelta
@@ -188,6 +189,11 @@ class Case(VersionModel):
     # Report details page
     report_draft_url = models.TextField(default="", blank=True)
     report_notes = models.TextField(default="", blank=True)
+    report_review_status = models.CharField(
+        max_length=200,
+        choices=Boolean.choices,
+        default=Boolean.NO,
+    )
     reporting_details_complete_date = models.DateField(null=True, blank=True)
 
     # QA process
@@ -195,14 +201,6 @@ class Case(VersionModel):
     report_final_pdf_url = models.TextField(default="", blank=True)
     report_final_odt_url = models.TextField(default="", blank=True)
     qa_process_complete_date = models.DateField(null=True, blank=True)
-
-    # Report ready for QA process
-    report_review_status = models.CharField(
-        max_length=200,
-        choices=Boolean.choices,
-        default=Boolean.NO,
-    )
-    report_ready_for_qa_complete_date = models.DateField(null=True, blank=True)
 
     # QA auditor
     reviewer = models.ForeignKey(

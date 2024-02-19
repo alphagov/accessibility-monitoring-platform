@@ -22,10 +22,7 @@
                                 <div class="govuk-button-group">
                                     <a
                                         href="{% url 'reports:report-publisher' case.report.id %}"
-                                        role="button"
-                                        draggable="false"
-                                        class="govuk-button govuk-button--secondary"
-                                        data-module="govuk-button"
+                                        class="govuk-link govuk-link--no-visited-state"
                                     >
                                         Go to Case > Report publisher
                                     </a>
@@ -69,6 +66,9 @@
                     {% csrf_token %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.report_review_status %}
+                        </div>
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field.html' with field=form.reporting_details_complete_date %}
                         </div>

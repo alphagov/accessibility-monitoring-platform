@@ -1,6 +1,7 @@
 """
 URLS for cases
 """
+
 from typing import List
 
 from django.contrib.auth.decorators import login_required
@@ -28,8 +29,6 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseOutstandingIssuesEmailTemplateView,
     CaseQAAuditorUpdateView,
     CaseQACommentsUpdateView,
-    CaseQAReadyForProcessUpdateView,
-    CaseQAReportApprovedUpdateView,
     CaseReactivateUpdateView,
     CaseReportAcknowledgedUpdateView,
     CaseReportDetailsUpdateView,
@@ -89,11 +88,6 @@ urlpatterns: List[URLPattern] = [
         name="edit-report-details",
     ),
     path(
-        "<int:pk>/edit-qa-ready-for-process/",
-        login_required(CaseQAReadyForProcessUpdateView.as_view()),
-        name="edit-qa-ready-for-process",
-    ),
-    path(
         "<int:pk>/edit-qa-auditor/",
         login_required(CaseQAAuditorUpdateView.as_view()),
         name="edit-qa-auditor",
@@ -102,11 +96,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-qa-comments/",
         login_required(CaseQACommentsUpdateView.as_view()),
         name="edit-qa-comments",
-    ),
-    path(
-        "<int:pk>/edit-qa-report-approved/",
-        login_required(CaseQAReportApprovedUpdateView.as_view()),
-        name="edit-qa-report-approved",
     ),
     path(
         "<int:case_id>/add-qa-comment/",

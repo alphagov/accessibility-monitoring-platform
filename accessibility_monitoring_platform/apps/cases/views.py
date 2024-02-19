@@ -1,6 +1,7 @@
 """
 Views for cases app
 """
+
 from datetime import date, timedelta
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Type, Union
@@ -66,8 +67,6 @@ from .forms import (
     CaseOneWeekFollowupUpdateForm,
     CaseQAAuditorUpdateForm,
     CaseQACommentsUpdateForm,
-    CaseQAReadyForProcessUpdateForm,
-    CaseQAReportApprovedForm,
     CaseReportAcknowledgedUpdateForm,
     CaseReportDetailsUpdateForm,
     CaseReportSentOnUpdateForm,
@@ -448,24 +447,7 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-qa-ready-for-process", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseQAReadyForProcessUpdateView(CaseUpdateView):
-    """
-    View to update Report ready for QA process
-    """
-
-    form_class: Type[CaseQAReadyForProcessUpdateForm] = CaseQAReadyForProcessUpdateForm
-    template_name: str = "cases/forms/qa_ready_for.html"
-
-    def get_success_url(self) -> str:
-        """
-        Detect the submit button used and act accordingly.
-        """
-        if "save_continue" in self.request.POST:
-            return reverse("cases:edit-qa-auditor", kwargs={"pk": self.object.id})
+            return reverse("cases:edit-qa-auditor", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -476,6 +458,21 @@ class CaseQAAuditorUpdateView(CaseUpdateView):
 
     form_class: Type[CaseQAAuditorUpdateForm] = CaseQAAuditorUpdateForm
     template_name: str = "cases/forms/qa_auditor.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Notify auditor if case has been QA approved."""
+        if form.changed_data and "report_approved_status" in form.changed_data:
+            if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
+                case: Case = self.object
+                if case.auditor:
+                    add_notification(
+                        user=case.auditor,
+                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",
+                        path=reverse("cases:edit-qa-auditor", kwargs={"pk": case.id}),
+                        list_description=f"{case} - Report approved",
+                        request=self.request,
+                    )
+        return super().form_valid(form=form)
 
     def get_success_url(self) -> str:
         """
@@ -505,42 +502,6 @@ class CaseQACommentsUpdateView(CaseUpdateView):
             record_model_create_event(user=self.request.user, model_object=comment)
             add_comment_notification(self.request, comment)
         return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """
-        Detect the submit button used and act accordingly.
-        """
-        if "save_continue" in self.request.POST:
-            return reverse(
-                "cases:edit-qa-report-approved", kwargs={"pk": self.object.id}
-            )
-        return super().get_success_url()
-
-
-class CaseQAReportApprovedUpdateView(CaseUpdateView):
-    """
-    View to update report QA approved
-    """
-
-    form_class: Type[CaseQAReportApprovedForm] = CaseQAReportApprovedForm
-    template_name: str = "cases/forms/qa_approve.html"
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Notify auditor if case has been QA approved."""
-        if form.changed_data and "report_approved_status" in form.changed_data:
-            if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
-                case: Case = self.object
-                if case.auditor:
-                    add_notification(
-                        user=case.auditor,
-                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",
-                        path=reverse(
-                            "cases:edit-qa-report-approved", kwargs={"pk": case.id}
-                        ),
-                        list_description=f"{case} - Report approved",
-                        request=self.request,
-                    )
-        return super().form_valid(form=form)
 
     def get_success_url(self) -> str:
         """

@@ -1,4 +1,5 @@
 """ Derive page title from url path """
+
 import re
 
 from ..audits.models import Audit, Page
@@ -51,10 +52,8 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/edit-contact-details/": "Contact details",
     "/cases/[id]/edit-no-psb-response/": "Public sector body is unresponsive",
     "/cases/[id]/edit-post-case/": "Post case summary",
-    "/cases/[id]/edit-qa-ready-for-process/": "Report ready for QA process",
     "/cases/[id]/edit-qa-auditor/": "QA auditor",
     "/cases/[id]/edit-qa-comments/": "QA comments",
-    "/cases/[id]/edit-qa-report-approved/": "Report approved",
     "/cases/[id]/edit-report-details/": "Report details",
     "/cases/[id]/edit-cores-overview/": "Correspondence overview",
     "/cases/[id]/edit-find-contact-details/": "Find contact details",
