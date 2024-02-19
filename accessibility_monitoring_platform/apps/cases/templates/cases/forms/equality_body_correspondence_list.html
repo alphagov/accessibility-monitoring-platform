@@ -28,22 +28,27 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <a
-                                href="{% url 'cases:create-equality-body-correspondence' case.id %}"
-                                role="button"
-                                draggable="false"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            >
-                                Add Zendesk ticket
-                            </a>
-                            <a
                                 href="{% url 'cases:list-equality-body-correspondence' case.id %}{% if not show_unresolved %}?view=unresolved{% endif %}"
                                 role="button"
                                 draggable="false"
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             >
-                                View {% if show_unresolved %}all{% else %}unresolved{% endif %} correspondence
+                            Filter {% if show_unresolved %}all{% else %}unresolved{% endif %} correspondence
+                            </a>
+                            <a
+                                href="{% url 'cases:create-equality-body-correspondence' case.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Add Zendesk ticket
+                            </a>
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <a
+                                href="{% url 'cases:edit-retest-overview' case.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                View retest overview
                             </a>
                         </div>
                         <div class="govuk-grid-column-full">

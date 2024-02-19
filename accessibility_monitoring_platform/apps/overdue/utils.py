@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
 
-from ..cases.models import Case
+from ..cases.models import Case, CaseStatus
 
 
 def get_overdue_cases(user_request: User) -> QuerySet[Case]:
@@ -19,7 +19,7 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
         seven_days_ago = date.today() - timedelta(days=7)
 
         seven_day_no_contact: QuerySet[Case] = user_cases.filter(
-            status__status__icontains="report-ready-to-send",
+            status__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND,
             seven_day_no_contact_email_sent_date__range=[start_date, seven_days_ago],
         )
 
