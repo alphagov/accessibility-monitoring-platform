@@ -16,6 +16,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseDeactivateUpdateView,
     CaseDetailUpdateView,
     CaseDetailView,
+    CaseEnforcementRecommendationUpdateView,
     CaseEqualityBodyCorrespondenceUpdateView,
     CaseEqualityBodyMetadataUpdateView,
     CaseFindContactDetailsUpdateView,
@@ -171,6 +172,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-review-changes/",
         login_required(CaseReviewChangesUpdateView.as_view()),
         name="edit-review-changes",
+    ),
+    path(
+        "<int:pk>/edit-enforcement-recommendation/",
+        login_required(CaseEnforcementRecommendationUpdateView.as_view()),
+        name="edit-enforcement-recommendation",
     ),
     path(
         "<int:pk>/edit-case-close/",

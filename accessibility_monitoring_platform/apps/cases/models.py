@@ -38,6 +38,18 @@ COMPLIANCE_FIELDS: List[str] = [
 ]
 
 
+class Sort(models.TextChoices):
+    NEWEST = "", "Newest, Unassigned first"
+    OLDEST = "id", "Oldest"
+    NAME = "organisation_name", "Alphabetic"
+
+
+class Complaint(models.TextChoices):
+    ALL = "", "All"
+    NO = "no", "No complaints"
+    YES = "yes", "Only complaints"
+
+
 class Case(VersionModel):
     """
     Model for Case
@@ -337,7 +349,7 @@ class Case(VersionModel):
     accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
     final_statement_complete_date = models.DateField(null=True, blank=True)
 
-    # Case close
+    # Enforcement recommendation
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     compliance_decision_sent_to_email = models.CharField(
         max_length=200, default="", blank=True
@@ -348,6 +360,9 @@ class Case(VersionModel):
         default=RecommendationForEnforcement.UNKNOWN,
     )
     recommendation_notes = models.TextField(default="", blank=True)
+    enforcement_recommendation_complete_date = models.DateField(null=True, blank=True)
+
+    # Case close
     case_completed = models.CharField(
         max_length=30, choices=CaseCompleted.choices, default=CaseCompleted.NO_DECISION
     )

@@ -359,6 +359,22 @@
                             {% include 'cases/details/review_changes.html' %}
                         </div>
                     </div>
+                    <div class="govuk-accordion__section" data-search-target-page-name="Enforcement recommendation" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-enforcement-recommendation' case.id %}">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="enforcement-recommendation" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-enforcement-recommendation">
+                                    Enforcement recommendation
+                                    {% if case.enforcement_recommendation_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-enforcement-recommendation" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-recommendation">
+                            {% include 'cases/details/enforcement_recommendation.html' %}
+                        </div>
+                    </div>
                     <div class="govuk-accordion__section" data-search-target-page-name="Closing the case" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-case-close' case.id %}">
                         <div class="govuk-accordion__section-header">
                             <h2 id="case-close" class="govuk-accordion__section-heading">

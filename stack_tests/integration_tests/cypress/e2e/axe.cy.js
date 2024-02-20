@@ -39,6 +39,7 @@ const loggedInUrls = [
   '/audits/wcag-definition-list/',
   '/audits/1/edit-wcag-definition/',
   '/cases/',
+  '/cases/1/edit-enforcement-recommendation/',
   '/cases/1/edit-case-close/',
   '/cases/1/edit-case-details/',
   '/cases/1/edit-contact-details/',

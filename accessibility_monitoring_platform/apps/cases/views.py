@@ -28,7 +28,6 @@ from ..audits.utils import (
     get_test_view_tables_context,
     report_data_updated,
 )
-from ..cases.utils import get_post_case_alerts
 from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
@@ -59,6 +58,7 @@ from .forms import (
     CaseCreateForm,
     CaseDeactivateForm,
     CaseDetailUpdateForm,
+    CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
     CaseFindContactDetailsUpdateForm,
     CaseFourWeekFollowupUpdateForm,
@@ -83,10 +83,17 @@ from .forms import (
 )
 from .models import Case, Contact, EqualityBodyCorrespondence
 from .utils import (
+    EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+    EqualityBodyCSVColumn,
     download_cases,
     download_equality_body_cases,
     download_feedback_survey_cases,
     filter_cases,
+    get_post_case_alerts,
+    populate_equality_body_columns,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -225,6 +232,9 @@ class CaseDetailView(DetailView):
         context["no_psb_contact"] = get_case_rows(form=CaseNoPSBContactUpdateForm())
         context["review_changes_rows"] = get_case_rows(
             form=CaseReviewChangesUpdateForm()
+        )
+        context["enforcement_recommendation_rows"] = get_case_rows(
+            form=CaseEnforcementRecommendationUpdateForm()
         )
         context["case_close_rows"] = get_case_rows(form=CaseCloseUpdateForm())
         context["equality_body_metadata_rows"] = get_case_rows(
@@ -874,7 +884,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         case: Case = self.object
         case_pk: Dict[str, int] = {"pk": case.id}
         if case.no_psb_contact == Boolean.YES:
-            return reverse("cases:edit-case-close", kwargs=case_pk)
+            return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
         return reverse("cases:edit-find-contact-details", kwargs=case_pk)
 
 
@@ -907,6 +917,25 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}
+            return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseEnforcementRecommendationUpdateView(CaseUpdateView):
+    """
+    View to record the enforcement recommendation
+    """
+
+    form_class: Type[
+        CaseEnforcementRecommendationUpdateForm
+    ] = CaseEnforcementRecommendationUpdateForm
+    template_name: str = "cases/forms/enforcement_recommendation.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case: Case = self.object
+            case_pk: Dict[str, int] = {"pk": case.id}
             return reverse("cases:edit-case-close", kwargs=case_pk)
         return super().get_success_url()
 
@@ -918,6 +947,54 @@ class CaseCloseUpdateView(CaseUpdateView):
 
     form_class: Type[CaseCloseUpdateForm] = CaseCloseUpdateForm
     template_name: str = "cases/forms/case_close.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        equality_body_metadata_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case, column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
+        )
+        equality_body_report_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case, column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
+        )
+        equality_body_correspondence_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case,
+            column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+        )
+        equality_body_test_summary_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case,
+            column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+        )
+        all_equality_body_columns: List[EqualityBodyCSVColumn] = (
+            equality_body_metadata_columns
+            + equality_body_report_columns
+            + equality_body_correspondence_columns
+            + equality_body_test_summary_columns
+        )
+        required_data_missing_columns: List[EqualityBodyCSVColumn] = [
+            column
+            for column in all_equality_body_columns
+            if column.required_data_missing
+        ]
+        context["equality_body_metadata_columns"] = equality_body_metadata_columns
+        context["equality_body_report_columns"] = equality_body_report_columns
+        context[
+            "equality_body_correspondence_columns"
+        ] = equality_body_correspondence_columns
+        context[
+            "equality_body_test_summary_columns"
+        ] = equality_body_test_summary_columns
+        context["required_data_missing_columns"] = required_data_missing_columns
+        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
