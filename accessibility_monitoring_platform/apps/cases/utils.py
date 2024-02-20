@@ -72,6 +72,7 @@ class EqualityBodyCSVColumn(CSVColumn):
     edit_url_class: Union[Audit, Case, CaseCompliance, Report] = None
     edit_url_name: Optional[str] = None
     edit_url_label: str = "Edit"
+    edit_url_anchor: str = ""
     edit_url: Optional[str] = None
 
     @property
@@ -92,6 +93,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         required=True,
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
+        edit_url_anchor="id_enforcement_body-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Test type",
@@ -116,6 +118,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         required=True,
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
+        edit_url_anchor="id_organisation_name-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Website URL",
@@ -125,6 +128,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         data_type="url",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
+        edit_url_anchor="id_home_page_url-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Parent organisation name",
@@ -132,6 +136,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="parental_organisation_name",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
+        edit_url_anchor="id_parental_organisation_name-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Sub-category",
@@ -139,6 +144,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="subcategory",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
+        edit_url_anchor="id_subcategory-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Website name",
@@ -146,6 +152,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="website_name",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
+        edit_url_anchor="id_website_name-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Previous Case Number",
@@ -153,6 +160,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="previous_case_number",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
+        edit_url_anchor="id_previous_case_url-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Is it a complaint?",
@@ -160,6 +168,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="is_complaint",
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
+        edit_url_anchor="id_is_complaint-label",
     ),
 ]
 EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
@@ -180,6 +189,7 @@ EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         default_data="Not selected",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
+        edit_url_anchor="id_recommendation_for_enforcement-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Enforcement recommendation notes including exemptions",
@@ -189,6 +199,7 @@ EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         data_type="markdown",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
+        edit_url_anchor="id_recommendation_notes-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Summary of progress made / response from PSB",
@@ -197,6 +208,7 @@ EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         data_type="markdown",
         edit_url_class=Case,
         edit_url_name="cases:edit-review-changes",
+        edit_url_anchor="id_psb_progress_notes-label",
     ),
 ]
 EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
@@ -215,6 +227,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         ui_suffix=" (derived from report acknowledged date)",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-acknowledged",
+        edit_url_anchor="id_report_acknowledged_date-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Report sent on",
@@ -222,6 +235,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="report_sent_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-sent-on",
+        edit_url_anchor="id_report_sent_date-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Report acknowledged",
@@ -229,6 +243,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="report_acknowledged_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-acknowledged",
+        edit_url_anchor="id_report_acknowledged_date-label",
     ),
     EqualityBodyCSVColumn(
         column_header="12-week deadline",
@@ -236,6 +251,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="report_followup_week_12_due_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-12-week-update-requested",
+        edit_url_anchor="id_twelve_week_update_requested_date-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Retest date",
@@ -243,6 +259,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="retested_website_date",
         edit_url_class=Case,
         edit_url_name="cases:edit-review-changes",
+        edit_url_anchor="id_retested_website_date-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Date when compliance decision email sent to public sector body",
@@ -251,6 +268,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         required=True,
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
+        edit_url_anchor="id_compliance_email_sent_date-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Compliance decision email sent to",
@@ -258,6 +276,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="compliance_decision_sent_to_email",
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
+        edit_url_anchor="id_compliance_decision_sent_to_email-label",
     ),
 ]
 EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
@@ -316,6 +335,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         default_data="Not assessed",
         edit_url_class=Audit,
         edit_url_name="audits:edit-statement-decision",
+        edit_url_anchor="id_case-compliance-statement_compliance_state_initial-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Retest Accessibility Statement Decision",
@@ -323,6 +343,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="statement_compliance_state_12_week",
         edit_url_class=Audit,
         edit_url_name="audits:edit-audit-retest-statement-decision",
+        edit_url_anchor="id_case-compliance-statement_compliance_state_12_week-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Initial disproportionate burden claim",
@@ -332,6 +353,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         default_data="Not checked",
         edit_url_class=Audit,
         edit_url_name="audits:edit-initial-disproportionate-burden",
+        edit_url_anchor="id_initial_disproportionate_burden_claim-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Initial disproportionate burden details",
@@ -340,6 +362,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         data_type="markdown",
         edit_url_class=Audit,
         edit_url_name="audits:edit-initial-disproportionate-burden",
+        edit_url_anchor="id_initial_disproportionate_burden_notes-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Retest disproportionate burden claimed?",
@@ -347,6 +370,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="twelve_week_disproportionate_burden_claim",
         edit_url_class=Audit,
         edit_url_name="audits:edit-twelve-week-disproportionate-burden",
+        edit_url_anchor="id_twelve_week_disproportionate_burden_claim-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Retest disproportionate burden details",
@@ -355,6 +379,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         data_type="markdown",
         edit_url_class=Audit,
         edit_url_name="audits:edit-twelve-week-disproportionate-burden",
+        edit_url_anchor="id_twelve_week_disproportionate_burden_notes-label",
     ),
 ]
 EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = (
@@ -967,6 +992,8 @@ def populate_equality_body_columns(
             column.edit_url = reverse(
                 column.edit_url_name, kwargs={"pk": edit_url_instance.id}
             )
+            if column.edit_url_anchor:
+                column.edit_url += f"#{column.edit_url_anchor}"
     return columns
 
 

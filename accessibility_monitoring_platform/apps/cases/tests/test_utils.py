@@ -887,7 +887,10 @@ def test_populate_equality_body_columns():
 
     assert organisation_responded_cell.formatted_data == "No"
     assert organisation_responded_cell.edit_url_name == "cases:edit-report-acknowledged"
-    assert organisation_responded_cell.edit_url == "/cases/1/edit-report-acknowledged/"
+    assert (
+        organisation_responded_cell.edit_url
+        == "/cases/1/edit-report-acknowledged/#id_report_acknowledged_date-label"
+    )
 
 
 @pytest.mark.django_db
