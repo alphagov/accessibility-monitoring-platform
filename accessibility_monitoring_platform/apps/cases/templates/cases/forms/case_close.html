@@ -39,7 +39,48 @@
                 {% endif %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
-                        <p class="govuk-body-m amp-margin-bottom-5"><b>Guidance on closing the case</b></p>
+                        <nav role="navigation" class="amp-margin-bottom-40">
+                            <h2 class="govuk-heading-m">Contents</h2>
+                            <div class="amp-left-border">
+                                <ul class="govuk-list amp-margin-bottom-5">
+                                    <li>
+                                        <a href="#guidance-on-closing-the-case" class="govuk-link govuk-link--no-visited-state">
+                                            Guidance on closing the case</a>
+                                    </li>
+                                    {% if required_data_missing_columns %}
+                                        <li>
+                                            <a href="#missing-data" class="govuk-link govuk-link--no-visited-state">
+                                                Missing data</a>
+                                        </li>
+                                    {% endif %}
+                                    <li>
+                                        <a href="#1-metadata" class="govuk-link govuk-link--no-visited-state">
+                                            1. Metadata</a>
+                                    </li>
+                                    <li>
+                                        <a href="#2-report-and-recommendation" class="govuk-link govuk-link--no-visited-state">
+                                            2. Report and recommendation</a>
+                                    </li>
+                                    <li>
+                                        <a href="#3-correspondence" class="govuk-link govuk-link--no-visited-state">
+                                            3. Correspondence</a>
+                                    </li>
+                                    <li>
+                                        <a href="#4-test-summary" class="govuk-link govuk-link--no-visited-state">
+                                            4. Test summary</a>
+                                    </li>
+                                    <li>
+                                        <a href="#id_case_completed-label" class="govuk-link govuk-link--no-visited-state">
+                                            Case completed</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <h2 class="govuk-heading-m" id="guidance-on-closing-the-case">Guidance on closing the case</h2>
                         <p class="govuk-body-m">
                             Select "Case should not be sent to the equality body" if the case does not require further action,
                             closing it immediately.
@@ -49,59 +90,47 @@
                             complete and verify all required fields before proceeding.
                         </p>
                         {% if required_data_missing_columns %}
-                        <p class="govuk-body-m amp-margin-bottom-5"><b>Missing data</b></p>
-                        {% if not case.audit %}
-                            <p class="govuk-body-m">
-                                There isn't an initial test
-                                (<a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to testing details</a>)
-                            </p>
-                        {% endif %}
-                        <p class="govuk-body-m">
-                            The case has missing data and can not be submitted to EHRC. Please correct the following fields.
-                        </p>
-                        <ul class="govuk-list govuk-list--bullet">
-                            {% for required_data_missing_column in required_data_missing_columns %}
-                                <li>
-                                    <b>{{ required_data_missing_column.column_header }}</b> is missing
-                                    {% if required_data_missing_column.edit_url %}
-                                        (<a href="{{ required_data_missing_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">{{ required_data_missing_column.edit_url_label }}</a>)
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% for equality_body_column in equality_body_columns %}
-                            <p class="govuk-body-m amp-margin-bottom-5"><b>
-                                {{ equality_body_column.column_header }}
-                                {% if equality_body_column.required %}
-                                    | Required
-                                    {% if not equality_body_column.formatted_data or equality_body_column.formatted_data == equality_body_column.default_data %}
-                                        and incomplete
-                                    {% endif %}
-                                {% endif %}
-                            </b></p>
-                            <p class="govuk-body-m{% if equality_body_column.edit_url %} amp-margin-bottom-5{% endif %}">
-                                {% if equality_body_column.formatted_data or equality_body_column.formatted_data == 0 %}
-                                    {% if equality_body_column.data_type == 'url' %}
-                                        <a href="{{ equality_body_column.formatted_data }}" class="govuk-link" target="_blank">
-                                            {{ equality_body_column.formatted_data }}</a>
-                                    {% elif equality_body_column.data_type == 'markdown' %}
-                                        <div class="amp-markdown">{{ equality_body_column.formatted_data|markdown_to_html }}</div>
-                                    {% else %}
-                                        {{ equality_body_column.formatted_data }}{% if equality_body_column.column_header == 'Issues fixed as a percentage' %}% (Derived from retest results){% endif %}
-                                    {% endif %}
-                                {% else %}
-                                    No data available
-                                {% endif %}
-                            </p>
-                            {% if equality_body_column.edit_url %}
+                            <h2 class="govuk-heading-m" id="missing-data">Missing data</h2>
+                            {% if not case.audit %}
                                 <p class="govuk-body-m">
-                                    <a href="{{ equality_body_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">{{ equality_body_column.edit_url_label }}</a>
+                                    There isn't an initial test
+                                    (<a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to testing details</a>)
                                 </p>
                             {% endif %}
+                            <p class="govuk-body-m">
+                                The case has missing data and can not be submitted to EHRC. Please correct the following fields.
+                            </p>
+                            <ul class="govuk-list govuk-list--bullet">
+                                {% for required_data_missing_column in required_data_missing_columns %}
+                                    <li>
+                                        {{ required_data_missing_column.column_header }} is missing
+                                        {% if required_data_missing_column.edit_url %}
+                                            (<a href="{{ required_data_missing_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">{{ required_data_missing_column.edit_url_label }}</a>)
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                        <h2 class="govuk-heading-m" id="1-metadata">1. Metadata</h2>
+                        {% for equality_body_column in equality_body_metadata_columns %}
+                            {% include 'cases/helpers/csv_column.html' %}
+                        {% endfor %}
+                        <h2 class="govuk-heading-m" id="2-report-and-recommendation">2. Report and recommendation</h2>
+                        {% for equality_body_column in equality_body_report_columns %}
+                            {% include 'cases/helpers/csv_column.html' %}
+                        {% endfor %}
+                        <h2 class="govuk-heading-m" id="3-correspondence">3. Correspondence</h2>
+                        {% for equality_body_column in equality_body_correspondence_columns %}
+                            {% include 'cases/helpers/csv_column.html' %}
+                        {% endfor %}
+                        <h2 class="govuk-heading-m" id="4-test-summary">4. Test summary</h2>
+                        {% for equality_body_column in equality_body_test_summary_columns %}
+                            {% include 'cases/helpers/csv_column.html' %}
                         {% endfor %}
                     </div>
                 </div>
+                <hr class="amp-width-100 amp-margin-bottom-30" />
                 <form method="post" action="{% url 'cases:edit-case-close' case.id %}">
                     {% csrf_token %}
                     {% include 'common/amp_form_snippet.html' %}

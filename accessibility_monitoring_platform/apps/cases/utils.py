@@ -68,6 +68,7 @@ class EqualityBodyCSVColumn(CSVColumn):
     required: bool = False
     formatted_data: str = ""
     default_data: str = ""
+    ui_suffix: str = ""
     edit_url_class: Union[Audit, Case, CaseCompliance, Report] = None
     edit_url_name: Optional[str] = None
     edit_url_label: str = "Edit"
@@ -83,7 +84,7 @@ class EqualityBodyCSVColumn(CSVColumn):
 CONTACT_DETAILS_COLUMN_HEADER: str = "Contact details"
 ORGANISATION_RESPONDED_COLUMN_HEADER: str = "Organisation responded to report?"
 
-EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
+EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Equality body",
         source_class=Case,
@@ -160,6 +161,8 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_class=Case,
         edit_url_name="cases:edit-case-details",
     ),
+]
+EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Published report",
         source_class=Case,
@@ -195,6 +198,8 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_class=Case,
         edit_url_name="cases:edit-review-changes",
     ),
+]
+EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header=CONTACT_DETAILS_COLUMN_HEADER,
         source_class=Case,
@@ -207,6 +212,7 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         column_header=ORGANISATION_RESPONDED_COLUMN_HEADER,
         source_class=Case,
         source_attr="report_acknowledged_date",
+        ui_suffix=" (derived from report acknowledged date)",
         edit_url_class=Case,
         edit_url_name="cases:edit-report-acknowledged",
     ),
@@ -253,6 +259,8 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_class=Case,
         edit_url_name="cases:edit-enforcement-recommendation",
     ),
+]
+EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Total number of accessibility issues",
         source_class=Case,
@@ -281,6 +289,7 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         column_header="Issues fixed as a percentage",
         source_class=Case,
         source_attr="percentage_website_issues_fixed",
+        ui_suffix="% (Derived from retest results)",
         edit_url_class=Case,
         edit_url_name=None,
     ),
@@ -348,6 +357,12 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_name="audits:edit-twelve-week-disproportionate-burden",
     ),
 ]
+EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = (
+    EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
+    + EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
+    + EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT
+    + EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT
+)
 
 CASE_COLUMNS_FOR_EXPORT: List[CSVColumn] = [
     CSVColumn(column_header="Case no.", source_class=Case, source_attr="id"),
@@ -917,7 +932,9 @@ def format_model_field(
         return value
 
 
-def populate_equality_body_columns(case: Case) -> List[EqualityBodyCSVColumn]:
+def populate_equality_body_columns(
+    case: Case, column_definitions: List[CSVColumn] = EQUALITY_BODY_COLUMNS_FOR_EXPORT
+) -> List[EqualityBodyCSVColumn]:
     """
     Collect data for a case to export to the equality body
     """
@@ -928,9 +945,7 @@ def populate_equality_body_columns(case: Case) -> List[EqualityBodyCSVColumn]:
         CaseCompliance: case.compliance,
         Report: case.report,
     }
-    columns: List[EqualityBodyCSVColumn] = copy.deepcopy(
-        EQUALITY_BODY_COLUMNS_FOR_EXPORT
-    )
+    columns: List[EqualityBodyCSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
         source_instance: Union[
             Audit, Case, CaseCompliance, Report, None

@@ -85,6 +85,10 @@ from .forms import (
 )
 from .models import Case, Contact, EqualityBodyCorrespondence
 from .utils import (
+    EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
     EqualityBodyCSVColumn,
     download_cases,
     download_equality_body_cases,
@@ -988,13 +992,47 @@ class CaseCloseUpdateView(CaseUpdateView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        equality_body_columns: List[
+        equality_body_metadata_columns: List[
             EqualityBodyCSVColumn
-        ] = populate_equality_body_columns(case=case)
+        ] = populate_equality_body_columns(
+            case=case, column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
+        )
+        equality_body_report_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case, column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
+        )
+        equality_body_correspondence_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case,
+            column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+        )
+        equality_body_test_summary_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case,
+            column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+        )
+        all_equality_body_columns: List[EqualityBodyCSVColumn] = (
+            equality_body_metadata_columns
+            + equality_body_report_columns
+            + equality_body_correspondence_columns
+            + equality_body_test_summary_columns
+        )
         required_data_missing_columns: List[EqualityBodyCSVColumn] = [
-            column for column in equality_body_columns if column.required_data_missing
+            column
+            for column in all_equality_body_columns
+            if column.required_data_missing
         ]
-        context["equality_body_columns"] = equality_body_columns
+        context["equality_body_metadata_columns"] = equality_body_metadata_columns
+        context["equality_body_report_columns"] = equality_body_report_columns
+        context[
+            "equality_body_correspondence_columns"
+        ] = equality_body_correspondence_columns
+        context[
+            "equality_body_test_summary_columns"
+        ] = equality_body_test_summary_columns
         context["required_data_missing_columns"] = required_data_missing_columns
         return context
 
