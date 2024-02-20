@@ -50,7 +50,7 @@
                                     {% if required_data_missing_columns %}
                                         <li>
                                             <a href="#missing-data" class="govuk-link govuk-link--no-visited-state">
-                                                Missing data</a>
+                                                Missing data ({{ required_data_missing_columns|length }})</a>
                                         </li>
                                     {% endif %}
                                     <li>
