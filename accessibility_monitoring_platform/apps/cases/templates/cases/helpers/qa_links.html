@@ -1,0 +1,19 @@
+<p class="govuk-body-m amp-margin-bottom-5"><b>QA links</b></p>
+{% if case.audit %}
+    <p class="govuk-body-m amp-margin-bottom-5">
+        <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Go to view test</a>
+    </p>
+{% endif %}
+{% if case.report %}
+    <p class="govuk-body-m amp-margin-bottom-5">
+        <a href="{% url 'reports:report-publisher' case.report.id %}" class="govuk-link govuk-link--no-visited-state">Go to report publisher</a>
+    </p>
+{% endif %}
+<p class="govuk-body-m amp-margin-bottom-5">
+    <a href="{% url 'cases:edit-qa-auditor' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        Go to QA auditor</a>
+</p>
+<p class="govuk-body-m">
+    <a href="{% url 'cases:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        Go to QA comments ({{ number_of_unread_notifications }} unread comment{% if number_of_unread_notifications != 1 %}s{% endif %})</a>
+</p>

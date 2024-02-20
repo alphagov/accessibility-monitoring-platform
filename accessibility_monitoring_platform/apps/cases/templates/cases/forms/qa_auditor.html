@@ -15,6 +15,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                {% include 'cases/helpers/qa_links.html' %}
                 <form method="post" action="{% url 'cases:edit-qa-auditor' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
