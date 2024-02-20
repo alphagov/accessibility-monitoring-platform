@@ -21,5 +21,13 @@
                 {{ case.reviewer.get_full_name }}
             </td>
         </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Report approved?
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.get_report_approved_status_display }}
+            </td>
+        </tr>
     </tbody>
 </table>

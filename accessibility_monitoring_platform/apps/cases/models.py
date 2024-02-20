@@ -210,18 +210,12 @@ class Case(VersionModel):
         blank=True,
         null=True,
     )
-    qa_auditor_complete_date = models.DateField(null=True, blank=True)
-
-    # QA comments
-    # qa_comments_complete_date = models.DateField(null=True, blank=True)
-
-    # Report approved
     report_approved_status = models.CharField(
         max_length=200,
         choices=ReportApprovedStatus.choices,
         default=ReportApprovedStatus.NOT_STARTED,
     )
-    qa_approved_complete_date = models.DateField(null=True, blank=True)
+    qa_auditor_complete_date = models.DateField(null=True, blank=True)
 
     # Correspondence overview page
     zendesk_url = models.TextField(default="", blank=True)
