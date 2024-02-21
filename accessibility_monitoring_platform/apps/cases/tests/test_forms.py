@@ -1,6 +1,7 @@
 """
 Test forms of cases app
 """
+
 from datetime import date
 from typing import List, Tuple
 from unittest.mock import MagicMock, patch
@@ -9,6 +10,7 @@ import pytest
 from django.contrib.auth.models import Group, User
 
 from ..forms import (
+    CaseCloseUpdateForm,
     CaseDetailUpdateForm,
     CaseFourWeekFollowupUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
@@ -180,3 +182,34 @@ def test_one_week_followup_final_hidden_when_12_week_cores_ack():
         "twelve_week_1_week_chaser_due_date",
         "twelve_week_1_week_chaser_sent_to_email",
     ]
+
+
+@pytest.mark.parametrize(
+    "case_completed, expected_error_message",
+    [
+        (Case.CaseCompleted.NO_DECISION, ""),
+        (Case.CaseCompleted.COMPLETE_NO_SEND, ""),
+        (
+            Case.CaseCompleted.COMPLETE_SEND,
+            "Ensure all the required fields are complete before you close the case to send to the equalities body",
+        ),
+    ],
+)
+@pytest.mark.django_db
+def test_clean_case_close_form(case_completed, expected_error_message):
+    """Tests case checked for missing data only when being sent to equality body"""
+
+    case: Case = Case.objects.create()
+    form: CaseCloseUpdateForm = CaseCloseUpdateForm(
+        data={
+            "version": case.version,
+            "case_completed": case_completed,
+        },
+        instance=case,
+    )
+
+    if expected_error_message:
+        assert not form.is_valid()
+        assert form.errors == {"__all__": [expected_error_message]}
+    else:
+        assert form.is_valid()
