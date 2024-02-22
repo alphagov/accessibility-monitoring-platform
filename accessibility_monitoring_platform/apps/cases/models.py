@@ -214,7 +214,7 @@ class Case(VersionModel):
     report_final_odt_url = models.TextField(default="", blank=True)
     qa_process_complete_date = models.DateField(null=True, blank=True)
 
-    # QA auditor
+    # Report approved
     reviewer = models.ForeignKey(
         User,
         on_delete=models.PROTECT,

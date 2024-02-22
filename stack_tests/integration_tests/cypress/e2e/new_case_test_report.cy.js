@@ -110,12 +110,14 @@ describe('Create case, tests and report', () => {
     cy.get('[name="report_review_status"]').check('yes')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA auditor`)
+    cy.title().should('eq', `${newOrganisationName} | QA comments`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Report approved`)
     cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="report_approved_status"]').check('yes')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA comments`)
     cy.contains('Report details').click()
     cy.contains('Go to Case > Report publisher').click()
 
@@ -137,10 +139,10 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Report details`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA auditor`)
+    cy.title().should('eq', `${newOrganisationName} | QA comments`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA comments`)
+    cy.title().should('eq', `${newOrganisationName} | Report approved`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Correspondence overview`)

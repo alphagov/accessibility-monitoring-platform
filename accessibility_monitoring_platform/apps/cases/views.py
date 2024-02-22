@@ -65,9 +65,9 @@ from .forms import (
     CaseNoPSBContactUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
-    CaseQAAuditorUpdateForm,
     CaseQACommentsUpdateForm,
     CaseReportAcknowledgedUpdateForm,
+    CaseReportApprovedUpdateForm,
     CaseReportDetailsUpdateForm,
     CaseReportSentOnUpdateForm,
     CaseReviewChangesUpdateForm,
@@ -457,39 +457,7 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-qa-auditor", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseQAAuditorUpdateView(CaseUpdateView):
-    """
-    View to update QA auditor
-    """
-
-    form_class: Type[CaseQAAuditorUpdateForm] = CaseQAAuditorUpdateForm
-    template_name: str = "cases/forms/qa_auditor.html"
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Notify auditor if case has been QA approved."""
-        if form.changed_data and "report_approved_status" in form.changed_data:
-            if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
-                case: Case = self.object
-                if case.auditor:
-                    add_notification(
-                        user=case.auditor,
-                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",
-                        path=reverse("cases:edit-qa-auditor", kwargs={"pk": case.id}),
-                        list_description=f"{case} - Report approved",
-                        request=self.request,
-                    )
-        return super().form_valid(form=form)
-
-    def get_success_url(self) -> str:
-        """
-        Detect the submit button used and act accordingly.
-        """
-        if "save_continue" in self.request.POST:
-            return reverse("cases:edit-qa-comments", kwargs={"pk": self.object.id})
+            return reverse("cases:edit-qa-comments", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -518,7 +486,7 @@ class CaseQACommentsUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
-            return reverse("cases:edit-cores-overview", kwargs={"pk": self.object.id})
+            return reverse("cases:edit-report-approved", kwargs={"pk": self.object.id})
         return super().get_success_url()
 
 
@@ -553,6 +521,40 @@ class QACommentCreateView(CreateView):
         """Detect the submit button used and act accordingly"""
         case_pk: Dict[str, int] = {"pk": self.case.id}  # type: ignore
         return f"{reverse('cases:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
+
+
+class CaseReportApprovedUpdateView(CaseUpdateView):
+    """
+    View to update QA auditor
+    """
+
+    form_class: Type[CaseReportApprovedUpdateForm] = CaseReportApprovedUpdateForm
+    template_name: str = "cases/forms/report_approved.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Notify auditor if case has been QA approved."""
+        if form.changed_data and "report_approved_status" in form.changed_data:
+            if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
+                case: Case = self.object
+                if case.auditor:
+                    add_notification(
+                        user=case.auditor,
+                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",
+                        path=reverse(
+                            "cases:edit-report-approved", kwargs={"pk": case.id}
+                        ),
+                        list_description=f"{case} - Report approved",
+                        request=self.request,
+                    )
+        return super().form_valid(form=form)
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse("cases:edit-cores-overview", kwargs={"pk": self.object.id})
+        return super().get_success_url()
 
 
 class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):

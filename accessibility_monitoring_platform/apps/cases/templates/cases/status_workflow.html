@@ -60,7 +60,7 @@
                 <h2 class="govuk-heading-s amp-margin-bottom-0">QA in progress</h2>
                 <ul class="govuk-list">
                     <li>
-                        <a href="{% url 'cases:edit-qa-auditor' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'cases:edit-report-approved' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             Report approved needs to be Yes
                         </a>
                         {% if case.report_approved_status == 'yes' %}&check;{% endif %}

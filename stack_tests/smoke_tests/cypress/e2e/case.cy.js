@@ -22,12 +22,12 @@ describe('View case', () => {
     cy.title().should('eq', `${organisationName} | Testing details`)
     cy.contains('Case').click()
 
-    cy.get('[id="edit-qa-auditor"]').click()
-    cy.title().should('eq', `${organisationName} | QA auditor`)
-    cy.contains('Case').click()
-
     cy.get('[id="edit-qa-comments"]').click()
     cy.title().should('eq', `${organisationName} | QA comments`)
+    cy.contains('Case').click()
+
+    cy.get('[id="edit-report-approved"]').click()
+    cy.title().should('eq', `${organisationName} | Report approved`)
     cy.contains('Case').click()
 
     cy.get('[id="edit-report-details"]').click()

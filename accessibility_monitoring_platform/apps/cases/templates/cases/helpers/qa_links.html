@@ -1,19 +1,23 @@
 <p class="govuk-body-m amp-margin-bottom-5"><b>QA links</b></p>
-{% if case.audit %}
-    <p class="govuk-body-m amp-margin-bottom-5">
-        <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Go to view test</a>
-    </p>
-{% endif %}
-{% if case.report %}
-    <p class="govuk-body-m amp-margin-bottom-5">
-        <a href="{% url 'reports:report-publisher' case.report.id %}" class="govuk-link govuk-link--no-visited-state">Go to report publisher</a>
-    </p>
-{% endif %}
 <p class="govuk-body-m amp-margin-bottom-5">
-    <a href="{% url 'cases:edit-qa-auditor' case.id %}" class="govuk-link govuk-link--no-visited-state">
-        Go to QA auditor</a>
+    {% if case.audit %}
+        <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Go to view test</a>
+    {% else %}
+        <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to testing details</a>
+    {% endif %}
 </p>
-<p class="govuk-body-m">
+<p class="govuk-body-m amp-margin-bottom-5">
+    {% if case.report %}
+        <a href="{% url 'reports:report-publisher' case.report.id %}" class="govuk-link govuk-link--no-visited-state">Go to report publisher</a>
+    {% else %}
+        <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to report details</a>
+    {% endif %}
+</p>
+<p class="govuk-body-m amp-margin-bottom-5">
     <a href="{% url 'cases:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">
         Go to QA comments ({{ number_of_unread_notifications }} unread comment{% if number_of_unread_notifications != 1 %}s{% endif %})</a>
+</p>
+<p class="govuk-body-m">
+    <a href="{% url 'cases:edit-report-approved' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        Go to Report approved</a>
 </p>

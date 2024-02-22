@@ -119,22 +119,6 @@
                             {% include 'cases/details/report_details.html' %}
                         </div>
                     </div>
-                    <div class="govuk-accordion__section" data-search-target-page-name="QA auditor" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-qa-auditor' case.id %}">
-                        <div class="govuk-accordion__section-header">
-                            <h2 id="qa-auditor" class="govuk-accordion__section-heading">
-                                <span class="govuk-accordion__section-button" id="accordion-heading-qa-auditor">
-                                    QA auditor
-                                    {% if case.qa_auditor_complete_date %}
-                                        <span class="govuk-visually-hidden">complete</span>
-                                        &check;
-                                    {% endif %}
-                                </span>
-                            </h2>
-                        </div>
-                        <div id="accordion-content-qa-auditor" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-qa-auditor">
-                            {% include 'cases/details/qa_auditor.html' %}
-                        </div>
-                    </div>
                     <div class="govuk-accordion__section" data-search-target-page-name="QA comments" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-qa-comments' case.id %}">
                         <div class="govuk-accordion__section-header">
                             <h2 id="qa-comments" class="govuk-accordion__section-heading">
@@ -149,6 +133,22 @@
                         </div>
                         <div id="accordion-content-qa-comments" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-qa-comments">
                             {% include 'cases/details/qa_comments.html' %}
+                        </div>
+                    </div>
+                    <div class="govuk-accordion__section" data-search-target-page-name="QA auditor" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-report-approved' case.id %}">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="report-approved" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-report-approved">
+                                    Report approved
+                                    {% if case.qa_auditor_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-report-approved" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-report-approved">
+                            {% include 'cases/details/report_approved.html' %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section" data-search-target-page-name="Correspondence overview" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-cores-overview' case.id %}">

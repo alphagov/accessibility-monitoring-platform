@@ -52,7 +52,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/edit-contact-details/": "Contact details",
     "/cases/[id]/edit-no-psb-response/": "Public sector body is unresponsive",
     "/cases/[id]/edit-post-case/": "Post case summary",
-    "/cases/[id]/edit-qa-auditor/": "QA auditor",
+    "/cases/[id]/edit-report-approved/": "Report approved",
     "/cases/[id]/edit-qa-comments/": "QA comments",
     "/cases/[id]/edit-report-details/": "Report details",
     "/cases/[id]/edit-cores-overview/": "Correspondence overview",
