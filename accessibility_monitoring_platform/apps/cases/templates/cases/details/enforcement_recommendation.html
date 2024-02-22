@@ -1,0 +1,20 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>Enforcement recommendation</b>
+            |
+            <a href="{% url 'cases:edit-enforcement-recommendation' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit
+            </a>
+        </p>
+    </div>
+</div>
+<table class="govuk-table amp-accordion-table">
+    <tbody class="govuk-table__body">
+        {% for row in enforcement_recommendation_rows %}
+            {% include 'cases/helpers/detail_row.html' with row=row %}
+        {% endfor %}
+    </tbody>
+</table>

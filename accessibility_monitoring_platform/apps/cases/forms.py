@@ -1,6 +1,7 @@
 """
 Forms - cases
 """
+
 import re
 from typing import Any, List, Tuple
 
@@ -28,22 +29,19 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Sector, SubCategory
-from .models import Boolean, Case, CaseStatus, Contact, EqualityBodyCorrespondence
+from .models import (
+    Boolean,
+    Case,
+    CaseStatus,
+    Complaint,
+    Contact,
+    EqualityBodyCorrespondence,
+    Sort,
+)
+from .utils import EqualityBodyCSVColumn, populate_equality_body_columns
 
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + Case.EnforcementBody.choices
 STATUS_CHOICES: List[Tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices
-
-
-class Sort(models.TextChoices):
-    NEWEST = "", "Newest, Unassigned first"
-    OLDEST = "id", "Oldest"
-    NAME = "organisation_name", "Alphabetic"
-
-
-class Complaint(models.TextChoices):
-    ALL = "", "All"
-    NO = "no", "No complaints"
-    YES = "yes", "Only complaints"
 
 
 class DateType(models.TextChoices):
@@ -540,6 +538,7 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
     report_acknowledged_by_email = AMPCharFieldWide(
         label="Report acknowledged by (email address)"
     )
+    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 
@@ -549,6 +548,7 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
             "version",
             "report_acknowledged_date",
             "report_acknowledged_by_email",
+            "zendesk_url",
             "correspondence_notes",
             "report_acknowledged_complete_date",
         ]
@@ -734,9 +734,9 @@ class CaseReviewChangesUpdateForm(VersionForm):
         ]
 
 
-class CaseCloseUpdateForm(VersionForm):
+class CaseEnforcementRecommendationUpdateForm(VersionForm):
     """
-    Form to record sending the compliance decision
+    Form to record sending the enforcement recommendation decision
     """
 
     compliance_email_sent_date = AMPDateField(
@@ -756,6 +756,25 @@ class CaseCloseUpdateForm(VersionForm):
             " with notes from Summary of progress made from public sector body"
         ),
     )
+    enforcement_recommendation_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "compliance_email_sent_date",
+            "compliance_decision_sent_to_email",
+            "recommendation_for_enforcement",
+            "recommendation_notes",
+            "enforcement_recommendation_complete_date",
+        ]
+
+
+class CaseCloseUpdateForm(VersionForm):
+    """
+    Form to record the case close decision
+    """
+
     case_completed = AMPChoiceRadioField(
         label="Case completed",
         choices=Case.CaseCompleted.choices,
@@ -767,13 +786,27 @@ class CaseCloseUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
-            "compliance_email_sent_date",
-            "compliance_decision_sent_to_email",
-            "recommendation_for_enforcement",
-            "recommendation_notes",
             "case_completed",
             "case_close_complete_date",
         ]
+
+    def clean(self):
+        case_completed: str = self.cleaned_data["case_completed"]
+        if case_completed != Case.CaseCompleted.NO_DECISION:
+            case: Case = self.instance
+            equality_body_columns: List[
+                EqualityBodyCSVColumn
+            ] = populate_equality_body_columns(case=case)
+            required_data_missing_columns: List[EqualityBodyCSVColumn] = [
+                column
+                for column in equality_body_columns
+                if column.required_data_missing
+            ]
+            if required_data_missing_columns:
+                raise ValidationError(
+                    "Ensure all the required fields are complete before you close the case to send to the equalities body"
+                )
+        return self.cleaned_data
 
 
 class PostCaseUpdateForm(VersionForm):

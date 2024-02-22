@@ -50,6 +50,9 @@ describe('View case', () => {
     cy.title().should('eq', `${organisationName} | Reviewing changes`)
     cy.contains('Case').click()
 
+    cy.get('[id="edit-enforcement-recommendation"]').click()
+    cy.title().should('eq', `${organisationName} | Enforcement recommendation`)
+
     cy.get('[id="edit-case-close"]').click()
     cy.title().should('eq', `${organisationName} | Closing the case`)
   })

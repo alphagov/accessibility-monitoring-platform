@@ -1,6 +1,7 @@
 """
 Tests for cases views
 """
+
 import json
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional
@@ -39,9 +40,7 @@ from ..models import (
 )
 from ..utils import (
     CASE_COLUMNS_FOR_EXPORT,
-    COLUMNS_FOR_EQUALITY_BODY,
-    CONTACT_COLUMNS_FOR_EXPORT,
-    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     create_case_and_compliance,
 )
@@ -80,15 +79,13 @@ STATEMENT_COMPLIANCE_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_feedback_survey_columns_to_export_str: str = ",".join(
-    column.column_name for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+    column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
 )
 case_equality_body_columns_to_export_str: str = ",".join(
-    column.column_name
-    for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
+    column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT
 )
 case_columns_to_export_str: str = ",".join(
-    column.column_name
-    for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+    column.column_header for column in CASE_COLUMNS_FOR_EXPORT
 )
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
@@ -166,6 +163,7 @@ REPORT_ACKNOWLEDGED_WARNING: str = "The report has been acknowledged by the orga
 TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
     "The request for a final update has been acknowledged by the organisation"
 )
+RECOMMENDATION_NOTE: str = "Recommendation note"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -896,14 +894,14 @@ def test_create_case_creates_case_event(admin_client):
 
 def test_updating_case_creates_case_event(admin_client):
     """
-    Test that updating a case (changing case completed) creates a case event
+    Test that updating a case creates a case event
     """
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id}),
         {
-            "case_completed": Case.CaseCompleted.COMPLETE_NO_SEND,
+            "is_ready_for_final_decision": "yes",
             "version": case.version,
             "save": "Button value",
         },
@@ -914,10 +912,9 @@ def test_updating_case_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CaseEvent.EventType.CASE_COMPLETED
+    assert case_event.event_type == CaseEvent.EventType.READY_FOR_FINAL_DECISION
     assert (
-        case_event.message
-        == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"
+        case_event.message == "Case ready for final decision changed from 'No' to 'Yes'"
     )
 
 
@@ -1021,6 +1018,16 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-review-changes",
             "save_continue",
+            "cases:edit-enforcement-recommendation",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "save",
+            "cases:edit-enforcement-recommendation",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "save_continue",
             "cases:edit-case-close",
         ),
         ("cases:edit-case-close", "save", "cases:edit-case-close"),
@@ -1071,6 +1078,7 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
             "form-MAX_NUM_FORMS": "1000",
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
+            "case_completed": "no-decision",
             "version": case.version,
             button_name: "Button value",
         },
@@ -1098,6 +1106,7 @@ def test_platform_update_redirects_based_on_case_variant(
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),
         {
+            "case_completed": "no-decision",
             "version": case.version,
             "save_continue": "Button value",
         },
@@ -1588,8 +1597,8 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     assertContains(response, TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING)
 
 
-def test_no_psb_response_redirects_to_case_close(admin_client):
-    """Test no PSB response redirects to case closing"""
+def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
+    """Test no PSB response redirects to enforcement recommendation"""
     case: Case = Case.objects.create(
         no_psb_contact=Boolean.YES,
     )
@@ -1603,7 +1612,10 @@ def test_no_psb_response_redirects_to_case_close(admin_client):
         },
     )
     assert response.status_code == 302
-    assert response.url == f'{reverse("cases:edit-case-close", kwargs={"pk": case.id})}'
+    assert (
+        response.url
+        == f'{reverse("cases:edit-enforcement-recommendation", kwargs={"pk": case.id})}'
+    )
 
 
 @pytest.mark.parametrize(
@@ -1775,6 +1787,11 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "12-week retest",
             "edit-twelve-week-retest",
         ),
+        (
+            "enforcement_recommendation_complete_date",
+            "Enforcement recommendation",
+            "edit-enforcement-recommendation",
+        ),
         ("case_close_complete_date", "Closing the case", "edit-case-close"),
     ],
 )
@@ -1886,6 +1903,11 @@ def test_section_complete_check_displayed(
             "cases:edit-review-changes",
             "review_changes_complete_date",
             "Reviewing changes",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "enforcement_recommendation_complete_date",
+            "Enforcement recommendation",
         ),
         ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
     ],
@@ -3438,3 +3460,157 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
 
     assert audit_from_db.published_report_data_updated_time is not None
+
+
+def test_case_close(admin_client):
+    """
+    Test that case close renders as expected:
+    """
+    case: Case = Case.objects.create(
+        home_page_url=HOME_PAGE_URL, recommendation_notes=f"* {RECOMMENDATION_NOTE}"
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    # Required columns labelled as such; Missing data labelled as incomplete
+    assertContains(response, "Published report | Required and incomplete", html=True)
+
+    # Required data with default value labelled as incomplete
+    assertContains(
+        response,
+        "Initial Accessibility Statement Decision | Required and incomplete",
+        html=True,
+    )
+
+    # URL data rendered as link
+    assertContains(
+        response,
+        f"""<a href="{HOME_PAGE_URL}"
+            class="govuk-link" target="_blank">
+            {HOME_PAGE_URL}</a>""",
+        html=True,
+    )
+
+    # Edit link label used
+    assertContains(
+        response,
+        """<a href="/cases/1/edit-contact-details/"
+            class="govuk-link govuk-link--no-visited-state">
+            Go to contact details</a>""",
+        html=True,
+    )
+
+    # Markdown data rendered as html
+    assertContains(response, f"<li>{RECOMMENDATION_NOTE}</li>")
+
+    # Extra label for percentage shown
+    assertContains(response, "(Derived from retest results)")
+
+
+def test_case_close_missing_data(admin_client):
+    """
+    Test that case close renders as expected when data is missing
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, "The case has missing data and can not be submitted to EHRC."
+    )
+    assertNotContains(
+        response, "All fields are complete and the case can now be closed."
+    )
+
+    assertContains(
+        response,
+        """<li>
+            Organisation is missing
+            (<a href="/cases/1/edit-case-details/#id_organisation_name-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            Website URL is missing
+            (<a href="/cases/1/edit-case-details/#id_home_page_url-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        "<li>Published report is missing</li>",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            Enforcement recommendation is missing
+            (<a href="/cases/1/edit-enforcement-recommendation/#id_recommendation_for_enforcement-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            Enforcement recommendation notes including exemptions is missing
+            (<a href="/cases/1/edit-enforcement-recommendation/#id_recommendation_notes-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            Date when compliance decision email sent to public sector body is missing
+            (<a href="/cases/1/edit-enforcement-recommendation/#id_compliance_email_sent_date-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        "<li>Initial Accessibility Statement Decision is missing</li>",
+        html=True,
+    )
+
+
+def test_case_close_no_missing_data(admin_client):
+    """
+    Test that case close renders as expected when no data is missing
+    """
+    case: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        home_page_url=HOME_PAGE_URL,
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_notes=RECOMMENDATION_NOTE,
+        compliance_email_sent_date=date.today(),
+    )
+    case.compliance.statement_compliance_state_initial = (
+        CaseCompliance.StatementCompliance.COMPLIANT
+    )
+    case.compliance.save()
+    Audit.objects.create(
+        case=case,
+        initial_disproportionate_burden_claim=Audit.DisproportionateBurden.NO_CLAIM,
+    )
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(
+        response, "The case has missing data and can not be submitted to EHRC."
+    )
+    assertContains(response, "All fields are complete and the case can now be closed.")
