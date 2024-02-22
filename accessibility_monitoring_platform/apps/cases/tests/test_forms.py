@@ -1,6 +1,7 @@
 """
 Test forms of cases app
 """
+
 from datetime import date
 from typing import List, Tuple
 from unittest.mock import MagicMock, patch
@@ -8,11 +9,16 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django.contrib.auth.models import Group, User
 
+from ...audits.models import Audit
+from ...common.models import Boolean
+from ...reports.models import Report
+from ...s3_read_write.models import S3Report
 from ..forms import (
     CaseDetailUpdateForm,
     CaseFourWeekFollowupUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
+    CasePublishReportUpdateForm,
     CaseSearchForm,
 )
 from ..models import Case
@@ -180,3 +186,31 @@ def test_one_week_followup_final_hidden_when_12_week_cores_ack():
         "twelve_week_1_week_chaser_due_date",
         "twelve_week_1_week_chaser_sent_to_email",
     ]
+
+
+@pytest.mark.django_db
+def test_publish_report_form_hides_fields_unless_report_has_been_published():
+    """
+    Tests publish report form hides its complete date field unless report has been published
+    """
+    case: Case = Case.objects.create()
+    form: CasePublishReportUpdateForm = CasePublishReportUpdateForm(instance=case)
+
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version", "publish_report_complete_date"]
+
+    Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version", "publish_report_complete_date"]
+
+    case.report_review_status = Boolean.YES
+    form: CasePublishReportUpdateForm = CasePublishReportUpdateForm(instance=case)
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version", "publish_report_complete_date"]
+
+    case.report_approved_status = Case.ReportApprovedStatus.APPROVED
+    form: CasePublishReportUpdateForm = CasePublishReportUpdateForm(instance=case)
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version"]
