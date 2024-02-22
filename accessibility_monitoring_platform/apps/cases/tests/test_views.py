@@ -13,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
+from moto import mock_s3
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
@@ -717,8 +718,9 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
-        ("cases:edit-report-approved", "<li>Report approved</li>"),
         ("cases:edit-qa-comments", "<li>QA comments</li>"),
+        ("cases:edit-report-approved", "<li>Report approved</li>"),
+        ("cases:edit-publish-report", "<li>Publish report</li>"),
         ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
         ("cases:edit-find-contact-details", "<li>Find contact details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
@@ -1817,6 +1819,33 @@ def test_section_complete_check_displayed(
     )
 
 
+def test_section_complete_check_displayed_publish_report(admin_client):
+    """
+    Test that the section complete tick is displayed in contents when there is no anchor
+    """
+    case: Case = Case.objects.create(publish_report_complete_date=TODAY)
+    edit_url: str = reverse("cases:edit-publish-report", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            Publish report
+            |
+            <a id="edit-" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+                Edit<span class="govuk-visually-hidden">complete</span>
+            </a>
+            &check;
+        </li>""",
+        html=True,
+    )
+
+
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
@@ -1828,6 +1857,7 @@ def test_section_complete_check_displayed(
             "Report details",
         ),
         ("cases:edit-report-approved", "qa_auditor_complete_date", "Report approved"),
+        ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
         (
             "cases:edit-cores-overview",
             "cores_overview_complete_date",
@@ -2214,6 +2244,7 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
         "edit-test-results",
         "edit-report-details",
         "edit-report-approved",
+        "edit-publish-report",
         "edit-qa-comments",
         "edit-contact-details",
         "edit-twelve-week-retest",
@@ -2301,6 +2332,108 @@ def test_report_approved_notifies_auditor(rf):
     assert (
         notification.body == f"{request_user.get_full_name()} QA approved Case {case}"
     )
+
+
+@pytest.mark.django_db
+def test_publish_report_no_report(admin_client):
+    """
+    Test publish report page when not ready to be published
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "To publish this report, you need to:")
+    assertContains(response, "Set the report status to Ready to Review in")
+
+    assertNotContains(response, "The report is approved and ready for publication.")
+    assertNotContains(response, "Create HTML report")
+
+    assertNotContains(response, "The report is now published and available for viewing")
+    assertNotContains(response, "Save and continue")
+
+
+@pytest.mark.django_db
+def test_publish_report_first_time(admin_client):
+    """
+    Test publish report page when publishing report for first time
+    """
+    case: Case = Case.objects.create(
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+    )
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "To publish this report, you need to:")
+    assertNotContains(response, "Set the report status to Ready to Review in")
+
+    assertContains(response, "The report is approved and ready for publication.")
+    assertContains(response, "Create HTML report")
+
+    assertNotContains(response, "The report is now published and available for viewing")
+    assertNotContains(response, "Save and continue")
+
+
+@mock_s3
+def test_publish_report(admin_client):
+    """Test publishing a report"""
+    case: Case = Case.objects.create(
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+    )
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            "create_html_report": "Create HTML report",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "The report is now published and available for viewing")
+
+
+@pytest.mark.django_db
+def test_publish_report_already_published(admin_client):
+    """
+    Test publish report page when report has already been published
+    """
+    case: Case = Case.objects.create(
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+    )
+    Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "To publish this report, you need to:")
+    assertNotContains(response, "Set the report status to Ready to Review in")
+
+    assertNotContains(response, "The report is approved and ready for publication.")
+    assertNotContains(response, "Create HTML report")
+
+    assertContains(response, "The report is now published and available for viewing")
+    assertContains(response, "Save and continue")
 
 
 @pytest.mark.parametrize(
@@ -2565,6 +2698,7 @@ def test_update_case_checks_version(admin_client):
         "edit-test-results",
         "edit-report-details",
         "edit-report-approved",
+        "edit-publish-report",
         "edit-qa-comments",
         "edit-contact-details",
         "edit-twelve-week-retest",
@@ -2776,6 +2910,10 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         (
             "cases:edit-report-approved",
             "Report approved",
+        ),
+        (
+            "cases:edit-publish-report",
+            "Publish report",
         ),
         (
             "cases:edit-qa-comments",
