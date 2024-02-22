@@ -118,31 +118,10 @@ describe('Create case, tests and report', () => {
     cy.get('[name="report_approved_status"]').check('yes')
     cy.contains('Save and continue').click()
 
-    cy.contains('Report details').click()
-    cy.contains('Go to Case > Report publisher').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report publisher`)
-    cy.contains('The report has been approved and is ready to be published')
-    cy.contains('Publish HTML report').click()
-
     cy.title().should('eq', `${newOrganisationName} | Publish report`)
     cy.contains('Create HTML report').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report publisher`)
-    cy.contains('HTML report successfully created!')
-    cy.contains('published HTML report')
-
-    cy.contains('Case').click()
-    cy.contains('View case').click()
-    cy.get('#edit-report-details').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report details`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | QA comments`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report approved`)
+    cy.title().should('eq', `${newOrganisationName} | Publish report`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Correspondence overview`)
