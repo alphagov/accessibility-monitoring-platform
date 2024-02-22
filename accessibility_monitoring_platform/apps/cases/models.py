@@ -229,6 +229,9 @@ class Case(VersionModel):
     )
     qa_auditor_complete_date = models.DateField(null=True, blank=True)
 
+    # Publish report
+    publish_report_complete_date = models.DateField(null=True, blank=True)
+
     # Correspondence overview page
     zendesk_url = models.TextField(default="", blank=True)
     cores_overview_complete_date = models.DateField(null=True, blank=True)

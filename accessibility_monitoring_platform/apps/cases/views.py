@@ -48,7 +48,11 @@ from ..common.utils import (
     record_model_update_event,
 )
 from ..notifications.utils import add_notification, read_notification
-from ..reports.utils import build_issues_tables, get_report_visits_metrics
+from ..reports.utils import (
+    build_issues_tables,
+    get_report_visits_metrics,
+    publish_report_util,
+)
 from .forms import (
     CaseCloseUpdateForm,
     CaseContactFormset,
@@ -565,6 +569,13 @@ class CasePublishReportUpdateView(CaseUpdateView):
 
     form_class: Type[CasePublishReportUpdateForm] = CasePublishReportUpdateForm
     template_name: str = "cases/forms/publish_report.html"
+
+    def form_valid(self, form: ModelForm):
+        """Publish report if requested"""
+        case: Case = self.object
+        if "create_html_report" in self.request.POST:
+            publish_report_util(report=case.report, request=self.request)
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """

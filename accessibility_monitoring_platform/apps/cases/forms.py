@@ -319,11 +319,26 @@ class CasePublishReportUpdateForm(VersionForm):
     Form for publishing reporti after QA approval
     """
 
+    publish_report_complete_date = AMPDatePageCompleteField()
+
     class Meta:
         model = Case
         fields = [
             "version",
+            "publish_report_complete_date",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        case: Case = self.instance
+        if case:
+            if (
+                not case.published_report_url
+                or not case.report
+                or case.report_review_status != Boolean.YES
+                or case.report_approved_status != Case.ReportApprovedStatus.APPROVED
+            ):
+                self.fields["publish_report_complete_date"].widget = forms.HiddenInput()
 
 
 class CaseCorrespondenceOverviewUpdateForm(VersionForm):
