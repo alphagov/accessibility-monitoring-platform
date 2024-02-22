@@ -65,6 +65,7 @@ from .forms import (
     CaseNoPSBContactUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
+    CasePublishReportUpdateForm,
     CaseQACommentsUpdateForm,
     CaseReportAcknowledgedUpdateForm,
     CaseReportApprovedUpdateForm,
@@ -547,6 +548,23 @@ class CaseReportApprovedUpdateView(CaseUpdateView):
                         request=self.request,
                     )
         return super().form_valid(form=form)
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse("cases:edit-publish-report", kwargs={"pk": self.object.id})
+        return super().get_success_url()
+
+
+class CasePublishReportUpdateView(CaseUpdateView):
+    """
+    View to publish report after QA approval
+    """
+
+    form_class: Type[CasePublishReportUpdateForm] = CasePublishReportUpdateForm
+    template_name: str = "cases/forms/publish_report.html"
 
     def get_success_url(self) -> str:
         """

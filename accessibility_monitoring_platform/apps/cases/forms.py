@@ -314,6 +314,18 @@ class CaseReportApprovedUpdateForm(VersionForm):
         ]
 
 
+class CasePublishReportUpdateForm(VersionForm):
+    """
+    Form for publishing reporti after QA approval
+    """
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+        ]
+
+
 class CaseCorrespondenceOverviewUpdateForm(VersionForm):
     """
     Form to update Correspondence overview
