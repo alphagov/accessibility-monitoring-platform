@@ -1,6 +1,7 @@
 """
 Tests for reports views
 """
+
 from typing import Dict
 
 import pytest
@@ -8,7 +9,7 @@ from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
-from moto import mock_s3
+from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
@@ -164,7 +165,7 @@ def test_report_publish_links_to_correct_testing_ui(admin_client):
     assertContains(response, "Edit test &gt; Statement overview")
 
 
-@mock_s3
+@mock_aws
 def test_publish_report_redirects(admin_client):
     """
     Test that report publish redirects to report details
@@ -188,7 +189,7 @@ def test_publish_report_redirects(admin_client):
     )
 
 
-@mock_s3
+@mock_aws
 def test_old_published_report_includes_errors(admin_client):
     """
     Test that published report contains the test results
@@ -229,7 +230,7 @@ def test_old_published_report_includes_errors(admin_client):
     assert EXTRA_STATEMENT_WORDING in s3_report.html
 
 
-@mock_s3
+@mock_aws
 def test_report_published_message_shown(admin_client):
     """Test publishing the report causes a message to be shown on the next page"""
     report: Report = create_report()
