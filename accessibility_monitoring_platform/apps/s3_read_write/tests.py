@@ -1,12 +1,13 @@
 """
 Testing s3 read write
 """
+
 from datetime import datetime
 
 import boto3
 import pytest
 from django.contrib.auth.models import User
-from moto import mock_s3
+from moto import mock_aws
 
 from ...settings.base import DATABASES, S3_MOCK_ENDPOINT
 from ..cases.models import Case
@@ -15,7 +16,7 @@ from .utils import NO_REPORT_HTML, S3ReadWriteReport
 
 
 @pytest.mark.django_db
-@mock_s3
+@mock_aws
 def test_upload_string_to_s3():
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     user: User = User.objects.create()
@@ -50,7 +51,7 @@ def test_upload_string_to_s3():
 
 
 @pytest.mark.django_db
-@mock_s3
+@mock_aws
 def test_retrieve_raw_html():
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     user: User = User.objects.create()
@@ -78,7 +79,7 @@ def test_retrieve_raw_html():
 
 
 @pytest.mark.django_db
-@mock_s3
+@mock_aws
 def test_url_builder():
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     guid: str = "04f1a855-94b9-4ff5-a31f-f8982bc0736e"
@@ -95,7 +96,7 @@ def test_url_builder():
 
 
 @pytest.mark.django_db
-@mock_s3
+@mock_aws
 def test_s3_no_such_key():
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     user: User = User.objects.create()
