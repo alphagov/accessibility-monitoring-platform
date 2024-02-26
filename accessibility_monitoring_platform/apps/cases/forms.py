@@ -252,6 +252,11 @@ class CaseReportDetailsUpdateForm(VersionForm):
 
     report_draft_url = AMPURLField(label="Link to report draft")
     report_notes = AMPTextField(label="Report details notes")
+    report_review_status = AMPChoiceRadioField(
+        label="Report ready for QA process?",
+        choices=Boolean.choices,
+        help_text="This field affects the case status",
+    )
     reporting_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -260,48 +265,8 @@ class CaseReportDetailsUpdateForm(VersionForm):
             "version",
             "report_draft_url",
             "report_notes",
-            "reporting_details_complete_date",
-        ]
-
-
-class CaseQAReadyForProcessUpdateForm(VersionForm):
-    """
-    Form for updating Report ready for QA process
-    """
-
-    report_review_status = AMPChoiceRadioField(
-        label="Report ready for QA process?",
-        choices=Boolean.choices,
-        help_text="This field affects the case status",
-    )
-    report_ready_for_qa_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
             "report_review_status",
-            "report_ready_for_qa_complete_date",
-        ]
-
-
-class CaseQAAuditorUpdateForm(VersionForm):
-    """
-    Form for updating QA auditor
-    """
-
-    reviewer = AMPAuditorModelChoiceField(
-        label="QA Auditor",
-        help_text="This field affects the case status",
-    )
-    qa_auditor_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "reviewer",
-            "qa_auditor_complete_date",
+            "reporting_details_complete_date",
         ]
 
 
@@ -323,9 +288,9 @@ class CaseQACommentsUpdateForm(VersionForm):
         ]
 
 
-class CaseQAReportApprovedForm(VersionForm):
+class CaseReportApprovedUpdateForm(VersionForm):
     """
-    Form for updating Report approved
+    Form for updating QA auditor and report approval
     """
 
     report_approved_status = AMPChoiceRadioField(
@@ -333,15 +298,47 @@ class CaseQAReportApprovedForm(VersionForm):
         choices=Case.ReportApprovedStatus.choices,
         help_text="This field affects the case status",
     )
-    qa_approved_complete_date = AMPDatePageCompleteField()
+    reviewer = AMPAuditorModelChoiceField(
+        label="QA Auditor",
+        help_text="This field affects the case status",
+    )
+    qa_auditor_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
             "report_approved_status",
-            "qa_approved_complete_date",
+            "reviewer",
+            "qa_auditor_complete_date",
         ]
+
+
+class CasePublishReportUpdateForm(VersionForm):
+    """
+    Form for publishing reporti after QA approval
+    """
+
+    publish_report_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "publish_report_complete_date",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        case: Case = self.instance
+        if case:
+            if (
+                not case.published_report_url
+                or not case.report
+                or case.report_review_status != Boolean.YES
+                or case.report_approved_status != Case.ReportApprovedStatus.APPROVED
+            ):
+                self.fields["publish_report_complete_date"].widget = forms.HiddenInput()
 
 
 class CaseCorrespondenceOverviewUpdateForm(VersionForm):

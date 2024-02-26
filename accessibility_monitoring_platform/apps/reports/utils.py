@@ -4,11 +4,17 @@ Utilities for reports app
 """
 from typing import Dict, List, Optional, Set, Union
 
-from django.template import Context, Template
+from django.contrib import messages
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
+from django.template import Context, Template, loader
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from ..audits.models import Audit, CheckResult, Page, WcagDefinition
 from ..cases.models import Case
+from ..s3_read_write.models import S3Report
+from ..s3_read_write.utils import S3ReadWriteReport
 from .models import Report
 
 WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% endif %}{% if wcag_definition.description and wcag_definition.type != 'manual' %}{{ wcag_definition.description|safe }}.{% endif %}
@@ -164,3 +170,27 @@ def get_report_visits_metrics(case: Case) -> Dict[str, str]:
         .distinct()
         .count(),
     }
+
+
+def publish_report_util(report: Report, request: HttpRequest) -> None:
+    """Publish report to S3"""
+    template: Template = loader.get_template(
+        f"""reports_common/accessibility_report_{report.report_version}.html"""
+    )
+    html: str = template.render(build_report_context(report=report), request)
+    published_s3_reports: QuerySet[S3Report] = S3Report.objects.filter(case=report.case)
+    for s3_report in published_s3_reports:
+        s3_report.latest_published = False
+        s3_report.save()
+    s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
+    s3_read_write_report.upload_string_to_s3_as_html(
+        html_content=html,
+        case=report.case,
+        user=request.user,
+        report_version=report.report_version,
+    )
+    messages.add_message(
+        request,
+        messages.INFO,
+        mark_safe("HTML report successfully created!" ""),
+    )

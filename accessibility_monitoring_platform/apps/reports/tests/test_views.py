@@ -334,7 +334,7 @@ def test_report_next_step_for_not_started(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Mark the report as ready to review")
-    assertContains(response, "Go to Report ready for QA process")
+    assertContains(response, "Go to Report details")
 
 
 def test_report_next_step_for_case_unassigned_qa(admin_client):
