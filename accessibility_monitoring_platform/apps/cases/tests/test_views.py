@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
-from moto import mock_s3
+from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
@@ -2384,7 +2384,7 @@ def test_publish_report_first_time(admin_client):
     assertNotContains(response, "Save and continue")
 
 
-@mock_s3
+@mock_aws
 def test_publish_report(admin_client):
     """Test publishing a report"""
     case: Case = Case.objects.create(
