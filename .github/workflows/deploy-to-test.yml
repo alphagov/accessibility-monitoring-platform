@@ -73,3 +73,11 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
+
+      - name: Smoke tests
+        run: |
+          docker-compose --file stack_tests/smoke_tests/staging-platform.docker-compose.yml up --abort-on-container-exit && \
+          docker-compose --file stack_tests/smoke_tests_viewer/staging-viewer.docker-compose.yml up --abort-on-container-exit
+        env:
+          SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
+          SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
