@@ -54,25 +54,28 @@ variables:
   AWS_REGION: 'eu-west-2'
   DB_NAME:
     from_cfn: ${COPILOT_APPLICATION_NAME}-${COPILOT_ENVIRONMENT_NAME}-reportstorageBucketName
-  ALLOWED_HOSTS: '.accessibility-monitoring.service.gov.uk'
+  # ALLOWED_HOSTS: '.accessibility-monitoring.service.gov.uk'
 
 environments:
   prodenv:
     http:
       alias: platform.accessibility-monitoring.service.gov.uk
     variables:
+      ALLOWED_HOSTS: 'platform-stage.accessibility-monitoring.service.gov.uk'
       AMP_VIEWER_DOMAIN: reports.accessibility-monitoring.service.gov.uk
       AMP_PROTOCOL: 'https://'
   stageenv:
     http:
       alias: platform-stage.accessibility-monitoring.service.gov.uk
     variables:
+      ALLOWED_HOSTS: 'platform.accessibility-monitoring.service.gov.uk'
       AMP_VIEWER_DOMAIN: reports-stage.accessibility-monitoring.service.gov.uk
       AMP_PROTOCOL: 'https://'
   testenv:
     http:
       alias: platform-test.accessibility-monitoring.service.gov.uk
     variables:
+      ALLOWED_HOSTS: 'platform-test.accessibility-monitoring.service.gov.uk'
       AMP_VIEWER_DOMAIN: reports-test.accessibility-monitoring.service.gov.uk
       AMP_PROTOCOL: 'https://'
       AMP_PROTOTYPE_NAME: 'TEST'
