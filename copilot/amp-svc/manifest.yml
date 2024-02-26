@@ -61,14 +61,14 @@ environments:
     http:
       alias: platform.accessibility-monitoring.service.gov.uk
     variables:
-      ALLOWED_HOSTS: 'platform-stage.accessibility-monitoring.service.gov.uk'
+      ALLOWED_HOSTS: 'platform.accessibility-monitoring.service.gov.uk'
       AMP_VIEWER_DOMAIN: reports.accessibility-monitoring.service.gov.uk
       AMP_PROTOCOL: 'https://'
   stageenv:
     http:
       alias: platform-stage.accessibility-monitoring.service.gov.uk
     variables:
-      ALLOWED_HOSTS: 'platform.accessibility-monitoring.service.gov.uk'
+      ALLOWED_HOSTS: 'platform-stage.accessibility-monitoring.service.gov.uk'
       AMP_VIEWER_DOMAIN: reports-stage.accessibility-monitoring.service.gov.uk
       AMP_PROTOCOL: 'https://'
   testenv:
