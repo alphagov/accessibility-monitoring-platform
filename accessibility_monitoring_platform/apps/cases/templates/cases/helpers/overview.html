@@ -19,8 +19,12 @@
             <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 View published HTML report
             </a>
+        {% elif case.report %}
+            Report has not been published. Publish report in
+            <a href="{% url 'reports:report-publisher' case.report.id %}" class="govuk-link govuk-link--no-visited-state">report publisher</a>
         {% else %}
-            No report has been published
+            No report has been created. Create report in
+            <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">report details</a>
         {% endif %}
     </p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Website issues</h2>

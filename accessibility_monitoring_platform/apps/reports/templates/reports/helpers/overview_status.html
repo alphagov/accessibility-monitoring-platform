@@ -2,14 +2,14 @@
 {% if report.case.report_review_status == 'no' %}
     <p class="govuk-body amp-margin-bottom-10">Mark the report as ready to review</0>
     <p class="govuk-body">
-        <a href="{% url 'cases:edit-qa-ready-for-process' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
-            Go to Report ready for QA process</a>
+        <a href="{% url 'cases:edit-report-details' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
+            Go to Report details</a>
     </p>
 {% elif report.case.status.status == 'unassigned-qa-case' %}
     <p class="govuk-body amp-margin-bottom-10">The report is waiting to be reviewed</p>
     <p class="govuk-body">
-        <a href="{% url 'cases:edit-qa-auditor' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
-            Go to QA auditor</a>
+        <a href="{% url 'cases:edit-report-approved' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
+            Go to Report approved</a>
     </p>
 {% elif report.case.status.status == 'qa-in-progress' %}
     <p class="govuk-body amp-margin-bottom-10">The report is waiting to be reviewed</p>
@@ -53,7 +53,7 @@
         <a href="{% url 'cases:edit-test-results' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
             Go to Testing details</a>
         or
-        <a href="{% url 'cases:edit-qa-ready-for-process' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
-            Go to Report ready for QA process</a>
+        <a href="{% url 'cases:edit-report-details' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
+            Go to Report details</a>
     </p>
 {% endif %}

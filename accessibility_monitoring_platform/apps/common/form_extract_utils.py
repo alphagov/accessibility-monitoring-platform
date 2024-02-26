@@ -1,4 +1,5 @@
 """ Common utility functions """
+
 from dataclasses import dataclass
 from datetime import date
 from typing import Any, ClassVar, List, Optional, Type, Union
@@ -15,9 +16,7 @@ EXCLUDED_FIELDS = [
     "case_details_complete_date",
     "testing_details_complete_date",
     "reporting_details_complete_date",
-    "report_ready_for_qa_complete_date",
     "qa_auditor_complete_date",
-    "qa_approved_complete_date",
     "cores_overview_complete_date",
     "find_contact_details_complete_date",
     "contact_details_complete_date",

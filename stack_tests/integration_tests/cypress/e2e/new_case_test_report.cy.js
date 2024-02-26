@@ -104,54 +104,24 @@ describe('Create case, tests and report', () => {
 
     cy.title().should('eq', `${newOrganisationName} | Report publisher`)
     cy.contains('Mark the report as ready to review')
-    cy.contains('Go to Report ready for QA process').click()
+    cy.contains('Go to Report details').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report ready for QA process`)
+    cy.title().should('eq', `${newOrganisationName} | Report details`)
     cy.get('[name="report_review_status"]').check('yes')
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | QA auditor`)
-    cy.get('#id_reviewer').select('QA Auditor')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | QA comments`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report approved`)
+    cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="report_approved_status"]').check('yes')
-    cy.contains('Save').click()
-
-    cy.contains('Report details').click()
-    cy.contains('Go to Case > Report publisher').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report publisher`)
-    cy.contains('The report has been approved and is ready to be published')
-    cy.contains('Publish HTML report').click()
+    cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Publish report`)
     cy.contains('Create HTML report').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report publisher`)
-    cy.contains('HTML report successfully created!')
-    cy.contains('published HTML report')
-
-    cy.contains('Case').click()
-    cy.contains('View case').click()
-    cy.get('#edit-report-details').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report details`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report ready for QA process`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | QA auditor`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | QA comments`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report approved`)
+    cy.title().should('eq', `${newOrganisationName} | Publish report`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Correspondence overview`)
