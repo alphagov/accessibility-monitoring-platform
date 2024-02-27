@@ -3628,7 +3628,7 @@ def test_case_close_missing_data(admin_client):
         response,
         """<li>
             Organisation is missing
-            (<a href="/cases/1/edit-case-details/#id_organisation_name-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+            (<a href="/cases/1/edit-case-details/#id_organisation_name-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Organisation</span></a>)
         </li>""",
         html=True,
     )
@@ -3636,7 +3636,7 @@ def test_case_close_missing_data(admin_client):
         response,
         """<li>
             Website URL is missing
-            (<a href="/cases/1/edit-case-details/#id_home_page_url-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+            (<a href="/cases/1/edit-case-details/#id_home_page_url-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Website URL</span></a>)
         </li>""",
         html=True,
     )
@@ -3649,7 +3649,7 @@ def test_case_close_missing_data(admin_client):
         response,
         """<li>
             Enforcement recommendation is missing
-            (<a href="/cases/1/edit-enforcement-recommendation/#id_recommendation_for_enforcement-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+            (<a href="/cases/1/edit-enforcement-recommendation/#id_recommendation_for_enforcement-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Enforcement recommendation</span></a>)
         </li>""",
         html=True,
     )
@@ -3657,7 +3657,7 @@ def test_case_close_missing_data(admin_client):
         response,
         """<li>
             Enforcement recommendation notes including exemptions is missing
-            (<a href="/cases/1/edit-enforcement-recommendation/#id_recommendation_notes-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+            (<a href="/cases/1/edit-enforcement-recommendation/#id_recommendation_notes-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Enforcement recommendation notes including exemptions</span></a>)
         </li>""",
         html=True,
     )
@@ -3665,7 +3665,7 @@ def test_case_close_missing_data(admin_client):
         response,
         """<li>
             Date when compliance decision email sent to public sector body is missing
-            (<a href="/cases/1/edit-enforcement-recommendation/#id_compliance_email_sent_date-label" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+            (<a href="/cases/1/edit-enforcement-recommendation/#id_compliance_email_sent_date-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Date when compliance decision email sent to public sector body</span></a>)
         </li>""",
         html=True,
     )

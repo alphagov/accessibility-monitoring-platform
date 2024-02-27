@@ -64,7 +64,7 @@ class CSVColumn:
 class EqualityBodyCSVColumn(CSVColumn):
     """Data to use when building export CSV for equality body and to show in UI"""
 
-    data_type: Literal["str", "url", "markdown"] = "str"
+    data_type: Literal["str", "url", "markdown", "pre"] = "str"
     required: bool = False
     formatted_data: str = ""
     default_data: str = ""
@@ -216,6 +216,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         column_header=CONTACT_DETAILS_COLUMN_HEADER,
         source_class=Case,
         source_attr=None,
+        data_type="pre",
         edit_url_class=Case,
         edit_url_name="cases:edit-contact-details",
         edit_url_label="Go to contact details",

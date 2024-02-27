@@ -789,7 +789,7 @@ class CaseCloseUpdateForm(VersionForm):
 
     def clean(self):
         case_completed: str = self.cleaned_data["case_completed"]
-        if case_completed != Case.CaseCompleted.NO_DECISION:
+        if case_completed == Case.CaseCompleted.COMPLETE_SEND:
             case: Case = self.instance
             equality_body_columns: List[
                 EqualityBodyCSVColumn
