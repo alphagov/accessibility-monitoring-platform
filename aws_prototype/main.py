@@ -191,13 +191,15 @@ def up():
     backup_yaml = prep_yaml()
 
     os.system(
-        f"""copilot svc deploy --name viewer-svc --env {ENV_NAME} {get_aws_resource_tags(system='Viewer')}"""
-    )
-    os.system(
         f"""copilot svc deploy --name amp-svc --env {ENV_NAME} {get_aws_resource_tags()}"""
     )
 
     restore_yaml(backup_yaml)
+
+    os.system(
+        f"""copilot svc deploy --name viewer-svc --env {ENV_NAME} {get_aws_resource_tags(system='Viewer')}"""
+    )
+
 
     if env_exist is False:
         bucket: str = get_copilot_s3_bucket()
