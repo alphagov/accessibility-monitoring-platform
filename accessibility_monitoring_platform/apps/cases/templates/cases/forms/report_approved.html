@@ -1,21 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ case.organisation_name }} | Report ready for QA process{% endblock %}
+{% block title %}{{ case.organisation_name }} | Report approved{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading='Report ready for QA process' %}
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading='Report approved' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Report ready for QA process' %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Report approved' %}
             </div>
         </div>
         {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'cases:edit-qa-ready-for-process' case.id %}">
+                {% include 'cases/helpers/qa_links.html' %}
+                <form method="post" action="{% url 'cases:edit-report-approved' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
@@ -28,7 +29,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-qa-ready-for-process' %}
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-report-approved' %}
             </div>
         </div>
     </main>

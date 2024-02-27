@@ -1,26 +1,23 @@
 """
 Views for reports app
 """
+
 from typing import Any, Dict, List, Type
 
-from django.contrib import messages
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template import Template, loader
 from django.urls import reverse, reverse_lazy
-from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
 
 from ..cases.models import Case, CaseEvent
 from ..common.utils import record_model_create_event, record_model_update_event
-from ..s3_read_write.models import S3Report
-from ..s3_read_write.utils import S3ReadWriteReport
 from .forms import ReportNotesUpdateForm, ReportWrapperUpdateForm
 from .models import Report, ReportVisitsMetrics, ReportWrapper
-from .utils import build_report_context, get_report_visits_metrics
+from .utils import build_report_context, get_report_visits_metrics, publish_report_util
 
 
 def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -144,26 +141,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         HttpResponse: Django HttpResponse
     """
     report: Report = get_object_or_404(Report, id=pk)
-    template: Template = loader.get_template(
-        f"""reports_common/accessibility_report_{report.report_version}.html"""
-    )
-    html: str = template.render(build_report_context(report=report), request)
-    published_s3_reports: QuerySet[S3Report] = S3Report.objects.filter(case=report.case)
-    for s3_report in published_s3_reports:
-        s3_report.latest_published = False
-        s3_report.save()
-    s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
-    s3_read_write_report.upload_string_to_s3_as_html(
-        html_content=html,
-        case=report.case,
-        user=request.user,
-        report_version=report.report_version,
-    )
-    messages.add_message(
-        request,
-        messages.INFO,
-        mark_safe("HTML report successfully created!" ""),
-    )
+    publish_report_util(report=report, request=request)
     return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))
 
 

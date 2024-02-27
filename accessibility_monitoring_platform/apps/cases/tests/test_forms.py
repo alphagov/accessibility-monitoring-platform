@@ -9,12 +9,17 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django.contrib.auth.models import Group, User
 
+from ...audits.models import Audit
+from ...common.models import Boolean
+from ...reports.models import Report
+from ...s3_read_write.models import S3Report
 from ..forms import (
     CaseCloseUpdateForm,
     CaseDetailUpdateForm,
     CaseFourWeekFollowupUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
+    CasePublishReportUpdateForm,
     CaseSearchForm,
 )
 from ..models import Case
@@ -213,3 +218,31 @@ def test_clean_case_close_form(case_completed, expected_error_message):
         assert form.errors == {"__all__": [expected_error_message]}
     else:
         assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_publish_report_form_hides_fields_unless_report_has_been_published():
+    """
+    Tests publish report form hides its complete date field unless report has been published
+    """
+    case: Case = Case.objects.create()
+    form: CasePublishReportUpdateForm = CasePublishReportUpdateForm(instance=case)
+
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version", "publish_report_complete_date"]
+
+    Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version", "publish_report_complete_date"]
+
+    case.report_review_status = Boolean.YES
+    form: CasePublishReportUpdateForm = CasePublishReportUpdateForm(instance=case)
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version", "publish_report_complete_date"]
+
+    case.report_approved_status = Case.ReportApprovedStatus.APPROVED
+    form: CasePublishReportUpdateForm = CasePublishReportUpdateForm(instance=case)
+    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    assert hidden_fields == ["version"]

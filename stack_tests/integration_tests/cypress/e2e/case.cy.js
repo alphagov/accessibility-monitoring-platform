@@ -53,22 +53,6 @@ describe('View case', () => {
     cy.contains('Save').click()
   })
 
-  it('can edit Report ready for QA process', () => {
-    cy.get('#edit-qa-ready-for-process').click()
-    cy.get('[name="report_review_status"]').check('yes')
-    cy.get('[name="report_ready_for_qa_complete_date"]').click()
-    cy.contains('Save').click()
-    cy.contains('Case').click()
-  })
-
-  it('can edit QA auditor', () => {
-    cy.get('#edit-qa-auditor').click()
-    cy.get('#id_reviewer').select('QA Auditor')
-    cy.get('[name="qa_auditor_complete_date"]').click()
-    cy.contains('Save').click()
-    cy.contains('Case').click()
-  })
-
   it('can edit QA comments', () => {
     cy.get('#edit-qa-comments').click()
     cy.get('[name="body"]').clear().type(qaComment)
@@ -78,9 +62,9 @@ describe('View case', () => {
   })
 
   it('can edit Report approved', () => {
-    cy.get('#edit-qa-report-approved').click()
-    cy.get('[name="report_approved_status"]').check('yes')
-    cy.get('[name="qa_approved_complete_date"]').click()
+    cy.get('#edit-report-approved').click()
+    cy.get('#id_reviewer').select('QA Auditor')
+    cy.get('[name="qa_auditor_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Case').click()
   })

@@ -1,8 +1,8 @@
 """
 Test report viewer
 """
+
 import logging
-import os
 from datetime import date
 from typing import Dict, Optional, Union
 from unittest import mock
@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.template import Template, loader
 from django.urls import reverse
-from moto import mock_s3
+from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.audits.models import Audit
@@ -85,7 +85,7 @@ def test_view_privacy_notice(client):
 
 
 @pytest.mark.django_db
-@mock_s3
+@mock_aws
 def test_view_report(client):
     """Test view report shows report text from S3"""
     case: Case = Case.objects.create()
@@ -112,7 +112,7 @@ def test_view_report(client):
 
 
 @pytest.mark.django_db
-@mock_s3
+@mock_aws
 def test_view_older_report(client):
     """
     Older reports' text is suppressed and a warning shown instead
@@ -170,7 +170,7 @@ def test_view_older_report(client):
 
 
 @pytest.mark.django_db
-@mock_s3
+@mock_aws
 def test_view_report_not_on_s3(client):
     """Test view report shows report text from database when not on S3"""
     case: Case = Case.objects.create()
@@ -259,7 +259,7 @@ def test_extract_guid_from_url_returns_none():
 
 
 @pytest.mark.django_db
-@mock_s3
+@mock_aws
 def test_report_metric_middleware_successful(client):
     """Test logs report views to database"""
     case: Case = Case.objects.create()
@@ -287,7 +287,7 @@ def test_report_metric_middleware_successful(client):
 
 
 @pytest.mark.django_db
-@mock_s3
+@mock_aws
 def test_report_metric_middleware_ignore_user(client, rf):
     """Test report view logs ignores user"""
     case: Case = Case.objects.create()
