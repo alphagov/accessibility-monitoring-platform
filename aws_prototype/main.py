@@ -216,12 +216,12 @@ def up():
 def down():
     print(">>> Breaking down Copilot prototype")
     switch_cp_apps()
-    # restore_prototype_env_file()
-    # bucket: str = get_copilot_s3_bucket()
-    # s3 = boto3.resource("s3")
-    # bucket = s3.Bucket(bucket)
-    # bucket.objects.all().delete()
-    # print(">>> Deleted all objects in S3")
+    restore_prototype_env_file()
+    bucket: str = get_copilot_s3_bucket()
+    s3 = boto3.resource("s3")
+    bucket = s3.Bucket(bucket)
+    bucket.objects.all().delete()
+    print(">>> Deleted all objects in S3")
     os.system("copilot app delete --yes")
     restore_copilot_prod_settings()
 
