@@ -1,6 +1,7 @@
 """
 Models - cases
 """
+
 import json
 import re
 from datetime import date, datetime, timedelta
@@ -35,6 +36,18 @@ COMPLIANCE_FIELDS: List[str] = [
     "statement_compliance_state_12_week",
     "statement_compliance_notes_12_week",
 ]
+
+
+class Sort(models.TextChoices):
+    NEWEST = "", "Newest, Unassigned first"
+    OLDEST = "id", "Oldest"
+    NAME = "organisation_name", "Alphabetic"
+
+
+class Complaint(models.TextChoices):
+    ALL = "", "All"
+    NO = "no", "No complaints"
+    YES = "yes", "Only complaints"
 
 
 class Case(VersionModel):
@@ -188,6 +201,11 @@ class Case(VersionModel):
     # Report details page
     report_draft_url = models.TextField(default="", blank=True)
     report_notes = models.TextField(default="", blank=True)
+    report_review_status = models.CharField(
+        max_length=200,
+        choices=Boolean.choices,
+        default=Boolean.NO,
+    )
     reporting_details_complete_date = models.DateField(null=True, blank=True)
 
     # QA process
@@ -196,15 +214,7 @@ class Case(VersionModel):
     report_final_odt_url = models.TextField(default="", blank=True)
     qa_process_complete_date = models.DateField(null=True, blank=True)
 
-    # Report ready for QA process
-    report_review_status = models.CharField(
-        max_length=200,
-        choices=Boolean.choices,
-        default=Boolean.NO,
-    )
-    report_ready_for_qa_complete_date = models.DateField(null=True, blank=True)
-
-    # QA auditor
+    # Report approved
     reviewer = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -212,18 +222,15 @@ class Case(VersionModel):
         blank=True,
         null=True,
     )
-    qa_auditor_complete_date = models.DateField(null=True, blank=True)
-
-    # QA comments
-    # qa_comments_complete_date = models.DateField(null=True, blank=True)
-
-    # Report approved
     report_approved_status = models.CharField(
         max_length=200,
         choices=ReportApprovedStatus.choices,
         default=ReportApprovedStatus.NOT_STARTED,
     )
-    qa_approved_complete_date = models.DateField(null=True, blank=True)
+    qa_auditor_complete_date = models.DateField(null=True, blank=True)
+
+    # Publish report
+    publish_report_complete_date = models.DateField(null=True, blank=True)
 
     # Correspondence overview page
     zendesk_url = models.TextField(default="", blank=True)
@@ -345,7 +352,7 @@ class Case(VersionModel):
     accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
     final_statement_complete_date = models.DateField(null=True, blank=True)
 
-    # Case close
+    # Enforcement recommendation
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     compliance_decision_sent_to_email = models.CharField(
         max_length=200, default="", blank=True
@@ -356,6 +363,9 @@ class Case(VersionModel):
         default=RecommendationForEnforcement.UNKNOWN,
     )
     recommendation_notes = models.TextField(default="", blank=True)
+    enforcement_recommendation_complete_date = models.DateField(null=True, blank=True)
+
+    # Case close
     case_completed = models.CharField(
         max_length=30, choices=CaseCompleted.choices, default=CaseCompleted.NO_DECISION
     )

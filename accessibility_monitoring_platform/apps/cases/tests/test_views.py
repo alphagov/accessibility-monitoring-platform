@@ -1,6 +1,7 @@
 """
 Tests for cases views
 """
+
 import json
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional
@@ -12,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
+from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
@@ -39,9 +41,7 @@ from ..models import (
 )
 from ..utils import (
     CASE_COLUMNS_FOR_EXPORT,
-    COLUMNS_FOR_EQUALITY_BODY,
-    CONTACT_COLUMNS_FOR_EXPORT,
-    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     create_case_and_compliance,
 )
@@ -49,7 +49,7 @@ from ..views import (
     FOUR_WEEKS_IN_DAYS,
     ONE_WEEK_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
-    CaseQAReportApprovedUpdateView,
+    CaseReportApprovedUpdateView,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
     find_duplicate_cases,
@@ -80,15 +80,13 @@ STATEMENT_COMPLIANCE_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_feedback_survey_columns_to_export_str: str = ",".join(
-    column.column_name for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+    column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
 )
 case_equality_body_columns_to_export_str: str = ",".join(
-    column.column_name
-    for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
+    column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT
 )
 case_columns_to_export_str: str = ",".join(
-    column.column_name
-    for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+    column.column_header for column in CASE_COLUMNS_FOR_EXPORT
 )
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
@@ -166,6 +164,7 @@ REPORT_ACKNOWLEDGED_WARNING: str = "The report has been acknowledged by the orga
 TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
     "The request for a final update has been acknowledged by the organisation"
 )
+RECOMMENDATION_NOTE: str = "Recommendation note"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -719,10 +718,9 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
-        ("cases:edit-qa-ready-for-process", "<li>Report ready for QA process</li>"),
-        ("cases:edit-qa-auditor", "<li>QA auditor</li>"),
         ("cases:edit-qa-comments", "<li>QA comments</li>"),
-        ("cases:edit-qa-report-approved", "<li>Report approved</li>"),
+        ("cases:edit-report-approved", "<li>Report approved</li>"),
+        ("cases:edit-publish-report", "<li>Publish report</li>"),
         ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
         ("cases:edit-find-contact-details", "<li>Find contact details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
@@ -896,14 +894,14 @@ def test_create_case_creates_case_event(admin_client):
 
 def test_updating_case_creates_case_event(admin_client):
     """
-    Test that updating a case (changing case completed) creates a case event
+    Test that updating a case creates a case event
     """
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id}),
         {
-            "case_completed": Case.CaseCompleted.COMPLETE_NO_SEND,
+            "is_ready_for_final_decision": "yes",
             "version": case.version,
             "save": "Button value",
         },
@@ -914,10 +912,9 @@ def test_updating_case_creates_case_event(admin_client):
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CaseEvent.EventType.CASE_COMPLETED
+    assert case_event.event_type == CaseEvent.EventType.READY_FOR_FINAL_DECISION
     assert (
-        case_event.message
-        == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"
+        case_event.message == "Case ready for final decision changed from 'No' to 'Yes'"
     )
 
 
@@ -932,16 +929,14 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-report-details",
             "save_continue",
-            "cases:edit-qa-ready-for-process",
+            "cases:edit-qa-comments",
         ),
-        ("cases:edit-qa-ready-for-process", "save", "cases:edit-qa-ready-for-process"),
-        ("cases:edit-qa-ready-for-process", "save_continue", "cases:edit-qa-auditor"),
-        ("cases:edit-qa-auditor", "save", "cases:edit-qa-auditor"),
-        ("cases:edit-qa-auditor", "save_continue", "cases:edit-qa-comments"),
         ("cases:edit-qa-comments", "save", "cases:edit-qa-comments"),
-        ("cases:edit-qa-comments", "save_continue", "cases:edit-qa-report-approved"),
-        ("cases:edit-qa-report-approved", "save", "cases:edit-qa-report-approved"),
-        ("cases:edit-qa-report-approved", "save_continue", "cases:edit-cores-overview"),
+        ("cases:edit-qa-comments", "save_continue", "cases:edit-report-approved"),
+        ("cases:edit-report-approved", "save", "cases:edit-report-approved"),
+        ("cases:edit-report-approved", "save_continue", "cases:edit-publish-report"),
+        ("cases:edit-publish-report", "save", "cases:edit-publish-report"),
+        ("cases:edit-publish-report", "save_continue", "cases:edit-cores-overview"),
         ("cases:edit-cores-overview", "save", "cases:edit-cores-overview"),
         (
             "cases:edit-cores-overview",
@@ -1021,6 +1016,16 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-review-changes",
             "save_continue",
+            "cases:edit-enforcement-recommendation",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "save",
+            "cases:edit-enforcement-recommendation",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "save_continue",
             "cases:edit-case-close",
         ),
         ("cases:edit-case-close", "save", "cases:edit-case-close"),
@@ -1071,6 +1076,7 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
             "form-MAX_NUM_FORMS": "1000",
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
+            "case_completed": "no-decision",
             "version": case.version,
             button_name: "Button value",
         },
@@ -1098,6 +1104,7 @@ def test_platform_update_redirects_based_on_case_variant(
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),
         {
+            "case_completed": "no-decision",
             "version": case.version,
             "save_continue": "Button value",
         },
@@ -1588,8 +1595,8 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     assertContains(response, TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING)
 
 
-def test_no_psb_response_redirects_to_case_close(admin_client):
-    """Test no PSB response redirects to case closing"""
+def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
+    """Test no PSB response redirects to enforcement recommendation"""
     case: Case = Case.objects.create(
         no_psb_contact=Boolean.YES,
     )
@@ -1603,7 +1610,10 @@ def test_no_psb_response_redirects_to_case_close(admin_client):
         },
     )
     assert response.status_code == 302
-    assert response.url == f'{reverse("cases:edit-case-close", kwargs={"pk": case.id})}'
+    assert (
+        response.url
+        == f'{reverse("cases:edit-enforcement-recommendation", kwargs={"pk": case.id})}'
+    )
 
 
 @pytest.mark.parametrize(
@@ -1720,13 +1730,7 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ("case_details_complete_date", "Case details", "edit-case-details"),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
-        (
-            "report_ready_for_qa_complete_date",
-            "Report ready for QA process",
-            "edit-qa-ready-for-process",
-        ),
-        ("qa_auditor_complete_date", "QA auditor", "edit-qa-auditor"),
-        ("qa_approved_complete_date", "Report approved", "edit-qa-report-approved"),
+        ("qa_auditor_complete_date", "Report approved", "edit-report-approved"),
         (
             "cores_overview_complete_date",
             "Correspondence overview",
@@ -1775,6 +1779,11 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "12-week retest",
             "edit-twelve-week-retest",
         ),
+        (
+            "enforcement_recommendation_complete_date",
+            "Enforcement recommendation",
+            "edit-enforcement-recommendation",
+        ),
         ("case_close_complete_date", "Closing the case", "edit-case-close"),
     ],
 )
@@ -1810,6 +1819,33 @@ def test_section_complete_check_displayed(
     )
 
 
+def test_section_complete_check_displayed_publish_report(admin_client):
+    """
+    Test that the section complete tick is displayed in contents when there is no anchor
+    """
+    case: Case = Case.objects.create(publish_report_complete_date=TODAY)
+    edit_url: str = reverse("cases:edit-publish-report", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            Publish report
+            |
+            <a id="edit-" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+                Edit<span class="govuk-visually-hidden">complete</span>
+            </a>
+            &check;
+        </li>""",
+        html=True,
+    )
+
+
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
@@ -1820,17 +1856,8 @@ def test_section_complete_check_displayed(
             "reporting_details_complete_date",
             "Report details",
         ),
-        (
-            "cases:edit-qa-ready-for-process",
-            "report_ready_for_qa_complete_date",
-            "Report ready for QA process",
-        ),
-        ("cases:edit-qa-auditor", "qa_auditor_complete_date", "QA auditor"),
-        (
-            "cases:edit-qa-report-approved",
-            "qa_approved_complete_date",
-            "Report approved",
-        ),
+        ("cases:edit-report-approved", "qa_auditor_complete_date", "Report approved"),
+        ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
         (
             "cases:edit-cores-overview",
             "cores_overview_complete_date",
@@ -1886,6 +1913,11 @@ def test_section_complete_check_displayed(
             "cases:edit-review-changes",
             "review_changes_complete_date",
             "Reviewing changes",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "enforcement_recommendation_complete_date",
+            "Enforcement recommendation",
         ),
         ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
     ],
@@ -2211,10 +2243,9 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
         "edit-case-details",
         "edit-test-results",
         "edit-report-details",
-        "edit-qa-ready-for-process",
-        "edit-qa-auditor",
+        "edit-report-approved",
+        "edit-publish-report",
         "edit-qa-comments",
-        "edit-qa-report-approved",
         "edit-contact-details",
         "edit-twelve-week-retest",
         "edit-review-changes",
@@ -2268,8 +2299,11 @@ def test_status_change_message_shown(admin_client):
 
 
 @pytest.mark.django_db
-def test_qa_report_approved_notifies_auditor(rf):
-    """Test approving the report on the QA report approved page notifies the auditor"""
+def test_report_approved_notifies_auditor(rf):
+    """
+    Test approving the report on the Report approved page notifies the auditor
+    when the report is approved.
+    """
     user: User = User.objects.create()
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME, auditor=user)
 
@@ -2277,7 +2311,7 @@ def test_qa_report_approved_notifies_auditor(rf):
         username="johnsmith", first_name="John", last_name="Smith"
     )
     request = rf.post(
-        reverse("cases:edit-qa-report-approved", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-approved", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "report_approved_status": Case.ReportApprovedStatus.APPROVED,
@@ -2286,9 +2320,7 @@ def test_qa_report_approved_notifies_auditor(rf):
     )
     request.user = request_user
 
-    response: HttpResponse = CaseQAReportApprovedUpdateView.as_view()(
-        request, pk=case.id
-    )
+    response: HttpResponse = CaseReportApprovedUpdateView.as_view()(request, pk=case.id)
 
     assert response.status_code == 302
 
@@ -2302,6 +2334,108 @@ def test_qa_report_approved_notifies_auditor(rf):
     )
 
 
+@pytest.mark.django_db
+def test_publish_report_no_report(admin_client):
+    """
+    Test publish report page when not ready to be published
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "To publish this report, you need to:")
+    assertContains(response, "Set the report status to Ready to Review in")
+
+    assertNotContains(response, "The report is approved and ready for publication.")
+    assertNotContains(response, "Create HTML report")
+
+    assertNotContains(response, "The report is now published and available for viewing")
+    assertNotContains(response, "Save and continue")
+
+
+@pytest.mark.django_db
+def test_publish_report_first_time(admin_client):
+    """
+    Test publish report page when publishing report for first time
+    """
+    case: Case = Case.objects.create(
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+    )
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "To publish this report, you need to:")
+    assertNotContains(response, "Set the report status to Ready to Review in")
+
+    assertContains(response, "The report is approved and ready for publication.")
+    assertContains(response, "Create HTML report")
+
+    assertNotContains(response, "The report is now published and available for viewing")
+    assertNotContains(response, "Save and continue")
+
+
+@mock_aws
+def test_publish_report(admin_client):
+    """Test publishing a report"""
+    case: Case = Case.objects.create(
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+    )
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            "create_html_report": "Create HTML report",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "The report is now published and available for viewing")
+
+
+@pytest.mark.django_db
+def test_publish_report_already_published(admin_client):
+    """
+    Test publish report page when report has already been published
+    """
+    case: Case = Case.objects.create(
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+    )
+    Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "To publish this report, you need to:")
+    assertNotContains(response, "Set the report status to Ready to Review in")
+
+    assertNotContains(response, "The report is approved and ready for publication.")
+    assertNotContains(response, "Create HTML report")
+
+    assertContains(response, "The report is now published and available for viewing")
+    assertContains(response, "Save and continue")
+
+
 @pytest.mark.parametrize(
     "useful_link, edit_url_name",
     [
@@ -2309,7 +2443,6 @@ def test_qa_report_approved_notifies_auditor(rf):
         ("trello_url", "edit-contact-details"),
         ("zendesk_url", "edit-test-results"),
         ("trello_url", "edit-report-details"),
-        ("trello_url", "edit-qa-ready-for-process"),
         ("zendesk_url", "edit-review-changes"),
         ("zendesk_url", "edit-case-close"),
     ],
@@ -2564,10 +2697,9 @@ def test_update_case_checks_version(admin_client):
         "edit-case-details",
         "edit-test-results",
         "edit-report-details",
-        "edit-qa-ready-for-process",
-        "edit-qa-auditor",
+        "edit-report-approved",
+        "edit-publish-report",
         "edit-qa-comments",
-        "edit-qa-report-approved",
         "edit-contact-details",
         "edit-twelve-week-retest",
         "edit-review-changes",
@@ -2646,18 +2778,6 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
 @pytest.mark.parametrize(
     "path_name,label,field_name,field_value",
     [
-        (
-            "cases:edit-qa-ready-for-process",
-            "Report ready to be reviewed needs to be Yes",
-            "report_review_status",
-            Boolean.YES,
-        ),
-        (
-            "cases:edit-qa-report-approved",
-            "Report approved needs to be Yes",
-            "report_approved_status",
-            Case.ReportApprovedStatus.APPROVED,
-        ),
         (
             "cases:edit-no-psb-response",
             "No response from PSB",
@@ -2788,20 +2908,16 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "Report details",
         ),
         (
-            "cases:edit-qa-ready-for-process",
-            "Report ready for QA process",
+            "cases:edit-report-approved",
+            "Report approved",
         ),
         (
-            "cases:edit-qa-auditor",
-            "QA auditor",
+            "cases:edit-publish-report",
+            "Publish report",
         ),
         (
             "cases:edit-qa-comments",
             "QA comments",
-        ),
-        (
-            "cases:edit-qa-report-approved",
-            "Report approved",
         ),
         (
             "cases:edit-cores-overview",
@@ -3438,3 +3554,157 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
 
     assert audit_from_db.published_report_data_updated_time is not None
+
+
+def test_case_close(admin_client):
+    """
+    Test that case close renders as expected:
+    """
+    case: Case = Case.objects.create(
+        home_page_url=HOME_PAGE_URL, recommendation_notes=f"* {RECOMMENDATION_NOTE}"
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    # Required columns labelled as such; Missing data labelled as incomplete
+    assertContains(response, "Published report | Required and incomplete", html=True)
+
+    # Required data with default value labelled as incomplete
+    assertContains(
+        response,
+        "Initial Accessibility Statement Decision | Required and incomplete",
+        html=True,
+    )
+
+    # URL data rendered as link
+    assertContains(
+        response,
+        f"""<a href="{HOME_PAGE_URL}"
+            class="govuk-link" target="_blank">
+            {HOME_PAGE_URL}</a>""",
+        html=True,
+    )
+
+    # Edit link label used
+    assertContains(
+        response,
+        """<a href="/cases/1/edit-contact-details/"
+            class="govuk-link govuk-link--no-visited-state">
+            Go to contact details</a>""",
+        html=True,
+    )
+
+    # Markdown data rendered as html
+    assertContains(response, f"<li>{RECOMMENDATION_NOTE}</li>")
+
+    # Extra label for percentage shown
+    assertContains(response, "(Derived from retest results)")
+
+
+def test_case_close_missing_data(admin_client):
+    """
+    Test that case close renders as expected when data is missing
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, "The case has missing data and can not be submitted to EHRC."
+    )
+    assertNotContains(
+        response, "All fields are complete and the case can now be closed."
+    )
+
+    assertContains(
+        response,
+        """<li>
+            Organisation is missing
+            (<a href="/cases/1/edit-case-details/#id_organisation_name-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Organisation</span></a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            Website URL is missing
+            (<a href="/cases/1/edit-case-details/#id_home_page_url-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Website URL</span></a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        "<li>Published report is missing</li>",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            Enforcement recommendation is missing
+            (<a href="/cases/1/edit-enforcement-recommendation/#id_recommendation_for_enforcement-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Enforcement recommendation</span></a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            Enforcement recommendation notes including exemptions is missing
+            (<a href="/cases/1/edit-enforcement-recommendation/#id_recommendation_notes-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Enforcement recommendation notes including exemptions</span></a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<li>
+            Date when compliance decision email sent to public sector body is missing
+            (<a href="/cases/1/edit-enforcement-recommendation/#id_compliance_email_sent_date-label" class="govuk-link govuk-link--no-visited-state">Edit<span class="govuk-visually-hidden"> Date when compliance decision email sent to public sector body</span></a>)
+        </li>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        "<li>Initial Accessibility Statement Decision is missing</li>",
+        html=True,
+    )
+
+
+def test_case_close_no_missing_data(admin_client):
+    """
+    Test that case close renders as expected when no data is missing
+    """
+    case: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        home_page_url=HOME_PAGE_URL,
+        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_notes=RECOMMENDATION_NOTE,
+        compliance_email_sent_date=date.today(),
+    )
+    case.compliance.statement_compliance_state_initial = (
+        CaseCompliance.StatementCompliance.COMPLIANT
+    )
+    case.compliance.save()
+    Audit.objects.create(
+        case=case,
+        initial_disproportionate_burden_claim=Audit.DisproportionateBurden.NO_CLAIM,
+    )
+    Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(
+        response, "The case has missing data and can not be submitted to EHRC."
+    )
+    assertContains(response, "All fields are complete and the case can now be closed.")

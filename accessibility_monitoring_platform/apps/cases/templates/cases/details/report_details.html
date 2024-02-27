@@ -56,6 +56,10 @@
                 <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Notes</th>
                 <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.report.notes|markdown_to_html }}</td>
             </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Report ready for QA process?</th>
+                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.get_report_review_status_display }}</td>
+            </tr>
         {% else %}
             <p class="govuk-body">
                 A report does not exist for this case. Create a report in

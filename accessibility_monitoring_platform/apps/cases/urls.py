@@ -1,6 +1,7 @@
 """
 URLS for cases
 """
+
 from typing import List
 
 from django.contrib.auth.decorators import login_required
@@ -15,6 +16,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseDeactivateUpdateView,
     CaseDetailUpdateView,
     CaseDetailView,
+    CaseEnforcementRecommendationUpdateView,
     CaseEqualityBodyCorrespondenceUpdateView,
     CaseEqualityBodyMetadataUpdateView,
     CaseFindContactDetailsUpdateView,
@@ -26,12 +28,11 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseOneWeekFollowupUpdateView,
     CaseOutstandingIssuesDetailView,
     CaseOutstandingIssuesEmailTemplateView,
-    CaseQAAuditorUpdateView,
+    CasePublishReportUpdateView,
     CaseQACommentsUpdateView,
-    CaseQAReadyForProcessUpdateView,
-    CaseQAReportApprovedUpdateView,
     CaseReactivateUpdateView,
     CaseReportAcknowledgedUpdateView,
+    CaseReportApprovedUpdateView,
     CaseReportDetailsUpdateView,
     CaseReportSentOnUpdateView,
     CaseRetestCreateErrorTemplateView,
@@ -89,29 +90,24 @@ urlpatterns: List[URLPattern] = [
         name="edit-report-details",
     ),
     path(
-        "<int:pk>/edit-qa-ready-for-process/",
-        login_required(CaseQAReadyForProcessUpdateView.as_view()),
-        name="edit-qa-ready-for-process",
-    ),
-    path(
-        "<int:pk>/edit-qa-auditor/",
-        login_required(CaseQAAuditorUpdateView.as_view()),
-        name="edit-qa-auditor",
-    ),
-    path(
         "<int:pk>/edit-qa-comments/",
         login_required(CaseQACommentsUpdateView.as_view()),
         name="edit-qa-comments",
     ),
     path(
-        "<int:pk>/edit-qa-report-approved/",
-        login_required(CaseQAReportApprovedUpdateView.as_view()),
-        name="edit-qa-report-approved",
-    ),
-    path(
         "<int:case_id>/add-qa-comment/",
         login_required(QACommentCreateView.as_view()),
         name="add-qa-comment",
+    ),
+    path(
+        "<int:pk>/edit-report-approved/",
+        login_required(CaseReportApprovedUpdateView.as_view()),
+        name="edit-report-approved",
+    ),
+    path(
+        "<int:pk>/edit-publish-report/",
+        login_required(CasePublishReportUpdateView.as_view()),
+        name="edit-publish-report",
     ),
     path(
         "<int:pk>/edit-cores-overview/",
@@ -182,6 +178,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-review-changes/",
         login_required(CaseReviewChangesUpdateView.as_view()),
         name="edit-review-changes",
+    ),
+    path(
+        "<int:pk>/edit-enforcement-recommendation/",
+        login_required(CaseEnforcementRecommendationUpdateView.as_view()),
+        name="edit-enforcement-recommendation",
     ),
     path(
         "<int:pk>/edit-case-close/",

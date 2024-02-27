@@ -10,10 +10,9 @@
                 {% include './nav_content.html' with id='case-details' edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
                 {% include './nav_content.html' with id='test-results' edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
                 {% include './nav_content.html' with id='report-details' edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
-                {% include './nav_content.html' with id='qa-ready-for-process' edit_name='cases:edit-qa-ready-for-process' name='Report ready for QA process' complete=case.report_ready_for_qa_complete_date %}
-                {% include './nav_content.html' with id='qa-auditor' edit_name='cases:edit-qa-auditor' name='QA auditor' complete=case.qa_auditor_complete_date %}
                 {% include './nav_content.html' with id='qa-comments' edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
-                {% include './nav_content.html' with id='qa-report-approved' edit_name='cases:edit-qa-report-approved' name='Report approved' complete=case.qa_approved_complete_date %}
+                {% include './nav_content.html' with id='report-approved' edit_name='cases:edit-report-approved' name='Report approved' complete=case.qa_auditor_complete_date %}
+                {% include './nav_content.html' with edit_name='cases:edit-publish-report' name='Publish report' complete=case.publish_report_complete_date %}
                 {% include './nav_content.html' with id='cores-overview' edit_name='cases:edit-cores-overview' name='Correspondence overview' complete=case.cores_overview_complete_date %}
                 <li>
                     <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
@@ -31,6 +30,7 @@
                 </li>
                 {% include './nav_content.html' with id='twelve-week-retest' edit_name='cases:edit-twelve-week-retest' name='12-week retest' complete=case.twelve_week_retest_complete_date %}
                 {% include './nav_content.html' with id='review-changes' edit_name='cases:edit-review-changes' name='Reviewing changes' complete=case.review_changes_complete_date %}
+                {% include './nav_content.html' with id='enforcement-recommendation' edit_name='cases:edit-enforcement-recommendation' name='Enforcement recommendation' complete=case.enforcement_recommendation_complete_date %}
                 {% include './nav_content.html' with id='case-close' edit_name='cases:edit-case-close' name='Closing the case' complete=case.case_close_complete_date %}
             {% endif %}
         </ul>
