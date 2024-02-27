@@ -1,6 +1,7 @@
 """
 Forms - checks (called tests by users)
 """
+
 from typing import Any, List, Tuple
 
 from django import forms
@@ -1618,4 +1619,19 @@ class TwelveWeekStatementPagesUpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "audit_retest_statement_pages_complete_date",
+        ]
+
+
+class RetestStatementPagesUpdateForm(VersionForm):
+    """
+    Form for statement pages update at equality body-requested retest
+    """
+
+    statement_pages_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: List[str] = [
+            "version",
+            "statement_pages_complete_date",
         ]

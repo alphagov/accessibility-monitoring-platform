@@ -1,6 +1,7 @@
 """
 Views for audits app (called tests by users)
 """
+
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from django.db.models.query import Q, QuerySet

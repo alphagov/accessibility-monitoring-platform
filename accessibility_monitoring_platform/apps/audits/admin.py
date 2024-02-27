@@ -12,6 +12,7 @@ from .models import (
     Retest,
     RetestCheckResult,
     RetestPage,
+    RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
@@ -164,6 +165,12 @@ class StatementPageAdmin(admin.ModelAdmin):
     readonly_fields = ["audit"]
 
 
+class RetestStatementCheckResultAdmin(admin.ModelAdmin):
+    """Django admin configuration for RetestStatementCheckResult model"""
+
+    readonly_fields = ["retest"]
+
+
 admin.site.register(Audit, AuditAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(CheckResult, CheckResultAdmin)
@@ -174,3 +181,4 @@ admin.site.register(Retest, RetestAdmin)
 admin.site.register(RetestPage, RetestPageAdmin)
 admin.site.register(RetestCheckResult, RetestCheckResultAdmin)
 admin.site.register(StatementPage, StatementPageAdmin)
+admin.site.register(RetestStatementCheckResult, RetestStatementCheckResultAdmin)

@@ -1,6 +1,7 @@
 """
 Models - audits (called tests by the users)
 """
+
 from datetime import date
 from typing import Dict, List, Optional
 
@@ -1340,6 +1341,7 @@ class Retest(VersionModel):
     complete_date = models.DateField(null=True, blank=True)
     comparison_complete_date = models.DateField(null=True, blank=True)
     compliance_complete_date = models.DateField(null=True, blank=True)
+    statement_page_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["case_id", "-id_within_case"]
@@ -1523,6 +1525,46 @@ class RetestCheckResult(models.Model):
     def all_retest_check_results(self):
         """Return all retest results for this check"""
         return RetestCheckResult.objects.filter(check_result=self.check_result)
+
+
+class RetestStatementCheckResult(models.Model):
+    """
+    Model for accessibility statement-specific check result
+    """
+
+    class Result(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        NOT_TESTED = "not-tested", "Not tested"
+
+    retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
+    statement_check = models.ForeignKey(
+        StatementCheck, on_delete=models.PROTECT, null=True, blank=True
+    )
+    type = models.CharField(
+        max_length=20,
+        choices=StatementCheck.Type.choices,
+        default=StatementCheck.Type.CUSTOM,
+    )
+    check_result_state = models.CharField(
+        max_length=10,
+        choices=Result.choices,
+        default=Result.NOT_TESTED,
+    )
+    comment = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["statement_check__position", "id"]
+
+    def __str__(self) -> str:
+        if self.statement_check is None:
+            return str(f"{self.retest} | Custom")
+        return str(f"{self.retest} | {self.statement_check}")
+
+    @property
+    def label(self):
+        return self.statement_check.label if self.statement_check else "Custom"
 
 
 class StatementPage(models.Model):

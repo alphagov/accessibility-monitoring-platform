@@ -1,6 +1,7 @@
 """
 URLS for dashboard
 """
+
 from typing import List
 
 from django.contrib.auth.decorators import login_required
@@ -23,6 +24,7 @@ from .views.equality_body import (
     RetestComplianceUpdateView,
     RetestMetadataUpdateView,
     RetestPageChecksFormView,
+    RetestStatementPageFormsetUpdateView,
     create_equality_body_retest,
 )
 from .views.initial import (
@@ -335,5 +337,10 @@ urlpatterns: List[URLPattern] = [
         "retest/<int:pk>/retest-compliance-update/",
         login_required(RetestComplianceUpdateView.as_view()),
         name="retest-compliance-update",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-statement-pages/",
+        login_required(RetestStatementPageFormsetUpdateView.as_view()),
+        name="edit-equality-body-statement-pages",
     ),
 ]

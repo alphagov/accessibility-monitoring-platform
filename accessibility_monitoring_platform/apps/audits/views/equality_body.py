@@ -1,7 +1,8 @@
 """
 Views for audits app (called tests by users)
 """
-from typing import Any, Dict, Type, Union
+
+from typing import Any, Dict, List, Optional, Type, Union
 
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -13,6 +14,7 @@ from django.views.generic.edit import UpdateView
 from ...cases.models import Case
 from ...common.models import Boolean
 from ...common.utils import (
+    get_id_from_button_name,
     list_to_dictionary_of_lists,
     record_model_create_event,
     record_model_update_event,
@@ -22,13 +24,17 @@ from ..forms import (
     RetestComparisonUpdateForm,
     RetestComplianceUpdateForm,
     RetestPageChecksForm,
+    RetestStatementPagesUpdateForm,
     RetestUpdateForm,
+    StatementPageFormset,
+    StatementPageFormsetOneExtra,
 )
-from ..models import Retest, RetestCheckResult, RetestPage
+from ..models import Retest, RetestCheckResult, RetestPage, StatementPage
 from ..utils import (
     create_checkresults_for_retest,
     get_next_equality_body_retest_page_url,
 )
+from .base import StatementPageFormsetUpdateView
 
 
 def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -213,3 +219,89 @@ class RetestComplianceUpdateView(UpdateView):
                 "cases:edit-retest-overview", kwargs={"pk": self.object.case.id}
             )
         return reverse("audits:retest-compliance-update", kwargs={"pk": self.object.id})
+
+
+class RetestStatementPageFormsetUpdateView(UpdateView):
+    """
+    View to update statement pages in equality body-requested retest
+    """
+
+    model: Type[Retest] = Retest
+    form_class: Type[RetestStatementPagesUpdateForm] = RetestStatementPagesUpdateForm
+    template_name: str = (
+        "audits/forms/equality_body_retest_statement_pages_formset.html"
+    )
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            statement_pages_formset = StatementPageFormset(self.request.POST)
+        else:
+            statement_pages: QuerySet[
+                StatementPage
+            ] = self.object.case.audit.statement_pages
+            if "add_extra" in self.request.GET:
+                statement_pages_formset = StatementPageFormsetOneExtra(
+                    queryset=statement_pages
+                )
+            else:
+                statement_pages_formset = StatementPageFormset(queryset=statement_pages)
+        for form in statement_pages_formset:
+            if form.instance.id is None:
+                form.fields["added_stage"].initial = StatementPage.AddedStage.RETEST
+        context["statement_pages_formset"] = statement_pages_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        statement_pages_formset = context["statement_pages_formset"]
+        retest: Retest = form.save(commit=False)
+        if statement_pages_formset.is_valid():
+            statement_pages: List[StatementPage] = statement_pages_formset.save(
+                commit=False
+            )
+            for statement_page in statement_pages:
+                if not statement_page.audit_id:
+                    statement_page.audit = retest.case.audit
+                    statement_page.save()
+                    record_model_create_event(
+                        user=self.request.user, model_object=statement_page
+                    )
+                else:
+                    record_model_update_event(
+                        user=self.request.user, model_object=statement_page
+                    )
+                    statement_page.save()
+        else:
+            return super().form_invalid(form)
+        statement_page_id_to_delete: Optional[int] = get_id_from_button_name(
+            button_name_prefix="remove_statement_page_",
+            querydict=self.request.POST,
+        )
+        if statement_page_id_to_delete is not None:
+            statement_page_to_delete: statement_page = StatementPage.objects.get(
+                id=statement_page_id_to_delete
+            )
+            statement_page_to_delete.is_deleted = True
+            record_model_update_event(
+                user=self.request.user, model_object=statement_page_to_delete
+            )
+            statement_page_to_delete.save()
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        retest: Retest = self.object
+        retest_pk: Dict[str, int] = {"pk": retest.id}
+        current_url: str = reverse(
+            "audits:edit-equality-body-statement-pages", kwargs=retest_pk
+        )
+        if "save_continue" in self.request.POST:
+            return current_url
+            # return reverse("audits:", kwargs=retest_pk)
+        elif "add_statement_page" in self.request.POST:
+            return f"{current_url}?add_extra=true#statement-page-None"
+        else:
+            return current_url
