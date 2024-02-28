@@ -62,31 +62,12 @@
                     />
                     {% include 'common/amp_field.html' with field=form.statement_pages_complete_date %}
                     <div class="govuk-button-group">
-                        <input
-                            type="submit"
-                            value="Save"
-                            name="save"
-                            class="govuk-button"
-                            data-module="govuk-button"
-                        />
-                        <input
-                            type="submit"
-                            value="Save and continue"
-                            name="save_continue"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        />
-                        <a
-                            href="{% url 'cases:edit-retest-overview' retest.case.id %}"
-                            class="govuk-link govuk-link--no-visited-state"
-                        >
-                            Cancel and return to retest overview
-                        </a>
+                        {% include 'audits/helpers/equality_body_retest_save_continue_cancel.html' %}
                     </div>
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:retest-metadata-update' %}
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-equality-body-statement-pages' %}
             </div>
         </div>
     </main>

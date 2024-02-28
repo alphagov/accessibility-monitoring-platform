@@ -392,7 +392,7 @@ def create_checkresults_for_retest(retest: Retest) -> None:
     today: date = date.today()
     for statement_check in StatementCheck.objects.on_date(today):
         RetestStatementCheckResult.objects.create(
-            retest=retest, statement_check=statement_check
+            retest=retest, statement_check=statement_check, type=statement_check.type
         )
 
 

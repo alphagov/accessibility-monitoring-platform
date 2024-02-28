@@ -12,7 +12,7 @@ from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 
-from ..cases.models import Case
+from ..cases.models import Case, CaseCompliance
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date
 
@@ -1343,6 +1343,30 @@ class Retest(VersionModel):
     compliance_complete_date = models.DateField(null=True, blank=True)
     statement_pages_complete_date = models.DateField(null=True, blank=True)
 
+    statement_overview_complete_date = models.DateField(null=True, blank=True)
+    statement_website_complete_date = models.DateField(null=True, blank=True)
+    statement_compliance_complete_date = models.DateField(null=True, blank=True)
+    statement_non_accessible_complete_date = models.DateField(null=True, blank=True)
+    statement_preparation_complete_date = models.DateField(null=True, blank=True)
+    statement_feedback_complete_date = models.DateField(null=True, blank=True)
+    statement_custom_complete_date = models.DateField(null=True, blank=True)
+
+    is_disproportionate_claimed = models.CharField(
+        max_length=20,
+        choices=Case.IsDisproportionateClaimed.choices,
+        default=Case.IsDisproportionateClaimed.NOT_KNOWN,
+    )
+    disproportionate_notes = models.TextField(default="", blank=True)
+    disproportionate_burden_complete_date = models.DateField(null=True, blank=True)
+
+    statement_compliance_state = models.CharField(
+        max_length=200,
+        choices=CaseCompliance.StatementCompliance.choices,
+        default=CaseCompliance.StatementCompliance.UNKNOWN,
+    )
+    statement_compliance_notes = models.TextField(default="", blank=True)
+    statement_decision_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["case_id", "-id_within_case"]
 
@@ -1421,6 +1445,24 @@ class Retest(VersionModel):
     @property
     def unfixed_check_results(self):
         return self.check_results.exclude(retest_state=CheckResult.RetestResult.FIXED)
+
+    @property
+    def statement_check_results(self):
+        return self.reteststatementcheckresult_set.filter(is_deleted=False)
+
+    @property
+    def overview_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
+
+    @property
+    def all_overview_statement_checks_have_passed(self) -> bool:
+        """Check all overview statement checks have passed"""
+        return (
+            self.overview_statement_check_results.exclude(
+                check_result_state=StatementCheckResult.Result.YES
+            ).count()
+            == 0
+        )
 
 
 class RetestPage(models.Model):

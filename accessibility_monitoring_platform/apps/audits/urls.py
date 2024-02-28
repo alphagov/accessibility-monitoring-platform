@@ -22,9 +22,18 @@ from .views.base import (
 from .views.equality_body import (
     RetestComparisonUpdateView,
     RetestComplianceUpdateView,
+    RetestDisproportionateBurdenUpdateView,
     RetestMetadataUpdateView,
     RetestPageChecksFormView,
+    RetestStatementComplianceFormView,
+    RetestStatementCustomFormView,
+    RetestStatementDecisionUpdateView,
+    RetestStatementFeedbackFormView,
+    RetestStatementNonAccessibleFormView,
+    RetestStatementOverviewFormView,
     RetestStatementPageFormsetUpdateView,
+    RetestStatementPreparationFormView,
+    RetestStatementWebsiteFormView,
     create_equality_body_retest,
 )
 from .views.initial import (
@@ -342,5 +351,50 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-equality-body-statement-pages/",
         login_required(RetestStatementPageFormsetUpdateView.as_view()),
         name="edit-equality-body-statement-pages",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-statement-overview/",
+        login_required(RetestStatementOverviewFormView.as_view()),
+        name="edit-equality-body-statement-overview",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-statement-website/",
+        login_required(RetestStatementWebsiteFormView.as_view()),
+        name="edit-equality-body-statement-website",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-statement-compliance/",
+        login_required(RetestStatementComplianceFormView.as_view()),
+        name="edit-equality-body-statement-compliance",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-statement-non-accessible/",
+        login_required(RetestStatementNonAccessibleFormView.as_view()),
+        name="edit-equality-body-statement-non-accessible",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-statement-preparation/",
+        login_required(RetestStatementPreparationFormView.as_view()),
+        name="edit-equality-body-statement-preparation",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-statement-feedback/",
+        login_required(RetestStatementFeedbackFormView.as_view()),
+        name="edit-equality-body-statement-feedback",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-statement-custom/",
+        login_required(RetestStatementCustomFormView.as_view()),
+        name="edit-equality-body-statement-custom",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-disproportionate-burden/",
+        login_required(RetestDisproportionateBurdenUpdateView.as_view()),
+        name="edit-equality-body-disproportionate-burden",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-statement-decision/",
+        login_required(RetestStatementDecisionUpdateView.as_view()),
+        name="edit-equality-body-statement-decision",
     ),
 ]
