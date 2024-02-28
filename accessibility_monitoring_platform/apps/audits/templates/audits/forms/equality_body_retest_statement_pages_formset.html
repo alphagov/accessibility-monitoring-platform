@@ -8,8 +8,7 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">Statement links</h1>
-                {% include "cases/helpers/case_title.html" with case=retest.case %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Statement links' case=retest.case retest_header=True %}
                 {% include "cases/helpers/messages.html" %}
             </div>
         </div>
@@ -61,7 +60,7 @@
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
                     />
-                    {% include 'common/amp_field.html' with field=form.statement_page_complete_date %}
+                    {% include 'common/amp_field.html' with field=form.statement_pages_complete_date %}
                     <div class="govuk-button-group">
                         <input
                             type="submit"

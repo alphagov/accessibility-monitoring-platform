@@ -1341,7 +1341,7 @@ class Retest(VersionModel):
     complete_date = models.DateField(null=True, blank=True)
     comparison_complete_date = models.DateField(null=True, blank=True)
     compliance_complete_date = models.DateField(null=True, blank=True)
-    statement_page_complete_date = models.DateField(null=True, blank=True)
+    statement_pages_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["case_id", "-id_within_case"]

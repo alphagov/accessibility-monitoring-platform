@@ -168,7 +168,7 @@ class StatementPageAdmin(admin.ModelAdmin):
 class RetestStatementCheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for RetestStatementCheckResult model"""
 
-    readonly_fields = ["retest"]
+    readonly_fields = ["retest", "statement_check"]
 
 
 admin.site.register(Audit, AuditAdmin)
