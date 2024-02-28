@@ -71,7 +71,7 @@ variables:
   AWS_REGION: 'eu-west-2'
   DB_NAME:
     from_cfn: ${COPILOT_APPLICATION_NAME}-${COPILOT_ENVIRONMENT_NAME}-reportstorageBucketName
-  # ALLOWED_HOSTS: '.accessibility-monitoring.service.gov.uk'
+  ALLOWED_HOSTS: '.accessibility-monitoring.service.gov.uk'
 
 environments:
   prodenv:

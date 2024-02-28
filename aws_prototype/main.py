@@ -1,9 +1,11 @@
 """main - main function for deploy feature to AWS Copilot"""
 import argparse
+import copy
 import os
 import shutil
 import subprocess
 from typing import List
+import yaml
 
 import boto3
 from django.core.management.utils import get_random_secret_key
@@ -42,6 +44,7 @@ SECRET_KEY: str = get_random_secret_key()
 NOTIFY_API_KEY: str = "NO_API_KEY"
 EMAIL_NOTIFY_BASIC_TEMPLATE: str = "NO_TEMPLATE"
 BACKUP_DB: str = "db-store-for-prototypes"
+YAML_DIR_AMP: str = "copilot/amp-svc/manifest.yml"
 
 
 def switch_cp_apps():
@@ -120,6 +123,25 @@ def restore_prototype_env_file() -> None:
     )
 
 
+def prep_yaml() -> str:
+    with open(YAML_DIR_AMP, encoding="UTF-8") as f:
+        doc = yaml.load(f, Loader=yaml.Loader)
+
+    backup_yaml = copy.deepcopy(doc)
+
+    doc["variables"]["ALLOWED_HOSTS"] = f"amp-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk"
+
+    with open(YAML_DIR_AMP, "w", encoding="UTF-8") as f:
+        yaml.dump(doc, f)
+
+    return backup_yaml
+
+
+def restore_yaml(backup_yaml: str):
+    with open(YAML_DIR_AMP, "w", encoding="UTF-8") as f:
+        yaml.dump(backup_yaml, f)
+
+
 def up():
     print(">>> Setting up AWS Copilot prototype")
 
@@ -166,12 +188,18 @@ def up():
         os.system("copilot svc init --name viewer-svc")
         os.system("copilot svc init --name amp-svc")
 
-    os.system(
-        f"""copilot svc deploy --name viewer-svc --env {ENV_NAME} {get_aws_resource_tags(system='Viewer')}"""
-    )
+    backup_yaml = prep_yaml()
+
     os.system(
         f"""copilot svc deploy --name amp-svc --env {ENV_NAME} {get_aws_resource_tags()}"""
     )
+
+    restore_yaml(backup_yaml)
+
+    os.system(
+        f"""copilot svc deploy --name viewer-svc --env {ENV_NAME} {get_aws_resource_tags(system='Viewer')}"""
+    )
+
 
     if env_exist is False:
         bucket: str = get_copilot_s3_bucket()
