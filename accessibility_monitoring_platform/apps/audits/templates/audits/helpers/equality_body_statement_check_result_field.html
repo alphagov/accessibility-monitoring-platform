@@ -5,8 +5,10 @@
                 {{ statement_check_result_form.instance.label }}
             </h2>
         </legend>
-        <label class="govuk-label"><b>Success criteria</b></label>
-        <p class="govuk-body">{{ statement_check_result_form.instance.statement_check.success_criteria }}</p>
+        {% if statement_check_result_form.instance.statement_check.success_criteria %}
+            <label class="govuk-label"><b>Success criteria</b></label>
+            <p class="govuk-body">{{ statement_check_result_form.instance.statement_check.success_criteria }}</p>
+        {% endif %}
         {% include 'common/field_errors.html' with errors=field.errors %}
         <label class="govuk-label"><b>{{ field.label }}</b></label>
         {{ field }}

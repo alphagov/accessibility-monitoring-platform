@@ -1768,6 +1768,28 @@ class RetestStatementCustomUpdateForm(VersionForm):
         ]
 
 
+class RetestStatementCustomCheckResultForm(forms.ModelForm):
+    """
+    Form for updating a single statement check retest
+    """
+
+    comment = AMPTextField(label="Retest comments")
+
+    class Meta:
+        model = RetestStatementCheckResult
+        fields = [
+            "comment",
+        ]
+
+
+RetestStatementCustomCheckResultFormset: Any = forms.modelformset_factory(
+    RetestStatementCheckResult, RetestStatementCustomCheckResultForm, extra=0
+)
+RetestStatementCustomCheckResultFormsetOneExtra: Any = forms.modelformset_factory(
+    RetestStatementCheckResult, RetestStatementCustomCheckResultForm, extra=1
+)
+
+
 class RetestDisproportionateBurdenUpdateForm(VersionForm):
     """
     Form for editing equality body retest disproportional burden claim

@@ -1464,6 +1464,10 @@ class Retest(VersionModel):
             == 0
         )
 
+    @property
+    def custom_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
+
 
 class RetestPage(models.Model):
     """

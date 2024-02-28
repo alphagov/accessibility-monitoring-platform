@@ -27,6 +27,8 @@ from ..forms import (
     RetestPageChecksForm,
     RetestStatementCheckResultFormset,
     RetestStatementComplianceUpdateForm,
+    RetestStatementCustomCheckResultFormset,
+    RetestStatementCustomCheckResultFormsetOneExtra,
     RetestStatementCustomUpdateForm,
     RetestStatementDecisionUpdateForm,
     RetestStatementFeedbackUpdateForm,
@@ -552,19 +554,105 @@ class RetestStatementCustomFormView(RetestStatementCheckingView):
 
     form_class: Type[RetestStatementCustomUpdateForm] = RetestStatementCustomUpdateForm
     template_name: str = (
-        "audits/statement_checks/equality_body_retest_statement_other.html"
+        "audits/statement_checks/equality_body_retest_statement_custom.html"
     )
     statement_check_type: str = StatementCheck.Type.CUSTOM
 
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        retest: Retest = self.object
+        if self.request.POST:
+            retest_statement_check_results_formset = (
+                RetestStatementCustomCheckResultFormset(self.request.POST)
+            )
+        else:
+            retest_statement_check_results: QuerySet[
+                RetestStatementCheckResult
+            ] = retest.custom_statement_check_results
+            if "add_custom" in self.request.GET:
+                retest_statement_check_results_formset = (
+                    RetestStatementCustomCheckResultFormsetOneExtra(
+                        queryset=retest_statement_check_results
+                    )
+                )
+            else:
+                retest_statement_check_results_formset = (
+                    RetestStatementCustomCheckResultFormset(
+                        queryset=retest_statement_check_results
+                    )
+                )
+        context[
+            "retest_statement_check_results_formset"
+        ] = retest_statement_check_results_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        retest_statement_check_results_formset = context[
+            "retest_statement_check_results_formset"
+        ]
+        retest: Retest = form.save(commit=False)
+        if retest_statement_check_results_formset.is_valid():
+            retest_statement_check_results: List[
+                RetestStatementCheckResult
+            ] = retest_statement_check_results_formset.save(commit=False)
+            for retest_statement_check_result in retest_statement_check_results:
+                if not retest_statement_check_result.audit_id:
+                    retest_statement_check_result.retest = retest
+                    retest_statement_check_result.check_result_state = (
+                        RetestStatementCheckResult.Result.NO
+                    )
+                    retest_statement_check_result.save()
+                    record_model_create_event(
+                        user=self.request.user,
+                        model_object=retest_statement_check_result,
+                    )
+                else:
+                    record_model_update_event(
+                        user=self.request.user,
+                        model_object=retest_statement_check_result,
+                    )
+                    retest_statement_check_result.save()
+        else:
+            return super().form_invalid(form)
+        retest_statement_check_result_id_to_delete: Optional[
+            int
+        ] = get_id_from_button_name(
+            button_name_prefix="remove_custom_",
+            querydict=self.request.POST,
+        )
+        if retest_statement_check_result_id_to_delete is not None:
+            retest_statement_check_result: RetestStatementCheckResult = (
+                RetestStatementCheckResult.objects.get(
+                    id=retest_statement_check_result_id_to_delete
+                )
+            )
+            retest_statement_check_result.is_deleted = True
+            record_model_update_event(
+                user=self.request.user, model_object=retest_statement_check_result
+            )
+            retest_statement_check_result.save()
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        retest: Retest = self.object
+        retest_pk: Dict[str, int] = {"pk": retest.id}
+        current_url: str = reverse(
+            "audits:edit-equality-body-statement-custom", kwargs=retest_pk
+        )
+
+        if "save" in self.request.POST:
+            return current_url
         if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            retest_pk: Dict[str, int] = {"pk": retest.id}
             return reverse(
                 "audits:edit-equality-body-disproportionate-burden", kwargs=retest_pk
             )
-        return super().get_success_url()
+        elif "add_custom" in self.request.POST:
+            return f"{current_url}?add_custom=true#custom-None"
+        return current_url
 
 
 class RetestDisproportionateBurdenUpdateView(UpdateView):

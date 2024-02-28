@@ -7,4 +7,14 @@
             {% include 'common/amp_field.html' with field=statement_check_result_form.comment %}
         </div>
     </div>
+    {% if statement_check_result_form.instance.type == 'custom' and statement_check_result_form.instance.id %}
+        <div class="govuk-grid-column-full">
+            <input
+                type="submit"
+                value="Remove issue"
+                name="remove_custom_{{ statement_check_result_form.instance.id }}"
+                class="govuk-button govuk-button--secondary"
+                data-module="govuk-button" />
+        </div>
+    {% endif %}
 {% endfor %}
