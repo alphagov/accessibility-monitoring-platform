@@ -1648,7 +1648,7 @@ class RetestStatementCheckResultForm(forms.ModelForm):
         choices=RetestStatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    comment = AMPTextField(label="Retest comments")
+    comment = AMPTextField(label="Comments for equality body email")
 
     class Meta:
         model = RetestStatementCheckResult

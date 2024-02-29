@@ -168,6 +168,21 @@ class StatementPageAdmin(admin.ModelAdmin):
 class RetestStatementCheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for RetestStatementCheckResult model"""
 
+    search_fields = [
+        "retest__case__id",
+        "retest__case__organisation_name",
+        "statement_check__label",
+        "comment",
+    ]
+    list_display = [
+        "id",
+        "retest",
+        "type",
+        "check_result_state",
+        "is_deleted",
+        "statement_check",
+    ]
+    list_filter = ["check_result_state", "is_deleted"]
     readonly_fields = ["retest", "statement_check"]
 
 
