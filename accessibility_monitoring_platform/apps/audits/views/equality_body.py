@@ -677,7 +677,7 @@ class RetestStatementResultsUpdateView(RetestUpdateView):
         return super().get_success_url()
 
 
-class RetestDisproportionateBurdenUpdateView(UpdateView):
+class RetestDisproportionateBurdenUpdateView(RetestUpdateView):
     """
     View to update equality body-requested retest disproportionate burden fields
     """
@@ -695,12 +695,12 @@ class RetestDisproportionateBurdenUpdateView(UpdateView):
             retest: Retest = self.object
             retest_pk: Dict[str, int] = {"pk": retest.id}
             return reverse(
-                "audits:edit-audit-retest-statement-decision", kwargs=retest_pk
+                "audits:edit-equality-body-statement-decision", kwargs=retest_pk
             )
         return super().get_success_url()
 
 
-class RetestStatementDecisionUpdateView(UpdateView):
+class RetestStatementDecisionUpdateView(RetestUpdateView):
     """
     View to update equality body-requested retest statement decsion
     """
@@ -714,8 +714,6 @@ class RetestStatementDecisionUpdateView(UpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             retest: Retest = self.object
-            retest_pk: Dict[str, int] = {"pk": retest.id}
-            return reverse(
-                "audits:edit-audit-retest-statement-comparison", kwargs=retest_pk
-            )
+            case_pk: Dict[str, int] = {"pk": retest.case.id}
+            return reverse("cases:edit-retest-overview", kwargs=case_pk)
         return super().get_success_url()

@@ -1352,12 +1352,12 @@ class Retest(VersionModel):
     statement_custom_complete_date = models.DateField(null=True, blank=True)
     statement_results_complete_date = models.DateField(null=True, blank=True)
 
-    is_disproportionate_claimed = models.CharField(
+    disproportionate_burden_claim = models.CharField(
         max_length=20,
-        choices=Case.IsDisproportionateClaimed.choices,
-        default=Case.IsDisproportionateClaimed.NOT_KNOWN,
+        choices=Audit.DisproportionateBurden.choices,
+        default=Audit.DisproportionateBurden.NOT_CHECKED,
     )
-    disproportionate_notes = models.TextField(default="", blank=True)
+    disproportionate_burden_notes = models.TextField(default="", blank=True)
     disproportionate_burden_complete_date = models.DateField(null=True, blank=True)
 
     statement_compliance_state = models.CharField(
