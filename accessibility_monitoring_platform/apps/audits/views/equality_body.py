@@ -233,11 +233,13 @@ class RetestComplianceUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        retest: Retest = self.object
+        retest_pk: Dict[str, int] = {"pk": retest.id}
         if "save_continue" in self.request.POST:
             return reverse(
-                "cases:edit-retest-overview", kwargs={"pk": self.object.case.id}
+                "audits:edit-equality-body-statement-pages", kwargs=retest_pk
             )
-        return reverse("audits:retest-compliance-update", kwargs={"pk": self.object.id})
+        return reverse("audits:retest-compliance-update", kwargs=retest_pk)
 
 
 class RetestStatementPageFormsetUpdateView(UpdateView):
