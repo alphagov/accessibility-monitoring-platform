@@ -1452,6 +1452,12 @@ class Retest(VersionModel):
         return self.reteststatementcheckresult_set.filter(is_deleted=False)
 
     @property
+    def failed_statement_check_results(self):
+        return self.statement_check_results.filter(
+            check_result_state=StatementCheckResult.Result.NO
+        )
+
+    @property
     def overview_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
 
