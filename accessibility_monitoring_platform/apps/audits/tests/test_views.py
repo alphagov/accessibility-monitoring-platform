@@ -1,6 +1,7 @@
 """
 Tests for audits views
 """
+
 from datetime import date, timedelta
 from typing import Dict, List, Optional, Union
 
@@ -3057,19 +3058,19 @@ def test_equality_body_page_checks_save_continue(
     assert response.url == expected_path
 
 
-def test_equality_body_retest_compliance_update_redirects_to_retest_overview_based_on_button_pressed(
+def test_equality_body_retest_statement_compliance_update_redirects_to_retest_overview_based_on_button_pressed(
     admin_client,
 ):
     """
-    Test that a equality body retrest compliance update redirects to retest overview when save
-    and continue button is pressed.
+    Test that a equality body retrest statement compliance update redirects
+    to retest overview when save and continue button is pressed.
     """
     retest: Retest = create_equality_body_retest()
     retest_pk: Dict[str, int] = {"pk": retest.id}
     case_pk: Dict[str, int] = {"pk": retest.case.id}
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:retest-compliance-update", kwargs=retest_pk),
+        reverse("audits:edit-equality-body-statement-decision", kwargs=retest_pk),
         {
             "version": retest.version,
             "save_continue": "Button value",
