@@ -547,7 +547,7 @@ class RetestStatementFeedbackFormView(RetestStatementCheckingView):
         return super().get_success_url()
 
 
-class RetestStatementCustomFormView(RetestStatementCheckingView):
+class RetestStatementCustomFormView(RetestUpdateView):
     """
     View to update statement custom check results retest
     """
@@ -599,7 +599,7 @@ class RetestStatementCustomFormView(RetestStatementCheckingView):
                 RetestStatementCheckResult
             ] = retest_statement_check_results_formset.save(commit=False)
             for retest_statement_check_result in retest_statement_check_results:
-                if not retest_statement_check_result.audit_id:
+                if not retest_statement_check_result.id:
                     retest_statement_check_result.retest = retest
                     retest_statement_check_result.check_result_state = (
                         RetestStatementCheckResult.Result.NO

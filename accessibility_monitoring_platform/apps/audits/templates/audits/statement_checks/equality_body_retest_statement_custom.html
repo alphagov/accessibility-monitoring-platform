@@ -21,7 +21,30 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'audits/helpers/equality_body_retest_statement_check_formset.html' %}
+                            {{ retest_statement_check_results_formset.management_form }}
+                            {% for statement_check_result_form in retest_statement_check_results_formset %}
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-full">
+                                        <h2 id="custom-{{ statement_check_result_form.instance.id }}" class="govuk-heading-m amp-margin-bottom-10">
+                                            Custom issue #{{ forloop.counter }}
+                                        </h2>
+                                        {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}
+                                        {% include 'common/amp_field.html' with field=statement_check_result_form.comment %}
+                                    </div>
+                                </div>
+                                {% if statement_check_result_form.instance.id %}
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            <input
+                                                type="submit"
+                                                value="Remove issue"
+                                                name="remove_custom_{{ statement_check_result_form.instance.id }}"
+                                                class="govuk-button govuk-button--secondary"
+                                                data-module="govuk-button" />
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
                             {% if not retest_statement_check_results_formset.forms %}
                                 <p class="govuk-body-m">No custom statement issues have been entered</p>
                             {% endif %}
