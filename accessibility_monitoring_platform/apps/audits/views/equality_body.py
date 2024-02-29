@@ -36,6 +36,7 @@ from ..forms import (
     RetestStatementOverviewUpdateForm,
     RetestStatementPagesUpdateForm,
     RetestStatementPreparationUpdateForm,
+    RetestStatementResultsUpdateForm,
     RetestStatementWebsiteUpdateForm,
     RetestUpdateForm,
     StatementPageFormset,
@@ -648,11 +649,32 @@ class RetestStatementCustomFormView(RetestUpdateView):
             return current_url
         if "save_continue" in self.request.POST:
             return reverse(
-                "audits:edit-equality-body-disproportionate-burden", kwargs=retest_pk
+                "audits:edit-equality-body-statement-results", kwargs=retest_pk
             )
         elif "add_custom" in self.request.POST:
             return f"{current_url}?add_custom=true#custom-None"
         return current_url
+
+
+class RetestStatementResultsUpdateView(RetestUpdateView):
+    """
+    View to show results of statement content checks
+    """
+
+    form_class: Type[
+        RetestStatementResultsUpdateForm
+    ] = RetestStatementResultsUpdateForm
+    template_name: str = "audits/forms/equality_body_retest_statement_results.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: Dict[str, int] = {"pk": retest.id}
+            return reverse(
+                "audits:edit-equality-body-disproportionate-burden", kwargs=retest_pk
+            )
+        return super().get_success_url()
 
 
 class RetestDisproportionateBurdenUpdateView(UpdateView):

@@ -1350,6 +1350,7 @@ class Retest(VersionModel):
     statement_preparation_complete_date = models.DateField(null=True, blank=True)
     statement_feedback_complete_date = models.DateField(null=True, blank=True)
     statement_custom_complete_date = models.DateField(null=True, blank=True)
+    statement_results_complete_date = models.DateField(null=True, blank=True)
 
     is_disproportionate_claimed = models.CharField(
         max_length=20,
@@ -1463,6 +1464,28 @@ class Retest(VersionModel):
             ).count()
             == 0
         )
+
+    @property
+    def website_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.WEBSITE)
+
+    @property
+    def compliance_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.COMPLIANCE)
+
+    @property
+    def non_accessible_statement_check_results(self):
+        return self.statement_check_results.filter(
+            type=StatementCheck.Type.NON_ACCESSIBLE
+        )
+
+    @property
+    def preparation_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.PREPARATION)
+
+    @property
+    def feedback_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
 
     @property
     def custom_statement_check_results(self):

@@ -1790,6 +1790,21 @@ RetestStatementCustomCheckResultFormsetOneExtra: Any = forms.modelformset_factor
 )
 
 
+class RetestStatementResultsUpdateForm(VersionForm):
+    """
+    Form for completion of page showing results of statement content checks
+    """
+
+    statement_results_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: List[str] = [
+            "version",
+            "statement_results_complete_date",
+        ]
+
+
 class RetestDisproportionateBurdenUpdateForm(VersionForm):
     """
     Form for editing equality body retest disproportional burden claim
