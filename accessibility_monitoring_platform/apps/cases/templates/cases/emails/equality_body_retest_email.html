@@ -52,7 +52,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div id="email-text" class="amp-report-wrapper">
-                    <h1 class="amp-margin-bottom-0">{{ case.organisation_name }}</h1>
+                    <h1 class="amp-margin-bottom-0">{% if case.website_name %}{{ case.website_name }}{% else %}{{ case.organisation_name }}{% endif %}</h1>
                     {{ case.domain }}
                     <br>
                     <br>
