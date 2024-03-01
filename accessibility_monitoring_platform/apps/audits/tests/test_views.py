@@ -2201,7 +2201,7 @@ def test_retest_page_checks_edit_saves_results(admin_client):
             "form-1-id": check_result_pdf.id,
             "form-1-retest_state": "not-fixed",
             "form-1-retest_notes": CHECK_RESULT_NOTES,
-            "retest_date": "on",
+            "retest_complete_date": "on",
             "retest_page_missing_date": "on",
             "retest_notes": PAGE_RETEST_NOTES,
         },
