@@ -23,6 +23,7 @@ from ..models import (
     Retest,
     RetestCheckResult,
     RetestPage,
+    RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
@@ -654,6 +655,70 @@ def test_audit_statement_pages_default_added_stage(
 
     assertNotContains(response, STATEMENT_PAGE_INITIAL_CHECKED, html=True)
     assertContains(response, STATEMENT_PAGE_TWELVE_WEEK_CHECKED, html=True)
+
+
+@pytest.mark.parametrize(
+    "path_name",
+    [
+        "edit-statement-pages",
+        "edit-audit-retest-statement-pages",
+    ],
+)
+def test_delete_statement_page(path_name, admin_client):
+    """Test deleting a statement page"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.post(
+        reverse(f"audits:{path_name}", kwargs={"pk": audit.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_statement_page_{statement_page.id}": "Remove statement link",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    updated_statement_page: StatementPage = StatementPage.objects.get(
+        id=statement_page.id
+    )
+
+    assert updated_statement_page.is_deleted is True
+
+
+def test_delete_statement_page_on_retest(admin_client):
+    """Test deleting a statement page"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    retest: Retest = Retest.objects.create(case=audit.case)
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_statement_page_{statement_page.id}": "Remove statement link",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    updated_statement_page: StatementPage = StatementPage.objects.get(
+        id=statement_page.id
+    )
+
+    assert updated_statement_page.is_deleted is True
 
 
 @pytest.mark.parametrize(
@@ -1994,6 +2059,41 @@ def test_delete_custom_statement_check_result(admin_client):
     result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
         audit=audit, type=StatementCheck.Type.CUSTOM
     )
+    assert result_on_database.is_deleted is True
+
+
+def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
+    """
+    Test that pressing the remove issue button deletes the custom statement issue
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    retest: Retest = Retest.objects.create(case=audit.case)
+    custom_retest_statement_check_result: StatementCheckResult = (
+        RetestStatementCheckResult.objects.create(retest=retest)
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-equality-body-statement-custom", kwargs={"pk": retest.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_custom_{custom_retest_statement_check_result.id}": "Remove issue",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "No custom statement issues have been entered")
+
+    result_on_database: RetestStatementCheckResult = (
+        RetestStatementCheckResult.objects.get(
+            id=custom_retest_statement_check_result.id
+        )
+    )
+
     assert result_on_database.is_deleted is True
 
 
