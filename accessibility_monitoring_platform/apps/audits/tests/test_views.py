@@ -71,6 +71,9 @@ id="id_form-0-added_stage_0" checked="">"""
 STATEMENT_PAGE_TWELVE_WEEK_CHECKED: str = """<input class="govuk-radios__input"
 type="radio" name="form-0-added_stage" value="12-week-retest"
 id="id_form-0-added_stage_1" checked="">"""
+STATEMENT_PAGE_EWUALITY_BODY_RETEST_CHECKED: str = """<input class="govuk-radios__input"
+type="radio" name="form-0-added_stage" value="retest"
+id="id_form-0-added_stage_2" checked="">"""
 STATEMENT_PAGE_URL: str = "https://example.com/statement"
 WCAG_DEFINITION_HINT: str = "WCAG definition hint text"
 
@@ -2198,7 +2201,7 @@ def test_retest_page_checks_edit_saves_results(admin_client):
             "form-1-id": check_result_pdf.id,
             "form-1-retest_state": "not-fixed",
             "form-1-retest_notes": CHECK_RESULT_NOTES,
-            "retest_complete_date": "on",
+            "retest_date": "on",
             "retest_page_missing_date": "on",
             "retest_notes": PAGE_RETEST_NOTES,
         },
@@ -2949,6 +2952,121 @@ def test_create_equality_body_retest_creates_retest_0(admin_client):
             "audits:retest-compliance-update",
         ),
         ("audits:retest-compliance-update", "save", "audits:retest-compliance-update"),
+        (
+            "audits:retest-compliance-update",
+            "save_continue",
+            "audits:edit-equality-body-statement-pages",
+        ),
+        (
+            "audits:edit-equality-body-statement-pages",
+            "save",
+            "audits:edit-equality-body-statement-pages",
+        ),
+        (
+            "audits:edit-equality-body-statement-pages",
+            "save_continue",
+            "audits:edit-equality-body-statement-overview",
+        ),
+        (
+            "audits:edit-equality-body-statement-overview",
+            "save",
+            "audits:edit-equality-body-statement-overview",
+        ),
+        (
+            "audits:edit-equality-body-statement-overview",
+            "save_continue",
+            "audits:edit-equality-body-statement-website",
+        ),
+        (
+            "audits:edit-equality-body-statement-website",
+            "save",
+            "audits:edit-equality-body-statement-website",
+        ),
+        (
+            "audits:edit-equality-body-statement-website",
+            "save_continue",
+            "audits:edit-equality-body-statement-compliance",
+        ),
+        (
+            "audits:edit-equality-body-statement-compliance",
+            "save",
+            "audits:edit-equality-body-statement-compliance",
+        ),
+        (
+            "audits:edit-equality-body-statement-compliance",
+            "save_continue",
+            "audits:edit-equality-body-statement-non-accessible",
+        ),
+        (
+            "audits:edit-equality-body-statement-non-accessible",
+            "save",
+            "audits:edit-equality-body-statement-non-accessible",
+        ),
+        (
+            "audits:edit-equality-body-statement-non-accessible",
+            "save_continue",
+            "audits:edit-equality-body-statement-preparation",
+        ),
+        (
+            "audits:edit-equality-body-statement-preparation",
+            "save",
+            "audits:edit-equality-body-statement-preparation",
+        ),
+        (
+            "audits:edit-equality-body-statement-preparation",
+            "save_continue",
+            "audits:edit-equality-body-statement-feedback",
+        ),
+        (
+            "audits:edit-equality-body-statement-feedback",
+            "save",
+            "audits:edit-equality-body-statement-feedback",
+        ),
+        (
+            "audits:edit-equality-body-statement-feedback",
+            "save_continue",
+            "audits:edit-equality-body-statement-custom",
+        ),
+        (
+            "audits:edit-equality-body-statement-custom",
+            "save",
+            "audits:edit-equality-body-statement-custom",
+        ),
+        (
+            "audits:edit-equality-body-statement-custom",
+            "save_continue",
+            "audits:edit-equality-body-statement-results",
+        ),
+        (
+            "audits:edit-equality-body-statement-results",
+            "save",
+            "audits:edit-equality-body-statement-results",
+        ),
+        (
+            "audits:edit-equality-body-statement-results",
+            "save_continue",
+            "audits:edit-equality-body-disproportionate-burden",
+        ),
+        (
+            "audits:edit-equality-body-disproportionate-burden",
+            "save",
+            "audits:edit-equality-body-disproportionate-burden",
+        ),
+        (
+            "audits:edit-equality-body-disproportionate-burden",
+            "save_continue",
+            "audits:edit-equality-body-statement-decision",
+        ),
+        (
+            "audits:edit-equality-body-statement-decision",
+            "save",
+            "audits:edit-equality-body-statement-decision",
+        ),
+        (
+            "audits:edit-equality-body-statement-decision",
+            "save_continue",
+            "cases:edit-retest-overview",
+        ),
     ],
 )
 def test_equality_body_retest_edit_redirects_based_on_button_pressed(
@@ -2968,6 +3086,10 @@ def test_equality_body_retest_edit_redirects_based_on_button_pressed(
         {
             "version": retest.version,
             button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
         },
     )
 
@@ -3056,6 +3178,25 @@ def test_equality_body_page_checks_save_continue(
 
     expected_path: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
     assert response.url == expected_path
+
+
+def test_equality_body_retest_statement_pages_default_added_stage(
+    admin_client,
+):
+    """
+    Test that added stage for new entries defaults to retest
+    for equality body-requested retests.
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("audits:edit-equality-body-statement-pages", kwargs=retest_pk)}?add_extra=true#statement-page-None'
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, STATEMENT_PAGE_EWUALITY_BODY_RETEST_CHECKED, html=True)
 
 
 def test_equality_body_retest_statement_compliance_update_redirects_to_retest_overview_based_on_button_pressed(
