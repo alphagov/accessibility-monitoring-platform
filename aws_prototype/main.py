@@ -1,9 +1,11 @@
 """main - main function for deploy feature to AWS Copilot"""
 import argparse
+import copy
 import os
 import shutil
 import subprocess
 from typing import List
+import yaml
 
 import boto3
 from django.core.management.utils import get_random_secret_key
@@ -42,6 +44,7 @@ SECRET_KEY: str = get_random_secret_key()
 NOTIFY_API_KEY: str = "NO_API_KEY"
 EMAIL_NOTIFY_BASIC_TEMPLATE: str = "NO_TEMPLATE"
 BACKUP_DB: str = "db-store-for-prototypes"
+YAML_DIR_AMP: str = "copilot/amp-svc/manifest.yml"
 
 
 def switch_cp_apps():
@@ -51,14 +54,6 @@ def switch_cp_apps():
         for line in lines:
             f.write(line)
             f.write("\n")
-
-
-def does_copilot_app_already_exist(app_name: str) -> bool:
-    copilot_command: List[str] = "copilot app ls".split(" ")
-    output = subprocess.check_output(copilot_command).decode("utf-8")
-    if app_name in output:
-        return True
-    return False
 
 
 def does_copilot_env_already_exist(env_name: str) -> bool:
@@ -86,6 +81,24 @@ def get_copilot_s3_bucket() -> str:
         )
 
     return filtered_buckets[0]
+
+
+def empty_s3_buckets() -> None:
+    s3_client = boto3.client("s3")
+    s3_resource = boto3.resource("s3")
+
+    response = s3_client.list_buckets()
+    all_buckets = [x["Name"] for x in response["Buckets"]]
+    target_bucket = f"""{APP_NAME}-{ENV_NAME}"""
+    filtered_buckets = [s for s in all_buckets if target_bucket in s]
+    print(f">>> S3 buckets found: {len(filtered_buckets)}")
+
+    for bucket in filtered_buckets:
+        bucket = s3_resource.Bucket(bucket)
+        bucket.objects.all().delete()
+        print(f">>> Deleted all objects in {bucket.name}")
+
+    print("Successfully wiped all buckets")
 
 
 def restore_copilot_prod_settings() -> None:
@@ -120,58 +133,75 @@ def restore_prototype_env_file() -> None:
     )
 
 
+def prep_yaml() -> str:
+    with open(YAML_DIR_AMP, encoding="UTF-8") as f:
+        doc = yaml.load(f, Loader=yaml.Loader)
+    backup_yaml = copy.deepcopy(doc)
+    doc["variables"]["ALLOWED_HOSTS"] = f"amp-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk"
+    with open(YAML_DIR_AMP, "w", encoding="UTF-8") as f:
+        yaml.dump(doc, f)
+    return backup_yaml
+
+
+def restore_yaml(backup_yaml: str):
+    with open(YAML_DIR_AMP, "w", encoding="UTF-8") as f:
+        yaml.dump(backup_yaml, f)
+
+
 def up():
     print(">>> Setting up AWS Copilot prototype")
 
     switch_cp_apps()
-    app_exist: bool = does_copilot_app_already_exist(app_name=APP_NAME)
 
-    if app_exist:
-        print(f">>> {APP_NAME} already exists in copilot...")
-    else:
-        print(">>> creating app")
-        os.system(
-            f"""copilot app init {APP_NAME} --domain proto.accessibility-monitoring.service.gov.uk {get_aws_resource_tags()}"""
-        )
+    print(">>> creating app")
+    os.system(
+        f"""copilot app init {APP_NAME} --domain proto.accessibility-monitoring.service.gov.uk {get_aws_resource_tags()}"""
+    )
 
     env_exist: bool = does_copilot_env_already_exist(env_name=ENV_NAME)
 
     if env_exist:
         print(f">>> {ENV_NAME} already exists")
         restore_prototype_env_file()
-    else:
-        print(">>> creating env")
-        os.system(
-            f"""copilot env init --name {ENV_NAME} --profile mfa --region eu-west-2 --default-config"""
-        )
-        os.system(f"""copilot env deploy --name {ENV_NAME}""")
-        os.system(
-            f"copilot secret init "
-            "--name SECRET_KEY "
-            f"""--values {ENV_NAME}="{SECRET_KEY}" """
-            "--overwrite"
-        )
-        os.system(
-            f"copilot secret init "
-            "--name NOTIFY_API_KEY "
-            f"--values {ENV_NAME}={NOTIFY_API_KEY} "
-            "--overwrite"
-        )
-        os.system(
-            "copilot secret init "
-            "--name EMAIL_NOTIFY_BASIC_TEMPLATE "
-            f"--values {ENV_NAME}={EMAIL_NOTIFY_BASIC_TEMPLATE} "
-            "--overwrite"
-        )
-        os.system("copilot svc init --name viewer-svc")
-        os.system("copilot svc init --name amp-svc")
+
+    print(">>> creating env")
+    os.system(
+        f"""copilot env init --name {ENV_NAME} --profile mfa --region eu-west-2 --default-config"""
+    )
+    os.system(f"""copilot env deploy --name {ENV_NAME}""")
+    os.system(
+        f"copilot secret init "
+        "--name SECRET_KEY "
+        f"""--values {ENV_NAME}="{SECRET_KEY}" """
+        "--overwrite"
+    )
+    os.system(
+        f"copilot secret init "
+        "--name NOTIFY_API_KEY "
+        f"--values {ENV_NAME}={NOTIFY_API_KEY} "
+        "--overwrite"
+    )
+    os.system(
+        "copilot secret init "
+        "--name EMAIL_NOTIFY_BASIC_TEMPLATE "
+        f"--values {ENV_NAME}={EMAIL_NOTIFY_BASIC_TEMPLATE} "
+        "--overwrite"
+    )
+    os.system("copilot svc init --name viewer-svc")
+    os.system("copilot svc init --name amp-svc")
+
+    backup_yaml = prep_yaml()
+
+    os.system(
+        f"""copilot svc deploy --name amp-svc --env {ENV_NAME} {get_aws_resource_tags()}"""
+    )
+
+    restore_yaml(backup_yaml)
 
     os.system(
         f"""copilot svc deploy --name viewer-svc --env {ENV_NAME} {get_aws_resource_tags(system='Viewer')}"""
     )
-    os.system(
-        f"""copilot svc deploy --name amp-svc --env {ENV_NAME} {get_aws_resource_tags()}"""
-    )
+
 
     if env_exist is False:
         bucket: str = get_copilot_s3_bucket()
@@ -189,11 +219,7 @@ def down():
     print(">>> Breaking down Copilot prototype")
     switch_cp_apps()
     restore_prototype_env_file()
-    bucket: str = get_copilot_s3_bucket()
-    s3 = boto3.resource("s3")
-    bucket = s3.Bucket(bucket)
-    bucket.objects.all().delete()
-    print(">>> Deleted all objects in S3")
+    empty_s3_buckets()
     os.system("copilot app delete --yes")
     restore_copilot_prod_settings()
 
