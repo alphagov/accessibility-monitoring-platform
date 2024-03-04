@@ -44,6 +44,7 @@ from ..common.utils import (
     get_id_from_button_name,
     get_url_parameters_for_pagination,
     list_to_dictionary_of_lists,
+    mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
 )
@@ -122,6 +123,7 @@ TRUTHY_SEARCH_FIELDS: List[str] = [
     "enforcement_body",
     "subcategory",
 ]
+REMOVE_CONTACT_BUTTON_PREFIX: str = "remove_contact_"
 statement_fields = {
     **ArchiveAuditStatement1UpdateForm().fields,
     **ArchiveAuditStatement2UpdateForm().fields,
@@ -671,17 +673,11 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                     contact.save()
         else:
             return super().form_invalid(form)
-        contact_id_to_delete: Optional[int] = get_id_from_button_name(
-            button_name_prefix="remove_contact_",
-            querydict=self.request.POST,
+        mark_object_as_deleted(
+            request=self.request,
+            delete_button_prefix=REMOVE_CONTACT_BUTTON_PREFIX,
+            object_to_delete_model=Contact,
         )
-        if contact_id_to_delete is not None:
-            contact_to_delete: Contact = Contact.objects.get(id=contact_id_to_delete)
-            contact_to_delete.is_deleted = True
-            record_model_update_event(
-                user=self.request.user, model_object=contact_to_delete
-            )
-            contact_to_delete.save()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -695,7 +691,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
             return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true#contact-None"
         else:
             contact_id_to_delete: Optional[int] = get_id_from_button_name(
-                "remove_contact_", self.request.POST
+                REMOVE_CONTACT_BUTTON_PREFIX, self.request.POST
             )
             if contact_id_to_delete is not None:
                 return reverse("cases:edit-contact-details", kwargs=case_pk)

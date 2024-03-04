@@ -14,8 +14,8 @@ from django.views.generic.edit import UpdateView
 from ...cases.models import Case
 from ...common.models import Boolean
 from ...common.utils import (
-    get_id_from_button_name,
     list_to_dictionary_of_lists,
+    mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
 )
@@ -297,19 +297,11 @@ class RetestStatementPageFormsetUpdateView(UpdateView):
                     statement_page.save()
         else:
             return super().form_invalid(form)
-        statement_page_id_to_delete: Optional[int] = get_id_from_button_name(
-            button_name_prefix="remove_statement_page_",
-            querydict=self.request.POST,
+        mark_object_as_deleted(
+            request=self.request,
+            delete_button_prefix="remove_statement_page_",
+            object_to_delete_model=StatementPage,
         )
-        if statement_page_id_to_delete is not None:
-            statement_page_to_delete: statement_page = StatementPage.objects.get(
-                id=statement_page_id_to_delete
-            )
-            statement_page_to_delete.is_deleted = True
-            record_model_update_event(
-                user=self.request.user, model_object=statement_page_to_delete
-            )
-            statement_page_to_delete.save()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -620,23 +612,11 @@ class RetestStatementCustomFormView(RetestUpdateView):
                     retest_statement_check_result.save()
         else:
             return super().form_invalid(form)
-        retest_statement_check_result_id_to_delete: Optional[
-            int
-        ] = get_id_from_button_name(
-            button_name_prefix="remove_custom_",
-            querydict=self.request.POST,
+        mark_object_as_deleted(
+            request=self.request,
+            delete_button_prefix="remove_custom_",
+            object_to_delete_model=RetestStatementCheckResult,
         )
-        if retest_statement_check_result_id_to_delete is not None:
-            retest_statement_check_result: RetestStatementCheckResult = (
-                RetestStatementCheckResult.objects.get(
-                    id=retest_statement_check_result_id_to_delete
-                )
-            )
-            retest_statement_check_result.is_deleted = True
-            record_model_update_event(
-                user=self.request.user, model_object=retest_statement_check_result
-            )
-            retest_statement_check_result.save()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

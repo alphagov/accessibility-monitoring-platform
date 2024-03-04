@@ -1,6 +1,7 @@
 """
 Common views
 """
+
 import logging
 from datetime import date, datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -51,9 +52,9 @@ from .models import (
 from .page_title_utils import get_page_title
 from .utils import (
     extract_domain_from_url,
-    get_id_from_button_name,
     get_one_year_ago,
     get_platform_settings,
+    mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
     sanitise_domain,
@@ -293,19 +294,11 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
             return self.render_to_response(
                 self.get_context_data(links_formset=links_formset)
             )
-        link_id_to_delete: Optional[int] = get_id_from_button_name(
-            button_name_prefix="remove_link_",
-            querydict=request.POST,
+        mark_object_as_deleted(
+            request=request,
+            delete_button_prefix="remove_link_",
+            object_to_delete_model=FrequentlyUsedLink,
         )
-        if link_id_to_delete is not None:
-            link_to_delete: FrequentlyUsedLink = FrequentlyUsedLink.objects.get(
-                id=link_id_to_delete
-            )
-            link_to_delete.is_deleted = True
-            record_model_update_event(
-                user=self.request.user, model_object=link_to_delete
-            )
-            link_to_delete.save()
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
@@ -357,17 +350,11 @@ class FooterLinkFormsetTemplateView(TemplateView):
                 self.get_context_data(links_formset=links_formset)
             )
 
-        link_id_to_delete: Optional[int] = get_id_from_button_name(
-            button_name_prefix="remove_link_",
-            querydict=request.POST,
+        mark_object_as_deleted(
+            request=request,
+            delete_button_prefix="remove_link_",
+            object_to_delete_model=FooterLink,
         )
-        if link_id_to_delete is not None:
-            link_to_delete: FooterLink = FooterLink.objects.get(id=link_id_to_delete)
-            link_to_delete.is_deleted = True
-            record_model_update_event(
-                user=self.request.user, model_object=link_to_delete
-            )
-            link_to_delete.save()
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
