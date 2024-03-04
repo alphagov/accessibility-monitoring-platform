@@ -1,6 +1,6 @@
             <li>
-                {% if id %}
-                    <a href="#{{ id }}" class="govuk-link govuk-link--no-visited-state">
+                {% if anchor %}
+                    <a href="#{{ anchor }}" class="govuk-link govuk-link--no-visited-state">
                         {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% else %}
                     {{ name }}
