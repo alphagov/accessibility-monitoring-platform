@@ -1837,7 +1837,7 @@ def test_section_complete_check_displayed_publish_report(admin_client):
         f"""<li>
             Publish report
             |
-            <a id="edit-" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+            <a id="edit-publish-report" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden">complete</span>
             </a>
             &check;
