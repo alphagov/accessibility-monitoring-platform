@@ -386,9 +386,6 @@ class Case(VersionModel):
     )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_retest_document_url = models.TextField(default="", blank=True)
-    is_feedback_requested = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Equality body metadata
@@ -401,6 +398,10 @@ class Case(VersionModel):
         default=EnforcementBodyClosedCase.NO,
     )
     enforcement_body_finished_date = models.DateField(null=True, blank=True)
+    is_feedback_requested = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    equality_body_notes = models.TextField(default="", blank=True)
 
     # Deactivate case page
     is_deactivated = models.BooleanField(default=False)
