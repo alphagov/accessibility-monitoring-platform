@@ -105,7 +105,7 @@
                                     <li>
                                         {{ required_data_missing_column.column_header }} is missing
                                         {% if required_data_missing_column.edit_url %}
-                                            (<a href="{{ required_data_missing_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">{{ required_data_missing_column.edit_url_label }}{% if required_data_missing_column.edit_url_label == 'Edit' %}<span class="govuk-visually-hidden"> {{ required_data_missing_column.column_header }}</span>{% endif %}</a>)
+                                            <span class="amp-nowrap">(<a href="{{ required_data_missing_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">{{ required_data_missing_column.edit_url_label }}{% if required_data_missing_column.edit_url_label == 'Edit' %}<span class="govuk-visually-hidden"> {{ required_data_missing_column.column_header }}</span>{% endif %}</a>)</span>
                                         {% endif %}
                                     </li>
                                 {% endfor %}
