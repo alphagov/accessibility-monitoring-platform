@@ -1,6 +1,7 @@
 """
 Models - audits (called tests by the users)
 """
+
 from datetime import date
 from typing import Dict, List, Optional
 
@@ -1222,6 +1223,24 @@ class CheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
+
+    @property
+    def other_messages(self) -> Dict[str, str]:
+        """Other results with notes for matching WCAGDefinition"""
+        return (
+            self.audit.failed_check_results.filter(wcag_definition=self.wcag_definition)
+            .exclude(page=self.page)
+            .exclude(notes="")
+        )
+
+    @property
+    def other_retest_messages(self) -> Dict[str, str]:
+        """Other results with retest notes for matching WCAGDefinition"""
+        return (
+            self.audit.failed_check_results.filter(wcag_definition=self.wcag_definition)
+            .exclude(page=self.page)
+            .exclude(retest_notes="")
+        )
 
 
 class StatementCheck(models.Model):
