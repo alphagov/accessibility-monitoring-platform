@@ -1,6 +1,7 @@
 """
 Views for audits app (called tests by users)
 """
+
 from datetime import date
 from typing import Any, Dict, List, Tuple, Type, Union
 
@@ -336,11 +337,13 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
 
         if audit.accessibility_statement_found:
             if self.request.POST:
-                retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = AuditRetestStatementCheckResultFormset(
-                    self.request.POST
-                )
+                retest_statement_check_results_formset: (
+                    AuditRetestStatementCheckResultFormset
+                ) = AuditRetestStatementCheckResultFormset(self.request.POST)
             else:
-                retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = AuditRetestStatementCheckResultFormset(
+                retest_statement_check_results_formset: (
+                    AuditRetestStatementCheckResultFormset
+                ) = AuditRetestStatementCheckResultFormset(
                     queryset=StatementCheckResult.objects.filter(
                         audit=self.object, type=self.statement_check_type
                     )
@@ -357,9 +360,9 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         context: Dict[str, Any] = self.get_context_data()
         audit: Audit = self.object
         if audit.accessibility_statement_found:
-            retest_statement_check_results_formset: AuditRetestStatementCheckResultFormset = context[
-                "retest_statement_check_results_formset"
-            ]
+            retest_statement_check_results_formset: (
+                AuditRetestStatementCheckResultFormset
+            ) = context["retest_statement_check_results_formset"]
             if retest_statement_check_results_formset.is_valid():
                 for (
                     retest_statement_check_results_form

@@ -1,6 +1,7 @@
 """
 Tests for cases models
 """
+
 from datetime import date, datetime, timezone
 from typing import List, Optional
 from unittest.mock import Mock, patch
@@ -1510,3 +1511,57 @@ def test_statement_found_at_12_week_retest_using_overview_statement_check_result
         statement_check_result.save()
 
     assert audit.statement_found_at_12_week_retest is True
+
+
+@pytest.mark.django_db
+def test_check_result_matching_wcag_with_retest_notes_check_results():
+    """
+    Test CheckResult.matching_wcag_with_retest_notes_check_results returns other
+    check results on the other pages with the same WCAG definition and retest notes
+    """
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    contact_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.CONTACT)
+    coronavirus_page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.CORONAVIRUS
+    )
+    first_check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    second_check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=contact_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+        retest_notes="Sample note",
+    )
+    third_check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=coronavirus_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+        retest_notes="Another note",
+    )
+
+    assert first_check_result.matching_wcag_with_retest_notes_check_results.count() == 2
+    assert (
+        first_check_result.matching_wcag_with_retest_notes_check_results.first()
+        == second_check_result
+    )
+    assert (
+        first_check_result.matching_wcag_with_retest_notes_check_results.last()
+        == third_check_result
+    )
