@@ -1225,17 +1225,8 @@ class CheckResult(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def other_messages(self) -> Dict[str, str]:
-        """Other results with notes for matching WCAGDefinition"""
-        return (
-            self.audit.failed_check_results.filter(wcag_definition=self.wcag_definition)
-            .exclude(page=self.page)
-            .exclude(notes="")
-        )
-
-    @property
-    def other_retest_messages(self) -> Dict[str, str]:
-        """Other results with retest notes for matching WCAGDefinition"""
+    def matching_wcag_with_retest_notes_check_results(self) -> Dict[str, str]:
+        """Other check results with retest notes for matching WCAGDefinition"""
         return (
             self.audit.failed_check_results.filter(wcag_definition=self.wcag_definition)
             .exclude(page=self.page)

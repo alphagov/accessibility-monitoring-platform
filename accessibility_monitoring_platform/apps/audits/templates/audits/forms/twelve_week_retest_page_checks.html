@@ -82,7 +82,7 @@
                                 <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
                                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                                 {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.retest_state %}
-                                {% if check_result.other_retest_messages %}
+                                {% if check_result.matching_wcag_with_retest_notes_check_results %}
                                     <details class="govuk-details" data-module="govuk-details">
                                         <summary class="govuk-details__summary">
                                             <span class="govuk-details__summary-text">
@@ -91,7 +91,7 @@
                                         </summary>
                                         <div class="govuk-details__text">
                                             <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                                            {% for other_check_result in check_result.other_retest_messages %}
+                                            {% for other_check_result in check_result.matching_wcag_with_retest_notes_check_results %}
                                                 <li>
                                                     <b>{{ other_check_result.page }}</b>
                                                     <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ other_check_result.retest_notes }}</textarea>
@@ -108,6 +108,7 @@
                                     </details>
                                 {% endif %}
                                 {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.retest_notes %}
+                                {% include 'common/preview_markdown.html' with field_id=form.retest_notes.auto_id %}
                             </div>
                         </div>
                     {% endfor %}
