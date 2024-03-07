@@ -15,7 +15,7 @@
 </p>
 <p class="govuk-body-m amp-margin-bottom-5">
     <a href="{% url 'cases:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">
-        Go to QA comments ({{ number_of_unread_notifications }} unread comment{% if number_of_unread_notifications != 1 %}s{% endif %})</a>
+        Go to QA comments ({{ case.qa_comments.count }} comment{% if case.qa_comments.count != 1 %}s{% endif %})</a>
 </p>
 <p class="govuk-body-m amp-margin-bottom-5">
     <a href="{% url 'cases:edit-report-approved' case.id %}" class="govuk-link govuk-link--no-visited-state">
