@@ -1,6 +1,7 @@
 """
 Admin for cases
 """
+
 from django.contrib import admin
 
 from ..common.admin import ExportCsvMixin
@@ -71,6 +72,7 @@ class CaseComplianceAdmin(admin.ModelAdmin):
         "statement_compliance_state_initial",
         "statement_compliance_state_12_week",
     ]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class CaseEventAdmin(admin.ModelAdmin, ExportCsvMixin):

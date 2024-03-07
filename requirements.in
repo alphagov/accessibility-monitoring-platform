@@ -1,9 +1,8 @@
-django==4.2.11
+django
 python-dotenv
 psycopg2
 notifications-python-client
 whitenoise
-dj-database-url
 waitress
 boto3
 selenium
