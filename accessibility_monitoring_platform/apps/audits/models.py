@@ -1,6 +1,7 @@
 """
 Models - audits (called tests by the users)
 """
+
 from datetime import date
 from typing import Dict, List, Optional
 
@@ -965,6 +966,26 @@ class Audit(VersionModel):
         )
 
     @property
+    def statement_initially_found(self) -> bool:
+        """Check an accesibility statement was initially found"""
+        return (
+            self.overview_statement_check_results.exclude(
+                check_result_state=StatementCheckResult.Result.YES
+            ).count()
+            == 0
+        )
+
+    @property
+    def statement_found_at_12_week_retest(self) -> bool:
+        """Check an accessibility statement was found at 12-week retest"""
+        return (
+            self.overview_statement_check_results.exclude(
+                retest_state=StatementCheckResult.Result.YES
+            ).count()
+            == 0
+        )
+
+    @property
     def failed_retest_statement_check_results(self):
         return self.statement_check_results.filter(
             retest_state=StatementCheckResult.Result.NO
@@ -1202,6 +1223,15 @@ class CheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
+
+    @property
+    def matching_wcag_with_retest_notes_check_results(self) -> Dict[str, str]:
+        """Other check results with retest notes for matching WCAGDefinition"""
+        return (
+            self.audit.failed_check_results.filter(wcag_definition=self.wcag_definition)
+            .exclude(page=self.page)
+            .exclude(retest_notes="")
+        )
 
 
 class StatementCheck(models.Model):

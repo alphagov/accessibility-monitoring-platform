@@ -53,22 +53,6 @@ describe('View case', () => {
     cy.contains('Save').click()
   })
 
-  it('can edit Report ready for QA process', () => {
-    cy.get('#edit-qa-ready-for-process').click()
-    cy.get('[name="report_review_status"]').check('yes')
-    cy.get('[name="report_ready_for_qa_complete_date"]').click()
-    cy.contains('Save').click()
-    cy.contains('Case').click()
-  })
-
-  it('can edit QA auditor', () => {
-    cy.get('#edit-qa-auditor').click()
-    cy.get('#id_reviewer').select('QA Auditor')
-    cy.get('[name="qa_auditor_complete_date"]').click()
-    cy.contains('Save').click()
-    cy.contains('Case').click()
-  })
-
   it('can edit QA comments', () => {
     cy.get('#edit-qa-comments').click()
     cy.get('[name="body"]').clear().type(qaComment)
@@ -78,9 +62,9 @@ describe('View case', () => {
   })
 
   it('can edit Report approved', () => {
-    cy.get('#edit-qa-report-approved').click()
-    cy.get('[name="report_approved_status"]').check('yes')
-    cy.get('[name="qa_approved_complete_date"]').click()
+    cy.get('#edit-report-approved').click()
+    cy.get('#id_reviewer').select('QA Auditor')
+    cy.get('[name="qa_auditor_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Case').click()
   })
@@ -113,11 +97,19 @@ describe('View case', () => {
     cy.contains(psbProgressNote)
   })
 
-  it('can edit closing the case', () => {
-    cy.get('#edit-case-close').click()
+  it('can edit enforcement recommendation', () => {
+    cy.get('#edit-enforcement-recommendation').click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="recommendation_for_enforcement"]').check('no-further-action')
     cy.get('[name="recommendation_notes"]').clear().type(recommendationNote)
+    cy.get('[name="enforcement_recommendation_complete_date"]').click()
+    cy.contains('Save').click()
+    cy.contains('Case').click()
+    cy.contains(recommendationNote)
+  })
+
+  it('can edit closing the case', () => {
+    cy.get('#edit-case-close').click()
     cy.get('[name="case_completed"]').check('complete-send')
     cy.get('[name="case_close_complete_date"]').click()
     cy.contains('Save').click()

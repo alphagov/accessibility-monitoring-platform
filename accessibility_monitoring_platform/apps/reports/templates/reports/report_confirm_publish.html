@@ -37,9 +37,9 @@
                         <li>
                             Mark report as ready to review in
                             <a
-                                href="{% url 'cases:edit-qa-ready-for-process' report.case.id %}"
+                                href="{% url 'cases:edit-report-details' report.case.id %}"
                                 class="govuk-link govuk-link--no-visited-state">
-                                Report ready for QA process
+                                Report details
                             </a>
                             {% if report.case.report_review_status == 'yes' %}&check;{% endif %}
                         </li>

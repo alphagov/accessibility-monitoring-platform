@@ -15,6 +15,7 @@
             <div class="govuk-grid-column-two-thirds">
                 {% include 'cases/helpers/correspondence_overview_detail.html' %}
                 {% include 'common/error_summary.html' %}
+                {% include 'cases/helpers/contact_details_link.html' %}
                 {% include 'cases/helpers/no_response_link.html' %}
                 <form method="post" action="{% url 'cases:edit-find-contact-details' case.id %}">
                     {% csrf_token %}

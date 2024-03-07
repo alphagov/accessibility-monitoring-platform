@@ -426,7 +426,9 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
             audit_pk: Dict[str, int] = {"pk": audit.id}
             if audit.all_overview_statement_checks_have_passed:
                 return reverse("audits:edit-statement-website", kwargs=audit_pk)
-            return reverse("audits:edit-audit-summary", kwargs=audit_pk)
+            return reverse(
+                "audits:edit-initial-disproportionate-burden", kwargs=audit_pk
+            )
         return super().get_success_url()
 
 

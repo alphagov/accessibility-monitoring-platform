@@ -1,6 +1,7 @@
 """
 Views for cases app
 """
+
 from datetime import date, timedelta
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Type, Union
@@ -27,7 +28,6 @@ from ..audits.utils import (
     get_test_view_tables_context,
     report_data_updated,
 )
-from ..cases.utils import get_post_case_alerts
 from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
@@ -48,7 +48,11 @@ from ..common.utils import (
     record_model_update_event,
 )
 from ..notifications.utils import add_notification, read_notification
-from ..reports.utils import build_issues_tables, get_report_visits_metrics
+from ..reports.utils import (
+    build_issues_tables,
+    get_report_visits_metrics,
+    publish_report_util,
+)
 from .forms import (
     CaseCloseUpdateForm,
     CaseContactFormset,
@@ -58,17 +62,17 @@ from .forms import (
     CaseCreateForm,
     CaseDeactivateForm,
     CaseDetailUpdateForm,
+    CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
     CaseFindContactDetailsUpdateForm,
     CaseFourWeekFollowupUpdateForm,
     CaseNoPSBContactUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
-    CaseQAAuditorUpdateForm,
+    CasePublishReportUpdateForm,
     CaseQACommentsUpdateForm,
-    CaseQAReadyForProcessUpdateForm,
-    CaseQAReportApprovedForm,
     CaseReportAcknowledgedUpdateForm,
+    CaseReportApprovedUpdateForm,
     CaseReportDetailsUpdateForm,
     CaseReportSentOnUpdateForm,
     CaseReviewChangesUpdateForm,
@@ -84,10 +88,17 @@ from .forms import (
 )
 from .models import Case, Contact, EqualityBodyCorrespondence
 from .utils import (
+    EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+    EqualityBodyCSVColumn,
     download_cases,
     download_equality_body_cases,
     download_feedback_survey_cases,
     filter_cases,
+    get_post_case_alerts,
+    populate_equality_body_columns,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -226,6 +237,9 @@ class CaseDetailView(DetailView):
         context["no_psb_contact"] = get_case_rows(form=CaseNoPSBContactUpdateForm())
         context["review_changes_rows"] = get_case_rows(
             form=CaseReviewChangesUpdateForm()
+        )
+        context["enforcement_recommendation_rows"] = get_case_rows(
+            form=CaseEnforcementRecommendationUpdateForm()
         )
         context["case_close_rows"] = get_case_rows(form=CaseCloseUpdateForm())
         context["equality_body_metadata_rows"] = get_case_rows(
@@ -448,41 +462,7 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-qa-ready-for-process", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseQAReadyForProcessUpdateView(CaseUpdateView):
-    """
-    View to update Report ready for QA process
-    """
-
-    form_class: Type[CaseQAReadyForProcessUpdateForm] = CaseQAReadyForProcessUpdateForm
-    template_name: str = "cases/forms/qa_ready_for.html"
-
-    def get_success_url(self) -> str:
-        """
-        Detect the submit button used and act accordingly.
-        """
-        if "save_continue" in self.request.POST:
-            return reverse("cases:edit-qa-auditor", kwargs={"pk": self.object.id})
-        return super().get_success_url()
-
-
-class CaseQAAuditorUpdateView(CaseUpdateView):
-    """
-    View to update QA auditor
-    """
-
-    form_class: Type[CaseQAAuditorUpdateForm] = CaseQAAuditorUpdateForm
-    template_name: str = "cases/forms/qa_auditor.html"
-
-    def get_success_url(self) -> str:
-        """
-        Detect the submit button used and act accordingly.
-        """
-        if "save_continue" in self.request.POST:
-            return reverse("cases:edit-qa-comments", kwargs={"pk": self.object.id})
+            return reverse("cases:edit-qa-comments", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -511,43 +491,7 @@ class CaseQACommentsUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
-            return reverse(
-                "cases:edit-qa-report-approved", kwargs={"pk": self.object.id}
-            )
-        return super().get_success_url()
-
-
-class CaseQAReportApprovedUpdateView(CaseUpdateView):
-    """
-    View to update report QA approved
-    """
-
-    form_class: Type[CaseQAReportApprovedForm] = CaseQAReportApprovedForm
-    template_name: str = "cases/forms/qa_approve.html"
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Notify auditor if case has been QA approved."""
-        if form.changed_data and "report_approved_status" in form.changed_data:
-            if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
-                case: Case = self.object
-                if case.auditor:
-                    add_notification(
-                        user=case.auditor,
-                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",
-                        path=reverse(
-                            "cases:edit-qa-report-approved", kwargs={"pk": case.id}
-                        ),
-                        list_description=f"{case} - Report approved",
-                        request=self.request,
-                    )
-        return super().form_valid(form=form)
-
-    def get_success_url(self) -> str:
-        """
-        Detect the submit button used and act accordingly.
-        """
-        if "save_continue" in self.request.POST:
-            return reverse("cases:edit-cores-overview", kwargs={"pk": self.object.id})
+            return reverse("cases:edit-report-approved", kwargs={"pk": self.object.id})
         return super().get_success_url()
 
 
@@ -582,6 +526,64 @@ class QACommentCreateView(CreateView):
         """Detect the submit button used and act accordingly"""
         case_pk: Dict[str, int] = {"pk": self.case.id}  # type: ignore
         return f"{reverse('cases:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
+
+
+class CaseReportApprovedUpdateView(CaseUpdateView):
+    """
+    View to update QA auditor
+    """
+
+    form_class: Type[CaseReportApprovedUpdateForm] = CaseReportApprovedUpdateForm
+    template_name: str = "cases/forms/report_approved.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Notify auditor if case has been QA approved."""
+        if form.changed_data and "report_approved_status" in form.changed_data:
+            if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
+                case: Case = self.object
+                if case.auditor:
+                    add_notification(
+                        user=case.auditor,
+                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",
+                        path=reverse(
+                            "cases:edit-report-approved", kwargs={"pk": case.id}
+                        ),
+                        list_description=f"{case} - Report approved",
+                        request=self.request,
+                    )
+        return super().form_valid(form=form)
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse("cases:edit-publish-report", kwargs={"pk": self.object.id})
+        return super().get_success_url()
+
+
+class CasePublishReportUpdateView(CaseUpdateView):
+    """
+    View to publish report after QA approval
+    """
+
+    form_class: Type[CasePublishReportUpdateForm] = CasePublishReportUpdateForm
+    template_name: str = "cases/forms/publish_report.html"
+
+    def form_valid(self, form: ModelForm):
+        """Publish report if requested"""
+        case: Case = self.object
+        if "create_html_report" in self.request.POST:
+            publish_report_util(report=case.report, request=self.request)
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse("cases:edit-cores-overview", kwargs={"pk": self.object.id})
+        return super().get_success_url()
 
 
 class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):
@@ -913,7 +915,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         case: Case = self.object
         case_pk: Dict[str, int] = {"pk": case.id}
         if case.no_psb_contact == Boolean.YES:
-            return reverse("cases:edit-case-close", kwargs=case_pk)
+            return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
         return reverse("cases:edit-find-contact-details", kwargs=case_pk)
 
 
@@ -946,6 +948,25 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}
+            return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseEnforcementRecommendationUpdateView(CaseUpdateView):
+    """
+    View to record the enforcement recommendation
+    """
+
+    form_class: Type[
+        CaseEnforcementRecommendationUpdateForm
+    ] = CaseEnforcementRecommendationUpdateForm
+    template_name: str = "cases/forms/enforcement_recommendation.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case: Case = self.object
+            case_pk: Dict[str, int] = {"pk": case.id}
             return reverse("cases:edit-case-close", kwargs=case_pk)
         return super().get_success_url()
 
@@ -957,6 +978,54 @@ class CaseCloseUpdateView(CaseUpdateView):
 
     form_class: Type[CaseCloseUpdateForm] = CaseCloseUpdateForm
     template_name: str = "cases/forms/case_close.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        equality_body_metadata_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case, column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
+        )
+        equality_body_report_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case, column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
+        )
+        equality_body_correspondence_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case,
+            column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+        )
+        equality_body_test_summary_columns: List[
+            EqualityBodyCSVColumn
+        ] = populate_equality_body_columns(
+            case=case,
+            column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+        )
+        all_equality_body_columns: List[EqualityBodyCSVColumn] = (
+            equality_body_metadata_columns
+            + equality_body_report_columns
+            + equality_body_correspondence_columns
+            + equality_body_test_summary_columns
+        )
+        required_data_missing_columns: List[EqualityBodyCSVColumn] = [
+            column
+            for column in all_equality_body_columns
+            if column.required_data_missing
+        ]
+        context["equality_body_metadata_columns"] = equality_body_metadata_columns
+        context["equality_body_report_columns"] = equality_body_report_columns
+        context[
+            "equality_body_correspondence_columns"
+        ] = equality_body_correspondence_columns
+        context[
+            "equality_body_test_summary_columns"
+        ] = equality_body_test_summary_columns
+        context["required_data_missing_columns"] = required_data_missing_columns
+        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

@@ -77,12 +77,18 @@ environments:
   prodenv:
     http:
       alias: reports.accessibility-monitoring.service.gov.uk
+    variables:
+      ALLOWED_HOSTS: 'reports.accessibility-monitoring.service.gov.uk'
   stageenv:
     http:
       alias: reports-stage.accessibility-monitoring.service.gov.uk
+    variables:
+      ALLOWED_HOSTS: 'reports-stage.accessibility-monitoring.service.gov.uk'
   testenv:
     http:
       alias: reports-test.accessibility-monitoring.service.gov.uk
+    variables:
+      ALLOWED_HOSTS: 'reports-test.accessibility-monitoring.service.gov.uk'
 
 network:
   connect: true # Enable Service Connect for intra-environment traffic between services.
