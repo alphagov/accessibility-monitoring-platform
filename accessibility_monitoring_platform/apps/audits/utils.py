@@ -187,17 +187,30 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
     get_compliance_rows: Callable = partial(
         extract_form_labels_and_values, instance=audit.case.compliance
     )
+    audit_pk: Dict[str, int] = {"pk": audit.id}
     return [
         build_section(
             name="Test metadata",
-            edit_url="audits:edit-audit-metadata",
+            edit_url=reverse("audits:edit-audit-metadata", kwargs=audit_pk),
             complete_date=audit.audit_metadata_complete_date,
             fields=get_audit_rows(form=AuditMetadataUpdateForm()),
         ),
-        # Pages
+        build_section(
+            name="Pages",
+            edit_url=reverse("audits:edit-audit-pages", kwargs=audit_pk),
+            complete_date=audit.audit_pages_complete_date,
+            fields=[
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.URL_TYPE,
+                    label=str(page),
+                    value=page.url,
+                )
+                for page in audit.testable_pages
+            ],
+        ),
         build_section(
             name="Website compliance decision",
-            edit_url="audits:edit-website-decision",
+            edit_url=reverse("audits:edit-website-decision", kwargs=audit_pk),
             complete_date=audit.audit_website_decision_complete_date,
             fields=get_compliance_rows(form=CaseComplianceWebsiteInitialUpdateForm()),
         ),
@@ -205,13 +218,15 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
         # Statement overview
         build_section(
             name="Initial disproportionate burden claim",
-            edit_url="audits:edit-initial-disproportionate-burden",
+            edit_url=reverse(
+                "audits:edit-initial-disproportionate-burden", kwargs=audit_pk
+            ),
             complete_date=audit.initial_disproportionate_burden_complete_date,
             fields=get_audit_rows(form=InitialDisproportionateBurdenUpdateForm()),
         ),
         build_section(
             name="Initial statement compliance decision",
-            edit_url="audits:AuditCaseComplianceStatementInitialUpdateView",
+            edit_url=reverse("audits:edit-statement-decision", kwargs=audit_pk),
             complete_date=audit.audit_statement_decision_complete_date,
             fields=get_compliance_rows(form=CaseComplianceStatementInitialUpdateForm()),
         ),

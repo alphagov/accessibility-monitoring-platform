@@ -1,7 +1,7 @@
 {% for view_section in view_sections %}
     <div class="govuk-accordion__section"">
         <div class="govuk-accordion__section-header">
-            <h2 id="{{ view_section.name|slugify }}" class="govuk-accordion__section-heading">
+            <h2 id="{{ view_section.anchor }}" class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-heading-{{ view_section.name|slugify }}">
                     {{ view_section.name }}
                     {% if view_section.complete %}
@@ -14,7 +14,10 @@
         <div id="accordion-content-{{ view_section.name|slugify }}" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-{{ view_section.name|slugify }}">
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
-                    <p class="govuk-body-m"><b>{{ view_section.name }}</b></p>
+                    <p id="{{ view_section.anchor }}" class="govuk-body-m">
+                        <b>{{ view_section.name }}</b> |
+                        <a href="{{ view_section.edit_url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
+                    </p>
                 </div>
             </div>
             {% if view_section.subsections %}
@@ -35,11 +38,11 @@
                     </ul>
                 </div>
             {% endif %}
-            {% include 'cases/details/archive_section_content.html' with section=view_section top_section=True %}
+            {% include 'common/view_section_content.html' with section=view_section top_section=True %}
             {% for subsection in view_section.subsections %}
-                {% include 'cases/details/archive_section_content.html' with section=subsection %}
+                {% include 'common/view_section_content.html' with section=subsection %}
                 {% for subsubsection in subsection.subsections %}
-                    {% include 'cases/details/archive_section_content.html' with section=subsubsection %}
+                    {% include 'common/view_section_content.html' with section=subsubsection %}
                 {% endfor %}
             {% endfor %}
         </div>

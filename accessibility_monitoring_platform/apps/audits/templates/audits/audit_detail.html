@@ -44,7 +44,27 @@
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
-                {% include 'audits/helpers/nav_contents.html' %}
+                <nav role="navigation" class="amp-margin-bottom-40">
+                    <h2 class="govuk-heading-m">Contents</h2>
+                    <div class="amp-left-border">
+                        <ul class="govuk-list">
+                            {% for view_section in view_sections %}
+                                <li>
+                                    {% if view_section.anchor %}
+                                        <a href="#{{ view_section.anchor }}" class="govuk-link govuk-link--no-visited-state">
+                                            {{ view_section.name }}{% if view_section.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                                    {% else %}
+                                        {{ view_section.name }}{% if view_section.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}
+                                    {% endif %}
+                                    |
+                                   <a href="{{ view_section.edit_url }}" class="govuk-link govuk-link--no-visited-state">
+                                        Edit{% if view_section.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                                    {% if view_section.complete %}&check;{% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </nav>
             </div>
             <div class="govuk-grid-column-one-half">
                 {% include 'audits/helpers/overview.html' %}
