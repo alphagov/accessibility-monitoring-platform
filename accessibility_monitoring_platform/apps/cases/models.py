@@ -23,9 +23,9 @@ from ..common.utils import (
     format_statement_check_overview,
 )
 
-ONE_WEEK_IN_DAYS = 7
-MAX_LENGTH_OF_FORMATTED_URL = 25
-PSB_APPEAL_WINDOW_IN_DAYS = 28
+ONE_WEEK_IN_DAYS: int = 7
+MAX_LENGTH_OF_FORMATTED_URL: int = 25
+PSB_APPEAL_WINDOW_IN_DAYS: int = 28
 
 COMPLIANCE_FIELDS: List[str] = [
     "website_compliance_state_initial",

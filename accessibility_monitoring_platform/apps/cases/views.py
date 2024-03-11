@@ -103,8 +103,8 @@ from .utils import (
     replace_search_key_with_case_search,
 )
 
-FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
-TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
+FOUR_WEEKS_IN_DAYS: int = 4 * ONE_WEEK_IN_DAYS
+TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
 TRUTHY_SEARCH_FIELDS: List[str] = [
     "sort_by",
     "status",
