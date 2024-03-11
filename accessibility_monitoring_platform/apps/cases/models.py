@@ -23,6 +23,7 @@ from ..common.utils import (
     format_statement_check_overview,
 )
 
+ONE_WEEK_IN_DAYS = 7
 MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
@@ -465,7 +466,9 @@ class Case(VersionModel):
     def next_action_due_date(self) -> Optional[date]:
         if self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
             if self.seven_day_no_contact_email_sent_date:
-                return self.seven_day_no_contact_email_sent_date + timedelta(days=7)
+                return self.seven_day_no_contact_email_sent_date + timedelta(
+                    days=ONE_WEEK_IN_DAYS
+                )
 
         if self.status.status == CaseStatus.Status.IN_REPORT_CORES:
             if self.report_followup_week_1_sent_date is None:
@@ -473,7 +476,9 @@ class Case(VersionModel):
             elif self.report_followup_week_4_sent_date is None:
                 return self.report_followup_week_4_due_date
             elif self.report_followup_week_4_sent_date:
-                return self.report_followup_week_4_sent_date + timedelta(days=5)
+                return self.report_followup_week_4_sent_date + timedelta(
+                    days=ONE_WEEK_IN_DAYS
+                )
             raise Exception(
                 "Case is in-report-correspondence but neither sent date is set"
             )
@@ -484,7 +489,9 @@ class Case(VersionModel):
         if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
-            return self.twelve_week_1_week_chaser_sent_date + timedelta(days=5)
+            return self.twelve_week_1_week_chaser_sent_date + timedelta(
+                days=ONE_WEEK_IN_DAYS
+            )
 
         return date(1970, 1, 1)
 
