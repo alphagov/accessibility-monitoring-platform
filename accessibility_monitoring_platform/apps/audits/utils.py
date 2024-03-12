@@ -20,8 +20,6 @@ from ..common.form_extract_utils import (
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import (
     ArchiveAuditReportOptionsUpdateForm,
-    ArchiveAuditStatement1UpdateForm,
-    ArchiveAuditStatement2UpdateForm,
     AuditMetadataUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceStatementInitialUpdateForm,
@@ -188,6 +186,22 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
         extract_form_labels_and_values, instance=audit.case.compliance
     )
     audit_pk: Dict[str, int] = {"pk": audit.id}
+    page_sections: List[ViewSection] = [
+        build_section(
+            name=str(page),
+            edit_url=reverse("audits:edit-audit-page-checks", kwargs={"pk": page.id}),
+            complete_date=page.complete_date,
+            fields=[
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.NOTES_TYPE,
+                    label=check_result.wcag_definition,
+                    value=check_result.notes,
+                )
+                for check_result in page.failed_check_results
+            ],
+        )
+        for page in audit.testable_pages
+    ]
     return [
         build_section(
             name="Test metadata",
@@ -207,6 +221,7 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                 )
                 for page in audit.testable_pages
             ],
+            subsections=page_sections,
         ),
         build_section(
             name="Website compliance decision",

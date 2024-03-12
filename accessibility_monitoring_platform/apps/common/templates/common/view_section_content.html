@@ -16,7 +16,7 @@
                         {% else %}
                             None
                         {% endif %}
-                    {% elif field.type == 'markdown' %}
+                    {% elif field.type == 'notes' %}
                         {% if field.value %}{{ field.value|markdown_to_html }}{% endif %}
                     {% else %}
                         {% if field.display_value %}{{ field.display_value }}{% else %}{{ field.value }}{% endif %}

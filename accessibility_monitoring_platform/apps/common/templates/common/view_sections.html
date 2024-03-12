@@ -41,9 +41,6 @@
             {% include 'common/view_section_content.html' with section=view_section top_section=True %}
             {% for subsection in view_section.subsections %}
                 {% include 'common/view_section_content.html' with section=subsection %}
-                {% for subsubsection in subsection.subsections %}
-                    {% include 'common/view_section_content.html' with section=subsubsection %}
-                {% endfor %}
             {% endfor %}
         </div>
     </div>
