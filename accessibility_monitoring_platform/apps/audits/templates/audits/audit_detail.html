@@ -46,6 +46,7 @@
             <div class="govuk-grid-column-one-half">
                 <nav role="navigation" class="amp-margin-bottom-40">
                     <h2 class="govuk-heading-m">Contents</h2>
+                    {{ audit.all_overview_statement_checks_have_passed }}
                     <div class="amp-left-border">
                         <ul class="govuk-list">
                             {% for view_section in view_sections %}
@@ -90,9 +91,9 @@
         </div>
         <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
             {% for view_section in view_sections %}
-                {% include 'common/view_section.html' %}
+                {% include 'common/view_accordion_section.html' %}
                 {% for subsection in view_section.subsections %}
-                    {% include 'common/view_section.html' with view_section=subsection %}
+                    {% include 'common/view_accordion_section.html' with view_section=subsection %}
                 {% endfor %}
             {% endfor %}
         </div>
