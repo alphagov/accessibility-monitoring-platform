@@ -6,7 +6,7 @@ from collections import namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
 from functools import partial
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -192,6 +192,35 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
         extract_form_labels_and_values, instance=audit.case.compliance
     )
     audit_pk: Dict[str, int] = {"pk": audit.id}
+    statement_link_fields: List[FieldLabelAndValue] = []
+    for count, statement_page in enumerate(audit.statement_pages, start=1):
+        statement_link_fields.append(
+            FieldLabelAndValue(
+                type=FieldLabelAndValue.URL_TYPE,
+                label=f"Statement {count} link",
+                value=statement_page.url,
+            )
+        )
+        statement_link_fields.append(
+            FieldLabelAndValue(
+                type=FieldLabelAndValue.URL_TYPE,
+                label=f"Statement {count} backup",
+                value=statement_page.backup_url,
+            )
+        )
+        statement_link_fields.append(
+            FieldLabelAndValue(
+                label=f"Statement {count} added",
+                value=statement_page.get_added_stage_display(),
+            )
+        )
+        statement_link_fields.append(
+            FieldLabelAndValue(
+                type=FieldLabelAndValue.DATE_TYPE,
+                label=f"Statement {count} created",
+                value=statement_page.created,
+            )
+        )
     statement_content_subsections: List[ViewSection] = []
     if audit.all_overview_statement_checks_have_passed:
         statement_content_subsections = [
@@ -209,7 +238,7 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                 fields=[
                     FieldLabelAndValue(
                         label=statement_check_result.label,
-                        value=statement_check_result.value,
+                        value=statement_check_result.display_value,
                     )
                     for statement_check_result in getattr(
                         audit,
@@ -272,14 +301,7 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
             edit_url=reverse("audits:edit-statement-pages", kwargs=audit_pk),
             edit_url_id="edit-statement-pages",
             complete_date=audit.audit_statement_pages_complete_date,
-            fields=[
-                FieldLabelAndValue(
-                    type=FieldLabelAndValue.URL_TYPE,
-                    label=f"Link {count}",
-                    value=statement_page.url,
-                )
-                for count, statement_page in enumerate(audit.statement_pages, start=1)
-            ],
+            fields=statement_link_fields,
         ),
         build_view_section(
             name="Statement overview",
@@ -289,7 +311,7 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
             fields=[
                 FieldLabelAndValue(
                     label=statement_check_result.label,
-                    value=statement_check_result.value,
+                    value=statement_check_result.display_value,
                 )
                 for statement_check_result in audit.overview_statement_check_results
             ],

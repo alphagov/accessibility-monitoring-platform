@@ -1327,7 +1327,7 @@ class StatementCheckResult(models.Model):
         return self.statement_check.label if self.statement_check else "Custom"
 
     @property
-    def value(self):
+    def display_value(self):
         value_str: str = self.get_check_result_state_display()
         if self.report_comment:
             value_str += f"<br><br>Auditor's comment: {self.report_comment}"
