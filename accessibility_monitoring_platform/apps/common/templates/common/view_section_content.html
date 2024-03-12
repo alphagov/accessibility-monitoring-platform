@@ -6,7 +6,7 @@
         {% for field in section.fields %}
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ field.label }}</th>
-                <td class="govuk-table__cell amp-width-one-half{% if field.type == 'markdown' %} amp-notes{% endif %}">
+                <td class="govuk-table__cell amp-width-one-half{% if field.type == 'notes' %} amp-notes{% endif %}">
                     {% if field.type == 'url' %}
                         {% if field.value %}
                             <a href="{{ field.value }}"

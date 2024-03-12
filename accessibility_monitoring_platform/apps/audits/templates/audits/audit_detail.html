@@ -57,28 +57,28 @@
                                         {{ view_section.name }}{% if view_section.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}
                                     {% endif %}
                                     |
-                                   <a href="{{ view_section.edit_url }}" class="govuk-link govuk-link--no-visited-state">
+                                    <a id="{{ view_section.edit_url_id }}" href="{{ view_section.edit_url }}" class="govuk-link govuk-link--no-visited-state">
                                         Edit{% if view_section.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                                     {% if view_section.complete %}&check;{% endif %}
+                                    {% if view_section.subsections %}
+                                        <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                                        {% for subsection in view_section.subsections %}
+                                            <li>
+                                                {% if subsection.anchor %}
+                                                    <a href="#{{ subsection.anchor }}" class="govuk-link govuk-link--no-visited-state">
+                                                        {{ subsection.name }}{% if subsection.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                                                {% else %}
+                                                    {{ subsection.name }}{% if subsection.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}
+                                                {% endif %}
+                                                |
+                                               <a id="{{ subsection.edit_url_id }}" href="{{ subsection.edit_url }}" class="govuk-link govuk-link--no-visited-state">
+                                                    Edit{% if subsection.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                                                {% if subsection.complete %}&check;{% endif %}
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    {% endif %}
                                 </li>
-                                {% if view_section.subsections %}
-                                    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                                    {% for subsection in view_section.subsections %}
-                                        <li>
-                                            {% if subsection.anchor %}
-                                                <a href="#{{ subsection.anchor }}" class="govuk-link govuk-link--no-visited-state">
-                                                    {{ subsection.name }}{% if subsection.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
-                                            {% else %}
-                                                {{ subsection.name }}{% if subsection.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}
-                                            {% endif %}
-                                            |
-                                           <a href="{{ subsection.edit_url }}" class="govuk-link govuk-link--no-visited-state">
-                                                Edit{% if subsection.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
-                                            {% if subsection.complete %}&check;{% endif %}
-                                        </li>
-                                    {% endfor %}
-                                    </ul>
-                                {% endif %}
                             {% endfor %}
                         </ul>
                     </div>

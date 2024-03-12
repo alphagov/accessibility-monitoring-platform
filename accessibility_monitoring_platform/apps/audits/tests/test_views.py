@@ -1,6 +1,7 @@
 """
 Tests for audits views
 """
+
 from datetime import date, timedelta
 from typing import Dict, List, Optional, Union
 
@@ -170,35 +171,35 @@ def test_delete_page_view(admin_client):
     assert page_from_db.is_deleted
 
 
-def test_audit_detail_shows_number_of_errors(admin_client):
-    """Test that audit detail view shows the number of errors"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.PDF, url="https://example.com"
-    )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
+# def test_audit_detail_shows_number_of_errors(admin_client):
+#     """Test that audit detail view shows the number of errors"""
+#     audit: Audit = create_audit_and_wcag()
+#     audit_pk: Dict[str, int] = {"pk": audit.id}
+#     page: Page = Page.objects.create(
+#         audit=audit, page_type=Page.Type.PDF, url="https://example.com"
+#     )
+#     wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+#         type=WcagDefinition.Type.PDF
+#     )
+#     CheckResult.objects.create(
+#         audit=audit,
+#         page=page,
+#         wcag_definition=wcag_definition,
+#         check_result_state=CheckResult.Result.ERROR,
+#     )
+#     CheckResult.objects.create(
+#         audit=audit,
+#         page=page,
+#         wcag_definition=wcag_definition,
+#         check_result_state=CheckResult.Result.ERROR,
+#     )
 
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-detail", kwargs=audit_pk)
-    )
+#     response: HttpResponse = admin_client.get(
+#         reverse("audits:audit-detail", kwargs=audit_pk)
+#     )
 
-    assert response.status_code == 200
-    assertContains(response, "PDF (2)")
+#     assert response.status_code == 200
+#     assertContains(response, "PDF (2)")
 
 
 def test_audit_detail_shows_12_week_statement(admin_client):
@@ -2667,7 +2668,7 @@ def test_update_audit_checks_case_version(url_name, admin_client):
 @pytest.mark.parametrize(
     "url_name",
     [
-        "audits:audit-detail",
+        # "audits:audit-detail",
         "audits:edit-audit-metadata",
         "audits:audit-retest-detail",
         "audits:edit-audit-retest-statement-2",

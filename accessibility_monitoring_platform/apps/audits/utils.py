@@ -20,6 +20,8 @@ from ..common.form_extract_utils import (
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import (
     ArchiveAuditReportOptionsUpdateForm,
+    ArchiveAuditStatement1UpdateForm,
+    ArchiveAuditStatement2UpdateForm,
     AuditMetadataUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceStatementInitialUpdateForm,
@@ -108,50 +110,12 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
     )
 
 
-# def get_audit_subsections(case, audit, pages, error_check_results, wcag_definitions):
-#     """Find audit and return data as subsections"""
-#     page_fields = [
-#         build_field(
-#             page,
-#             field_name="url",
-#             label=page.name if page.name else page.get_page_type_display(),
-#             data_type="link",
-#         )
-#         for page in pages
-#     ]
-#     page_subsections = [
-#         build_section(
-#             name=page.name if page.name else page.get_page_type_display(),
-#             complete_date=page.complete_date,
-#             fields=[
-#                 {
-#                     "name": "CheckResult",
-#                     "data_type": "markdown",
-#                     "label": f"{wcag_definitions[check_result.wcag_definition_id].name}: {wcag_definitions[check_result.wcag_definition_id].description} ({wcag_definitions[check_result.wcag_definition_id].get_type_display()})",
-#                     "value": check_result.notes,
-#                     "display_value": None,
-#                 }
-#                 for check_result in error_check_results[page.id]
-#             ],
-#         )
-#         for page in pages
-#     ]
-#     audit_subsections = [
-#         build_section(
-#             name="Pages",
-#             complete_date=audit.audit_pages_complete_date,
-#             fields=page_fields,
-#             subsections=page_subsections,
-#         ),
-#     ]
-#     return audit_subsections
-
-
 @dataclass
 class ViewSection:
     name: str
     anchor: str = ""
     edit_url: str = ""
+    edit_url_id: str = ""
     complete: Optional[date] = None
     fields: List[FieldLabelAndValue] = None
     subsections: List["ViewSection"] = None
@@ -160,6 +124,7 @@ class ViewSection:
 def build_section(
     name: str,
     edit_url: str,
+    edit_url_id: str,
     complete_date: Optional[date],
     fields: List[FieldLabelAndValue],
     subsections: Optional[ViewSection] = None,
@@ -169,6 +134,7 @@ def build_section(
         name=name,
         anchor=slugify(name),
         edit_url=edit_url,
+        edit_url_id=edit_url_id,
         complete=complete_flag,
         fields=fields,
         subsections=subsections,
@@ -176,7 +142,29 @@ def build_section(
 
 
 def get_test_view_tables_context(audit: Audit):
-    return {}
+    get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
+    get_compliance_rows: Callable = partial(
+        extract_form_labels_and_values, instance=audit.case.compliance
+    )
+    return {
+        "audit_metadata_rows": get_audit_rows(form=AuditMetadataUpdateForm()),
+        "website_decision_rows": get_compliance_rows(
+            form=CaseComplianceWebsiteInitialUpdateForm()
+        ),
+        "initial_disproportionate_burden": get_audit_rows(
+            form=InitialDisproportionateBurdenUpdateForm()
+        ),
+        "audit_statement_1_rows": get_audit_rows(
+            form=ArchiveAuditStatement1UpdateForm()
+        ),
+        "audit_statement_2_rows": get_audit_rows(
+            form=ArchiveAuditStatement2UpdateForm()
+        ),
+        "statement_decision_rows": get_compliance_rows(
+            form=CaseComplianceStatementInitialUpdateForm()
+        ),
+        "audit_report_options_rows": get_audit_report_options_rows(audit=audit),
+    }
 
 
 def get_test_view_sections(audit: Audit) -> List[ViewSection]:
@@ -186,32 +174,18 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
         extract_form_labels_and_values, instance=audit.case.compliance
     )
     audit_pk: Dict[str, int] = {"pk": audit.id}
-    page_sections: List[ViewSection] = [
-        build_section(
-            name=str(page),
-            edit_url=reverse("audits:edit-audit-page-checks", kwargs={"pk": page.id}),
-            complete_date=page.complete_date,
-            fields=[
-                FieldLabelAndValue(
-                    type=FieldLabelAndValue.NOTES_TYPE,
-                    label=check_result.wcag_definition,
-                    value=check_result.notes,
-                )
-                for check_result in page.failed_check_results
-            ],
-        )
-        for page in audit.testable_pages
-    ]
     return [
         build_section(
             name="Test metadata",
             edit_url=reverse("audits:edit-audit-metadata", kwargs=audit_pk),
+            edit_url_id="edit-audit-metadata",
             complete_date=audit.audit_metadata_complete_date,
             fields=get_audit_rows(form=AuditMetadataUpdateForm()),
         ),
         build_section(
             name="Pages",
             edit_url=reverse("audits:edit-audit-pages", kwargs=audit_pk),
+            edit_url_id="edit-audit-pages",
             complete_date=audit.audit_pages_complete_date,
             fields=[
                 FieldLabelAndValue(
@@ -221,27 +195,61 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                 )
                 for page in audit.testable_pages
             ],
-            subsections=page_sections,
+            subsections=[
+                build_section(
+                    name=str(page),
+                    edit_url=reverse(
+                        "audits:edit-audit-page-checks", kwargs={"pk": page.id}
+                    ),
+                    edit_url_id=f"page-{page.id}",
+                    complete_date=page.complete_date,
+                    fields=[
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.NOTES_TYPE,
+                            label=check_result.wcag_definition,
+                            value=check_result.notes,
+                        )
+                        for check_result in page.failed_check_results
+                    ],
+                )
+                for page in audit.testable_pages
+            ],
         ),
         build_section(
             name="Website compliance decision",
             edit_url=reverse("audits:edit-website-decision", kwargs=audit_pk),
+            edit_url_id="edit-website-decision",
             complete_date=audit.audit_website_decision_complete_date,
             fields=get_compliance_rows(form=CaseComplianceWebsiteInitialUpdateForm()),
         ),
-        # Statement links
+        build_section(
+            name="Statement links",
+            edit_url=reverse("audits:edit-statement-pages", kwargs=audit_pk),
+            edit_url_id="edit-statement-pages",
+            complete_date=audit.audit_statement_pages_complete_date,
+            fields=[
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.URL_TYPE,
+                    label=f"Link {count}",
+                    value=statement_page.url,
+                )
+                for count, statement_page in enumerate(audit.statement_pages, start=1)
+            ],
+        ),
         # Statement overview
         build_section(
             name="Initial disproportionate burden claim",
             edit_url=reverse(
                 "audits:edit-initial-disproportionate-burden", kwargs=audit_pk
             ),
+            edit_url_id="edit-initial-disproportionate-burden",
             complete_date=audit.initial_disproportionate_burden_complete_date,
             fields=get_audit_rows(form=InitialDisproportionateBurdenUpdateForm()),
         ),
         build_section(
             name="Initial statement compliance decision",
             edit_url=reverse("audits:edit-statement-decision", kwargs=audit_pk),
+            edit_url_id="edit-statement-decision",
             complete_date=audit.audit_statement_decision_complete_date,
             fields=get_compliance_rows(form=CaseComplianceStatementInitialUpdateForm()),
         ),
