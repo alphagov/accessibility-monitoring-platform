@@ -19,6 +19,14 @@
                 </p>
             </div>
         </div>
-        {% include 'common/view_section_content.html' with section=view_section top_section=True %}
+        {% for subtable in view_section.subtables %}
+            <p class="govuk-body-m"><b>{{ subtable.name }}</b></p>
+            {% include 'common/view_table.html' with section=subtable %}
+        {% endfor %}
+        {% if view_section.display_fields %}
+            {% include 'common/view_table.html' with section=view_section %}
+        {% else %}
+            <p class="govuk-body-m">None</p>
+        {% endif %}
     </div>
 </div>

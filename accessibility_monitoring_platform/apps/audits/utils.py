@@ -129,13 +129,20 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
 
 
 @dataclass
+class ViewSubTable:
+    name: str
+    display_fields: List[FieldLabelAndValue] = None
+
+
+@dataclass
 class ViewSection:
     name: str
     anchor: str = ""
     edit_url: str = ""
     edit_url_id: str = ""
     complete: Optional[date] = None
-    fields: List[FieldLabelAndValue] = None
+    display_fields: List[FieldLabelAndValue] = None
+    subtables: List[ViewSubTable] = None
     subsections: List["ViewSection"] = None
 
 
@@ -143,18 +150,22 @@ def build_view_section(
     name: str,
     edit_url: str,
     edit_url_id: str,
-    complete_date: Optional[date],
-    fields: List[FieldLabelAndValue],
+    complete_date: Optional[date] = None,
+    anchor: Optional[str] = None,
+    display_fields: Optional[List[FieldLabelAndValue]] = None,
+    subtables: Optional[ViewSubTable] = None,
     subsections: Optional[ViewSection] = None,
 ) -> ViewSection:
     complete_flag = complete_date.isoformat() if complete_date else None
+    anchor = slugify(name) if anchor is None else anchor
     return ViewSection(
         name=name,
-        anchor=slugify(name),
+        anchor=anchor,
         edit_url=edit_url,
         edit_url_id=edit_url_id,
         complete=complete_flag,
-        fields=fields,
+        display_fields=display_fields,
+        subtables=subtables,
         subsections=subsections,
     )
 
@@ -192,35 +203,6 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
         extract_form_labels_and_values, instance=audit.case.compliance
     )
     audit_pk: Dict[str, int] = {"pk": audit.id}
-    statement_link_fields: List[FieldLabelAndValue] = []
-    for count, statement_page in enumerate(audit.statement_pages, start=1):
-        statement_link_fields.append(
-            FieldLabelAndValue(
-                type=FieldLabelAndValue.URL_TYPE,
-                label=f"Statement {count} link",
-                value=statement_page.url,
-            )
-        )
-        statement_link_fields.append(
-            FieldLabelAndValue(
-                type=FieldLabelAndValue.URL_TYPE,
-                label=f"Statement {count} backup",
-                value=statement_page.backup_url,
-            )
-        )
-        statement_link_fields.append(
-            FieldLabelAndValue(
-                label=f"Statement {count} added",
-                value=statement_page.get_added_stage_display(),
-            )
-        )
-        statement_link_fields.append(
-            FieldLabelAndValue(
-                type=FieldLabelAndValue.DATE_TYPE,
-                label=f"Statement {count} created",
-                value=statement_page.created,
-            )
-        )
     statement_content_subsections: List[ViewSection] = []
     if audit.all_overview_statement_checks_have_passed:
         statement_content_subsections = [
@@ -235,7 +217,7 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                     audit,
                     f"audit_statement_{statement_content_subsection.attr_unique}_complete_date",
                 ),
-                fields=[
+                display_fields=[
                     FieldLabelAndValue(
                         label=statement_check_result.label,
                         value=statement_check_result.display_value,
@@ -254,14 +236,14 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
             edit_url=reverse("audits:edit-audit-metadata", kwargs=audit_pk),
             edit_url_id="edit-audit-metadata",
             complete_date=audit.audit_metadata_complete_date,
-            fields=get_audit_rows(form=AuditMetadataUpdateForm()),
+            display_fields=get_audit_rows(form=AuditMetadataUpdateForm()),
         ),
         build_view_section(
             name="Pages",
             edit_url=reverse("audits:edit-audit-pages", kwargs=audit_pk),
             edit_url_id="edit-audit-pages",
             complete_date=audit.audit_pages_complete_date,
-            fields=[
+            display_fields=[
                 FieldLabelAndValue(
                     type=FieldLabelAndValue.URL_TYPE,
                     label=str(page),
@@ -277,7 +259,7 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                     ),
                     edit_url_id=f"page-{page.id}",
                     complete_date=page.complete_date,
-                    fields=[
+                    display_fields=[
                         FieldLabelAndValue(
                             type=FieldLabelAndValue.NOTES_TYPE,
                             label=check_result.wcag_definition,
@@ -294,21 +276,49 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
             edit_url=reverse("audits:edit-website-decision", kwargs=audit_pk),
             edit_url_id="edit-website-decision",
             complete_date=audit.audit_website_decision_complete_date,
-            fields=get_compliance_rows(form=CaseComplianceWebsiteInitialUpdateForm()),
+            display_fields=get_compliance_rows(
+                form=CaseComplianceWebsiteInitialUpdateForm()
+            ),
         ),
         build_view_section(
             name="Statement links",
             edit_url=reverse("audits:edit-statement-pages", kwargs=audit_pk),
             edit_url_id="edit-statement-pages",
             complete_date=audit.audit_statement_pages_complete_date,
-            fields=statement_link_fields,
+            subtables=[
+                ViewSubTable(
+                    name=f"Statement {count}",
+                    display_fields=[
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.URL_TYPE,
+                            label="Link to statement",
+                            value=statement_page.url,
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.URL_TYPE,
+                            label="Statement backup",
+                            value=statement_page.backup_url,
+                        ),
+                        FieldLabelAndValue(
+                            label="Statement added",
+                            value=statement_page.get_added_stage_display(),
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.DATE_TYPE,
+                            label="Created",
+                            value=statement_page.created,
+                        ),
+                    ],
+                )
+                for count, statement_page in enumerate(audit.statement_pages, start=1)
+            ],
         ),
         build_view_section(
             name="Statement overview",
             edit_url=reverse("audits:edit-statement-overview", kwargs=audit_pk),
             edit_url_id="edit-statement-overview",
             complete_date=audit.audit_statement_overview_complete_date,
-            fields=[
+            display_fields=[
                 FieldLabelAndValue(
                     label=statement_check_result.label,
                     value=statement_check_result.display_value,
@@ -324,14 +334,24 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
             ),
             edit_url_id="edit-initial-disproportionate-burden",
             complete_date=audit.initial_disproportionate_burden_complete_date,
-            fields=get_audit_rows(form=InitialDisproportionateBurdenUpdateForm()),
+            display_fields=get_audit_rows(
+                form=InitialDisproportionateBurdenUpdateForm()
+            ),
         ),
         build_view_section(
             name="Initial statement compliance decision",
             edit_url=reverse("audits:edit-statement-decision", kwargs=audit_pk),
             edit_url_id="edit-statement-decision",
             complete_date=audit.audit_statement_decision_complete_date,
-            fields=get_compliance_rows(form=CaseComplianceStatementInitialUpdateForm()),
+            display_fields=get_compliance_rows(
+                form=CaseComplianceStatementInitialUpdateForm()
+            ),
+        ),
+        build_view_section(
+            name="Test summary",
+            edit_url=reverse("audits:edit-audit-summary", kwargs=audit_pk),
+            edit_url_id="edit-audit-summary",
+            anchor="",
         ),
     ]
 
