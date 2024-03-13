@@ -191,12 +191,7 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
         extract_form_labels_and_values, instance=audit.case.compliance
     )
     audit_pk: Dict[str, int] = {"pk": audit.id}
-    statement_content_subsections: List[ViewSection] = (
-        build_statement_content_subsections(audit=audit)
-        if audit.all_overview_statement_checks_have_passed
-        else []
-    )
-    return [
+    pre_statement_check_sections: List[ViewSection] = [
         build_view_section(
             name="Test metadata",
             edit_url=reverse("audits:edit-audit-metadata", kwargs=audit_pk),
@@ -279,20 +274,54 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                 for count, statement_page in enumerate(audit.statement_pages, start=1)
             ],
         ),
-        build_view_section(
-            name="Statement overview",
-            edit_url=reverse("audits:edit-statement-overview", kwargs=audit_pk),
-            edit_url_id="edit-statement-overview",
-            complete_date=audit.audit_statement_overview_complete_date,
-            display_fields=[
-                FieldLabelAndValue(
-                    label=statement_check_result.label,
-                    value=statement_check_result.display_value,
-                )
-                for statement_check_result in audit.overview_statement_check_results
-            ],
-            subsections=statement_content_subsections,
-        ),
+    ]
+    if audit.uses_statement_checks:
+        statement_content_subsections: List[ViewSection] = (
+            build_statement_content_subsections(audit=audit)
+            if audit.all_overview_statement_checks_have_passed
+            else []
+        )
+        statement_content_sections: List[ViewSection] = [
+            build_view_section(
+                name="Statement overview",
+                edit_url=reverse("audits:edit-statement-overview", kwargs=audit_pk),
+                edit_url_id="edit-statement-overview",
+                complete_date=audit.audit_statement_overview_complete_date,
+                display_fields=[
+                    FieldLabelAndValue(
+                        label=statement_check_result.label,
+                        value=statement_check_result.display_value,
+                    )
+                    for statement_check_result in audit.overview_statement_check_results
+                ],
+                subsections=statement_content_subsections,
+            ),
+        ]
+    else:
+        statement_content_sections: List[ViewSection] = [
+            build_view_section(
+                name="Accessibility statement Pt. 1",
+                edit_url=reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
+                edit_url_id="edit-audit-statement-1",
+                complete_date=audit.archive_audit_statement_1_complete_date,
+                display_fields=get_audit_rows(form=ArchiveAuditStatement1UpdateForm()),
+            ),
+            build_view_section(
+                name="Accessibility statement Pt. 2",
+                edit_url=reverse("audits:edit-audit-statement-2", kwargs=audit_pk),
+                edit_url_id="edit-audit-statement-2",
+                complete_date=audit.archive_audit_statement_2_complete_date,
+                display_fields=get_audit_rows(form=ArchiveAuditStatement2UpdateForm()),
+            ),
+            build_view_section(
+                name="Report options",
+                edit_url=reverse("audits:edit-audit-report-options", kwargs=audit_pk),
+                edit_url_id="edit-audit-report-options",
+                complete_date=audit.archive_audit_report_options_complete_date,
+                display_fields=get_audit_report_options_rows(audit=audit),
+            ),
+        ]
+    post_statement_check_sections: List[ViewSection] = [
         build_view_section(
             name="Initial disproportionate burden claim",
             edit_url=reverse(
@@ -320,6 +349,11 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
             anchor="",
         ),
     ]
+    return (
+        pre_statement_check_sections
+        + statement_content_sections
+        + post_statement_check_sections
+    )
 
 
 def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndValue]]:

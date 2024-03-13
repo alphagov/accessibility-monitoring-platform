@@ -54,16 +54,16 @@ describe('View test', () => {
     cy.contains(websiteComplianceNote)
   })
 
-  // it('can edit accessibility statement', () => {
-  //   cy.get('#edit-audit-statement-1').click()
-  //   cy.get('[name="archive_scope_state"]').check('incomplete')
-  //   cy.get('[name="archive_audit_statement_1_complete_date"]').click()
-  //   cy.contains('Save and continue').click()
-  //   cy.get('[name="archive_disproportionate_burden_state"]').check('assessment')
-  //   cy.get('[name="archive_audit_statement_2_complete_date"]').click()
-  //   cy.contains('Save').click()
-  //   cy.contains('Test').click()
-  // })
+  it('can edit accessibility statement', () => {
+    cy.get('#edit-audit-statement-1').click()
+    cy.get('[name="archive_scope_state"]').check('incomplete')
+    cy.get('[name="archive_audit_statement_1_complete_date"]').click()
+    cy.contains('Save and continue').click()
+    cy.get('[name="archive_disproportionate_burden_state"]').check('assessment')
+    cy.get('[name="archive_audit_statement_2_complete_date"]').click()
+    cy.contains('Save').click()
+    cy.contains('Test').click()
+  })
 
   it('can edit accessibility statement compliance decision', () => {
     cy.get('#edit-statement-decision').click()
@@ -75,17 +75,17 @@ describe('View test', () => {
     cy.contains(accessibilityStatementComplianceNote)
   })
 
-  // it('can edit report options', () => {
-  //   cy.get('#edit-audit-report-options').click()
-  //   cy.get('[name="archive_accessibility_statement_state"]').check('found-but')
-  //   cy.get('[name="archive_accessibility_statement_not_correct_format"]').click()
-  //   cy.get('[name="archive_report_next_change_statement"]').click()
-  //   cy.get('[name="archive_report_options_notes"]').clear().type(reportOptionsNote)
-  //   cy.get('[name="archive_audit_report_options_complete_date"]').click()
-  //   cy.contains('Save').click()
-  //   cy.contains('Test').click()
-  //   cy.contains(reportOptionsNote)
-  // })
+  it('can edit report options', () => {
+    cy.get('#edit-audit-report-options').click()
+    cy.get('[name="archive_accessibility_statement_state"]').check('found-but')
+    cy.get('[name="archive_accessibility_statement_not_correct_format"]').click()
+    cy.get('[name="archive_report_next_change_statement"]').click()
+    cy.get('[name="archive_report_options_notes"]').clear().type(reportOptionsNote)
+    cy.get('[name="archive_audit_report_options_complete_date"]').click()
+    cy.contains('Save').click()
+    cy.contains('Test').click()
+    cy.contains(reportOptionsNote)
+  })
 
   it('can edit test summary', () => {
     cy.get('#edit-audit-summary').click()
