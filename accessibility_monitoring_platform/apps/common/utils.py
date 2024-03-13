@@ -1,4 +1,5 @@
 """ Common utility functions """
+
 import json
 import re
 import urllib

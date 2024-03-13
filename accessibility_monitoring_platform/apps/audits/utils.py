@@ -3,7 +3,6 @@ Utilities for audits app
 """
 
 from collections import namedtuple
-from dataclasses import dataclass
 from datetime import date, datetime
 from functools import partial
 from typing import Callable, Dict, List, Optional, Union
@@ -11,7 +10,6 @@ from typing import Callable, Dict, List, Optional, Union
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.text import slugify
 
 from ..cases.models import Case
 from ..common.form_extract_utils import (
@@ -19,6 +17,7 @@ from ..common.form_extract_utils import (
     extract_form_labels_and_values,
 )
 from ..common.utils import record_model_create_event, record_model_update_event
+from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
 from .forms import (
     ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
@@ -128,48 +127,6 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
     )
 
 
-@dataclass
-class ViewSubTable:
-    name: str
-    display_fields: List[FieldLabelAndValue] = None
-
-
-@dataclass
-class ViewSection:
-    name: str
-    anchor: str = ""
-    edit_url: str = ""
-    edit_url_id: str = ""
-    complete: Optional[date] = None
-    display_fields: List[FieldLabelAndValue] = None
-    subtables: List[ViewSubTable] = None
-    subsections: List["ViewSection"] = None
-
-
-def build_view_section(
-    name: str,
-    edit_url: str,
-    edit_url_id: str,
-    complete_date: Optional[date] = None,
-    anchor: Optional[str] = None,
-    display_fields: Optional[List[FieldLabelAndValue]] = None,
-    subtables: Optional[ViewSubTable] = None,
-    subsections: Optional[ViewSection] = None,
-) -> ViewSection:
-    complete_flag = complete_date.isoformat() if complete_date else None
-    anchor = slugify(name) if anchor is None else anchor
-    return ViewSection(
-        name=name,
-        anchor=anchor,
-        edit_url=edit_url,
-        edit_url_id=edit_url_id,
-        complete=complete_flag,
-        display_fields=display_fields,
-        subtables=subtables,
-        subsections=subsections,
-    )
-
-
 def get_test_view_tables_context(audit: Audit):
     get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
     get_compliance_rows: Callable = partial(
@@ -253,7 +210,7 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
             ],
             subsections=[
                 build_view_section(
-                    name=str(page),
+                    name=f"{str(page)} ({page.failed_check_results.count()})",
                     edit_url=reverse(
                         "audits:edit-audit-page-checks", kwargs={"pk": page.id}
                     ),
