@@ -25,7 +25,7 @@
         {% endfor %}
         {% if view_section.display_fields %}
             {% include 'common/view_table.html' with section=view_section %}
-        {% else %}
+        {% elif not view_section.subtables %}
             <p class="govuk-body-m">None</p>
         {% endif %}
     </div>
