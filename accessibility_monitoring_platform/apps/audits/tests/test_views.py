@@ -204,7 +204,7 @@ def test_audit_detail_shows_number_of_errors(admin_client):
 
 def test_audit_detail_shows_sections(admin_client):
     """
-    Test that audit detail view shows all the expected sections
+    Test that audit detail view shows all the sections
     """
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
