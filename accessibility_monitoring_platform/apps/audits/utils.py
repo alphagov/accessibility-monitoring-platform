@@ -153,6 +153,37 @@ def get_test_view_tables_context(audit: Audit):
     }
 
 
+def build_statement_content_subsections(audit: Audit) -> List[ViewSection]:
+    """
+    Build view sections for each type of statement content check.
+    """
+    return [
+        build_view_section(
+            name=statement_content_subsection.name,
+            edit_url=reverse(
+                f"audits:edit-statement-{statement_content_subsection.url_suffix}",
+                kwargs={"pk": audit.id},
+            ),
+            edit_url_id=f"edit-statement-{statement_content_subsection.url_suffix}",
+            complete_date=getattr(
+                audit,
+                f"audit_statement_{statement_content_subsection.attr_unique}_complete_date",
+            ),
+            display_fields=[
+                FieldLabelAndValue(
+                    label=statement_check_result.label,
+                    value=statement_check_result.display_value,
+                )
+                for statement_check_result in getattr(
+                    audit,
+                    f"{statement_content_subsection.attr_unique}_statement_check_results",
+                )
+            ],
+        )
+        for statement_content_subsection in STATEMENT_CONTENT_SUBSECTIONS
+    ]
+
+
 def get_test_view_sections(audit: Audit) -> List[ViewSection]:
     """Get sections for latest test view"""
     get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
@@ -160,33 +191,11 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
         extract_form_labels_and_values, instance=audit.case.compliance
     )
     audit_pk: Dict[str, int] = {"pk": audit.id}
-    statement_content_subsections: List[ViewSection] = []
-    if audit.all_overview_statement_checks_have_passed:
-        statement_content_subsections = [
-            build_view_section(
-                name=statement_content_subsection.name,
-                edit_url=reverse(
-                    f"audits:edit-statement-{statement_content_subsection.url_suffix}",
-                    kwargs=audit_pk,
-                ),
-                edit_url_id=f"edit-statement-{statement_content_subsection.url_suffix}",
-                complete_date=getattr(
-                    audit,
-                    f"audit_statement_{statement_content_subsection.attr_unique}_complete_date",
-                ),
-                display_fields=[
-                    FieldLabelAndValue(
-                        label=statement_check_result.label,
-                        value=statement_check_result.display_value,
-                    )
-                    for statement_check_result in getattr(
-                        audit,
-                        f"{statement_content_subsection.attr_unique}_statement_check_results",
-                    )
-                ],
-            )
-            for statement_content_subsection in STATEMENT_CONTENT_SUBSECTIONS
-        ]
+    statement_content_subsections: List[ViewSection] = (
+        build_statement_content_subsections(audit=audit)
+        if audit.all_overview_statement_checks_have_passed
+        else []
+    )
     return [
         build_view_section(
             name="Test metadata",

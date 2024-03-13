@@ -45,6 +45,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 {% include 'common/view_toc.html' %}
+                {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=audit.case %}
             </div>
             <div class="govuk-grid-column-one-half">
                 {% include 'audits/helpers/overview.html' %}

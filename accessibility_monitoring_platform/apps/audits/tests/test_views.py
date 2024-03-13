@@ -2668,7 +2668,7 @@ def test_update_audit_checks_case_version(url_name, admin_client):
 @pytest.mark.parametrize(
     "url_name",
     [
-        # "audits:audit-detail",
+        "audits:audit-detail",
         "audits:edit-audit-metadata",
         "audits:audit-retest-detail",
         "audits:edit-audit-retest-statement-2",

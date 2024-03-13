@@ -65,15 +65,15 @@ describe('View test', () => {
   //   cy.contains('Test').click()
   // })
 
-  // it('can edit accessibility statement compliance decision', () => {
-  //   cy.get('#edit-statement-decision').click()
-  //   cy.get('[name="case-compliance-statement_compliance_state_initial"]').check('not-compliant')
-  //   cy.get('[name="case-compliance-statement_compliance_notes_initial"]').clear().type(accessibilityStatementComplianceNote)
-  //   cy.get('[name="audit_statement_decision_complete_date"]').click()
-  //   cy.contains('Save').click()
-  //   cy.contains('Test').click()
-  //   cy.contains(accessibilityStatementComplianceNote)
-  // })
+  it('can edit accessibility statement compliance decision', () => {
+    cy.get('#edit-statement-decision').click()
+    cy.get('[name="case-compliance-statement_compliance_state_initial"]').check('not-compliant')
+    cy.get('[name="case-compliance-statement_compliance_notes_initial"]').clear().type(accessibilityStatementComplianceNote)
+    cy.get('[name="audit_statement_decision_complete_date"]').click()
+    cy.contains('Save').click()
+    cy.contains('Test').click()
+    cy.contains(accessibilityStatementComplianceNote)
+  })
 
   // it('can edit report options', () => {
   //   cy.get('#edit-audit-report-options').click()
@@ -87,10 +87,9 @@ describe('View test', () => {
   //   cy.contains(reportOptionsNote)
   // })
 
-  // it('can edit test summary', () => {
-  //   cy.get('#edit-audit-report-options').click()
-  //   cy.get('[data-cy="nav-step"]').contains('Test summary').click()
-  //   cy.get('[name="audit_summary_complete_date"]').click()
-  //   cy.contains('Save').click()
-  // })
+  it('can edit test summary', () => {
+    cy.get('#edit-audit-summary').click()
+    cy.get('[name="audit_summary_complete_date"]').click()
+    cy.contains('Save').click()
+  })
 })
