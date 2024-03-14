@@ -66,7 +66,7 @@ from ..utils import (
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
     get_next_page_url,
-    get_test_view_tables_context,
+    get_test_view_sections,
     other_page_failed_check_results,
     report_data_updated,
 )
@@ -124,7 +124,7 @@ class AuditDetailView(DetailView):
         audit: Audit = self.object
 
         return {
-            **get_test_view_tables_context(audit=audit),
+            **{"view_sections": get_test_view_sections(audit=audit)},
             **context,
         }
 

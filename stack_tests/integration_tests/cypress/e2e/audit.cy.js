@@ -88,8 +88,7 @@ describe('View test', () => {
   })
 
   it('can edit test summary', () => {
-    cy.get('#edit-audit-report-options').click()
-    cy.get('[data-cy="nav-step"]').contains('Test summary').click()
+    cy.get('#edit-audit-summary').click()
     cy.get('[name="audit_summary_complete_date"]').click()
     cy.contains('Save').click()
   })

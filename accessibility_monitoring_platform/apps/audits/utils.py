@@ -2,6 +2,7 @@
 Utilities for audits app
 """
 
+from collections import namedtuple
 from datetime import date, datetime
 from functools import partial
 from typing import Callable, Dict, List, Optional, Union
@@ -16,6 +17,7 @@ from ..common.form_extract_utils import (
     extract_form_labels_and_values,
 )
 from ..common.utils import record_model_create_event, record_model_update_event
+from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
 from .forms import (
     ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
@@ -51,6 +53,23 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
     "additional": "Additional",
     "other": "Other",
 }
+StatementContentSubsection = namedtuple(
+    "StatementContentSubsection", "name attr_unique url_suffix"
+)
+STATEMENT_CONTENT_SUBSECTIONS: List[StatementContentSubsection] = [
+    StatementContentSubsection("Statement information", "website", "website"),
+    StatementContentSubsection("Compliance status", "compliance", "compliance"),
+    StatementContentSubsection(
+        "Non-accessible content", "non_accessible", "non-accessible"
+    ),
+    StatementContentSubsection(
+        "Preparation of this accessibility statement", "preparation", "preparation"
+    ),
+    StatementContentSubsection(
+        "Feedback and enforcement procedure", "feedback", "feedback"
+    ),
+    StatementContentSubsection("Custom statement issues", "custom", "custom"),
+]
 
 
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
@@ -109,8 +128,7 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
     )
 
 
-def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndValue]]:
-    """Get context for test view tables"""
+def get_test_view_tables_context(audit: Audit):
     get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
     get_compliance_rows: Callable = partial(
         extract_form_labels_and_values, instance=audit.case.compliance
@@ -134,6 +152,209 @@ def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndVa
         ),
         "audit_report_options_rows": get_audit_report_options_rows(audit=audit),
     }
+
+
+def build_statement_content_subsections(audit: Audit) -> List[ViewSection]:
+    """
+    Build view sections for each type of statement content check.
+    """
+    return [
+        build_view_section(
+            name=statement_content_subsection.name,
+            edit_url=reverse(
+                f"audits:edit-statement-{statement_content_subsection.url_suffix}",
+                kwargs={"pk": audit.id},
+            ),
+            edit_url_id=f"edit-statement-{statement_content_subsection.url_suffix}",
+            complete_date=getattr(
+                audit,
+                f"audit_statement_{statement_content_subsection.attr_unique}_complete_date",
+            ),
+            display_fields=[
+                FieldLabelAndValue(
+                    label=statement_check_result.label,
+                    value=statement_check_result.display_value,
+                )
+                for statement_check_result in getattr(
+                    audit,
+                    f"{statement_content_subsection.attr_unique}_statement_check_results",
+                )
+            ],
+        )
+        for statement_content_subsection in STATEMENT_CONTENT_SUBSECTIONS
+    ]
+
+
+def get_test_view_sections(audit: Audit) -> List[ViewSection]:
+    """Get sections for latest test view"""
+    get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
+    get_compliance_rows: Callable = partial(
+        extract_form_labels_and_values, instance=audit.case.compliance
+    )
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    pre_statement_check_sections: List[ViewSection] = [
+        build_view_section(
+            name="Test metadata",
+            edit_url=reverse("audits:edit-audit-metadata", kwargs=audit_pk),
+            edit_url_id="edit-audit-metadata",
+            complete_date=audit.audit_metadata_complete_date,
+            display_fields=get_audit_rows(form=AuditMetadataUpdateForm()),
+        ),
+        build_view_section(
+            name="Pages",
+            edit_url=reverse("audits:edit-audit-pages", kwargs=audit_pk),
+            edit_url_id="edit-audit-pages",
+            complete_date=audit.audit_pages_complete_date,
+            display_fields=[
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.URL_TYPE,
+                    label=str(page),
+                    value=page.url,
+                )
+                for page in audit.testable_pages
+            ],
+            subsections=[
+                build_view_section(
+                    name=f"{str(page)} ({page.failed_check_results.count()})",
+                    edit_url=reverse(
+                        "audits:edit-audit-page-checks", kwargs={"pk": page.id}
+                    ),
+                    edit_url_id=f"page-{page.id}",
+                    complete_date=page.complete_date,
+                    display_fields=[
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.NOTES_TYPE,
+                            label=check_result.wcag_definition,
+                            value=check_result.notes,
+                        )
+                        for check_result in page.failed_check_results
+                    ],
+                )
+                for page in audit.testable_pages
+            ],
+        ),
+        build_view_section(
+            name="Website compliance decision",
+            edit_url=reverse("audits:edit-website-decision", kwargs=audit_pk),
+            edit_url_id="edit-website-decision",
+            complete_date=audit.audit_website_decision_complete_date,
+            display_fields=get_compliance_rows(
+                form=CaseComplianceWebsiteInitialUpdateForm()
+            ),
+        ),
+        build_view_section(
+            name="Statement links",
+            edit_url=reverse("audits:edit-statement-pages", kwargs=audit_pk),
+            edit_url_id="edit-statement-pages",
+            complete_date=audit.audit_statement_pages_complete_date,
+            subtables=[
+                ViewSubTable(
+                    name=f"Statement {count}",
+                    display_fields=[
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.URL_TYPE,
+                            label="Link to statement",
+                            value=statement_page.url,
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.URL_TYPE,
+                            label="Statement backup",
+                            value=statement_page.backup_url,
+                        ),
+                        FieldLabelAndValue(
+                            label="Statement added",
+                            value=statement_page.get_added_stage_display(),
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.DATE_TYPE,
+                            label="Created",
+                            value=statement_page.created,
+                        ),
+                    ],
+                )
+                for count, statement_page in enumerate(audit.statement_pages, start=1)
+            ],
+        ),
+    ]
+    if audit.uses_statement_checks:
+        statement_content_subsections: List[ViewSection] = (
+            build_statement_content_subsections(audit=audit)
+            if audit.all_overview_statement_checks_have_passed
+            else []
+        )
+        statement_content_sections: List[ViewSection] = [
+            build_view_section(
+                name="Statement overview",
+                edit_url=reverse("audits:edit-statement-overview", kwargs=audit_pk),
+                edit_url_id="edit-statement-overview",
+                complete_date=audit.audit_statement_overview_complete_date,
+                display_fields=[
+                    FieldLabelAndValue(
+                        label=statement_check_result.label,
+                        value=statement_check_result.display_value,
+                    )
+                    for statement_check_result in audit.overview_statement_check_results
+                ],
+                subsections=statement_content_subsections,
+            ),
+        ]
+    else:
+        statement_content_sections: List[ViewSection] = [
+            build_view_section(
+                name="Accessibility statement Pt. 1",
+                edit_url=reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
+                edit_url_id="edit-audit-statement-1",
+                complete_date=audit.archive_audit_statement_1_complete_date,
+                display_fields=get_audit_rows(form=ArchiveAuditStatement1UpdateForm()),
+            ),
+            build_view_section(
+                name="Accessibility statement Pt. 2",
+                edit_url=reverse("audits:edit-audit-statement-2", kwargs=audit_pk),
+                edit_url_id="edit-audit-statement-2",
+                complete_date=audit.archive_audit_statement_2_complete_date,
+                display_fields=get_audit_rows(form=ArchiveAuditStatement2UpdateForm()),
+            ),
+            build_view_section(
+                name="Report options",
+                edit_url=reverse("audits:edit-audit-report-options", kwargs=audit_pk),
+                edit_url_id="edit-audit-report-options",
+                complete_date=audit.archive_audit_report_options_complete_date,
+                display_fields=get_audit_report_options_rows(audit=audit),
+            ),
+        ]
+    post_statement_check_sections: List[ViewSection] = [
+        build_view_section(
+            name="Initial disproportionate burden claim",
+            edit_url=reverse(
+                "audits:edit-initial-disproportionate-burden", kwargs=audit_pk
+            ),
+            edit_url_id="edit-initial-disproportionate-burden",
+            complete_date=audit.initial_disproportionate_burden_complete_date,
+            display_fields=get_audit_rows(
+                form=InitialDisproportionateBurdenUpdateForm()
+            ),
+        ),
+        build_view_section(
+            name="Initial statement compliance decision",
+            edit_url=reverse("audits:edit-statement-decision", kwargs=audit_pk),
+            edit_url_id="edit-statement-decision",
+            complete_date=audit.audit_statement_decision_complete_date,
+            display_fields=get_compliance_rows(
+                form=CaseComplianceStatementInitialUpdateForm()
+            ),
+        ),
+        build_view_section(
+            name="Test summary",
+            edit_url=reverse("audits:edit-audit-summary", kwargs=audit_pk),
+            edit_url_id="edit-audit-summary",
+            anchor="",
+        ),
+    ]
+    return (
+        pre_statement_check_sections
+        + statement_content_sections
+        + post_statement_check_sections
+    )
 
 
 def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndValue]]:
