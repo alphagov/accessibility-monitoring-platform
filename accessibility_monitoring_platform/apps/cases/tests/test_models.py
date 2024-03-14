@@ -1,6 +1,7 @@
 """
 Tests for cases models
 """
+
 import json
 from datetime import date, datetime, timedelta, timezone
 from typing import List
@@ -16,7 +17,6 @@ from ...audits.models import (
     Retest,
     StatementCheck,
     StatementCheckResult,
-    StatementPage,
     WcagDefinition,
 )
 from ...comments.models import Comment
@@ -350,7 +350,7 @@ def test_next_action_due_date_for_in_12_week_correspondence():
     case.twelve_week_1_week_chaser_sent_date = twelve_week_1_week_chaser_sent_date
 
     assert case.next_action_due_date == twelve_week_1_week_chaser_sent_date + timedelta(
-        days=5
+        days=7
     )
 
 

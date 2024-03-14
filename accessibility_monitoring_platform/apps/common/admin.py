@@ -1,6 +1,7 @@
 """
 Admin for common app
 """
+
 import csv
 
 from django.contrib import admin
@@ -81,6 +82,7 @@ class EventAdmin(admin.ModelAdmin):
             },
         ),
     )
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
@@ -111,6 +113,7 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
             },
         ),
     )
+    show_facets = admin.ShowFacets.ALWAYS
 
     actions = ["export_as_csv"]
 
