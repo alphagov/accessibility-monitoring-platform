@@ -40,6 +40,7 @@ from .models import (
     Retest,
     RetestCheckResult,
     RetestPage,
+    RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
     WcagDefinition,
@@ -608,6 +609,12 @@ def create_checkresults_for_retest(retest: Retest) -> None:
                 retest_page=retest_page,
                 check_result=previous_retest_check_result.check_result,
             )
+
+    today: date = date.today()
+    for statement_check in StatementCheck.objects.on_date(today):
+        RetestStatementCheckResult.objects.create(
+            retest=retest, statement_check=statement_check, type=statement_check.type
+        )
 
 
 def get_next_equality_body_retest_page_url(

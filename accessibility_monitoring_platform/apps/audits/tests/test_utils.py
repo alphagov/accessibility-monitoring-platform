@@ -21,6 +21,7 @@ from ..models import (
     Retest,
     RetestCheckResult,
     RetestPage,
+    RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
     WcagDefinition,
@@ -1014,6 +1015,22 @@ def test_create_checkresults_for_retest():
     )
 
     assert retest_checkresult_2.check_result == unfixed_page_check_result
+
+
+@pytest.mark.django_db
+def test_create_checkresults_for_retest_creates_statement_checks():
+    """
+    RetestStatementCheckResults are created for each new retest.
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    retest: Retest = Retest.objects.create(case=case)
+
+    assert RetestStatementCheckResult.objects.all().count() == 0
+
+    create_checkresults_for_retest(retest=retest)
+
+    assert RetestStatementCheckResult.objects.all().count() > 0
 
 
 @pytest.mark.django_db

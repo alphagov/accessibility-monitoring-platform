@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}{{ retest.case.organisation_name }} | Statement results{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'audits/helpers/retest_breadcrumb.html' with page_heading='Statement results' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Statement results' case=retest.case retest_header=True %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'audits/helpers/statement_pages.html' with audit=retest.case.audit %}
+                <h2 id="statement-overview" class="govuk-heading-m">Statement overview</h2>
+                <div class="govuk-button-group amp-margin-bottom-0">
+                    <a href="{% url 'audits:edit-equality-body-statement-overview' retest.id %}"
+                        class="govuk-link govuk-link--no-visited-state">Edit statement overview</a>
+                </div>
+                {% include 'audits/statement_checks/equality_body_retest_statement_results_table.html' with statement_check_results=retest.overview_statement_check_results %}
+                <h2 id="statement-website" class="govuk-heading-m">Statement information</h2>
+                <div class="govuk-button-group amp-margin-bottom-0">
+                    <a href="{% url 'audits:edit-equality-body-statement-website' retest.id %}"
+                        class="govuk-link govuk-link--no-visited-state">Edit statement information</a>
+                </div>
+                {% include 'audits/statement_checks/equality_body_retest_statement_results_table.html' with statement_check_results=retest.website_statement_check_results %}
+                <h2 id="statement-compliance" class="govuk-heading-m">Compliance status</h2>
+                <div class="govuk-button-group amp-margin-bottom-0">
+                    <a href="{% url 'audits:edit-equality-body-statement-compliance' retest.id %}"
+                        class="govuk-link govuk-link--no-visited-state">Edit compliance status</a>
+                </div>
+                {% include 'audits/statement_checks/equality_body_retest_statement_results_table.html' with statement_check_results=retest.compliance_statement_check_results %}
+                <h2 id="statement-non-accessible" class="govuk-heading-m">Non-accessible content</h2>
+                <div class="govuk-button-group amp-margin-bottom-0">
+                    <a href="{% url 'audits:edit-equality-body-statement-non-accessible' retest.id %}"
+                        class="govuk-link govuk-link--no-visited-state">Edit non-accessible content</a>
+                </div>
+                {% include 'audits/statement_checks/equality_body_retest_statement_results_table.html' with statement_check_results=retest.non_accessible_statement_check_results %}
+                <h2 id="statement-preparation" class="govuk-heading-m">Statement preparation</h2>
+                <div class="govuk-button-group amp-margin-bottom-0">
+                    <a href="{% url 'audits:edit-equality-body-statement-preparation' retest.id %}"
+                        class="govuk-link govuk-link--no-visited-state">Edit statement preparation</a>
+                </div>
+                {% include 'audits/statement_checks/equality_body_retest_statement_results_table.html' with statement_check_results=retest.preparation_statement_check_results %}
+                <h2 id="statement-feedback" class="govuk-heading-m">Statement feedback and enforcement procedure</h2>
+                <div class="govuk-button-group amp-margin-bottom-0">
+                    <a href="{% url 'audits:edit-equality-body-statement-feedback' retest.id %}"
+                        class="govuk-link govuk-link--no-visited-state">Edit statement feedback and enforcement procedure</a>
+                </div>
+                {% include 'audits/statement_checks/equality_body_retest_statement_results_table.html' with statement_check_results=retest.feedback_statement_check_results %}
+                <h2 id="statement-custom" class="govuk-heading-m">Custom statement issues</h2>
+                <div class="govuk-button-group amp-margin-bottom-0">
+                    <a href="{% url 'audits:edit-equality-body-statement-custom' retest.id %}"
+                        class="govuk-link govuk-link--no-visited-state">Edit custom statement issues</a>
+                </div>
+                {% include 'audits/statement_checks/equality_body_retest_statement_results_table.html' with statement_check_results=retest.custom_statement_check_results %}
+                <form method="post" action="{% url 'audits:edit-equality-body-statement-results' retest.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            {% include 'audits/helpers/equality_body_retest_save_continue_cancel.html' %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-equality-body-statement-results' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

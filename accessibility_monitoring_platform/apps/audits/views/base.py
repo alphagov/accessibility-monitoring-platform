@@ -1,6 +1,7 @@
 """
 Views for audits app (called tests by users)
 """
+
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from django.db.models.query import Q, QuerySet
@@ -15,8 +16,8 @@ from django.views.generic.list import ListView
 from ...cases.models import Case, CaseEvent
 from ...common.utils import (
     amp_format_date,
-    get_id_from_button_name,
     get_url_parameters_for_pagination,
+    mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
 )
@@ -456,17 +457,9 @@ class StatementPageFormsetUpdateView(AuditUpdateView):
                     statement_page.save()
         else:
             return super().form_invalid(form)
-        statement_page_id_to_delete: Optional[int] = get_id_from_button_name(
-            button_name_prefix="remove_statement_page_",
-            querydict=self.request.POST,
+        mark_object_as_deleted(
+            request=self.request,
+            delete_button_prefix="remove_statement_page_",
+            object_to_delete_model=StatementPage,
         )
-        if statement_page_id_to_delete is not None:
-            statement_page_to_delete: statement_page = StatementPage.objects.get(
-                id=statement_page_id_to_delete
-            )
-            statement_page_to_delete.is_deleted = True
-            record_model_update_event(
-                user=self.request.user, model_object=statement_page_to_delete
-            )
-            statement_page_to_delete.save()
         return super().form_valid(form)

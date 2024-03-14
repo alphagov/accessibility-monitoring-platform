@@ -23,6 +23,7 @@ from ..models import (
     Retest,
     RetestCheckResult,
     RetestPage,
+    RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
@@ -71,6 +72,9 @@ id="id_form-0-added_stage_0" checked="">"""
 STATEMENT_PAGE_TWELVE_WEEK_CHECKED: str = """<input class="govuk-radios__input"
 type="radio" name="form-0-added_stage" value="12-week-retest"
 id="id_form-0-added_stage_1" checked="">"""
+STATEMENT_PAGE_EWUALITY_BODY_RETEST_CHECKED: str = """<input class="govuk-radios__input"
+type="radio" name="form-0-added_stage" value="retest"
+id="id_form-0-added_stage_2" checked="">"""
 STATEMENT_PAGE_URL: str = "https://example.com/statement"
 WCAG_DEFINITION_HINT: str = "WCAG definition hint text"
 
@@ -712,6 +716,70 @@ def test_audit_statement_pages_default_added_stage(
 
     assertNotContains(response, STATEMENT_PAGE_INITIAL_CHECKED, html=True)
     assertContains(response, STATEMENT_PAGE_TWELVE_WEEK_CHECKED, html=True)
+
+
+@pytest.mark.parametrize(
+    "path_name",
+    [
+        "edit-statement-pages",
+        "edit-audit-retest-statement-pages",
+    ],
+)
+def test_delete_statement_page(path_name, admin_client):
+    """Test deleting a statement page"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.post(
+        reverse(f"audits:{path_name}", kwargs={"pk": audit.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_statement_page_{statement_page.id}": "Remove statement link",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    updated_statement_page: StatementPage = StatementPage.objects.get(
+        id=statement_page.id
+    )
+
+    assert updated_statement_page.is_deleted is True
+
+
+def test_delete_statement_page_on_retest(admin_client):
+    """Test deleting a statement page"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    retest: Retest = Retest.objects.create(case=audit.case)
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_statement_page_{statement_page.id}": "Remove statement link",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    updated_statement_page: StatementPage = StatementPage.objects.get(
+        id=statement_page.id
+    )
+
+    assert updated_statement_page.is_deleted is True
 
 
 @pytest.mark.parametrize(
@@ -2055,6 +2123,41 @@ def test_delete_custom_statement_check_result(admin_client):
     assert result_on_database.is_deleted is True
 
 
+def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
+    """
+    Test that pressing the remove issue button deletes the custom statement issue
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    retest: Retest = Retest.objects.create(case=audit.case)
+    custom_retest_statement_check_result: StatementCheckResult = (
+        RetestStatementCheckResult.objects.create(retest=retest)
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-equality-body-statement-custom", kwargs={"pk": retest.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_custom_{custom_retest_statement_check_result.id}": "Remove issue",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "No custom statement issues have been entered")
+
+    result_on_database: RetestStatementCheckResult = (
+        RetestStatementCheckResult.objects.get(
+            id=custom_retest_statement_check_result.id
+        )
+    )
+
+    assert result_on_database.is_deleted is True
+
+
 def test_statement_decision_saved_on_case(admin_client):
     """Test that a statement decision is saved on case"""
     audit: Audit = create_audit_and_wcag()
@@ -3010,6 +3113,121 @@ def test_create_equality_body_retest_creates_retest_0(admin_client):
             "audits:retest-compliance-update",
         ),
         ("audits:retest-compliance-update", "save", "audits:retest-compliance-update"),
+        (
+            "audits:retest-compliance-update",
+            "save_continue",
+            "audits:edit-equality-body-statement-pages",
+        ),
+        (
+            "audits:edit-equality-body-statement-pages",
+            "save",
+            "audits:edit-equality-body-statement-pages",
+        ),
+        (
+            "audits:edit-equality-body-statement-pages",
+            "save_continue",
+            "audits:edit-equality-body-statement-overview",
+        ),
+        (
+            "audits:edit-equality-body-statement-overview",
+            "save",
+            "audits:edit-equality-body-statement-overview",
+        ),
+        (
+            "audits:edit-equality-body-statement-overview",
+            "save_continue",
+            "audits:edit-equality-body-statement-website",
+        ),
+        (
+            "audits:edit-equality-body-statement-website",
+            "save",
+            "audits:edit-equality-body-statement-website",
+        ),
+        (
+            "audits:edit-equality-body-statement-website",
+            "save_continue",
+            "audits:edit-equality-body-statement-compliance",
+        ),
+        (
+            "audits:edit-equality-body-statement-compliance",
+            "save",
+            "audits:edit-equality-body-statement-compliance",
+        ),
+        (
+            "audits:edit-equality-body-statement-compliance",
+            "save_continue",
+            "audits:edit-equality-body-statement-non-accessible",
+        ),
+        (
+            "audits:edit-equality-body-statement-non-accessible",
+            "save",
+            "audits:edit-equality-body-statement-non-accessible",
+        ),
+        (
+            "audits:edit-equality-body-statement-non-accessible",
+            "save_continue",
+            "audits:edit-equality-body-statement-preparation",
+        ),
+        (
+            "audits:edit-equality-body-statement-preparation",
+            "save",
+            "audits:edit-equality-body-statement-preparation",
+        ),
+        (
+            "audits:edit-equality-body-statement-preparation",
+            "save_continue",
+            "audits:edit-equality-body-statement-feedback",
+        ),
+        (
+            "audits:edit-equality-body-statement-feedback",
+            "save",
+            "audits:edit-equality-body-statement-feedback",
+        ),
+        (
+            "audits:edit-equality-body-statement-feedback",
+            "save_continue",
+            "audits:edit-equality-body-statement-custom",
+        ),
+        (
+            "audits:edit-equality-body-statement-custom",
+            "save",
+            "audits:edit-equality-body-statement-custom",
+        ),
+        (
+            "audits:edit-equality-body-statement-custom",
+            "save_continue",
+            "audits:edit-equality-body-statement-results",
+        ),
+        (
+            "audits:edit-equality-body-statement-results",
+            "save",
+            "audits:edit-equality-body-statement-results",
+        ),
+        (
+            "audits:edit-equality-body-statement-results",
+            "save_continue",
+            "audits:edit-equality-body-disproportionate-burden",
+        ),
+        (
+            "audits:edit-equality-body-disproportionate-burden",
+            "save",
+            "audits:edit-equality-body-disproportionate-burden",
+        ),
+        (
+            "audits:edit-equality-body-disproportionate-burden",
+            "save_continue",
+            "audits:edit-equality-body-statement-decision",
+        ),
+        (
+            "audits:edit-equality-body-statement-decision",
+            "save",
+            "audits:edit-equality-body-statement-decision",
+        ),
+        (
+            "audits:edit-equality-body-statement-decision",
+            "save_continue",
+            "cases:edit-retest-overview",
+        ),
     ],
 )
 def test_equality_body_retest_edit_redirects_based_on_button_pressed(
@@ -3029,6 +3247,10 @@ def test_equality_body_retest_edit_redirects_based_on_button_pressed(
         {
             "version": retest.version,
             button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
         },
     )
 
@@ -3119,19 +3341,38 @@ def test_equality_body_page_checks_save_continue(
     assert response.url == expected_path
 
 
-def test_equality_body_retest_compliance_update_redirects_to_retest_overview_based_on_button_pressed(
+def test_equality_body_retest_statement_pages_default_added_stage(
     admin_client,
 ):
     """
-    Test that a equality body retrest compliance update redirects to retest overview when save
-    and continue button is pressed.
+    Test that added stage for new entries defaults to retest
+    for equality body-requested retests.
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("audits:edit-equality-body-statement-pages", kwargs=retest_pk)}?add_extra=true#statement-page-None'
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, STATEMENT_PAGE_EWUALITY_BODY_RETEST_CHECKED, html=True)
+
+
+def test_equality_body_retest_statement_compliance_update_redirects_to_retest_overview_based_on_button_pressed(
+    admin_client,
+):
+    """
+    Test that a equality body retrest statement compliance update redirects
+    to retest overview when save and continue button is pressed.
     """
     retest: Retest = create_equality_body_retest()
     retest_pk: Dict[str, int] = {"pk": retest.id}
     case_pk: Dict[str, int] = {"pk": retest.case.id}
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:retest-compliance-update", kwargs=retest_pk),
+        reverse("audits:edit-equality-body-statement-decision", kwargs=retest_pk),
         {
             "version": retest.version,
             "save_continue": "Button value",

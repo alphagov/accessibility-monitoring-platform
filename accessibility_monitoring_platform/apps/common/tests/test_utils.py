@@ -1,6 +1,7 @@
 """
 Test - common utility functions
 """
+
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
 from typing import Any, Dict, List, Tuple
@@ -17,6 +18,7 @@ from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
+from ...cases.models import Case, Contact
 from ..models import ChangeToPlatform, Event, Platform
 from ..utils import (
     amp_format_date,
@@ -38,6 +40,7 @@ from ..utils import (
     get_recent_changes_to_platform,
     get_url_parameters_for_pagination,
     list_to_dictionary_of_lists,
+    mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
     sanitise_domain,
@@ -51,6 +54,12 @@ class MockModel:
         self.integer_field = integer_field
         self.char_field = char_field
         self.field_not_in_csv = "field_not_in_csv"
+
+
+class MockRequest:
+    def __init__(self, button: str, user: User):
+        self.POST = {button: "Remove"}
+        self.user = user
 
 
 def test_extract_domain_from_url_https():
@@ -106,6 +115,31 @@ def test_get_id_from_button_name():
         )
         == button_id
     )
+
+
+@pytest.mark.django_db
+def test_mark_object_as_deleted():
+    """Tests that object is marked as deleted"""
+    delete_button_prefix = "delete_button_prefix_"
+    case: Case = Case.objects.create()
+    contact: Contact = Contact.objects.create(case=case)
+    user: User = User.objects.create()
+    mock_request: MockRequest = MockRequest(
+        button=f"{delete_button_prefix}{contact.id}",
+        user=user,
+    )
+
+    assert contact.is_deleted is False
+
+    mark_object_as_deleted(
+        request=mock_request,
+        delete_button_prefix=delete_button_prefix,
+        object_to_delete_model=Contact,
+    )
+
+    contact_from_db: Contact = Contact.objects.get(id=contact.id)
+
+    assert contact_from_db.is_deleted is True
 
 
 def test_get_non_numeric_suffix_from_button_name():

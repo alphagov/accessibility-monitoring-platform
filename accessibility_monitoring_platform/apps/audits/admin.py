@@ -12,6 +12,7 @@ from .models import (
     Retest,
     RetestCheckResult,
     RetestPage,
+    RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
@@ -164,6 +165,27 @@ class StatementPageAdmin(admin.ModelAdmin):
     readonly_fields = ["audit"]
 
 
+class RetestStatementCheckResultAdmin(admin.ModelAdmin):
+    """Django admin configuration for RetestStatementCheckResult model"""
+
+    search_fields = [
+        "retest__case__id",
+        "retest__case__organisation_name",
+        "statement_check__label",
+        "comment",
+    ]
+    list_display = [
+        "id",
+        "retest",
+        "type",
+        "check_result_state",
+        "is_deleted",
+        "statement_check",
+    ]
+    list_filter = ["check_result_state", "is_deleted"]
+    readonly_fields = ["retest", "statement_check"]
+
+
 admin.site.register(Audit, AuditAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(CheckResult, CheckResultAdmin)
@@ -174,3 +196,4 @@ admin.site.register(Retest, RetestAdmin)
 admin.site.register(RetestPage, RetestPageAdmin)
 admin.site.register(RetestCheckResult, RetestCheckResultAdmin)
 admin.site.register(StatementPage, StatementPageAdmin)
+admin.site.register(RetestStatementCheckResult, RetestStatementCheckResultAdmin)

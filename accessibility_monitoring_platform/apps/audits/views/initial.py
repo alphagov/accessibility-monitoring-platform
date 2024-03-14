@@ -1,8 +1,9 @@
 """
 Views for audits app (called tests by users)
 """
+
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -16,8 +17,8 @@ from ...cases.models import Contact
 from ...common.form_extract_utils import extract_form_labels_and_values
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.utils import (
-    get_id_from_button_name,
     list_to_dictionary_of_lists,
+    mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
 )
@@ -235,17 +236,11 @@ class AuditPagesUpdateView(AuditUpdateView):
         else:
             return super().form_invalid(form)
 
-        page_id_to_delete: Union[int, None] = get_id_from_button_name(
-            button_name_prefix="remove_extra_page_",
-            querydict=self.request.POST,
+        mark_object_as_deleted(
+            request=self.request,
+            delete_button_prefix="remove_extra_page_",
+            object_to_delete_model=Page,
         )
-        if page_id_to_delete is not None:
-            page_to_delete: Page = Page.objects.get(id=page_id_to_delete)
-            page_to_delete.is_deleted = True
-            record_model_update_event(
-                user=self.request.user, model_object=page_to_delete
-            )
-            page_to_delete.save()
 
         return super().form_valid(form)
 
@@ -582,23 +577,11 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
                     custom_statement_check_result.save()
         else:
             return super().form_invalid(form)
-        custom_statement_check_result_id_to_delete: Optional[
-            int
-        ] = get_id_from_button_name(
-            button_name_prefix="remove_custom_",
-            querydict=self.request.POST,
+        mark_object_as_deleted(
+            request=self.request,
+            delete_button_prefix="remove_custom_",
+            object_to_delete_model=StatementCheckResult,
         )
-        if custom_statement_check_result_id_to_delete is not None:
-            custom_statement_check_result: StatementCheckResult = (
-                StatementCheckResult.objects.get(
-                    id=custom_statement_check_result_id_to_delete
-                )
-            )
-            custom_statement_check_result.is_deleted = True
-            record_model_update_event(
-                user=self.request.user, model_object=custom_statement_check_result
-            )
-            custom_statement_check_result.save()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
