@@ -87,7 +87,7 @@ from .forms import (
     ListCaseEqualityBodyCorrespondenceUpdateForm,
     PostCaseUpdateForm,
 )
-from .models import Case, Contact, EqualityBodyCorrespondence
+from .models import ONE_WEEK_IN_DAYS, Case, Contact, EqualityBodyCorrespondence
 from .utils import (
     EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
@@ -104,9 +104,8 @@ from .utils import (
     replace_search_key_with_case_search,
 )
 
-ONE_WEEK_IN_DAYS = 7
-FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
-TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
+FOUR_WEEKS_IN_DAYS: int = 4 * ONE_WEEK_IN_DAYS
+TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
 TRUTHY_SEARCH_FIELDS: List[str] = [
     "sort_by",
     "status",
