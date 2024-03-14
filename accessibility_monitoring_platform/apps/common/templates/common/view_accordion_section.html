@@ -1,0 +1,32 @@
+<div class="govuk-accordion__section">
+    <div class="govuk-accordion__section-header">
+        <h2 id="{{ view_section.anchor }}" class="govuk-accordion__section-heading">
+            <span class="govuk-accordion__section-button" id="accordion-heading-{{ view_section.name|slugify }}">
+                {{ view_section.name }}
+                {% if view_section.complete %}
+                    <span class="govuk-visually-hidden">complete</span>
+                    &check;
+                {% endif %}
+            </span>
+        </h2>
+    </div>
+    <div id="accordion-content-{{ view_section.name|slugify }}" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-{{ view_section.name|slugify }}">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <p id="{{ view_section.anchor }}" class="govuk-body-m">
+                    <b>{{ view_section.name }}</b> |
+                    <a href="{{ view_section.edit_url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
+                </p>
+            </div>
+        </div>
+        {% for subtable in view_section.subtables %}
+            <p class="govuk-body-m"><b>{{ subtable.name }}</b></p>
+            {% include 'common/view_table.html' with section=subtable %}
+        {% endfor %}
+        {% if view_section.display_fields %}
+            {% include 'common/view_table.html' with section=view_section %}
+        {% elif not view_section.subtables %}
+            <p class="govuk-body-m">None</p>
+        {% endif %}
+    </div>
+</div>

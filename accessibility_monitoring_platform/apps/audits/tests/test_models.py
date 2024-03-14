@@ -40,6 +40,7 @@ INCOMPLETE_DEADLINE_TEXT: str = "Incomplete deadline text"
 INSUFFICIENT_DEADLINE_TEXT: str = "Insufficient deadline text"
 ERROR_NOTES: str = "Error notes"
 STATEMENT_LINK: str = "https://example.com/accessibility-statement"
+REPORT_COMMENT: str = "Report comment"
 
 
 def create_retest_and_retest_check_results(case: Optional[Case] = None):
@@ -1564,4 +1565,19 @@ def test_check_result_matching_wcag_with_retest_notes_check_results():
     assert (
         first_check_result.matching_wcag_with_retest_notes_check_results.last()
         == third_check_result
+    )
+
+
+def test_statement_check_result_display_value():
+    """Test StatementCheckResult.display_value"""
+    statement_check_result: StatementCheckResult = StatementCheckResult()
+
+    assert statement_check_result.display_value == "Not tested"
+
+    statement_check_result.check_result_state = StatementCheckResult.Result.NO
+    statement_check_result.report_comment = REPORT_COMMENT
+
+    assert (
+        statement_check_result.display_value
+        == f"No<br><br>Auditor's comment: {REPORT_COMMENT}"
     )

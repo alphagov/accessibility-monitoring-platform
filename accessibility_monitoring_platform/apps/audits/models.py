@@ -11,6 +11,7 @@ from django.db.models import Q, When
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from ..cases.models import Case
 from ..common.models import Boolean, StartEndDateManager, VersionModel
@@ -1324,6 +1325,13 @@ class StatementCheckResult(models.Model):
     @property
     def label(self):
         return self.statement_check.label if self.statement_check else "Custom"
+
+    @property
+    def display_value(self):
+        value_str: str = self.get_check_result_state_display()
+        if self.report_comment:
+            value_str += f"<br><br>Auditor's comment: {self.report_comment}"
+        return mark_safe(value_str)
 
 
 class Retest(VersionModel):

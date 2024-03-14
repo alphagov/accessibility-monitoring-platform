@@ -1,6 +1,7 @@
 """
 Test - common utility functions
 """
+
 from datetime import date, timedelta
 from typing import Dict, List, Tuple, Union
 
@@ -11,6 +12,7 @@ from django.urls import reverse
 
 from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
+from ...common.view_section_utils import ViewSection
 from ..forms import CheckResultFormset
 from ..models import (
     Audit,
@@ -24,6 +26,7 @@ from ..models import (
     WcagDefinition,
 )
 from ..utils import (
+    build_statement_content_subsections,
     create_checkresults_for_retest,
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
@@ -369,6 +372,85 @@ def create_audit_and_check_results() -> Audit:
     )
 
     return audit
+
+
+@pytest.mark.django_db
+def test_build_statement_content_subsections():
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+    )
+
+    statement_content_subsections: List[
+        ViewSection
+    ] = build_statement_content_subsections(audit=audit)
+
+    assert len(statement_content_subsections) == 6
+
+    assert statement_content_subsections[0] == ViewSection(
+        name="Statement information",
+        anchor="statement-information",
+        edit_url="/audits/1/edit-statement-website/",
+        edit_url_id="edit-statement-website",
+        complete=False,
+        display_fields=[],
+        subtables=None,
+        subsections=None,
+    )
+    assert statement_content_subsections[1] == ViewSection(
+        name="Compliance status",
+        anchor="compliance-status",
+        edit_url="/audits/1/edit-statement-compliance/",
+        edit_url_id="edit-statement-compliance",
+        complete=False,
+        display_fields=[],
+        subtables=None,
+        subsections=None,
+    )
+    assert statement_content_subsections[2] == ViewSection(
+        name="Non-accessible content",
+        anchor="non-accessible-content",
+        edit_url="/audits/1/edit-statement-non-accessible/",
+        edit_url_id="edit-statement-non-accessible",
+        complete=False,
+        display_fields=[],
+        subtables=None,
+        subsections=None,
+    )
+    assert statement_content_subsections[3] == ViewSection(
+        name="Preparation of this accessibility statement",
+        anchor="preparation-of-this-accessibility-statement",
+        edit_url="/audits/1/edit-statement-preparation/",
+        edit_url_id="edit-statement-preparation",
+        complete=False,
+        display_fields=[],
+        subtables=None,
+        subsections=None,
+    )
+    assert statement_content_subsections[4] == ViewSection(
+        name="Feedback and enforcement procedure",
+        anchor="feedback-and-enforcement-procedure",
+        edit_url="/audits/1/edit-statement-feedback/",
+        edit_url_id="edit-statement-feedback",
+        complete=False,
+        display_fields=[],
+        subtables=None,
+        subsections=None,
+    )
+    assert statement_content_subsections[5] == ViewSection(
+        name="Custom statement issues",
+        anchor="custom-statement-issues",
+        edit_url="/audits/1/edit-statement-custom/",
+        edit_url_id="edit-statement-custom",
+        complete=False,
+        display_fields=[],
+        subtables=None,
+        subsections=None,
+    )
 
 
 @pytest.mark.django_db
