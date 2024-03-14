@@ -11,8 +11,9 @@ from django.db.models import Q, When
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
-from ..cases.models import Case
+from ..cases.models import Case, CaseCompliance
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date
 
@@ -1325,6 +1326,13 @@ class StatementCheckResult(models.Model):
     def label(self):
         return self.statement_check.label if self.statement_check else "Custom"
 
+    @property
+    def display_value(self):
+        value_str: str = self.get_check_result_state_display()
+        if self.report_comment:
+            value_str += f"<br><br>Auditor's comment: {self.report_comment}"
+        return mark_safe(value_str)
+
 
 class Retest(VersionModel):
     """
@@ -1350,6 +1358,32 @@ class Retest(VersionModel):
     complete_date = models.DateField(null=True, blank=True)
     comparison_complete_date = models.DateField(null=True, blank=True)
     compliance_complete_date = models.DateField(null=True, blank=True)
+    statement_pages_complete_date = models.DateField(null=True, blank=True)
+
+    statement_overview_complete_date = models.DateField(null=True, blank=True)
+    statement_website_complete_date = models.DateField(null=True, blank=True)
+    statement_compliance_complete_date = models.DateField(null=True, blank=True)
+    statement_non_accessible_complete_date = models.DateField(null=True, blank=True)
+    statement_preparation_complete_date = models.DateField(null=True, blank=True)
+    statement_feedback_complete_date = models.DateField(null=True, blank=True)
+    statement_custom_complete_date = models.DateField(null=True, blank=True)
+    statement_results_complete_date = models.DateField(null=True, blank=True)
+
+    disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=Audit.DisproportionateBurden.choices,
+        default=Audit.DisproportionateBurden.NOT_CHECKED,
+    )
+    disproportionate_burden_notes = models.TextField(default="", blank=True)
+    disproportionate_burden_complete_date = models.DateField(null=True, blank=True)
+
+    statement_compliance_state = models.CharField(
+        max_length=200,
+        choices=CaseCompliance.StatementCompliance.choices,
+        default=CaseCompliance.StatementCompliance.UNKNOWN,
+    )
+    statement_compliance_notes = models.TextField(default="", blank=True)
+    statement_decision_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["case_id", "-id_within_case"]
@@ -1429,6 +1463,56 @@ class Retest(VersionModel):
     @property
     def unfixed_check_results(self):
         return self.check_results.exclude(retest_state=CheckResult.RetestResult.FIXED)
+
+    @property
+    def statement_check_results(self):
+        return self.reteststatementcheckresult_set.filter(is_deleted=False)
+
+    @property
+    def failed_statement_check_results(self):
+        return self.statement_check_results.filter(
+            check_result_state=StatementCheckResult.Result.NO
+        )
+
+    @property
+    def overview_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
+
+    @property
+    def all_overview_statement_checks_have_passed(self) -> bool:
+        """Check all overview statement checks have passed"""
+        return (
+            self.overview_statement_check_results.exclude(
+                check_result_state=StatementCheckResult.Result.YES
+            ).count()
+            == 0
+        )
+
+    @property
+    def website_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.WEBSITE)
+
+    @property
+    def compliance_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.COMPLIANCE)
+
+    @property
+    def non_accessible_statement_check_results(self):
+        return self.statement_check_results.filter(
+            type=StatementCheck.Type.NON_ACCESSIBLE
+        )
+
+    @property
+    def preparation_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.PREPARATION)
+
+    @property
+    def feedback_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
+
+    @property
+    def custom_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 
 
 class RetestPage(models.Model):
@@ -1533,6 +1617,46 @@ class RetestCheckResult(models.Model):
     def all_retest_check_results(self):
         """Return all retest results for this check"""
         return RetestCheckResult.objects.filter(check_result=self.check_result)
+
+
+class RetestStatementCheckResult(models.Model):
+    """
+    Model for accessibility statement-specific check result
+    """
+
+    class Result(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        NOT_TESTED = "not-tested", "Not tested"
+
+    retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
+    statement_check = models.ForeignKey(
+        StatementCheck, on_delete=models.PROTECT, null=True, blank=True
+    )
+    type = models.CharField(
+        max_length=20,
+        choices=StatementCheck.Type.choices,
+        default=StatementCheck.Type.CUSTOM,
+    )
+    check_result_state = models.CharField(
+        max_length=10,
+        choices=Result.choices,
+        default=Result.NOT_TESTED,
+    )
+    comment = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["statement_check__position", "id"]
+
+    def __str__(self) -> str:
+        if self.statement_check is None:
+            return str(f"{self.retest} | Custom")
+        return str(f"{self.retest} | {self.statement_check}")
+
+    @property
+    def label(self):
+        return self.statement_check.label if self.statement_check else "Custom"
 
 
 class StatementPage(models.Model):

@@ -1,0 +1,24 @@
+<input
+    type="submit"
+    value="Save"
+    name="save"
+    class="govuk-button"
+    data-module="govuk-button"
+/>
+<input
+    type="submit"
+    {% if save_and_exit %}
+        value="Save and exit"
+    {% else %}
+        value="Save and continue"
+    {% endif %}
+    name="save_continue"
+    class="govuk-button govuk-button--secondary"
+    data-module="govuk-button"
+/>
+<a
+    href="{% url 'cases:edit-retest-overview' retest.case.id %}"
+    class="govuk-link govuk-link--no-visited-state"
+>
+    Cancel and return to retest overview
+</a>

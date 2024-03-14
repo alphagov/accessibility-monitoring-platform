@@ -7,7 +7,7 @@
         </legend>
         <label class="govuk-label"><b>Success criteria</b></label>
         <p class="govuk-body">{{ statement_check_result_form.instance.statement_check.success_criteria }}</p>
-        {% if retest %}
+        {% if twelve_week_retest %}
             <label class="govuk-label"><b>Initial result</b></label>
             <p class="govuk-body">{{ statement_check_result_form.instance.get_check_result_state_display }}</p>
             <label class="govuk-label"><b>Comments for report</b></label>

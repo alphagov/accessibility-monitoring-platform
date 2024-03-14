@@ -1,4 +1,5 @@
 """ Common utility functions """
+
 import json
 import re
 import urllib
@@ -66,6 +67,23 @@ def get_id_from_button_name(
         id_string: str = key_names[0].replace(button_name_prefix, "")
         object_id: Optional[int] = int(id_string) if id_string.isdigit() else None
     return object_id
+
+
+def mark_object_as_deleted(
+    request: HttpRequest, delete_button_prefix: str, object_to_delete_model
+) -> None:
+    """
+    Check for delete/remove button in request. Mark object as deleted.
+    """
+    object_id_to_delete: Optional[int] = get_id_from_button_name(
+        button_name_prefix=delete_button_prefix,
+        querydict=request.POST,
+    )
+    if object_id_to_delete is not None:
+        object_to_delete = object_to_delete_model.objects.get(id=object_id_to_delete)
+        object_to_delete.is_deleted = True
+        record_model_update_event(user=request.user, model_object=object_to_delete)
+        object_to_delete.save()
 
 
 def build_filters(
@@ -261,6 +279,8 @@ def get_first_of_this_month_last_year() -> datetime:
 def get_one_year_ago():
     """Calculate and return timestamp of midnight one year ago"""
     today: date = date.today()
+    if today.month == 2 and today.day == 29:
+        today -= timedelta(days=1)
     one_year_ago: datetime = datetime(
         today.year - 1, today.month, today.day, 0, 0, tzinfo=datetime_timezone.utc
     )

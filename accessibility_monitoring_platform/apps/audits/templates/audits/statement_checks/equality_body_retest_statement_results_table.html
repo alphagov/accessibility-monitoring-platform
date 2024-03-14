@@ -1,0 +1,23 @@
+<table class="govuk-table">
+    <thead>
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header amp-width-one-half">Question</th>
+            <th scope="col" class="govuk-table__header amp-width-one-half">Result</th>
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        {% for statement_check_result in statement_check_results %}
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell amp-width-one-half">
+                    {{ statement_check_result.label }}
+                </td>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {{ statement_check_result.get_check_result_state_display }}
+                    {% if statement_check_result.comment  %}
+                        <br><br>{{ statement_check_result.comment }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

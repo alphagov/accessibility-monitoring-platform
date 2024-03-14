@@ -20,6 +20,7 @@ from ..models import (
     Retest,
     RetestCheckResult,
     RetestPage,
+    RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
@@ -40,6 +41,8 @@ INCOMPLETE_DEADLINE_TEXT: str = "Incomplete deadline text"
 INSUFFICIENT_DEADLINE_TEXT: str = "Insufficient deadline text"
 ERROR_NOTES: str = "Error notes"
 STATEMENT_LINK: str = "https://example.com/accessibility-statement"
+ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID: int = 1
+REPORT_COMMENT: str = "Report comment"
 
 
 def create_retest_and_retest_check_results(case: Optional[Case] = None):
@@ -149,6 +152,29 @@ def create_audit_and_statement_check_results() -> Audit:
         report_comment="Custom statement issue",
     )
     return audit
+
+
+def create_retest_and_statement_check_results() -> Retest:
+    """Create a retest with all types of statement checks"""
+    case: Case = Case.objects.create()
+    retest: Retest = Retest.objects.create(case=case)
+    for count, statement_check in enumerate(StatementCheck.objects.all()):
+        check_result_state: str = (
+            StatementCheckResult.Result.NO
+            if count % 2 == 0
+            else StatementCheckResult.Result.YES
+        )
+        RetestStatementCheckResult.objects.create(
+            retest=retest,
+            type=statement_check.type,
+            statement_check=statement_check,
+            check_result_state=check_result_state,
+        )
+    RetestStatementCheckResult.objects.create(
+        retest=retest,
+        comment="Custom statement issue",
+    )
+    return retest
 
 
 def create_audit_and_check_results() -> Audit:
@@ -1514,6 +1540,208 @@ def test_statement_found_at_12_week_retest_using_overview_statement_check_result
 
 
 @pytest.mark.django_db
+def test_retest_statement_check_results():
+    """Test Retest.statement_check_results"""
+    retest: Retest = create_retest_and_statement_check_results()
+    retest_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(retest=retest)
+
+    assertQuerysetEqual(retest.statement_check_results, retest_statement_check_results)
+
+
+@pytest.mark.django_db
+def test_retest_failed_statement_check_results():
+    """Test Retest.failed_statement_check_results"""
+    retest: Retest = create_retest_and_statement_check_results()
+    retest_failed_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(
+        retest=retest, check_result_state=StatementCheckResult.Result.NO
+    )
+
+    assertQuerysetEqual(
+        retest.failed_statement_check_results, retest_failed_statement_check_results
+    )
+
+
+@pytest.mark.django_db
+def test_retest_overview_statement_check_results():
+    """Test Retest.overview_statement_check_results"""
+    retest: Retest = create_retest_and_statement_check_results()
+    retest_overview_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(
+        retest=retest, type=StatementCheck.Type.OVERVIEW
+    )
+
+    assertQuerysetEqual(
+        retest.overview_statement_check_results, retest_overview_statement_check_results
+    )
+
+
+@pytest.mark.django_db
+def test_retest_all_overview_statement_checks_have_passed():
+    """Test Retest.all_overview_statement_checks_have_passed"""
+    retest: Retest = create_retest_and_statement_check_results()
+
+    assert retest.all_overview_statement_checks_have_passed is False
+
+    retest_overview_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(
+        retest=retest, type=StatementCheck.Type.OVERVIEW
+    )
+    for (
+        retest_overview_statement_check_result
+    ) in retest_overview_statement_check_results:
+        retest_overview_statement_check_result.check_result_state = (
+            StatementCheckResult.Result.YES
+        )
+        retest_overview_statement_check_result.save()
+
+    assert retest.all_overview_statement_checks_have_passed is True
+
+
+@pytest.mark.django_db
+def test_retest_website_statement_check_results():
+    """Test Retest.website_statement_check_results"""
+    retest: Retest = create_retest_and_statement_check_results()
+    retest_website_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(
+        retest=retest, type=StatementCheck.Type.WEBSITE
+    )
+
+    assertQuerysetEqual(
+        retest.website_statement_check_results, retest_website_statement_check_results
+    )
+
+
+@pytest.mark.django_db
+def test_retest_compliance_statement_check_results():
+    """Test Retest.compliance_statement_check_results"""
+    retest: Retest = create_retest_and_statement_check_results()
+    retest_compliance_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(
+        retest=retest, type=StatementCheck.Type.COMPLIANCE
+    )
+
+    assertQuerysetEqual(
+        retest.compliance_statement_check_results,
+        retest_compliance_statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_retest_non_accessible_statement_check_results():
+    """Test Retest.non_accessible_statement_check_results"""
+    retest: Retest = create_retest_and_statement_check_results()
+    retest_non_accessible_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(
+        retest=retest, type=StatementCheck.Type.NON_ACCESSIBLE
+    )
+
+    assertQuerysetEqual(
+        retest.non_accessible_statement_check_results,
+        retest_non_accessible_statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_retest_preparation_statement_check_results():
+    """Test Retest.preparation_statement_check_results"""
+    retest: Retest = create_retest_and_statement_check_results()
+    retest_preparation_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(
+        retest=retest, type=StatementCheck.Type.PREPARATION
+    )
+
+    assertQuerysetEqual(
+        retest.preparation_statement_check_results,
+        retest_preparation_statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_retest_feedback_statement_check_results():
+    """Test Retest.feedback_statement_check_results"""
+    retest: Retest = create_retest_and_statement_check_results()
+    retest_feedback_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(
+        retest=retest, type=StatementCheck.Type.FEEDBACK
+    )
+
+    assertQuerysetEqual(
+        retest.feedback_statement_check_results,
+        retest_feedback_statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_retest_custom_statement_check_results():
+    """Test Retest.custom_statement_check_results"""
+    retest: Retest = create_retest_and_statement_check_results()
+    retest_custom_statement_check_results: QuerySet[
+        RetestStatementCheckResult
+    ] = RetestStatementCheckResult.objects.filter(
+        retest=retest, type=StatementCheck.Type.CUSTOM
+    )
+
+    assertQuerysetEqual(
+        retest.custom_statement_check_results,
+        retest_custom_statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_retest_statement_check_results_str():
+    """Test RetestStatementCheckResult.__str__()"""
+    case: Case = Case.objects.create()
+    retest: Retest = Retest.objects.create(case=case)
+    retest_statement_check_result: RetestStatementCheckResult = (
+        RetestStatementCheckResult.objects.create(retest=retest)
+    )
+
+    assert retest_statement_check_result.__str__() == "Retest #1 | Custom"
+
+    statement_check: StatementCheck = StatementCheck.objects.get(
+        id=ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID
+    )
+    retest_statement_check_result.statement_check = statement_check
+    retest_statement_check_result.save()
+
+    assert (
+        retest_statement_check_result.__str__()
+        == "Retest #1 | Is there an accessibility page?: An accessibility page is found on the website (Statement overview)"
+    )
+
+
+@pytest.mark.django_db
+def test_retest_statement_check_results_label():
+    """Test RetestStatementCheckResult.label"""
+    case: Case = Case.objects.create()
+    retest: Retest = Retest.objects.create(case=case)
+    retest_statement_check_result: RetestStatementCheckResult = (
+        RetestStatementCheckResult.objects.create(retest=retest)
+    )
+
+    assert retest_statement_check_result.label == "Custom"
+
+    statement_check: StatementCheck = StatementCheck.objects.get(
+        id=ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID
+    )
+    retest_statement_check_result.statement_check = statement_check
+    retest_statement_check_result.save()
+
+    assert retest_statement_check_result.label == "Is there an accessibility page?"
+
+
+@pytest.mark.django_db
 def test_check_result_matching_wcag_with_retest_notes_check_results():
     """
     Test CheckResult.matching_wcag_with_retest_notes_check_results returns other
@@ -1564,4 +1792,19 @@ def test_check_result_matching_wcag_with_retest_notes_check_results():
     assert (
         first_check_result.matching_wcag_with_retest_notes_check_results.last()
         == third_check_result
+    )
+
+
+def test_statement_check_result_display_value():
+    """Test StatementCheckResult.display_value"""
+    statement_check_result: StatementCheckResult = StatementCheckResult()
+
+    assert statement_check_result.display_value == "Not tested"
+
+    statement_check_result.check_result_state = StatementCheckResult.Result.NO
+    statement_check_result.report_comment = REPORT_COMMENT
+
+    assert (
+        statement_check_result.display_value
+        == f"No<br><br>Auditor's comment: {REPORT_COMMENT}"
     )

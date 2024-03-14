@@ -1,0 +1,21 @@
+<nav role="navigation" class="amp-margin-bottom-40">
+    <h2 class="govuk-heading-m">Contents</h2>
+    <div class="amp-left-border">
+        <ul class="govuk-list">
+            {% for view_section in view_sections %}
+                <li>
+                    {% include 'common/view_toc_link.html' with section=view_section %}
+                    {% if view_section.subsections %}
+                        <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                            {% for subsection in view_section.subsections %}
+                                <li>
+                                    {% include 'common/view_toc_link.html' with section=subsection %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</nav>

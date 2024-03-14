@@ -52,7 +52,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div id="email-text" class="amp-report-wrapper">
-                    <h1 class="amp-margin-bottom-0">{{ case.organisation_name }}</h1>
+                    <h1 class="amp-margin-bottom-0">{% if case.website_name %}{{ case.website_name }}{% else %}{{ case.organisation_name }}{% endif %}</h1>
                     {{ case.domain }}
                     <br>
                     <br>
@@ -207,7 +207,49 @@
                             {% endif %}
                         {% endif %}
                     {% endfor %}
+                    <h2 class="amp-margin-bottom-0">Statement assessment</h2>
                     <br>
+                    The statement in the most recent retest was: {{ retest.get_statement_compliance_state_display }}.
+                    <br>
+                    <br>
+                    Disproportionate burden was: {{ retest.get_disproportionate_burden_claim_display }}.
+                    <br>
+                    <br>
+                    {% if retest.disproportionate_burden_notes %}
+                        Notes regarding the disproportionate burden:
+                        <br>
+                        <br>
+                        {{ retest.disproportionate_burden_notes|markdown_to_html }}
+                        <br>
+                        <br>
+                    {% endif %}
+                    {% if retest.failed_statement_check_results %}
+                        <b>Issues found with the statement</b>
+                        <br>
+                        <table id="email-statement-issues-table">
+                            <thead>
+                                <tr>
+                                    <td width=1%>#</td>
+                                    <td id="statement-issue-{{ forloop.counter }}" width=99%>Issue</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for failed_statement_check_result in retest.failed_statement_check_results %}
+                                    <tr valign="top">
+                                        <td width=1%>{{ forloop.counter }}</td>
+                                        <td headers="statement-issue-{{ forloop.parentloop.counter }}" width=99%>
+                                            {{ failed_statement_check_result.statement_check.report_text }}
+                                            {% if failed_statement_check_result.comment %}
+                                                <br>
+                                                <br>
+                                                {{ failed_statement_check_result.comment|markdown_to_html }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
                 </div>
             </div>
         </div>

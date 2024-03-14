@@ -1,7 +1,8 @@
 """
 Views for audits app (called tests by users)
 """
-from typing import Any, Dict, Type, Union
+
+from typing import Any, Dict, List, Optional, Type, Union
 
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -14,6 +15,7 @@ from ...cases.models import Case
 from ...common.models import Boolean
 from ...common.utils import (
     list_to_dictionary_of_lists,
+    mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
 )
@@ -21,10 +23,33 @@ from ..forms import (
     RetestCheckResultFormset,
     RetestComparisonUpdateForm,
     RetestComplianceUpdateForm,
+    RetestDisproportionateBurdenUpdateForm,
     RetestPageChecksForm,
+    RetestStatementCheckResultFormset,
+    RetestStatementComplianceUpdateForm,
+    RetestStatementCustomCheckResultFormset,
+    RetestStatementCustomCheckResultFormsetOneExtra,
+    RetestStatementCustomUpdateForm,
+    RetestStatementDecisionUpdateForm,
+    RetestStatementFeedbackUpdateForm,
+    RetestStatementNonAccessibleUpdateForm,
+    RetestStatementOverviewUpdateForm,
+    RetestStatementPagesUpdateForm,
+    RetestStatementPreparationUpdateForm,
+    RetestStatementResultsUpdateForm,
+    RetestStatementWebsiteUpdateForm,
     RetestUpdateForm,
+    StatementPageFormset,
+    StatementPageFormsetOneExtra,
 )
-from ..models import Retest, RetestCheckResult, RetestPage
+from ..models import (
+    Retest,
+    RetestCheckResult,
+    RetestPage,
+    RetestStatementCheckResult,
+    StatementCheck,
+    StatementPage,
+)
 from ..utils import (
     create_checkresults_for_retest,
     get_next_equality_body_retest_page_url,
@@ -208,8 +233,469 @@ class RetestComplianceUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        retest: Retest = self.object
+        retest_pk: Dict[str, int] = {"pk": retest.id}
         if "save_continue" in self.request.POST:
             return reverse(
-                "cases:edit-retest-overview", kwargs={"pk": self.object.case.id}
+                "audits:edit-equality-body-statement-pages", kwargs=retest_pk
             )
-        return reverse("audits:retest-compliance-update", kwargs={"pk": self.object.id})
+        return reverse("audits:retest-compliance-update", kwargs=retest_pk)
+
+
+class RetestStatementPageFormsetUpdateView(UpdateView):
+    """
+    View to update statement pages in equality body-requested retest
+    """
+
+    model: Type[Retest] = Retest
+    form_class: Type[RetestStatementPagesUpdateForm] = RetestStatementPagesUpdateForm
+    template_name: str = (
+        "audits/forms/equality_body_retest_statement_pages_formset.html"
+    )
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            statement_pages_formset = StatementPageFormset(self.request.POST)
+        else:
+            statement_pages: QuerySet[
+                StatementPage
+            ] = self.object.case.audit.statement_pages
+            if "add_extra" in self.request.GET:
+                statement_pages_formset = StatementPageFormsetOneExtra(
+                    queryset=statement_pages
+                )
+            else:
+                statement_pages_formset = StatementPageFormset(queryset=statement_pages)
+        for form in statement_pages_formset:
+            if form.instance.id is None:
+                form.fields["added_stage"].initial = StatementPage.AddedStage.RETEST
+        context["statement_pages_formset"] = statement_pages_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        statement_pages_formset = context["statement_pages_formset"]
+        retest: Retest = form.save(commit=False)
+        if statement_pages_formset.is_valid():
+            statement_pages: List[StatementPage] = statement_pages_formset.save(
+                commit=False
+            )
+            for statement_page in statement_pages:
+                if not statement_page.audit_id:
+                    statement_page.audit = retest.case.audit
+                    statement_page.save()
+                    record_model_create_event(
+                        user=self.request.user, model_object=statement_page
+                    )
+                else:
+                    record_model_update_event(
+                        user=self.request.user, model_object=statement_page
+                    )
+                    statement_page.save()
+        else:
+            return super().form_invalid(form)
+        mark_object_as_deleted(
+            request=self.request,
+            delete_button_prefix="remove_statement_page_",
+            object_to_delete_model=StatementPage,
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        retest: Retest = self.object
+        retest_pk: Dict[str, int] = {"pk": retest.id}
+        current_url: str = reverse(
+            "audits:edit-equality-body-statement-pages", kwargs=retest_pk
+        )
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "audits:edit-equality-body-statement-overview", kwargs=retest_pk
+            )
+        elif "add_statement_page" in self.request.POST:
+            return f"{current_url}?add_extra=true#statement-page-None"
+        else:
+            return current_url
+
+
+class RetestUpdateView(UpdateView):
+    """
+    View to update audit
+    """
+
+    model: Type[Retest] = Retest
+    context_object_name: str = "retest"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add event on change of retest"""
+        if form.changed_data:
+            self.object: Retest = form.save(commit=False)
+            record_model_update_event(user=self.request.user, model_object=self.object)
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Remain on current page on save"""
+        return self.request.path
+
+
+class RetestStatementCheckingView(RetestUpdateView):
+    """
+    View to do statement checks as part of an equality body-requested retest
+    """
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        retest: Retest = self.object
+
+        if self.request.POST:
+            retest_statement_check_results_formset: (
+                RetestStatementCheckResultFormset
+            ) = RetestStatementCheckResultFormset(self.request.POST)
+        else:
+            retest_statement_check_results_formset: (
+                RetestStatementCheckResultFormset
+            ) = RetestStatementCheckResultFormset(
+                queryset=RetestStatementCheckResult.objects.filter(
+                    retest=retest, type=self.statement_check_type
+                )
+            )
+
+        context[
+            "retest_statement_check_results_formset"
+        ] = retest_statement_check_results_formset
+
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        retest_statement_check_results_formset: RetestStatementCheckResultFormset = (
+            context["retest_statement_check_results_formset"]
+        )
+        if retest_statement_check_results_formset.is_valid():
+            for (
+                retest_statement_check_results_form
+            ) in retest_statement_check_results_formset.forms:
+                retest_statement_check_result: RetestStatementCheckResult = (
+                    retest_statement_check_results_form.save(commit=False)
+                )
+                record_model_update_event(
+                    user=self.request.user, model_object=retest_statement_check_result
+                )
+                retest_statement_check_result.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
+
+
+class RetestStatementOverviewFormView(RetestStatementCheckingView):
+    """
+    View to update statement overview check results retest
+    """
+
+    form_class: Type[
+        RetestStatementOverviewUpdateForm
+    ] = RetestStatementOverviewUpdateForm
+    template_name: str = (
+        "audits/statement_checks/equality_body_retest_statement_overview.html"
+    )
+    statement_check_type: str = StatementCheck.Type.OVERVIEW
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: Dict[str, int] = {"pk": retest.id}
+            if retest.all_overview_statement_checks_have_passed:
+                return reverse(
+                    "audits:edit-equality-body-statement-website", kwargs=retest_pk
+                )
+            return reverse(
+                "audits:edit-twelve-week-disproportionate-burden", kwargs=retest_pk
+            )
+        return super().get_success_url()
+
+
+class RetestStatementWebsiteFormView(RetestStatementCheckingView):
+    """
+    View to update statement website check results retest
+    """
+
+    form_class: Type[
+        RetestStatementWebsiteUpdateForm
+    ] = RetestStatementWebsiteUpdateForm
+    template_name: str = (
+        "audits/statement_checks/equality_body_retest_statement_website.html"
+    )
+    statement_check_type: str = StatementCheck.Type.WEBSITE
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: Dict[str, int] = {"pk": retest.id}
+            return reverse(
+                "audits:edit-equality-body-statement-compliance", kwargs=retest_pk
+            )
+        return super().get_success_url()
+
+
+class RetestStatementComplianceFormView(RetestStatementCheckingView):
+    """
+    View to update statement compliance check results retest
+    """
+
+    form_class: Type[
+        RetestStatementComplianceUpdateForm
+    ] = RetestStatementComplianceUpdateForm
+    template_name: str = (
+        "audits/statement_checks/equality_body_retest_statement_compliance.html"
+    )
+    statement_check_type: str = StatementCheck.Type.COMPLIANCE
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: Dict[str, int] = {"pk": retest.id}
+            return reverse(
+                "audits:edit-equality-body-statement-non-accessible", kwargs=retest_pk
+            )
+        return super().get_success_url()
+
+
+class RetestStatementNonAccessibleFormView(RetestStatementCheckingView):
+    """
+    View to update statement non-accessible check results retest
+    """
+
+    form_class: Type[
+        RetestStatementNonAccessibleUpdateForm
+    ] = RetestStatementNonAccessibleUpdateForm
+    template_name: str = (
+        "audits/statement_checks/equality_body_retest_statement_non_accessible.html"
+    )
+    statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: Dict[str, int] = {"pk": retest.id}
+            return reverse(
+                "audits:edit-equality-body-statement-preparation", kwargs=retest_pk
+            )
+        return super().get_success_url()
+
+
+class RetestStatementPreparationFormView(RetestStatementCheckingView):
+    """
+    View to update statement preparation check results retest
+    """
+
+    form_class: Type[
+        RetestStatementPreparationUpdateForm
+    ] = RetestStatementPreparationUpdateForm
+    template_name: str = (
+        "audits/statement_checks/equality_body_retest_statement_preparation.html"
+    )
+    statement_check_type: str = StatementCheck.Type.PREPARATION
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: Dict[str, int] = {"pk": retest.id}
+            return reverse(
+                "audits:edit-equality-body-statement-feedback", kwargs=retest_pk
+            )
+        return super().get_success_url()
+
+
+class RetestStatementFeedbackFormView(RetestStatementCheckingView):
+    """
+    View to update statement feedback check results retest
+    """
+
+    form_class: Type[
+        RetestStatementFeedbackUpdateForm
+    ] = RetestStatementFeedbackUpdateForm
+    template_name: str = (
+        "audits/statement_checks/equality_body_retest_statement_feedback.html"
+    )
+    statement_check_type: str = StatementCheck.Type.FEEDBACK
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: Dict[str, int] = {"pk": retest.id}
+            return reverse(
+                "audits:edit-equality-body-statement-custom", kwargs=retest_pk
+            )
+        return super().get_success_url()
+
+
+class RetestStatementCustomFormView(RetestUpdateView):
+    """
+    View to update statement custom check results retest
+    """
+
+    form_class: Type[RetestStatementCustomUpdateForm] = RetestStatementCustomUpdateForm
+    template_name: str = (
+        "audits/statement_checks/equality_body_retest_statement_custom.html"
+    )
+    statement_check_type: str = StatementCheck.Type.CUSTOM
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        retest: Retest = self.object
+        if self.request.POST:
+            retest_statement_check_results_formset = (
+                RetestStatementCustomCheckResultFormset(self.request.POST)
+            )
+        else:
+            retest_statement_check_results: QuerySet[
+                RetestStatementCheckResult
+            ] = retest.custom_statement_check_results
+            if "add_custom" in self.request.GET:
+                retest_statement_check_results_formset = (
+                    RetestStatementCustomCheckResultFormsetOneExtra(
+                        queryset=retest_statement_check_results
+                    )
+                )
+            else:
+                retest_statement_check_results_formset = (
+                    RetestStatementCustomCheckResultFormset(
+                        queryset=retest_statement_check_results
+                    )
+                )
+        context[
+            "retest_statement_check_results_formset"
+        ] = retest_statement_check_results_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        retest_statement_check_results_formset = context[
+            "retest_statement_check_results_formset"
+        ]
+        retest: Retest = form.save(commit=False)
+        if retest_statement_check_results_formset.is_valid():
+            retest_statement_check_results: List[
+                RetestStatementCheckResult
+            ] = retest_statement_check_results_formset.save(commit=False)
+            for retest_statement_check_result in retest_statement_check_results:
+                if not retest_statement_check_result.id:
+                    retest_statement_check_result.retest = retest
+                    retest_statement_check_result.check_result_state = (
+                        RetestStatementCheckResult.Result.NO
+                    )
+                    retest_statement_check_result.save()
+                    record_model_create_event(
+                        user=self.request.user,
+                        model_object=retest_statement_check_result,
+                    )
+                else:
+                    record_model_update_event(
+                        user=self.request.user,
+                        model_object=retest_statement_check_result,
+                    )
+                    retest_statement_check_result.save()
+        else:
+            return super().form_invalid(form)
+        mark_object_as_deleted(
+            request=self.request,
+            delete_button_prefix="remove_custom_",
+            object_to_delete_model=RetestStatementCheckResult,
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        retest: Retest = self.object
+        retest_pk: Dict[str, int] = {"pk": retest.id}
+        current_url: str = reverse(
+            "audits:edit-equality-body-statement-custom", kwargs=retest_pk
+        )
+
+        if "save" in self.request.POST:
+            return current_url
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "audits:edit-equality-body-statement-results", kwargs=retest_pk
+            )
+        elif "add_custom" in self.request.POST:
+            return f"{current_url}?add_custom=true#custom-None"
+        return current_url
+
+
+class RetestStatementResultsUpdateView(RetestUpdateView):
+    """
+    View to show results of statement content checks
+    """
+
+    form_class: Type[
+        RetestStatementResultsUpdateForm
+    ] = RetestStatementResultsUpdateForm
+    template_name: str = "audits/forms/equality_body_retest_statement_results.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: Dict[str, int] = {"pk": retest.id}
+            return reverse(
+                "audits:edit-equality-body-disproportionate-burden", kwargs=retest_pk
+            )
+        return super().get_success_url()
+
+
+class RetestDisproportionateBurdenUpdateView(RetestUpdateView):
+    """
+    View to update equality body-requested retest disproportionate burden fields
+    """
+
+    form_class: Type[
+        RetestDisproportionateBurdenUpdateForm
+    ] = RetestDisproportionateBurdenUpdateForm
+    template_name: str = (
+        "audits/forms/equality_body_retest_disproportionate_burden.html"
+    )
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: Dict[str, int] = {"pk": retest.id}
+            return reverse(
+                "audits:edit-equality-body-statement-decision", kwargs=retest_pk
+            )
+        return super().get_success_url()
+
+
+class RetestStatementDecisionUpdateView(RetestUpdateView):
+    """
+    View to update equality body-requested retest statement decsion
+    """
+
+    form_class: Type[
+        RetestStatementDecisionUpdateForm
+    ] = RetestStatementDecisionUpdateForm
+    template_name: str = "audits/forms/equality_body_retest_statement_decision.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            retest: Retest = self.object
+            case_pk: Dict[str, int] = {"pk": retest.case.id}
+            return reverse("cases:edit-retest-overview", kwargs=case_pk)
+        return super().get_success_url()
