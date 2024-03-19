@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}EHRC CSV export manager{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">EHRC CSV export manager</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">EHRC CSV export manager</h1>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                <div class="govuk-button-group amp-flex-end">
+                    <a
+                        href="{% url 'exports:export-create' %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button float-right"
+                        data-module="govuk-button"
+                    >
+                        Create export
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <table class="govuk-table">
+                    <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th class="govuk-table__cell">Export created</th>
+                            <th class="govuk-table__cell">Cutoff date</th>
+                            <th class="govuk-table__cell">Number of cases</th>
+                            <th class="govuk-table__cell">Export date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                    {% for export in exports %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">{{ export.created|amp_date }}</td>
+                            <td class="govuk-table__cell">{{ export.cutoff_date|amp_date }}</td>
+                            <td class="govuk-table__cell">{{ export.exportcase_set.count }}</td>
+                            <td class="govuk-table__cell">
+                                {% if export.export_date %}
+                                    {{ export.export_date|amp_date }}
+                                {% else %}
+                                    Still in progress
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
