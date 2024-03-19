@@ -9,6 +9,7 @@ from django.urls import path
 from django.urls.resolvers import URLPattern
 
 from .views import (
+    ExportConfirmDeleteUpdateView,
     ExportCreateView,
     ExportDetailView,
     ExportListView,
@@ -39,6 +40,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/export-cases/",
         login_required(export_all_cases),
         name="export-cases",
+    ),
+    path(
+        "<int:pk>/export-confirm-delete/",
+        login_required(ExportConfirmDeleteUpdateView.as_view()),
+        name="export-confirm-delete",
     ),
     path(
         "<int:pk>/case-mark-as-ready/",

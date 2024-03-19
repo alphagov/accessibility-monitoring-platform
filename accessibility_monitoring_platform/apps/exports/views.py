@@ -11,15 +11,13 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.utils import download_cases
-from ..common.utils import record_model_create_event
-from .forms import ExportCreateForm
+from ..common.utils import record_model_create_event, record_model_update_event
+from .forms import ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
-
-# record_model_update_event,
 
 
 class ExportListView(ListView):
@@ -66,6 +64,30 @@ class ExportDetailView(DetailView):
 
     model: Type[Export] = Export
     context_object_name: str = "export"
+
+
+class ExportConfirmDeleteUpdateView(UpdateView):
+    """
+    View to confirm deletion of export
+    """
+
+    model: Type[Export] = Export
+    form_class: Type[ExportDeleteForm] = ExportDeleteForm
+    context_object_name: str = "export"
+    template_name: str = "exports/export_confirm_delete.html"
+
+    def get_form(self):
+        """Populate next page select field"""
+        form = super().get_form()
+        export: Export = self.object
+        form.fields["is_deleted"].label = f"Are you sure you want to remove {export}?"
+        return form
+
+    def get_success_url(self) -> str:
+        export: Export = self.object
+        user: User = self.request.user
+        record_model_update_event(user=user, model_object=export)
+        return reverse("exports:export-list")
 
 
 def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:

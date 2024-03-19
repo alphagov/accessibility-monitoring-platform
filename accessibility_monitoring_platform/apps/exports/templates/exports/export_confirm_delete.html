@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}Delete {{ export }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}">EHRC CSV export manager</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">Delete {{ export }}</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl">Delete {{ export }}</h1>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <form method="post" action="{% url 'exports:export-confirm-delete' export.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                    </div>
+                    <div class="govuk-button-group">
+                        <input
+                            type="submit"
+                            value="Delete export"
+                            name="delete"
+                            class="govuk-button govuk-button--warning"
+                            data-module="govuk-button"
+                        />
+                        <a href="{% url 'exports:export-detail' export.id %}"
+                           class="govuk-link govuk-link--no-visited-state">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

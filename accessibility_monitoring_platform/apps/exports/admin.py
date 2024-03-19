@@ -17,8 +17,9 @@ class ExportAdmin(admin.ModelAdmin):
         "exporter",
         "status",
         "enforcement_body",
+        "is_deleted",
     ]
-    list_filter = ["status"]
+    list_filter = ["status", "is_deleted"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
