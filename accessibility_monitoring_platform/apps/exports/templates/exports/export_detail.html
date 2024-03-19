@@ -38,6 +38,10 @@
                         <li>Exported: {{ export.get_status_display }}</li>
                     </ul>
                     <p class="govuk-body-m">Found {{ export.exportcase_set.all.count }} cases</p>
+                    <p class="govuk-body-m">
+                        <a href="{% url 'exports:export-cases' export.id %}"
+                           class="govuk-link govuk-link--no-visited-state">Download EHRC CSV and preview export</a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -48,12 +52,12 @@
                         <tr class="govuk-table__row">
                             <th class="govuk-table__cell">Case ID</th>
                             <th class="govuk-table__cell">Case</th>
-                            <th class="govuk-table__cell">Exclude from report?</th>
+                            <th class="govuk-table__cell">Mark status</th>
                         </tr>
                     </thead>
                     <tbody class="govuk-table__body">
                     {% for export_case in export.exportcase_set.all %}
-                        <tr class="govuk-table__row">
+                        <tr id="export-case-{{ export_case.id }}" class="govuk-table__row">
                             <td class="govuk-table__cell">{{ export_case.case.id }}</td>
                             <td class="govuk-table__cell">
                                 <a
@@ -64,7 +68,31 @@
                                     {{ export_case.case.organisation_name }}
                                 </a>
                             </td>
-                            <td class="govuk-table__cell"></td>
+                            <td class="govuk-table__cell">
+                                {% if export_case.status == 'unready' %}
+                                    {{ export_case.get_status_display }}
+                                {% else %}
+                                    <a
+                                        href="{% url 'exports:case-mark-as-unready' export_case.id %}"
+                                        class="govuk-link govuk-link--no-visited-state">Unready</a>
+                                {% endif %}
+                                &rarr;
+                                {% if export_case.status == 'excluded' %}
+                                    {{ export_case.get_status_display }}
+                                {% else %}
+                                    <a
+                                        href="{% url 'exports:case-mark-as-excluded' export_case.id %}"
+                                        class="govuk-link govuk-link--no-visited-state">Excluded</a>
+                                {% endif %}
+                                &rarr;
+                                {% if export_case.status == 'ready' %}
+                                    {{ export_case.get_status_display }}
+                                {% else %}
+                                    <a
+                                        href="{% url 'exports:case-mark-as-ready' export_case.id %}"
+                                        class="govuk-link govuk-link--no-visited-state">Ready</a>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

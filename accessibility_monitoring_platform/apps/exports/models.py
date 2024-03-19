@@ -50,17 +50,34 @@ class Export(models.Model):
                     case=case_status.case,
                 )
 
+    @property
+    def all_cases(self):
+        return [export_case.case for export_case in self.exportcase_set.all()]
+
+    @property
+    def valid_cases(self):
+        return [
+            export_case.case
+            for export_case in self.exportcase_set.filter(
+                status=ExportCase.Status.READY
+            )
+        ]
+
 
 class ExportCase(models.Model):
     """Model recording which cases are in an export"""
 
-    class ExportStatus(models.TextChoices):
+    class Status(models.TextChoices):
         UNREADY = "unready", "Unready"
         READY = "ready", "Ready"
         EXCLUDED = "excluded", "Excluded"
 
     export = models.ForeignKey(Export, on_delete=models.PROTECT)
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
-    status = models.CharField(
-        max_length=20, choices=ExportStatus, default=ExportStatus.UNREADY
-    )
+    status = models.CharField(max_length=20, choices=Status, default=Status.UNREADY)
+
+    class Meta:
+        ordering: List[str] = ["id"]
+
+    def __str__(self) -> str:
+        return f"{self.export}: {self.case}"
