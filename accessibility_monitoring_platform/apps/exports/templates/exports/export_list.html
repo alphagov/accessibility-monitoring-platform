@@ -57,6 +57,10 @@
                                 {% else %}
                                     Still in progress
                                 {% endif %}
+                                (<a
+                                    href="{% url 'exports:export-detail' export.id %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >View</a>)
                             </td>
                         </tr>
                     {% endfor %}

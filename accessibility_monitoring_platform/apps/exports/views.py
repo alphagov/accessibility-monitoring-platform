@@ -7,6 +7,7 @@ from typing import Type
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.urls import reverse
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 
@@ -45,3 +46,12 @@ class ExportCreateView(CreateView):
 
     def get_success_url(self) -> str:
         return reverse("exports:export-list")
+
+
+class ExportDetailView(DetailView):
+    """
+    View of details of a single export
+    """
+
+    model: Type[Export] = Export
+    context_object_name: str = "export"

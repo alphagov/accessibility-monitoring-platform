@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}{{ export }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}">EHRC CSV export manager</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">{{ export }}</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl">{{ export }}</h1>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-form-group">
+                    <label class="govuk-label"><b>Overview</b></label>
+                    <ul class="govuk-list">
+                        <li>Enforcement body: EHRC</li>
+                        <li>Status: Case closed and ready to be sent to enforcement body</li>
+                        <li>Date filter: Date when compliance decision email sent to public sector body</li>
+                        <li>Cutoff date: {{ export.cutoff_date|amp_date }}</li>
+                        <li>Date created: {{ export.created|amp_date }}</li>
+                        <li>Created by: {{ export.exporter.get_full_name }}</li>
+                        <li>Exported: {{ export.get_status_display }}</li>
+                    </ul>
+                    <p class="govuk-body-m">Found {{ export.exportcase_set.all.count }} cases</p>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <table class="govuk-table">
+                    <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th class="govuk-table__cell">Case ID</th>
+                            <th class="govuk-table__cell">Case</th>
+                            <th class="govuk-table__cell">Exclude from report?</th>
+                        </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                    {% for export_case in export.exportcase_set.all %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">{{ export_case.case.id }}</td>
+                            <td class="govuk-table__cell">
+                                <a
+                                    href="{% url 'cases:edit-case-close' export_case.case.id %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                    target="_blank"
+                                >
+                                    {{ export_case.case.organisation_name }}
+                                </a>
+                            </td>
+                            <td class="govuk-table__cell"></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

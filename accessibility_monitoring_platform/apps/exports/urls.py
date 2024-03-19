@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
 
-from .views import ExportCreateView, ExportListView
+from .views import ExportCreateView, ExportDetailView, ExportListView
 
 app_name: str = "exports"
 urlpatterns: List[URLPattern] = [
@@ -21,5 +21,10 @@ urlpatterns: List[URLPattern] = [
         "export-create/",
         login_required(ExportCreateView.as_view()),
         name="export-create",
+    ),
+    path(
+        "<int:pk>/export-detail/",
+        login_required(ExportDetailView.as_view()),
+        name="export-detail",
     ),
 ]

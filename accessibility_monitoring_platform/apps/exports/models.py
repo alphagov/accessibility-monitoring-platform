@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from ..cases.models import Case, CaseStatus
+from ..common.templatetags.common_tags import amp_date
 
 
 class Export(models.Model):
@@ -35,7 +36,7 @@ class Export(models.Model):
         ordering: List[str] = ["-id"]
 
     def __str__(self) -> str:
-        return f"Export for {self.cutoff_date} by {self.exporter}"
+        return f"Export for {self.cutoff_date:%B %Y}"
 
     def save(self, *args, **kwargs) -> None:
         new_export: bool = not self.id
