@@ -72,15 +72,17 @@
                     <tbody class="govuk-table__body">
                     {% for export_case in export.exportcase_set.all %}
                         <tr id="export-case-{{ export_case.id }}" class="govuk-table__row">
-                            <td class="govuk-table__cell">{{ export_case.case.id }}</td>
                             <td class="govuk-table__cell">
                                 <a
                                     href="{% url 'cases:edit-case-close' export_case.case.id %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                     target="_blank"
                                 >
-                                    {{ export_case.case.organisation_name }}
+                                    {{ export_case.case.id }}
                                 </a>
+                            </td>
+                            <td class="govuk-table__cell">
+                                {{ export_case.case.organisation_name }}
                             </td>
                             <td class="govuk-table__cell">
                                 {% if export_case.status == 'unready' %}
@@ -91,7 +93,7 @@
                                         aria-label="Set case export to unready"
                                         class="govuk-link govuk-link--no-visited-state">Unready</a>
                                 {% endif %}
-                                &gt;
+                                |
                                 {% if export_case.status == 'excluded' %}
                                     {{ export_case.get_status_display }}
                                 {% else %}
@@ -100,7 +102,7 @@
                                         aria-label="Set case export to excluded"
                                         class="govuk-link govuk-link--no-visited-state">Excluded</a>
                                 {% endif %}
-                                &gt;
+                                |
                                 {% if export_case.status == 'ready' %}
                                     {{ export_case.get_status_display }}
                                 {% else %}

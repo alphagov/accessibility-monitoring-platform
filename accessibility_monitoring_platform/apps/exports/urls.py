@@ -9,13 +9,13 @@ from django.urls import path
 from django.urls.resolvers import URLPattern
 
 from .views import (
-    ConfirmExportDetailView,
+    ConfirmExportUpdateView,
     ExportConfirmDeleteUpdateView,
     ExportCreateView,
     ExportDetailView,
     ExportListView,
     export_all_cases,
-    export_and_bulk_update_ready_cases,
+    export_ready_cases,
     mark_export_case_as_excluded,
     mark_export_case_as_ready,
     mark_export_case_as_unready,
@@ -50,7 +50,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/export-confirm-export/",
-        login_required(ConfirmExportDetailView.as_view()),
+        login_required(ConfirmExportUpdateView.as_view()),
         name="export-confirm-export",
     ),
     path(
@@ -70,7 +70,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/export-ready-cases/",
-        login_required(export_and_bulk_update_ready_cases),
+        login_required(export_ready_cases),
         name="export-ready-cases",
     ),
 ]

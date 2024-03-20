@@ -17,7 +17,7 @@ from django.views.generic.list import ListView
 
 from ..cases.utils import download_cases
 from ..common.utils import record_model_create_event, record_model_update_event
-from .forms import ExportCreateForm, ExportDeleteForm
+from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
 
 
@@ -67,14 +67,33 @@ class ExportDetailView(DetailView):
     context_object_name: str = "export"
 
 
-class ConfirmExportDetailView(DetailView):
+class ConfirmExportUpdateView(UpdateView):
     """
-    View to confirm an export
+    View to update each case to say it was sent to equality body.
+    Redirect to export ready cases.
     """
 
     model: Type[Export] = Export
+    form_class: Type[ExportConfirmForm] = ExportConfirmForm
     context_object_name: str = "export"
     template_name: str = "exports/export_confirm_export.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Bulk update ready export cases; Redirect to export"""
+        export: Export = self.object
+        today: date = date.today()
+        user: User = self.request.user
+        for case in export.ready_cases:
+            case.sent_to_enforcement_body_sent_date = today
+            record_model_update_event(user=user, model_object=case)
+            case.save()
+        export.status = Export.Status.EXPORTED
+        export.export_date = today
+        record_model_update_event(user=user, model_object=export)
+        export.save()
+        return HttpResponseRedirect(
+            reverse("exports:export-ready-cases", kwargs={"pk": export.id})
+        )
 
 
 class ExportConfirmDeleteUpdateView(UpdateView):
@@ -109,21 +128,9 @@ def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-def export_and_bulk_update_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
-    """
-    View to export only ready cases. Update each case to say it was sent to equality body.
-    """
-    export: Export = get_object_or_404(Export, id=pk)
-    today: date = date.today()
-    user: User = request.user
-    for case in export.ready_cases:
-        case.sent_to_enforcement_body_sent_date = today
-        record_model_update_event(user=user, model_object=case)
-        case.save()
-    export.status = Export.Status.EXPORTED
-    export.export_date = today
-    record_model_update_event(user=user, model_object=export)
-    export.save()
+def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
+    """View to export only ready cases."""
+    export: Export = get_object_or_404(Export, pk=pk)
     return download_cases(
         cases=export.ready_cases, filename=f"EHRC_cases_{export.cutoff_date}.csv"
     )

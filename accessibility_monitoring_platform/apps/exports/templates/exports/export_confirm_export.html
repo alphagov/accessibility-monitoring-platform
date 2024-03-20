@@ -26,7 +26,7 @@
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-xl">Confirm {{ export }}</h1>
                 <ul class="govuk-list">
-                    <li>The export includes {{ export.ready_cases_count }} case{% if export.ready_cases_count != 1 %}s{% endif %}</li>
+                    <li>The export will contain {{ export.ready_cases_count }} ready case{% if export.ready_cases_count != 1 %}s{% endif %}</li>
                     <li>{{ export.excluded_cases_count }} case{% if export.excluded_cases_count != 1 %}s have{% else %} has{% endif %} been excluded</li>
                     <li>{{ export.unready_cases_count }} case{% if export.unready_cases_count != 1 %}s are{% else %} is{% endif %} not ready</li>
                 </ul>
@@ -47,6 +47,13 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
+                <form method="post" action="{% url 'exports:export-confirm-export' export.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                    </div>
                     <div class="govuk-button-group">
                         <a
                             href="{% url 'exports:export-ready-cases' export.id %}"
@@ -60,6 +67,7 @@
                         <a href="{% url 'exports:export-detail' export.id %}"
                            class="govuk-link govuk-link--no-visited-state">Cancel</a>
                     </div>
+                </form>
             </div>
         </div>
     </main>

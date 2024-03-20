@@ -39,28 +39,29 @@
                 <table class="govuk-table">
                     <thead class="govuk-table__head">
                         <tr class="govuk-table__row">
-                            <th scope="col" class="govuk-table__cell">Export created</th>
                             <th scope="col" class="govuk-table__cell">Cutoff date</th>
                             <th scope="col" class="govuk-table__cell">Number of cases</th>
+                            <th scope="col" class="govuk-table__cell">Exporter</th>
                             <th scope="col" class="govuk-table__cell">Export date</th>
                         </tr>
                     </thead>
                     <tbody class="govuk-table__body">
                     {% for export in exports %}
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">{{ export.created|amp_date }}</td>
-                            <td class="govuk-table__cell">{{ export.cutoff_date|amp_date }}</td>
+                            <td class="govuk-table__cell">
+                                <a
+                                    href="{% url 'exports:export-detail' export.id %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >{{ export.cutoff_date|amp_date }}</a>
+                            </td>
                             <td class="govuk-table__cell">{{ export.exportcase_set.count }}</td>
+                            <td class="govuk-table__cell">{{ export.exporter.get_full_name }}</td>
                             <td class="govuk-table__cell">
                                 {% if export.export_date %}
                                     {{ export.export_date|amp_date }}
                                 {% else %}
                                     Still in progress
                                 {% endif %}
-                                (<a
-                                    href="{% url 'exports:export-detail' export.id %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >View</a>)
                             </td>
                         </tr>
                     {% endfor %}
