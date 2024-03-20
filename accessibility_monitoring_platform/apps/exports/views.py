@@ -104,7 +104,9 @@ class ExportConfirmDeleteUpdateView(UpdateView):
 def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
     """View to export all cases"""
     export: Export = get_object_or_404(Export, id=pk)
-    return download_cases(cases=export.all_cases)
+    return download_cases(
+        cases=export.all_cases, filename=f"DRAFT_EHRC_cases_{export.cutoff_date}.csv"
+    )
 
 
 def export_and_bulk_update_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
@@ -122,7 +124,9 @@ def export_and_bulk_update_ready_cases(request: HttpRequest, pk: int) -> HttpRes
     export.export_date = today
     record_model_update_event(user=user, model_object=export)
     export.save()
-    return download_cases(cases=export.ready_cases)
+    return download_cases(
+        cases=export.ready_cases, filename=f"EHRC_cases_{export.cutoff_date}.csv"
+    )
 
 
 def mark_export_case_as_ready(request: HttpRequest, pk: int) -> HttpResponseRedirect:

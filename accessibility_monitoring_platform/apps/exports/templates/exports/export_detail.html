@@ -105,7 +105,7 @@
                                     {{ export_case.get_status_display }}
                                 {% else %}
                                     <a
-                                        href="export_list.html"
+                                        href="{% url 'exports:case-mark-as-ready' export_case.id %}"
                                         aria-label="Set case export to ready"
                                         class="govuk-link govuk-link--no-visited-state">Ready</a>
                                 {% endif %}
