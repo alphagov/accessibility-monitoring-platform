@@ -12,7 +12,7 @@ from ..common.templatetags.common_tags import amp_date
 class Export(models.Model):
     """Export model"""
 
-    class ExportStatus(models.TextChoices):
+    class Status(models.TextChoices):
         NOT_EXPORTED = "not", "Not yet exported"
         EXPORTED = "exported", "Exported"
 
@@ -21,7 +21,7 @@ class Export(models.Model):
         User, on_delete=models.PROTECT, related_name="exporter"
     )
     status = models.CharField(
-        max_length=20, choices=ExportStatus, default=ExportStatus.NOT_EXPORTED
+        max_length=20, choices=Status, default=Status.NOT_EXPORTED
     )
     enforcement_body = models.CharField(
         max_length=20,
@@ -36,7 +36,7 @@ class Export(models.Model):
         ordering: List[str] = ["-id"]
 
     def __str__(self) -> str:
-        return f"EHRC export {amp_date(self.cutoff_date)}"
+        return f"EHRC CSV export {amp_date(self.cutoff_date)}"
 
     def save(self, *args, **kwargs) -> None:
         new_export: bool = not self.id

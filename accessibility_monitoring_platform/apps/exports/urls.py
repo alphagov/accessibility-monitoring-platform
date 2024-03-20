@@ -15,7 +15,7 @@ from .views import (
     ExportDetailView,
     ExportListView,
     export_all_cases,
-    export_ready_cases,
+    export_and_bulk_update_ready_cases,
     mark_export_case_as_excluded,
     mark_export_case_as_ready,
     mark_export_case_as_unready,
@@ -70,7 +70,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/export-ready-cases/",
-        login_required(export_ready_cases),
+        login_required(export_and_bulk_update_ready_cases),
         name="export-ready-cases",
     ),
 ]

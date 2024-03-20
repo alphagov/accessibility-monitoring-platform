@@ -107,8 +107,10 @@ def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
     return download_cases(cases=export.all_cases)
 
 
-def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
-    """View to export only ready cases"""
+def export_and_bulk_update_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    View to export only ready cases. Update each case to say it was sent to equality body.
+    """
     export: Export = get_object_or_404(Export, id=pk)
     today: date = date.today()
     user: User = request.user
@@ -116,6 +118,10 @@ def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
         case.sent_to_enforcement_body_sent_date = today
         record_model_update_event(user=user, model_object=case)
         case.save()
+    export.status = Export.Status.EXPORTED
+    export.export_date = today
+    record_model_update_event(user=user, model_object=export)
+    export.save()
     return download_cases(cases=export.ready_cases)
 
 
