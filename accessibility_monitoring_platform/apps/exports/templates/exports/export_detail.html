@@ -45,7 +45,7 @@
             <div class="govuk-grid-column-two-thirds">
                 <p class="govuk-body-m">
                     <a href="{% url 'exports:export-all-cases' export.id %}"
-                       class="govuk-link govuk-link--no-visited-state">Download EHRC CSV and preview export</a>
+                       class="govuk-link govuk-link--no-visited-state">Download DRAFT EHRC CSV export (all cases)</a>
                 </p>
             </div>
             <div class="govuk-grid-column-one-third">
@@ -86,7 +86,7 @@
                             </td>
                             <td class="govuk-table__cell">
                                 {% if export_case.status == 'unready' %}
-                                    {{ export_case.get_status_display }}
+                                    <b>{{ export_case.get_status_display }}</b>
                                 {% else %}
                                     <a
                                         href="{% url 'exports:case-mark-as-unready' export_case.id %}"
@@ -95,7 +95,7 @@
                                 {% endif %}
                                 |
                                 {% if export_case.status == 'excluded' %}
-                                    {{ export_case.get_status_display }}
+                                    <b>{{ export_case.get_status_display }}</b>
                                 {% else %}
                                     <a
                                         href="{% url 'exports:case-mark-as-excluded' export_case.id %}"
@@ -104,7 +104,7 @@
                                 {% endif %}
                                 |
                                 {% if export_case.status == 'ready' %}
-                                    {{ export_case.get_status_display }}
+                                    <b>{{ export_case.get_status_display }}</b>
                                 {% else %}
                                     <a
                                         href="{% url 'exports:case-mark-as-ready' export_case.id %}"
