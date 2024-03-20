@@ -44,7 +44,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <p class="govuk-body-m">
-                    <a href="{% url 'exports:export-cases' export.id %}"
+                    <a href="{% url 'exports:export-all-cases' export.id %}"
                        class="govuk-link govuk-link--no-visited-state">Download EHRC CSV and preview export</a>
                 </p>
             </div>
@@ -111,6 +111,23 @@
                     {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'exports:export-confirm-export' export.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Proceed to export
+                    </a>
+                    <a href="{% url 'exports:export-list' %}"
+                       class="govuk-link govuk-link--no-visited-state">Cancel</a>
+                </div>
             </div>
         </div>
     </main>

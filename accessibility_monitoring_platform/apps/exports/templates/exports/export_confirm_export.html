@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}Confirm {{ export }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}">EHRC CSV export manager</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-detail' export.id %}">{{ export }}</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">Confirm {{ export }}</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl">Confirm {{ export }}</h1>
+                <ul class="govuk-list">
+                    <li>The export includes {{ export.ready_cases_count }} cases</li>
+                    <li>{{ export.excluded_cases_count }} cases have been excluded</li>
+                    <li>{{ export.unready_cases_count }} cases are not ready</li>
+                </ul>
+                <p class="govuk-body-m"><b>Are you sure you want to export the EHRC CSV?</b></p>
+                <p class="govuk-body-m">
+                    When you export the data, it will move the cases in the export to the next status,
+                    Case closed and sent to equalities body (by setting Date sent to equality body to today).
+                    To reverse this, you will need to adjust each case individually.
+                </p>
+                <p class="govuk-body-m">Before exporting, please check:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>The accuracy of all data in the cases.</li>
+                    <li>That all necessary fields are filled in.</li>
+                    <li>There are no duplicates in the data.</li>
+                </ul>
+                <p class="govuk-body-m">If you're ready, press 'Export' to continue.
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                    <div class="govuk-button-group">
+                        <a
+                            href="{% url 'exports:export-ready-cases' export.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button"
+                            data-module="govuk-button"
+                        >
+                            Export
+                        </a>
+                        <a href="{% url 'exports:export-detail' export.id %}"
+                           class="govuk-link govuk-link--no-visited-state">Cancel</a>
+                    </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

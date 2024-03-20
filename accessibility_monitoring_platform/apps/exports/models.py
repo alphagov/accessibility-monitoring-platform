@@ -36,7 +36,7 @@ class Export(models.Model):
         ordering: List[str] = ["-id"]
 
     def __str__(self) -> str:
-        return f"Export for {self.cutoff_date:%B %Y}"
+        return f"EHRC export {amp_date(self.cutoff_date)}"
 
     def save(self, *args, **kwargs) -> None:
         new_export: bool = not self.id
@@ -55,13 +55,25 @@ class Export(models.Model):
         return [export_case.case for export_case in self.exportcase_set.all()]
 
     @property
-    def valid_cases(self):
+    def ready_cases(self):
         return [
             export_case.case
             for export_case in self.exportcase_set.filter(
                 status=ExportCase.Status.READY
             )
         ]
+
+    @property
+    def ready_cases_count(self):
+        return self.exportcase_set.filter(status=ExportCase.Status.READY).count()
+
+    @property
+    def excluded_cases_count(self):
+        return self.exportcase_set.filter(status=ExportCase.Status.EXCLUDED).count()
+
+    @property
+    def unready_cases_count(self):
+        return self.exportcase_set.filter(status=ExportCase.Status.UNREADY).count()
 
 
 class ExportCase(models.Model):

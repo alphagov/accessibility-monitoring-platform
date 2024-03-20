@@ -2,6 +2,7 @@
 Views for export app
 """
 
+from datetime import date
 from typing import Type
 
 from django.contrib.auth.models import User
@@ -35,7 +36,7 @@ class ExportListView(ListView):
 
 class ExportCreateView(CreateView):
     """
-    View to create ain export
+    View to create an export
     """
 
     model: Type[Export] = Export
@@ -66,6 +67,16 @@ class ExportDetailView(DetailView):
     context_object_name: str = "export"
 
 
+class ConfirmExportDetailView(DetailView):
+    """
+    View to confirm an export
+    """
+
+    model: Type[Export] = Export
+    context_object_name: str = "export"
+    template_name: str = "exports/export_confirm_export.html"
+
+
 class ExportConfirmDeleteUpdateView(UpdateView):
     """
     View to confirm deletion of export
@@ -91,9 +102,21 @@ class ExportConfirmDeleteUpdateView(UpdateView):
 
 
 def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
-    """View to export cases"""
+    """View to export all cases"""
     export: Export = get_object_or_404(Export, id=pk)
     return download_cases(cases=export.all_cases)
+
+
+def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
+    """View to export only ready cases"""
+    export: Export = get_object_or_404(Export, id=pk)
+    today: date = date.today()
+    user: User = request.user
+    for case in export.ready_cases:
+        case.sent_to_enforcement_body_sent_date = today
+        record_model_update_event(user=user, model_object=case)
+        case.save()
+    return download_cases(cases=export.ready_cases)
 
 
 def mark_export_case_as_ready(request: HttpRequest, pk: int) -> HttpResponseRedirect:
