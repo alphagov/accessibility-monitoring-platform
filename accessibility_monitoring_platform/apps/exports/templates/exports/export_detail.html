@@ -64,9 +64,9 @@
                 <table class="govuk-table">
                     <thead class="govuk-table__head">
                         <tr class="govuk-table__row">
-                            <th class="govuk-table__cell">Case ID</th>
-                            <th class="govuk-table__cell">Case</th>
-                            <th class="govuk-table__cell">Export status</th>
+                            <th scope="col" class="govuk-table__cell">Case ID</th>
+                            <th scope="col" class="govuk-table__cell">Case</th>
+                            <th scope="col" class="govuk-table__cell">Export status</th>
                         </tr>
                     </thead>
                     <tbody class="govuk-table__body">
@@ -88,6 +88,7 @@
                                 {% else %}
                                     <a
                                         href="{% url 'exports:case-mark-as-unready' export_case.id %}"
+                                        aria-label="Set case export to unready"
                                         class="govuk-link govuk-link--no-visited-state">Unready</a>
                                 {% endif %}
                                 &gt;
@@ -96,6 +97,7 @@
                                 {% else %}
                                     <a
                                         href="{% url 'exports:case-mark-as-excluded' export_case.id %}"
+                                        aria-label="Set case export to excluded"
                                         class="govuk-link govuk-link--no-visited-state">Excluded</a>
                                 {% endif %}
                                 &gt;
@@ -103,7 +105,8 @@
                                     {{ export_case.get_status_display }}
                                 {% else %}
                                     <a
-                                        href="{% url 'exports:case-mark-as-ready' export_case.id %}"
+                                        href="export_list.html"
+                                        aria-label="Set case export to ready"
                                         class="govuk-link govuk-link--no-visited-state">Ready</a>
                                 {% endif %}
                             </td>
