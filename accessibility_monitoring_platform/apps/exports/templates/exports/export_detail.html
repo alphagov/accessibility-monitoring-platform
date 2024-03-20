@@ -64,9 +64,10 @@
                 <table class="govuk-table">
                     <thead class="govuk-table__head">
                         <tr class="govuk-table__row">
-                            <th scope="col" class="govuk-table__cell">Case ID</th>
-                            <th scope="col" class="govuk-table__cell">Case</th>
-                            <th scope="col" class="govuk-table__cell">Export status</th>
+                            <th scope="col" class="govuk-table__header amp-width-15-percent">Case ID</th>
+                            <th scope="col" class="govuk-table__header">Case</th>
+                            <th scope="col" class="govuk-table__header amp-width-15-percent">Auditor</th>
+                            <th scope="col" class="govuk-table__header amp-width-one-quarter">Export status</th>
                         </tr>
                     </thead>
                     <tbody class="govuk-table__body">
@@ -83,6 +84,9 @@
                             </td>
                             <td class="govuk-table__cell">
                                 {{ export_case.case.organisation_name }}
+                            </td>
+                            <td class="govuk-table__cell">
+                                {{ export_case.case.auditor.get_full_name }}
                             </td>
                             <td class="govuk-table__cell">
                                 {% if export_case.status == 'unready' %}
