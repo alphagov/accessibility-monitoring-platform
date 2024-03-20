@@ -55,15 +55,13 @@
                         </div>
                     </div>
                     <div class="govuk-button-group">
-                        <a
-                            href="{% url 'exports:export-ready-cases' export.id %}"
-                            role="button"
-                            draggable="false"
+                        <input
+                            type="submit"
+                            value="Export and update all ready cases"
+                            name="submit"
                             class="govuk-button"
                             data-module="govuk-button"
-                        >
-                            Export and update all ready cases
-                        </a>
+                        />
                         <a href="{% url 'exports:export-detail' export.id %}"
                            class="govuk-link govuk-link--no-visited-state">Cancel</a>
                     </div>
