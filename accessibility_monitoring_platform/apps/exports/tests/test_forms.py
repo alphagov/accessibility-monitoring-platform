@@ -3,7 +3,6 @@ Test forms of cases app
 """
 
 from datetime import date
-from typing import List, Tuple
 
 import pytest
 from django.contrib.auth.models import User

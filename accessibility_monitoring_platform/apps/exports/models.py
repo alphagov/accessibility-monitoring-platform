@@ -51,7 +51,7 @@ class Export(models.Model):
                 )
 
     @property
-    def all_cases(self):
+    def all_cases(self) -> List[Case]:
         return [export_case.case for export_case in self.exportcase_set.all()]
 
     @property
