@@ -113,10 +113,14 @@ class ExportConfirmDeleteUpdateView(UpdateView):
         form.fields["is_deleted"].label = f"Are you sure you want to remove {export}?"
         return form
 
-    def get_success_url(self) -> str:
-        export: Export = self.object
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        export: Export = form.save(commit=False)
         user: User = self.request.user
         record_model_update_event(user=user, model_object=export)
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
         return reverse("exports:export-list")
 
 
