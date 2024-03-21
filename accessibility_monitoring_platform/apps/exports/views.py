@@ -15,7 +15,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from ..cases.utils import download_cases
+from ..cases.utils import download_equality_body_cases
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
@@ -127,7 +127,7 @@ class ExportConfirmDeleteUpdateView(UpdateView):
 def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
     """View to export all cases"""
     export: Export = get_object_or_404(Export, id=pk)
-    return download_cases(
+    return download_equality_body_cases(
         cases=export.all_cases, filename=f"DRAFT_EHRC_cases_{export.cutoff_date}.csv"
     )
 
@@ -135,7 +135,7 @@ def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
 def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
     """View to export only ready cases."""
     export: Export = get_object_or_404(Export, pk=pk)
-    return download_cases(
+    return download_equality_body_cases(
         cases=export.ready_cases, filename=f"EHRC_cases_{export.cutoff_date}.csv"
     )
 

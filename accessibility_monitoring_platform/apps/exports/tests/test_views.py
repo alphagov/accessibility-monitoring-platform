@@ -19,6 +19,7 @@ from ..models import Export, ExportCase
 ORGANISATION_NAME: str = "Org Name"
 CUTOFF_DATE: date = date(2024, 3, 20)
 COMPLIANCE_EMAIL_SENT_DATE: date = date(2024, 3, 18)
+EXPORT_CSV_COLUMNS: str = "Equality body,Test type,Case number,Organisation"
 
 
 def create_cases_and_export() -> Export:
@@ -97,7 +98,7 @@ def test_draft_export_csv_returned(admin_client):
 
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "text/csv"
-    assertContains(response, "Case no.,Version,Created by")
+    assertContains(response, EXPORT_CSV_COLUMNS)
     assertContains(response, ORGANISATION_NAME)
 
 
@@ -151,7 +152,7 @@ def test_ready_export_csv_returned(admin_client):
 
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "text/csv"
-    assertContains(response, "Case no.,Version,Created by")
+    assertContains(response, EXPORT_CSV_COLUMNS)
     assertNotContains(response, ORGANISATION_NAME)
 
     export_case: ExportCase = export.exportcase_set.first()
@@ -164,7 +165,7 @@ def test_ready_export_csv_returned(admin_client):
 
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "text/csv"
-    assertContains(response, "Case no.,Version,Created by")
+    assertContains(response, EXPORT_CSV_COLUMNS)
     assertContains(response, ORGANISATION_NAME)
 
 
