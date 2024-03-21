@@ -33,7 +33,7 @@ class Export(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
-        ordering: List[str] = ["-id"]
+        ordering: List[str] = ["-cutoff_date"]
 
     def __str__(self) -> str:
         return f"EHRC CSV export {amp_format_date(self.cutoff_date)}"

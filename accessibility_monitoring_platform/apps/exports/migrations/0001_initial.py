@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "ordering": ["-id"],
+                "ordering": ["-cutoff_date"],
             },
         ),
         migrations.CreateModel(
