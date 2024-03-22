@@ -98,6 +98,14 @@
                                     EHRC CSV export manager
                                 </a>
                             </li>
+                            <li>
+                                <a
+                                    href="{% url 'cases:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    ECNI CSV export
+                                </a>
+                            </li>
                         </ul>
                         <hr class="amp-width-100" />
                     </div>

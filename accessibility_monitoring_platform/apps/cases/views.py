@@ -1136,7 +1136,10 @@ def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
         replace_search_key_with_case_search(request.GET)
     )
     case_search_form.is_valid()
-    return download_equality_body_cases(cases=filter_cases(form=case_search_form))
+    candidate_cases: QuerySet[Case] = filter_cases(form=case_search_form)
+    return download_equality_body_cases(
+        cases=candidate_cases.filter(enforcement_body=Case.EnforcementBody.ECNI)
+    )
 
 
 def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:

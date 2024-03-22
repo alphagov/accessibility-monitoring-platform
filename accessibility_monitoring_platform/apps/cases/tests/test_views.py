@@ -622,7 +622,9 @@ def test_case_export_view_filters_by_search(export_view_name, admin_client):
     """
     Test that the case exports can be filtered by search from top menu
     """
-    included_case: Case = Case.objects.create(organisation_name="Included")
+    included_case: Case = Case.objects.create(
+        organisation_name="Included", enforcement_body=Case.EnforcementBody.ECNI
+    )
     Case.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
