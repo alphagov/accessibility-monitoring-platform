@@ -48,6 +48,7 @@ class Export(models.Model):
                 )
                 .filter(case__enforcement_body=Case.EnforcementBody.EHRC)
                 .filter(case__compliance_email_sent_date__lte=self.cutoff_date)
+                .exclude(case__case_completed=Case.CaseCompleted.COMPLETE_NO_SEND)
                 .order_by("case__id")
             ):
                 ExportCase.objects.create(

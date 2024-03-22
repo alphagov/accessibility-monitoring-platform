@@ -69,7 +69,54 @@ def test_export_save():
     assert ExportCase.objects.all().count() == 1
     assert ExportCase.objects.all().first().case == qualifying_case
 
+
+@pytest.mark.django_db
+def test_export_save_excludes_ecni():
+    """
+    Tests Export.save() excludes cases for ECNI.
+    """
+    qualifying_case: Case = Case.objects.create(
+        compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE
+    )
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"UPDATE cases_casestatus SET status = '{CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND}' WHERE id = {qualifying_case.status.id}"
+        )
+
+    user: User = User.objects.create()
+    Export.objects.create(cutoff_date=CUTOFF_DATE, exporter=user)
+
+    assert ExportCase.objects.all().count() == 1
+    assert ExportCase.objects.all().first().case == qualifying_case
+
     qualifying_case.enforcement_body = Case.EnforcementBody.ECNI
+    qualifying_case.save()
+
+    Export.objects.create(cutoff_date=CUTOFF_DATE, exporter=user)
+
+    assert ExportCase.objects.all().count() == 1  # No new ExportCase created
+
+
+@pytest.mark.django_db
+def test_export_save_excludes_complete_no_send():
+    """
+    Tests Export.save() excludes cases marked as not to be sent to equality body.
+    """
+    qualifying_case: Case = Case.objects.create(
+        compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE
+    )
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"UPDATE cases_casestatus SET status = '{CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND}' WHERE id = {qualifying_case.status.id}"
+        )
+
+    user: User = User.objects.create()
+    Export.objects.create(cutoff_date=CUTOFF_DATE, exporter=user)
+
+    assert ExportCase.objects.all().count() == 1
+    assert ExportCase.objects.all().first().case == qualifying_case
+
+    qualifying_case.case_completed = Case.CaseCompleted.COMPLETE_NO_SEND
     qualifying_case.save()
 
     Export.objects.create(cutoff_date=CUTOFF_DATE, exporter=user)
