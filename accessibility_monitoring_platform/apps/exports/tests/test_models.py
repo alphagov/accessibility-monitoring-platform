@@ -69,6 +69,13 @@ def test_export_save():
     assert ExportCase.objects.all().count() == 1
     assert ExportCase.objects.all().first().case == qualifying_case
 
+    qualifying_case.enforcement_body = Case.EnforcementBody.ECNI
+    qualifying_case.save()
+
+    Export.objects.create(cutoff_date=CUTOFF_DATE, exporter=user)
+
+    assert ExportCase.objects.all().count() == 1  # No new ExportCase created
+
 
 @pytest.mark.django_db
 def test_export_all_cases():
