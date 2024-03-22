@@ -47,7 +47,7 @@ class Export(models.Model):
                     status=CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
                 )
                 .filter(case__compliance_email_sent_date__lte=self.cutoff_date)
-                .order_by("-case__id")
+                .order_by("case__id")
             ):
                 ExportCase.objects.create(
                     export=self,
