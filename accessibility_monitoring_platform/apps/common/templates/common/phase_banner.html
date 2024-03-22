@@ -6,7 +6,7 @@
             {% if django_settings.AMP_PROTOTYPE_NAME and django_settings.AMP_PROTOTYPE_NAME != 'TEST' %}
                 report
             {% else %}
-                <a href="{% url 'common:issue-report' %}?page_url={{ request.path }}"
+                <a href="{% url 'common:issue-report' %}{% if user.is_authenticated %}?page_url={{ request.path }}{% endif %}"
                     target="_blank"
                     class="govuk-link govuk-link--no-visited-state">report</a>
             {% endif %}
