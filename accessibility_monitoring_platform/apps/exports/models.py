@@ -42,9 +42,13 @@ class Export(models.Model):
         new_export: bool = not self.id
         super().save(*args, **kwargs)
         if new_export:
-            for case_status in CaseStatus.objects.filter(
-                status=CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
-            ).filter(case__compliance_email_sent_date__lte=self.cutoff_date):
+            for case_status in (
+                CaseStatus.objects.filter(
+                    status=CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
+                )
+                .filter(case__compliance_email_sent_date__lte=self.cutoff_date)
+                .order_by("-case__id")
+            ):
                 ExportCase.objects.create(
                     export=self,
                     case=case_status.case,
