@@ -43,9 +43,18 @@ def test_export_str():
 
 @pytest.mark.django_db
 def test_export_save():
-    """Tests Export.save() creates ExportCase objects for qualifying cases"""
+    """
+    Tests Export.save() creates ExportCase objects for qualifying cases:
+
+    * Case status is CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
+    * Case compliance_email_sent_date is less than or equal to Export.cutoff_date
+    * Case enforcement body is EHRC
+    """
     Case.objects.create()
-    Case.objects.create(compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE)
+    Case.objects.create(
+        compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE,
+        enforcement_body=Case.EnforcementBody.EHRC,
+    )
     qualifying_case: Case = Case.objects.create(
         compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE
     )

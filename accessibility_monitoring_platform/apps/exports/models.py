@@ -46,6 +46,7 @@ class Export(models.Model):
                 CaseStatus.objects.filter(
                     status=CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
                 )
+                .filter(case__enforcement_body=Case.EnforcementBody.EHRC)
                 .filter(case__compliance_email_sent_date__lte=self.cutoff_date)
                 .order_by("case__id")
             ):
