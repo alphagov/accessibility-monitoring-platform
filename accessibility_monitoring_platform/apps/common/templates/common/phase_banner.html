@@ -1,3 +1,4 @@
+{% if user.is_authenticated %}
 <div class="govuk-phase-banner">
     <p class="govuk-phase-banner__content">
         <strong class="govuk-tag govuk-phase-banner__content__tag">Alpha</strong>
@@ -6,7 +7,7 @@
             {% if django_settings.AMP_PROTOTYPE_NAME and django_settings.AMP_PROTOTYPE_NAME != 'TEST' %}
                 report
             {% else %}
-                <a href="{% url 'common:issue-report' %}{% if user.is_authenticated %}?page_url={{ request.path }}{% endif %}"
+                <a href="{% url 'common:issue-report' %}?page_url={{ request.path }}"
                     target="_blank"
                     class="govuk-link govuk-link--no-visited-state">report</a>
             {% endif %}
@@ -14,3 +15,4 @@
         </span>
     </p>
 </div>
+{% endif %}
