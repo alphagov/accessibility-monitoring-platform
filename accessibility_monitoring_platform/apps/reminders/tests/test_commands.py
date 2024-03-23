@@ -1,5 +1,5 @@
 """
-Test for loat_test_cases_csv command
+Test for email_reminders command
 """
 from datetime import date, timedelta
 

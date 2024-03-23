@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}Confirm {{ export }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}">EHRC CSV export manager</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-detail' export.id %}">{{ export }}</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">Confirm {{ export }}</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl">Confirm {{ export }}</h1>
+                <ul class="govuk-list">
+                    <li>The export will contain {{ export.ready_cases_count }} ready case{% if export.ready_cases_count != 1 %}s{% endif %}</li>
+                    <li>{{ export.excluded_cases_count }} case{% if export.excluded_cases_count != 1 %}s have{% else %} has{% endif %} been excluded</li>
+                    <li>{{ export.unready_cases_count }} case{% if export.unready_cases_count != 1 %}s are{% else %} is{% endif %} not ready</li>
+                </ul>
+                <p class="govuk-body-m"><b>Are you sure you want to export the EHRC CSV?</b></p>
+                <p class="govuk-body-m">
+                    When you export the data, it will move the cases in the export to the next status,
+                    Case closed and sent to equalities body (by setting <i>Date sent to equality body</i> to today).
+                    To reverse this, you will need to adjust each case individually.
+                </p>
+                <p class="govuk-body-m">Before exporting, please check:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>The accuracy of all data in the cases.</li>
+                    <li>That all necessary fields are filled in.</li>
+                    <li>There are no duplicates in the data.</li>
+                </ul>
+                <p class="govuk-body-m">If you're ready, press 'Export and update all ready cases' to continue.
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <form method="post" action="{% url 'exports:export-confirm-export' export.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                    </div>
+                    <div class="govuk-button-group">
+                        <input
+                            type="submit"
+                            value="Export and update all ready cases"
+                            name="submit"
+                            class="govuk-button"
+                            data-module="govuk-button"
+                        />
+                        <a href="{% url 'exports:export-detail' export.id %}"
+                           class="govuk-link govuk-link--no-visited-state">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <hr class="amp-width-100 amp-margin-bottom-30" />
+                <p class="govuk-body-m">Once you have downloaded the CSV, you can return to the export overview page with the link below.</p>
+                <p class="govuk-body-m">
+                    <a href="{% url 'exports:export-detail' export.id %}"
+                       class="govuk-link govuk-link--no-visited-state">Return to the {{ export }}</a>
+                </p>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}{{ export }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}">EHRC CSV export manager</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">{{ export }}</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl">{{ export }}</h1>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-form-group">
+                    <label class="govuk-label"><b>Overview</b></label>
+                    <ul class="govuk-list">
+                        <li>Enforcement body: EHRC</li>
+                        <li>Status: Case closed and ready to be sent to enforcement body</li>
+                        <li>Date filter: Date when compliance decision email sent to public sector body</li>
+                        <li>Cutoff date: {{ export.cutoff_date|amp_date }}</li>
+                        <li>Date created: {{ export.created|amp_date }}</li>
+                        <li>Created by: {{ export.exporter.get_full_name }}</li>
+                        <li>Exported: {{ export.get_status_display }}</li>
+                    </ul>
+                    <p class="govuk-body-m">Found {{ export.exportcase_set.all.count }} cases</p>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body-m">
+                    <a href="{% url 'exports:export-all-cases' export.id %}"
+                       class="govuk-link govuk-link--no-visited-state">Download DRAFT EHRC CSV export (all cases)</a>
+                </p>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                <div class="govuk-button-group amp-flex-end">
+                    <a
+                        href="{% url 'exports:export-confirm-delete' export.id %}"
+                        class="govuk-link govuk-link--no-visited-state float-right"
+                    >
+                        Delete export
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <table class="govuk-table">
+                    <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th scope="col" class="govuk-table__header amp-width-15-percent">Case ID</th>
+                            <th scope="col" class="govuk-table__header">Case</th>
+                            <th scope="col" class="govuk-table__header amp-width-15-percent">Auditor</th>
+                            <th scope="col" class="govuk-table__header amp-width-one-quarter">Export status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                    {% for export_case in export.exportcase_set.all %}
+                        <tr id="export-case-{{ export_case.id }}" class="govuk-table__row">
+                            <td class="govuk-table__cell">
+                                <a
+                                    href="{% url 'cases:edit-case-close' export_case.case.id %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                    target="_blank"
+                                >
+                                    {{ export_case.case.id }}
+                                </a>
+                            </td>
+                            <td class="govuk-table__cell">
+                                {{ export_case.case.organisation_name }}
+                            </td>
+                            <td class="govuk-table__cell">
+                                {{ export_case.case.auditor.get_full_name }}
+                            </td>
+                            <td class="govuk-table__cell">
+                                {% if export_case.status == 'unready' %}
+                                    <b>{{ export_case.get_status_display }}</b>
+                                {% else %}
+                                    <a
+                                        href="{% url 'exports:case-mark-as-unready' export_case.id %}"
+                                        aria-label="Set case export to unready"
+                                        class="govuk-link govuk-link--no-visited-state">Unready</a>
+                                {% endif %}
+                                |
+                                {% if export_case.status == 'excluded' %}
+                                    <b>{{ export_case.get_status_display }}</b>
+                                {% else %}
+                                    <a
+                                        href="{% url 'exports:case-mark-as-excluded' export_case.id %}"
+                                        aria-label="Set case export to excluded"
+                                        class="govuk-link govuk-link--no-visited-state">Excluded</a>
+                                {% endif %}
+                                |
+                                {% if export_case.status == 'ready' %}
+                                    <b>{{ export_case.get_status_display }}</b>
+                                {% else %}
+                                    <a
+                                        href="{% url 'exports:case-mark-as-ready' export_case.id %}"
+                                        aria-label="Set case export to ready"
+                                        class="govuk-link govuk-link--no-visited-state">Ready</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'exports:export-confirm-export' export.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Proceed to export
+                    </a>
+                    <a href="{% url 'exports:export-list' %}"
+                       class="govuk-link govuk-link--no-visited-state">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

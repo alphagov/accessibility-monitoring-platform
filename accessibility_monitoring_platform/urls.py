@@ -1,6 +1,7 @@
 """
 Project URL Configuration
 """
+
 import requests
 from django.conf.urls import include
 from django.contrib import admin
@@ -38,6 +39,7 @@ urlpatterns = [
     ),
     path("overdue/", include("accessibility_monitoring_platform.apps.overdue.urls")),
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
+    path("exports/", include("accessibility_monitoring_platform.apps.exports.urls")),
     path("user/", include("accessibility_monitoring_platform.apps.users.urls")),
     path(
         "notifications/",
