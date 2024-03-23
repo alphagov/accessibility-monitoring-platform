@@ -44,9 +44,11 @@ class CaseAdmin(admin.ModelAdmin):
     search_fields = ["organisation_name", "domain"]
     list_display = ["organisation_name", "domain", "auditor", "created", "status"]
     list_filter = [
+        "variant",
         MetaStatusCaseListFilter,
         ("auditor", admin.RelatedOnlyFieldListFilter),
     ]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class CaseStatusAdmin(admin.ModelAdmin):

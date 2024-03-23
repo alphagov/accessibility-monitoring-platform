@@ -4,6 +4,8 @@ import re
 
 from ..audits.models import Audit, Page
 from ..cases.models import Case
+from ..exports.models import Export
+from .utils import amp_format_date
 
 PAGE_TITLES_BY_URL = {
     "/": "Home",
@@ -88,6 +90,11 @@ PAGE_TITLES_BY_URL = {
     "/common/metrics-report/": "Report metrics",
     "/common/platform-versions/": "Platform version history",
     "/common/report-issue/": "Report an issue",
+    "/exports/export-list/": "EHRC CSV export manager",
+    "/exports/export-create/": "New EHRC CSV export",
+    "/exports/[id]/export-detail/": "EHRC CSV export",
+    "/exports/[id]/export-confirm-delete/": "Delete EHRC CSV export",
+    "/exports/[id]/export-confirm-export/": "Confirm EHRC CSV export",
     "/notifications/notifications-list/": "Comments",
     "/overdue/overdue-list/": "Overdue",
     "/reminders/cases/[id]/reminder-create/": "Reminder",
@@ -129,6 +136,12 @@ def get_page_title(path: str) -> str:  # noqa: C901
             )
         except Page.DoesNotExist:
             page_title: str = f"Page does not exist: {path}"
+    elif path_without_id.startswith("/exports/[id]/"):
+        try:
+            export: Export = Export.objects.get(id=path.split("/")[2])
+            page_title: str = f"{page_heading} {amp_format_date(export.cutoff_date)}"
+        except Page.DoesNotExist:
+            page_title: str = f"Export does not exist: {path}"
     elif path_without_id == "/reminders/cases/[id]/reminder-create/":
         try:
             case: Case = Case.objects.get(id=path.split("/")[3])
