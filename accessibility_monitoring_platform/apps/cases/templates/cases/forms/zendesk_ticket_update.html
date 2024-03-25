@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}{{ case.organisation_name }} | Edit Zendesk ticket{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:zendesk-tickets' zendesk_ticket.case.id %}">PSB correspondence</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">Edit Zendesk ticket</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-button-group">
+                    <h1 class="govuk-heading-xl amp-margin-bottom-15">Edit Zendesk ticket</h1>
+                </div>
+            </div>
+        </div>
+        {% include 'cases/helpers/case_title.html' %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'cases:update-zendesk-ticket' zendesk_ticket.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save and return"
+                                name="save_return"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'cases:zendesk-tickets' zendesk_ticket.case.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' with case=zendesk_ticket.case %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -17,6 +17,7 @@
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
                 {% include 'cases/helpers/correspondence_overview_detail.html' %}
+                {% include 'cases/helpers/zendesk_tickets.html' %}
                 <form method="post" action="{% url 'cases:edit-one-week-followup-final' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">

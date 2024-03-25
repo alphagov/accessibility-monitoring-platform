@@ -37,6 +37,7 @@ from .models import (
     Contact,
     EqualityBodyCorrespondence,
     Sort,
+    ZendeskTicket,
 )
 from .utils import EqualityBodyCSVColumn, populate_equality_body_columns
 
@@ -346,14 +347,12 @@ class CaseCorrespondenceOverviewUpdateForm(VersionForm):
     Form to update Correspondence overview
     """
 
-    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     cores_overview_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "zendesk_url",
             "cores_overview_complete_date",
         ]
 
@@ -396,7 +395,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Case
+        model = Contact
         fields = ["name", "job_title", "email", "preferred"]
 
 
@@ -937,3 +936,16 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
             "notes",
             "zendesk_url",
         ]
+
+
+class ZendeskTicketCreateUpdateForm(forms.ModelForm):
+    """
+    Form for updating a zendesk ticket
+    """
+
+    url = AMPURLField(label="Link to Zendesk ticket")
+    summary = AMPTextField(label="Summary")
+
+    class Meta:
+        model = ZendeskTicket
+        fields = ["url", "summary"]
