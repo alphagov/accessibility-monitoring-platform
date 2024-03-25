@@ -164,7 +164,7 @@ class Audit(VersionModel):
     class DisproportionateBurden(models.TextChoices):
         NO_ASSESSMENT = "no-assessment", "Claim with no assessment"
         ASSESSMENT = "assessment", "Claim with assessment"
-        NO_CLAIM = "no-claim", "No claim"
+        NO_CLAIM = "no-claim", "No claim or no statement"
         NOT_CHECKED = "not-checked", "Not checked"
 
     class ContentNotInScope(models.TextChoices):
