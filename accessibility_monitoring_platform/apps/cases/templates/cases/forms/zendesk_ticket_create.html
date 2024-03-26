@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}{{ case.organisation_name }} | Add Zendesk ticket{% endblock %}
+{% block title %}{{ case.organisation_name }} | Add PSB Zendesk ticket{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -13,18 +13,15 @@
             <li class="govuk-breadcrumbs__list-item">
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:zendesk-tickets' case.id %}">PSB Zendesk tickets</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">Add Zendesk ticket</li>
+            <li class="govuk-breadcrumbs__list-item">Add PSB Zendesk ticket</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <div class="govuk-button-group">
-                    <h1 class="govuk-heading-xl amp-margin-bottom-15">Add Zendesk ticket</h1>
-                </div>
+                {% include "cases/helpers/edit_header.html" with page_heading='PSB Zendesk tickets' %}
             </div>
         </div>
-        {% include 'cases/helpers/case_title.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
