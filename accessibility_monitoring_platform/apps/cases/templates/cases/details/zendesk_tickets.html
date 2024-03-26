@@ -1,0 +1,20 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p id="zendesk-tickets" class="govuk-body-m">
+            <b>PSB Zendesk tickets</b>
+            |
+            <a href="{% url 'cases:zendesk-tickets' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit PSB Zendesk tickets
+            </a>
+        </p>
+    </div>
+</div>
+{% if case.zendesk_tickets %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'cases/helpers/zendesk_tickets_table.html' %}
+        </div>
+    </div>
+{% endif %}
