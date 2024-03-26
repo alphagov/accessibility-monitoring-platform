@@ -1185,7 +1185,7 @@ class ZendeskTicket(models.Model):
         return str(self.url)
 
     def get_absolute_url(self) -> str:
-        return reverse("cases:edit-zendesk-ticket", kwargs={"pk": self.id})
+        return reverse("cases:update-zendesk-ticket", kwargs={"pk": self.id})
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
