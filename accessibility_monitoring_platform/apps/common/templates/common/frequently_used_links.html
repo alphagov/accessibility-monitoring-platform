@@ -82,7 +82,11 @@
     {% for custom_frequently_used_link in custom_frequently_used_links %}
         <li>
             <a href="{{ custom_frequently_used_link.url }}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                {{ custom_frequently_used_link.label }}
+                {% if custom_frequently_used_link.labe %}
+                    {{ custom_frequently_used_link.label }}
+                {% else %}
+                    {{ custom_frequently_used_link.url }}
+                {% endif %}
             </a>
         </li>
     {% endfor %}
