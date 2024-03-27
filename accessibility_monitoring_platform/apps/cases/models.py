@@ -842,6 +842,12 @@ class Case(VersionModel):
     def zendesk_tickets(self):
         return self.zendeskticket_set.filter(is_deleted=False)
 
+    @property
+    def latest_zendesk_url(self) -> str:
+        if self.zendesk_tickets:
+            return self.zendesk_tickets.first().url
+        return self.zendesk_url
+
 
 class CaseStatus(models.Model):
     """

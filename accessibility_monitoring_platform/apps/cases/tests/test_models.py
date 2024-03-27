@@ -1179,6 +1179,23 @@ def test_csv_export_statement_found_at_12_week_retest():
 
 
 @pytest.mark.django_db
+def test_case_latest_zendesk_url():
+    """Test Case.zendesk_tickets"""
+    case: Case = Case.objects.create()
+
+    assert case.latest_zendesk_url == ""
+
+    case.zendesk_url = "first"
+    case.save()
+
+    assert case.latest_zendesk_url == "first"
+
+    ZendeskTicket.objects.create(case=case, url="second")
+
+    assert case.latest_zendesk_url == "second"
+
+
+@pytest.mark.django_db
 def test_case_zendesk_tickets():
     """Test Case.zendesk_tickets"""
     case: Case = Case.objects.create()
