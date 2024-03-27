@@ -30,16 +30,16 @@ elif DEBUG and not UNDER_TEST:
 
 load_dotenv()
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+CURRENT_FILE: Path = Path(__file__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR: Path = CURRENT_FILE.parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -110,8 +110,8 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            os.path.join(BASE_DIR, "templates"),
-            os.path.join(BASE_DIR.parent, "common/templates"),
+            BASE_DIR / "templates",
+            BASE_DIR.parent / "common" / "templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -136,11 +136,11 @@ if UNDER_TEST or INTEGRATION_TEST:
     if INTEGRATION_TEST:
         DATABASES["default"] = {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("POSTGRES_NAME"),
-            "USER": os.environ.get("POSTGRES_USER"),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-            "HOST": os.environ.get("POSTGRES_HOST"),
-            "PORT": os.environ.get("POSTGRES_PORT"),
+            "NAME": os.environ["POSTGRES_NAME"],
+            "USER": os.environ["POSTGRES_USER"],
+            "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+            "HOST": os.environ["POSTGRES_HOST"],
+            "PORT": os.environ["POSTGRES_PORT"],
         }
     else:
         DATABASES["default"] = {
@@ -231,9 +231,10 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-STATICFILES_DIRS = [f"{Path(BASE_DIR).parent}/common/static/compiled"]
-STATIC_URL = os.path.join(BASE_DIR, "/static/")
-STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
+STATICFILES_DIRS = [BASE_DIR.parent / "common" / "static" / "compiled"]
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static" / "dist"
+
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
@@ -292,10 +293,10 @@ CSP_SCRIPT_SRC = ("'self'",)
 CSP_FONT_SRC = ("'self'",)
 CSP_IMG_SRC = ("'self'", "data:")
 
-aws_prototype_filename: str = "aws_prototype.json"
-if os.path.isfile(aws_prototype_filename):
-    aws_prototype_file = open(aws_prototype_filename, "r")
-    aws_prototype_data: str = json.load(aws_prototype_file)
+AWS_PROTOTYPE_FILE: Path = Path("aws_prototype.json")
+if AWS_PROTOTYPE_FILE.exists():
+    aws_prototype_text: str = AWS_PROTOTYPE_FILE.read_text()
+    aws_prototype_data: dict = json.loads(aws_prototype_text)
     AMP_PROTOTYPE_NAME = aws_prototype_data["prototype_name"]
     AMP_PROTOCOL: str = aws_prototype_data["amp_protocol"]
     AMP_VIEWER_DOMAIN: str = aws_prototype_data["viewer_domain"]
