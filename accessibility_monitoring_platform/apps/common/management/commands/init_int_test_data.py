@@ -1,4 +1,5 @@
 """Reset integration test data in the database"""
+
 import logging
 from typing import List, Type
 
@@ -20,6 +21,7 @@ from ....audits.models import (
     Retest,
     RetestCheckResult,
     RetestPage,
+    RetestStatementCheckResult,
     StatementCheckResult,
     StatementPage,
     WcagDefinition,
@@ -31,6 +33,7 @@ from ....cases.models import (
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
+    ZendeskTicket,
 )
 from ....comments.models import Comment
 from ....notifications.models import Notification, NotificationSetting
@@ -75,9 +78,11 @@ class Command(BaseCommand):
 
         delete_from_models(
             [
+                ZendeskTicket,
                 StatementPage,
                 FrequentlyUsedLink,
                 EqualityBodyCorrespondence,
+                RetestStatementCheckResult,
                 RetestCheckResult,
                 RetestPage,
                 Retest,

@@ -37,6 +37,7 @@ from .models import (
     Contact,
     EqualityBodyCorrespondence,
     Sort,
+    ZendeskTicket,
 )
 from .utils import EqualityBodyCSVColumn, populate_equality_body_columns
 
@@ -346,14 +347,12 @@ class CaseCorrespondenceOverviewUpdateForm(VersionForm):
     Form to update Correspondence overview
     """
 
-    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     cores_overview_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "zendesk_url",
             "cores_overview_complete_date",
         ]
 
@@ -396,7 +395,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Case
+        model = Contact
         fields = ["name", "job_title", "email", "preferred"]
 
 
@@ -535,7 +534,6 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
     report_acknowledged_by_email = AMPCharFieldWide(
         label="Report acknowledged by (email address)"
     )
-    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 
@@ -545,7 +543,6 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
             "version",
             "report_acknowledged_date",
             "report_acknowledged_by_email",
-            "zendesk_url",
             "correspondence_notes",
             "report_acknowledged_complete_date",
         ]
@@ -937,3 +934,16 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
             "notes",
             "zendesk_url",
         ]
+
+
+class ZendeskTicketCreateUpdateForm(forms.ModelForm):
+    """
+    Form for updating a zendesk ticket
+    """
+
+    url = AMPURLField(label="Link to Zendesk ticket")
+    summary = AMPTextField(label="Summary")
+
+    class Meta:
+        model = ZendeskTicket
+        fields = ["url", "summary"]

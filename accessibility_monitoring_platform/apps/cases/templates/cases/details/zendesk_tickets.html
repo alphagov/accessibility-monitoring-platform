@@ -1,0 +1,35 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p id="zendesk-tickets" class="govuk-body-m">
+            <b>PSB Zendesk tickets</b>
+            |
+            <a href="{% url 'cases:zendesk-tickets' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit PSB Zendesk tickets
+            </a>
+        </p>
+    </div>
+</div>
+{% for zendesk_ticket in case.zendesk_tickets %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p class="govuk-body-m"><b>PSB Zendesk ticket #{{ zendesk_ticket.id_within_case }}</b></p>
+        </div>
+    </div>
+    <table class="govuk-table amp-accordion-table">
+        <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Zendesk link</th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    <a href="{{ zendesk_ticket.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        {{ zendesk_ticket.url }}</a>
+                </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Summary</th>
+                <td class="govuk-table__cell amp-width-one-half">{{ zendesk_ticket.summary }}</td>
+            </tr>
+        </tbody>
+    </table>
+{% endfor %}

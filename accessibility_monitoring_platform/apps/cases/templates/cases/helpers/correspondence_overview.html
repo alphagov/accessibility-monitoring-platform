@@ -164,18 +164,3 @@
         (<a href="{% url 'cases:edit-12-week-update-request-ack' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
     </p>
 </div>
-
-{% if hide_zendesk_url %}
-{% else %}
-    <div class="govuk-form-group">
-        <label class="govuk-label"><b>Zendesk ticket URL</b></label>
-        <p class="govuk-body-m">
-            {% if case.zendesk_url %}
-                <a href="{{ case.zendesk_url }}" class="govuk-link">Zendesk ticket URL</a>
-            {% else %}
-                None
-            {% endif %}
-            (<a href="{% url 'cases:edit-cores-overview' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
-        </p>
-    </div>
-{% endif %}

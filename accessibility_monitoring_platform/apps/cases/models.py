@@ -838,6 +838,16 @@ class Case(VersionModel):
             status=EqualityBodyCorrespondence.Status.UNRESOLVED,
         )
 
+    @property
+    def zendesk_tickets(self):
+        return self.zendeskticket_set.filter(is_deleted=False)
+
+    @property
+    def latest_psb_zendesk_url(self) -> str:
+        if self.zendesk_tickets:
+            return self.zendesk_tickets.first().url
+        return self.zendesk_url
+
 
 class CaseStatus(models.Model):
     """
@@ -1159,4 +1169,31 @@ class EqualityBodyCorrespondence(models.Model):
             self.id_within_case = (
                 self.case.equalitybodycorrespondence_set.all().count() + 1
             )
+        super().save(*args, **kwargs)
+
+
+class ZendeskTicket(models.Model):
+    """
+    Model for cases ZendeskTicket
+    """
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=1, blank=True)
+    url = models.TextField(default="", blank=True)
+    summary = models.TextField(default="", blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return str(self.url)
+
+    def get_absolute_url(self) -> str:
+        return reverse("cases:update-zendesk-ticket", kwargs={"pk": self.id})
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.id_within_case = self.case.zendeskticket_set.all().count() + 1
         super().save(*args, **kwargs)

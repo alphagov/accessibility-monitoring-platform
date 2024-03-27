@@ -167,6 +167,18 @@
                             {% include 'cases/details/corres_overview.html' %}
                         </div>
                     </div>
+                    <div class="govuk-accordion__section" data-search-target-page-name="PSB Zendesk tickets" data-search-target-label="Edit" data-search-target-url="{% url 'cases:zendesk-tickets' case.id %}">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="zendesk-tickets" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-zendesk-tickets">
+                                    PSB Zendesk tickets
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-zendesk-tickets" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-zendesk-tickets">
+                            {% include 'cases/details/zendesk_tickets.html' %}
+                        </div>
+                    </div>
                     <div class="govuk-accordion__section" data-search-target-page-name="Find contact details" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-find-contact-details' case.id %}">
                         <div class="govuk-accordion__section-header">
                             <h2 id="find-contact-details" class="govuk-accordion__section-heading">
