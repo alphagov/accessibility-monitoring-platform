@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
@@ -86,8 +86,15 @@ from .forms import (
     EqualityBodyCorrespondenceCreateForm,
     ListCaseEqualityBodyCorrespondenceUpdateForm,
     PostCaseUpdateForm,
+    ZendeskTicketCreateUpdateForm,
 )
-from .models import ONE_WEEK_IN_DAYS, Case, Contact, EqualityBodyCorrespondence
+from .models import (
+    ONE_WEEK_IN_DAYS,
+    Case,
+    Contact,
+    EqualityBodyCorrespondence,
+    ZendeskTicket,
+)
 from .utils import (
     EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
@@ -1382,3 +1389,91 @@ class PostCaseAlertsTemplateView(TemplateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["post_case_alerts"] = get_post_case_alerts(user=self.request.user)
         return context
+
+
+class CaseZendeskTicketsDetailView(DetailView):
+    """
+    View of Zendesk tickets for a case
+    """
+
+    model: Type[Case] = Case
+    context_object_name: str = "case"
+    template_name: str = "cases/zendesk_tickets.html"
+
+
+class ZendeskTicketCreateView(CreateView):
+    """
+    View to create a Zendesk ticket
+    """
+
+    model: Type[Case] = ZendeskTicket
+    form_class: Type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    template_name: str = "cases/forms/zendesk_ticket_create.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = case
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        zendesk_ticket: ZendeskTicket = form.save(commit=False)
+        zendesk_ticket.case = case
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        zendesk_ticket: ZendeskTicket = self.object
+        user: User = self.request.user
+        record_model_create_event(user=user, model_object=zendesk_ticket)
+        case_pk: Dict[str, int] = {"pk": zendesk_ticket.case.id}
+        return reverse("cases:zendesk-tickets", kwargs=case_pk)
+
+
+class ZendeskTicketUpdateView(UpdateView):
+    """
+    View to update Zendesk ticket
+    """
+
+    model: Type[Case] = ZendeskTicket
+    form_class: Type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    context_object_name: str = "zendesk_ticket"
+    template_name: str = "cases/forms/zendesk_ticket_update.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add message on change of case"""
+        if form.changed_data:
+            zendesk_ticket: ZendeskTicket = form.save(commit=False)
+            user: User = self.request.user
+            record_model_update_event(user=user, model_object=zendesk_ticket)
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Return to zendesk tickets page on save"""
+        zendesk_ticket: ZendeskTicket = self.object
+        case_pk: Dict[str, int] = {"pk": zendesk_ticket.case.id}
+        return reverse("cases:zendesk-tickets", kwargs=case_pk)
+
+
+def delete_zendesk_ticket(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Delete ZendeskTicket
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        pk (int): Id of ZendeskTicket to delete
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    zendesk_ticket: ZendeskTicket = get_object_or_404(ZendeskTicket, id=pk)
+    zendesk_ticket.is_deleted = True
+    record_model_update_event(user=request.user, model_object=zendesk_ticket)
+    zendesk_ticket.save()
+    return redirect(
+        reverse("cases:zendesk-tickets", kwargs={"pk": zendesk_ticket.case.id})
+    )

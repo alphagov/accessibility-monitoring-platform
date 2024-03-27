@@ -13,6 +13,8 @@ const recommendationNote = 'Recommendation note'
 const equalityBodyCorrespondenceNote = 'Equality body correspondence note'
 const postCaseNote = 'Post case note'
 const psbAppealNote = 'PSB appeal note'
+const zenUrl = 'https://zendesk.com/ticket'
+const zenSummary = 'Zendesk ticket summary'
 
 describe('View case', () => {
   beforeEach(() => {
@@ -67,6 +69,17 @@ describe('View case', () => {
     cy.get('[name="qa_auditor_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Case').click()
+  })
+
+  it('can edit Zendesk tickets', () => {
+    cy.get('#edit-zendesk-tickets').click()
+    cy.get('#create-zendesk-ticket').click()
+    cy.get('[name="url"]').clear().type(zenUrl)
+    cy.get('[name="summary"]').clear().type(zenSummary)
+    cy.contains('Save and return').click()
+    cy.contains('Case').click()
+    cy.contains(zenUrl)
+    cy.contains(zenSummary)
   })
 
   it('can edit contact details', () => {

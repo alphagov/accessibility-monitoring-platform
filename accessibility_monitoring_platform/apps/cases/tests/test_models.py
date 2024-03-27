@@ -24,7 +24,13 @@ from ...common.models import Boolean
 from ...reminders.models import Reminder
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
-from ..models import Case, CaseCompliance, Contact, EqualityBodyCorrespondence
+from ..models import (
+    Case,
+    CaseCompliance,
+    Contact,
+    EqualityBodyCorrespondence,
+    ZendeskTicket,
+)
 from ..utils import create_case_and_compliance
 
 DOMAIN: str = "example.com"
@@ -1170,3 +1176,57 @@ def test_csv_export_statement_found_at_12_week_retest():
         statement_check_result.save()
 
     assert case.csv_export_statement_found_at_12_week_retest == "Yes"
+
+
+@pytest.mark.django_db
+def test_case_latest_psb_zendesk_url():
+    """Test Case.latest_psb_zendesk_url"""
+    case: Case = Case.objects.create()
+
+    assert case.latest_psb_zendesk_url == ""
+
+    case.zendesk_url = "first"
+    case.save()
+
+    assert case.latest_psb_zendesk_url == "first"
+
+    ZendeskTicket.objects.create(case=case, url="second")
+
+    assert case.latest_psb_zendesk_url == "second"
+
+
+@pytest.mark.django_db
+def test_case_zendesk_tickets():
+    """Test Case.zendesk_tickets"""
+    case: Case = Case.objects.create()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+
+    assert case.zendesk_tickets.count() == 1
+    assert case.zendesk_tickets.first() == zendesk_ticket
+
+    zendesk_ticket.is_deleted = True
+    zendesk_ticket.save()
+
+    assert case.zendesk_tickets.count() == 0
+
+
+@pytest.mark.django_db
+def test_zendesk_ticket_get_absolute_url():
+    """Test ZendeskTickets.get_absolute_url"""
+    case: Case = Case.objects.create()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+
+    assert zendesk_ticket.get_absolute_url() == "/cases/1/update-zendesk-ticket/"
+
+
+@pytest.mark.django_db
+def test_zendesk_ticket_id_within_case():
+    """Test ZendeskTicket.id_within_case"""
+    case: Case = Case.objects.create()
+    first_zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+
+    assert first_zendesk_ticket.id_within_case == 1
+
+    second_zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+
+    assert second_zendesk_ticket.id_within_case == 2

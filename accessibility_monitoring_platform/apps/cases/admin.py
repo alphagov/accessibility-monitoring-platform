@@ -12,6 +12,7 @@ from .models import (
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
+    ZendeskTicket,
 )
 
 
@@ -119,9 +120,23 @@ class EqualityBodyCorrespondenceAdmin(admin.ModelAdmin):
     list_filter = ["type", "status"]
 
 
+class ZendeskTicketAdmin(admin.ModelAdmin):
+    """Django admin configuration for EqualityBodyCorrespondence model"""
+
+    search_fields = [
+        "url",
+        "summary",
+        "case__organisation_name",
+        "case__id",
+    ]
+    list_display = ["url", "summary", "case", "created", "is_deleted"]
+    list_filter = ["is_deleted"]
+
+
 admin.site.register(Case, CaseAdmin)
 admin.site.register(CaseStatus, CaseStatusAdmin)
 admin.site.register(CaseCompliance, CaseComplianceAdmin)
 admin.site.register(CaseEvent, CaseEventAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(EqualityBodyCorrespondence, EqualityBodyCorrespondenceAdmin)
+admin.site.register(ZendeskTicket, ZendeskTicketAdmin)

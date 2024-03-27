@@ -49,9 +49,9 @@
             </a>
         </li>
     {% endif %}
-    {% if case.zendesk_url %}
+    {% if case.latest_psb_zendesk_url %}
         <li>
-            <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+            <a href="{{ case.latest_psb_zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 Zendesk
             </a>
         </li>
@@ -82,7 +82,11 @@
     {% for custom_frequently_used_link in custom_frequently_used_links %}
         <li>
             <a href="{{ custom_frequently_used_link.url }}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                {{ custom_frequently_used_link.label }}
+                {% if custom_frequently_used_link.label %}
+                    {{ custom_frequently_used_link.label }}
+                {% else %}
+                    {{ custom_frequently_used_link.url }}
+                {% endif %}
             </a>
         </li>
     {% endfor %}

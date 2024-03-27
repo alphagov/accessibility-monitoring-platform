@@ -38,6 +38,7 @@ from ..models import (
     CaseEvent,
     Contact,
     EqualityBodyCorrespondence,
+    ZendeskTicket,
 )
 from ..utils import (
     CASE_COLUMNS_FOR_EXPORT,
@@ -165,6 +166,8 @@ TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
     "The request for a final update has been acknowledged by the organisation"
 )
 RECOMMENDATION_NOTE: str = "Recommendation note"
+ZENDESK_URL: str = "https://zendesk.com/ticket"
+ZENDESK_SUMMARY: str = "Zendesk ticket summary"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -294,7 +297,7 @@ def test_archived_case_view_case_includes_fields(admin_client):
 
 def test_view_case_includes_tests(admin_client):
     """
-    Test that the View case display test and 12-week retest.
+    Test that the View case displays test and 12-week retest.
     """
     case: Case = Case.objects.create()
     Audit.objects.create(case=case)
@@ -310,6 +313,27 @@ def test_view_case_includes_tests(admin_client):
 
     assertContains(response, "12-week test metadata")
     assertContains(response, "Retest date")
+
+
+def test_view_case_includes_zendesk_tickets(admin_client):
+    """
+    Test that the View case displays Zendesk tickets.
+    """
+    case: Case = Case.objects.create()
+    ZendeskTicket.objects.create(
+        case=case,
+        url=ZENDESK_URL,
+        summary=ZENDESK_SUMMARY,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(response, "PSB Zendesk tickets")
+    assertContains(response, ZENDESK_URL)
+    assertContains(response, ZENDESK_SUMMARY)
 
 
 def test_case_detail_view_leaves_out_deleted_contact(admin_client):
@@ -724,6 +748,10 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-report-approved", "<li>Report approved</li>"),
         ("cases:edit-publish-report", "<li>Publish report</li>"),
         ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
+        (
+            "cases:zendesk-tickets",
+            '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
+        ),
         ("cases:edit-find-contact-details", "<li>Find contact details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-report-sent-on", "<li>Report sent on</li>"),
@@ -756,6 +784,128 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     assert response.status_code == 200
 
     assertContains(response, expected_content, html=True)
+
+
+def test_create_zendesk_ticket_page_loads(admin_client):
+    """Test that the create Zendesk ticket page loads"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:create-zendesk-ticket", kwargs={"case_id": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        '<h1 class="govuk-heading-xl amp-margin-bottom-15">Add PSB Zendesk ticket</h1>',
+        html=True,
+    )
+
+
+def test_update_zendesk_ticket_page_loads(admin_client):
+    """Test that the update Zendesk ticket page loads"""
+    case: Case = Case.objects.create()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:update-zendesk-ticket", kwargs={"pk": zendesk_ticket.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        '<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit PSB Zendesk ticket</h1>',
+        html=True,
+    )
+
+
+def test_create_zendesk_ticket_view(admin_client):
+    """Test that the create Zendesk ticket view works"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:create-zendesk-ticket", kwargs={"case_id": case.id}),
+        {
+            "url": ZENDESK_URL,
+            "summary": ZENDESK_SUMMARY,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/cases/1/zendesk-tickets/"
+
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.filter(case=case).first()
+
+    assert zendesk_ticket is not None
+    assert zendesk_ticket.url == ZENDESK_URL
+    assert zendesk_ticket.summary == ZENDESK_SUMMARY
+
+    content_type: ContentType = ContentType.objects.get_for_model(ZendeskTicket)
+    event: Event = Event.objects.get(
+        content_type=content_type, object_id=zendesk_ticket.id
+    )
+
+    assert event.type == Event.Type.CREATE
+
+
+def test_update_zendesk_ticket_view(admin_client):
+    """Test that the update Zendesk ticket view works"""
+    case: Case = Case.objects.create()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:update-zendesk-ticket", kwargs={"pk": zendesk_ticket.id}),
+        {
+            "url": ZENDESK_URL,
+            "summary": ZENDESK_SUMMARY,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/cases/1/zendesk-tickets/"
+
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.filter(case=case).first()
+
+    assert zendesk_ticket is not None
+    assert zendesk_ticket.url == ZENDESK_URL
+    assert zendesk_ticket.summary == ZENDESK_SUMMARY
+
+    content_type: ContentType = ContentType.objects.get_for_model(ZendeskTicket)
+    event: Event = Event.objects.get(
+        content_type=content_type, object_id=zendesk_ticket.id
+    )
+
+    assert event.type == Event.Type.UPDATE
+
+
+def test_delete_zendesk_ticket_view(admin_client):
+    """Test that the delete Zendesk ticket view works"""
+    case: Case = Case.objects.create()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+
+    assert zendesk_ticket.is_deleted is False
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:delete-zendesk-ticket", kwargs={"pk": zendesk_ticket.id})
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/cases/1/zendesk-tickets/"
+
+    zendesk_ticket_from_db: ZendeskTicket = ZendeskTicket.objects.get(
+        id=zendesk_ticket.id
+    )
+
+    assert zendesk_ticket_from_db.is_deleted is True
+
+    content_type: ContentType = ContentType.objects.get_for_model(ZendeskTicket)
+    event: Event = Event.objects.get(
+        content_type=content_type, object_id=zendesk_ticket.id
+    )
+
+    assert event.type == Event.Type.UPDATE
 
 
 def test_create_case_shows_error_messages(admin_client):
