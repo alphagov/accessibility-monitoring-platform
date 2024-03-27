@@ -1,7 +1,9 @@
 """
 Production deployment settings
 """
+
 import os
+from pathlib import Path
 
 from .base import *
 
@@ -20,8 +22,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-aws_prototype_filename: str = "aws_prototype.json"
-if os.path.isfile(aws_prototype_filename):
+AWS_PROTOTYPE_FILE: Path = Path("aws_prototype.json")
+if AWS_PROTOTYPE_FILE.exists():
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 elif os.getenv("NOTIFY_API_KEY"):
     EMAIL_BACKEND = "accessibility_monitoring_platform.email.NotifyEmailBackend"
