@@ -9,7 +9,6 @@ def migrate_zendesk_urls(apps, schema_editor):  # pylint: disable=unused-argumen
     for case in Case.objects.filter(
         variant__in=["statement-content", "close-case"]
     ).exclude(zendesk_url=""):
-        print(f"{case}: {case.variant}, {case.zendesk_url}")
         ZendeskTicket.objects.create(
             case=case, url=case.zendesk_url, summary="Migrated URL"
         )
