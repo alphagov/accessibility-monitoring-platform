@@ -17,12 +17,21 @@ from ..common.form_extract_utils import (
     extract_form_labels_and_values,
 )
 from ..common.utils import record_model_create_event, record_model_update_event
-from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
+from ..common.view_section_utils import (
+    ViewSection,
+    ViewSubTable,
+    ViewTable,
+    ViewTableCell,
+    ViewTableRow,
+    build_table_from_form,
+    build_view_section,
+)
 from .forms import (
     ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
     AuditMetadataUpdateForm,
+    AuditRetestMetadataUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceStatementInitialUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
@@ -70,6 +79,25 @@ STATEMENT_CONTENT_SUBSECTIONS: List[StatementContentSubsection] = [
     ),
     StatementContentSubsection("Custom statement issues", "custom", "custom"),
 ]
+TWELVE_WEEK_PAGE_TABLE_HEADER: ViewTableRow = ViewTableRow(
+    cells=[
+        ViewTableCell(
+            header=True,
+            css_class="amp-width-one-third",
+            content="WCAG issue",
+        ),
+        ViewTableCell(
+            header=True,
+            css_class="amp-width-one-third",
+            content="Initial",
+        ),
+        ViewTableCell(
+            header=True,
+            css_class="amp-width-one-third",
+            content="12-week",
+        ),
+    ]
+)
 
 
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
@@ -186,7 +214,7 @@ def build_statement_content_subsections(audit: Audit) -> List[ViewSection]:
 
 
 def get_test_view_sections(audit: Audit) -> List[ViewSection]:
-    """Get sections for latest test view"""
+    """Get sections for initial test view"""
     get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
     get_compliance_rows: Callable = partial(
         extract_form_labels_and_values, instance=audit.case.compliance
@@ -355,6 +383,64 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
         + statement_content_sections
         + post_statement_check_sections
     )
+
+
+def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
+    """Get sections for 12-week test view"""
+    get_audit_table: Callable = partial(build_table_from_form, instance=audit)
+    get_compliance_table: Callable = partial(
+        build_table_from_form, instance=audit.case.compliance
+    )
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    pre_statement_check_sections: List[ViewSection] = [
+        build_view_section(
+            name="12-week test metadata",
+            edit_url=reverse("audits:edit-audit-retest-metadata", kwargs=audit_pk),
+            edit_url_id="edit-audit-retest-metadata",
+            complete_date=audit.audit_retest_metadata_complete_date,
+            display_table=get_audit_table(form=AuditRetestMetadataUpdateForm()),
+        ),
+        build_view_section(
+            name="Pages",
+            anchor="",
+            complete_date=audit.audit_pages_complete_date,
+            subsections=[
+                build_view_section(
+                    name=f"{str(page)} ({page.failed_check_results.count()})",
+                    edit_url=reverse(
+                        "audits:edit-audit-page-checks", kwargs={"pk": page.id}
+                    ),
+                    edit_url_id=f"page-{page.id}",
+                    complete_date=page.complete_date,
+                    display_table=ViewTable(
+                        header_row=TWELVE_WEEK_PAGE_TABLE_HEADER,
+                        rows=[
+                            ViewTableRow(
+                                cells=[
+                                    ViewTableCell(
+                                        content=check_result.wcag_definition,
+                                        css_class="amp-width-one-third",
+                                    ),
+                                    ViewTableCell(
+                                        content=check_result.notes,
+                                        css_class="amp-width-one-third",
+                                    ),
+                                    ViewTableCell(
+                                        content=check_result.retest_notes,
+                                        css_class="amp-width-one-third",
+                                    ),
+                                ]
+                            )
+                            for check_result in page.failed_check_results
+                        ],
+                    ),
+                )
+                for page in audit.testable_pages
+            ],
+        ),
+    ]
+    return pre_statement_check_sections
 
 
 def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndValue]]:

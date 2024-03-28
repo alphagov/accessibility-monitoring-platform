@@ -47,7 +47,7 @@ from ..models import (
     StatementCheckResult,
     StatementPage,
 )
-from ..utils import get_next_retest_page_url, get_retest_view_tables_context
+from ..utils import get_next_retest_page_url, get_twelve_week_test_view_sections
 from .base import (
     AuditCaseComplianceUpdateView,
     AuditUpdateView,
@@ -71,7 +71,7 @@ class AuditRetestDetailView(DetailView):
         audit: Audit = self.object
 
         return {
-            **get_retest_view_tables_context(case=audit.case),
+            **{"view_sections": get_twelve_week_test_view_sections(audit=audit)},
             **context,
         }
 

@@ -49,6 +49,7 @@ EXCLUDED_FIELDS = [
     "add_contact_notes",
     "initial_disproportionate_burden_complete_date",
     "twelve_week_disproportionate_burden_complete_date",
+    "audit_retest_metadata_complete_date",
 ]
 EXTRA_LABELS = {
     "report_draft_url": "Report draft",

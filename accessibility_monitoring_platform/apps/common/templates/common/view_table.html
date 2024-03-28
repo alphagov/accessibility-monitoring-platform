@@ -1,24 +1,38 @@
 <table class="govuk-table{% if top_section %} amp-accordion-table{% endif %}">
+    {% if section.display_table.header_row %}
+        <thead class="govuk-table__head">
+            <tr class="govuk-row">
+                {% for cell in section.display_table.header_row.cells %}
+                    <th scope="col" class="govuk-table__cell {{ cell.css_class }}">{{ cell.content }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+    {% endif %}
     <tbody class="govuk-table__body">
-        {% for display_field in section.display_fields %}
+        {% for row in section.display_table.rows %}
             <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ display_field.label }}</th>
-                <td class="govuk-table__cell amp-width-one-half{% if display_field.type == 'notes' %} amp-notes{% endif %}">
-                    {% if display_field.type == 'url' %}
-                        {% if display_field.value %}
-                            <a href="{{ display_field.value }}"
-                                rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                {% if display_field.display_value %}{{ display_field.display_value }}{% else %}{{ display_field.value }}{% endif %}
-                            </a>
-                        {% else %}
-                            None
-                        {% endif %}
-                    {% elif display_field.type == 'notes' %}
-                        {% if display_field.value %}{{ display_field.value|markdown_to_html }}{% endif %}
+                {% for cell in row.cells %}
+                    {% if cell.header %}
+                        <th scope="row" class="govuk-table__cell {{ cell.css_class }}">{{ cell.content }}</th>
                     {% else %}
-                        {% if display_field.display_value %}{{ display_field.display_value }}{% else %}{{ display_field.value }}{% endif %}
+                        <td class="govuk-table__cell {{ cell.css_class }}{% if cell.type == 'notes' %} amp-notes{% endif %}">
+                            {% if cell.type == 'url' %}
+                                {% if cell.content %}
+                                    <a href="{{ cell.content }}"
+                                        rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                        {{ cell.content }}
+                                    </a>
+                                {% else %}
+                                    None
+                                {% endif %}
+                            {% elif cell.type == 'notes' %}
+                                {% if cell.content %}{{ cell.content|markdown_to_html }}{% endif %}
+                            {% else %}
+                                {{ cell.content }}
+                            {% endif %}
+                        </td>
                     {% endif %}
-                </td>
+                {% endfor %}
             </tr>
         {% endfor %}
     </tbody>
