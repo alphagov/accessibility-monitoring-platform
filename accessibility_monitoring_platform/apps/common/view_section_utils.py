@@ -29,8 +29,8 @@ class ViewSection:
 
 def build_view_section(
     name: str,
-    edit_url: str,
-    edit_url_id: str,
+    edit_url: str = "",
+    edit_url_id: str = "",
     complete_date: Optional[date] = None,
     anchor: Optional[str] = None,
     display_fields: Optional[List[FieldLabelAndValue]] = None,
