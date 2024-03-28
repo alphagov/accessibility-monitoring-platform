@@ -23,7 +23,7 @@
             <p class="govuk-body-m"><b>{{ subtable.name }}</b></p>
             {% include 'common/view_table.html' with section=subtable %}
         {% endfor %}
-        {% if view_section.display_fields %}
+        {% if view_section.display_table %}
             {% include 'common/view_table.html' with section=view_section %}
         {% elif not view_section.subtables %}
             <p class="govuk-body-m">None</p>
