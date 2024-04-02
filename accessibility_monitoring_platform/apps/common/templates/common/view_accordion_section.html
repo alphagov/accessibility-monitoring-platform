@@ -23,7 +23,13 @@
             <p class="govuk-body-m"><b>{{ subtable.name }}</b></p>
             {% include 'common/view_table.html' with section=subtable %}
         {% endfor %}
-        {% if view_section.display_fields %}
+        {% if view_section.type == 'initial-wcag-results' %}
+            {% include 'common/view_initial_page_results.html' %}
+        {% elif view_section.type == 'initial-statement-results' %}
+            {% include 'common/view_initial_statement_checks.html' %}
+        {% elif view_section.type == '12-week-wcag-results' %}
+            {% include 'common/view_twelve_week_page_results.html' %}
+        {% elif view_section.display_fields %}
             {% include 'common/view_table.html' with section=view_section %}
         {% elif not view_section.subtables %}
             <p class="govuk-body-m">None</p>

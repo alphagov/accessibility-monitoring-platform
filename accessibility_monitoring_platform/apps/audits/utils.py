@@ -171,16 +171,11 @@ def build_statement_content_subsections(audit: Audit) -> List[ViewSection]:
                 audit,
                 f"audit_statement_{statement_content_subsection.attr_unique}_complete_date",
             ),
-            display_fields=[
-                FieldLabelAndValue(
-                    label=statement_check_result.label,
-                    value=statement_check_result.display_value,
-                )
-                for statement_check_result in getattr(
-                    audit,
-                    f"{statement_content_subsection.attr_unique}_statement_check_results",
-                )
-            ],
+            type=ViewSection.INITIAL_STATEMENT_RESULTS,
+            iterable=getattr(
+                audit,
+                f"{statement_content_subsection.attr_unique}_statement_check_results",
+            ),
         )
         for statement_content_subsection in STATEMENT_CONTENT_SUBSECTIONS
     ]
@@ -222,14 +217,8 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                     ),
                     edit_url_id=f"page-{page.id}",
                     complete_date=page.complete_date,
-                    display_fields=[
-                        FieldLabelAndValue(
-                            type=FieldLabelAndValue.NOTES_TYPE,
-                            label=check_result.wcag_definition,
-                            value=check_result.notes,
-                        )
-                        for check_result in page.failed_check_results
-                    ],
+                    type=ViewSection.INITIAL_WCAG_RESULTS,
+                    iterable=page.failed_check_results,
                 )
                 for page in audit.testable_pages
             ],
@@ -289,13 +278,8 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                 edit_url=reverse("audits:edit-statement-overview", kwargs=audit_pk),
                 edit_url_id="edit-statement-overview",
                 complete_date=audit.audit_statement_overview_complete_date,
-                display_fields=[
-                    FieldLabelAndValue(
-                        label=statement_check_result.label,
-                        value=statement_check_result.display_value,
-                    )
-                    for statement_check_result in audit.overview_statement_check_results
-                ],
+                type=ViewSection.INITIAL_STATEMENT_RESULTS,
+                iterable=audit.overview_statement_check_results,
                 subsections=statement_content_subsections,
             ),
         ]
@@ -386,14 +370,8 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
                     ),
                     edit_url_id=f"page-{page.id}",
                     complete_date=page.complete_date,
-                    display_fields=[
-                        FieldLabelAndValue(
-                            type=FieldLabelAndValue.NOTES_TYPE,
-                            label=check_result.wcag_definition,
-                            value=check_result.notes,
-                        )
-                        for check_result in page.failed_check_results
-                    ],
+                    type=ViewSection.TWELVE_WEEK_WCAG_RESULTS,
+                    parent=page,
                 )
                 for page in audit.testable_pages
             ],
