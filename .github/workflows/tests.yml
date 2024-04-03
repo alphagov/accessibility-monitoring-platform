@@ -41,4 +41,4 @@ jobs:
     - name: Integration tests
       run: |
         cd stack_tests/integration_tests
-        docker-compose up --abort-on-container-exit
+        docker compose up --abort-on-container-exit
