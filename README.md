@@ -116,7 +116,7 @@ Integration can be started with
 make int_test
 ```
 
-The make command will emulate the production stack with docker-compose and will then simulate the actions of a user using cypress.
+The make command will emulate the production stack with `docker compose` and will then simulate the actions of a user using cypress.
 
 To run these tests interactively in the local sandbox:
 
