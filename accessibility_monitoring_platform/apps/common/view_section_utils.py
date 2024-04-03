@@ -4,7 +4,7 @@ Utility function to build context object for view pages' sections
 
 from dataclasses import dataclass
 from datetime import date
-from typing import ClassVar, List, Optional
+from typing import ClassVar, List, Literal, Optional
 
 from django.db.models.query import QuerySet
 from django.utils.text import slugify
@@ -34,7 +34,13 @@ class ViewSection:
     TWELVE_WEEK_WCAG_RESULTS: ClassVar[str] = "12-week-wcag-results"
     TWELVE_WEEK_STATEMENT_RESULTS: ClassVar[str] = "12-week-statement-results"
     FORM_TYPE: ClassVar[str] = "form"
-    type: str = FORM_TYPE
+    type: Literal[
+        FORM_TYPE,
+        INITIAL_WCAG_RESULTS,
+        INITIAL_STATEMENT_RESULTS,
+        TWELVE_WEEK_WCAG_RESULTS,
+        TWELVE_WEEK_STATEMENT_RESULTS,
+    ] = FORM_TYPE
     page: Optional[Page] = None
     statement_check_results: QuerySet[StatementCheck] = None
 

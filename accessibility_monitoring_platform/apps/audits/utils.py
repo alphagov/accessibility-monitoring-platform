@@ -207,7 +207,7 @@ def build_twelve_week_statement_content_subsections(audit: Audit) -> List[ViewSe
     ]
 
 
-def get_test_view_sections(audit: Audit) -> List[ViewSection]:
+def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
     """Get sections for initial test view"""
     get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
     get_compliance_rows: Callable = partial(
