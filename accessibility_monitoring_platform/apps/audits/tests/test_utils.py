@@ -29,6 +29,7 @@ from ..models import (
 )
 from ..utils import (
     build_initial_statement_content_subsections,
+    build_twelve_week_statement_content_subsections,
     create_checkresults_for_retest,
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
@@ -405,6 +406,44 @@ def test_build_initial_statement_content_subsections():
     assert statement_content_subsection.subtables is None
     assert statement_content_subsection.subsections is None
     assert statement_content_subsection.type == "initial-statement-results"
+    assert statement_content_subsection.page is None
+    assertQuerysetEqual(
+        statement_content_subsection.statement_check_results, empty_queryset
+    )
+
+
+@pytest.mark.django_db
+def test_build_twelve_week_statement_content_subsections():
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+    )
+    empty_queryset: QuerySet[StatementCheck] = audit.failed_statement_check_results
+
+    statement_content_subsections: List[
+        ViewSection
+    ] = build_twelve_week_statement_content_subsections(audit=audit)
+
+    assert len(statement_content_subsections) == 6
+
+    statement_content_subsection: ViewSection = statement_content_subsections[0]
+
+    assert statement_content_subsection.name == "12-week statement information"
+    assert statement_content_subsection.anchor == "12-week-statement-information"
+    assert (
+        statement_content_subsection.edit_url
+        == "/audits/1/edit-retest-statement-website/"
+    )
+    assert statement_content_subsection.edit_url_id == "edit-retest-statement-website"
+    assert statement_content_subsection.complete is False
+    assert statement_content_subsection.display_fields is None
+    assert statement_content_subsection.subtables is None
+    assert statement_content_subsection.subsections is None
+    assert statement_content_subsection.type == "12-week-statement-results"
     assert statement_content_subsection.page is None
     assertQuerysetEqual(
         statement_content_subsection.statement_check_results, empty_queryset

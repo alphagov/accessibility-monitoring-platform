@@ -465,7 +465,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
         )
         statement_content_sections: List[ViewSection] = [
             build_view_section(
-                name="12 week statement overview",
+                name="12-week statement overview",
                 edit_url=reverse(
                     "audits:edit-retest-statement-overview", kwargs=audit_pk
                 ),
