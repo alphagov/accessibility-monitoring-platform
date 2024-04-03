@@ -30,12 +30,11 @@ elif DEBUG and not UNDER_TEST:
 
 load_dotenv()
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+CURRENT_FILE: Path = Path(__file__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
-
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR: Path = CURRENT_FILE.parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -94,8 +93,8 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            os.path.join(BASE_DIR, "templates"),
-            os.path.join(BASE_DIR.parent, "common/templates"),
+            BASE_DIR / "templates",
+            BASE_DIR.parent / "common" / "templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -124,11 +123,11 @@ if UNDER_TEST or INTEGRATION_TEST:
     if INTEGRATION_TEST:
         DATABASES["default"] = {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("POSTGRES_NAME"),
-            "USER": os.environ.get("POSTGRES_USER"),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-            "HOST": os.environ.get("POSTGRES_HOST"),
-            "PORT": os.environ.get("POSTGRES_PORT"),
+            "NAME": os.environ["POSTGRES_NAME"],
+            "USER": os.environ["POSTGRES_USER"],
+            "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+            "HOST": os.environ["POSTGRES_HOST"],
+            "PORT": os.environ["POSTGRES_PORT"],
         }
     else:
         DATABASES["default"] = {
@@ -230,9 +229,9 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-STATICFILES_DIRS = [f"{Path(BASE_DIR).parent}/common/static/compiled"]
-STATIC_URL = os.path.join(BASE_DIR, "/static/")
-STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
+STATICFILES_DIRS = [BASE_DIR.parent / "common" / "static" / "compiled"]
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static" / "dist"
 
 STORAGES = {
     "staticfiles": {
