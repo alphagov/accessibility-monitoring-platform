@@ -3,7 +3,6 @@ Test - common utility function to extract labels and values from forms
 """
 
 from datetime import date
-from typing import List
 
 from ..view_section_utils import ViewSection, build_view_section
 

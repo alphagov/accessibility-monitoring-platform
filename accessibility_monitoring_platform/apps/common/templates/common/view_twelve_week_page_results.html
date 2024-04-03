@@ -5,7 +5,7 @@
             <th scope="row" class="govuk-table__header amp-width-one-third">Initial</th>
             <th scope="row" class="govuk-table__header amp-width-one-third">12-week</th>
         </tr>
-        {% for check_result in view_section.parent.failed_check_results %}
+        {% for check_result in view_section.page.failed_check_results %}
             <tr class="govuk-table__row">
                 <td class="govuk-table__cell amp-width-one-third">
                     <label class="govuk-label">{{ check_result.wcag_definition }}</label>
@@ -24,8 +24,8 @@
             <td colspan="2" class="govuk-table__cell">
                 <label class="govuk-label"><b>Additional issues found on page</b></label>
                 <div class="govuk-hint">
-                    {% if view_section.parent.retest_notes %}
-                        {{ view_section.parent.retest_notes|markdown_to_html }}
+                    {% if view_section.page.retest_notes %}
+                        {{ view_section.page.retest_notes|markdown_to_html }}
                     {% else %}
                         None
                     {% endif %}

@@ -56,7 +56,7 @@
         </div>
         <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
             {% for view_section in view_sections %}
-                {% if view_section.display_fields %}
+                {% if view_section.anchor %}
                     {% include 'common/view_accordion_section.html' %}
                 {% endif %}
                 {% for subsection in view_section.subsections %}

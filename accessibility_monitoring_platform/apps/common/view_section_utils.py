@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from datetime import date
 from typing import ClassVar, List, Optional
 
-from django.db import models
 from django.db.models.query import QuerySet
 from django.utils.text import slugify
 
+from ..audits.models import Page, StatementCheck
 from .form_extract_utils import FieldLabelAndValue
 
 
@@ -32,10 +32,11 @@ class ViewSection:
     INITIAL_WCAG_RESULTS: ClassVar[str] = "initial-wcag-results"
     INITIAL_STATEMENT_RESULTS: ClassVar[str] = "initial-statement-results"
     TWELVE_WEEK_WCAG_RESULTS: ClassVar[str] = "12-week-wcag-results"
+    TWELVE_WEEK_STATEMENT_RESULTS: ClassVar[str] = "12-week-statement-results"
     FORM_TYPE: ClassVar[str] = "form"
     type: str = FORM_TYPE
-    parent: models.Model = None
-    iterable: QuerySet = None
+    page: Optional[Page] = None
+    statement_check_results: QuerySet[StatementCheck] = None
 
 
 def build_view_section(
@@ -48,8 +49,8 @@ def build_view_section(
     subtables: Optional[ViewSubTable] = None,
     subsections: Optional[ViewSection] = None,
     type: str = ViewSection.FORM_TYPE,
-    parent: Optional[models.Model] = None,
-    iterable: QuerySet = None,
+    page: Optional[Page] = None,
+    statement_check_results: QuerySet[StatementCheck] = None,
 ) -> ViewSection:
     complete_flag = True if complete_date else False
     anchor = slugify(name) if anchor is None else anchor
@@ -63,6 +64,6 @@ def build_view_section(
         subtables=subtables,
         subsections=subsections,
         type=type,
-        parent=parent,
-        iterable=iterable,
+        page=page,
+        statement_check_results=statement_check_results,
     )

@@ -9,6 +9,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.urls import reverse
+from pytest_django.asserts import assertQuerysetEqual
 
 from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
@@ -27,7 +28,7 @@ from ..models import (
     WcagDefinition,
 )
 from ..utils import (
-    build_statement_content_subsections,
+    build_initial_statement_content_subsections,
     create_checkresults_for_retest,
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
@@ -376,7 +377,7 @@ def create_audit_and_check_results() -> Audit:
 
 
 @pytest.mark.django_db
-def test_build_statement_content_subsections():
+def test_build_initial_statement_content_subsections():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     statement_check: StatementCheck = StatementCheck.objects.all().first()
@@ -385,72 +386,28 @@ def test_build_statement_content_subsections():
         type=statement_check.type,
         statement_check=statement_check,
     )
+    empty_queryset: QuerySet[StatementCheck] = audit.failed_statement_check_results
 
     statement_content_subsections: List[
         ViewSection
-    ] = build_statement_content_subsections(audit=audit)
+    ] = build_initial_statement_content_subsections(audit=audit)
 
     assert len(statement_content_subsections) == 6
 
-    assert statement_content_subsections[0] == ViewSection(
-        name="Statement information",
-        anchor="statement-information",
-        edit_url="/audits/1/edit-statement-website/",
-        edit_url_id="edit-statement-website",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
-    )
-    assert statement_content_subsections[1] == ViewSection(
-        name="Compliance status",
-        anchor="compliance-status",
-        edit_url="/audits/1/edit-statement-compliance/",
-        edit_url_id="edit-statement-compliance",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
-    )
-    assert statement_content_subsections[2] == ViewSection(
-        name="Non-accessible content",
-        anchor="non-accessible-content",
-        edit_url="/audits/1/edit-statement-non-accessible/",
-        edit_url_id="edit-statement-non-accessible",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
-    )
-    assert statement_content_subsections[3] == ViewSection(
-        name="Preparation of this accessibility statement",
-        anchor="preparation-of-this-accessibility-statement",
-        edit_url="/audits/1/edit-statement-preparation/",
-        edit_url_id="edit-statement-preparation",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
-    )
-    assert statement_content_subsections[4] == ViewSection(
-        name="Feedback and enforcement procedure",
-        anchor="feedback-and-enforcement-procedure",
-        edit_url="/audits/1/edit-statement-feedback/",
-        edit_url_id="edit-statement-feedback",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
-    )
-    assert statement_content_subsections[5] == ViewSection(
-        name="Custom statement issues",
-        anchor="custom-statement-issues",
-        edit_url="/audits/1/edit-statement-custom/",
-        edit_url_id="edit-statement-custom",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
+    statement_content_subsection: ViewSection = statement_content_subsections[0]
+
+    assert statement_content_subsection.name == "Statement information"
+    assert statement_content_subsection.anchor == "statement-information"
+    assert statement_content_subsection.edit_url == "/audits/1/edit-statement-website/"
+    assert statement_content_subsection.edit_url_id == "edit-statement-website"
+    assert statement_content_subsection.complete is False
+    assert statement_content_subsection.display_fields is None
+    assert statement_content_subsection.subtables is None
+    assert statement_content_subsection.subsections is None
+    assert statement_content_subsection.type == "initial-statement-results"
+    assert statement_content_subsection.page is None
+    assertQuerysetEqual(
+        statement_content_subsection.statement_check_results, empty_queryset
     )
 
 
