@@ -13,9 +13,9 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.11'
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
     - name: Unit tests
       run: |
         python3 -m venv venv
@@ -44,7 +44,7 @@ jobs:
     - name: Integration tests
       run: |
         cd stack_tests/integration_tests
-        docker-compose up --abort-on-container-exit
+        docker compose up --abort-on-container-exit
 
   deploy:
     needs: int-test
@@ -76,8 +76,8 @@ jobs:
 
       - name: Smoke tests
         run: |
-          docker-compose --file stack_tests/smoke_tests/test-platform.docker-compose.yml up --abort-on-container-exit && \
-          docker-compose --file stack_tests/smoke_tests_viewer/test-viewer.docker-compose.yml up --abort-on-container-exit
+          docker compose --file stack_tests/smoke_tests/test-platform.docker-compose.yml up --abort-on-container-exit && \
+          docker compose --file stack_tests/smoke_tests_viewer/test-viewer.docker-compose.yml up --abort-on-container-exit
         env:
           SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
           SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}

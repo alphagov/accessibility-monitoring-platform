@@ -1,5 +1,5 @@
 init:
-	docker-compose up -d \
+	docker compose up -d \
 		&& pip install --upgrade pip \
 		&& pip install -r requirements_for_test.txt \
 		&& npm i \
@@ -16,7 +16,7 @@ freeze_requirements: # Pin all requirements including sub dependencies into requ
 	pip-compile --upgrade requirements.in
 
 clean_local:
-	docker-compose down
+	docker compose down
 	rm -rf ./data
 	rm -rf ./node_modules
 	rm -rf ./venv
@@ -77,7 +77,7 @@ test:
 	npm test
 
 int_test:
-	docker-compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
+	docker compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
 
 deploy_prototype:
 	python aws_prototype/main.py -b up
