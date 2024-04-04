@@ -382,7 +382,26 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
             edit_url=reverse("audits:edit-audit-retest-metadata", kwargs=audit_pk),
             edit_url_id="edit-audit-retest-metadata",
             complete_date=audit.audit_retest_metadata_complete_date,
-            display_fields=get_audit_rows(form=AuditRetestMetadataUpdateForm()),
+            display_fields=get_audit_rows(form=AuditRetestMetadataUpdateForm())
+            + [
+                FieldLabelAndValue(
+                    label="Original date test",
+                    value=audit.date_of_test,
+                ),
+                FieldLabelAndValue(
+                    label="Original screen size",
+                    value=audit.get_screen_size_display(),
+                ),
+                FieldLabelAndValue(
+                    label="Original exemptions",
+                    value=audit.get_exemptions_state_display(),
+                ),
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.NOTES_TYPE,
+                    label="Original notes",
+                    value=audit.exemptions_notes,
+                ),
+            ],
         ),
         build_view_section(
             name="Pages",
