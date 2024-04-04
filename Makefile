@@ -77,7 +77,7 @@ test:
 	npm test
 
 int_test:
-	docker compose --file stack_tests/integration_tests/docker compose.yml up --abort-on-container-exit
+	docker compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
 
 deploy_prototype:
 	python aws_prototype/main.py -b up
