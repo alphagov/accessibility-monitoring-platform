@@ -4,6 +4,8 @@ Test - common utility function to extract labels and values from forms
 
 from datetime import date
 
+import pytest
+
 from ..view_section_utils import ViewSection, build_view_section
 
 SECTION_NAME: str = "Section name"
@@ -11,6 +13,36 @@ EDIT_URL: str = "/url/path"
 EDIT_URL_ID: str = "url-id"
 COMPLETE_DATE: date = date(2024, 2, 29)
 ANCHOR: str = "anchor"
+
+
+@pytest.mark.parametrize(
+    "type",
+    [ViewSection.INITIAL_WCAG_RESULTS, ViewSection.TWELVE_WEEK_WCAG_RESULTS],
+)
+def test_view_section_raises_missing_page_exception(type):
+    """Test ViewSection raises missing page exception."""
+
+    with pytest.raises(ValueError, match="Page missing from WCAG results section."):
+        ViewSection(name=SECTION_NAME, type=type)
+
+    ViewSection(name=SECTION_NAME, type=type, page="page")
+
+
+@pytest.mark.parametrize(
+    "type",
+    [ViewSection.INITIAL_STATEMENT_RESULTS, ViewSection.TWELVE_WEEK_STATEMENT_RESULTS],
+)
+def test_view_section_raises_missing_statement_results_exception(type):
+    """Test ViewSection raises missing statement results exception."""
+
+    with pytest.raises(
+        ValueError, match="Results missing from statement results section."
+    ):
+        ViewSection(name=SECTION_NAME, type=type)
+
+    ViewSection(
+        name=SECTION_NAME, type=type, statement_check_results=["statement check result"]
+    )
 
 
 def test_build_view_section():

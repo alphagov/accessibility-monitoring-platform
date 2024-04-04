@@ -9,7 +9,7 @@ from typing import ClassVar, List, Literal, Optional
 from django.db.models.query import QuerySet
 from django.utils.text import slugify
 
-from ..audits.models import Page, StatementCheck
+from ..audits.models import Page, StatementCheckResult
 from .form_extract_utils import FieldLabelAndValue
 
 
@@ -42,7 +42,20 @@ class ViewSection:
         TWELVE_WEEK_STATEMENT_RESULTS,
     ] = FORM_TYPE
     page: Optional[Page] = None
-    statement_check_results: QuerySet[StatementCheck] = None
+    statement_check_results: QuerySet[StatementCheckResult] = None
+
+    def __post_init__(self):
+        if (
+            self.type in [self.INITIAL_WCAG_RESULTS, self.TWELVE_WEEK_WCAG_RESULTS]
+            and self.page is None
+        ):
+            raise ValueError("Page missing from WCAG results section.")
+        if (
+            self.type
+            in [self.INITIAL_STATEMENT_RESULTS, self.TWELVE_WEEK_STATEMENT_RESULTS]
+            and self.statement_check_results is None
+        ):
+            raise ValueError("Results missing from statement results section.")
 
 
 def build_view_section(
@@ -56,7 +69,7 @@ def build_view_section(
     subsections: Optional[ViewSection] = None,
     type: str = ViewSection.FORM_TYPE,
     page: Optional[Page] = None,
-    statement_check_results: QuerySet[StatementCheck] = None,
+    statement_check_results: QuerySet[StatementCheckResult] = None,
 ) -> ViewSection:
     complete_flag = True if complete_date else False
     anchor = slugify(name) if anchor is None else anchor
