@@ -17,12 +17,13 @@ from django.urls import reverse
 
 from ..audits.models import Retest
 from ..audits.utils import get_initial_test_view_sections
-from ..common.form_extract_utils import (  # FieldLabelAndValue,
+from ..common.form_extract_utils import (
+    FieldLabelAndValue,
     extract_form_labels_and_values,
 )
 from ..common.utils import build_filters
 from ..common.view_section_utils import ViewSection, build_view_section  # ViewSubTable
-from .forms import CaseDetailUpdateForm, CaseTestResultsUpdateForm
+from .forms import CaseDetailUpdateForm, CaseReportDetailsUpdateForm
 from .models import (
     COMPLIANCE_FIELDS,
     Case,
@@ -57,6 +58,49 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
     """Get sections for case view"""
     get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
     case_pk: Dict[str, int] = {"pk": case.id}
+    testing_details_subsections: List[ViewSection] = []
+    report_details_fields: List[FieldLabelAndValue] = []
+    if case.audit is not None:
+        audit_pk: Dict[str, int] = {"pk": case.audit.id}
+        testing_details_subsections: List[
+            FieldLabelAndValue
+        ] = get_initial_test_view_sections(audit=case.audit)
+        if case.report is not None:
+            report_details_fields: List[FieldLabelAndValue] = [
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.URL_TYPE,
+                    external_url=False,
+                    label="Preview report",
+                    value=reverse("reports:report-publisher", kwargs=audit_pk),
+                    extra_label="Report publisher",
+                ),
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.URL_TYPE,
+                    label="View published HTML report",
+                    value=case.published_report_url,
+                    extra_label=case.report.latest_s3_report,
+                ),
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.URL_TYPE,
+                    external_url=False,
+                    label="Report views",
+                    value=reverse(
+                        "reports:report-metrics-view", kwargs={"pk": case.report.id}
+                    ),
+                    extra_label=case.reportvisitsmetrics_set.all().count(),
+                ),
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.URL_TYPE,
+                    external_url=False,
+                    label="Unique visitors to report",
+                    value=f'{reverse("reports:report-metrics-view", kwargs={"pk": case.report.id})}?showing=unique-visitors',
+                    extra_label=case.reportvisitsmetrics_set.values_list(
+                        "fingerprint_hash"
+                    )
+                    .distinct()
+                    .count(),
+                ),
+            ]
     return [
         build_view_section(
             name="Case details",
@@ -71,7 +115,15 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url_id="edit-test-results",
             complete_date=case.case_details_complete_date,
             type=ViewSection.AUDIT_RESULTS,
-            subsections=get_initial_test_view_sections(audit=case.audit),
+            subsections=testing_details_subsections,
+        ),
+        build_view_section(
+            name="Report details",
+            edit_url=reverse("cases:edit-report-details", kwargs=case_pk),
+            edit_url_id="edit-report-details",
+            complete_date=case.reporting_details_complete_date,
+            display_fields=report_details_fields
+            + get_case_rows(form=CaseReportDetailsUpdateForm()),
         ),
     ]
 
