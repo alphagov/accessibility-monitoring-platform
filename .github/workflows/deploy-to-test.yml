@@ -8,9 +8,9 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@4
     - name: Set up Python 3.x
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - uses: actions/setup-node@v4
@@ -36,9 +36,9 @@ jobs:
     name: Integration tests
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python 3.x
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - name: Integration tests
@@ -51,7 +51,7 @@ jobs:
     name: Deploy to AWS
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install AWS Copilot
         run: |
           mkdir -p $GITHUB_WORKSPACE/bin
