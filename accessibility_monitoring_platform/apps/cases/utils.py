@@ -21,9 +21,14 @@ from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
 )
+from ..common.templatetags.common_tags import amp_datetime
 from ..common.utils import build_filters
 from ..common.view_section_utils import ViewSection, build_view_section  # ViewSubTable
-from .forms import CaseDetailUpdateForm, CaseReportDetailsUpdateForm
+from .forms import (
+    CaseDetailUpdateForm,
+    CaseReportApprovedUpdateForm,
+    CaseReportDetailsUpdateForm,
+)
 from .models import (
     COMPLIANCE_FIELDS,
     Case,
@@ -124,6 +129,26 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             complete_date=case.reporting_details_complete_date,
             display_fields=report_details_fields
             + get_case_rows(form=CaseReportDetailsUpdateForm()),
+        ),
+        build_view_section(
+            name="QA comments",
+            edit_url=reverse("cases:edit-qa-comments", kwargs=case_pk),
+            edit_url_id="edit-qa-comments",
+            display_fields=[
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.NOTES_TYPE,
+                    label=f"{comment.user.get_full_name()} on {amp_datetime(comment.created_date)}",
+                    value=comment.body,
+                )
+                for comment in case.qa_comments
+            ],
+        ),
+        build_view_section(
+            name="Report approved",
+            edit_url=reverse("cases:edit-report-approved", kwargs=case_pk),
+            edit_url_id="edit-report-approved",
+            complete_date=case.qa_auditor_complete_date,
+            display_fields=get_case_rows(form=CaseReportApprovedUpdateForm()),
         ),
     ]
 
