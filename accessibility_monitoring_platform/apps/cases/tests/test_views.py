@@ -32,6 +32,11 @@ from ...common.utils import amp_format_date
 from ...notifications.models import Notification
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
+from ..csv_export_utils import (
+    CASE_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+)
 from ..models import (
     Case,
     CaseCompliance,
@@ -40,12 +45,7 @@ from ..models import (
     EqualityBodyCorrespondence,
     ZendeskTicket,
 )
-from ..utils import (
-    CASE_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
-    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
-    create_case_and_compliance,
-)
+from ..utils import create_case_and_compliance
 from ..views import (
     FOUR_WEEKS_IN_DAYS,
     ONE_WEEK_IN_DAYS,
