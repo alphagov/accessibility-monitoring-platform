@@ -23,6 +23,7 @@ from .forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
     AuditMetadataUpdateForm,
+    AuditRetestMetadataUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceStatementInitialUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
@@ -154,9 +155,9 @@ def get_test_view_tables_context(audit: Audit):
     }
 
 
-def build_statement_content_subsections(audit: Audit) -> List[ViewSection]:
+def build_initial_statement_content_subsections(audit: Audit) -> List[ViewSection]:
     """
-    Build view sections for each type of statement content check.
+    Build initial view sections for each type of statement content check.
     """
     return [
         build_view_section(
@@ -170,23 +171,44 @@ def build_statement_content_subsections(audit: Audit) -> List[ViewSection]:
                 audit,
                 f"audit_statement_{statement_content_subsection.attr_unique}_complete_date",
             ),
-            display_fields=[
-                FieldLabelAndValue(
-                    label=statement_check_result.label,
-                    value=statement_check_result.display_value,
-                )
-                for statement_check_result in getattr(
-                    audit,
-                    f"{statement_content_subsection.attr_unique}_statement_check_results",
-                )
-            ],
+            type=ViewSection.INITIAL_STATEMENT_RESULTS,
+            statement_check_results=getattr(
+                audit,
+                f"{statement_content_subsection.attr_unique}_statement_check_results",
+            ),
         )
         for statement_content_subsection in STATEMENT_CONTENT_SUBSECTIONS
     ]
 
 
-def get_test_view_sections(audit: Audit) -> List[ViewSection]:
-    """Get sections for latest test view"""
+def build_twelve_week_statement_content_subsections(audit: Audit) -> List[ViewSection]:
+    """
+    Build 12-week view sections for each type of statement content check.
+    """
+    return [
+        build_view_section(
+            name=f"12-week {statement_content_subsection.name.lower()}",
+            edit_url=reverse(
+                f"audits:edit-retest-statement-{statement_content_subsection.url_suffix}",
+                kwargs={"pk": audit.id},
+            ),
+            edit_url_id=f"edit-retest-statement-{statement_content_subsection.url_suffix}",
+            complete_date=getattr(
+                audit,
+                f"audit_retest_statement_{statement_content_subsection.attr_unique}_complete_date",
+            ),
+            type=ViewSection.TWELVE_WEEK_STATEMENT_RESULTS,
+            statement_check_results=getattr(
+                audit,
+                f"{statement_content_subsection.attr_unique}_statement_check_results",
+            ),
+        )
+        for statement_content_subsection in STATEMENT_CONTENT_SUBSECTIONS
+    ]
+
+
+def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
+    """Get sections for initial test view"""
     get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
     get_compliance_rows: Callable = partial(
         extract_form_labels_and_values, instance=audit.case.compliance
@@ -221,14 +243,8 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                     ),
                     edit_url_id=f"page-{page.id}",
                     complete_date=page.complete_date,
-                    display_fields=[
-                        FieldLabelAndValue(
-                            type=FieldLabelAndValue.NOTES_TYPE,
-                            label=check_result.wcag_definition,
-                            value=check_result.notes,
-                        )
-                        for check_result in page.failed_check_results
-                    ],
+                    type=ViewSection.INITIAL_WCAG_RESULTS,
+                    page=page,
                 )
                 for page in audit.testable_pages
             ],
@@ -278,7 +294,7 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
     ]
     if audit.uses_statement_checks:
         statement_content_subsections: List[ViewSection] = (
-            build_statement_content_subsections(audit=audit)
+            build_initial_statement_content_subsections(audit=audit)
             if audit.all_overview_statement_checks_have_passed
             else []
         )
@@ -288,13 +304,8 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
                 edit_url=reverse("audits:edit-statement-overview", kwargs=audit_pk),
                 edit_url_id="edit-statement-overview",
                 complete_date=audit.audit_statement_overview_complete_date,
-                display_fields=[
-                    FieldLabelAndValue(
-                        label=statement_check_result.label,
-                        value=statement_check_result.display_value,
-                    )
-                    for statement_check_result in audit.overview_statement_check_results
-                ],
+                type=ViewSection.INITIAL_STATEMENT_RESULTS,
+                statement_check_results=audit.overview_statement_check_results,
                 subsections=statement_content_subsections,
             ),
         ]
@@ -348,6 +359,304 @@ def get_test_view_sections(audit: Audit) -> List[ViewSection]:
             edit_url=reverse("audits:edit-audit-summary", kwargs=audit_pk),
             edit_url_id="edit-audit-summary",
             anchor="",
+        ),
+    ]
+    return (
+        pre_statement_check_sections
+        + statement_content_sections
+        + post_statement_check_sections
+    )
+
+
+def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
+    """Get sections for 12-week test view"""
+    get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
+    get_compliance_rows: Callable = partial(
+        extract_form_labels_and_values, instance=audit.case.compliance
+    )
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    pre_statement_check_sections: List[ViewSection] = [
+        build_view_section(
+            name="12-week test metadata",
+            edit_url=reverse("audits:edit-audit-retest-metadata", kwargs=audit_pk),
+            edit_url_id="edit-audit-retest-metadata",
+            complete_date=audit.audit_retest_metadata_complete_date,
+            display_fields=get_audit_rows(form=AuditRetestMetadataUpdateForm())
+            + [
+                FieldLabelAndValue(
+                    label="Original date test",
+                    value=audit.date_of_test,
+                ),
+                FieldLabelAndValue(
+                    label="Original screen size",
+                    value=audit.get_screen_size_display(),
+                ),
+                FieldLabelAndValue(
+                    label="Original exemptions",
+                    value=audit.get_exemptions_state_display(),
+                ),
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.NOTES_TYPE,
+                    label="Original notes",
+                    value=audit.exemptions_notes,
+                ),
+            ],
+        ),
+        build_view_section(
+            name="Pages",
+            anchor="",
+            complete_date=audit.audit_pages_complete_date,
+            subsections=[
+                build_view_section(
+                    name=f"{str(page)} ({page.failed_check_results.count()})",
+                    edit_url=reverse(
+                        "audits:edit-audit-retest-page-checks", kwargs={"pk": page.id}
+                    ),
+                    edit_url_id=f"page-{page.id}",
+                    complete_date=page.complete_date,
+                    type=ViewSection.TWELVE_WEEK_WCAG_RESULTS,
+                    page=page,
+                )
+                for page in audit.testable_pages
+            ],
+        ),
+        build_view_section(
+            name="Pages comparison",
+            edit_url=reverse(
+                "audits:edit-audit-retest-pages-comparison", kwargs=audit_pk
+            ),
+            edit_url_id="edit-audit-retest-pages-comparison",
+            anchor="",
+        ),
+        build_view_section(
+            name="12-week website compliance decision",
+            edit_url=reverse(
+                "audits:edit-audit-retest-website-decision", kwargs=audit_pk
+            ),
+            edit_url_id="edit-audit-retest-website-decision",
+            complete_date=audit.audit_retest_website_decision_complete_date,
+            display_fields=get_compliance_rows(
+                form=CaseComplianceWebsite12WeekUpdateForm()
+            ),
+        ),
+        build_view_section(
+            name="12-week statement links",
+            edit_url=reverse(
+                "audits:edit-audit-retest-statement-pages", kwargs=audit_pk
+            ),
+            edit_url_id="edit-audit-retest-statement-pages",
+            complete_date=audit.audit_retest_statement_pages_complete_date,
+            subtables=[
+                ViewSubTable(
+                    name=f"Statement {count}",
+                    display_fields=[
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.URL_TYPE,
+                            label="Link to statement",
+                            value=statement_page.url,
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.URL_TYPE,
+                            label="Statement backup",
+                            value=statement_page.backup_url,
+                        ),
+                        FieldLabelAndValue(
+                            label="Statement added",
+                            value=statement_page.get_added_stage_display(),
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.DATE_TYPE,
+                            label="Created",
+                            value=statement_page.created,
+                        ),
+                    ],
+                )
+                for count, statement_page in enumerate(audit.statement_pages, start=1)
+            ],
+        ),
+    ]
+    if audit.uses_statement_checks:
+        statement_content_subsections: List[ViewSection] = (
+            build_twelve_week_statement_content_subsections(audit=audit)
+            if audit.all_overview_statement_checks_have_passed
+            else []
+        )
+        statement_content_sections: List[ViewSection] = [
+            build_view_section(
+                name="12-week statement overview",
+                edit_url=reverse(
+                    "audits:edit-retest-statement-overview", kwargs=audit_pk
+                ),
+                edit_url_id="edit-retest-statement-overview",
+                complete_date=audit.audit_retest_statement_overview_complete_date,
+                type=ViewSection.TWELVE_WEEK_STATEMENT_RESULTS,
+                statement_check_results=audit.overview_statement_check_results,
+                subsections=statement_content_subsections,
+            ),
+        ]
+    else:
+        statement_content_sections: List[ViewSection] = [
+            build_view_section(
+                name="12-week accessibility statement Pt. 1",
+                edit_url=reverse(
+                    "audits:edit-audit-retest-statement-1", kwargs=audit_pk
+                ),
+                edit_url_id="edit-audit-retest-statement-1",
+                complete_date=audit.archive_audit_retest_statement_1_complete_date,
+                display_fields=[
+                    FieldLabelAndValue(
+                        label="Scope",
+                        value=audit.get_archive_audit_retest_scope_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_scope_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Feedback",
+                        value=audit.get_archive_audit_retest_feedback_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_feedback_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Contact Information",
+                        value=audit.get_archive_audit_retest_contact_information_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_contact_information_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Enforcement Procedure",
+                        value=audit.get_archive_audit_retest_enforcement_procedure_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_enforcement_procedure_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Declaration",
+                        value=audit.get_archive_audit_retest_declaration_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_declaration_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Compliance Status",
+                        value=audit.get_archive_audit_retest_compliance_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_compliance_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Non-accessible Content - non compliance with regulations",
+                        value=audit.get_archive_audit_retest_non_regulation_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_non_regulation_notes,
+                    ),
+                ],
+            ),
+            build_view_section(
+                name="12-week accessibility statement Pt. 2",
+                edit_url=reverse(
+                    "audits:edit-audit-retest-statement-2", kwargs=audit_pk
+                ),
+                edit_url_id="edit-audit-retest-statement-2",
+                complete_date=audit.archive_audit_retest_statement_2_complete_date,
+                display_fields=[
+                    FieldLabelAndValue(
+                        label="Non-accessible Content - disproportionate burden",
+                        value=audit.get_archive_audit_retest_disproportionate_burden_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_disproportionate_burden_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Non-accessible Content - the content is not within the scope of the applicable legislation",
+                        value=audit.get_archive_audit_retest_content_not_in_scope_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_content_not_in_scope_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Preparation Date",
+                        value=audit.get_archive_audit_retest_preparation_date_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_preparation_date_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Review",
+                        value=audit.get_archive_audit_retest_review_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_review_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Method",
+                        value=audit.get_archive_audit_retest_method_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_method_notes,
+                    ),
+                    FieldLabelAndValue(
+                        label="Access Requirements",
+                        value=audit.get_archive_audit_retest_access_requirements_state_display(),
+                    ),
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label="Notes",
+                        value=audit.archive_audit_retest_access_requirements_notes,
+                    ),
+                ],
+            ),
+        ]
+    post_statement_check_sections: List[ViewSection] = [
+        build_view_section(
+            name="12-week disproportionate burden claim",
+            edit_url=reverse(
+                "audits:edit-twelve-week-disproportionate-burden", kwargs=audit_pk
+            ),
+            edit_url_id="edit-twelve-disproportionate-burden",
+            complete_date=audit.twelve_week_disproportionate_burden_complete_date,
+            display_fields=get_audit_rows(
+                form=TwelveWeekDisproportionateBurdenUpdateForm()
+            ),
+        ),
+        build_view_section(
+            name="12-week statement compliance decision",
+            edit_url=reverse(
+                "audits:edit-audit-retest-statement-decision", kwargs=audit_pk
+            ),
+            edit_url_id="edit-audit-retest-statement-decision",
+            complete_date=audit.audit_retest_statement_decision_complete_date,
+            display_fields=get_compliance_rows(
+                form=CaseComplianceStatement12WeekUpdateForm()
+            ),
         ),
     ]
     return (
