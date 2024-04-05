@@ -16,12 +16,13 @@ from django.http.request import QueryDict
 from django.urls import reverse
 
 from ..audits.models import Retest
+from ..audits.utils import get_initial_test_view_sections
 from ..common.form_extract_utils import (  # FieldLabelAndValue,
     extract_form_labels_and_values,
 )
 from ..common.utils import build_filters
 from ..common.view_section_utils import ViewSection, build_view_section  # ViewSubTable
-from .forms import CaseDetailUpdateForm
+from .forms import CaseDetailUpdateForm, CaseTestResultsUpdateForm
 from .models import (
     COMPLIANCE_FIELDS,
     Case,
@@ -63,6 +64,14 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url_id="edit-case-details",
             complete_date=case.case_details_complete_date,
             display_fields=get_case_rows(form=CaseDetailUpdateForm()),
+        ),
+        build_view_section(
+            name="Testing details",
+            edit_url=reverse("cases:edit-test-results", kwargs=case_pk),
+            edit_url_id="edit-test-results",
+            complete_date=case.case_details_complete_date,
+            type=ViewSection.AUDIT_RESULTS,
+            subsections=get_initial_test_view_sections(audit=case.audit),
         ),
     ]
 

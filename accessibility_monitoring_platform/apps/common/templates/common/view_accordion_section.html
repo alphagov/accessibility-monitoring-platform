@@ -19,22 +19,33 @@
                 </p>
             </div>
         </div>
-        {% for subtable in view_section.subtables %}
-            <p class="govuk-body-m"><b>{{ subtable.name }}</b></p>
-            {% include 'common/view_form_table.html' %}
-        {% endfor %}
-        {% if view_section.type == 'initial-wcag-results' %}
-            {% include 'common/view_initial_wcag_results.html' %}
-        {% elif view_section.type == 'initial-statement-results' %}
-            {% include 'common/view_initial_statement_results.html' %}
-        {% elif view_section.type == '12-week-wcag-results' %}
-            {% include 'common/view_twelve_week_wcag_results.html' %}
-        {% elif view_section.type == '12-week-statement-results' %}
-            {% include 'common/view_twelve_week_statement_results.html' %}
-        {% elif view_section.display_fields %}
-            {% include 'common/view_form_table.html' with subtable=view_section %}
-        {% elif not view_section.subtables %}
-            <p class="govuk-body-m">None</p>
+        {% if view_section.type == 'audit-results' %}
+            {% include 'common/view_toc.html' with view_sections=view_section.subsections %}
+            {% for subsection in view_section.subsections %}
+                {% if subsection.anchor %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <p id="{{ subsection.anchor }}" class="govuk-body-m">
+                                <b>{{ subsection.name }}</b> |
+                                <a href="{{ subsection.edit_url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
+                            </p>
+                        </div>
+                    </div>
+                    {% include 'common/view_accordion_section_content.html' with view_section=subsection %}
+                    {% for subsection in subsection.subsections %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <p id="{{ subsection.anchor }}" class="govuk-body-m">
+                                    <b>{{ subsection.name }}</b> |
+                                    <a href="{{ subsection.edit_url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
+                                </p>
+                            </div>
+                        </div>
+                        {% include 'common/view_accordion_section_content.html' with view_section=subsection %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
         {% endif %}
+        {% include 'common/view_accordion_section_content.html' %}
     </div>
 </div>

@@ -5,7 +5,7 @@
             {% for view_section in view_sections %}
                 <li>
                     {% include 'common/view_toc_link.html' with section=view_section %}
-                    {% if view_section.subsections %}
+                    {% if view_section.subsections and not view_section.type == 'audit-results' %}
                         <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                             {% for subsection in view_section.subsections %}
                                 <li>
