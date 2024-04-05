@@ -21,10 +21,18 @@
         </div>
         {% for subtable in view_section.subtables %}
             <p class="govuk-body-m"><b>{{ subtable.name }}</b></p>
-            {% include 'common/view_table.html' with section=subtable %}
+            {% include 'common/view_form_table.html' %}
         {% endfor %}
-        {% if view_section.display_fields %}
-            {% include 'common/view_table.html' with section=view_section %}
+        {% if view_section.type == 'initial-wcag-results' %}
+            {% include 'common/view_initial_wcag_results.html' %}
+        {% elif view_section.type == 'initial-statement-results' %}
+            {% include 'common/view_initial_statement_results.html' %}
+        {% elif view_section.type == '12-week-wcag-results' %}
+            {% include 'common/view_twelve_week_wcag_results.html' %}
+        {% elif view_section.type == '12-week-statement-results' %}
+            {% include 'common/view_twelve_week_statement_results.html' %}
+        {% elif view_section.display_fields %}
+            {% include 'common/view_form_table.html' with subtable=view_section %}
         {% elif not view_section.subtables %}
             <p class="govuk-body-m">None</p>
         {% endif %}
