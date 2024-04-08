@@ -28,8 +28,11 @@ from ..common.templatetags.common_tags import amp_datetime
 from ..common.utils import build_filters
 from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
 from .forms import (
+    CaseCloseUpdateForm,
     CaseContactsUpdateForm,
     CaseDetailUpdateForm,
+    CaseEnforcementRecommendationUpdateForm,
+    CaseEqualityBodyMetadataUpdateForm,
     CaseFindContactDetailsUpdateForm,
     CaseFourWeekFollowupUpdateForm,
     CaseNoPSBContactUpdateForm,
@@ -39,6 +42,8 @@ from .forms import (
     CaseReportApprovedUpdateForm,
     CaseReportDetailsUpdateForm,
     CaseReportSentOnUpdateForm,
+    CaseReviewChangesUpdateForm,
+    CaseStatementEnforcementUpdateForm,
     CaseTwelveWeekUpdateAcknowledgedUpdateForm,
     CaseTwelveWeekUpdateRequestedUpdateForm,
 )
@@ -314,6 +319,41 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             complete_date=case.twelve_week_retest_complete_date,
             type=ViewSection.AUDIT_RESULTS_ON_VIEW_CASE,
             subsections=twelve_week_test_subsections,
+        ),
+        build_view_section(
+            name="Reviewing changes",
+            edit_url=reverse("cases:edit-review-changes", kwargs=case_pk),
+            edit_url_id="edit-review-changes",
+            complete_date=case.review_changes_complete_date,
+            display_fields=get_case_rows(form=CaseReviewChangesUpdateForm()),
+        ),
+        build_view_section(
+            name="Enforcement recommendation",
+            edit_url=reverse("cases:edit-enforcement-recommendation", kwargs=case_pk),
+            edit_url_id="edit-enforcement-recommendation",
+            complete_date=case.enforcement_recommendation_complete_date,
+            display_fields=get_case_rows(
+                form=CaseEnforcementRecommendationUpdateForm()
+            ),
+        ),
+        build_view_section(
+            name="Closing the case",
+            edit_url=reverse("cases:edit-case-close", kwargs=case_pk),
+            edit_url_id="edit-case-close",
+            complete_date=case.case_close_complete_date,
+            display_fields=get_case_rows(form=CaseCloseUpdateForm()),
+        ),
+        build_view_section(
+            name="Statement enforcement",
+            edit_url=reverse("cases:edit-statement-enforcement", kwargs=case_pk),
+            edit_url_id="edit-statement-enforcement",
+            display_fields=get_case_rows(form=CaseStatementEnforcementUpdateForm()),
+        ),
+        build_view_section(
+            name="Equality body metadata",
+            edit_url=reverse("cases:edit-equality-body-metadata", kwargs=case_pk),
+            edit_url_id="edit-equality-body-metadata",
+            display_fields=get_case_rows(form=CaseEqualityBodyMetadataUpdateForm()),
         ),
     ]
 
