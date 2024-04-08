@@ -11,7 +11,6 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 
-from ..cases.models import Case
 from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
@@ -127,32 +126,6 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
         + archive_report_next_issues_rows
         + [archive_report_options_notes]
     )
-
-
-def get_test_view_tables_context(audit: Audit):
-    get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
-    get_compliance_rows: Callable = partial(
-        extract_form_labels_and_values, instance=audit.case.compliance
-    )
-    return {
-        "audit_metadata_rows": get_audit_rows(form=AuditMetadataUpdateForm()),
-        "website_decision_rows": get_compliance_rows(
-            form=CaseComplianceWebsiteInitialUpdateForm()
-        ),
-        "initial_disproportionate_burden": get_audit_rows(
-            form=InitialDisproportionateBurdenUpdateForm()
-        ),
-        "audit_statement_1_rows": get_audit_rows(
-            form=ArchiveAuditStatement1UpdateForm()
-        ),
-        "audit_statement_2_rows": get_audit_rows(
-            form=ArchiveAuditStatement2UpdateForm()
-        ),
-        "statement_decision_rows": get_compliance_rows(
-            form=CaseComplianceStatementInitialUpdateForm()
-        ),
-        "audit_report_options_rows": get_audit_report_options_rows(audit=audit),
-    }
 
 
 def build_initial_statement_content_subsections(audit: Audit) -> List[ViewSection]:
@@ -666,27 +639,6 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
         + statement_content_sections
         + post_statement_check_sections
     )
-
-
-def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndValue]]:
-    """Get context for 12-week retest view tables"""
-    get_audit_rows: Callable = partial(
-        extract_form_labels_and_values, instance=case.audit
-    )
-    get_compliance_rows: Callable = partial(
-        extract_form_labels_and_values, instance=case.compliance
-    )
-    return {
-        "audit_retest_website_decision_rows": get_compliance_rows(
-            form=CaseComplianceWebsite12WeekUpdateForm()
-        ),
-        "twelve_week_disproportionate_burden": get_audit_rows(
-            form=TwelveWeekDisproportionateBurdenUpdateForm()
-        ),
-        "audit_retest_statement_decision_rows": get_compliance_rows(
-            form=CaseComplianceStatement12WeekUpdateForm()
-        ),
-    }
 
 
 def create_or_update_check_results_for_page(
