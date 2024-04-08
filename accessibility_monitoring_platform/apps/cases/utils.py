@@ -24,7 +24,7 @@ from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
 )
-from ..common.templatetags.common_tags import amp_datetime
+from ..common.templatetags.common_tags import amp_date, amp_datetime
 from ..common.utils import build_filters
 from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
 from .forms import (
@@ -354,6 +354,76 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url=reverse("cases:edit-equality-body-metadata", kwargs=case_pk),
             edit_url_id="edit-equality-body-metadata",
             display_fields=get_case_rows(form=CaseEqualityBodyMetadataUpdateForm()),
+        ),
+        build_view_section(
+            name="Equality body correspondence",
+            edit_url=reverse("cases:list-equality-body-correspondence", kwargs=case_pk),
+            edit_url_id="list-equality-body-correspondence",
+            subtables=[
+                ViewSubTable(
+                    name=f"Zendesk correspondence #{equality_body_correspondence.id_within_case} ({equality_body_correspondence.get_status_display()})",
+                    display_fields=[
+                        FieldLabelAndValue(
+                            label="Time added to platform",
+                            value=amp_datetime(equality_body_correspondence.created),
+                        ),
+                        FieldLabelAndValue(
+                            label="Type",
+                            value=equality_body_correspondence.get_type_display(),
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.NOTES_TYPE,
+                            label="Zendesk message",
+                            value=equality_body_correspondence.message,
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.NOTES_TYPE,
+                            label="Auditor notes",
+                            value=equality_body_correspondence.notes,
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.URL_TYPE,
+                            label="Link to Zendesk ticket",
+                            value=equality_body_correspondence.zendesk_url,
+                        ),
+                    ],
+                )
+                for equality_body_correspondence in case.equalitybodycorrespondence_set.all()
+            ],
+        ),
+        build_view_section(
+            name="Equality body retest overview",
+            edit_url=reverse("cases:edit-retest-overview", kwargs=case_pk),
+            edit_url_id="edit-retest-overview",
+            subtables=[
+                ViewSubTable(
+                    name=f"Retest #{equality_body_retest.id_within_case}",
+                    display_fields=[
+                        FieldLabelAndValue(
+                            label="Date of retest",
+                            value=amp_date(equality_body_retest.date_of_retest),
+                        ),
+                        FieldLabelAndValue(
+                            label="Outcome",
+                            value=equality_body_retest.get_retest_compliance_state_display(),
+                        ),
+                        FieldLabelAndValue(
+                            label="Statement outcome",
+                            value=equality_body_retest.get_statement_compliance_state_display(),
+                        ),
+                        FieldLabelAndValue(
+                            label="WCAG issues",
+                            value=f"{equality_body_retest.fixed_checks_count} of {equality_body_retest.case.audit.failed_check_results.count()} issues fixed",
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.NOTES_TYPE,
+                            label="Retest notes",
+                            value=equality_body_retest.retest_notes,
+                        ),
+                    ],
+                )
+                for equality_body_retest in case.retests.filter(id_within_case__gt=0)
+            ],
         ),
     ]
 
