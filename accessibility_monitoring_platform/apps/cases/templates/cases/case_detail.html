@@ -55,7 +55,11 @@
         {% include 'cases/details/case_detail_notifications.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
-                {% include 'common/view_toc.html' %}
+                {% if case.archive %}
+                    {% include 'cases/helpers/nav_contents.html' %}
+                {% else %}
+                    {% include 'common/view_toc.html' %}
+                {% endif %}
                 {% include 'common/frequently_used_links.html' %}
             </div>
             <div class="govuk-grid-column-one-half">
@@ -66,6 +70,7 @@
         <div id="search-scope" data-search-target-page-name="View case" data-search-target-label="View case" data-search-target-url="{{ case.get_absolute_url }}">
             <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
                 {% if case.archive %}
+                <p>Archived</p>
                     {% include 'cases/details/archive.html' %}
                 {% else %}
                     {% for view_section in view_sections %}

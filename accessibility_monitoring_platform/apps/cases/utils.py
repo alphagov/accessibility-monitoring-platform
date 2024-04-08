@@ -81,7 +81,16 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
     """Get sections for case view"""
     get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
     case_pk: Dict[str, int] = {"pk": case.id}
+    case_details_prefix: List[FieldLabelAndValue] = [
+        FieldLabelAndValue(
+            label="Date created",
+            value=case.created,
+            type=FieldLabelAndValue.DATE_TYPE,
+        ),
+        FieldLabelAndValue(label="Status", value=case.status.get_status_display()),
+    ]
     testing_details_subsections: List[ViewSection] = []
+    twelve_week_test_subsections: List[ViewSection] = []
     report_details_fields: List[FieldLabelAndValue] = []
     if case.audit is not None:
         audit_pk: Dict[str, int] = {"pk": case.audit.id}
@@ -133,13 +142,14 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url=reverse("cases:edit-case-details", kwargs=case_pk),
             edit_url_id="edit-case-details",
             complete_date=case.case_details_complete_date,
-            display_fields=get_case_rows(form=CaseDetailUpdateForm()),
+            display_fields=case_details_prefix
+            + get_case_rows(form=CaseDetailUpdateForm()),
         ),
         build_view_section(
             name="Testing details",
             edit_url=reverse("cases:edit-test-results", kwargs=case_pk),
             edit_url_id="edit-test-results",
-            complete_date=case.case_details_complete_date,
+            complete_date=case.testing_details_complete_date,
             type=ViewSection.AUDIT_RESULTS_ON_VIEW_CASE,
             subsections=testing_details_subsections,
         ),
@@ -170,6 +180,13 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url_id="edit-report-approved",
             complete_date=case.qa_auditor_complete_date,
             display_fields=get_case_rows(form=CaseReportApprovedUpdateForm()),
+        ),
+        build_view_section(
+            name="Publish report",
+            edit_url=reverse("cases:edit-publish-report", kwargs=case_pk),
+            edit_url_id="edit-publish-report",
+            anchor="",
+            complete_date=case.publish_report_complete_date,
         ),
         build_view_section(
             name="Correspondence overview",

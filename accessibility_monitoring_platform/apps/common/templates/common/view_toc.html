@@ -4,7 +4,9 @@
         <ul class="govuk-list">
             {% for view_section in view_sections %}
                 {% if view_section.name == 'Statement enforcement' %}
-                    <h3 class="govuk-heading-s amp-margin-top-10 amp-margin-bottom-5">Post case</h3>
+                    </ul>
+                    <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
+                    <ul class="govuk-list">
                 {% endif %}
                 <li>
                     {% include 'common/view_toc_link.html' with section=view_section %}
