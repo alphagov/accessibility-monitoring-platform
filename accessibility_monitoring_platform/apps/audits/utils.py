@@ -241,7 +241,8 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
                     edit_url=reverse(
                         "audits:edit-audit-page-checks", kwargs={"pk": page.id}
                     ),
-                    edit_url_id=f"page-{page.id}",
+                    edit_url_id=f"edit-initial-page-{page.id}",
+                    anchor=f"initial-page-{page.id}",
                     complete_date=page.complete_date,
                     type=ViewSection.INITIAL_WCAG_RESULTS,
                     page=page,
@@ -413,7 +414,8 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
                     edit_url=reverse(
                         "audits:edit-audit-retest-page-checks", kwargs={"pk": page.id}
                     ),
-                    edit_url_id=f"page-{page.id}",
+                    edit_url_id=f"edit-twelve-week-page-{page.id}",
+                    anchor=f"twelve-week-page-{page.id}",
                     complete_date=page.complete_date,
                     type=ViewSection.TWELVE_WEEK_WCAG_RESULTS,
                     page=page,

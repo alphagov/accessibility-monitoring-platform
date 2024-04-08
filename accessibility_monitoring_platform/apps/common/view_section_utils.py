@@ -29,7 +29,7 @@ class ViewSection:
     display_fields: List[FieldLabelAndValue] = None
     subtables: List[ViewSubTable] = None
     subsections: List["ViewSection"] = None
-    AUDIT_RESULTS: ClassVar[str] = "audit-results"
+    AUDIT_RESULTS_ON_VIEW_CASE: ClassVar[str] = "audit-results-on-view-case"
     INITIAL_WCAG_RESULTS: ClassVar[str] = "initial-wcag-results"
     INITIAL_STATEMENT_RESULTS: ClassVar[str] = "initial-statement-results"
     TWELVE_WEEK_WCAG_RESULTS: ClassVar[str] = "12-week-wcag-results"
@@ -37,7 +37,7 @@ class ViewSection:
     FORM_TYPE: ClassVar[str] = "form"
     type: Literal[
         FORM_TYPE,
-        AUDIT_RESULTS,
+        AUDIT_RESULTS_ON_VIEW_CASE,
         INITIAL_WCAG_RESULTS,
         INITIAL_STATEMENT_RESULTS,
         TWELVE_WEEK_WCAG_RESULTS,

@@ -72,7 +72,7 @@
                         {% if view_section.anchor %}
                             {% include 'common/view_accordion_section.html' %}
                         {% endif %}
-                        {% if view_section.subsections and not view_section.type == 'audit-results' %}
+                        {% if view_section.subsections and not view_section.type == 'audit-results-on-view-case' %}
                             {% for subsection in view_section.subsections %}
                                 {% include 'common/view_accordion_section.html' with view_section=subsection %}
                             {% endfor %}

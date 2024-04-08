@@ -19,7 +19,7 @@
                 </p>
             </div>
         </div>
-        {% if view_section.type == 'audit-results' %}
+        {% if view_section.type == 'audit-results-on-view-case' %}
             {% include 'common/view_toc.html' with view_sections=view_section.subsections %}
             {% for subsection in view_section.subsections %}
                 {% if subsection.anchor %}
@@ -32,18 +32,18 @@
                         </div>
                     </div>
                     {% include 'common/view_accordion_section_content.html' with view_section=subsection %}
-                    {% for subsection in subsection.subsections %}
-                        <div class="govuk-grid-row">
-                            <div class="govuk-grid-column-full">
-                                <p id="{{ subsection.anchor }}" class="govuk-body-m">
-                                    <b>{{ subsection.name }}</b> |
-                                    <a href="{{ subsection.edit_url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
-                                </p>
-                            </div>
-                        </div>
-                        {% include 'common/view_accordion_section_content.html' with view_section=subsection %}
-                    {% endfor %}
                 {% endif %}
+                {% for subsection in subsection.subsections %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <p id="{{ subsection.anchor }}" class="govuk-body-m">
+                                <b>{{ subsection.name }}</b> |
+                                <a href="{{ subsection.edit_url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
+                            </p>
+                        </div>
+                    </div>
+                    {% include 'common/view_accordion_section_content.html' with view_section=subsection %}
+                {% endfor %}
             {% endfor %}
         {% endif %}
         {% include 'common/view_accordion_section_content.html' %}

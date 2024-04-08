@@ -16,18 +16,31 @@ from django.http.request import QueryDict
 from django.urls import reverse
 
 from ..audits.models import Retest
-from ..audits.utils import get_initial_test_view_sections
+from ..audits.utils import (
+    get_initial_test_view_sections,
+    get_twelve_week_test_view_sections,
+)
 from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
 )
 from ..common.templatetags.common_tags import amp_datetime
 from ..common.utils import build_filters
-from ..common.view_section_utils import ViewSection, build_view_section  # ViewSubTable
+from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
 from .forms import (
+    CaseContactsUpdateForm,
     CaseDetailUpdateForm,
+    CaseFindContactDetailsUpdateForm,
+    CaseFourWeekFollowupUpdateForm,
+    CaseNoPSBContactUpdateForm,
+    CaseOneWeekFollowupFinalUpdateForm,
+    CaseOneWeekFollowupUpdateForm,
+    CaseReportAcknowledgedUpdateForm,
     CaseReportApprovedUpdateForm,
     CaseReportDetailsUpdateForm,
+    CaseReportSentOnUpdateForm,
+    CaseTwelveWeekUpdateAcknowledgedUpdateForm,
+    CaseTwelveWeekUpdateRequestedUpdateForm,
 )
 from .models import (
     COMPLIANCE_FIELDS,
@@ -70,6 +83,9 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         testing_details_subsections: List[
             FieldLabelAndValue
         ] = get_initial_test_view_sections(audit=case.audit)
+        twelve_week_test_subsections: List[
+            FieldLabelAndValue
+        ] = get_twelve_week_test_view_sections(audit=case.audit)
         if case.report is not None:
             report_details_fields: List[FieldLabelAndValue] = [
                 FieldLabelAndValue(
@@ -119,7 +135,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url=reverse("cases:edit-test-results", kwargs=case_pk),
             edit_url_id="edit-test-results",
             complete_date=case.case_details_complete_date,
-            type=ViewSection.AUDIT_RESULTS,
+            type=ViewSection.AUDIT_RESULTS_ON_VIEW_CASE,
             subsections=testing_details_subsections,
         ),
         build_view_section(
@@ -149,6 +165,155 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url_id="edit-report-approved",
             complete_date=case.qa_auditor_complete_date,
             display_fields=get_case_rows(form=CaseReportApprovedUpdateForm()),
+        ),
+        build_view_section(
+            name="Correspondence overview",
+            edit_url=reverse("cases:edit-cores-overview", kwargs=case_pk),
+            edit_url_id="edit-cores-overview",
+            complete_date=case.cores_overview_complete_date,
+            anchor="",
+        ),
+        build_view_section(
+            name="PSB Zendesk tickets",
+            edit_url=reverse("cases:zendesk-tickets", kwargs=case_pk),
+            edit_url_id="zendesk-tickets",
+            subtables=[
+                ViewSubTable(
+                    name=f"PSB Zendesk ticket {count}",
+                    display_fields=[
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.URL_TYPE,
+                            label="Zendesk link",
+                            value=zendesk_ticket.url,
+                        ),
+                        FieldLabelAndValue(
+                            type=FieldLabelAndValue.NOTES_TYPE,
+                            label="Summary",
+                            value=zendesk_ticket.summary,
+                        ),
+                    ],
+                )
+                for count, zendesk_ticket in enumerate(case.zendesk_tickets, start=1)
+            ],
+            subsections=[
+                build_view_section(
+                    name="Find contact details",
+                    edit_url=reverse("cases:edit-find-contact-details", kwargs=case_pk),
+                    edit_url_id="edit-find-contact-details",
+                    complete_date=case.find_contact_details_complete_date,
+                    display_fields=get_case_rows(
+                        form=CaseFindContactDetailsUpdateForm()
+                    ),
+                ),
+                build_view_section(
+                    name="Contact details",
+                    edit_url=reverse("cases:edit-contact-details", kwargs=case_pk),
+                    edit_url_id="edit-contact-details",
+                    complete_date=case.contact_details_complete_date,
+                    display_fields=get_case_rows(form=CaseContactsUpdateForm()),
+                    subtables=[
+                        ViewSubTable(
+                            name=f"Contact {count}",
+                            display_fields=[
+                                FieldLabelAndValue(
+                                    label="Name",
+                                    value=contact.name,
+                                ),
+                                FieldLabelAndValue(
+                                    label="Job title",
+                                    value=contact.job_title,
+                                ),
+                                FieldLabelAndValue(
+                                    label="Email",
+                                    value=contact.email,
+                                ),
+                                FieldLabelAndValue(
+                                    label="Preferred contact",
+                                    value=contact.get_preferred_display(),
+                                ),
+                            ],
+                        )
+                        for count, contact in enumerate(case.contacts, start=1)
+                    ],
+                ),
+                build_view_section(
+                    name="Report sent on",
+                    edit_url=reverse("cases:edit-report-sent-on", kwargs=case_pk),
+                    edit_url_id="edit-report-sent-on",
+                    complete_date=case.report_sent_on_complete_date,
+                    display_fields=get_case_rows(form=CaseReportSentOnUpdateForm()),
+                ),
+                build_view_section(
+                    name="One week follow-up",
+                    edit_url=reverse("cases:edit-one-week-followup", kwargs=case_pk),
+                    edit_url_id="edit-one-week-followup",
+                    complete_date=case.one_week_followup_complete_date,
+                    display_fields=get_case_rows(form=CaseOneWeekFollowupUpdateForm()),
+                ),
+                build_view_section(
+                    name="Four week follow-up",
+                    edit_url=reverse("cases:edit-four-week-followup", kwargs=case_pk),
+                    edit_url_id="edit-four-week-followup",
+                    complete_date=case.four_week_followup_complete_date,
+                    display_fields=get_case_rows(form=CaseFourWeekFollowupUpdateForm()),
+                ),
+                build_view_section(
+                    name="Report acknowledged",
+                    edit_url=reverse("cases:edit-report-acknowledged", kwargs=case_pk),
+                    edit_url_id="edit-report-acknowledged",
+                    complete_date=case.report_acknowledged_complete_date,
+                    display_fields=get_case_rows(
+                        form=CaseReportAcknowledgedUpdateForm()
+                    ),
+                ),
+                build_view_section(
+                    name="12-week update requested",
+                    edit_url=reverse(
+                        "cases:edit-12-week-update-requested", kwargs=case_pk
+                    ),
+                    edit_url_id="edit-12-week-update-requested",
+                    complete_date=case.twelve_week_update_requested_complete_date,
+                    display_fields=get_case_rows(
+                        form=CaseTwelveWeekUpdateRequestedUpdateForm()
+                    ),
+                ),
+                build_view_section(
+                    name="One week follow-up for final update",
+                    edit_url=reverse(
+                        "cases:edit-one-week-followup-final", kwargs=case_pk
+                    ),
+                    edit_url_id="edit-one-week-followup-final",
+                    complete_date=case.one_week_followup_final_complete_date,
+                    display_fields=get_case_rows(
+                        form=CaseOneWeekFollowupFinalUpdateForm()
+                    ),
+                ),
+                build_view_section(
+                    name="12-week update request acknowledged",
+                    edit_url=reverse(
+                        "cases:edit-12-week-update-request-ack", kwargs=case_pk
+                    ),
+                    edit_url_id="edit-12-week-update-request-ack",
+                    complete_date=case.twelve_week_update_request_ack_complete_date,
+                    display_fields=get_case_rows(
+                        form=CaseTwelveWeekUpdateAcknowledgedUpdateForm()
+                    ),
+                ),
+                build_view_section(
+                    name="Public sector body is unresponsive",
+                    edit_url=reverse("cases:edit-no-psb-response", kwargs=case_pk),
+                    edit_url_id="edit-no-psb-response",
+                    display_fields=get_case_rows(form=CaseNoPSBContactUpdateForm()),
+                ),
+            ],
+        ),
+        build_view_section(
+            name="12-week retest",
+            edit_url=reverse("cases:edit-twelve-week-retest", kwargs=case_pk),
+            edit_url_id="edit-twelve-week-retest",
+            complete_date=case.twelve_week_retest_complete_date,
+            type=ViewSection.AUDIT_RESULTS_ON_VIEW_CASE,
+            subsections=twelve_week_test_subsections,
         ),
     ]
 
