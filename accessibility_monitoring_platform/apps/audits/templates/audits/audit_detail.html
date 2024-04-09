@@ -44,7 +44,7 @@
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
-                {% include 'common/view_toc.html' %}
+                {% include 'common/view_accordion/toc.html' %}
                 {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=audit.case %}
             </div>
             <div class="govuk-grid-column-one-half">
@@ -54,10 +54,10 @@
         <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
             {% for view_section in view_sections %}
                 {% if view_section.anchor %}
-                    {% include 'common/view_accordion_section.html' %}
+                    {% include 'common/view_accordion/section.html' %}
                 {% endif %}
                 {% for subsection in view_section.subsections %}
-                    {% include 'common/view_accordion_section.html' with view_section=subsection %}
+                    {% include 'common/view_accordion/section.html' with view_section=subsection %}
                 {% endfor %}
             {% endfor %}
         </div>

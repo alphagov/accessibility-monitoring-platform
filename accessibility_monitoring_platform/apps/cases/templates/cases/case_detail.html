@@ -58,7 +58,7 @@
                 {% if case.archive %}
                     {% include 'cases/helpers/nav_contents.html' %}
                 {% else %}
-                    {% include 'common/view_toc.html' %}
+                    {% include 'common/view_accordion/toc.html' %}
                 {% endif %}
                 {% include 'common/frequently_used_links.html' %}
             </div>
@@ -75,11 +75,11 @@
                 {% else %}
                     {% for view_section in view_sections %}
                         {% if view_section.anchor %}
-                            {% include 'common/view_accordion_section.html' %}
+                            {% include 'common/view_accordion/section.html' %}
                         {% endif %}
                         {% if view_section.subsections and not view_section.type == 'audit-results-on-view-case' %}
                             {% for subsection in view_section.subsections %}
-                                {% include 'common/view_accordion_section.html' with view_section=subsection %}
+                                {% include 'common/view_accordion/section.html' with view_section=subsection %}
                             {% endfor %}
                         {% endif %}
                     {% endfor %}

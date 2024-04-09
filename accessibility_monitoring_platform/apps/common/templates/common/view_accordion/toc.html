@@ -9,12 +9,12 @@
                     <ul class="govuk-list">
                 {% endif %}
                 <li>
-                    {% include 'common/view_toc_link.html' with section=view_section %}
+                    {% include 'common/view_accordion/toc_link.html' with section=view_section %}
                     {% if view_section.subsections and not view_section.type == 'audit-results-on-view-case' %}
                         <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                             {% for subsection in view_section.subsections %}
                                 <li>
-                                    {% include 'common/view_toc_link.html' with section=subsection %}
+                                    {% include 'common/view_accordion/toc_link.html' with section=subsection %}
                                 </li>
                             {% endfor %}
                         </ul>
