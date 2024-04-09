@@ -46,6 +46,7 @@ from .forms import (
     CaseStatementEnforcementUpdateForm,
     CaseTwelveWeekUpdateAcknowledgedUpdateForm,
     CaseTwelveWeekUpdateRequestedUpdateForm,
+    PostCaseUpdateForm,
 )
 from .models import (
     COMPLIANCE_FIELDS,
@@ -92,6 +93,22 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
     testing_details_subsections: Optional[List[ViewSection]] = None
     twelve_week_test_subsections: Optional[List[ViewSection]] = None
     report_details_fields: List[FieldLabelAndValue] = []
+    equality_body_metadata: ViewSection = build_view_section(
+        name="Equality body metadata",
+        edit_url=reverse("cases:edit-equality-body-metadata", kwargs=case_pk),
+        edit_url_id="edit-equality-body-metadata",
+        display_fields=get_case_rows(form=CaseEqualityBodyMetadataUpdateForm()),
+    )
+    if case.archive:
+        return [
+            equality_body_metadata,
+            build_view_section(
+                name="Legacy end of case data",
+                edit_url=reverse("cases:edit-post-case", kwargs=case_pk),
+                edit_url_id="edit-post-case",
+                display_fields=get_case_rows(form=PostCaseUpdateForm()),
+            ),
+        ]
     if case.audit is not None:
         audit_pk: Dict[str, int] = {"pk": case.audit.id}
         testing_details_subsections: List[
@@ -372,12 +389,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url_id="edit-statement-enforcement",
             display_fields=get_case_rows(form=CaseStatementEnforcementUpdateForm()),
         ),
-        build_view_section(
-            name="Equality body metadata",
-            edit_url=reverse("cases:edit-equality-body-metadata", kwargs=case_pk),
-            edit_url_id="edit-equality-body-metadata",
-            display_fields=get_case_rows(form=CaseEqualityBodyMetadataUpdateForm()),
-        ),
+        equality_body_metadata,
         build_view_section(
             name="Equality body correspondence",
             edit_url=reverse("cases:list-equality-body-correspondence", kwargs=case_pk),

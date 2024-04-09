@@ -71,18 +71,17 @@
             <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
                 {% if case.archive %}
                     {% include 'cases/details/archive.html' %}
-                {% else %}
-                    {% for view_section in view_sections %}
-                        {% if view_section.anchor %}
-                            {% include 'common/view_accordion/section.html' %}
-                        {% endif %}
-                        {% if view_section.subsections and not view_section.type == 'audit-results-on-view-case' %}
-                            {% for subsection in view_section.subsections %}
-                                {% include 'common/view_accordion/section.html' with view_section=subsection %}
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
                 {% endif %}
+                {% for view_section in view_sections %}
+                    {% if view_section.anchor %}
+                        {% include 'common/view_accordion/section.html' %}
+                    {% endif %}
+                    {% if view_section.subsections and not view_section.type == 'audit-results-on-view-case' %}
+                        {% for subsection in view_section.subsections %}
+                            {% include 'common/view_accordion/section.html' with view_section=subsection %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
     </main>
