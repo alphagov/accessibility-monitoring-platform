@@ -47,6 +47,16 @@ class ViewSection:
     page: Optional[Page] = None
     statement_check_results: QuerySet[StatementCheckResult] = None
 
+    @property
+    def has_content(self) -> bool:
+        return (
+            self.display_fields is not None
+            or self.subtables is not None
+            or self.subsections is not None
+            or self.page is not None
+            or self.statement_check_results is not None
+        )
+
     def __post_init__(self):
         if (
             self.type in [self.INITIAL_WCAG_RESULTS, self.TWELVE_WEEK_WCAG_RESULTS]

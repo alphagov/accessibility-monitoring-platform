@@ -46,6 +46,25 @@ def test_view_section_raises_missing_statement_results_exception(type):
     )
 
 
+def test_has_content_no_content():
+    """Test ViewSection has no content"""
+    view_section = ViewSection(name=SECTION_NAME)
+
+    assert view_section.has_content is False
+
+
+@pytest.mark.parametrize(
+    "attr",
+    ["display_fields", "subtables", "subsections", "page", "statement_check_results"],
+)
+def test_has_content(attr: str):
+    """Test ViewSection has content"""
+    view_section = ViewSection(name=SECTION_NAME)
+    setattr(view_section, attr, "content")
+
+    assert view_section.has_content is True
+
+
 def test_build_view_section():
     """
     Test building of view section object for use in view context

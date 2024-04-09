@@ -70,7 +70,6 @@
         <div id="search-scope" data-search-target-page-name="View case" data-search-target-label="View case" data-search-target-url="{{ case.get_absolute_url }}">
             <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
                 {% if case.archive %}
-                <p>Archived</p>
                     {% include 'cases/details/archive.html' %}
                 {% else %}
                     {% for view_section in view_sections %}
