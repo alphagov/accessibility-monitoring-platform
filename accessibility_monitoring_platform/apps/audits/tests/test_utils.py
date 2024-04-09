@@ -111,7 +111,7 @@ EXPECTED_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
 ]
 EXPECTED_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
-        value="Not assessed",
+        value="Not assessed or no statement",
         label="Initial statement compliance decision (included in equality body export)",
         type="text",
         extra_label="",
@@ -303,7 +303,7 @@ EXPECTED_RETEST_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
 ]
 EXPECTED_RETEST_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
-        value="Not assessed",
+        value="Not assessed or no statement",
         label="12-week statement compliance decision (included in equality body export)",
         type="text",
         extra_label="",
