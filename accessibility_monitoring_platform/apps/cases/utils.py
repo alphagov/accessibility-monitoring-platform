@@ -150,6 +150,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url=reverse("cases:edit-test-results", kwargs=case_pk),
             edit_url_id="edit-test-results",
             complete_date=case.testing_details_complete_date,
+            placeholder="A test does not exist for this case.",
             type=ViewSection.AUDIT_RESULTS_ON_VIEW_CASE,
             subsections=testing_details_subsections,
         ),
@@ -158,8 +159,13 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             edit_url=reverse("cases:edit-report-details", kwargs=case_pk),
             edit_url_id="edit-report-details",
             complete_date=case.reporting_details_complete_date,
-            display_fields=report_details_fields
-            + get_case_rows(form=CaseReportDetailsUpdateForm()),
+            placeholder="A report does not exist for this case.",
+            display_fields=(
+                report_details_fields
+                + get_case_rows(form=CaseReportDetailsUpdateForm())
+                if case.report is not None
+                else []
+            ),
         ),
         build_view_section(
             name="QA comments",

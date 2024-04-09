@@ -13,6 +13,7 @@ EDIT_URL: str = "/url/path"
 EDIT_URL_ID: str = "url-id"
 COMPLETE_DATE: date = date(2024, 2, 29)
 ANCHOR: str = "anchor"
+PLACEHOLDER: str = "No data to display"
 
 
 @pytest.mark.parametrize(
@@ -71,6 +72,7 @@ def test_build_view_section():
         edit_url_id=EDIT_URL_ID,
         complete_date=COMPLETE_DATE,
         anchor=ANCHOR,
+        placeholder=PLACEHOLDER,
         display_fields=["fields"],
         subtables=["subtable"],
         subsections=["subsection"],
@@ -81,6 +83,7 @@ def test_build_view_section():
 
     assert view_section.name == SECTION_NAME
     assert view_section.anchor == ANCHOR
+    assert view_section.placeholder == PLACEHOLDER
     assert view_section.edit_url == EDIT_URL
     assert view_section.edit_url_id == EDIT_URL_ID
     assert view_section.complete is True

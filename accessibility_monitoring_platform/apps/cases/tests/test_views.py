@@ -1808,50 +1808,22 @@ def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_plat
         reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
-    assertContains(response, "No test exists")
+    assertContains(response, "A test does not exist for this case")
 
 
-@pytest.mark.parametrize(
-    "audit_table_row",
-    [
-        ("Screen size"),
-        ("Exemptions"),
-        ("Initial website compliance decision"),
-        ("Initial website compliance notes"),
-        ("Initial statement compliance decision"),
-        ("Initial statement compliance notes"),
-    ],
-)
-def test_audit_shows_table_when_audit_exists_and_audit_is_platform(
-    admin_client, audit_table_row
+def test_report_details_shows_when_no_report_exists(
+    admin_client,
 ):
     """
-    Test that audit details shows link to create when no audit exists
+    Test that report details shows when no report exists
     """
     case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
+
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
-    assertContains(response, audit_table_row)
-
-
-# def test_report_details_shows_link_to_create_report_when_no_report_exists_and_report_is_platform(
-#     admin_client,
-# ):
-#     """
-#     Test that audit details shows link to create when no audit exists
-#     """
-#     case: Case = Case.objects.create()
-
-#     response: HttpResponse = admin_client.get(
-#         reverse("cases:case-detail", kwargs={"pk": case.id}),
-#     )
-#     assert response.status_code == 200
-#     assertContains(
-#         response, "A report does not exist for this case. Create a report in"
-#     )
+    assertContains(response, "A report does not exist for this case")
 
 
 @pytest.mark.parametrize(
