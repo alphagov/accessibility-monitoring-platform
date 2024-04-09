@@ -89,8 +89,8 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         ),
         FieldLabelAndValue(label="Status", value=case.status.get_status_display()),
     ]
-    testing_details_subsections: List[ViewSection] = []
-    twelve_week_test_subsections: List[ViewSection] = []
+    testing_details_subsections: Optional[List[ViewSection]] = None
+    twelve_week_test_subsections: Optional[List[ViewSection]] = None
     report_details_fields: List[FieldLabelAndValue] = []
     if case.audit is not None:
         audit_pk: Dict[str, int] = {"pk": case.audit.id}
@@ -164,7 +164,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 report_details_fields
                 + get_case_rows(form=CaseReportDetailsUpdateForm())
                 if case.report is not None
-                else []
+                else None
             ),
         ),
         build_view_section(
