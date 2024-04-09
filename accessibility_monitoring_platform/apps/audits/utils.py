@@ -210,7 +210,7 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
             ],
             subsections=[
                 build_view_section(
-                    name=f"{str(page)} ({page.failed_check_results.count()})",
+                    name=f"Initial test {str(page)} ({page.failed_check_results.count()})",
                     edit_url=reverse(
                         "audits:edit-audit-page-checks", kwargs={"pk": page.id}
                     ),
@@ -383,7 +383,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
             complete_date=audit.audit_pages_complete_date,
             subsections=[
                 build_view_section(
-                    name=f"{str(page)} ({page.failed_check_results.count()})",
+                    name=f"12-week retest {str(page)} ({page.failed_check_results.count()})",
                     edit_url=reverse(
                         "audits:edit-audit-retest-page-checks", kwargs={"pk": page.id}
                     ),
