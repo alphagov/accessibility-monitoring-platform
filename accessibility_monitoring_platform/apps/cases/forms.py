@@ -29,6 +29,7 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Sector, SubCategory
+from .csv_export_utils import EqualityBodyCSVColumn, populate_equality_body_columns
 from .models import (
     Boolean,
     Case,
@@ -39,7 +40,6 @@ from .models import (
     Sort,
     ZendeskTicket,
 )
-from .utils import EqualityBodyCSVColumn, populate_equality_body_columns
 
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + Case.EnforcementBody.choices
 STATUS_CHOICES: List[Tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices

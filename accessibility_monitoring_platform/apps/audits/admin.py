@@ -44,6 +44,7 @@ class CheckResultAdmin(admin.ModelAdmin):
         "audit__case__id",
         "wcag_definition__name",
         "page__name",
+        "page__page_type",
     ]
     list_display = ["wcag_definition", "audit", "page"]
 

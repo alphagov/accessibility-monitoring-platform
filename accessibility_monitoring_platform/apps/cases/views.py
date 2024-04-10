@@ -3,8 +3,7 @@ Views for cases app
 """
 
 from datetime import date, timedelta
-from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -23,18 +22,10 @@ from ..audits.forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
 )
-from ..audits.utils import (
-    get_retest_view_tables_context,
-    get_test_view_tables_context,
-    report_data_updated,
-)
+from ..audits.utils import report_data_updated
 from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
-from ..common.form_extract_utils import (
-    FieldLabelAndValue,
-    extract_form_labels_and_values,
-)
 from ..common.models import Boolean
 from ..common.utils import (
     amp_format_date,
@@ -53,6 +44,17 @@ from ..reports.utils import (
     build_issues_tables,
     get_report_visits_metrics,
     publish_report_util,
+)
+from .csv_export_utils import (
+    EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+    EqualityBodyCSVColumn,
+    download_cases,
+    download_equality_body_cases,
+    download_feedback_survey_cases,
+    populate_equality_body_columns,
 )
 from .forms import (
     CaseCloseUpdateForm,
@@ -96,17 +98,9 @@ from .models import (
     ZendeskTicket,
 )
 from .utils import (
-    EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
-    EqualityBodyCSVColumn,
-    download_cases,
-    download_equality_body_cases,
-    download_feedback_survey_cases,
     filter_cases,
+    get_case_view_sections,
     get_post_case_alerts,
-    populate_equality_body_columns,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -197,83 +191,14 @@ class CaseDetailView(DetailView):
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        context["contacts"] = case.contact_set.filter(is_deleted=False)
-        case_details_prefix: List[FieldLabelAndValue] = [
-            FieldLabelAndValue(
-                label="Date created",
-                value=case.created,
-                type=FieldLabelAndValue.DATE_TYPE,
-            ),
-            FieldLabelAndValue(label="Status", value=case.status.get_status_display()),
-        ]
-
-        get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
 
         if not case.report:
             context.update(get_report_visits_metrics(case))
 
-        context["case_details_rows"] = case_details_prefix + get_case_rows(
-            form=CaseDetailUpdateForm()
-        )
-        context["report_details_rows"] = get_case_rows(
-            form=CaseReportDetailsUpdateForm()
-        )
-        context["corres_overview"] = get_case_rows(
-            form=CaseCorrespondenceOverviewUpdateForm()
-        )
-        context["find_contact_details"] = get_case_rows(
-            form=CaseFindContactDetailsUpdateForm()
-        )
-        context["contact_rows"] = get_case_rows(form=CaseContactsUpdateForm())
-        context["report_sent_on"] = get_case_rows(form=CaseReportSentOnUpdateForm())
-        context["one_week_followup"] = get_case_rows(
-            form=CaseOneWeekFollowupUpdateForm()
-        )
-        context["four_week_followup"] = get_case_rows(
-            form=CaseFourWeekFollowupUpdateForm()
-        )
-        context["report_ack"] = get_case_rows(form=CaseReportAcknowledgedUpdateForm())
-        context["twelve_week_update_req"] = get_case_rows(
-            form=CaseTwelveWeekUpdateRequestedUpdateForm()
-        )
-        context["one_week_chaser_final"] = get_case_rows(
-            form=CaseOneWeekFollowupFinalUpdateForm()
-        )
-        context["twelve_week_update_ack"] = get_case_rows(
-            form=CaseTwelveWeekUpdateAcknowledgedUpdateForm()
-        )
-        context["no_psb_contact"] = get_case_rows(form=CaseNoPSBContactUpdateForm())
-        context["review_changes_rows"] = get_case_rows(
-            form=CaseReviewChangesUpdateForm()
-        )
-        context["enforcement_recommendation_rows"] = get_case_rows(
-            form=CaseEnforcementRecommendationUpdateForm()
-        )
-        context["case_close_rows"] = get_case_rows(form=CaseCloseUpdateForm())
-        context["equality_body_metadata_rows"] = get_case_rows(
-            form=CaseEqualityBodyMetadataUpdateForm()
-        )
-        if case.variant in [
-            Case.Variant.ARCHIVED,
-            Case.Variant.REPORTING,
-            Case.Variant.STATEMENT_CONTENT,
-        ]:
-            context["legacy_end_of_case_rows"] = get_case_rows(
-                form=PostCaseUpdateForm()
-            )
-        else:
-            context["statement_enforcement_rows"] = get_case_rows(
-                form=CaseStatementEnforcementUpdateForm()
-            )
-
-        if case.audit:
-            return {
-                **get_test_view_tables_context(audit=case.audit),
-                **get_retest_view_tables_context(case=case),
-                **context,
-            }
-
-        return context
+        return {
+            **{"view_sections": get_case_view_sections(case=case)},
+            **context,
+        }
 
 
 class CaseListView(ListView):
