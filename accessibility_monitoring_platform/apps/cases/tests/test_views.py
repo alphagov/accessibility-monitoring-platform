@@ -1450,7 +1450,7 @@ def test_link_to_accessibility_statement_displayed(admin_client):
         response,
         f"""<p class="govuk-body-m">
             <a href="{ACCESSIBILITY_STATEMENT_URL}" target="_blank" class="govuk-link">
-                Open accessibility statement page
+                Open accessibility statement page in new tab
             </a>
         </p>""",
         html=True,
@@ -2812,8 +2812,8 @@ def test_links_to_contact_and_accessibility_pages_not_shown(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "No contact page.")
-    assertContains(response, "No accessibility statement page.")
+    assertContains(response, "No contact page")
+    assertContains(response, "No accessibility statement page")
 
 
 def test_update_case_checks_version(admin_client):

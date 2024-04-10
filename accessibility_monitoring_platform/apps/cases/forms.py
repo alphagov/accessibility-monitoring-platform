@@ -363,10 +363,13 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
     """
 
     contact_details_found = AMPChoiceRadioField(
-        label="Contact details found?", choices=Case.ContactDetailsFound.choices
+        label="Contact details found?",
+        help_text="If no contact details found, send ‘no contact details’ email to any contact on the website",
+        choices=Case.ContactDetailsFound.choices,
     )
     seven_day_no_contact_email_sent_date = AMPDateField(
-        label="Seven day 'no contact details' email sent",
+        label="No contact details request sent",
+        help_text="Case will become overdue seven days after this date if “No contact details found” is selected above",
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     find_contact_details_complete_date = AMPDatePageCompleteField()
