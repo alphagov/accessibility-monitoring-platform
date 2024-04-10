@@ -25,7 +25,7 @@ describe('View test', () => {
   })
 
   it('can edit retesting home', () => {
-    cy.get('a[data-cy="content-page-link"]').eq(0).click()
+    cy.get('#edit-twelve-week-page-1').click()
     cy.title().should('eq', 'ExampleCorp | Retesting Home')
     cy.get('[name="form-0-retest_state"]').check('fixed')
     cy.get('[name="form-0-retest_notes"]').clear().type(retestErrorText)

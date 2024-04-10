@@ -4,7 +4,9 @@
 {% else %}
     {{ section.name }}{% if section.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
 {% endif %}
-|
-<a id="{{ section.edit_url_id }}" href="{{ section.edit_url }}" class="govuk-link govuk-link--no-visited-state">
-    Edit{% if section.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
-{% if section.complete %}&check;{% endif %}
+{% if section.edit_url %}
+    |
+    <a id="{{ section.edit_url_id }}" href="{{ section.edit_url }}" class="govuk-link govuk-link--no-visited-state">
+        Edit{% if section.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+    {% if section.complete %}&check;{% endif %}
+{% endif %}

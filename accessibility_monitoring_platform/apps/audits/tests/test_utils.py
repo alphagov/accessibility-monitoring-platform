@@ -9,6 +9,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.urls import reverse
+from pytest_django.asserts import assertQuerysetEqual
 
 from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
@@ -27,7 +28,8 @@ from ..models import (
     WcagDefinition,
 )
 from ..utils import (
-    build_statement_content_subsections,
+    build_initial_statement_content_subsections,
+    build_twelve_week_statement_content_subsections,
     create_checkresults_for_retest,
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
@@ -37,8 +39,6 @@ from ..utils import (
     get_next_equality_body_retest_page_url,
     get_next_page_url,
     get_next_retest_page_url,
-    get_retest_view_tables_context,
-    get_test_view_tables_context,
     other_page_failed_check_results,
     report_data_updated,
 )
@@ -63,66 +63,6 @@ NUMBER_OF_WCAG_PER_TYPE_OF_PAGE: int = 1
 NUMBER_OF_HTML_PAGES: int = 4
 UPDATED_NOTE: str = "Updated note"
 NEW_CHECK_NOTE: str = "New note"
-EXPECTED_AUDIT_METADATA_ROWS: List[FieldLabelAndValue] = [
-    FieldLabelAndValue(
-        value=date.today(),
-        label="Date of test",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="15 inch",
-        label="Screen size",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Unknown",
-        label="Exemptions?",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-]
-EXPECTED_AUDIT_PDF_ROWS: List[FieldLabelAndValue] = [
-    FieldLabelAndValue(
-        value="", label="PDF WCAG", type="notes", extra_label="", external_url=True
-    )
-]
-EXPECTED_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
-    FieldLabelAndValue(
-        value="Not known",
-        label="Initial website compliance decision",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="",
-        label="Initial website compliance notes",
-        type="notes",
-        extra_label="",
-        external_url=True,
-    ),
-]
-EXPECTED_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
-    FieldLabelAndValue(
-        value="Not assessed",
-        label="Initial statement compliance decision (included in equality body export)",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="",
-        label="Initial statement compliance notes",
-        type="notes",
-        extra_label="",
-        external_url=True,
-    ),
-]
 EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
         value="An accessibility statement for the website was not found.",
@@ -283,38 +223,6 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
         external_url=True,
     ),
 ]
-EXPECTED_RETEST_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
-    FieldLabelAndValue(
-        value="Not known",
-        label="12-week website compliance decision",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="",
-        label="12-week website compliance decision notes",
-        type="notes",
-        extra_label="",
-        external_url=True,
-    ),
-]
-EXPECTED_RETEST_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
-    FieldLabelAndValue(
-        value="Not assessed",
-        label="12-week statement compliance decision (included in equality body export)",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="",
-        label="12-week statement compliance notes",
-        type="notes",
-        extra_label="",
-        external_url=True,
-    ),
-]
 
 
 def create_audit_and_wcag() -> Audit:
@@ -376,7 +284,7 @@ def create_audit_and_check_results() -> Audit:
 
 
 @pytest.mark.django_db
-def test_build_statement_content_subsections():
+def test_build_initial_statement_content_subsections():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     statement_check: StatementCheck = StatementCheck.objects.all().first()
@@ -385,72 +293,66 @@ def test_build_statement_content_subsections():
         type=statement_check.type,
         statement_check=statement_check,
     )
+    empty_queryset: QuerySet[StatementCheck] = audit.failed_statement_check_results
 
     statement_content_subsections: List[
         ViewSection
-    ] = build_statement_content_subsections(audit=audit)
+    ] = build_initial_statement_content_subsections(audit=audit)
 
     assert len(statement_content_subsections) == 6
 
-    assert statement_content_subsections[0] == ViewSection(
-        name="Statement information",
-        anchor="statement-information",
-        edit_url="/audits/1/edit-statement-website/",
-        edit_url_id="edit-statement-website",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
+    statement_content_subsection: ViewSection = statement_content_subsections[0]
+
+    assert statement_content_subsection.name == "Statement information"
+    assert statement_content_subsection.anchor == "statement-information"
+    assert statement_content_subsection.edit_url == "/audits/1/edit-statement-website/"
+    assert statement_content_subsection.edit_url_id == "edit-statement-website"
+    assert statement_content_subsection.complete is False
+    assert statement_content_subsection.display_fields is None
+    assert statement_content_subsection.subtables is None
+    assert statement_content_subsection.subsections is None
+    assert statement_content_subsection.type == "initial-statement-results"
+    assert statement_content_subsection.page is None
+    assertQuerysetEqual(
+        statement_content_subsection.statement_check_results, empty_queryset
     )
-    assert statement_content_subsections[1] == ViewSection(
-        name="Compliance status",
-        anchor="compliance-status",
-        edit_url="/audits/1/edit-statement-compliance/",
-        edit_url_id="edit-statement-compliance",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
+
+
+@pytest.mark.django_db
+def test_build_twelve_week_statement_content_subsections():
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
     )
-    assert statement_content_subsections[2] == ViewSection(
-        name="Non-accessible content",
-        anchor="non-accessible-content",
-        edit_url="/audits/1/edit-statement-non-accessible/",
-        edit_url_id="edit-statement-non-accessible",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
+    empty_queryset: QuerySet[StatementCheck] = audit.failed_statement_check_results
+
+    statement_content_subsections: List[
+        ViewSection
+    ] = build_twelve_week_statement_content_subsections(audit=audit)
+
+    assert len(statement_content_subsections) == 6
+
+    statement_content_subsection: ViewSection = statement_content_subsections[0]
+
+    assert statement_content_subsection.name == "12-week statement information"
+    assert statement_content_subsection.anchor == "12-week-statement-information"
+    assert (
+        statement_content_subsection.edit_url
+        == "/audits/1/edit-retest-statement-website/"
     )
-    assert statement_content_subsections[3] == ViewSection(
-        name="Preparation of this accessibility statement",
-        anchor="preparation-of-this-accessibility-statement",
-        edit_url="/audits/1/edit-statement-preparation/",
-        edit_url_id="edit-statement-preparation",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
-    )
-    assert statement_content_subsections[4] == ViewSection(
-        name="Feedback and enforcement procedure",
-        anchor="feedback-and-enforcement-procedure",
-        edit_url="/audits/1/edit-statement-feedback/",
-        edit_url_id="edit-statement-feedback",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
-    )
-    assert statement_content_subsections[5] == ViewSection(
-        name="Custom statement issues",
-        anchor="custom-statement-issues",
-        edit_url="/audits/1/edit-statement-custom/",
-        edit_url_id="edit-statement-custom",
-        complete=False,
-        display_fields=[],
-        subtables=None,
-        subsections=None,
+    assert statement_content_subsection.edit_url_id == "edit-retest-statement-website"
+    assert statement_content_subsection.complete is False
+    assert statement_content_subsection.display_fields is None
+    assert statement_content_subsection.subtables is None
+    assert statement_content_subsection.subsections is None
+    assert statement_content_subsection.type == "12-week-statement-results"
+    assert statement_content_subsection.page is None
+    assertQuerysetEqual(
+        statement_content_subsection.statement_check_results, empty_queryset
     )
 
 
@@ -469,54 +371,13 @@ def test_create_mandatory_pages_for_new_audit():
 
 
 @pytest.mark.django_db
-def test_get_audit_metadata_rows():
-    """Test audit metadata rows returned for display on View test page"""
-    audit, _ = create_audit_and_user()
-    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
-        audit=audit
-    )
-
-    assert [field.value for field in context["audit_metadata_rows"]] == [
-        field.value for field in EXPECTED_AUDIT_METADATA_ROWS
-    ]
-    assert [field.label for field in context["audit_metadata_rows"]] == [
-        field.label for field in EXPECTED_AUDIT_METADATA_ROWS
-    ]
-
-
-@pytest.mark.django_db
-def test_get_website_decision_rows():
-    """Test website decision rows returned for display on View test page"""
-    audit, _ = create_audit_and_user()
-    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
-        audit=audit
-    )
-
-    assert context["website_decision_rows"] == EXPECTED_WEBSITE_DECISION_ROWS
-
-
-@pytest.mark.django_db
-def test_get_statement_decision_rows():
-    """Test statement decision rows returned for display on View test page"""
-    audit, _ = create_audit_and_user()
-    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
-        audit=audit
-    )
-
-    assert context["statement_decision_rows"] == EXPECTED_STATEMENT_DECISION_ROWS
-
-
-@pytest.mark.django_db
 def test_get_audit_report_options_rows():
     """Test audit report options rows returned for display on View test page"""
     audit: Audit = create_audit_and_wcag()
-    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
-        audit=audit
-    )
+
     assert (
         get_audit_report_options_rows(audit=audit) == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
     )
-    assert context["audit_report_options_rows"] == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
 
 
 @pytest.mark.django_db
@@ -814,62 +675,6 @@ def test_report_data_updated():
     report_data_updated(audit=audit)
 
     assert audit.published_report_data_updated_time is not None
-
-
-@pytest.mark.django_db
-def test_get_test_view_tables_context():
-    """Test view test tables context returned"""
-    audit, _ = create_audit_and_user()
-    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
-        audit=audit
-    )
-
-    assert "audit_metadata_rows" in context
-    assert "website_decision_rows" in context
-    assert "audit_statement_1_rows" in context
-    assert "audit_statement_2_rows" in context
-    assert "statement_decision_rows" in context
-    assert "audit_report_options_rows" in context
-
-
-@pytest.mark.django_db
-def test_get_retest_view_tables_context():
-    """Test view 12-week retest tables context returned"""
-    audit, _ = create_audit_and_user()
-    context: Dict[str, List[FieldLabelAndValue]] = get_retest_view_tables_context(
-        case=audit.case
-    )
-
-    assert "audit_retest_website_decision_rows" in context
-    assert "audit_retest_statement_decision_rows" in context
-
-
-@pytest.mark.django_db
-def test_audit_retest_website_decision_rows():
-    """Test view 12-week retest website decision rows correct"""
-    audit, _ = create_audit_and_user()
-    context: Dict[str, List[FieldLabelAndValue]] = get_retest_view_tables_context(
-        case=audit.case
-    )
-
-    assert (
-        context["audit_retest_website_decision_rows"]
-        == EXPECTED_RETEST_WEBSITE_DECISION_ROWS
-    )
-
-
-@pytest.mark.django_db
-def test_audit_retest_statement_decision_rows():
-    """Test view 12-week retest website decision rows correct"""
-    audit, _ = create_audit_and_user()
-    context: Dict[str, List[FieldLabelAndValue]] = get_retest_view_tables_context(
-        case=audit.case
-    )
-
-    assert (
-        context["audit_retest_statement_decision_rows"]
-        == EXPECTED_RETEST_STATEMENT_DECISION_ROWS
-    )
 
 
 @pytest.mark.django_db

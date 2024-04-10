@@ -72,7 +72,7 @@ describe('View case', () => {
   })
 
   it('can edit Zendesk tickets', () => {
-    cy.get('#edit-zendesk-tickets').click()
+    cy.get('#zendesk-tickets').click()
     cy.get('#create-zendesk-ticket').click()
     cy.get('[name="url"]').clear().type(zenUrl)
     cy.get('[name="summary"]').clear().type(zenSummary)

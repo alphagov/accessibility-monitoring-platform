@@ -1,14 +1,14 @@
-<table class="govuk-table{% if top_section %} amp-accordion-table{% endif %}">
+<table class="govuk-table amp-accordion-table" data-search-target-page-name="{{ view_section.name }}" data-search-target-label="Edit" data-search-target-url="{{ view_section.edit_url }}">
     <tbody class="govuk-table__body">
-        {% for display_field in section.display_fields %}
+        {% for display_field in subtable.display_fields %}
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ display_field.label }}</th>
                 <td class="govuk-table__cell amp-width-one-half{% if display_field.type == 'notes' %} amp-notes{% endif %}">
                     {% if display_field.type == 'url' %}
                         {% if display_field.value %}
                             <a href="{{ display_field.value }}"
-                                rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                {% if display_field.display_value %}{{ display_field.display_value }}{% else %}{{ display_field.value }}{% endif %}
+                                rel="noreferrer noopener" {% if display_field.external_url %}target="_blank"{% endif %} class="govuk-link {% if not display_field.external_url %}govuk-link--no-visited-state{% endif %}">
+                                {% if display_field.extra_label %}{{ display_field.extra_label }}{% else %}{{ display_field.value }}{% endif %}
                             </a>
                         {% else %}
                             None
