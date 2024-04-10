@@ -15,13 +15,7 @@ from django.http.request import QueryDict
 
 from ...audits.models import Audit, Retest
 from ...common.models import Boolean, Sector, SubCategory
-from ..models import (
-    Case,
-    CaseCompliance,
-    CaseEvent,
-    Contact,
-    EqualityBodyCorrespondence,
-)
+from ..models import Case, CaseCompliance, CaseEvent, EqualityBodyCorrespondence
 from ..utils import (
     PostCaseAlert,
     build_edit_link_html,
