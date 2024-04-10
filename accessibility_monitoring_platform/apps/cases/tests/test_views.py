@@ -13,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
+from django.utils.text import slugify
 from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
@@ -32,6 +33,11 @@ from ...common.utils import amp_format_date
 from ...notifications.models import Notification
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
+from ..csv_export_utils import (
+    CASE_COLUMNS_FOR_EXPORT,
+    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+)
 from ..models import (
     Case,
     CaseCompliance,
@@ -40,12 +46,7 @@ from ..models import (
     EqualityBodyCorrespondence,
     ZendeskTicket,
 )
-from ..utils import (
-    CASE_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
-    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
-    create_case_and_compliance,
-)
+from ..utils import create_case_and_compliance
 from ..views import (
     FOUR_WEEKS_IN_DAYS,
     ONE_WEEK_IN_DAYS,
@@ -312,7 +313,7 @@ def test_view_case_includes_tests(admin_client):
     assertContains(response, "Initial statement compliance decision")
 
     assertContains(response, "12-week test metadata")
-    assertContains(response, "Retest date")
+    assertContains(response, "Date of retest")
 
 
 def test_view_case_includes_zendesk_tickets(admin_client):
@@ -339,7 +340,7 @@ def test_view_case_includes_zendesk_tickets(admin_client):
 def test_case_detail_view_leaves_out_deleted_contact(admin_client):
     """Test that deleted Contacts are not included in context"""
     case: Case = Case.objects.create()
-    undeleted_contact: Contact = Contact.objects.create(
+    Contact.objects.create(
         case=case,
         name="Undeleted Contact",
     )
@@ -354,7 +355,6 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
     )
 
     assert response.status_code == 200
-    assert set(response.context["contacts"]) == set([undeleted_contact])
     assertContains(response, "Undeleted Contact")
     assertNotContains(response, "Deleted Contact")
 
@@ -1812,40 +1812,14 @@ def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_plat
         reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
-    assertContains(response, "No test exists")
+    assertContains(response, "A test does not exist for this case")
 
 
-@pytest.mark.parametrize(
-    "audit_table_row",
-    [
-        ("Screen size"),
-        ("Exemptions"),
-        ("Initial website compliance decision"),
-        ("Initial website compliance notes"),
-        ("Initial statement compliance decision"),
-        ("Initial statement compliance notes"),
-    ],
-)
-def test_audit_shows_table_when_audit_exists_and_audit_is_platform(
-    admin_client, audit_table_row
-):
-    """
-    Test that audit details shows link to create when no audit exists
-    """
-    case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, audit_table_row)
-
-
-def test_report_details_shows_link_to_create_report_when_no_report_exists_and_report_is_platform(
+def test_report_details_shows_when_no_report_exists(
     admin_client,
 ):
     """
-    Test that audit details shows link to create when no audit exists
+    Test that report details shows when no report exists
     """
     case: Case = Case.objects.create()
 
@@ -1853,9 +1827,7 @@ def test_report_details_shows_link_to_create_report_when_no_report_exists_and_re
         reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
-    assertContains(
-        response, "A report does not exist for this case. Create a report in"
-    )
+    assertContains(response, "A report does not exist for this case")
 
 
 @pytest.mark.parametrize(
@@ -1887,11 +1859,6 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
         ("qa_auditor_complete_date", "Report approved", "edit-report-approved"),
-        (
-            "cores_overview_complete_date",
-            "Correspondence overview",
-            "edit-cores-overview",
-        ),
         (
             "find_contact_details_complete_date",
             "Find contact details",
@@ -1963,7 +1930,7 @@ def test_section_complete_check_displayed(
     assertContains(
         response,
         f"""<li>
-            <a href="#{edit_url_name[5:]}" class="govuk-link govuk-link--no-visited-state">
+            <a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">
             {section_name}<span class="govuk-visually-hidden">complete</span></a>
             |
             <a id="{edit_url_name}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
@@ -1975,12 +1942,27 @@ def test_section_complete_check_displayed(
     )
 
 
-def test_section_complete_check_displayed_publish_report(admin_client):
+@pytest.mark.parametrize(
+    "flag_name, section_name, edit_url_name",
+    [
+        (
+            "cores_overview_complete_date",
+            "Correspondence overview",
+            "edit-cores-overview",
+        ),
+        ("publish_report_complete_date", "Publish report", "edit-publish-report"),
+    ],
+)
+def test_no_anchor_section_complete_check_displayed(
+    flag_name, section_name, edit_url_name, admin_client
+):
     """
-    Test that the section complete tick is displayed in contents when there is no anchor
+    Test that the section complete tick is displayed in contents where there is no anchor
     """
-    case: Case = Case.objects.create(publish_report_complete_date=TODAY)
-    edit_url: str = reverse("cases:edit-publish-report", kwargs={"pk": case.id})
+    case: Case = Case.objects.create()
+    setattr(case, flag_name, TODAY)
+    case.save()
+    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
@@ -1991,9 +1973,9 @@ def test_section_complete_check_displayed_publish_report(admin_client):
     assertContains(
         response,
         f"""<li>
-            Publish report
+            {section_name}<span class="govuk-visually-hidden">complete</span>
             |
-            <a id="edit-publish-report" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+            <a id="{edit_url_name}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden">complete</span>
             </a>
             &check;
@@ -2345,52 +2327,6 @@ def test_format_due_date_help_text(due_date, expected_help_text):
     Test due date formatting for help text
     """
     assert format_due_date_help_text(due_date) == expected_help_text
-
-
-def test_case_details_includes_link_to_auditors_cases(admin_client):
-    """
-    Test that the case details page contains a link to all the auditor's cases
-    """
-    user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
-    case: Case = Case.objects.create(auditor=user)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    user_id: int = user.id
-    assertContains(
-        response,
-        f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Auditor</th>
-            <td class="govuk-table__cell amp-width-one-half">
-                <a href="{reverse("cases:case-list")}?auditor={ user_id }" rel="noreferrer noopener" class="govuk-link">
-                    Joe Bloggs
-                </a>
-            </td>
-        </tr>""",
-        html=True,
-    )
-
-
-def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
-    """
-    Test that the case details page contains no link to the auditor's cases if no auditor is set
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Auditor</th>
-            <td class="govuk-table__cell amp-width-one-half">None</td>
-        </tr>""",
-        html=True,
-    )
 
 
 @pytest.mark.parametrize(

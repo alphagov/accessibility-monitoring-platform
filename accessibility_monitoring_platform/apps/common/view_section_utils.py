@@ -29,6 +29,8 @@ class ViewSection:
     display_fields: List[FieldLabelAndValue] = None
     subtables: List[ViewSubTable] = None
     subsections: List["ViewSection"] = None
+    placeholder: str = "None"
+    AUDIT_RESULTS_ON_VIEW_CASE: ClassVar[str] = "audit-results-on-view-case"
     INITIAL_WCAG_RESULTS: ClassVar[str] = "initial-wcag-results"
     INITIAL_STATEMENT_RESULTS: ClassVar[str] = "initial-statement-results"
     TWELVE_WEEK_WCAG_RESULTS: ClassVar[str] = "12-week-wcag-results"
@@ -36,6 +38,7 @@ class ViewSection:
     FORM_TYPE: ClassVar[str] = "form"
     type: Literal[
         FORM_TYPE,
+        AUDIT_RESULTS_ON_VIEW_CASE,
         INITIAL_WCAG_RESULTS,
         INITIAL_STATEMENT_RESULTS,
         TWELVE_WEEK_WCAG_RESULTS,
@@ -43,6 +46,16 @@ class ViewSection:
     ] = FORM_TYPE
     page: Optional[Page] = None
     statement_check_results: QuerySet[StatementCheckResult] = None
+
+    @property
+    def has_content(self) -> bool:
+        return (
+            self.display_fields is not None
+            or self.subtables is not None
+            or self.subsections is not None
+            or self.page is not None
+            or self.statement_check_results is not None
+        )
 
     def __post_init__(self):
         if (
@@ -64,6 +77,7 @@ def build_view_section(
     edit_url_id: str = "",
     complete_date: Optional[date] = None,
     anchor: Optional[str] = None,
+    placeholder: str = "None",
     display_fields: Optional[List[FieldLabelAndValue]] = None,
     subtables: Optional[ViewSubTable] = None,
     subsections: Optional[ViewSection] = None,
@@ -75,10 +89,11 @@ def build_view_section(
     anchor = slugify(name) if anchor is None else anchor
     return ViewSection(
         name=name,
-        anchor=anchor,
         edit_url=edit_url,
         edit_url_id=edit_url_id,
         complete=complete_flag,
+        anchor=anchor,
+        placeholder=placeholder,
         display_fields=display_fields,
         subtables=subtables,
         subsections=subsections,
