@@ -1,5 +1,5 @@
 {% if view_section.page.failed_check_results %}
-    <table class="govuk-table amp-accordion-table">
+    <table class="govuk-table amp-accordion-table" data-search-target-page-name="{{ view_section.name }}" data-search-target-label="Edit" data-search-target-url="{{ view_section.edit_url }}">
         <tbody class="govuk-table__body">
             {% for check_result in view_section.page.failed_check_results %}
                 <tr class="govuk-table__row ">

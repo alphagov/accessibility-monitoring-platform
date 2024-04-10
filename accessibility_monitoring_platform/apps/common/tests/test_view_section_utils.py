@@ -13,6 +13,7 @@ EDIT_URL: str = "/url/path"
 EDIT_URL_ID: str = "url-id"
 COMPLETE_DATE: date = date(2024, 2, 29)
 ANCHOR: str = "anchor"
+PLACEHOLDER: str = "No data to display"
 
 
 @pytest.mark.parametrize(
@@ -45,6 +46,25 @@ def test_view_section_raises_missing_statement_results_exception(type):
     )
 
 
+def test_has_content_no_content():
+    """Test ViewSection has no content"""
+    view_section = ViewSection(name=SECTION_NAME)
+
+    assert view_section.has_content is False
+
+
+@pytest.mark.parametrize(
+    "attr",
+    ["display_fields", "subtables", "subsections", "page", "statement_check_results"],
+)
+def test_has_content(attr: str):
+    """Test ViewSection has content"""
+    view_section = ViewSection(name=SECTION_NAME)
+    setattr(view_section, attr, "content")
+
+    assert view_section.has_content is True
+
+
 def test_build_view_section():
     """
     Test building of view section object for use in view context
@@ -71,6 +91,7 @@ def test_build_view_section():
         edit_url_id=EDIT_URL_ID,
         complete_date=COMPLETE_DATE,
         anchor=ANCHOR,
+        placeholder=PLACEHOLDER,
         display_fields=["fields"],
         subtables=["subtable"],
         subsections=["subsection"],
@@ -81,6 +102,7 @@ def test_build_view_section():
 
     assert view_section.name == SECTION_NAME
     assert view_section.anchor == ANCHOR
+    assert view_section.placeholder == PLACEHOLDER
     assert view_section.edit_url == EDIT_URL
     assert view_section.edit_url_id == EDIT_URL_ID
     assert view_section.complete is True
