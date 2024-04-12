@@ -34,7 +34,7 @@
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_feedback_notes %}
                                 {% include 'audits/helpers/retest_statement_field_info.html' with name='Contact Information' example='audits/archive_statement_examples/contact_information_state.html' decision=audit.get_archive_contact_information_state_display notes=audit.archive_contact_information_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_contact_information_state %}
-                                {% include 'cases/helpers/contact_details_link.html' with case=audit.case %}
+                                {% include 'cases/helpers/contact_page_link.html' with case=audit.case %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_contact_information_notes %}
                                 {% include 'audits/helpers/retest_statement_field_info.html' with name='Enforcement Procedure' example='audits/archive_statement_examples/enforcement_procedure_state.html' decision=audit.get_archive_enforcement_procedure_state_display notes=audit.archive_enforcement_procedure_notes %}
                                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_enforcement_procedure_state %}

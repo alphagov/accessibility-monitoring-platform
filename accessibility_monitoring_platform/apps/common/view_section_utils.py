@@ -50,9 +50,9 @@ class ViewSection:
     @property
     def has_content(self) -> bool:
         return (
-            self.display_fields is not None
-            or self.subtables is not None
-            or self.subsections is not None
+            (self.display_fields is not None and self.display_fields != [])
+            or (self.subtables is not None and self.subtables != [])
+            or (self.subsections is not None and self.subsections != [])
             or self.page is not None
             or self.statement_check_results is not None
         )

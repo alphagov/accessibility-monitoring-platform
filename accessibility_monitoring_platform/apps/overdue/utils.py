@@ -1,4 +1,5 @@
 """Utilities for overdue"""
+
 from datetime import date, datetime, timedelta
 
 from django.contrib.auth.models import User
@@ -20,6 +21,7 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
 
         seven_day_no_contact: QuerySet[Case] = user_cases.filter(
             status__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND,
+            contact_details_found=Case.ContactDetailsFound.NOT_FOUND,
             seven_day_no_contact_email_sent_date__range=[start_date, seven_days_ago],
         )
 
