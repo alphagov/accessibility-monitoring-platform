@@ -16,7 +16,8 @@
                 {% include 'cases/helpers/correspondence_overview_detail.html' %}
                 {% include 'cases/helpers/zendesk_tickets.html' %}
                 {% include 'common/error_summary.html' %}
-                {% include 'cases/helpers/contact_details_link.html' %}
+                {% include 'cases/helpers/contact_page_link.html' %}
+                {% include 'cases/helpers/statement_page_link.html' %}
                 {% include 'cases/helpers/no_response_link.html' %}
                 <form method="post" action="{% url 'cases:edit-find-contact-details' case.id %}">
                     {% csrf_token %}

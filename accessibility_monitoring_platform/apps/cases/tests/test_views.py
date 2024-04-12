@@ -747,7 +747,6 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-qa-comments", "<li>QA comments</li>"),
         ("cases:edit-report-approved", "<li>Report approved</li>"),
         ("cases:edit-publish-report", "<li>Publish report</li>"),
-        ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
         (
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
@@ -767,6 +766,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:edit-12-week-update-request-ack",
             "<li>12-week update request acknowledged</li>",
         ),
+        ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
         (
             "cases:outstanding-issues",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">Outstanding issues</h1>',
@@ -1088,10 +1088,8 @@ def test_updating_case_creates_case_event(admin_client):
         ("cases:edit-report-approved", "save", "cases:edit-report-approved"),
         ("cases:edit-report-approved", "save_continue", "cases:edit-publish-report"),
         ("cases:edit-publish-report", "save", "cases:edit-publish-report"),
-        ("cases:edit-publish-report", "save_continue", "cases:edit-cores-overview"),
-        ("cases:edit-cores-overview", "save", "cases:edit-cores-overview"),
         (
-            "cases:edit-cores-overview",
+            "cases:edit-publish-report",
             "save_continue",
             "cases:edit-find-contact-details",
         ),
@@ -1151,12 +1149,18 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-12-week-update-request-ack",
             "save_continue",
-            "cases:edit-twelve-week-retest",
+            "cases:edit-cores-overview",
         ),
         (
             "cases:edit-no-psb-response",
             "save",
             "cases:edit-find-contact-details",
+        ),
+        ("cases:edit-cores-overview", "save", "cases:edit-cores-overview"),
+        (
+            "cases:edit-cores-overview",
+            "save_continue",
+            "cases:edit-twelve-week-retest",
         ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
@@ -1450,7 +1454,7 @@ def test_link_to_accessibility_statement_displayed(admin_client):
         response,
         f"""<p class="govuk-body-m">
             <a href="{ACCESSIBILITY_STATEMENT_URL}" target="_blank" class="govuk-link">
-                Open accessibility statement page
+                Open accessibility statement page in new tab
             </a>
         </p>""",
         html=True,
@@ -1993,11 +1997,6 @@ def test_no_anchor_section_complete_check_displayed(
         ("cases:edit-report-approved", "qa_auditor_complete_date", "Report approved"),
         ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
         (
-            "cases:edit-cores-overview",
-            "cores_overview_complete_date",
-            "Correspondence overview",
-        ),
-        (
             "cases:edit-find-contact-details",
             "find_contact_details_complete_date",
             "Find contact details",
@@ -2037,6 +2036,11 @@ def test_no_anchor_section_complete_check_displayed(
             "cases:edit-12-week-update-request-ack",
             "twelve_week_update_request_ack_complete_date",
             "12-week update request acknowledged",
+        ),
+        (
+            "cases:edit-cores-overview",
+            "cores_overview_complete_date",
+            "Correspondence overview",
         ),
         (
             "cases:edit-twelve-week-retest",
@@ -2740,8 +2744,8 @@ def test_links_to_contact_and_accessibility_pages_not_shown(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "No contact page.")
-    assertContains(response, "No accessibility statement page.")
+    assertContains(response, "No contact page")
+    assertContains(response, "No accessibility statement page")
 
 
 def test_update_case_checks_version(admin_client):
