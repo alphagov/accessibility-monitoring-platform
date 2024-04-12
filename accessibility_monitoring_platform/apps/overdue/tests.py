@@ -60,6 +60,7 @@ def test_report_ready_to_send_seven_day_no_contact():
 
     assert len(get_overdue_cases(user)) == 0
 
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.save()
 
@@ -254,6 +255,7 @@ def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
 def test_seven_day_no_contact_overdue(admin_client, admin_user):
     """Test list of overdues includes seven day no contact"""
     case: Case = create_case(admin_user)
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.save()
 
