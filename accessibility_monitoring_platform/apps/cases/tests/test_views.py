@@ -2548,6 +2548,7 @@ def test_frequently_used_links_displayed_in_edit(
     case: Case = Case.objects.create(home_page_url="https://home_page_url.com")
     setattr(case, useful_link, f"https://{useful_link}.com")
     case.save()
+    psb_zendesk_url: str = reverse("cases:zendesk-tickets", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
         reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),
@@ -2566,6 +2567,15 @@ def test_frequently_used_links_displayed_in_edit(
         </li>""",
         html=True,
     )
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{psb_zendesk_url}" class="govuk-link govuk-link--no-visited-state">
+                PSB Zendesk tickets
+            </a>
+        </li>""",
+        html=True,
+    )
 
     if useful_link == "trello_url":
         assertContains(
@@ -2577,30 +2587,12 @@ def test_frequently_used_links_displayed_in_edit(
             </li>""",
             html=True,
         )
-        assertNotContains(
-            response,
-            """<li>
-                <a href="https://zendesk_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Zendesk
-                </a>
-            </li>""",
-            html=True,
-        )
     else:
         assertNotContains(
             response,
             """<li>
                 <a href="https://trello_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     Trello
-                </a>
-            </li>""",
-            html=True,
-        )
-        assertContains(
-            response,
-            """<li>
-                <a href="https://zendesk_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Zendesk
                 </a>
             </li>""",
             html=True,

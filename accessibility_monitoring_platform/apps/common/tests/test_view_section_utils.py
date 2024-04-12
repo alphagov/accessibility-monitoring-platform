@@ -53,6 +53,18 @@ def test_has_content_no_content():
     assert view_section.has_content is False
 
 
+def test_has_content_no_contenti_empty_lists():
+    """
+    Test ViewSection has no content when lists are empty
+    instead of None.
+    """
+    view_section = ViewSection(
+        name=SECTION_NAME, display_fields=[], subtables=[], subsections=[]
+    )
+
+    assert view_section.has_content is False
+
+
 @pytest.mark.parametrize(
     "attr",
     ["display_fields", "subtables", "subsections", "page", "statement_check_results"],
