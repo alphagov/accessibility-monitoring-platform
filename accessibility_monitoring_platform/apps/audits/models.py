@@ -762,6 +762,10 @@ class Audit(VersionModel):
         return self.html_pages.filter(page_type=Page.Type.EXTRA)
 
     @property
+    def missing_at_retest_pages(self):
+        return self.testable_pages.exclude(retest_page_missing_date=None)
+
+    @property
     def failed_check_results(self):
         return (
             self.checkresult_audit.filter(
@@ -831,6 +835,10 @@ class Audit(VersionModel):
             for statement_check in self.accessibility_statement_checks
             if statement_check.finally_invalid
         ]
+
+    @property
+    def finally_invalid_accessibility_statement_checks_count(self) -> int:
+        return len(self.finally_invalid_accessibility_statement_checks)
 
     @property
     def statement_check_results(self):

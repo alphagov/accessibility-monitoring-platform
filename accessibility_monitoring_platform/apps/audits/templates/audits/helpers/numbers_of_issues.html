@@ -1,0 +1,35 @@
+{% load humanize %}
+
+<h2 class="govuk-heading-s amp-margin-bottom-5">WCAG issues</h2>
+<p class="govuk-body-m amp-margin-bottom-10">Initial test: {{ audit.failed_check_results.count|intcomma }}</p>
+<p class="govuk-body-m amp-margin-bottom-10">
+    Retest: {{ audit.unfixed_check_results.count|intcomma }}
+    {% if audit.missing_at_retest_pages %}
+        ({{ audit.missing_at_retest_pages.count }} deleted page{% if audit.missing_at_retest_pages.count != 1 %}s{% endif %})
+    {% endif %}
+</p>
+<h2 class="govuk-heading-s amp-margin-bottom-5">Statement issues</h2>
+<p class="govuk-body-m amp-margin-bottom-10">
+    Initial test:
+    {% if audit.accessibility_statement_page and audit.accessibility_statement_page.not_found == 'no' %}
+        {% if audit.uses_statement_checks %}
+            {{ audit.failed_statement_check_results.count|intcomma }}
+        {% else %}
+            {{ audit.accessibility_statement_initially_invalid_checks_count|intcomma }}
+        {% endif %}
+    {% else %}
+        No statement found
+    {% endif %}
+</p>
+<p class="govuk-body-m amp-margin-bottom-10">
+    Retest test:
+    {% if audit.accessibility_statement_page and not audit.accessibility_statement_page.retest_page_missing_date %}
+        {% if audit.uses_statement_checks %}
+            {{ audit.failed_retest_statement_check_results.count|intcomma }}
+        {% else %}
+            {{ audit.finally_invalid_accessibility_statement_checks_count|intcomma }}
+        {% endif %}
+    {% else %}
+        No statement found
+    {% endif %}
+</p>
