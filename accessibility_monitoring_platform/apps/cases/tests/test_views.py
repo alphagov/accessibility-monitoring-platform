@@ -3797,3 +3797,39 @@ def test_case_close_no_missing_data(admin_client):
         response, "The case has missing data and can not be submitted to EHRC."
     )
     assertContains(response, "All fields are complete and the case can now be closed.")
+
+
+def test_case_overview(admin_client):
+    """Test case overview."""
+    audit: Audit = create_audit_and_check_results()
+    accessibility_statement_page: Page = audit.accessibility_statement_page
+    accessibility_statement_page.url = "https://example.com"
+    accessibility_statement_page.retest_page_missing_date = TODAY
+    accessibility_statement_page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": audit.case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<p class="govuk-body-m amp-margin-bottom-10">Initial test: 3</p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-m amp-margin-bottom-10">Retest: 3 (1 deleted page)</p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-m amp-margin-bottom-10">Initial test: 12</p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-m amp-margin-bottom-10">Retest test: No statement found</p>""",
+        html=True,
+    )
