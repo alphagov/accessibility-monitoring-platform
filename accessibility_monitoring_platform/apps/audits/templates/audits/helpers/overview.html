@@ -10,10 +10,5 @@
     <p class="govuk-body-m amp-margin-bottom-10">{{ audit.case.website_compliance_display }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Statement compliance</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{{ audit.case.accessibility_statement_compliance_display }}</p>
-    <h2 class="govuk-heading-s amp-margin-bottom-5">Number of WCAG issues</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">{{ audit.failed_check_results.count|intcomma }}</p>
-    <h2 class="govuk-heading-s amp-margin-bottom-5">Number of statement issues</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">
-        {{ audit.accessibility_statement_initially_invalid_checks_count }}
-    </p>
+    {% include "audits/helpers/numbers_of_issues.html" %}
     </div>
