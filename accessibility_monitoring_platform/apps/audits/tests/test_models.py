@@ -27,6 +27,7 @@ from ..models import (
     WcagDefinition,
 )
 
+TODAY = date.today()
 PAGE_NAME = "Page name"
 WCAG_TYPE_AXE_NAME: str = "Axe WCAG"
 WCAG_TYPE_MANUAL_NAME: str = "Manual WCAG"
@@ -281,6 +282,23 @@ def test_audit_testable_pages_returns_expected_page():
 
     assert len(audit.testable_pages) == 1
     assert audit.testable_pages[0].id == testable_page.id
+
+
+@pytest.mark.django_db
+def test_audit_missing_at_retest_pages():
+    """Test missing at retest pages."""
+    audit: Audit = create_audit_and_pages()
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+
+    assert len(audit.missing_at_retest_pages) == 0
+
+    page.retest_page_missing_date = TODAY
+    page.save()
+
+    assert len(audit.missing_at_retest_pages) == 1
+    assert audit.missing_at_retest_pages[0] == page
 
 
 @pytest.mark.django_db
@@ -742,6 +760,16 @@ def test_audit_accessibility_statement_finally_invalid():
     audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
 
     assert len(audit.finally_invalid_accessibility_statement_checks) == 11
+
+
+def test_audit_accessibility_statement_finally_invalid_count():
+    """
+    Test that an audit has the expected finally invalid accessibility statement
+    checks count.
+    """
+    audit: Audit = Audit()
+
+    assert audit.finally_invalid_accessibility_statement_checks_count == 12
 
 
 def test_statement_check_str():

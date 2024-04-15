@@ -27,10 +27,7 @@
             <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">report details</a>
         {% endif %}
     </p>
-    <h2 class="govuk-heading-s amp-margin-bottom-5">Website issues</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_website }}</p>
-    <h2 class="govuk-heading-s amp-margin-bottom-5">Statement issues</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_statement|safe }}</p>
+    {% include "audits/helpers/numbers_of_issues.html" with audit=case.audit %}
     <h2 class="govuk-heading-s amp-margin-bottom-5">Organisation</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{{ case.organisation_name }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">
