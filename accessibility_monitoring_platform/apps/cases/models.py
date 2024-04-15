@@ -1006,8 +1006,8 @@ class CaseCompliance(VersionModel):
 
     class StatementCompliance(models.TextChoices):
         COMPLIANT = "compliant", "Compliant"
-        NOT_COMPLIANT = "not-compliant", "Not compliant"
-        UNKNOWN = "unknown", "Not assessed or no statement"
+        NOT_COMPLIANT = "not-compliant", "Not compliant or no statement"
+        UNKNOWN = "unknown", "Not assessed"
 
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="compliance"
