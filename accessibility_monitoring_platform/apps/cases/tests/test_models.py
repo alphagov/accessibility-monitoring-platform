@@ -73,6 +73,18 @@ def last_edited_audit(last_edited_case: Case) -> Audit:
 
 
 @pytest.mark.django_db
+def test_case_number_incremented_on_creation():
+    """Test that each new case gets the next case_number"""
+    case_one: Case = Case.objects.create()
+
+    assert case_one.case_number == 1
+
+    case_two: Case = Case.objects.create()
+
+    assert case_two.case_number == 2
+
+
+@pytest.mark.django_db
 def test_case_creation_also_creates_compliance():
     """Test that creating a case also creates a CaseCompliance"""
     case: Case = Case.objects.create()
