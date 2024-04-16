@@ -4,6 +4,7 @@
     "pk": 1,
     "fields": {
       "version": 4,
+      "case_number": 1,
       "created_by": 2,
       "created": "2022-09-02T14:36:27.869Z",
       "auditor": 1,
