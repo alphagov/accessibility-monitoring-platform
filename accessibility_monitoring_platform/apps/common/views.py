@@ -3,8 +3,8 @@ Common views
 """
 
 import logging
-from datetime import date, datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from datetime import datetime
+from typing import Any, Dict, List, Tuple, Type, Union
 
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin

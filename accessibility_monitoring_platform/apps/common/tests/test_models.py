@@ -1,9 +1,10 @@
 """
 Tests for common models
 """
+
 import pytest
 
-from ..models import Event
+from ..models import Event, IssueReport
 
 CHANGED_FIELD_VALUE: str = """{
     "old": "[{\\"fields\\": {\\"field1\\": \\"value1\\", \\"field2\\": \\"value2\\"}}]",
@@ -67,3 +68,14 @@ def test_event_diff(value, old_fields, new_fields, diff):
     assert event.old_fields == old_fields  # Old field values
     assert event.new_fields == new_fields  # New field values
     assert event.diff == diff  # Changed field values
+
+
+def test_issue_number_incremented_on_creation(admin_user):
+    """Test that each new issue_report gets the next issue_report_number"""
+    issue_report_one: IssueReport = IssueReport.objects.create(created_by=admin_user)
+
+    assert issue_report_one.issue_number == 1
+
+    issue_report_two: IssueReport = IssueReport.objects.create(created_by=admin_user)
+
+    assert issue_report_two.issue_number == 2
