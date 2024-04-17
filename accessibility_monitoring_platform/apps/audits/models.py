@@ -774,6 +774,7 @@ class Audit(VersionModel):
                 page__is_deleted=False,
                 page__not_found=Boolean.NO,
                 page__retest_page_missing_date=None,
+                page__is_contact_page=Boolean.NO,
             )
             .annotate(
                 position_pdf_page_last=DjangoCase(
