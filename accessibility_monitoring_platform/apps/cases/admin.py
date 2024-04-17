@@ -42,8 +42,15 @@ class CaseAdmin(admin.ModelAdmin):
     """Django admin configuration for Case model"""
 
     readonly_fields = ["created"]
-    search_fields = ["organisation_name", "domain"]
-    list_display = ["organisation_name", "domain", "auditor", "created", "status"]
+    search_fields = ["case_number", "organisation_name", "domain"]
+    list_display = [
+        "case_number",
+        "organisation_name",
+        "domain",
+        "auditor",
+        "created",
+        "status",
+    ]
     list_filter = [
         "variant",
         MetaStatusCaseListFilter,
