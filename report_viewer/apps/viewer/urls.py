@@ -14,19 +14,19 @@ from .views import (
 app_name = "viewer"
 urlpatterns = [
     path(
-        "accessibility-statement",
+        "accessibility-statement/",
         AccessibilityStatementTemplateView.as_view(),
         name="accessibility-statement",
     ),
     path(
-        "privacy-notice",
+        "privacy-notice/",
         PrivacyNoticeTemplateView.as_view(),
         name="privacy-notice",
     ),
     path(
-        "more-information",
+        "more-information/",
         MoreInformationTemplateView.as_view(),
         name="more-information",
     ),
-    path("<str:guid>", ViewReport.as_view(), name="viewreport"),
+    path("<str:guid>/", ViewReport.as_view(), name="viewreport"),
 ]
