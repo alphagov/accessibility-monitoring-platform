@@ -382,7 +382,24 @@ def test_audit_failed_check_results_for_missing_page_not_returned():
 
 
 @pytest.mark.django_db
-def test_audit_accessibility_state_ment_page_returns_page():
+def test_audit_failed_check_results_for_is_contact_page_page_not_returned():
+    """
+    Test failed_check_results attribute of audit returns only check results where failed is "yes"
+    and associated page has not got is_contact_page (used for form pages) is not set.
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_check_results) == 3
+
+    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
+    page.is_contact_page = Boolean.YES
+    page.save()
+
+    assert len(audit.failed_check_results) == 2
+
+
+@pytest.mark.django_db
+def test_audit_accessibility_statement_page_returns_page():
     """
     Accessibility Statement page returned
     """
