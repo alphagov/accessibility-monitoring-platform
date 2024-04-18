@@ -1,6 +1,7 @@
 """
 Test - common admin actions
 """
+
 import csv
 import io
 
@@ -41,6 +42,7 @@ def test_issue_report_export_as_csv(admin_client):
     assert len(rows) == 3
     assert rows[0] == [
         "id",
+        "issue_number",
         "page_url",
         "page_title",
         "description",
@@ -50,5 +52,5 @@ def test_issue_report_export_as_csv(admin_client):
         "trello_ticket",
         "notes",
     ]
-    assert rows[1][3] == ISSUE_REPORT_DESCRIPTION_2
-    assert rows[2][3] == ISSUE_REPORT_DESCRIPTION_1
+    assert rows[1][4] == ISSUE_REPORT_DESCRIPTION_2
+    assert rows[2][4] == ISSUE_REPORT_DESCRIPTION_1

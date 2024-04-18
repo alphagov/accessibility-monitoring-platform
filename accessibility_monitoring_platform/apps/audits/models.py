@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 
 from ..cases.models import Case, CaseCompliance
 from ..common.models import Boolean, StartEndDateManager, VersionModel
-from ..common.utils import amp_format_date
+from ..common.utils import amp_format_date, calculate_percentage
 
 ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
     "archive_accessibility_statement_not_correct_format": "it was not in the correct format",
@@ -774,6 +774,7 @@ class Audit(VersionModel):
                 page__is_deleted=False,
                 page__not_found=Boolean.NO,
                 page__retest_page_missing_date=None,
+                page__is_contact_page=Boolean.NO,
             )
             .annotate(
                 position_pdf_page_last=DjangoCase(
@@ -795,6 +796,13 @@ class Audit(VersionModel):
     def unfixed_check_results(self):
         return self.failed_check_results.exclude(
             retest_state=CheckResult.RetestResult.FIXED
+        )
+
+    @property
+    def percentage_wcag_issues_fixed(self) -> int:
+        return calculate_percentage(
+            total=self.failed_check_results.count(),
+            partial=self.fixed_check_results.count(),
         )
 
     @property

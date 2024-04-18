@@ -3820,7 +3820,7 @@ def test_case_overview(admin_client):
     )
     assertContains(
         response,
-        """<p class="govuk-body-m amp-margin-bottom-10">Retest: 3 (1 deleted page)</p>""",
+        """<p class="govuk-body-m amp-margin-bottom-10">Retest: 3 (0% fixed) (1 deleted page)</p>""",
         html=True,
     )
     assertContains(
