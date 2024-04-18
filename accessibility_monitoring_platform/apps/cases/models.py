@@ -138,6 +138,7 @@ class Case(VersionModel):
             "Not applicable or organisation responded to 12-week update",
         )
 
+    case_number = models.IntegerField(default=1)
     archive = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
@@ -418,7 +419,7 @@ class Case(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.organisation_name} | #{self.id}")
+        return str(f"{self.organisation_name} | #{self.case_number}")
 
     def get_absolute_url(self) -> str:
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
@@ -429,6 +430,11 @@ class Case(VersionModel):
         if not self.created:
             self.created = now
             self.domain = extract_domain_from_url(self.home_page_url)
+            max_case_number = Case.objects.aggregate(models.Max("case_number")).get(
+                "case_number__max"
+            )
+            if max_case_number is not None:
+                self.case_number = max_case_number + 1
         if (
             self.case_completed != Case.CaseCompleted.NO_DECISION
             and not self.completed_date

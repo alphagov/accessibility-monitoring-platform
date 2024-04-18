@@ -1,6 +1,7 @@
 """
 Models for common data used across project
 """
+
 import json
 from datetime import date
 
@@ -54,6 +55,7 @@ class IssueReport(models.Model):
     Model for reported issue about a page on the site
     """
 
+    issue_number = models.IntegerField(default=1)
     page_url = models.CharField(max_length=200)
     page_title = models.CharField(max_length=200)
     description = models.TextField(default="", blank=True)
@@ -68,10 +70,19 @@ class IssueReport(models.Model):
     notes = models.TextField(default="", blank=True)
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["-issue_number"]
+
+    def save(self, *args, **kwargs) -> None:
+        if self.id is None:
+            max_issue_number = IssueReport.objects.aggregate(
+                models.Max("issue_number")
+            ).get("issue_number__max")
+            if max_issue_number is not None:
+                self.issue_number = max_issue_number + 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"#{self.id} {self.page_title}"
+        return f"#{self.issue_number} {self.page_title}"
 
     def get_absolute_url(self) -> str:
         return self.page_url
