@@ -229,13 +229,22 @@ def check_dict_for_truthy_values(dictionary: Dict, keys_to_check: List[str]) -> 
     return len([True for field_name in keys_to_check if dictionary.get(field_name)]) > 0
 
 
+def calculate_percentage(total: int, partial: int) -> int:
+    """Return partial as a percentage of total or zero"""
+    if total == 0:
+        return 0
+    return int(partial * 100 / total)
+
+
 def format_outstanding_issues(
     failed_checks_count: int = 0, fixed_checks_count: int = 0
 ) -> str:
     """Return string showing how many outstanding issues there are"""
     if failed_checks_count == 0:
         return "0 of 0 fixed"
-    percentage: int = int(fixed_checks_count * 100 / failed_checks_count)
+    percentage: int = calculate_percentage(
+        total=failed_checks_count, partial=fixed_checks_count
+    )
     return f"{fixed_checks_count} of {failed_checks_count} fixed ({percentage}%)"
 
 
