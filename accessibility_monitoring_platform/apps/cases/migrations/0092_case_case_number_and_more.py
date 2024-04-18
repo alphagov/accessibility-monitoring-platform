@@ -5,7 +5,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cases", "0090_migrate_zendesk_urls"),
+        (
+            "cases",
+            "0091_alter_casecompliance_statement_compliance_state_12_week_and_more",
+        ),
     ]
 
     operations = [
