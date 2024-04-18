@@ -25,6 +25,7 @@ from ..utils import (
     amp_format_datetime,
     amp_format_time,
     build_filters,
+    calculate_percentage,
     check_dict_for_truthy_values,
     checks_if_2fa_is_enabled,
     convert_date_to_datetime,
@@ -401,6 +402,26 @@ def test_format_outstanding_issues(
         format_outstanding_issues(
             failed_checks_count=failed_checks_count,
             fixed_checks_count=fixed_checks_count,
+        )
+        == expected_result
+    )
+
+
+@pytest.mark.parametrize(
+    "total,partial,expected_result",
+    [
+        (0, 0, 0),
+        (0, 10, 0),
+        (10, 0, 0),
+        (10, 5, 50),
+        (9, 6, 66),
+    ],
+)
+def test_calculate_percentage(total: int, partial: int, expected_result: str):
+    assert (
+        calculate_percentage(
+            total=total,
+            partial=partial,
         )
         == expected_result
     )

@@ -2,6 +2,9 @@
 <p class="govuk-body-m amp-margin-bottom-10">Initial test: {{ audit.failed_check_results.count }}</p>
 <p class="govuk-body-m amp-margin-bottom-10">
     Retest: {{ audit.unfixed_check_results.count }}
+    {% if audit %}
+        ({{ audit.percentage_wcag_issues_fixed }}% fixed)
+    {% endif %}
     {% if audit.missing_at_retest_pages %}
         ({{ audit.missing_at_retest_pages.count }} deleted page{% if audit.missing_at_retest_pages.count != 1 %}s{% endif %})
     {% endif %}
