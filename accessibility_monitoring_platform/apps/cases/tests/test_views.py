@@ -296,6 +296,45 @@ def test_archived_case_view_case_includes_fields(admin_client):
     )
 
 
+def test_archived_case_view_case_includes_post_case_sections(admin_client):
+    """
+    Test that the View case page for an archived case shows expected post case.
+    """
+    case: Case = Case.objects.create(
+        archive=json.dumps(CASE_ARCHIVE), variant=Case.Variant.ARCHIVED
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assertNotContains(response, "Statement enforcement")
+    assertContains(response, "Equality body metadata")
+    assertNotContains(response, "Equality body correspondence")
+    assertNotContains(response, "Equality body retest overview")
+    assertContains(response, "Legacy end of case data")
+
+
+def test_revived_archived_case_view_case_includes_post_case_sections(admin_client):
+    """
+    Test that the View case page for an archived case which has been revived
+    (usually by EHRC requesting a retest) shows expected post case.
+    """
+    case: Case = Case.objects.create(
+        archive=json.dumps(CASE_ARCHIVE), variant=Case.Variant.CLOSE_CASE
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+
+    assertContains(response, "Statement enforcement")
+    assertContains(response, "Equality body metadata")
+    assertContains(response, "Equality body correspondence")
+    assertContains(response, "Equality body retest overview")
+    assertContains(response, "Legacy end of case data")
+
+
 def test_view_case_includes_tests(admin_client):
     """
     Test that the View case displays test and 12-week retest.
