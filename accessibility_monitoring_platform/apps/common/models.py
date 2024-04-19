@@ -269,3 +269,31 @@ class SubCategory(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class EmailTemplate(models.Model):
+    """Email template"""
+
+    class Type(models.TextChoices):
+        DEFAULT = "default"
+        TWELVE_WEEK_REQUEST = "12-week-request", "12-week update request"
+        OUTSTANDING_ISSUES = "outstanding-issues", "Outstanding issues"
+        EQUALITY_BODY_RETEST = "equality-body-retest", "Equality body retest"
+
+    name = models.TextField(default="Default")
+    type = models.CharField(max_length=20, choices=Type.choices, default=Type.DEFAULT)
+    template = models.TextField(default="", blank=True)
+    created_by = models.ForeignKey(
+        User, on_delete=models.PROTECT, related_name="created_by_user"
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(
+        User, on_delete=models.PROTECT, related_name="updated_by_user"
+    )
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return self.name

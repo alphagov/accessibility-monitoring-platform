@@ -12,6 +12,7 @@ from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
+from django.template import Context, Template
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
@@ -26,7 +27,7 @@ from ..audits.utils import report_data_updated
 from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
-from ..common.models import Boolean
+from ..common.models import Boolean, EmailTemplate
 from ..common.utils import (
     amp_format_date,
     check_dict_for_truthy_values,
@@ -810,6 +811,11 @@ class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
             context["issues_tables"] = build_issues_tables(
                 pages=case.audit.testable_pages
             )
+        email_template: EmailTemplate = EmailTemplate.objects.get(
+            type=EmailTemplate.Type.TWELVE_WEEK_REQUEST
+        )
+        template: Template = Template(email_template.template)
+        context["email_template"] = template.render(context=Context(context))
         return context
 
 
@@ -826,6 +832,11 @@ class CaseOutstandingIssuesEmailTemplateView(TemplateView):
                 pages=case.audit.testable_pages,
                 check_results_attr="unfixed_check_results",
             )
+        email_template: EmailTemplate = EmailTemplate.objects.get(
+            type=EmailTemplate.Type.OUTSTANDING_ISSUES
+        )
+        template: Template = Template(email_template.template)
+        context["email_template"] = template.render(context=Context(context))
         return context
 
 
@@ -1292,6 +1303,11 @@ class EqualityBodyRetestEmailTemplateView(TemplateView):
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
         context["retest"] = case.retests.first()
+        email_template: EmailTemplate = EmailTemplate.objects.get(
+            type=EmailTemplate.Type.EQUALITY_BODY_RETEST
+        )
+        template: Template = Template(email_template.template)
+        context["email_template"] = template.render(context=Context(context))
         return context
 
 
