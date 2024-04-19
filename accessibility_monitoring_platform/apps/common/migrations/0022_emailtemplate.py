@@ -44,6 +44,7 @@ class Migration(migrations.Migration):
                 (
                     "created_by",
                     models.ForeignKey(
+                        null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="created_by_user",
                         to=settings.AUTH_USER_MODEL,
@@ -52,6 +53,7 @@ class Migration(migrations.Migration):
                 (
                     "updated_by",
                     models.ForeignKey(
+                        null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="updated_by_user",
                         to=settings.AUTH_USER_MODEL,

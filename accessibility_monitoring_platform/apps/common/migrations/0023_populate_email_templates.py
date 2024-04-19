@@ -428,22 +428,16 @@ def populate_email_templates(apps, schema_editor):  # pylint: disable=unused-arg
         name="12-week update request",
         type="12-week-request",
         template=TWELVE_WEEK_UPDATE_REQUEST,
-        created_by_id=2,
-        updated_by_id=2,
     )
     EmailTemplate.objects.create(
         name="Outstanding issues",
         type="outstanding-issues",
         template=OUTSTANDING_ISSUES,
-        created_by_id=2,
-        updated_by_id=2,
     )
     EmailTemplate.objects.create(
         name="Equality body retest",
         type="equality-body-retest",
         template=EQUALITY_BODY_RETEST,
-        created_by_id=2,
-        updated_by_id=2,
     )
 
 
