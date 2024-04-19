@@ -10,11 +10,11 @@ attrs==23.2.0
     # via
     #   outcome
     #   trio
-boto3==1.34.77
+boto3==1.34.86
     # via
     #   -r requirements.in
     #   moto
-botocore==1.34.77
+botocore==1.34.86
     # via
     #   boto3
     #   moto
@@ -44,7 +44,7 @@ django-csp==3.8
     # via -r requirements.in
 django-formtools==2.5.1
     # via django-two-factor-auth
-django-otp==1.3.0
+django-otp==1.5.0
     # via django-two-factor-auth
 django-phonenumber-field==7.3.0
     # via django-two-factor-auth
@@ -54,7 +54,7 @@ docopt==0.6.2
     # via notifications-python-client
 h11==0.14.0
     # via wsproto
-idna==3.6
+idna==3.7
     # via
     #   requests
     #   trio
@@ -72,7 +72,7 @@ markupsafe==2.1.5
     # via
     #   jinja2
     #   werkzeug
-moto==5.0.4
+moto==5.0.5
     # via -r requirements.in
 notifications-python-client==9.0.0
     # via -r requirements.in
@@ -82,7 +82,7 @@ packaging==24.0
     # via
     #   pytest
     #   webdriver-manager
-phonenumbers==8.13.33
+phonenumbers==8.13.34
     # via -r requirements.in
 pluggy==1.4.0
     # via pytest
@@ -130,7 +130,7 @@ sniffio==1.3.1
     # via trio
 sortedcontainers==2.4.0
     # via trio
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via django
 trio==0.25.0
     # via
@@ -138,7 +138,7 @@ trio==0.25.0
     #   trio-websocket
 trio-websocket==0.11.1
     # via selenium
-typing-extensions==4.10.0
+typing-extensions==4.11.0
     # via
     #   qrcode
     #   selenium
