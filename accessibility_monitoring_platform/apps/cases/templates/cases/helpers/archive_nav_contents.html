@@ -38,10 +38,11 @@
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
         <ul class="govuk-list">
             {% if case.variant == 'close-case' %}
-                {% include './archive_nav_content.html' with anchor='statement-enforcement' id='statement-enforcement' edit_name='cases:edit-statement-enforcement' name='Statement enforcement' %}
-                {% include './archive_nav_content.html' with anchor='equality-body-metadata' id='equality-body-metadata' edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
-                {% include './archive_nav_content.html' with anchor='equality-body-correspondence' id='equality-body-correspondence' edit_name='cases:list-equality-body-correspondence' name='Equality body correspondence' %}
-                {% include './archive_nav_content.html' with anchor='retest-overview' id='retest-overview' edit_name='cases:edit-retest-overview' name='Retest overview' %}
+                {% for view_section in view_sections %}
+                    <li>
+                        {% include 'common/view_accordion/toc_link.html' with section=view_section %}
+                    </li>
+                {% endfor %}
             {% else %}
                 {% include './archive_nav_content.html' with anchor='equality-body-metadata' id='equality-body-metadata' edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
                 {% include './archive_nav_content.html' with anchor='legacy-end-of-case-data' id='legacy-end-of-case' edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
