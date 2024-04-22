@@ -479,6 +479,9 @@ class EmailTemplateListView(ListView):
     context_object_name: str = "email_templates"
     paginate_by: int = 10
 
+    def get_queryset(self) -> QuerySet[EmailTemplate]:
+        return EmailTemplate.objects.filter(type=EmailTemplate.Type.SIMPLE)
+
 
 class EmailTemplateDetailView(DetailView):
     """

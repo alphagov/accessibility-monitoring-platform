@@ -29,13 +29,24 @@ class Migration(migrations.Migration):
                     "type",
                     models.CharField(
                         choices=[
+                            ("simple", "Simple"),
+                            ("complex", "Complex"),
+                        ],
+                        default="simple",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "slug",
+                    models.CharField(
+                        choices=[
                             ("default", "Default"),
                             ("12-week-update", "12-week update request"),
                             ("outstanding-issues", "Outstanding issues"),
                             ("equality-body=retest", "Equality body retest"),
                         ],
                         default="default",
-                        max_length=20,
+                        max_length=50,
                     ),
                 ),
                 ("template", models.TextField(blank=True, default="")),

@@ -275,13 +275,18 @@ class EmailTemplate(models.Model):
     """Email template"""
 
     class Type(models.TextChoices):
+        SIMPLE = "simple"
+        COMPLEX = "complex"
+
+    class Slug(models.TextChoices):
         DEFAULT = "default"
         TWELVE_WEEK_REQUEST = "12-week-request", "12-week update request"
         OUTSTANDING_ISSUES = "outstanding-issues", "Outstanding issues"
         EQUALITY_BODY_RETEST = "equality-body-retest", "Equality body retest"
 
     name = models.TextField(default="Default")
-    type = models.CharField(max_length=20, choices=Type.choices, default=Type.DEFAULT)
+    type = models.CharField(max_length=20, choices=Type, default=Type.SIMPLE)
+    slug = models.CharField(max_length=50, choices=Slug, default=Slug.DEFAULT)
     template = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User, on_delete=models.PROTECT, related_name="created_by_user"

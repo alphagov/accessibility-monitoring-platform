@@ -812,7 +812,7 @@ class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
                 pages=case.audit.testable_pages
             )
         email_template: EmailTemplate = EmailTemplate.objects.get(
-            type=EmailTemplate.Type.TWELVE_WEEK_REQUEST
+            slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
         )
         template: Template = Template(email_template.template)
         context["email_template"] = template.render(context=Context(context))
@@ -833,7 +833,7 @@ class CaseOutstandingIssuesEmailTemplateView(TemplateView):
                 check_results_attr="unfixed_check_results",
             )
         email_template: EmailTemplate = EmailTemplate.objects.get(
-            type=EmailTemplate.Type.OUTSTANDING_ISSUES
+            slug=EmailTemplate.Slug.OUTSTANDING_ISSUES
         )
         template: Template = Template(email_template.template)
         context["email_template"] = template.render(context=Context(context))
@@ -1304,7 +1304,7 @@ class EqualityBodyRetestEmailTemplateView(TemplateView):
         context["case"] = case
         context["retest"] = case.retests.first()
         email_template: EmailTemplate = EmailTemplate.objects.get(
-            type=EmailTemplate.Type.EQUALITY_BODY_RETEST
+            slug=EmailTemplate.Slug.EQUALITY_BODY_RETEST
         )
         template: Template = Template(email_template.template)
         context["email_template"] = template.render(context=Context(context))
