@@ -16,6 +16,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
@@ -44,6 +45,7 @@ from .metrics import (
 )
 from .models import (
     ChangeToPlatform,
+    EmailTemplate,
     FooterLink,
     FrequentlyUsedLink,
     IssueReport,
@@ -465,3 +467,23 @@ class BulkURLSearchView(FormView):
                 self.get_context_data(bulk_search_results=bulk_search_results)
             )
         return self.render_to_response()
+
+
+class EmailTemplateListView(ListView):
+    """
+    View of list of issue reports.
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    template_name: str = "common/email_template_list.html"
+    context_object_name: str = "email_templates"
+    paginate_by: int = 10
+
+
+class EmailTemplateDetailView(DetailView):
+    """
+    View of details of a single email template
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    context_object_name: str = "email_template"

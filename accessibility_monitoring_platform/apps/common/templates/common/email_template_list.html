@@ -1,0 +1,49 @@
+
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}Email templates{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/settings/breadcrumbs.html' with page_heading='Email templates' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'common/settings/nav_steps.html' with current='common:email-template-list' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Email templates</h1>
+                {% include "common/pagination_controls.html" %}
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                    {% for email_template in email_templates %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">
+                                <h2 class="govuk-heading-m">{{ email_template.name }}</h2>
+                                <p class="govuk-body-m amp-margin-bottom-5">
+                                    <b>Added:</b>
+                                    {{ email_template.created|amp_date }} by {{ email_template.created_by.get_full_name }}
+                                </p>
+                                <p class="govuk-body-m amp-margin-bottom-5">
+                                    <b>Last edited:</b>
+                                    {{ email_template.updated|amp_date }} by {{ email_template.updated_by.get_full_name }}
+                                </p>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Email template beginning:</b></p>
+                                <code><pre>{{ email_template.template|truncatechars:200 }}</pre></code>
+                                <p class="govuk-body-m">
+                                    <a href="{% url 'common:email-template-detail' email_template.id %}" class="govuk-link govuk-link--no-visited-state">View full template</a>
+                                </p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% include "common/pagination_controls.html" %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

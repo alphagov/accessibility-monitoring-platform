@@ -1,0 +1,39 @@
+
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}{{ email_template.name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-breadcrumbs">
+                    <ol class="govuk-breadcrumbs__list">
+                        {% include 'common/breadcrumb_home.html' %}
+                        <li class="govuk-breadcrumbs__list-item">Settings</li>
+                        <li class="govuk-breadcrumbs__list-item">
+                            <a class="govuk-breadcrumbs__link" href="{% url 'common:email-template-list' %}">Email templates</a>
+                        </li>
+                        <li class="govuk-breadcrumbs__list-item">{{ email_template.name }}</li>
+                    </ol>
+                </div>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ email_template.name }}</h1>
+                <p class="govuk-body-m amp-margin-bottom-5">
+                    <b>Added:</b>
+                    {{ email_template.created|amp_datetime }} by {{ email_template.created_by.get_full_name }}
+                </p>
+                <p class="govuk-body-m amp-margin-bottom-5">
+                    <b>Last edited:</b>
+                    {{ email_template.updated|amp_datetime }} by {{ email_template.updated_by.get_full_name }}
+                </p>
+                <p class="govuk-body-m"><b>Email template:</b></p>
+                <code><pre>{{ email_template.template }}</pre></code>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
