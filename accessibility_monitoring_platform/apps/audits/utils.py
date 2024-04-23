@@ -190,11 +190,11 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
     page_subtables: List[ViewSubTable] = []
     for page in audit.testable_pages:
         view_sub_table: ViewSubTable = ViewSubTable(
-            name=str(page),
+            name=f"{str(page)}",
             display_fields=[
                 FieldLabelAndValue(
                     type=FieldLabelAndValue.URL_TYPE,
-                    label="URL",
+                    label=str(page),
                     value=page.url,
                 ),
             ],
