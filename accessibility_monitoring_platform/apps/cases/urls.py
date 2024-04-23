@@ -16,6 +16,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseDeactivateUpdateView,
     CaseDetailUpdateView,
     CaseDetailView,
+    CaseEmailTemplateListView,
     CaseEnforcementRecommendationUpdateView,
     CaseEqualityBodyCorrespondenceUpdateView,
     CaseEqualityBodyMetadataUpdateView,
@@ -292,5 +293,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/delete-zendesk-ticket/",
         login_required(delete_zendesk_ticket),
         name="delete-zendesk-ticket",
+    ),
+    path(
+        "<int:case_id>/email-template-list/",
+        login_required(CaseEmailTemplateListView.as_view()),
+        name="email-template-list",
     ),
 ]

@@ -475,7 +475,7 @@ class BulkURLSearchView(FormView):
 
 class EmailTemplateListView(ListView):
     """
-    View of list of issue reports.
+    View of list of email templates.
     """
 
     model: Type[EmailTemplate] = EmailTemplate
@@ -514,6 +514,12 @@ class EmailTemplateCreateView(CreateView):
     form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
     template_name: str = "common/email_template_create.html"
 
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        email_template: EmailTemplate = form.save(commit=False)
+        email_template.created_by = self.request.user
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         if "save_preview" in self.request.POST:
             return reverse_lazy(
@@ -533,6 +539,12 @@ class EmailTemplateUpdateView(UpdateView):
     context_object_name: str = "email_template"
     form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
     template_name: str = "common/email_template_update.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        email_template: EmailTemplate = form.save(commit=False)
+        email_template.updated_by = self.request.user
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Remain on current page on save"""

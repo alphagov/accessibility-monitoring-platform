@@ -1418,3 +1418,20 @@ def delete_zendesk_ticket(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(
         reverse("cases:zendesk-tickets", kwargs={"pk": zendesk_ticket.case.id})
     )
+
+
+class CaseEmailTemplateListView(ListView):
+    """
+    View of list of email templates for the case.
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    template_name: str = "cases/email_template_list.html"
+    context_object_name: str = "email_templates"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add undeleted contacts to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = self.case
+        return context

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}{{ case.organisation_name }} | Email templates{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading='Email templates' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Email templates' %}
+                <table class="govuk-table">
+                    <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th scope="col" class="govuk-table__header amp-width-one-quarter">Name</th>
+                            <th scope="col" class="govuk-table__header amp-width-one-half">Last edited</th>
+                            <th scope="col" class="govuk-table__header amp-width-one-quarter">View</th>
+                        </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                        {% for email_template in email_templates %}
+                            <tr class="govuk-table__row ">
+                                <td class="govuk-table__cell amp-width-one-quarter">
+                                    {{ email_template.name }}
+                                </td>
+                                <td class="govuk-table__cell amp-width-one-half">
+                                    {{ email_template.updated|amp_date }}
+                                    by
+                                    {{ email_template.updated_by.get_full_name }}
+                                </td>
+                                <td class="govuk-table__cell amp-width-one-quarter">
+                                    View
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
