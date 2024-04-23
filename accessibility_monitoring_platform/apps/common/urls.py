@@ -16,6 +16,7 @@ from .views import (
     ContactAdminView,
     EmailTemplateListView,
     EmailTemplatePreviewDetailView,
+    EmailTemplateUpdateView,
     FooterLinkFormsetTemplateView,
     FrequentlyUsedLinkFormsetTemplateView,
     IssueReportListView,
@@ -114,5 +115,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/email-template-preview/",
         login_required(EmailTemplatePreviewDetailView.as_view()),
         name="email-template-preview",
+    ),
+    path(
+        "<int:pk>/email-template-update/",
+        login_required(EmailTemplateUpdateView.as_view()),
+        name="email-template-update",
     ),
 ]

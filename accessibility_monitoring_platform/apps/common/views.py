@@ -28,6 +28,7 @@ from .forms import (
     AMPContactAdminForm,
     AMPIssueReportForm,
     BulkURLSearchForm,
+    EmailTemplateCreateUpdateForm,
     FooterLinkFormset,
     FooterLinkOneExtraFormset,
     FrequentlyUsedLinkFormset,
@@ -502,3 +503,22 @@ class EmailTemplatePreviewDetailView(DetailView):
         template: Template = Template(context["email_template"].template)
         context["email_template_preview"] = template.render(context=Context(context))
         return context
+
+
+class EmailTemplateUpdateView(UpdateView):
+    """
+    View preview of email template
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    context_object_name: str = "email_template"
+    form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
+    template_name: str = "common/email_template_update.html"
+
+    def get_success_url(self) -> str:
+        """Remain on current page on save"""
+        if "save_preview" in self.request.POST:
+            return reverse_lazy(
+                "common:email-template-preview", kwargs={"pk": self.object.id}
+            )
+        return self.request.path
