@@ -18,7 +18,7 @@ from django.template import Context, Template
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
@@ -505,9 +505,28 @@ class EmailTemplatePreviewDetailView(DetailView):
         return context
 
 
+class EmailTemplateCreateView(CreateView):
+    """
+    View to create email template
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
+    template_name: str = "common/email_template_create.html"
+
+    def get_success_url(self) -> str:
+        if "save_preview" in self.request.POST:
+            return reverse_lazy(
+                "common:email-template-preview", kwargs={"pk": self.object.id}
+            )
+        return reverse_lazy(
+            "common:email-template-update", kwargs={"pk": self.object.id}
+        )
+
+
 class EmailTemplateUpdateView(UpdateView):
     """
-    View preview of email template
+    View to update email template
     """
 
     model: Type[EmailTemplate] = EmailTemplate

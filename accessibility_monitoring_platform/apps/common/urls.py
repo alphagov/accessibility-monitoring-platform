@@ -14,6 +14,7 @@ from .views import (
     BulkURLSearchView,
     ChangeToPlatformListView,
     ContactAdminView,
+    EmailTemplateCreateView,
     EmailTemplateListView,
     EmailTemplatePreviewDetailView,
     EmailTemplateUpdateView,
@@ -115,6 +116,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/email-template-preview/",
         login_required(EmailTemplatePreviewDetailView.as_view()),
         name="email-template-preview",
+    ),
+    path(
+        "email-template-create/",
+        login_required(EmailTemplateCreateView.as_view()),
+        name="email-template-create",
     ),
     path(
         "<int:pk>/email-template-update/",

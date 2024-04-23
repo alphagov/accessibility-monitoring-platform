@@ -16,6 +16,17 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Email template manager</h1>
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'common:email-template-create' %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Create email template
+                    </a>
+                </div>
                 {% include "common/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">

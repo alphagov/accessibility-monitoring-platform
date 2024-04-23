@@ -18,7 +18,7 @@
                         {% include 'common/breadcrumb_home.html' %}
                         <li class="govuk-breadcrumbs__list-item">Settings</li>
                         <li class="govuk-breadcrumbs__list-item">
-                            <a class="govuk-breadcrumbs__link" href="{% url 'common:email-template-list' %}">Email templates</a>
+                            <a class="govuk-breadcrumbs__link" href="{% url 'common:email-template-list' %}">Email template manager</a>
                         </li>
                         <li class="govuk-breadcrumbs__list-item">{{ email_template.name }} preview</li>
                     </ol>
@@ -31,6 +31,12 @@
                 <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
                     Copy email template
                 </button>
+                <a
+                    href="{% url 'common:email-template-update' email_template.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Return to editor
+                </a>
                 <a
                     href="{% url 'common:email-template-list' %}"
                     class="govuk-link govuk-link--no-visited-state"

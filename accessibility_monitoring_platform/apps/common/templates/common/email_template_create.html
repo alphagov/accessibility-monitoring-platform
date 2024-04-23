@@ -6,7 +6,7 @@
 
 {% load l10n %}
 
-{% block title %}Email template editor{% endblock %}
+{% block title %}Create email template{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -20,16 +20,16 @@
                         <li class="govuk-breadcrumbs__list-item">
                             <a class="govuk-breadcrumbs__link" href="{% url 'common:email-template-list' %}">Email template manager</a>
                         </li>
-                        <li class="govuk-breadcrumbs__list-item">Email template editor</li>
+                        <li class="govuk-breadcrumbs__list-item">Create email template</li>
                     </ol>
                 </div>
-                <h1 class="govuk-heading-xl">Email template editor</h1>
+                <h1 class="govuk-heading-xl">Create email template</h1>
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'common:email-template-update' email_template.id %}">
+                <form method="post" action="{% url 'common:email-template-create' %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
@@ -38,14 +38,14 @@
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
-                                value="Save"
+                                value="Create"
                                 name="save"
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
                             <input
                                 type="submit"
-                                value="Save and preview"
+                                value="Create and preview"
                                 name="save_preview"
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
