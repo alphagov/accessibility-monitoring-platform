@@ -1430,8 +1430,27 @@ class CaseEmailTemplateListView(ListView):
     context_object_name: str = "email_templates"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add undeleted contacts to context"""
+        """Add current case to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = self.case
+        return context
+
+
+class CaseEmailTemplatePreviewDetailView(DetailView):
+    """
+    View email template populated with case data
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    template_name: str = "cases/email_template_preview.html"
+    context_object_name: str = "email_template"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case and email template to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = self.case
+        template: Template = Template(context["email_template"].template)
+        context["email_template_preview"] = template.render(context=Context(context))
         return context
