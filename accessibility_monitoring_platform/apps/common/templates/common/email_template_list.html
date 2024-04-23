@@ -34,7 +34,7 @@
                                 <p class="govuk-body-m amp-margin-bottom-5"><b>Email template beginning:</b></p>
                                 <code><pre>{{ email_template.template|truncatechars:200 }}</pre></code>
                                 <p class="govuk-body-m">
-                                    <a href="{% url 'common:email-template-detail' email_template.id %}" class="govuk-link govuk-link--no-visited-state">View full template</a>
+                                    <a href="{% url 'common:email-template-preview' email_template.id %}" class="govuk-link govuk-link--no-visited-state">View preview</a>
                                 </p>
                             </td>
                         </tr>

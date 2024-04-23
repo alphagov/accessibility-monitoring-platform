@@ -14,6 +14,7 @@ from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.template import Context, Template
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
@@ -63,6 +64,8 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+EMAIL_TEMPLATE_PREVIEW_CASE_ID: int = 1170
 
 
 class ContactAdminView(FormView):
@@ -483,10 +486,19 @@ class EmailTemplateListView(ListView):
         return EmailTemplate.objects.filter(type=EmailTemplate.Type.SIMPLE)
 
 
-class EmailTemplateDetailView(DetailView):
+class EmailTemplatePreviewDetailView(DetailView):
     """
-    View of details of a single email template
+    View preview of email template
     """
 
     model: Type[EmailTemplate] = EmailTemplate
+    template_name: str = "common/email_template_preview.html"
     context_object_name: str = "email_template"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case and email template to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["case"] = Case.objects.get(pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID)
+        template: Template = Template(context["email_template"].template)
+        context["email_template_preview"] = template.render(context=Context(context))
+        return context
