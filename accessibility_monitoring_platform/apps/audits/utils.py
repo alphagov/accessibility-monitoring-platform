@@ -187,6 +187,27 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
         extract_form_labels_and_values, instance=audit.case.compliance
     )
     audit_pk: Dict[str, int] = {"pk": audit.id}
+    page_subtables: List[ViewSubTable] = []
+    for page in audit.testable_pages:
+        view_sub_table: ViewSubTable = ViewSubTable(
+            name=str(page),
+            display_fields=[
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.URL_TYPE,
+                    label="URL",
+                    value=page.url,
+                ),
+            ],
+        )
+        if page.location:
+            view_sub_table.display_fields.append(
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.NOTES_TYPE,
+                    label="Page location description if single page app",
+                    value=page.location,
+                ),
+            )
+        page_subtables.append(view_sub_table)
     pre_statement_check_sections: List[ViewSection] = [
         build_view_section(
             name="Test metadata",
@@ -200,14 +221,7 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
             edit_url=reverse("audits:edit-audit-pages", kwargs=audit_pk),
             edit_url_id="edit-audit-pages",
             complete_date=audit.audit_pages_complete_date,
-            display_fields=[
-                FieldLabelAndValue(
-                    type=FieldLabelAndValue.URL_TYPE,
-                    label=str(page),
-                    value=page.url,
-                )
-                for page in audit.testable_pages
-            ],
+            subtables=page_subtables,
             subsections=[
                 build_view_section(
                     name=f"Initial test {str(page)} ({page.failed_check_results.count()})",
