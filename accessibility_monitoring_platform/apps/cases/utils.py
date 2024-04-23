@@ -192,7 +192,6 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             legacy_end_of_case,
         ]
     if case.audit is not None:
-        audit_pk: Dict[str, int] = {"pk": case.audit.id}
         testing_details_subsections: List[
             FieldLabelAndValue
         ] = get_initial_test_view_sections(audit=case.audit)
@@ -200,12 +199,13 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             FieldLabelAndValue
         ] = get_twelve_week_test_view_sections(audit=case.audit)
         if case.report is not None:
+            report_pk: Dict[str, int] = {"pk": case.report.id}
             report_details_fields: List[FieldLabelAndValue] = [
                 FieldLabelAndValue(
                     type=FieldLabelAndValue.URL_TYPE,
                     external_url=False,
                     label="Preview report",
-                    value=reverse("reports:report-publisher", kwargs=audit_pk),
+                    value=reverse("reports:report-publisher", kwargs=report_pk),
                     extra_label="Report publisher",
                 ),
                 FieldLabelAndValue(
@@ -218,16 +218,14 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                     type=FieldLabelAndValue.URL_TYPE,
                     external_url=False,
                     label="Report views",
-                    value=reverse(
-                        "reports:report-metrics-view", kwargs={"pk": case.report.id}
-                    ),
+                    value=reverse("reports:report-metrics-view", kwargs=report_pk),
                     extra_label=case.reportvisitsmetrics_set.all().count(),
                 ),
                 FieldLabelAndValue(
                     type=FieldLabelAndValue.URL_TYPE,
                     external_url=False,
                     label="Unique visitors to report",
-                    value=f'{reverse("reports:report-metrics-view", kwargs={"pk": case.report.id})}?showing=unique-visitors',
+                    value=f'{reverse("reports:report-metrics-view", kwargs=report_pk)}?showing=unique-visitors',
                     extra_label=case.reportvisitsmetrics_set.values_list(
                         "fingerprint_hash"
                     )
