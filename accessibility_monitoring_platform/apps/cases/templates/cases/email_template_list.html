@@ -11,10 +11,9 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" with page_heading='Email templates' %}
-                <p
-                    tabIndex="0"
-                    class="govuk-body-m amp-control amp-go-back">
-                    Return to previous page</p>
+                <p class="govuk-body-m">
+                    {% include "common/amp_control_go_back.html" %}
+                </p>
                 <table class="govuk-table">
                     <thead class="govuk-table__head">
                         <tr class="govuk-table__row">

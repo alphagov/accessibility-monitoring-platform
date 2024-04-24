@@ -484,7 +484,9 @@ class EmailTemplateListView(ListView):
     paginate_by: int = 10
 
     def get_queryset(self) -> QuerySet[EmailTemplate]:
-        return EmailTemplate.objects.filter(type=EmailTemplate.Type.SIMPLE)
+        return EmailTemplate.objects.filter(type=EmailTemplate.Type.SIMPLE).filter(
+            is_deleted=False
+        )
 
 
 class EmailTemplatePreviewDetailView(DetailView):

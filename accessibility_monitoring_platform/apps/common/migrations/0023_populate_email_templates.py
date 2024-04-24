@@ -423,7 +423,7 @@ Please review the issues listed below and provide an update.
 SENDING_REPORT_EMAIL_VIA_PLATFORM: str = """Dear <b>(team responsible for the website)</b>
 <br>
 <br>
-I am <b>(name of person sending the report)</b> from the website accessibility monitoring team at the Government Digital Service, which is part of the Cabinet Office.
+I am {{ case.auditor.get_full_name }} from the website accessibility monitoring team at the Government Digital Service, which is part of the Cabinet Office.
 <br>
 <br>
 {% if case.previous_case_url %}

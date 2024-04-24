@@ -296,6 +296,7 @@ class EmailTemplate(models.Model):
         User, on_delete=models.PROTECT, related_name="updated_by_user"
     )
     updated = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["name"]

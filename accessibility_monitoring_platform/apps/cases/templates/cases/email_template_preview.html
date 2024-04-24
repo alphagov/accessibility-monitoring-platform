@@ -31,6 +31,7 @@
                 <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
                     Copy email template
                 </button>
+                {% include "common/amp_control_go_back.html" %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -46,4 +47,5 @@
 
 {% block extrascript %}
     <script src="{% static 'js/cases_copy_email.js' %}"></script>
+    <script src="{% static 'js/go_back.js' %}"></script>
 {% endblock %}
