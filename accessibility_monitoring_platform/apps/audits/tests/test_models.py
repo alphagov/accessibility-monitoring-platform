@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from django.db.models.query import QuerySet
-from pytest_django.asserts import assertQuerysetEqual
+from pytest_django.asserts import assertQuerySetEqual
 
 from ...cases.models import Case
 from ...common.models import Boolean
@@ -833,7 +833,7 @@ def test_audit_statement_check_results():
         audit=audit
     )
 
-    assertQuerysetEqual(audit.statement_check_results, statement_check_results)
+    assertQuerySetEqual(audit.statement_check_results, statement_check_results)
 
 
 @pytest.mark.django_db
@@ -874,7 +874,7 @@ def test_audit_specific_statement_check_results(type, attr):
         audit=audit, type=type
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         getattr(audit, f"{attr}_statement_check_results"),
         statement_check_results,
     )
@@ -910,7 +910,7 @@ def test_audit_failed_statement_check_results():
         )
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         audit.failed_statement_check_results, failed_statement_check_results
     )
 
@@ -939,7 +939,7 @@ def test_audit_contains_specific_outstanding_statement_check_results(type, attr)
         )
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         getattr(audit, f"{attr}_outstanding_statement_check_results"),
         failed_statement_check_results,
     )
@@ -1284,7 +1284,7 @@ def test_retest_page_all_check_results():
     retest: Retest = create_retest_and_retest_check_results()
     retest_page: RetestPage = retest.retestpage_set.get(page__page_type=Page.Type.HOME)
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         retest_page.all_check_results, retest_page.retestcheckresult_set.all()
     )
 
@@ -1553,7 +1553,7 @@ def test_all_retest_pages():
         page=page
     )
 
-    assertQuerysetEqual(retest_page.all_retest_pages, all_retest_pages_for_page)
+    assertQuerySetEqual(retest_page.all_retest_pages, all_retest_pages_for_page)
 
 
 @pytest.mark.django_db
@@ -1592,7 +1592,7 @@ def test_retest_statement_check_results():
         RetestStatementCheckResult
     ] = RetestStatementCheckResult.objects.filter(retest=retest)
 
-    assertQuerysetEqual(retest.statement_check_results, retest_statement_check_results)
+    assertQuerySetEqual(retest.statement_check_results, retest_statement_check_results)
 
 
 @pytest.mark.django_db
@@ -1605,7 +1605,7 @@ def test_retest_failed_statement_check_results():
         retest=retest, check_result_state=StatementCheckResult.Result.NO
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         retest.failed_statement_check_results, retest_failed_statement_check_results
     )
 
@@ -1620,7 +1620,7 @@ def test_retest_overview_statement_check_results():
         retest=retest, type=StatementCheck.Type.OVERVIEW
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         retest.overview_statement_check_results, retest_overview_statement_check_results
     )
 
@@ -1658,7 +1658,7 @@ def test_retest_website_statement_check_results():
         retest=retest, type=StatementCheck.Type.WEBSITE
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         retest.website_statement_check_results, retest_website_statement_check_results
     )
 
@@ -1673,7 +1673,7 @@ def test_retest_compliance_statement_check_results():
         retest=retest, type=StatementCheck.Type.COMPLIANCE
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         retest.compliance_statement_check_results,
         retest_compliance_statement_check_results,
     )
@@ -1689,7 +1689,7 @@ def test_retest_non_accessible_statement_check_results():
         retest=retest, type=StatementCheck.Type.NON_ACCESSIBLE
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         retest.non_accessible_statement_check_results,
         retest_non_accessible_statement_check_results,
     )
@@ -1705,7 +1705,7 @@ def test_retest_preparation_statement_check_results():
         retest=retest, type=StatementCheck.Type.PREPARATION
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         retest.preparation_statement_check_results,
         retest_preparation_statement_check_results,
     )
@@ -1721,7 +1721,7 @@ def test_retest_feedback_statement_check_results():
         retest=retest, type=StatementCheck.Type.FEEDBACK
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         retest.feedback_statement_check_results,
         retest_feedback_statement_check_results,
     )
@@ -1737,7 +1737,7 @@ def test_retest_custom_statement_check_results():
         retest=retest, type=StatementCheck.Type.CUSTOM
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         retest.custom_statement_check_results,
         retest_custom_statement_check_results,
     )

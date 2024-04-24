@@ -12,7 +12,6 @@ from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.template import Context, Template
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
@@ -797,25 +796,6 @@ class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):
                 "cases:edit-twelve-week-retest", kwargs={"pk": self.object.id}
             )
         return super().get_success_url()
-
-
-class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
-    template_name: str = "cases/emails/twelve_week_correspondence.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
-        context["case"] = case
-        if case.audit is not None:
-            context["issues_tables"] = build_issues_tables(
-                pages=case.audit.testable_pages
-            )
-        email_template: EmailTemplate = EmailTemplate.objects.get(
-            slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
-        )
-        context["email_template"] = email_template.render(context=context)
-        return context
 
 
 class CaseOutstandingIssuesEmailTemplateView(TemplateView):

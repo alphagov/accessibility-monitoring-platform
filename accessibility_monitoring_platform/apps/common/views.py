@@ -14,7 +14,6 @@ from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.template import Context, Template
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
@@ -502,7 +501,7 @@ class EmailTemplatePreviewDetailView(DetailView):
         """Add case and email template to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["case"] = Case.objects.get(pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID)
-        context["email_template_render"] = self.object.render(context=Context(context))
+        context["email_template_render"] = self.object.render(context=context)
         return context
 
 

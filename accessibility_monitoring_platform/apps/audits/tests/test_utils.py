@@ -9,7 +9,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.urls import reverse
-from pytest_django.asserts import assertQuerysetEqual
+from pytest_django.asserts import assertQuerySetEqual
 
 from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
@@ -313,7 +313,7 @@ def test_build_initial_statement_content_subsections():
     assert statement_content_subsection.subsections is None
     assert statement_content_subsection.type == "initial-statement-results"
     assert statement_content_subsection.page is None
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         statement_content_subsection.statement_check_results, empty_queryset
     )
 
@@ -351,7 +351,7 @@ def test_build_twelve_week_statement_content_subsections():
     assert statement_content_subsection.subsections is None
     assert statement_content_subsection.type == "12-week-statement-results"
     assert statement_content_subsection.page is None
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         statement_content_subsection.statement_check_results, empty_queryset
     )
 
