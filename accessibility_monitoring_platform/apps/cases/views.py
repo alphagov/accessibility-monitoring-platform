@@ -814,8 +814,7 @@ class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
         email_template: EmailTemplate = EmailTemplate.objects.get(
             slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
         )
-        template: Template = Template(email_template.template)
-        context["email_template"] = template.render(context=Context(context))
+        context["email_template"] = email_template.render(context=context)
         return context
 
 
@@ -835,8 +834,7 @@ class CaseOutstandingIssuesEmailTemplateView(TemplateView):
         email_template: EmailTemplate = EmailTemplate.objects.get(
             slug=EmailTemplate.Slug.OUTSTANDING_ISSUES
         )
-        template: Template = Template(email_template.template)
-        context["email_template"] = template.render(context=Context(context))
+        context["email_template"] = email_template.render(context=context)
         return context
 
 
@@ -1306,8 +1304,7 @@ class EqualityBodyRetestEmailTemplateView(TemplateView):
         email_template: EmailTemplate = EmailTemplate.objects.get(
             slug=EmailTemplate.Slug.EQUALITY_BODY_RETEST
         )
-        template: Template = Template(email_template.template)
-        context["email_template"] = template.render(context=Context(context))
+        context["email_template"] = email_template.render(context=context)
         return context
 
 
@@ -1426,7 +1423,7 @@ class CaseEmailTemplateListView(ListView):
     """
 
     model: Type[EmailTemplate] = EmailTemplate
-    template_name: str = "cases/email_template_list.html"
+    template_name: str = "cases/emails/template_list.html"
     context_object_name: str = "email_templates"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -1443,7 +1440,7 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
     """
 
     model: Type[EmailTemplate] = EmailTemplate
-    template_name: str = "cases/email_template_preview.html"
+    template_name: str = "cases/emails/template_preview.html"
     context_object_name: str = "email_template"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -1451,6 +1448,5 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = self.case
-        template: Template = Template(context["email_template"].template)
-        context["email_template_preview"] = template.render(context=Context(context))
+        context["email_template_render"] = self.object.render(context=context)
         return context

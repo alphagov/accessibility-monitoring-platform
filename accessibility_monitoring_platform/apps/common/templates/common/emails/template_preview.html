@@ -6,7 +6,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ case.organisation_name }} | {{ email_template.name }}{% endblock %}
+{% block title %}{{ email_template.name }} preview{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -16,14 +16,14 @@
                 <div class="govuk-breadcrumbs">
                     <ol class="govuk-breadcrumbs__list">
                         {% include 'common/breadcrumb_home.html' %}
-                        {% include 'cases/helpers/breadcrumb_case.html' %}
+                        <li class="govuk-breadcrumbs__list-item">Settings</li>
                         <li class="govuk-breadcrumbs__list-item">
-                            <a class="govuk-breadcrumbs__link" href="{% url 'cases:email-template-list' case.id %}">Email templates</a>
+                            <a class="govuk-breadcrumbs__link" href="{% url 'common:email-template-list' %}">Email template manager</a>
                         </li>
-                        <li class="govuk-breadcrumbs__list-item">{{ email_template.name }}</li>
+                        <li class="govuk-breadcrumbs__list-item">{{ email_template.name }} preview</li>
                     </ol>
                 </div>
-                {% include "cases/helpers/edit_header.html" with page_heading=email_template.name %}
+                <h1 class="govuk-heading-xl">{{ email_template.name }} preview</h1>
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -31,13 +31,29 @@
                 <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
                     Copy email template
                 </button>
-                {% include "common/amp_control_go_back.html" %}
+                <a
+                    href="{% url 'common:email-template-update' email_template.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Return to editor
+                </a>
+                <a
+                    href="{% url 'common:email-template-list' %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Return to email template manager
+                </a>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h2 class="govuk-heading-m">Preview</h2>
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div id="email-text" class="amp-report-wrapper">
-                    {{ email_template_preview }}
+                    {{ email_template_render }}
                 </div>
             </div>
         </div>
@@ -47,5 +63,4 @@
 
 {% block extrascript %}
     <script src="{% static 'js/cases_copy_email.js' %}"></script>
-    <script src="{% static 'js/go_back.js' %}"></script>
 {% endblock %}

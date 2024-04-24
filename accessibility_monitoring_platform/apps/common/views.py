@@ -479,7 +479,7 @@ class EmailTemplateListView(ListView):
     """
 
     model: Type[EmailTemplate] = EmailTemplate
-    template_name: str = "common/email_template_list.html"
+    template_name: str = "common/emails/template_list.html"
     context_object_name: str = "email_templates"
     paginate_by: int = 10
 
@@ -495,15 +495,14 @@ class EmailTemplatePreviewDetailView(DetailView):
     """
 
     model: Type[EmailTemplate] = EmailTemplate
-    template_name: str = "common/email_template_preview.html"
+    template_name: str = "common/emails/template_preview.html"
     context_object_name: str = "email_template"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add case and email template to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["case"] = Case.objects.get(pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID)
-        template: Template = Template(context["email_template"].template)
-        context["email_template_preview"] = template.render(context=Context(context))
+        context["email_template_render"] = self.object.render(context=Context(context))
         return context
 
 
@@ -514,7 +513,7 @@ class EmailTemplateCreateView(CreateView):
 
     model: Type[EmailTemplate] = EmailTemplate
     form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
-    template_name: str = "common/email_template_create.html"
+    template_name: str = "common/emails/template_create.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
@@ -540,7 +539,7 @@ class EmailTemplateUpdateView(UpdateView):
     model: Type[EmailTemplate] = EmailTemplate
     context_object_name: str = "email_template"
     form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
-    template_name: str = "common/email_template_update.html"
+    template_name: str = "common/emails/template_update.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""

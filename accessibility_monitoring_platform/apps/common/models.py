@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.template import Context, Template
 from django.urls import reverse
 
 ACCESSIBILITY_STATEMENT_DEFAULT: str = """# Accessibility statement
@@ -303,3 +304,8 @@ class EmailTemplate(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def render(self, context: dict) -> str:
+        """Render email template using context and return result"""
+        template: Template = Template(self.template)
+        return template.render(context=Context(context))
