@@ -28,7 +28,7 @@ from ...audits.models import (
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
-from ...common.models import Boolean, Event, Sector
+from ...common.models import Boolean, EmailTemplate, Event, Sector
 from ...common.utils import amp_format_date
 from ...notifications.models import Notification
 from ...reports.models import Report
@@ -3283,11 +3283,18 @@ def test_twelve_week_email_template_contains_issues(admin_client):
     page.url = "https://example.com"
     page.save()
     Report.objects.create(case=audit.case)
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
+    )
     url: str = reverse(
-        "cases:twelve-week-correspondence-email", kwargs={"pk": audit.case.id}
+        "cases:email-template-preview",
+        kwargs={"case_id": audit.case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
+    f = open("t.html", "w")
+    f.write(str(response.content))
+    f.close()
 
     assert response.status_code == 200
 

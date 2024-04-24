@@ -814,7 +814,7 @@ class CaseOutstandingIssuesEmailTemplateView(TemplateView):
         email_template: EmailTemplate = EmailTemplate.objects.get(
             slug=EmailTemplate.Slug.OUTSTANDING_ISSUES
         )
-        context["email_template"] = email_template.render(context=context)
+        context["email_template_render"] = email_template.render(context=context)
         return context
 
 
@@ -1284,7 +1284,7 @@ class EqualityBodyRetestEmailTemplateView(TemplateView):
         email_template: EmailTemplate = EmailTemplate.objects.get(
             slug=EmailTemplate.Slug.EQUALITY_BODY_RETEST
         )
-        context["email_template"] = email_template.render(context=context)
+        context["email_template_render"] = email_template.render(context=context)
         return context
 
 
@@ -1428,5 +1428,9 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = self.case
+        if self.case.audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                pages=self.case.audit.testable_pages
+            )
         context["email_template_render"] = self.object.render(context=context)
         return context
