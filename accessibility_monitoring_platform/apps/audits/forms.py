@@ -83,12 +83,14 @@ class AuditExtraPageUpdateForm(forms.ModelForm):
 
     name = AMPCharFieldWide(label="Page name")
     url = AMPURLField(label="URL")
+    location = AMPCharFieldWide(label="Page location description if single page app")
 
     class Meta:
         model = Page
         fields = [
             "name",
             "url",
+            "location",
         ]
 
 
@@ -124,6 +126,7 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
         fields = [
             "name",
             "url",
+            "location",
             "not_found",
             "is_contact_page",
         ]

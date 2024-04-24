@@ -876,7 +876,7 @@ def populate_equality_body_columns(
 
 def download_equality_body_cases(
     cases: QuerySet[Case],
-    filename: str = "ehrc_cases.csv",
+    filename: str = "enforcement_body_cases.csv",
 ) -> HttpResponse:
     """Given a Case queryset, download the data in csv format for equality body"""
     response: Any = HttpResponse(content_type="text/csv")

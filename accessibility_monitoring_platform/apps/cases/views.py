@@ -1070,7 +1070,8 @@ def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
     case_search_form.is_valid()
     candidate_cases: QuerySet[Case] = filter_cases(form=case_search_form)
     return download_equality_body_cases(
-        cases=candidate_cases.filter(enforcement_body=Case.EnforcementBody.ECNI)
+        cases=candidate_cases.filter(enforcement_body=Case.EnforcementBody.ECNI),
+        filename="ecni_cases.csv",
     )
 
 
