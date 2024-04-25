@@ -327,9 +327,11 @@ class AuditPageChecksFormView(FormView):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
         page: Page = self.page
-        page.complete_date = form.cleaned_data["complete_date"]
-        page.no_errors_date = form.cleaned_data["no_errors_date"]
-        page.save()
+        if form.changed_data:
+            page.complete_date = form.cleaned_data["complete_date"]
+            page.no_errors_date = form.cleaned_data["no_errors_date"]
+            record_model_update_event(user=self.request.user, model_object=page)
+            page.save()
 
         check_results_formset: CheckResultFormset = context["check_results_formset"]
         if check_results_formset.is_valid():
