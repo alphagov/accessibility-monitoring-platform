@@ -3269,7 +3269,7 @@ def test_frequently_used_links_displayed(url_name, admin_client):
 
     assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
-    assertContains(response, "Email template")
+    assertContains(response, "Email templates")
     assertContains(response, "No report has been published")
     assertContains(response, "View website")
 
@@ -3347,9 +3347,7 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     )
 
     response: HttpResponse = admin_client.get(url)
-    f = open("t.html", "w")
-    f.write(str(response.content))
-    f.close()
+
     assert response.status_code == 200
 
     assertContains(response, ERROR_NOTES)

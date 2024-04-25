@@ -161,13 +161,6 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         form.fields["retest_notes"].initial = self.page.retest_notes
         return form
 
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        if form.changed_data:
-            page: Page = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=page)
-        return super().form_valid(form)
-
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
@@ -205,9 +198,13 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
         page: Page = self.page
-        page.retest_complete_date = form.cleaned_data["retest_complete_date"]
-        page.retest_page_missing_date = form.cleaned_data["retest_page_missing_date"]
-        page.retest_notes = form.cleaned_data["retest_notes"]
+        if form.changed_data:
+            page.retest_complete_date = form.cleaned_data["retest_complete_date"]
+            page.retest_page_missing_date = form.cleaned_data[
+                "retest_page_missing_date"
+            ]
+            page.retest_notes = form.cleaned_data["retest_notes"]
+            record_model_update_event(user=self.request.user, model_object=page)
         page.save()
 
         check_results_formset: AuditRetestCheckResultFormset = context[
