@@ -3329,7 +3329,7 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     page.save()
     Report.objects.create(case=audit.case)
     email_template: EmailTemplate = EmailTemplate.objects.get(
-        slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
+        slug=EmailTemplate.Slug.OUTSTANDING_ISSUES
     )
     url: str = reverse(
         "cases:email-template-preview",
@@ -3347,7 +3347,9 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     )
 
     response: HttpResponse = admin_client.get(url)
-
+    f = open("t.html", "w")
+    f.write(str(response.content))
+    f.close()
     assert response.status_code == 200
 
     assertContains(response, ERROR_NOTES)

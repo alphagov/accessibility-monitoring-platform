@@ -329,6 +329,8 @@ class AuditPageChecksFormView(FormView):
         page: Page = self.page
         page.complete_date = form.cleaned_data["complete_date"]
         page.no_errors_date = form.cleaned_data["no_errors_date"]
+        if form.changed_data:
+            record_model_update_event(user=self.request.user, model_object=page)
         page.save()
 
         check_results_formset: CheckResultFormset = context["check_results_formset"]
@@ -386,6 +388,23 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
             if form.instance.id is None:
                 form.fields["added_stage"].initial = StatementPage.AddedStage.INITIAL
         return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        statement_pages_formset = context["statement_pages_formset"]
+        if statement_pages_formset.is_valid():
+            statement_pages: List[StatementPage] = statement_pages_formset.save(
+                commit=False
+            )
+            for statement_page in statement_pages:
+                record_model_update_event(
+                    user=self.request.user, model_object=statement_page
+                )
+                statement_page.save()
+        else:
+            return super().form_invalid(form)
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

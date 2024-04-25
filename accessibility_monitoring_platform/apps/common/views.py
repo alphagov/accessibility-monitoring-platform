@@ -521,6 +521,7 @@ class EmailTemplateCreateView(CreateView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
+        record_model_create_event(user=self.request.user, model_object=self.object)
         if "save_preview" in self.request.POST:
             return reverse_lazy(
                 "common:email-template-preview", kwargs={"pk": self.object.id}
@@ -544,6 +545,7 @@ class EmailTemplateUpdateView(UpdateView):
         """Process contents of valid form"""
         email_template: EmailTemplate = form.save(commit=False)
         email_template.updated_by = self.request.user
+        record_model_update_event(user=self.request.user, model_object=email_template)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

@@ -161,6 +161,13 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         form.fields["retest_notes"].initial = self.page.retest_notes
         return form
 
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        if form.changed_data:
+            page: Page = form.save(commit=False)
+            record_model_update_event(user=self.request.user, model_object=page)
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)

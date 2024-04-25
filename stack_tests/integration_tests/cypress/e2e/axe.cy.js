@@ -61,7 +61,6 @@ const loggedInUrls = [
   '/cases/1/edit-12-week-update-requested/',
   '/cases/1/edit-one-week-followup-final/',
   '/cases/1/edit-12-week-update-request-ack/',
-  '/cases/1/twelve-week-correspondence-email/',
   '/cases/1/edit-twelve-week-retest/',
   '/cases/1/outstanding-issues/',
   '/cases/1/outstanding-issues-email/',
