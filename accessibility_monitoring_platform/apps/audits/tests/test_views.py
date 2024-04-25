@@ -31,6 +31,7 @@ from ..models import (
 )
 from ..utils import create_checkresults_for_retest, create_mandatory_pages_for_new_audit
 
+TODAY = date.today()
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 WCAG_TYPE_MANUAL_NAME: str = "WCAG Manual name"
 WCAG_TYPE_PDF_NAME: str = "WCAG PDF name"
@@ -3532,3 +3533,103 @@ def test_retest_comparison_page_groups_by_page_or_wcag(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Test summary | WCAG view")
+
+
+def test_initial_page_complete_check_displayed(admin_client):
+    """
+    Test that the page complete tick is displayed in contents
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = Page.objects.all().first()
+    page.url = "https://example.com"
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-detail", kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="#initial-page-1" class="govuk-link govuk-link--no-visited-state">
+                Initial test Home (0)</a>
+            |
+            <a id="edit-initial-page-1" href="/audits/pages/1/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                Edit</a>
+        </li>""",
+        html=True,
+    )
+
+    page.complete_date = TODAY
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-detail", kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="#initial-page-1" class="govuk-link govuk-link--no-visited-state">
+                Initial test Home (0)<span class="govuk-visually-hidden">complete</span></a>
+            |
+            <a id="edit-initial-page-1" href="/audits/pages/1/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                Edit<span class="govuk-visually-hidden">complete</span></a>
+            ✓
+        </li>""",
+        html=True,
+    )
+
+
+def test_12_week_retest_page_complete_check_displayed(admin_client):
+    """
+    Test that the page complete tick is displayed in contents
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = Page.objects.all().first()
+    page.url = "https://example.com"
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
+                12-week retest Home (0)</a>
+            |
+            <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                Edit</a>
+        </li>""",
+        html=True,
+    )
+
+    page.retest_complete_date = TODAY
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
+                12-week retest Home (0)<span class="govuk-visually-hidden">complete</span></a>
+            |
+            <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                Edit<span class="govuk-visually-hidden">complete</span></a>
+            ✓
+        </li>""",
+        html=True,
+    )
