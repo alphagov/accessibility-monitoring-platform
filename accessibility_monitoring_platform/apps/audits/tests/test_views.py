@@ -16,6 +16,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
 from ...cases.models import Case, CaseCompliance, CaseEvent, Contact
+from ...common.models import Event
 from ..models import (
     Audit,
     CheckResult,
@@ -149,31 +150,6 @@ def create_equality_body_retest() -> Retest:
         retest_state=CheckResult.RetestResult.NOT_FIXED,
     )
     return retest
-
-
-def test_delete_page_view(admin_client):
-    """Test that delete page view deletes page"""
-    audit: Audit = create_audit()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "audits:delete-page",
-            kwargs=page_pk,
-        ),
-    )
-
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "audits:edit-audit-pages",
-        kwargs=audit_pk,
-    )
-
-    page_from_db: Page = Page.objects.get(**page_pk)
-
-    assert page_from_db.is_deleted
 
 
 def test_audit_detail_shows_number_of_errors(admin_client):
@@ -1881,6 +1857,20 @@ def test_page_checks_edit_saves_results(admin_client):
     assert updated_page.complete_date
     assert updated_page.no_errors_date
 
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 3
+    assert events[0].parent == check_result_pdf
+    assert events[0].type == Event.Type.CREATE
+    assert events[1].parent == check_result_axe
+    assert events[1].type == Event.Type.CREATE
+    assert events[2].parent == page
+    assert events[2].type == Event.Type.UPDATE
+    assert events[2].diff == {
+        "complete_date": f"None -> {TODAY}",
+        "no_errors_date": f"None -> {TODAY}",
+    }
+
 
 def test_page_checks_edit_stays_on_page(admin_client):
     """Test that a successful page checks edit stays on the page"""
@@ -2480,6 +2470,21 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     assert updated_page.retest_complete_date
     assert updated_page.retest_page_missing_date
     assert updated_page.retest_notes == PAGE_RETEST_NOTES
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 3
+    assert events[0].parent == check_result_pdf
+    assert events[0].type == Event.Type.UPDATE
+    assert events[1].parent == check_result_axe
+    assert events[1].type == Event.Type.UPDATE
+    assert events[2].parent == page
+    assert events[2].type == Event.Type.UPDATE
+    assert events[2].diff == {
+        "retest_complete_date": f"None -> {TODAY}",
+        "retest_page_missing_date": f"None -> {TODAY}",
+        "retest_notes": " -> Retest notes",
+    }
 
 
 def test_retest_page_shows_and_hides_fixed_errors(admin_client):

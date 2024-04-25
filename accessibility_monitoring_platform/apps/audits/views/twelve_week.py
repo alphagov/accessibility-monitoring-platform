@@ -212,12 +212,16 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         ]
         if check_results_formset.is_valid():
             for form in check_results_formset.forms:
-                check_result: CheckResult = CheckResult.objects.get(
-                    id=form.cleaned_data["id"]
-                )
-                check_result.retest_state = form.cleaned_data["retest_state"]
-                check_result.retest_notes = form.cleaned_data["retest_notes"]
-                check_result.save()
+                if form.changed_data:
+                    check_result: CheckResult = CheckResult.objects.get(
+                        id=form.cleaned_data["id"]
+                    )
+                    check_result.retest_state = form.cleaned_data["retest_state"]
+                    check_result.retest_notes = form.cleaned_data["retest_notes"]
+                    record_model_update_event(
+                        user=self.request.user, model_object=check_result
+                    )
+                    check_result.save()
         else:
             return super().form_invalid(form)
 
