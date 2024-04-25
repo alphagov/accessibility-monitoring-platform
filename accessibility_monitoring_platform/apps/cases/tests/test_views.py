@@ -3292,9 +3292,6 @@ def test_twelve_week_email_template_contains_issues(admin_client):
     )
 
     response: HttpResponse = admin_client.get(url)
-    f = open("t.html", "w")
-    f.write(str(response.content))
-    f.close()
 
     assert response.status_code == 200
 
@@ -3307,8 +3304,12 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
+    )
     url: str = reverse(
-        "cases:twelve-week-correspondence-email", kwargs={"pk": audit.case.id}
+        "cases:email-template-preview",
+        kwargs={"case_id": audit.case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3327,7 +3328,13 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     page.url = "https://example.com"
     page.save()
     Report.objects.create(case=audit.case)
-    url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
+    )
+    url: str = reverse(
+        "cases:email-template-preview",
+        kwargs={"case_id": audit.case.id, "pk": email_template.id},
+    )
     statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
     statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit,
