@@ -403,7 +403,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
                     ),
                     edit_url_id=f"edit-twelve-week-page-{page.id}",
                     anchor=f"twelve-week-page-{page.id}",
-                    complete_date=page.complete_date,
+                    complete_date=page.retest_complete_date,
                     type=ViewSection.TWELVE_WEEK_WCAG_RESULTS,
                     page=page,
                 )

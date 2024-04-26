@@ -16,6 +16,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
 from ...cases.models import Case, CaseCompliance, CaseEvent, Contact
+from ...common.models import Event
 from ..models import (
     Audit,
     CheckResult,
@@ -31,6 +32,7 @@ from ..models import (
 )
 from ..utils import create_checkresults_for_retest, create_mandatory_pages_for_new_audit
 
+TODAY = date.today()
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 WCAG_TYPE_MANUAL_NAME: str = "WCAG Manual name"
 WCAG_TYPE_PDF_NAME: str = "WCAG PDF name"
@@ -148,31 +150,6 @@ def create_equality_body_retest() -> Retest:
         retest_state=CheckResult.RetestResult.NOT_FIXED,
     )
     return retest
-
-
-def test_delete_page_view(admin_client):
-    """Test that delete page view deletes page"""
-    audit: Audit = create_audit()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "audits:delete-page",
-            kwargs=page_pk,
-        ),
-    )
-
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "audits:edit-audit-pages",
-        kwargs=audit_pk,
-    )
-
-    page_from_db: Page = Page.objects.get(**page_pk)
-
-    assert page_from_db.is_deleted
 
 
 def test_audit_detail_shows_number_of_errors(admin_client):
@@ -1880,6 +1857,20 @@ def test_page_checks_edit_saves_results(admin_client):
     assert updated_page.complete_date
     assert updated_page.no_errors_date
 
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 3
+    assert events[0].parent == check_result_pdf
+    assert events[0].type == Event.Type.CREATE
+    assert events[1].parent == check_result_axe
+    assert events[1].type == Event.Type.CREATE
+    assert events[2].parent == page
+    assert events[2].type == Event.Type.UPDATE
+    assert events[2].diff == {
+        "complete_date": f"None -> {TODAY}",
+        "no_errors_date": f"None -> {TODAY}",
+    }
+
 
 def test_page_checks_edit_stays_on_page(admin_client):
     """Test that a successful page checks edit stays on the page"""
@@ -2479,6 +2470,21 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     assert updated_page.retest_complete_date
     assert updated_page.retest_page_missing_date
     assert updated_page.retest_notes == PAGE_RETEST_NOTES
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 3
+    assert events[0].parent == check_result_pdf
+    assert events[0].type == Event.Type.UPDATE
+    assert events[1].parent == check_result_axe
+    assert events[1].type == Event.Type.UPDATE
+    assert events[2].parent == page
+    assert events[2].type == Event.Type.UPDATE
+    assert events[2].diff == {
+        "retest_complete_date": f"None -> {TODAY}",
+        "retest_page_missing_date": f"None -> {TODAY}",
+        "retest_notes": " -> Retest notes",
+    }
 
 
 def test_retest_page_shows_and_hides_fixed_errors(admin_client):
@@ -3532,3 +3538,103 @@ def test_retest_comparison_page_groups_by_page_or_wcag(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Test summary | WCAG view")
+
+
+def test_initial_page_complete_check_displayed(admin_client):
+    """
+    Test that the page complete tick is displayed in contents
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = Page.objects.all().first()
+    page.url = "https://example.com"
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-detail", kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="#initial-page-1" class="govuk-link govuk-link--no-visited-state">
+                Initial test Home (0)</a>
+            |
+            <a id="edit-initial-page-1" href="/audits/pages/1/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                Edit</a>
+        </li>""",
+        html=True,
+    )
+
+    page.complete_date = TODAY
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-detail", kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="#initial-page-1" class="govuk-link govuk-link--no-visited-state">
+                Initial test Home (0)<span class="govuk-visually-hidden">complete</span></a>
+            |
+            <a id="edit-initial-page-1" href="/audits/pages/1/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                Edit<span class="govuk-visually-hidden">complete</span></a>
+            ✓
+        </li>""",
+        html=True,
+    )
+
+
+def test_12_week_retest_page_complete_check_displayed(admin_client):
+    """
+    Test that the page complete tick is displayed in contents
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = Page.objects.all().first()
+    page.url = "https://example.com"
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
+                12-week retest Home (0)</a>
+            |
+            <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                Edit</a>
+        </li>""",
+        html=True,
+    )
+
+    page.retest_complete_date = TODAY
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
+                12-week retest Home (0)<span class="govuk-visually-hidden">complete</span></a>
+            |
+            <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                Edit<span class="govuk-visually-hidden">complete</span></a>
+            ✓
+        </li>""",
+        html=True,
+    )

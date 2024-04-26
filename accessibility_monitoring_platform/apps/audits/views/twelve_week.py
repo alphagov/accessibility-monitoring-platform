@@ -198,22 +198,30 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
         page: Page = self.page
-        page.retest_complete_date = form.cleaned_data["retest_complete_date"]
-        page.retest_page_missing_date = form.cleaned_data["retest_page_missing_date"]
-        page.retest_notes = form.cleaned_data["retest_notes"]
-        page.save()
+        if form.changed_data:
+            page.retest_complete_date = form.cleaned_data["retest_complete_date"]
+            page.retest_page_missing_date = form.cleaned_data[
+                "retest_page_missing_date"
+            ]
+            page.retest_notes = form.cleaned_data["retest_notes"]
+            record_model_update_event(user=self.request.user, model_object=page)
+            page.save()
 
         check_results_formset: AuditRetestCheckResultFormset = context[
             "check_results_formset"
         ]
         if check_results_formset.is_valid():
             for form in check_results_formset.forms:
-                check_result: CheckResult = CheckResult.objects.get(
-                    id=form.cleaned_data["id"]
-                )
-                check_result.retest_state = form.cleaned_data["retest_state"]
-                check_result.retest_notes = form.cleaned_data["retest_notes"]
-                check_result.save()
+                if form.changed_data:
+                    check_result: CheckResult = CheckResult.objects.get(
+                        id=form.cleaned_data["id"]
+                    )
+                    check_result.retest_state = form.cleaned_data["retest_state"]
+                    check_result.retest_notes = form.cleaned_data["retest_notes"]
+                    record_model_update_event(
+                        user=self.request.user, model_object=check_result
+                    )
+                    check_result.save()
         else:
             return super().form_invalid(form)
 
