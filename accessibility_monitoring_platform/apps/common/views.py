@@ -66,7 +66,6 @@ from .utils import (
 logger = logging.getLogger(__name__)
 
 EMAIL_TEMPLATE_PREVIEW_CASE_ID: int = 1170
-EMAIL_TEMPLATE_PREVIEW_INTEGRATION_TEST_CASE_ID: int = 1
 
 
 class ContactAdminView(FormView):
@@ -501,14 +500,7 @@ class EmailTemplatePreviewDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add case and email template to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Optional[Case] = Case.objects.filter(
-            pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID
-        ).first()
-        if case is None:
-            case = Case.objects.filter(
-                pk=EMAIL_TEMPLATE_PREVIEW_INTEGRATION_TEST_CASE_ID
-            ).first()
-        context["case"] = case
+        context["case"] = Case.objects.filter(pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID).first()
         context["email_template_render"] = self.object.render(context=context)
         return context
 
