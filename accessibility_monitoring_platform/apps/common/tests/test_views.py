@@ -150,6 +150,7 @@ LINK_URL: str = "https://example.com/custom-link"
 FOOTER_LINK_LABEL: str = "Custom footer link"
 FOOTER_LINK_URL: str = "https://example.com/footer-link"
 LOG_MESSAGE: str = "Hello"
+EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
 
 
 @pytest.mark.parametrize(
@@ -1324,7 +1325,9 @@ def test_latest_statement_frequently_used_link(admin_client):
 )
 def test_email_templates_view(url_name, expected_heading, admin_client):
     """Test common email template page is rendered"""
-    response: HttpResponse = admin_client.get(reverse(url_name, kwargs={"pk": 4}))
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs={"pk": EXAMPLE_EMAIL_TEMPLATE_ID})
+    )
 
     assert response.status_code == 200
 

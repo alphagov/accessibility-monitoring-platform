@@ -169,6 +169,7 @@ TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
 RECOMMENDATION_NOTE: str = "Recommendation note"
 ZENDESK_URL: str = "https://zendesk.com/ticket"
 ZENDESK_SUMMARY: str = "Zendesk ticket summary"
+EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -3886,3 +3887,35 @@ def test_case_overview(admin_client):
         """<p class="govuk-body-m amp-margin-bottom-10">Retest test: No statement found</p>""",
         html=True,
     )
+
+
+def test_case_email_template_list_view(admin_client):
+    """Test case email template list page is rendered"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:email-template-list", kwargs={"case_id": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, ">Email templates</h1>")
+
+
+def test_case_email_template_preview_view(admin_client):
+    """Test case email template list page is rendered"""
+    case: Case = Case.objects.create()
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        pk=EXAMPLE_EMAIL_TEMPLATE_ID
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:email-template-preview",
+            kwargs={"case_id": case.id, "pk": email_template.id},
+        )
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, f">{email_template.name}</h1>")
