@@ -170,6 +170,7 @@ EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
         ("common:metrics-policy", ">Policy metrics</h1>"),
         ("common:metrics-report", ">Report metrics</h1>"),
         ("common:email-template-list", ">Email template manager</h1>"),
+        ("common:email-template-create", ">Create email template</h1>"),
     ],
 )
 def test_page_renders(url_name, expected_header, admin_client):
