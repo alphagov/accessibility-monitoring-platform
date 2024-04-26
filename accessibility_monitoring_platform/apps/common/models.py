@@ -290,11 +290,19 @@ class EmailTemplate(models.Model):
     slug = models.CharField(max_length=50, choices=Slug, default=Slug.DEFAULT)
     template = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
-        User, on_delete=models.PROTECT, related_name="created_by_user"
+        User,
+        on_delete=models.PROTECT,
+        related_name="created_by_user",
+        null=True,
+        blank=True,
     )
     created = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(
-        User, on_delete=models.PROTECT, related_name="updated_by_user"
+        User,
+        on_delete=models.PROTECT,
+        related_name="updated_by_user",
+        null=True,
+        blank=True,
     )
     updated = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)

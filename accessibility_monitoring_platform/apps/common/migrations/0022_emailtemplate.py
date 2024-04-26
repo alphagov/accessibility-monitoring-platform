@@ -41,9 +41,9 @@ class Migration(migrations.Migration):
                     models.CharField(
                         choices=[
                             ("default", "Default"),
-                            ("12-week-update", "12-week update request"),
+                            ("12-week-request", "12-week update request"),
                             ("outstanding-issues", "Outstanding issues"),
-                            ("equality-body=retest", "Equality body retest"),
+                            ("equality-body-retest", "Equality body retest"),
                         ],
                         default="default",
                         max_length=50,
@@ -55,6 +55,7 @@ class Migration(migrations.Migration):
                 (
                     "created_by",
                     models.ForeignKey(
+                        blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="created_by_user",
@@ -64,6 +65,7 @@ class Migration(migrations.Migration):
                 (
                     "updated_by",
                     models.ForeignKey(
+                        blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="updated_by_user",
