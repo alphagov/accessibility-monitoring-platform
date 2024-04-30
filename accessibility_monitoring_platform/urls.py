@@ -27,6 +27,7 @@ def robots_txt(request):  # pylint: disable=unused-argument
 
 
 urlpatterns = [
+    path("__reload__/", include("django_browser_reload.urls")),
     path("", include(tf_urls)),
     path("", include("accessibility_monitoring_platform.apps.dashboard.urls")),
     path("accounts/login/", RedirectView.as_view(url="/")),
