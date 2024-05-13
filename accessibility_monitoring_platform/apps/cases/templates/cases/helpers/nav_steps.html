@@ -16,6 +16,13 @@
     {% endif %}
     {% if case.archive %}
         <h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>
+        <ul class="govuk-list">
+            {% include './nav_step.html' with edit_name='cases:edit-statement-enforcement' name='Statement enforcement' %}
+            {% include './nav_step.html' with edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
+            {% include './nav_step.html' with edit_name='cases:list-equality-body-correspondence' name='Equality body correspondence' %}
+            {% include './nav_step.html' with edit_name='cases:edit-retest-overview' name='Retest overview' %}
+            {% include './nav_step.html' with edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
+        </ul>
     {% else %}
         <h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>
         <ul class="govuk-list">
@@ -41,17 +48,12 @@
             {% include './nav_step.html' with edit_name='cases:edit-case-close' name='Closing the case' complete=case.case_close_complete_date %}
         </ul>
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
-    {% endif %}
-    <ul class="govuk-list">
-        {% if case.variant == 'close-case' %}
+        <ul class="govuk-list">
             {% include './nav_step.html' with edit_name='cases:edit-statement-enforcement' name='Statement enforcement' %}
             {% include './nav_step.html' with edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
             {% include './nav_step.html' with edit_name='cases:list-equality-body-correspondence' name='Equality body correspondence' %}
             {% include './nav_step.html' with edit_name='cases:edit-retest-overview' name='Retest overview' %}
-        {% else %}
-            {% include './nav_step.html' with edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
-            {% include './nav_step.html' with edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
-        {% endif %}
-    </ul>
+        </ul>
+    {% endif %}
     {% include 'common/frequently_used_links.html' %}
 </nav>
