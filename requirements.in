@@ -1,4 +1,5 @@
 django
+django-browser-reload
 python-dotenv
 psycopg2
 notifications-python-client

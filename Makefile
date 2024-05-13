@@ -38,24 +38,6 @@ collect_static:
 	python3 manage.py collectstatic --noinput
 	python3 manage_report_viewer.py collectstatic --noinput
 
-sync_accessibility_monitoring_platform:
-	npx browser-sync start -p http://127.0.0.1:8081/ \
-		--files "./accessibility_monitoring_platform/**/*.py" \
-		--files "./accessibility_monitoring_platform/**/*.html" \
-		--files "./accessibility_monitoring_platform/static/compiled/*.scss" \
-		--files "./accessibility_monitoring_platform/static/compiled/**" \
-		--watchEvents change --watchEvents add \
-		--reload-delay 1000
-
-sync_report_viewer:
-	npx browser-sync start -p http://127.0.0.1:8082/ \
-		--files "./report_viewer/**/*.py" \
-		--files "./report_viewer/**/*.html" \
-		--files "./report_viewer/static/compiled/*.scss" \
-		--files "./report_viewer/static/compiled/**" \
-		--watchEvents change --watchEvents add \
-		--reload-delay 1000
-
 test_accessibility_monitoring_platform:
 	python manage.py collectstatic --noinput \
 		&& coverage run -m -p pytest --ignore="stack_tests/"  --ignore="report_viewer/" -c pytest.ini \
