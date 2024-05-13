@@ -69,6 +69,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/edit-12-week-update-request-ack/": "12-week update request acknowledged",
     "/cases/[id]/edit-review-changes/": "Reviewing changes",
     "/cases/[id]/edit-test-results/": "Testing details",
+    "/cases/[id]/twelve-week-correspondence-email/": "Email template",
     "/cases/[id]/edit-twelve-week-retest/": "12-week retest",
     "/cases/[id]/view/": "View case",
     "/cases/[id]/edit-statement-enforcement/": "Statement enforcement",

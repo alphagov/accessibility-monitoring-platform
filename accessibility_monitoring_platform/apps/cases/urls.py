@@ -43,6 +43,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseStatementEnforcementUpdateView,
     CaseStatusWorkflowDetailView,
     CaseTestResultsUpdateView,
+    CaseTwelveWeekCorrespondenceEmailTemplateView,
     CaseTwelveWeekRetestUpdateView,
     CaseTwelveWeekUpdateAcknowledgedUpdateView,
     CaseTwelveWeekUpdateRequestedUpdateView,
@@ -163,6 +164,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-12-week-update-request-ack/",
         login_required(CaseTwelveWeekUpdateAcknowledgedUpdateView.as_view()),
         name="edit-12-week-update-request-ack",
+    ),
+    path(
+        "<int:pk>/twelve-week-correspondence-email/",
+        login_required(CaseTwelveWeekCorrespondenceEmailTemplateView.as_view()),
+        name="twelve-week-correspondence-email",
     ),
     path(
         "<int:pk>/edit-no-psb-response/",
