@@ -37,16 +37,11 @@
         </ul>
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
         <ul class="govuk-list">
-            {% if case.variant == 'close-case' %}
-                {% for view_section in view_sections %}
-                    <li>
-                        {% include 'common/view_accordion/toc_link.html' with section=view_section %}
-                    </li>
-                {% endfor %}
-            {% else %}
-                {% include './archive_nav_content.html' with anchor='equality-body-metadata' id='equality-body-metadata' edit_name='cases:edit-equality-body-metadata' name='Equality body metadata' %}
-                {% include './archive_nav_content.html' with anchor='legacy-end-of-case-data' id='legacy-end-of-case' edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
-            {% endif %}
+            {% for view_section in view_sections %}
+                <li>
+                    {% include 'common/view_accordion/toc_link.html' with section=view_section %}
+                </li>
+            {% endfor %}
         </ul>
         {% include 'common/frequently_used_links.html' %}
     </div>
