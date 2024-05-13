@@ -417,7 +417,7 @@ class RetestStatementOverviewFormView(RetestStatementCheckingView):
                     "audits:edit-equality-body-statement-website", kwargs=retest_pk
                 )
             return reverse(
-                "audits:edit-twelve-week-disproportionate-burden", kwargs=retest_pk
+                "audits:edit-equality-body-statement-results", kwargs=retest_pk
             )
         return super().get_success_url()
 

@@ -3357,6 +3357,42 @@ def test_equality_body_retest_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
+def test_equality_body_retest_statement_overview_redirects_when_no(admin_client):
+    """
+    Test that an equality body retest statement overview redirects to statement
+    results when one of the overview questions has been answered 'no'.
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+    statement_check: StatementCheck = StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ).first()
+    RetestStatementCheckResult.objects.create(
+        retest=retest,
+        statement_check=statement_check,
+        type=StatementCheck.Type.OVERVIEW,
+        check_result_state=RetestStatementCheckResult.Result.NO,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-equality-body-statement-overview", kwargs=retest_pk),
+        {
+            "version": retest.version,
+            "save_continue": "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "audits:edit-equality-body-statement-results", kwargs=retest_pk
+    )
+
+
 def test_equality_body_retest_metadata_update_redirects_to_retest_page_checks(
     admin_client,
 ):
