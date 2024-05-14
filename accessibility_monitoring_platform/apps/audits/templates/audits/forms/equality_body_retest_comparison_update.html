@@ -97,6 +97,9 @@
                                                             <a href="{{ retest_check_result.retest_page.page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
                                                                 Link to {% if retest_check_result.retest_page.page.page_type == 'pdf' %}{{ retest_check_result.retest_page.page }}{% else %}{{ retest_check_result.retest_page.page|lower }}{% endif %}
                                                             </a>
+                                                            {% if retest_check_result.retest_page.page.location %}
+                                                                <p class="govuk-body">{{ retest_check_result.retest_page.page.location }}</p>
+                                                            {% endif %}
                                                         </li>
                                                     </ul>
                                                 </td>
@@ -133,6 +136,9 @@
                                 <a href="{{ retest_page.page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
                                     Link to {{ retest_page }}
                                 </a>
+                                {% if retest_page.page.location %}
+                                    <p class="govuk-body">{{ retest_page.page.location }}</p>
+                                {% endif %}
                             </div>
                         </div>
                         {% if retest_page.missing_date %}

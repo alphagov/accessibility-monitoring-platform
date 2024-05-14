@@ -105,6 +105,9 @@
                                                             <a href="{{ failure.page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
                                                                 Link to {% if failure.page.page_type == 'pdf' %}{{ failure.page }}{% else %}{{ failure.page|lower }}{% endif %}
                                                             </a>
+                                                            {% if failure.page.location %}
+                                                                <p class="govuk-body">{{ failure.page.location }}</p>
+                                                            {% endif %}
                                                         </li>
                                                     </ul>
                                                 </td>

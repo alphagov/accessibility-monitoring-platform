@@ -59,10 +59,13 @@
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
-                            {% if page and page.page_type != 'all-except-pdf' %}
+                            {% if page.url %}
                                 <a href="{{ page.url }}" class="govuk-link" target="_blank">
                                     Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
                                 </a>
+                            {% endif %}
+                            {% if page.location %}
+                                <p class="govuk-body">{{ page.location }}</p>
                             {% endif %}
                         </div>
                     </div>

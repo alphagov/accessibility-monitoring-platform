@@ -739,7 +739,9 @@ class Audit(VersionModel):
 
     @property
     def testable_pages(self):
-        return self.every_page.exclude(not_found=Boolean.YES).exclude(url="")
+        return self.every_page.exclude(not_found=Boolean.YES).exclude(
+            Q(url__exact="") & Q(location__exact="")
+        )
 
     @property
     def html_pages(self):

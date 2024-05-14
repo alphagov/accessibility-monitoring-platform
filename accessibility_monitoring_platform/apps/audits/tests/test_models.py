@@ -265,7 +265,7 @@ def test_page_str():
 
 
 @pytest.mark.django_db
-def test_audit_testable_pages_returns_expected_page():
+def test_audit_testable_pages_with_url_returns_expected_page():
     """
     Deleted, not found and pages without URLs excluded.
     """
@@ -278,6 +278,24 @@ def test_audit_testable_pages_returns_expected_page():
         page_type=Page.Type.HOME,
         url="https://example.com",
         not_found="yes",
+    )
+
+    assert len(audit.testable_pages) == 1
+    assert audit.testable_pages[0].id == testable_page.id
+
+
+@pytest.mark.django_db
+def test_audit_testable_pages_with_location_returns_expected_page():
+    """
+    Pages with neither URL nor location excluded.
+    """
+    audit: Audit = create_audit_and_pages()
+    testable_page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, location="Go to page"
+    )
+    Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.HOME,
     )
 
     assert len(audit.testable_pages) == 1

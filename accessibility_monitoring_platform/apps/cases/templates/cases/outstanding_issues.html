@@ -138,6 +138,9 @@
                                             class="govuk-link govuk-link--no-visited-state">Edit retest</a>
                                         <a href="{{ page.url }}"
                                             class="govuk-link" target="_blank">Link to {{ page|lower }}</a>
+                                        {% if page.location %}
+                                            <p class="govuk">{{ page.location }}</p>
+                                        {% endif %}
                                     </div>
                                     <table class="govuk-table amp-margin-bottom-5">
                                         <thead class="govuk-table__head">
