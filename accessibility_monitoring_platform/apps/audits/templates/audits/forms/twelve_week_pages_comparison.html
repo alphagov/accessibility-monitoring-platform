@@ -141,6 +141,9 @@
                                         <a href="{{ page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
                                             Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
                                         </a>
+                                        {% if page.location %}
+                                            <p class="govuk-body">{{ page.location }}</p>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <table class="govuk-table">

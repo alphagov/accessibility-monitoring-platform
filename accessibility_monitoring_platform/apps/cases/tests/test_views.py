@@ -169,6 +169,7 @@ TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
 RECOMMENDATION_NOTE: str = "Recommendation note"
 ZENDESK_URL: str = "https://zendesk.com/ticket"
 ZENDESK_SUMMARY: str = "Zendesk ticket summary"
+PAGE_LOCATION: str = "Press A and then B"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -1496,6 +1497,50 @@ def test_link_to_accessibility_statement_displayed(admin_client):
         </p>""",
         html=True,
     )
+
+
+def test_statement_page_location_displayed(admin_client):
+    """
+    Test that the accessibility statement location is displayed.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.STATEMENT,
+        url=ACCESSIBILITY_STATEMENT_URL,
+        location=PAGE_LOCATION,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, PAGE_LOCATION)
+
+
+def test_contact_page_location_displayed(admin_client):
+    """
+    Test that the contact page location is displayed.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.CONTACT,
+        url="https://example.com/contact",
+        location=PAGE_LOCATION,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, PAGE_LOCATION)
 
 
 def test_link_to_accessibility_statement_not_displayed(admin_client):

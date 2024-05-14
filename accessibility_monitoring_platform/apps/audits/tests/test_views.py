@@ -79,6 +79,7 @@ type="radio" name="form-0-added_stage" value="retest"
 id="id_form-0-added_stage_2" checked="">"""
 STATEMENT_PAGE_URL: str = "https://example.com/statement"
 WCAG_DEFINITION_HINT: str = "WCAG definition hint text"
+PAGE_LOCATION: str = "Press button then click on link"
 
 
 def create_audit() -> Audit:
@@ -1747,6 +1748,21 @@ def test_page_checks_edit_page_loads(admin_client):
     assertContains(response, WCAG_TYPE_PDF_NAME)
 
 
+def test_page_checks_edit_page_shows_location(admin_client):
+    """Test page checks edit view page shows page location"""
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit, location=PAGE_LOCATION)
+    page_pk: Dict[str, int] = {"pk": page.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, PAGE_LOCATION)
+
+
 def test_page_checks_edit_page_contains_hint_text(admin_client):
     """
     Test page checks page loads and contains WCAG definitoon hint text
@@ -2372,7 +2388,9 @@ def test_retest_details_renders_when_no_psb_response(admin_client):
 def test_retest_page_checks_edit_page_loads(admin_client):
     """Test retest page checks edit view page loads and contains errors"""
     audit: Audit = create_audit_and_wcag()
-    page: Page = Page.objects.create(audit=audit, retest_notes=PAGE_RETEST_NOTES)
+    page: Page = Page.objects.create(
+        audit=audit, retest_notes=PAGE_RETEST_NOTES, location=PAGE_LOCATION
+    )
     page_pk: Dict[str, int] = {"pk": page.id}
     wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
         type=WcagDefinition.Type.PDF
@@ -2403,6 +2421,7 @@ def test_retest_page_checks_edit_page_loads(admin_client):
     assertContains(response, PAGE_RETEST_NOTES)
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
+    assertContains(response, PAGE_LOCATION)
 
 
 def test_retest_page_checks_edit_saves_results(admin_client):
@@ -2552,6 +2571,46 @@ def test_retest_pages_shows_missing_pages(admin_client):
     assert response.status_code == 200
 
     assertContains(response, MISSING_PAGE_ON_RETEST)
+
+
+def test_retest_pages_shows_location(admin_client):
+    """Test page location is shown"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    page: Page = Page.objects.create(
+        audit=audit, url="https://example.com", location=PAGE_LOCATION
+    )
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        notes=FIXED_ERROR_NOTES,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_axe,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+
+    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+    f = open("t.html", "w")
+    f.write(str(response.content))
+    f.close()
+
+    assertContains(response, PAGE_LOCATION)
 
 
 def test_retest_pages_comparison_groups_by_page_or_wcag(admin_client):
@@ -3397,7 +3456,7 @@ def test_equality_body_retest_metadata_update_redirects_to_retest_page_checks(
     admin_client,
 ):
     """
-    Test that a equality body retrest metadata update redirects to retest page checks when save
+    Test that a equality body retest metadata update redirects to retest page checks when save
     and continue button is pressed.
     """
     retest: Retest = create_equality_body_retest()
@@ -3424,7 +3483,7 @@ def test_equality_body_retest_metadata_update_redirects_to_retest_page_checks(
 def test_equality_body_page_checks_save(
     admin_client,
 ):
-    """Test that a equality body retrest page checks saves"""
+    """Test that a equality body retest page checks saves"""
     retest: Retest = create_equality_body_retest()
     retest_page: RetestPage = retest.retestpage_set.first()
     retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
@@ -3448,10 +3507,28 @@ def test_equality_body_page_checks_save(
     assert response.url == expected_path
 
 
+def test_equality_body_page_location_shown(admin_client):
+    """Test that a equality body retest page show the location"""
+    retest: Retest = create_equality_body_retest()
+    retest_page: RetestPage = retest.retestpage_set.first()
+    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+    page: Page = retest_page.page
+    page.location = PAGE_LOCATION
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, PAGE_LOCATION)
+
+
 def test_equality_body_page_checks_save_continue(
     admin_client,
 ):
-    """Test that a equality body retrest page checks redirects on save and continue"""
+    """Test that a equality body retest page checks redirects on save and continue"""
     retest: Retest = create_equality_body_retest()
     retest_pk: Dict[str, int] = {"pk": retest.id}
     retest_page: RetestPage = retest.retestpage_set.first()
@@ -3497,7 +3574,7 @@ def test_equality_body_retest_statement_compliance_update_redirects_to_retest_ov
     admin_client,
 ):
     """
-    Test that a equality body retrest statement compliance update redirects
+    Test that a equality body retest statement compliance update redirects
     to retest overview when save and continue button is pressed.
     """
     retest: Retest = create_equality_body_retest()
@@ -3522,7 +3599,7 @@ def test_equality_body_page_checks_page_missing(
     admin_client,
 ):
     """
-    Test that when equality body retrest page is marked as missing the underling
+    Test that when equality body retest page is marked as missing the underling
     page is also so marked.
     """
     retest: Retest = create_equality_body_retest()
@@ -3624,6 +3701,28 @@ def test_initial_page_complete_check_displayed(admin_client):
         </li>""",
         html=True,
     )
+
+
+def test_retest_comparison_page_shows_location(admin_client):
+    """
+    Test that equality body retest comparison page shows page location
+    """
+    retest: Retest = create_equality_body_retest()
+    retest_pk: Dict[str, int] = {"pk": retest.id}
+    create_checkresults_for_retest(retest=retest)
+
+    retest_page: RetestPage = retest.retestpage_set.first()
+    page: Page = retest_page.page
+    page.location = PAGE_LOCATION
+    page.save()
+
+    url: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, PAGE_LOCATION)
 
 
 def test_12_week_retest_page_complete_check_displayed(admin_client):

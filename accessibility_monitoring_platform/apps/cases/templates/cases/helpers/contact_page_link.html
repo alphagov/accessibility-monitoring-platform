@@ -9,7 +9,5 @@
     {% else %}
         No contact page
     {% endif %}
-    {% if page.location %}
-        {{ page.location }}
-    {% endif %}
+    {{ case.audit.contact_page.location }}
 </p>
