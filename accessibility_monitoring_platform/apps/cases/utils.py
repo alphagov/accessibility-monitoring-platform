@@ -179,17 +179,13 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         ),
     ]
     if case.archive:
-        legacy_end_of_case: ViewSection = build_view_section(
-            name="Legacy end of case data",
-            edit_url=reverse("cases:edit-post-case", kwargs=case_pk),
-            edit_url_id="edit-post-case",
-            display_fields=get_case_rows(form=PostCaseUpdateForm()),
-        )
-        if case.variant == Case.Variant.CLOSE_CASE:
-            return post_case_subsections + [legacy_end_of_case]
-        return [
-            equality_body_metadata,
-            legacy_end_of_case,
+        return post_case_subsections + [
+            build_view_section(
+                name="Legacy end of case data",
+                edit_url=reverse("cases:edit-post-case", kwargs=case_pk),
+                edit_url_id="edit-post-case",
+                display_fields=get_case_rows(form=PostCaseUpdateForm()),
+            )
         ]
     if case.audit is not None:
         testing_details_subsections: List[
