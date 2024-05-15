@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.template import Context, Template
 from django.urls import reverse
 
 ACCESSIBILITY_STATEMENT_DEFAULT: str = """# Accessibility statement
@@ -269,3 +270,50 @@ class SubCategory(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class EmailTemplate(models.Model):
+    """Email template"""
+
+    class Type(models.TextChoices):
+        SIMPLE = "simple"
+        COMPLEX = "complex"
+
+    class Slug(models.TextChoices):
+        DEFAULT = "default"
+        TWELVE_WEEK_REQUEST = "12-week-request", "12-week update request"
+        OUTSTANDING_ISSUES = "outstanding-issues", "Outstanding issues"
+        EQUALITY_BODY_RETEST = "equality-body-retest", "Equality body retest"
+
+    name = models.TextField(default="Default")
+    type = models.CharField(max_length=20, choices=Type, default=Type.SIMPLE)
+    slug = models.CharField(max_length=50, choices=Slug, default=Slug.DEFAULT)
+    template = models.TextField(default="", blank=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="created_by_user",
+        null=True,
+        blank=True,
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="updated_by_user",
+        null=True,
+        blank=True,
+    )
+    updated = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return self.name
+
+    def render(self, context: dict) -> str:
+        """Render email template using context and return result"""
+        template: Template = Template(self.template)
+        return template.render(context=Context(context))

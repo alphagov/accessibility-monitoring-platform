@@ -36,6 +36,8 @@ from ....cases.models import (
     ZendeskTicket,
 )
 from ....comments.models import Comment
+from ....common.models import EmailTemplate
+from ....exports.models import Export, ExportCase
 from ....notifications.models import Notification, NotificationSetting
 from ....reminders.models import Reminder
 from ....reports.models import Report, ReportVisitsMetrics, ReportWrapper
@@ -78,6 +80,9 @@ class Command(BaseCommand):
 
         delete_from_models(
             [
+                EmailTemplate,
+                ExportCase,
+                Export,
                 ZendeskTicket,
                 StatementPage,
                 FrequentlyUsedLink,
@@ -131,6 +136,7 @@ class Command(BaseCommand):
         load_fixture("allowed_email")
         load_fixture("group")
         load_fixture("user")
+        load_fixture("emailtemplate")
         load_fixture("platform_settings")
         load_fixture("case")
         load_fixture("contact")

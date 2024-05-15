@@ -951,6 +951,7 @@ class AuditRetestPageChecksForm(forms.Form):
         fields: List[str] = [
             "retest_complete_date",
             "retest_page_missing_date",
+            "retest_notes",
         ]
 
 
