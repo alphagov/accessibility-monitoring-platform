@@ -96,13 +96,13 @@
                                                         <li>{{ failure.page }}</li>
                                                         {% if failure.page.failed_check_results %}
                                                             <li>
-                                                                <a href="{% url 'audits:edit-audit-retest-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
+                                                                <a href="{% url 'audits:edit-audit-retest-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state{% if not failure.page.location %} amp-margin-bottom-0{% endif %}">
                                                                     Edit retest
                                                                 </a>
                                                             </li>
                                                         {% endif %}
                                                         <li>
-                                                            <a href="{{ failure.page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
+                                                            <a href="{{ failure.page.url }}" class="govuk-link{% if not failure.page.location %} amp-margin-bottom-0{% endif %}" target="_blank">
                                                                 Link to {% if failure.page.page_type == 'pdf' %}{{ failure.page }}{% else %}{{ failure.page|lower }}{% endif %}
                                                             </a>
                                                             {% if failure.page.location %}
@@ -134,11 +134,11 @@
                                 <div class="govuk-grid-row">
                                     <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-5">
                                         {% if page.failed_check_results %}
-                                            <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
+                                            <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state{% if not page.location %} amp-margin-bottom-0{% endif %}">
                                                 Edit retest
                                             </a>
                                         {% endif %}
-                                        <a href="{{ page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
+                                        <a href="{{ page.url }}" class="govuk-link{% if not page.location %} amp-margin-bottom-0{% endif %}" target="_blank">
                                             Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
                                         </a>
                                         {% if page.location %}
