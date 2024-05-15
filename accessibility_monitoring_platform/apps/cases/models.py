@@ -463,9 +463,7 @@ class Case(VersionModel):
         title: str = ""
         if self.website_name:
             title += f"{self.website_name} | "
-        title += (
-            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
-        )
+        title += f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.case_number}"
         return title
 
     @property
