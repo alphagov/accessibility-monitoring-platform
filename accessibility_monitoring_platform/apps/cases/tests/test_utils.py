@@ -32,6 +32,7 @@ ORGANISATION_NAME: str = "Organisation name one"
 ORGANISATION_NAME_COMPLAINT: str = "Organisation name two"
 ORGANISATION_NAME_ECNI: str = "Organisation name ecni"
 ORGANISATION_NAME_EHRC: str = "Organisation name ehrc"
+CASE_NUMBER: int = 99
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
 
@@ -108,6 +109,18 @@ def test_case_filtered_by_search_string():
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_case_number_search_string():
+    """Test that searching for case by number is reflected in the queryset"""
+    Case.objects.create(case_number=CASE_NUMBER)
+    form: MockForm = MockForm(cleaned_data={"case_search": str(CASE_NUMBER)})
+
+    filtered_cases: List[Case] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].case_number == CASE_NUMBER
 
 
 @pytest.mark.django_db

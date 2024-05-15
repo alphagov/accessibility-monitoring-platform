@@ -188,12 +188,12 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             )
         ]
     if case.audit is not None:
-        testing_details_subsections: List[
-            FieldLabelAndValue
-        ] = get_initial_test_view_sections(audit=case.audit)
-        twelve_week_test_subsections: List[
-            FieldLabelAndValue
-        ] = get_twelve_week_test_view_sections(audit=case.audit)
+        testing_details_subsections: List[FieldLabelAndValue] = (
+            get_initial_test_view_sections(audit=case.audit)
+        )
+        twelve_week_test_subsections: List[FieldLabelAndValue] = (
+            get_twelve_week_test_view_sections(audit=case.audit)
+        )
         if case.report is not None:
             report_pk: Dict[str, int] = {"pk": case.report.id}
             report_details_fields: List[FieldLabelAndValue] = [
@@ -488,7 +488,7 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
             if (
                 search.isdigit()
             ):  # if its just a number, it presumes its an ID and returns that case
-                search_query = Q(id=search)
+                search_query = Q(case_number=search)
             else:
                 search_query = (
                     Q(  # pylint: disable=unsupported-binary-operation
@@ -683,11 +683,11 @@ def get_post_case_alerts(user: User) -> List[PostCaseAlert]:
     """
     post_case_alerts: List[PostCaseAlert] = []
 
-    equality_body_correspondences: QuerySet[
-        EqualityBodyCorrespondence
-    ] = EqualityBodyCorrespondence.objects.filter(
-        case__auditor=user,
-        status=EqualityBodyCorrespondence.Status.UNRESOLVED,
+    equality_body_correspondences: QuerySet[EqualityBodyCorrespondence] = (
+        EqualityBodyCorrespondence.objects.filter(
+            case__auditor=user,
+            status=EqualityBodyCorrespondence.Status.UNRESOLVED,
+        )
     )
 
     for equality_body_correspondence in equality_body_correspondences:
