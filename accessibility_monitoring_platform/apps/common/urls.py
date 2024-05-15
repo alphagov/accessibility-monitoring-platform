@@ -1,6 +1,7 @@
 """
 URLS for common
 """
+
 from typing import List
 
 from django.contrib.auth.decorators import login_required
@@ -13,6 +14,10 @@ from .views import (
     BulkURLSearchView,
     ChangeToPlatformListView,
     ContactAdminView,
+    EmailTemplateCreateView,
+    EmailTemplateListView,
+    EmailTemplatePreviewDetailView,
+    EmailTemplateUpdateView,
     FooterLinkFormsetTemplateView,
     FrequentlyUsedLinkFormsetTemplateView,
     IssueReportListView,
@@ -101,5 +106,25 @@ urlpatterns: List[URLPattern] = [
         "bulk-url-search/",
         login_required(BulkURLSearchView.as_view()),
         name="bulk-url-search",
+    ),
+    path(
+        "email-template-list/",
+        login_required(EmailTemplateListView.as_view()),
+        name="email-template-list",
+    ),
+    path(
+        "<int:pk>/email-template-preview/",
+        login_required(EmailTemplatePreviewDetailView.as_view()),
+        name="email-template-preview",
+    ),
+    path(
+        "email-template-create/",
+        login_required(EmailTemplateCreateView.as_view()),
+        name="email-template-create",
+    ),
+    path(
+        "<int:pk>/email-template-update/",
+        login_required(EmailTemplateUpdateView.as_view()),
+        name="email-template-update",
     ),
 ]

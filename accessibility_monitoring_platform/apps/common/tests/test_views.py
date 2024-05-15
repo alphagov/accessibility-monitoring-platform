@@ -1,6 +1,7 @@
 """
 Tests for common views
 """
+
 import logging
 from datetime import date, datetime, timedelta, timezone
 from unittest.mock import Mock, patch
@@ -149,6 +150,7 @@ LINK_URL: str = "https://example.com/custom-link"
 FOOTER_LINK_LABEL: str = "Custom footer link"
 FOOTER_LINK_URL: str = "https://example.com/footer-link"
 LOG_MESSAGE: str = "Hello"
+EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
 
 
 @pytest.mark.parametrize(
@@ -167,6 +169,8 @@ LOG_MESSAGE: str = "Hello"
         ("common:metrics-case", ">Case metrics</h1>"),
         ("common:metrics-policy", ">Policy metrics</h1>"),
         ("common:metrics-report", ">Report metrics</h1>"),
+        ("common:email-template-list", ">Email template manager</h1>"),
+        ("common:email-template-create", ">Create email template</h1>"),
     ],
 )
 def test_page_renders(url_name, expected_header, admin_client):
@@ -1308,3 +1312,24 @@ def test_latest_statement_frequently_used_link(admin_client):
 
     assertNotContains(response, "No accessibility statement URL found")
     assertContains(response, "View latest accessibility statement")
+
+
+@pytest.mark.parametrize(
+    "url_name,expected_heading",
+    [
+        ("common:email-template-update", ">Email template editor</h1>"),
+        (
+            "common:email-template-preview",
+            ">Sending report email - via platform preview</h1>",
+        ),
+    ],
+)
+def test_email_templates_view(url_name, expected_heading, admin_client):
+    """Test common email template page is rendered"""
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs={"pk": EXAMPLE_EMAIL_TEMPLATE_ID})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, expected_heading)

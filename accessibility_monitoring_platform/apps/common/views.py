@@ -4,7 +4,7 @@ Common views
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -16,7 +16,8 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
-from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
@@ -26,6 +27,7 @@ from .forms import (
     AMPContactAdminForm,
     AMPIssueReportForm,
     BulkURLSearchForm,
+    EmailTemplateCreateUpdateForm,
     FooterLinkFormset,
     FooterLinkOneExtraFormset,
     FrequentlyUsedLinkFormset,
@@ -44,6 +46,7 @@ from .metrics import (
 )
 from .models import (
     ChangeToPlatform,
+    EmailTemplate,
     FooterLink,
     FrequentlyUsedLink,
     IssueReport,
@@ -61,6 +64,8 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+EMAIL_TEMPLATE_PREVIEW_CASE_ID: int = 1170
 
 
 class ContactAdminView(FormView):
@@ -465,3 +470,88 @@ class BulkURLSearchView(FormView):
                 self.get_context_data(bulk_search_results=bulk_search_results)
             )
         return self.render_to_response()
+
+
+class EmailTemplateListView(ListView):
+    """
+    View of list of email templates.
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    template_name: str = "common/emails/template_list.html"
+    context_object_name: str = "email_templates"
+    paginate_by: int = 10
+
+    def get_queryset(self) -> QuerySet[EmailTemplate]:
+        return EmailTemplate.objects.filter(type=EmailTemplate.Type.SIMPLE).filter(
+            is_deleted=False
+        )
+
+
+class EmailTemplatePreviewDetailView(DetailView):
+    """
+    View preview of email template
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    template_name: str = "common/emails/template_preview.html"
+    context_object_name: str = "email_template"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case and email template to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["case"] = Case.objects.filter(pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID).first()
+        context["email_template_render"] = self.object.render(context=context)
+        return context
+
+
+class EmailTemplateCreateView(CreateView):
+    """
+    View to create email template
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
+    template_name: str = "common/emails/template_create.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        email_template: EmailTemplate = form.save(commit=False)
+        email_template.created_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        record_model_create_event(user=self.request.user, model_object=self.object)
+        if "save_preview" in self.request.POST:
+            return reverse_lazy(
+                "common:email-template-preview", kwargs={"pk": self.object.id}
+            )
+        return reverse_lazy(
+            "common:email-template-update", kwargs={"pk": self.object.id}
+        )
+
+
+class EmailTemplateUpdateView(UpdateView):
+    """
+    View to update email template
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    context_object_name: str = "email_template"
+    form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
+    template_name: str = "common/emails/template_update.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        email_template: EmailTemplate = form.save(commit=False)
+        email_template.updated_by = self.request.user
+        record_model_update_event(user=self.request.user, model_object=email_template)
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Remain on current page on save"""
+        if "save_preview" in self.request.POST:
+            return reverse_lazy(
+                "common:email-template-preview", kwargs={"pk": self.object.id}
+            )
+        return self.request.path

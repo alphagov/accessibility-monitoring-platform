@@ -9,6 +9,7 @@ from django.http import HttpResponse
 
 from .models import (
     ChangeToPlatform,
+    EmailTemplate,
     Event,
     FooterLink,
     FrequentlyUsedLink,
@@ -85,6 +86,27 @@ class EventAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
+class EmailTemplateAdmin(admin.ModelAdmin):
+    """Django admin configuration for EmailTemplate model"""
+
+    search_fields = ["name", "template", "updated_by", "created_by"]
+    list_display = [
+        "name",
+        "type",
+        "updated_by",
+        "updated",
+        "created_by",
+        "created",
+    ]
+    list_filter = [
+        "type",
+    ]
+    readonly_fields = [
+        "created",
+        "updated",
+    ]
+
+
 class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for IssueReport model"""
 
@@ -159,6 +181,7 @@ class SubCategorysAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Event, EventAdmin)
+admin.site.register(EmailTemplate, EmailTemplateAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
 admin.site.register(ChangeToPlatform, ChangeToPlatformAdmin)

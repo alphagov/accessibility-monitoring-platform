@@ -4,7 +4,7 @@
 
 {% load static %}
 
-{% block title %}{{ case.organisation_name }} | Unfixed issues email template{% endblock %}
+{% block title %}{{ case.organisation_name }} | LEGACY unfixed issues email template{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -16,13 +16,13 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:outstanding-issues' case.id %}">
                     Outstanding issues</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">Unfixed issues email template</li>
+            <li class="govuk-breadcrumbs__list-item">LEGACY unfixed issues email template</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Unfixed issues email template' %}
+                {% include "cases/helpers/edit_header.html" with page_heading='LEGACY unfixed issues email template' %}
             </div>
         </div>
         <div class="govuk-grid-row">

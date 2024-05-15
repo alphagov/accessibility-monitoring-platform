@@ -26,7 +26,7 @@ from ..audits.utils import report_data_updated
 from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
-from ..common.models import Boolean
+from ..common.models import Boolean, EmailTemplate
 from ..common.utils import (
     amp_format_date,
     check_dict_for_truthy_values,
@@ -826,6 +826,10 @@ class CaseOutstandingIssuesEmailTemplateView(TemplateView):
                 pages=case.audit.testable_pages,
                 check_results_attr="unfixed_check_results",
             )
+        email_template: EmailTemplate = EmailTemplate.objects.get(
+            slug=EmailTemplate.Slug.OUTSTANDING_ISSUES
+        )
+        context["email_template_render"] = email_template.render(context=context)
         return context
 
 
@@ -1293,6 +1297,10 @@ class EqualityBodyRetestEmailTemplateView(TemplateView):
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
         context["retest"] = case.retests.first()
+        email_template: EmailTemplate = EmailTemplate.objects.get(
+            slug=EmailTemplate.Slug.EQUALITY_BODY_RETEST
+        )
+        context["email_template_render"] = email_template.render(context=context)
         return context
 
 
@@ -1403,3 +1411,42 @@ def delete_zendesk_ticket(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(
         reverse("cases:zendesk-tickets", kwargs={"pk": zendesk_ticket.case.id})
     )
+
+
+class CaseEmailTemplateListView(ListView):
+    """
+    View of list of email templates for the case.
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    template_name: str = "cases/emails/template_list.html"
+    context_object_name: str = "email_templates"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add current case to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = self.case
+        return context
+
+
+class CaseEmailTemplatePreviewDetailView(DetailView):
+    """
+    View email template populated with case data
+    """
+
+    model: Type[EmailTemplate] = EmailTemplate
+    template_name: str = "cases/emails/template_preview.html"
+    context_object_name: str = "email_template"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case and email template to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = self.case
+        if self.case.audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                pages=self.case.audit.testable_pages
+            )
+        context["email_template_render"] = self.object.render(context=context)
+        return context
