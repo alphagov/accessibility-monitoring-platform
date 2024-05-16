@@ -18,6 +18,7 @@
                 {% include 'common/error_summary.html' %}
                 {% include 'cases/helpers/correspondence_overview_detail.html' %}
                 {% include 'cases/helpers/zendesk_tickets.html' %}
+                {% include 'cases/helpers/email_templates.html' %}
                 {% if case.no_psb_contact == 'yes' %}
                     <p class="govuk-body-m">
                         The public sector body has been as unresponsive to this case.
@@ -39,7 +40,7 @@
                             href="{% url 'cases:twelve-week-correspondence-email' case.id %}"
                             class="govuk-link govuk-link--no-visited-state"
                         >
-                            View email template
+                            View LEGACY email template
                         </a>
                     </p>
                 {% endif %}

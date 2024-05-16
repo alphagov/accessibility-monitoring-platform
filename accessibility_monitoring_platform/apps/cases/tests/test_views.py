@@ -28,7 +28,7 @@ from ...audits.models import (
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
-from ...common.models import Boolean, Event, Sector
+from ...common.models import Boolean, EmailTemplate, Event, Sector
 from ...common.utils import amp_format_date
 from ...notifications.models import Notification
 from ...reports.models import Report
@@ -162,13 +162,17 @@ UNRESOLVED_EQUALITY_BODY_MESSAGE: str = (
 UNRESOLVED_EQUALITY_BODY_NOTES: str = "Unresolved equality body correspondence notes"
 STATEMENT_CHECK_RESULT_REPORT_COMMENT: str = "Statement check result report comment"
 STATEMENT_CHECK_RESULT_RETEST_COMMENT: str = "Statement check result retest comment"
-REPORT_ACKNOWLEDGED_WARNING: str = "The report has been acknowledged by the organisation, and no further follow-up is needed."
+REPORT_ACKNOWLEDGED_WARNING: str = (
+    "The report has been acknowledged by the organisation, and no further follow-up is needed."
+)
 TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
     "The request for a final update has been acknowledged by the organisation"
 )
 RECOMMENDATION_NOTE: str = "Recommendation note"
 ZENDESK_URL: str = "https://zendesk.com/ticket"
 ZENDESK_SUMMARY: str = "Zendesk ticket summary"
+PAGE_LOCATION: str = "Press A and then B"
+EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -1496,6 +1500,50 @@ def test_link_to_accessibility_statement_displayed(admin_client):
         </p>""",
         html=True,
     )
+
+
+def test_statement_page_location_displayed(admin_client):
+    """
+    Test that the accessibility statement location is displayed.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.STATEMENT,
+        url=ACCESSIBILITY_STATEMENT_URL,
+        location=PAGE_LOCATION,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, PAGE_LOCATION)
+
+
+def test_contact_page_location_displayed(admin_client):
+    """
+    Test that the contact page location is displayed.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.CONTACT,
+        url="https://example.com/contact",
+        location=PAGE_LOCATION,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, PAGE_LOCATION)
 
 
 def test_link_to_accessibility_statement_not_displayed(admin_client):
@@ -3267,7 +3315,7 @@ def test_frequently_used_links_displayed(url_name, admin_client):
 
     assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
-    assertContains(response, "View email template")
+    assertContains(response, "Email templates")
     assertContains(response, "No report has been published")
     assertContains(response, "View website")
 
@@ -3281,8 +3329,12 @@ def test_twelve_week_email_template_contains_issues(admin_client):
     page.url = "https://example.com"
     page.save()
     Report.objects.create(case=audit.case)
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
+    )
     url: str = reverse(
-        "cases:twelve-week-correspondence-email", kwargs={"pk": audit.case.id}
+        "cases:email-template-preview",
+        kwargs={"case_id": audit.case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3298,8 +3350,12 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
+    )
     url: str = reverse(
-        "cases:twelve-week-correspondence-email", kwargs={"pk": audit.case.id}
+        "cases:email-template-preview",
+        kwargs={"case_id": audit.case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3318,7 +3374,13 @@ def test_outstanding_issues_email_template_contains_issues(admin_client):
     page.url = "https://example.com"
     page.save()
     Report.objects.create(case=audit.case)
-    url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        slug=EmailTemplate.Slug.OUTSTANDING_ISSUES
+    )
+    url: str = reverse(
+        "cases:email-template-preview",
+        kwargs={"case_id": audit.case.id, "pk": email_template.id},
+    )
     statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
     statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit,
@@ -3870,3 +3932,35 @@ def test_case_overview(admin_client):
         """<p class="govuk-body-m amp-margin-bottom-10">Retest test: No statement found</p>""",
         html=True,
     )
+
+
+def test_case_email_template_list_view(admin_client):
+    """Test case email template list page is rendered"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:email-template-list", kwargs={"case_id": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, ">Email templates</h1>")
+
+
+def test_case_email_template_preview_view(admin_client):
+    """Test case email template list page is rendered"""
+    case: Case = Case.objects.create()
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        pk=EXAMPLE_EMAIL_TEMPLATE_ID
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:email-template-preview",
+            kwargs={"case_id": case.id, "pk": email_template.id},
+        )
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, f">{email_template.name}</h1>")

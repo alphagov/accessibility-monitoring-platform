@@ -30,6 +30,7 @@ WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 HOME_PAGE_URL: str = "https://example.com"
 CHECK_RESULTS_NOTES: str = "I am an error note"
 EXTRA_STATEMENT_WORDING: str = "Extra statement wording"
+PAGE_LOCATION: str = "Click on second link"
 
 USER_NAME: str = "user1"
 USER_PASSWORD: str = "bar"
@@ -228,6 +229,26 @@ def test_old_published_report_includes_errors(admin_client):
     assert WCAG_TYPE_AXE_NAME in s3_report.html
     assert CHECK_RESULTS_NOTES in s3_report.html
     assert EXTRA_STATEMENT_WORDING in s3_report.html
+
+
+def test_report_includes_page_location(admin_client):
+    """
+    Test that report contains the page location
+    """
+    report: Report = create_report()
+    audit: Audit = report.case.audit
+    Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url=HOME_PAGE_URL, location=PAGE_LOCATION
+    )
+
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+    assertContains(response, PAGE_LOCATION)
 
 
 @mock_aws

@@ -16,7 +16,7 @@ from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 
-from ..common.models import Boolean, Sector, SubCategory, VersionModel
+from ..common.models import Boolean, EmailTemplate, Sector, SubCategory, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
     format_outstanding_issues,
@@ -463,9 +463,7 @@ class Case(VersionModel):
         title: str = ""
         if self.website_name:
             title += f"{self.website_name} | "
-        title += (
-            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
-        )
+        title += f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.case_number}"
         return title
 
     @property
@@ -853,6 +851,10 @@ class Case(VersionModel):
         if self.zendesk_tickets:
             return self.zendesk_tickets.first().url
         return self.zendesk_url
+
+    @property
+    def email_templates(self):
+        return EmailTemplate.objects.filter(is_deleted=False)
 
 
 class CaseStatus(models.Model):

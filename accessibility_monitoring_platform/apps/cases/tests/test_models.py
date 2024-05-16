@@ -9,6 +9,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
+from pytest_django.asserts import assertQuerySetEqual
 
 from ...audits.models import (
     Audit,
@@ -20,7 +22,7 @@ from ...audits.models import (
     WcagDefinition,
 )
 from ...comments.models import Comment
-from ...common.models import Boolean
+from ...common.models import Boolean, EmailTemplate
 from ...reminders.models import Reminder
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
@@ -1242,3 +1244,14 @@ def test_zendesk_ticket_id_within_case():
     second_zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
 
     assert second_zendesk_ticket.id_within_case == 2
+
+
+@pytest.mark.django_db
+def test_case_email_tmplates():
+    """Test Case.email_templates returns expected data"""
+    email_templates: QuerySet[EmailTemplate] = EmailTemplate.objects.filter(
+        is_deleted=False
+    )
+
+    assert email_templates.count() == 4
+    assertQuerySetEqual(Case().email_templates, email_templates)

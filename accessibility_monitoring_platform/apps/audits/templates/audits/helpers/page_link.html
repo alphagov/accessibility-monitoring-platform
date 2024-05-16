@@ -1,9 +1,0 @@
-{% if page.not_found == 'yes' %}
-    {{ page }} not found
-{% elif page.url %}
-    <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-        {{ page }}
-    </a>
-{% else %}
-    {{ page }} URL not entered
-{% endif %}

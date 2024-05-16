@@ -4,7 +4,7 @@
 
 {% load static %}
 
-{% block title %}{{ case.organisation_name }} | Equality body retest email template{% endblock %}
+{% block title %}{{ case.organisation_name }} | LEGACY equality body retest email template{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -16,13 +16,13 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-retest-overview' case.id %}">
                     Retest overview</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">Equality body retest email template</li>
+            <li class="govuk-breadcrumbs__list-item">LEGACY equality body retest email template</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Equality body retest email template' retest_header=False %}
+                {% include "cases/helpers/edit_header.html" with page_heading='LEGACY equality body retest email template' retest_header=False %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -73,8 +73,12 @@
                                 {% for retest_page in retest.retestpage_set.all %}
                                     <li>
                                         {{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %}
-                                        ({{ retest_page.unfixed_check_results.count }} of {{ retest_page.original_check_results.count }}
-                                        issue{% if retest_page.original_check_results.count != 1 %}s{% endif %} remaining)
+                                        {% if retest_page.missing_date %}
+                                            (removed)
+                                        {% else %}
+                                            ({{ retest_page.unfixed_check_results.count }} of {{ retest_page.original_check_results.count }}
+                                            issue{% if retest_page.original_check_results.count != 1 %}s{% endif %} remaining)
+                                        {% endif %}
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -95,6 +99,7 @@
                                 <td headers="page-name" width=50%>{{ retest_page.page }}</td>
                                 <td headers="page-url" width=50%>
                                     <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
+                                    {{ retest_page.page.location }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -142,9 +147,12 @@
                     <br>
                     {% for retest_page in retest.retestpage_set.all %}
                         <b>{{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %} issues</b>
-                        ({{ retest_page.unfixed_check_results.count }} issue{% if retest_page.unfixed_check_results.count != 1 %}s{% endif %} remaining)
+                        {% if not retest_page.missing_date %}
+                            ({{ retest_page.unfixed_check_results.count }} issue{% if retest_page.unfixed_check_results.count != 1 %}s{% endif %} remaining)
+                        {% endif %}
                         <br>
                         <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
+                        {{ retest_page.page.location }}
                         <br>
                         <br>
                         {% if retest_page.missing_date %}

@@ -117,7 +117,7 @@
         {% for page in audit.testable_pages %}
             <tr valign="top" >
                 <td headers="name">{{ page }}</td>
-                <td headers="url"><a href="{{ page.url }}">{{ page.url }}</a></td>
+                <td headers="url"><a href="{{ page.url }}">{{ page.url }}</a> {{ page.location }}</td>
             </tr>
         {% endfor %}
     </tbody>
@@ -140,6 +140,7 @@
     </h2>
     <p>
         <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
+        {{ issues_table.page.location }}
     </p>
     {% if issues_table.rows %}
         <table id="issues-table-{{ forloop.counter }}">
