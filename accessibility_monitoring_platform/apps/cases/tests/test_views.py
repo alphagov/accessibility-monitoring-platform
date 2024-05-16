@@ -162,13 +162,16 @@ UNRESOLVED_EQUALITY_BODY_MESSAGE: str = (
 UNRESOLVED_EQUALITY_BODY_NOTES: str = "Unresolved equality body correspondence notes"
 STATEMENT_CHECK_RESULT_REPORT_COMMENT: str = "Statement check result report comment"
 STATEMENT_CHECK_RESULT_RETEST_COMMENT: str = "Statement check result retest comment"
-REPORT_ACKNOWLEDGED_WARNING: str = "The report has been acknowledged by the organisation, and no further follow-up is needed."
+REPORT_ACKNOWLEDGED_WARNING: str = (
+    "The report has been acknowledged by the organisation, and no further follow-up is needed."
+)
 TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
     "The request for a final update has been acknowledged by the organisation"
 )
 RECOMMENDATION_NOTE: str = "Recommendation note"
 ZENDESK_URL: str = "https://zendesk.com/ticket"
 ZENDESK_SUMMARY: str = "Zendesk ticket summary"
+PAGE_LOCATION: str = "Press A and then B"
 EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
 
 
@@ -1497,6 +1500,50 @@ def test_link_to_accessibility_statement_displayed(admin_client):
         </p>""",
         html=True,
     )
+
+
+def test_statement_page_location_displayed(admin_client):
+    """
+    Test that the accessibility statement location is displayed.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.STATEMENT,
+        url=ACCESSIBILITY_STATEMENT_URL,
+        location=PAGE_LOCATION,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, PAGE_LOCATION)
+
+
+def test_contact_page_location_displayed(admin_client):
+    """
+    Test that the contact page location is displayed.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.CONTACT,
+        url="https://example.com/contact",
+        location=PAGE_LOCATION,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, PAGE_LOCATION)
 
 
 def test_link_to_accessibility_statement_not_displayed(admin_client):
