@@ -73,8 +73,12 @@
                                 {% for retest_page in retest.retestpage_set.all %}
                                     <li>
                                         {{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %}
-                                        ({{ retest_page.unfixed_check_results.count }} of {{ retest_page.original_check_results.count }}
-                                        issue{% if retest_page.original_check_results.count != 1 %}s{% endif %} remaining)
+                                        {% if retest_page.missing_date %}
+                                            (removed)
+                                        {% else %}
+                                            ({{ retest_page.unfixed_check_results.count }} of {{ retest_page.original_check_results.count }}
+                                            issue{% if retest_page.original_check_results.count != 1 %}s{% endif %} remaining)
+                                        {% endif %}
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -142,7 +146,9 @@
                     <br>
                     {% for retest_page in retest.retestpage_set.all %}
                         <b>{{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %} issues</b>
-                        ({{ retest_page.unfixed_check_results.count }} issue{% if retest_page.unfixed_check_results.count != 1 %}s{% endif %} remaining)
+                        {% if not retest_page.missing_date %}
+                            ({{ retest_page.unfixed_check_results.count }} issue{% if retest_page.unfixed_check_results.count != 1 %}s{% endif %} remaining)
+                        {% endif %}
                         <br>
                         <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
                         <br>
