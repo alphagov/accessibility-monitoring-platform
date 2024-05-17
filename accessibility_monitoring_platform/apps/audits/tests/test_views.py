@@ -2606,9 +2606,6 @@ def test_retest_pages_shows_location(admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    f = open("t.html", "w")
-    f.write(str(response.content))
-    f.close()
 
     assertContains(response, PAGE_LOCATION)
 

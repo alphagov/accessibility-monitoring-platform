@@ -22,6 +22,7 @@ WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %
 {{ wcag_definition.report_boilerplate|safe }}
 {% endif %}"""
 CHECK_RESULTS_NOTES_TEMPLATE: str = """{{ check_result.notes|safe }}"""
+CHECK_RESULTS_RETEST_NOTES_TEMPLATE: str = """{{ check_result.retest_notes|safe }}"""
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
 UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
 MOVE_ROW_UP_BUTTON_PREFIX: str = "move_table_row_up_"
@@ -29,6 +30,9 @@ MOVE_ROW_DOWN_BUTTON_PREFIX: str = "move_table_row_down_"
 
 wcag_boilerplate_template: Template = Template(WCAG_DEFINITION_BOILERPLATE_TEMPLATE)
 check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
+check_result_retest_notes_template: Template = Template(
+    CHECK_RESULTS_RETEST_NOTES_TEMPLATE
+)
 
 
 class Section:
@@ -92,7 +96,9 @@ class IssueTable:
 
 
 def build_issues_tables(
-    pages: List[Page], check_results_attr: str = "failed_check_results"
+    pages: List[Page],
+    check_results_attr: str = "failed_check_results",
+    use_retest_notes: bool = False,
 ) -> List[IssueTable]:
     """
     Generate content of issues tables for report.
@@ -106,6 +112,7 @@ def build_issues_tables(
                 rows=build_issue_table_rows(
                     check_results=getattr(page, check_results_attr),
                     used_wcag_definitions=used_wcag_definitions,
+                    use_retest_notes=use_retest_notes,
                 ),
             )
         )
@@ -113,7 +120,9 @@ def build_issues_tables(
 
 
 def build_issue_table_rows(
-    check_results: List[CheckResult], used_wcag_definitions: Set[WcagDefinition]
+    check_results: List[CheckResult],
+    used_wcag_definitions: Set[WcagDefinition],
+    use_retest_notes: bool = False,
 ) -> List[TableRow]:
     """Build issue table row data for each failed check for a page in the report"""
     table_rows: List[TableRow] = []
@@ -130,14 +139,20 @@ def build_issue_table_rows(
             }
         )
         check_result_context: Context = Context({"check_result": check_result})
+        if use_retest_notes:
+            notes_cell: str = check_result_retest_notes_template.render(
+                context=check_result_context
+            )
+        else:
+            notes_cell: str = check_result_notes_template.render(
+                context=check_result_context
+            )
         table_rows.append(
             TableRow(
                 cell_content_1=wcag_boilerplate_template.render(
                     context=wcag_boilerplate_context
                 ),
-                cell_content_2=check_result_notes_template.render(
-                    context=check_result_context
-                ),
+                cell_content_2=notes_cell,
                 row_number=row_number,
             )
         )
