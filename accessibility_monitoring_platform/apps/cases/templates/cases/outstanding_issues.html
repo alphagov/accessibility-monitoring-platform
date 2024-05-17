@@ -16,6 +16,7 @@
         {% if case.audit %}
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
+                    {% include 'cases/helpers/email_templates.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <a href="{% url 'cases:outstanding-issues' case.id %}?view={% if show_failures_by_page %}WCAG{% else %}Page{% endif %} view" rel="noreferrer noopener" class="govuk-button  govuk-button--secondary">
