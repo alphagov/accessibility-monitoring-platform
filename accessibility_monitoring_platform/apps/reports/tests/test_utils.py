@@ -1,6 +1,7 @@
 """
 Test utility functions of reports app
 """
+
 from typing import Any, Dict, List, Set
 
 import pytest
@@ -23,6 +24,7 @@ PDF_PAGE_NAME: str = "PDF name"
 HOME_PAGE_URL: str = "https://example.com/home"
 PDF_PAGE_URL: str = "https://example.com/pdf"
 CHECK_RESULT_NOTES: str = "Check results note <span>including HTML</span>"
+CHECK_RESULT_RETEST_NOTES: str = "Check results retest note <span>including HTML</span>"
 
 
 @pytest.mark.django_db
@@ -57,6 +59,43 @@ def test_build_issue_table_rows():
 
     assert wcag_definition.name in table_rows[0].cell_content_1
     assert CHECK_RESULT_NOTES in table_rows[0].cell_content_2
+
+
+@pytest.mark.django_db
+def test_twelve_week_build_issue_table_rows():
+    """Test issue table row created for i12-week retest failed check"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(
+        audit=audit,
+        name=HOME_PAGE_NAME,
+        page_type=Page.Type.HOME,
+        url=HOME_PAGE_URL,
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
+        type=WcagDefinition.Type.PDF
+    ).first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+        notes=CHECK_RESULT_NOTES,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        retest_notes=CHECK_RESULT_RETEST_NOTES,
+    )
+    used_wcag_definitions: Set[WcagDefinition] = set()
+
+    table_rows: List[TableRow] = build_issue_table_rows(
+        check_results=page.failed_check_results,
+        used_wcag_definitions=used_wcag_definitions,
+        use_retest_notes=True,
+    )
+
+    assert len(table_rows) == 1
+
+    assert wcag_definition.name in table_rows[0].cell_content_1
+    assert CHECK_RESULT_RETEST_NOTES in table_rows[0].cell_content_2
 
 
 @pytest.mark.django_db
