@@ -526,9 +526,9 @@ class CaseFindContactDetailsUpdateView(CaseUpdateView):
     View to update Find contact details
     """
 
-    form_class: Type[
+    form_class: Type[CaseFindContactDetailsUpdateForm] = (
         CaseFindContactDetailsUpdateForm
-    ] = CaseFindContactDetailsUpdateForm
+    )
     template_name: str = "cases/forms/find_contact_details.html"
 
     def get_success_url(self) -> str:
@@ -685,9 +685,9 @@ class CaseReportAcknowledgedUpdateView(CaseUpdateView):
     View to update Report acknowledged
     """
 
-    form_class: Type[
+    form_class: Type[CaseReportAcknowledgedUpdateForm] = (
         CaseReportAcknowledgedUpdateForm
-    ] = CaseReportAcknowledgedUpdateForm
+    )
     template_name: str = "cases/forms/report_acknowledged.html"
 
     def get_success_url(self) -> str:
@@ -706,9 +706,9 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
     View to update 12-week update requested
     """
 
-    form_class: Type[
+    form_class: Type[CaseTwelveWeekUpdateRequestedUpdateForm] = (
         CaseTwelveWeekUpdateRequestedUpdateForm
-    ] = CaseTwelveWeekUpdateRequestedUpdateForm
+    )
     template_name: str = "cases/forms/12_week_update_requested.html"
 
     def form_valid(self, form: CaseTwelveWeekUpdateRequestedUpdateForm):
@@ -742,9 +742,9 @@ class CaseOneWeekFollowupFinalUpdateView(CaseUpdateView):
     View to update One week followup for final update
     """
 
-    form_class: Type[
+    form_class: Type[CaseOneWeekFollowupFinalUpdateForm] = (
         CaseOneWeekFollowupFinalUpdateForm
-    ] = CaseOneWeekFollowupFinalUpdateForm
+    )
     template_name: str = "cases/forms/one_week_followup_final.html"
 
     def get_success_url(self) -> str:
@@ -763,9 +763,9 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
     View to update 12-week update request acknowledged
     """
 
-    form_class: Type[
+    form_class: Type[CaseTwelveWeekUpdateAcknowledgedUpdateForm] = (
         CaseTwelveWeekUpdateAcknowledgedUpdateForm
-    ] = CaseTwelveWeekUpdateAcknowledgedUpdateForm
+    )
     template_name: str = "cases/forms/12_week_update_request_ack.html"
 
     def get_success_url(self) -> str:
@@ -782,9 +782,9 @@ class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):
     View to update Correspondence overview
     """
 
-    form_class: Type[
+    form_class: Type[CaseCorrespondenceOverviewUpdateForm] = (
         CaseCorrespondenceOverviewUpdateForm
-    ] = CaseCorrespondenceOverviewUpdateForm
+    )
     template_name: str = "cases/forms/cores_overview.html"
 
     def get_success_url(self) -> str:
@@ -888,9 +888,9 @@ class CaseEnforcementRecommendationUpdateView(CaseUpdateView):
     View to record the enforcement recommendation
     """
 
-    form_class: Type[
+    form_class: Type[CaseEnforcementRecommendationUpdateForm] = (
         CaseEnforcementRecommendationUpdateForm
-    ] = CaseEnforcementRecommendationUpdateForm
+    )
     template_name: str = "cases/forms/enforcement_recommendation.html"
 
     def get_success_url(self) -> str:
@@ -914,27 +914,27 @@ class CaseCloseUpdateView(CaseUpdateView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        equality_body_metadata_columns: List[
-            EqualityBodyCSVColumn
-        ] = populate_equality_body_columns(
-            case=case, column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
+        equality_body_metadata_columns: List[EqualityBodyCSVColumn] = (
+            populate_equality_body_columns(
+                case=case, column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
+            )
         )
-        equality_body_report_columns: List[
-            EqualityBodyCSVColumn
-        ] = populate_equality_body_columns(
-            case=case, column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
+        equality_body_report_columns: List[EqualityBodyCSVColumn] = (
+            populate_equality_body_columns(
+                case=case, column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
+            )
         )
-        equality_body_correspondence_columns: List[
-            EqualityBodyCSVColumn
-        ] = populate_equality_body_columns(
-            case=case,
-            column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+        equality_body_correspondence_columns: List[EqualityBodyCSVColumn] = (
+            populate_equality_body_columns(
+                case=case,
+                column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+            )
         )
-        equality_body_test_summary_columns: List[
-            EqualityBodyCSVColumn
-        ] = populate_equality_body_columns(
-            case=case,
-            column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+        equality_body_test_summary_columns: List[EqualityBodyCSVColumn] = (
+            populate_equality_body_columns(
+                case=case,
+                column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+            )
         )
         all_equality_body_columns: List[EqualityBodyCSVColumn] = (
             equality_body_metadata_columns
@@ -949,12 +949,12 @@ class CaseCloseUpdateView(CaseUpdateView):
         ]
         context["equality_body_metadata_columns"] = equality_body_metadata_columns
         context["equality_body_report_columns"] = equality_body_report_columns
-        context[
-            "equality_body_correspondence_columns"
-        ] = equality_body_correspondence_columns
-        context[
-            "equality_body_test_summary_columns"
-        ] = equality_body_test_summary_columns
+        context["equality_body_correspondence_columns"] = (
+            equality_body_correspondence_columns
+        )
+        context["equality_body_test_summary_columns"] = (
+            equality_body_test_summary_columns
+        )
         context["required_data_missing_columns"] = required_data_missing_columns
         return context
 
@@ -1093,9 +1093,9 @@ class CaseStatementEnforcementUpdateView(CaseUpdateView):
     View of statement enforcement
     """
 
-    form_class: Type[
+    form_class: Type[CaseStatementEnforcementUpdateForm] = (
         CaseStatementEnforcementUpdateForm
-    ] = CaseStatementEnforcementUpdateForm
+    )
     template_name: str = "cases/forms/statement_enforcement.html"
 
     def get_success_url(self) -> str:
@@ -1111,9 +1111,9 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
     View of equality body metadata
     """
 
-    form_class: Type[
+    form_class: Type[CaseEqualityBodyMetadataUpdateForm] = (
         CaseEqualityBodyMetadataUpdateForm
-    ] = CaseEqualityBodyMetadataUpdateForm
+    )
     template_name: str = "cases/forms/equality_body_metadata.html"
 
     def get_success_url(self) -> str:
@@ -1135,9 +1135,9 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
     View of equality body correspondence list
     """
 
-    form_class: Type[
+    form_class: Type[ListCaseEqualityBodyCorrespondenceUpdateForm] = (
         ListCaseEqualityBodyCorrespondenceUpdateForm
-    ] = ListCaseEqualityBodyCorrespondenceUpdateForm
+    )
     template_name: str = "cases/forms/equality_body_correspondence_list.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -1148,24 +1148,24 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
         show_unresolved = view_url_param == "unresolved"
         context["show_unresolved"] = show_unresolved
         if show_unresolved:
-            context[
-                "equality_body_correspondences"
-            ] = case.equalitybodycorrespondence_set.filter(
-                status=EqualityBodyCorrespondence.Status.UNRESOLVED
+            context["equality_body_correspondences"] = (
+                case.equalitybodycorrespondence_set.filter(
+                    status=EqualityBodyCorrespondence.Status.UNRESOLVED
+                )
             )
         else:
-            context[
-                "equality_body_correspondences"
-            ] = case.equalitybodycorrespondence_set.all()
+            context["equality_body_correspondences"] = (
+                case.equalitybodycorrespondence_set.all()
+            )
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        equality_body_correspondence_id_to_toggle: Optional[
-            int
-        ] = get_id_from_button_name(
-            button_name_prefix="toggle_status_",
-            querydict=self.request.POST,
+        equality_body_correspondence_id_to_toggle: Optional[int] = (
+            get_id_from_button_name(
+                button_name_prefix="toggle_status_",
+                querydict=self.request.POST,
+            )
         )
         if equality_body_correspondence_id_to_toggle is not None:
             equality_body_correspondence: EqualityBodyCorrespondence = (
@@ -1197,9 +1197,9 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
     """
 
     model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
-    form_class: Type[
+    form_class: Type[EqualityBodyCorrespondenceCreateForm] = (
         EqualityBodyCorrespondenceCreateForm
-    ] = EqualityBodyCorrespondenceCreateForm
+    )
     context_object_name: str = "equality_body_correspondence"
     template_name: str = "cases/forms/equality_body_correspondence_create.html"
 
@@ -1238,9 +1238,9 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
     """
 
     model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
-    form_class: Type[
+    form_class: Type[EqualityBodyCorrespondenceCreateForm] = (
         EqualityBodyCorrespondenceCreateForm
-    ] = EqualityBodyCorrespondenceCreateForm
+    )
     context_object_name: str = "equality_body_correspondence"
     template_name: str = "cases/forms/equality_body_correspondence_update.html"
 
@@ -1309,9 +1309,9 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
     View to note correspondence with enforcement body
     """
 
-    form_class: Type[
+    form_class: Type[CaseStatementEnforcementUpdateForm] = (
         CaseStatementEnforcementUpdateForm
-    ] = CaseStatementEnforcementUpdateForm
+    )
     template_name: str = "cases/forms/legacy_end_of_case.html"
 
 
@@ -1444,6 +1444,7 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = self.case
+        context["retest"] = self.case.retests.first()
         if self.case.audit is not None:
             context["issues_tables"] = build_issues_tables(
                 pages=self.case.audit.testable_pages

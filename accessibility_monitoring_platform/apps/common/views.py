@@ -500,7 +500,9 @@ class EmailTemplatePreviewDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add case and email template to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["case"] = Case.objects.filter(pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID).first()
+        case: Case = Case.objects.filter(pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID).first()
+        context["case"] = case
+        context["retest"] = case.retests.first()
         context["email_template_render"] = self.object.render(context=context)
         return context
 
