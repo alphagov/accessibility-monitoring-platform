@@ -41,7 +41,6 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
     <td headers="page-name" width=50%>{{ retest_page.page }}</td>
     <td headers="page-url" width=50%>
     <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
-    {{ retest_page.page.location }}
     </td>
     </tr>
     {% endfor %}
@@ -92,7 +91,6 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
     ({{ retest_page.unfixed_check_results.count }} issue{% if retest_page.unfixed_check_results.count != 1 %}s{% endif %} remaining)
     <br>
     <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
-    {{ retest_page.page.location }}
     <br>
     <br>
     {% if retest_page.missing_date %}

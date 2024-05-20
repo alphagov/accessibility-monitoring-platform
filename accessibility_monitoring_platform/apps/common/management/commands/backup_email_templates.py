@@ -1,6 +1,7 @@
 """Backup email templates from database to code base"""
 
 from django.core.management.base import BaseCommand
+from django.utils.text import slugify
 
 from ...models import EmailTemplate
 
@@ -16,7 +17,7 @@ class Command(BaseCommand):
         """Read all email templates from database and save as files"""
         for email_template in EmailTemplate.objects.all():
             backup_file = open(
-                f"{PATH_TO_EMAILS_DIRECTORY}{email_template.slug}.html", "w"
+                f"{PATH_TO_EMAILS_DIRECTORY}{slugify(email_template.name)}.html", "w"
             )
             backup_file.write(str(email_template.template))
             backup_file.close()
