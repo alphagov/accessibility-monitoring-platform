@@ -521,6 +521,7 @@ class EmailTemplateCreateView(CreateView):
         """Process contents of valid form"""
         email_template: EmailTemplate = form.save(commit=False)
         email_template.created_by = self.request.user
+        email_template.updated_by = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
