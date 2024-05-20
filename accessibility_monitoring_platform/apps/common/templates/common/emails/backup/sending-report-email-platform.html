@@ -1,0 +1,60 @@
+Dear <b>(team responsible for the website)</b>
+<br>
+<br>
+I am {{ case.auditor.get_full_name }} from the website accessibility monitoring team at the Government Digital Service, which is part of the Cabinet Office.
+<br>
+<br>
+{% if case.previous_case_url %}
+We are required to test a proportion of websites that we have previously tested. Your website was chosen from a random sample to be monitored again.
+{% else %}
+We have been given the role to monitor the accessibility of public sector websites. Your website was chosen from a random sample to be monitored.
+{% endif %}
+<br>
+<br>
+It is a requirement of The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 that public sector websites are accessible to everyone. This came into force on 23 September 2018.
+<br>
+<br>
+<h2>What we found</h2>
+<br>
+<br>
+We found some accessibility issues with the website. Details of the issues can be found in our report:
+<a href="{{ case.published_report_url }}">{{ case.published_report_url }}</a>
+<br>
+<br>
+We have published more information on public sector accessibility monitoring and what you need to do.
+<br>
+<br>
+<h2>What you have to do</h2>
+<br>
+<br>
+Under the Regulations your website must meet Web Content Accessibility Guidelines (WCAG 2.1 AA standards).
+<br>
+<br>
+We are asking that you:
+<ul>
+<li>email us within 7 days to confirm you have received the report</li>
+<li>send us your disproportionate burden assessment evidence</li>
+<li>carry out an accessibility audit of your website to find what needs to be fixed, if you have not had an audit completed recently</li>
+<li>fix the issues on your website within 12 weeks (within the timeline provided)</li>
+<li>publish a compliant accessibility statement on your website</li>
+</ul>
+<br>
+We will retest your website after (add date) to check that accessibility issues have been fixed.
+<br>
+<br>
+Any remaining accessibility issues will be passed to the {{ case.get_enforcement_body_display }} for further action and a list of websites without correct accessibility statements will be published by the Cabinet Office.
+<br>
+<br>
+Where possible we will direct you to relevant resources and information that may help you to increase the accessibility of your website.
+<br>
+<br>
+To find out more about the accessibility monitoring and the legislation go to
+<a href="https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring">https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring</a>
+<br>
+<br>
+If you have received this email and you are not the person responsible to take the specified actions you must forward it to the correct person urgently.
+<br>
+<br>
+Many thanks,
+<br>
+<br>
