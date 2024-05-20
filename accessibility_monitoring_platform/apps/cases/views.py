@@ -1452,6 +1452,5 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
             context["retest_issues_tables"] = build_issues_tables(
                 pages=self.case.audit.testable_pages, use_retest_notes=True
             )
-        context["today"] = date.today()
         context["email_template_render"] = self.object.render(context=context)
         return context
