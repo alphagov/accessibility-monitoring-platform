@@ -13,7 +13,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}">EHRC CSV export manager</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}{% if export.enforcement_body != 'ehrc' %}?enforcement_body={{ export.enforcement_body }}{% endif %}">{{ export.enforcement_body|upper }} CSV export manager</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
                 <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-detail' export.id %}">{{ export }}</a>
@@ -30,7 +30,7 @@
                     <li>{{ export.excluded_cases_count }} case{% if export.excluded_cases_count != 1 %}s have{% else %} has{% endif %} been excluded</li>
                     <li>{{ export.unready_cases_count }} case{% if export.unready_cases_count != 1 %}s are{% else %} is{% endif %} not ready</li>
                 </ul>
-                <p class="govuk-body-m"><b>Are you sure you want to export the EHRC CSV?</b></p>
+                <p class="govuk-body-m"><b>Are you sure you want to export the {{ export.enforcement_body|upper }} CSV?</b></p>
                 <p class="govuk-body-m">
                     When you export the data, it will move the cases in the export to the next status,
                     Case closed and sent to equalities body (by setting <i>Date sent to equality body</i> to today).

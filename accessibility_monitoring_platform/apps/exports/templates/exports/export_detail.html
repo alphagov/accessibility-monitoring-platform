@@ -13,7 +13,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}">EHRC CSV export manager</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}{% if export.enforcement_body != 'ehrc' %}?enforcement_body={{ export.enforcement_body }}{% endif %}">{{ export.enforcement_body|upper }} CSV export manager</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">{{ export }}</li>
         </ol>
@@ -29,7 +29,7 @@
                 <div class="govuk-form-group">
                     <label class="govuk-label"><b>Overview</b></label>
                     <ul class="govuk-list">
-                        <li>Enforcement body: EHRC</li>
+                        <li>Enforcement body: {{ export.enforcement_body|upper }}</li>
                         <li>Status: Case closed and ready to be sent to enforcement body</li>
                         <li>Date filter: Date when compliance decision email sent to public sector body</li>
                         <li>Cutoff date: {{ export.cutoff_date|amp_date }}</li>
@@ -45,7 +45,7 @@
             <div class="govuk-grid-column-two-thirds">
                 <p class="govuk-body-m">
                     <a href="{% url 'exports:export-all-cases' export.id %}"
-                       class="govuk-link govuk-link--no-visited-state">Download DRAFT EHRC CSV export (all cases)</a>
+                       class="govuk-link govuk-link--no-visited-state">Download DRAFT {{ export.enforcement_body|upper }} CSV export (all cases)</a>
                 </p>
             </div>
             <div class="govuk-grid-column-one-third">
@@ -134,7 +134,7 @@
                     >
                         Proceed to export
                     </a>
-                    <a href="{% url 'exports:export-list' %}"
+                    <a href="{% url 'exports:export-list' %}{% if export.enforcement_body != 'ehrc' %}?enforcement_body={{ export.enforcement_body }}{% endif %}"
                        class="govuk-link govuk-link--no-visited-state">Cancel</a>
                 </div>
             </div>

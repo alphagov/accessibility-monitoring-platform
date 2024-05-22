@@ -3,7 +3,7 @@ Views for export app
 """
 
 from datetime import date
-from typing import Type
+from typing import Any, Dict, Type
 
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
@@ -16,12 +16,32 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.csv_export_utils import download_equality_body_cases
+from ..cases.models import Case
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
 
 
-class ExportListView(ListView):
+class EnforcementBodyMixin:
+    """Mixin to get enforcement body from request"""
+
+    enforcement_body: str = Case.EnforcementBody.EHRC
+
+    def get(self, request, *args, **kwargs):
+        """Get enforcement body"""
+        self.enforcement_body = self.request.GET.get(
+            "enforcement_body", Case.EnforcementBody.EHRC
+        )
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["enforcement_body"] = self.enforcement_body
+        return context
+
+
+class ExportListView(EnforcementBodyMixin, ListView):
     """
     View to list exports
     """
@@ -31,10 +51,12 @@ class ExportListView(ListView):
     template_name: str = "exports/export_list.html"
 
     def get_queryset(self) -> QuerySet[Export]:
-        return Export.objects.filter(is_deleted=False)
+        return Export.objects.filter(
+            is_deleted=False, enforcement_body=self.enforcement_body
+        )
 
 
-class ExportCreateView(CreateView):
+class ExportCreateView(EnforcementBodyMixin, CreateView):
     """
     View to create an export
     """
@@ -43,6 +65,12 @@ class ExportCreateView(CreateView):
     form_class: Type[ExportCreateForm] = ExportCreateForm
     context_object_name: str = "export"
     template_name: str = "exports/export_create.html"
+
+    def get_form(self):
+        """Populate next page select field"""
+        form = super().get_form()
+        form.fields["enforcement_body"].initial = self.enforcement_body
+        return form
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
@@ -121,14 +149,15 @@ class ExportConfirmDeleteUpdateView(UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        return reverse("exports:export-list")
+        return f'{reverse("exports:export-list")}?enforcement_body={self.object.enforcement_body}'
 
 
 def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
     """View to export all cases"""
     export: Export = get_object_or_404(Export, id=pk)
     return download_equality_body_cases(
-        cases=export.all_cases, filename=f"DRAFT_EHRC_cases_{export.cutoff_date}.csv"
+        cases=export.all_cases,
+        filename=f"DRAFT_{export.enforcement_body.upper()}_cases_{export.cutoff_date}.csv",
     )
 
 
@@ -136,7 +165,8 @@ def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
     """View to export only ready cases."""
     export: Export = get_object_or_404(Export, pk=pk)
     return download_equality_body_cases(
-        cases=export.ready_cases, filename=f"EHRC_cases_{export.cutoff_date}.csv"
+        cases=export.ready_cases,
+        filename=f"{export.enforcement_body.upper()}_cases_{export.cutoff_date}.csv",
     )
 
 

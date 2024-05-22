@@ -13,18 +13,19 @@ class ExportCreateForm(forms.ModelForm):
     Form for creating an export
     """
 
+    enforcement_body = forms.CharField(widget=forms.HiddenInput())
     cutoff_date = AMPDateField(label="Cutoff date")
 
     class Meta:
         model = Export
-        fields = ["cutoff_date"]
+        fields = ["enforcement_body", "cutoff_date"]
 
     def clean_cutoff_date(self):
         cutoff_date = self.cleaned_data["cutoff_date"]
         if Export.objects.filter(cutoff_date=cutoff_date).exists():
             raise ValidationError("Export for this date already exists")
         if (
-            CaseStatus.objects.filter(
+            not CaseStatus.objects.filter(
                 status=CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
             )
             .filter(case__enforcement_body=self.instance.enforcement_body)

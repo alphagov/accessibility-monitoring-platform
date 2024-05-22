@@ -2,7 +2,7 @@
 
 {% load humanize %}
 
-{% block title %}New EHRC CSV export{% endblock %}
+{% block title %}New {{ enforcement_body|upper }} CSV export{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -13,15 +13,15 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}">EHRC CSV export manager</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}?enforcement_body={{ enforcement_body }}">{{ enforcement_body|upper }} CSV export manager</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">New EHRC CSV export</li>
+            <li class="govuk-breadcrumbs__list-item">New {{ enforcement_body|upper }} CSV export</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">New EHRC CSV export</h1>
+                <h1 class="govuk-heading-xl">New {{ enforcement_body|upper }} CSV export</h1>
                 {% include 'common/error_summary.html' %}
             </div>
         </div>
@@ -35,7 +35,7 @@
                 </div>
                 <div class="govuk-form-group">
                     <label class="govuk-label"><b>Enforcement body</b></label>
-                    <p class="govuk-body-m">EHRC</p>
+                    <p class="govuk-body-m">{{ enforcement_body|upper }}</p>
                 </div>
                 <div class="govuk-form-group">
                     <label class="govuk-label"><b>Date filter</b></label>
