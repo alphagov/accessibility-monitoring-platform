@@ -12,7 +12,8 @@ from ...cases.utils import create_case_and_compliance
 from ..forms import ExportCreateForm
 from ..models import Export
 
-TODAY: date = date.today()
+CUTOFF_DATE: date = date(2024, 3, 20)
+CUTOFF_DATETIME: date = datetime(2024, 3, 20, 1, 2, 3)
 
 
 def create_exportable_case() -> Case:
@@ -26,11 +27,11 @@ def create_exportable_case() -> Case:
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
-        compliance_email_sent_date=TODAY,
+        report_sent_date=CUTOFF_DATETIME,
+        report_acknowledged_date=CUTOFF_DATETIME,
+        twelve_week_update_requested_date=CUTOFF_DATETIME,
+        twelve_week_correspondence_acknowledged_date=CUTOFF_DATETIME,
+        compliance_email_sent_date=CUTOFF_DATE,
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
     )
     return case
@@ -44,22 +45,22 @@ def test_clean_case_close_form_duplicate_export():
     form: ExportCreateForm = ExportCreateForm(
         data={
             "enforcement_body": Case.EnforcementBody.EHRC,
-            "cutoff_date_0": TODAY.day,
-            "cutoff_date_1": TODAY.month,
-            "cutoff_date_2": TODAY.year,
+            "cutoff_date_0": CUTOFF_DATE.day,
+            "cutoff_date_1": CUTOFF_DATE.month,
+            "cutoff_date_2": CUTOFF_DATE.year,
         },
     )
 
     assert form.is_valid()
 
-    Export.objects.create(cutoff_date=TODAY, exporter=case.auditor)
+    Export.objects.create(cutoff_date=CUTOFF_DATE, exporter=case.auditor)
 
     form: ExportCreateForm = ExportCreateForm(
         data={
             "enforcement_body": Case.EnforcementBody.EHRC,
-            "cutoff_date_0": TODAY.day,
-            "cutoff_date_1": TODAY.month,
-            "cutoff_date_2": TODAY.year,
+            "cutoff_date_0": CUTOFF_DATE.day,
+            "cutoff_date_1": CUTOFF_DATE.month,
+            "cutoff_date_2": CUTOFF_DATE.year,
         },
     )
 
@@ -73,9 +74,9 @@ def test_clean_case_close_form_no_matching_cases():
     form: ExportCreateForm = ExportCreateForm(
         data={
             "enforcement_body": Case.EnforcementBody.EHRC,
-            "cutoff_date_0": TODAY.day,
-            "cutoff_date_1": TODAY.month,
-            "cutoff_date_2": TODAY.year,
+            "cutoff_date_0": CUTOFF_DATE.day,
+            "cutoff_date_1": CUTOFF_DATE.month,
+            "cutoff_date_2": CUTOFF_DATE.year,
         },
     )
 
@@ -95,9 +96,9 @@ def test_clean_case_close_form_ecni():
     form: ExportCreateForm = ExportCreateForm(
         data={
             "enforcement_body": Case.EnforcementBody.ECNI,
-            "cutoff_date_0": TODAY.day,
-            "cutoff_date_1": TODAY.month,
-            "cutoff_date_2": TODAY.year,
+            "cutoff_date_0": CUTOFF_DATE.day,
+            "cutoff_date_1": CUTOFF_DATE.month,
+            "cutoff_date_2": CUTOFF_DATE.year,
         },
         instance=Export(enforcement_body=Case.EnforcementBody.ECNI),
     )

@@ -15,9 +15,9 @@ from pytest_django.asserts import assertContains, assertNotContains
 from ...cases.models import Case, CaseStatus
 from ...common.models import Event
 from ..models import Export, ExportCase
+from .test_forms import CUTOFF_DATE, create_exportable_case
 
 ORGANISATION_NAME: str = "Org Name"
-CUTOFF_DATE: date = date(2024, 3, 20)
 COMPLIANCE_EMAIL_SENT_DATE: date = date(2024, 3, 18)
 EXPORT_CSV_COLUMNS: str = "Equality body,Test type,Case number,Organisation"
 
@@ -171,10 +171,12 @@ def test_ready_export_csv_returned(admin_client):
 
 def test_create_export(admin_client, admin_user):
     """Test that export can be created"""
+    create_exportable_case()
 
     response: HttpResponse = admin_client.post(
         reverse("exports:export-create"),
         {
+            "enforcement_body": Case.EnforcementBody.EHRC,
             "cutoff_date_0": CUTOFF_DATE.day,
             "cutoff_date_1": CUTOFF_DATE.month,
             "cutoff_date_2": CUTOFF_DATE.year,
@@ -251,7 +253,7 @@ def test_confirm_delete_export(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("exports:export-list")
+    assert response.url == f'{reverse("exports:export-list")}?enforcement_body=ehrc'
 
     export_from_db: Export = Export.objects.get(id=export.id)
 
