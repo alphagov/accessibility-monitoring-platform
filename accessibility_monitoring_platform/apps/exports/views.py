@@ -15,9 +15,9 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from ..cases.csv_export_utils import download_equality_body_cases
 from ..cases.models import Case
 from ..common.utils import record_model_create_event, record_model_update_event
+from .csv_export_utils import download_equality_body_cases
 from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
 
