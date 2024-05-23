@@ -67,6 +67,20 @@ def test_clean_case_close_form_duplicate_export():
     assert not form.is_valid()
     assert form.errors == {"cutoff_date": ["Export for this date already exists"]}
 
+    case.enforcement_body = Case.EnforcementBody.ECNI
+    case.save()
+
+    form: ExportCreateForm = ExportCreateForm(
+        data={
+            "enforcement_body": Case.EnforcementBody.ECNI,
+            "cutoff_date_0": CUTOFF_DATE.day,
+            "cutoff_date_1": CUTOFF_DATE.month,
+            "cutoff_date_2": CUTOFF_DATE.year,
+        },
+    )
+
+    assert form.is_valid()
+
 
 @pytest.mark.django_db
 def test_clean_case_close_form_no_matching_cases():
