@@ -1450,7 +1450,9 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
                 pages=self.case.audit.testable_pages
             )
             context["retest_issues_tables"] = build_issues_tables(
-                pages=self.case.audit.testable_pages, use_retest_notes=True
+                pages=self.case.audit.testable_pages,
+                use_retest_notes=True,
+                check_results_attr="unfixed_check_results",
             )
         context["email_template_render"] = self.object.render(context=context)
         return context
