@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from ..cases.models import Case, CaseStatus
 from ..common.forms import AMPBooleanCheckboxWidget, AMPDateField
 from .models import Export
+from .utils import get_exportable_cases
 
 
 class ExportCreateForm(forms.ModelForm):
@@ -22,16 +23,11 @@ class ExportCreateForm(forms.ModelForm):
 
     def clean_cutoff_date(self):
         cutoff_date = self.cleaned_data["cutoff_date"]
-        if Export.objects.filter(cutoff_date=cutoff_date).exists():
+        if Export.objects.filter(cutoff_date=cutoff_date, is_deleted=False).exists():
             raise ValidationError("Export for this date already exists")
-        if (
-            not CaseStatus.objects.filter(
-                status=CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
-            )
-            .filter(case__enforcement_body=self.instance.enforcement_body)
-            .filter(case__compliance_email_sent_date__lte=cutoff_date)
-            .exclude(case__case_completed=Case.CaseCompleted.COMPLETE_NO_SEND)
-            .exists()
+        if not get_exportable_cases(
+            cutoff_date=cutoff_date,
+            enforcement_body=self.cleaned_data["enforcement_body"],
         ):
             raise ValidationError("There are no cases to export")
         return cutoff_date

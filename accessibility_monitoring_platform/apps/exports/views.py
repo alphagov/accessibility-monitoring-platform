@@ -69,6 +69,9 @@ class ExportCreateView(EnforcementBodyMixin, CreateView):
     def get_form(self):
         """Populate next page select field"""
         form = super().get_form()
+        self.enforcement_body = self.request.GET.get(
+            "enforcement_body", Case.EnforcementBody.EHRC
+        )
         form.fields["enforcement_body"].initial = self.enforcement_body
         return form
 
