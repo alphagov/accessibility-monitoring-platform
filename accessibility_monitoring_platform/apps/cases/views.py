@@ -2,6 +2,7 @@
 Views for cases app
 """
 
+from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -1220,8 +1221,8 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
 
 class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
     """
-    View of equality body metadata
-    """
+        View of equality body metadata
+    ge"""
 
     model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
     form_class: Type[EqualityBodyCorrespondenceCreateForm] = (
@@ -1441,4 +1442,69 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
                 check_results_attr="unfixed_check_results",
             )
         context["email_template_render"] = self.object.render(context=context)
+        return context
+
+
+@dataclass
+class SubPage:
+    name: str
+    url: str
+    complete: bool
+
+
+@dataclass
+class ViewSection:
+    name: str
+    subpages: List[SubPage]
+
+    def number_complete(self) -> int:
+        return len([subpage for subpage in self.subpages if subpage.complete])
+
+
+class CaseNavDetailsDetailView(DetailView):
+    """
+    View showing new navbar made from details elements
+    """
+
+    model: Type[Case] = Case
+    template_name: str = "cases/helpers/nav_details.html"
+    context_object_name: str = "case"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        kwargs_case_pk: Dict[str, int] = {"pk": case.id}
+        kwargs_audit_pk: Dict[str, int] = {"pk": case.audit.id}
+        context["case_sections"] = [
+            ViewSection(
+                name="Case details",
+                subpages=[
+                    SubPage(
+                        name="Case metadata",
+                        url=reverse("cases:edit-case-details", kwargs=kwargs_case_pk),
+                        complete=case.case_details_complete_date,
+                    )
+                ],
+            ),
+            ViewSection(
+                name="Initial WCAG test",
+                subpages=[
+                    SubPage(
+                        name="Test metadata",
+                        url=reverse(
+                            "audits:edit-audit-metadata", kwargs=kwargs_audit_pk
+                        ),
+                        complete=case.audit.audit_metadata_complete_date,
+                    ),
+                    SubPage(
+                        name="Website compliance decision",
+                        url=reverse(
+                            "audits:edit-website-decision", kwargs=kwargs_audit_pk
+                        ),
+                        complete=case.audit.audit_website_decision_complete_date,
+                    ),
+                ],
+            ),
+        ]
         return context
