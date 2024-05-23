@@ -20,7 +20,7 @@ def test_get_exportable_case():
         == []
     )
 
-    case.enforcment_body = Case.EnforcementBody.ECN
+    case.enforcement_body = Case.EnforcementBody.ECNI
     case.save()
 
     assert (
