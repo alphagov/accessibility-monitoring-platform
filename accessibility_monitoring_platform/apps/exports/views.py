@@ -174,7 +174,7 @@ def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 def mark_export_case_as_ready(request: HttpRequest, pk: int) -> HttpResponseRedirect:
-    """View to export cases"""
+    """Mark export as ready"""
     export_case: Export = get_object_or_404(ExportCase, id=pk)
     export_case.status = ExportCase.Status.READY
     export_case.save()
@@ -184,7 +184,7 @@ def mark_export_case_as_ready(request: HttpRequest, pk: int) -> HttpResponseRedi
 
 
 def mark_export_case_as_unready(request: HttpRequest, pk: int) -> HttpResponseRedirect:
-    """View to export cases"""
+    """Mark export as unready"""
     export_case: Export = get_object_or_404(ExportCase, id=pk)
     export_case.status = ExportCase.Status.UNREADY
     export_case.save()
@@ -194,7 +194,7 @@ def mark_export_case_as_unready(request: HttpRequest, pk: int) -> HttpResponseRe
 
 
 def mark_export_case_as_excluded(request: HttpRequest, pk: int) -> HttpResponseRedirect:
-    """View to export cases"""
+    """Mark export as excluded"""
     export_case: Export = get_object_or_404(ExportCase, id=pk)
     export_case.status = ExportCase.Status.EXCLUDED
     export_case.save()
