@@ -39,22 +39,21 @@ from ..common.utils import (
     record_model_create_event,
     record_model_update_event,
 )
-from ..notifications.utils import add_notification, read_notification
-from ..reports.utils import (
-    build_issues_tables,
-    get_report_visits_metrics,
-    publish_report_util,
-)
-from .csv_export_utils import (
+from ..exports.csv_export_utils import (
     EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
     EqualityBodyCSVColumn,
     download_cases,
-    download_equality_body_cases,
     download_feedback_survey_cases,
     populate_equality_body_columns,
+)
+from ..notifications.utils import add_notification, read_notification
+from ..reports.utils import (
+    build_issues_tables,
+    get_report_visits_metrics,
+    publish_report_util,
 )
 from .forms import (
     CaseCloseUpdateForm,
@@ -1064,19 +1063,6 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     )
     case_search_form.is_valid()
     return download_cases(cases=filter_cases(form=case_search_form))
-
-
-def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
-    """View to export cases to send to an enforcement body"""
-    case_search_form: CaseSearchForm = CaseSearchForm(
-        replace_search_key_with_case_search(request.GET)
-    )
-    case_search_form.is_valid()
-    candidate_cases: QuerySet[Case] = filter_cases(form=case_search_form)
-    return download_equality_body_cases(
-        cases=candidate_cases.filter(enforcement_body=Case.EnforcementBody.ECNI),
-        filename="ecni_cases.csv",
-    )
 
 
 def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:

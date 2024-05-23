@@ -11,6 +11,7 @@ import pytest
 from django.http import HttpResponse
 
 from ...audits.models import Audit
+from ...cases.models import Case, Contact
 from ..csv_export_utils import (
     CASE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_COLUMNS_FOR_EXPORT,
@@ -26,7 +27,6 @@ from ..csv_export_utils import (
     populate_csv_columns,
     populate_equality_body_columns,
 )
-from ..models import Case, Contact
 
 CONTACTS: List[Contact] = [
     Contact(
