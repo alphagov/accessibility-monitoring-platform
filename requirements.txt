@@ -117,7 +117,7 @@ pyyaml==6.0.1
     # via responses
 qrcode==7.4.2
     # via django-two-factor-auth
-requests==2.31.0
+requests==2.32.2
     # via
     #   moto
     #   notifications-python-client
