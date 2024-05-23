@@ -27,14 +27,24 @@
             <div class="govuk-grid-column-full">
                 <div class="govuk-body">
                     {% for case_section in case_sections %}
-                        <details>
-                            <summary>{{ case_section.name }} ({{ case_section.number_complete }}/{{ case_section.subpages|length }})</summary>
-                            <ol>
-                                {% for subpage in case_section.subpages %}
-                                    <li><a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>{% if subpage.complete %}&check;{% endif %}</li>
-                                {% endfor %}
-                            </ol>
-                        </details>
+                        {% if case_section.subpages %}
+                            <details>
+                                <summary class="amp-control amp-margin-bottom-5">
+                                    {{ case_section.name }}
+                                    ({{ case_section.number_complete }}/{{ case_section.subpages|length }})
+                                </summary>
+                                <ol>
+                                    {% for subpage in case_section.subpages %}
+                                        <li>
+                                            <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
+                                            {% if subpage.complete %}&check;{% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                            </details>
+                        {% else %}
+                            <p class="govuk-body amp-disabled amp-margin-bottom-5">&ndash; {{ case_section.name }}</p>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>

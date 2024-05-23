@@ -1455,7 +1455,7 @@ class SubPage:
 @dataclass
 class ViewSection:
     name: str
-    subpages: List[SubPage]
+    subpages: Optional[List[SubPage]] = None
 
     def number_complete(self) -> int:
         return len([subpage for subpage in self.subpages if subpage.complete])
@@ -1475,7 +1475,24 @@ class CaseNavDetailsDetailView(DetailView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
         kwargs_case_pk: Dict[str, int] = {"pk": case.id}
-        kwargs_audit_pk: Dict[str, int] = {"pk": case.audit.id}
+        initial_test_section: ViewSection = ViewSection(
+            name="Initial WCAG test",
+            subpages=[],
+        )
+        if case.audit:
+            kwargs_audit_pk: Dict[str, int] = {"pk": case.audit.id}
+            initial_test_section.subpages = [
+                SubPage(
+                    name="Test metadata",
+                    url=reverse("audits:edit-audit-metadata", kwargs=kwargs_audit_pk),
+                    complete=case.audit.audit_metadata_complete_date,
+                ),
+                SubPage(
+                    name="Website compliance decision",
+                    url=reverse("audits:edit-website-decision", kwargs=kwargs_audit_pk),
+                    complete=case.audit.audit_website_decision_complete_date,
+                ),
+            ]
         context["case_sections"] = [
             ViewSection(
                 name="Case details",
@@ -1487,24 +1504,7 @@ class CaseNavDetailsDetailView(DetailView):
                     )
                 ],
             ),
-            ViewSection(
-                name="Initial WCAG test",
-                subpages=[
-                    SubPage(
-                        name="Test metadata",
-                        url=reverse(
-                            "audits:edit-audit-metadata", kwargs=kwargs_audit_pk
-                        ),
-                        complete=case.audit.audit_metadata_complete_date,
-                    ),
-                    SubPage(
-                        name="Website compliance decision",
-                        url=reverse(
-                            "audits:edit-website-decision", kwargs=kwargs_audit_pk
-                        ),
-                        complete=case.audit.audit_website_decision_complete_date,
-                    ),
-                ],
-            ),
+            initial_test_section,
+            ViewSection(name="Report preview and QA"),
         ]
         return context
