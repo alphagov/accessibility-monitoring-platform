@@ -3964,3 +3964,22 @@ def test_case_email_template_preview_view(admin_client):
     assert response.status_code == 200
 
     assertContains(response, f">{email_template.name}</h1>")
+
+
+def test_zendesk_tickets_shown(admin_client):
+    """
+    Test Zendesk tickets shown in correspondence overview.
+    """
+    case: Case = Case.objects.create()
+    ZendeskTicket.objects.create(case=case, summary=ZENDESK_SUMMARY)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:edit-find-contact-details",
+            kwargs={"pk": case.id},
+        )
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, ZENDESK_SUMMARY)
