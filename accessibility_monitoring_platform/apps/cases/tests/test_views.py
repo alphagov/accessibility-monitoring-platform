@@ -30,14 +30,14 @@ from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_resu
 from ...comments.models import Comment
 from ...common.models import Boolean, EmailTemplate, Event, Sector
 from ...common.utils import amp_format_date
-from ...notifications.models import Notification
-from ...reports.models import Report
-from ...s3_read_write.models import S3Report
-from ..csv_export_utils import (
+from ...exports.csv_export_utils import (
     CASE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
+from ...notifications.models import Notification
+from ...reports.models import Report
+from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     CaseCompliance,
@@ -657,16 +657,6 @@ def test_case_feedback_survey_export_list_view(admin_client):
     assertContains(response, case_feedback_survey_columns_to_export_str)
 
 
-def test_case_equality_body_export_list_view(admin_client):
-    """Test that the case equality body export list view returns csv data"""
-    response: HttpResponse = admin_client.get(
-        reverse("cases:export-equality-body-cases")
-    )
-
-    assert response.status_code == 200
-    assertContains(response, case_equality_body_columns_to_export_str)
-
-
 def test_case_export_list_view(admin_client):
     """Test that the case export list view returns csv data"""
     response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
@@ -678,7 +668,6 @@ def test_case_export_list_view(admin_client):
 @pytest.mark.parametrize(
     "export_view_name",
     [
-        "cases:export-equality-body-cases",
         "cases:case-export-list",
         "cases:export-feedback-survey-cases",
     ],
@@ -3964,3 +3953,22 @@ def test_case_email_template_preview_view(admin_client):
     assert response.status_code == 200
 
     assertContains(response, f">{email_template.name}</h1>")
+
+
+def test_zendesk_tickets_shown(admin_client):
+    """
+    Test Zendesk tickets shown in correspondence overview.
+    """
+    case: Case = Case.objects.create()
+    ZendeskTicket.objects.create(case=case, summary=ZENDESK_SUMMARY)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:edit-find-contact-details",
+            kwargs={"pk": case.id},
+        )
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, ZENDESK_SUMMARY)

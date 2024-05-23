@@ -13,8 +13,8 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ..audits.models import Audit
+from ..cases.models import Case, CaseCompliance, CaseStatus, Contact
 from ..reports.models import Report
-from .models import Case, CaseCompliance, CaseStatus, Contact
 
 
 @dataclass
@@ -849,12 +849,12 @@ def populate_equality_body_columns(
     }
     columns: List[EqualityBodyCSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
-        source_instance: Union[
-            Audit, Case, CaseCompliance, Report, None
-        ] = source_instances.get(column.source_class)
-        edit_url_instance: Union[
-            Audit, Case, CaseCompliance, Report, None
-        ] = source_instances.get(column.edit_url_class)
+        source_instance: Union[Audit, Case, CaseCompliance, Report, None] = (
+            source_instances.get(column.source_class)
+        )
+        edit_url_instance: Union[Audit, Case, CaseCompliance, Report, None] = (
+            source_instances.get(column.edit_url_class)
+        )
         if column.column_header == CONTACT_DETAILS_COLUMN_HEADER:
             column.formatted_data = contact_details
         elif column.column_header == ORGANISATION_RESPONDED_COLUMN_HEADER:
@@ -913,9 +913,9 @@ def populate_csv_columns(
     }
     columns: List[CSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
-        source_instance: Union[
-            Case, CaseCompliance, CaseStatus, Contact, None
-        ] = source_instances.get(column.source_class)
+        source_instance: Union[Case, CaseCompliance, CaseStatus, Contact, None] = (
+            source_instances.get(column.source_class)
+        )
         column.formatted_data = format_model_field(
             source_instance=source_instance, column=column
         )

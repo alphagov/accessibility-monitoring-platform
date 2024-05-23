@@ -58,7 +58,6 @@ from accessibility_monitoring_platform.apps.cases.views import (
     ZendeskTicketUpdateView,
     delete_zendesk_ticket,
     export_cases,
-    export_equality_body_cases,
     export_feedback_suvey_cases,
 )
 
@@ -69,11 +68,6 @@ urlpatterns: List[URLPattern] = [
         "export-feedback-survey-cases-csv/",
         login_required(export_feedback_suvey_cases),
         name="export-feedback-survey-cases",
-    ),
-    path(
-        "export-as-equality-body-csv/",
-        login_required(export_equality_body_cases),
-        name="export-equality-body-cases",
     ),
     path("export-as-csv/", login_required(export_cases), name="case-export-list"),
     path("create/", login_required(CaseCreateView.as_view()), name="case-create"),

@@ -15,18 +15,21 @@ from pytest_django.asserts import assertContains, assertNotContains
 from ...cases.models import Case, CaseStatus
 from ...common.models import Event
 from ..models import Export, ExportCase
+from .test_forms import CUTOFF_DATE, create_exportable_case
 
 ORGANISATION_NAME: str = "Org Name"
-CUTOFF_DATE: date = date(2024, 3, 20)
 COMPLIANCE_EMAIL_SENT_DATE: date = date(2024, 3, 18)
 EXPORT_CSV_COLUMNS: str = "Equality body,Test type,Case number,Organisation"
 
 
-def create_cases_and_export() -> Export:
+def create_cases_and_export(
+    enforcement_body: Case.EnforcementBody = Case.EnforcementBody.EHRC,
+) -> Export:
     """Creates cases and export"""
     case: Case = Case.objects.create(
         organisation_name=ORGANISATION_NAME,
         compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE,
+        enforcement_body=enforcement_body,
     )
     with connection.cursor() as cursor:
         cursor.execute(
@@ -34,7 +37,9 @@ def create_cases_and_export() -> Export:
         )
 
     user: User = User.objects.create()
-    export: Export = Export.objects.create(cutoff_date=CUTOFF_DATE, exporter=user)
+    export: Export = Export.objects.create(
+        cutoff_date=CUTOFF_DATE, exporter=user, enforcement_body=enforcement_body
+    )
     return export
 
 
@@ -57,6 +62,16 @@ def test_non_specific_export_page_loads(path_name, expected_content, admin_clien
 
     assert response.status_code == 200
     assertContains(response, expected_content)
+    assertContains(response, "EHRC")
+    assertNotContains(response, "ECNI")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse(path_name)}?enforcement_body=ecni"
+    )
+
+    assert response.status_code == 200
+    assertNotContains(response, "EHRC")
+    assertContains(response, "ECNI")
 
 
 @pytest.mark.parametrize(
@@ -76,9 +91,38 @@ def test_non_specific_export_page_loads(path_name, expected_content, admin_clien
         ),
     ],
 )
-def test_export_page_loads(path_name, expected_content, admin_client):
-    """Test that export-specific page view loads"""
+def test_ehrc_export_page_loads(path_name, expected_content, admin_client):
+    """Test that EHRC export-specific page view loads"""
     export: Export = create_cases_and_export()
+
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs={"pk": export.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        (
+            "exports:export-detail",
+            '<h1 class="govuk-heading-xl">ECNI CSV export 20 March 2024</h1>',
+        ),
+        (
+            "exports:export-confirm-delete",
+            '<h1 class="govuk-heading-xl">Delete ECNI CSV export 20 March 2024</h1>',
+        ),
+        (
+            "exports:export-confirm-export",
+            '<h1 class="govuk-heading-xl">Confirm ECNI CSV export 20 March 2024</h1>',
+        ),
+    ],
+)
+def test_ecni_export_page_loads(path_name, expected_content, admin_client):
+    """Test that ECNI export-specific page view loads"""
+    export: Export = create_cases_and_export(enforcement_body=Case.EnforcementBody.ECNI)
 
     response: HttpResponse = admin_client.get(
         reverse(path_name, kwargs={"pk": export.id})
@@ -171,10 +215,12 @@ def test_ready_export_csv_returned(admin_client):
 
 def test_create_export(admin_client, admin_user):
     """Test that export can be created"""
+    create_exportable_case()
 
     response: HttpResponse = admin_client.post(
         reverse("exports:export-create"),
         {
+            "enforcement_body": Case.EnforcementBody.EHRC,
             "cutoff_date_0": CUTOFF_DATE.day,
             "cutoff_date_1": CUTOFF_DATE.month,
             "cutoff_date_2": CUTOFF_DATE.year,
@@ -251,7 +297,7 @@ def test_confirm_delete_export(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("exports:export-list")
+    assert response.url == f'{reverse("exports:export-list")}?enforcement_body=ehrc'
 
     export_from_db: Export = Export.objects.get(id=export.id)
 

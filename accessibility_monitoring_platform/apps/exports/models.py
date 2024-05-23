@@ -5,8 +5,9 @@ from typing import List
 from django.contrib.auth.models import User
 from django.db import models
 
-from ..cases.models import Case, CaseStatus
+from ..cases.models import Case
 from ..common.utils import amp_format_date
+from .utils import get_exportable_cases
 
 
 class Export(models.Model):
@@ -36,24 +37,18 @@ class Export(models.Model):
         ordering: List[str] = ["-cutoff_date"]
 
     def __str__(self) -> str:
-        return f"EHRC CSV export {amp_format_date(self.cutoff_date)}"
+        return f"{self.enforcement_body.upper()} CSV export {amp_format_date(self.cutoff_date)}"
 
     def save(self, *args, **kwargs) -> None:
         new_export: bool = not self.id
         super().save(*args, **kwargs)
         if new_export:
-            for case_status in (
-                CaseStatus.objects.filter(
-                    status=CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
-                )
-                .filter(case__enforcement_body=Case.EnforcementBody.EHRC)
-                .filter(case__compliance_email_sent_date__lte=self.cutoff_date)
-                .exclude(case__case_completed=Case.CaseCompleted.COMPLETE_NO_SEND)
-                .order_by("case__id")
+            for case in get_exportable_cases(
+                cutoff_date=self.cutoff_date, enforcement_body=self.enforcement_body
             ):
                 ExportCase.objects.create(
                     export=self,
-                    case=case_status.case,
+                    case=case,
                 )
 
     @property

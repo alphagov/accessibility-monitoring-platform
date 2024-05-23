@@ -29,7 +29,10 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Sector, SubCategory
-from .csv_export_utils import EqualityBodyCSVColumn, populate_equality_body_columns
+from ..exports.csv_export_utils import (
+    EqualityBodyCSVColumn,
+    populate_equality_body_columns,
+)
 from .models import (
     Boolean,
     Case,
@@ -617,15 +620,15 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
         super().__init__(*args, **kwargs)
         case: Case = self.instance
         if case and case.twelve_week_correspondence_acknowledged_date:
-            self.fields[
-                "twelve_week_1_week_chaser_sent_date"
-            ].widget = forms.HiddenInput()
-            self.fields[
-                "twelve_week_1_week_chaser_due_date"
-            ].widget = forms.HiddenInput()
-            self.fields[
-                "twelve_week_1_week_chaser_sent_to_email"
-            ].widget = forms.HiddenInput()
+            self.fields["twelve_week_1_week_chaser_sent_date"].widget = (
+                forms.HiddenInput()
+            )
+            self.fields["twelve_week_1_week_chaser_due_date"].widget = (
+                forms.HiddenInput()
+            )
+            self.fields["twelve_week_1_week_chaser_sent_to_email"].widget = (
+                forms.HiddenInput()
+            )
 
 
 class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
@@ -791,9 +794,9 @@ class CaseCloseUpdateForm(VersionForm):
         case_completed: str = self.cleaned_data["case_completed"]
         if case_completed == Case.CaseCompleted.COMPLETE_SEND:
             case: Case = self.instance
-            equality_body_columns: List[
-                EqualityBodyCSVColumn
-            ] = populate_equality_body_columns(case=case)
+            equality_body_columns: List[EqualityBodyCSVColumn] = (
+                populate_equality_body_columns(case=case)
+            )
             required_data_missing_columns: List[EqualityBodyCSVColumn] = [
                 column
                 for column in equality_body_columns
