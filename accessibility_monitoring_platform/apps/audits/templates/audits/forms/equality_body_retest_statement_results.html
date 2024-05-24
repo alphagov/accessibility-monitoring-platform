@@ -15,7 +15,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'audits/helpers/statement_pages.html' with audit=retest.case.audit %}
+                {% include 'audits/helpers/statement_pages_eb_retest.html' with audit=retest.case.audit %}
                 <h2 id="statement-overview" class="govuk-heading-m">Statement overview</h2>
                 <div class="govuk-button-group amp-margin-bottom-0">
                     <a href="{% url 'audits:edit-equality-body-statement-overview' retest.id %}"

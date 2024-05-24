@@ -58,6 +58,11 @@ No statement added. Add a statement in
 <a href="/audits/1/edit-statement-pages/" class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener">
     statement links</a>.
 </p>"""
+NO_RETEST_ACCESSIBILITY_STATEMENT: str = """<p class="govuk-body">
+No statement added. Add a statement in
+<a href="/audits/1/edit-audit-retest-statement-pages/" class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener">
+    statement links</a>.
+</p>"""
 ACCESSIBILITY_STATEMENT_12_WEEK_URL: str = (
     "https://example.com/12-week-accessibility-statement"
 )
@@ -2090,7 +2095,7 @@ def test_statement_details_hidden_when_no_statement_page_on_retest(
 
     assert response.status_code == 200
 
-    assertContains(response, NO_ACCESSIBILITY_STATEMENT, html=True)
+    assertContains(response, NO_RETEST_ACCESSIBILITY_STATEMENT, html=True)
     assertNotContains(response, field_label)
 
     StatementPage.objects.create(audit=audit)
@@ -2101,7 +2106,7 @@ def test_statement_details_hidden_when_no_statement_page_on_retest(
 
     assert response.status_code == 200
 
-    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT, html=True)
+    assertNotContains(response, NO_RETEST_ACCESSIBILITY_STATEMENT, html=True)
     assertContains(response, field_label)
 
 
