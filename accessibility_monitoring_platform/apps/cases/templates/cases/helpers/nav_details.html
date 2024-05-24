@@ -1,6 +1,6 @@
 {% for case_section in case_sections %}
     {% if case_section.name == current_section_name %}
-        <p class="govuk-body amp-margin-bottom-5">
+        <p class="govuk-body amp-font-size-16 amp-margin-bottom-5">
             {{ case_section.name }}
             ({{ case_section.number_complete }}/{{ case_section.subpages|length }})
         </p>
@@ -9,9 +9,9 @@
                 {% for subpage in case_section.subpages %}
                     <li>
                         {% if subpage.name == current_subpage_name %}
-                            <b>{{ subpage.name }}</b>
+                            <b class="amp-font-size-16">{{ subpage.name }}</b>
                         {% else %}
-                            <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
+                            <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state amp-font-size-16">{{ subpage.name }}</a>
                         {% endif %}
                         {% if subpage.complete %}&check;{% endif %}
                     </li>
@@ -25,10 +25,10 @@
                 ({{ case_section.number_complete }}/{{ case_section.subpages|length }})
             </summary>
             <div class="amp-details__text">
-                <ul class="govuk-list">
+                <ul class="govuk-list amp-margin-bottom-5">
                     {% for subpage in case_section.subpages %}
                         <li>
-                            <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
+                            <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state amp-font-size-16">{{ subpage.name }}</a>
                             {% if subpage.complete %}&check;{% endif %}
                         </li>
                     {% endfor %}

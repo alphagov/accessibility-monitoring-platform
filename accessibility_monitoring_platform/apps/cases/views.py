@@ -1495,6 +1495,22 @@ class CaseNavDetailsDetailView(DetailView):
                     url=reverse("audits:edit-website-decision", kwargs=kwargs_audit_pk),
                     complete=case.audit.audit_website_decision_complete_date,
                 ),
+                SubPage(
+                    name="Initial disproportionate burden claim",
+                    url=reverse(
+                        "audits:edit-initial-disproportionate-burden",
+                        kwargs=kwargs_audit_pk,
+                    ),
+                    complete=case.audit.initial_disproportionate_burden_complete_date,
+                ),
+                SubPage(
+                    name="Initial statement compliance decision",
+                    url=reverse(
+                        "audits:edit-statement-decision",
+                        kwargs=kwargs_audit_pk,
+                    ),
+                    complete=case.audit.audit_statement_decision_complete_date,
+                ),
             ]
         context["case_sections"] = [
             ViewSection(
@@ -1508,6 +1524,50 @@ class CaseNavDetailsDetailView(DetailView):
                 ],
             ),
             initial_test_section,
-            ViewSection(name="Report preview and QA", disabled=True),
+            ViewSection(
+                name="Report preview and QA",
+                disabled=True,
+                subpages=[
+                    SubPage(
+                        name="Report details",
+                        url=reverse("cases:edit-report-details", kwargs=kwargs_case_pk),
+                        complete=case.reporting_details_complete_date,
+                    ),
+                    SubPage(
+                        name="QA comments",
+                        url=reverse("cases:edit-qa-comments", kwargs=kwargs_case_pk),
+                        complete=None,
+                    ),
+                ],
+            ),
+            ViewSection(
+                name="Report correspondence",
+                disabled=True,
+                subpages=[
+                    SubPage(
+                        name="Find contact details",
+                        url=reverse(
+                            "cases:edit-find-contact-details", kwargs=kwargs_case_pk
+                        ),
+                        complete=case.find_contact_details_complete_date,
+                    ),
+                    SubPage(
+                        name="Contact details",
+                        url=reverse(
+                            "cases:edit-contact-details", kwargs=kwargs_case_pk
+                        ),
+                        complete=case.contact_details_complete_date,
+                    ),
+                    SubPage(
+                        name="Report sent on",
+                        url=reverse("cases:edit-report-sent-on", kwargs=kwargs_case_pk),
+                        complete=case.report_sent_on_complete_date,
+                    ),
+                ],
+            ),
+            # ViewSection(name="12-week WCAG test", disabled=True),
+            # ViewSection(name="12-week statement", disabled=True),
+            # ViewSection(name="Closing the case", disabled=True),
+            # ViewSection(name="Post case", disabled=True),
         ]
         return context
