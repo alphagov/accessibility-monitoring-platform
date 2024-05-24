@@ -7,9 +7,9 @@
         <div class="amp-details__text">
             <ul class="govuk-list amp-margin-bottom-5">
                 {% for subpage in case_section.subpages %}
-                    <li>
+                    <li class="amp-font-size-16">
                         {% if subpage.name == current_subpage_name %}
-                            <b class="amp-font-size-16">{{ subpage.name }}</b>
+                            <b>{{ subpage.name }}</b>
                         {% else %}
                             <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state amp-font-size-16">{{ subpage.name }}</a>
                         {% endif %}
@@ -27,7 +27,7 @@
             <div class="amp-details__text">
                 <ul class="govuk-list amp-margin-bottom-5">
                     {% for subpage in case_section.subpages %}
-                        <li>
+                        <li class="amp-font-size-16">
                             <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state amp-font-size-16">{{ subpage.name }}</a>
                             {% if subpage.complete %}&check;{% endif %}
                         </li>
