@@ -15,7 +15,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'audits/helpers/statement_pages.html' %}
+                {% include 'audits/helpers/statement_pages_twelve_week.html' %}
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:edit-twelve-week-disproportionate-burden' audit.id %}">
                     {% csrf_token %}
