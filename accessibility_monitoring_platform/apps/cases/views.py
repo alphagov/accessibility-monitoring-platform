@@ -1455,10 +1455,13 @@ class SubPage:
 @dataclass
 class ViewSection:
     name: str
+    disabled: bool = False
     subpages: Optional[List[SubPage]] = None
 
     def number_complete(self) -> int:
-        return len([subpage for subpage in self.subpages if subpage.complete])
+        if self.subpages is not None:
+            return len([subpage for subpage in self.subpages if subpage.complete])
+        return 0
 
 
 class CaseNavDetailsDetailView(DetailView):
@@ -1467,7 +1470,7 @@ class CaseNavDetailsDetailView(DetailView):
     """
 
     model: Type[Case] = Case
-    template_name: str = "cases/helpers/nav_details.html"
+    template_name: str = "cases/details/nav_details.html"
     context_object_name: str = "case"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -1505,6 +1508,6 @@ class CaseNavDetailsDetailView(DetailView):
                 ],
             ),
             initial_test_section,
-            ViewSection(name="Report preview and QA"),
+            ViewSection(name="Report preview and QA", disabled=True),
         ]
         return context

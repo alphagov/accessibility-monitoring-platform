@@ -783,5 +783,23 @@ svg {
 }
 
 .amp-disabled {
-    color: govuk-colour("mid-grey")
+    color: govuk-colour("mid-grey");
+}
+
+.amp-details[disabled] * {
+    color: govuk-colour("mid-grey");
+}
+.amp-details__summary {
+    color:  govuk-colour("blue");
+    cursor: pointer;
+    margin-bottom: 5px;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+.amp-details__text {
+    border-left: 1px solid govuk-colour("mid-grey");
+    padding-left: 16px;
+    margin-bottom: 5px;
 }

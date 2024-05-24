@@ -1,0 +1,47 @@
+
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% load l10n %}
+
+{% block title %}{{ case.organisation_name }} | Nav details{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-breadcrumbs">
+                    <ol class="govuk-breadcrumbs__list">
+                        {% include 'common/breadcrumb_home.html' %}
+                        {% include 'cases/helpers/breadcrumb_case.html' %}
+                        <li class="govuk-breadcrumbs__list-item">Nav details</li>
+                    </ol>
+                </div>
+                {% include "cases/helpers/edit_header.html" with page_heading='Nav details' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-body">
+                    <p class="givuk-body">Navigation component with current page: Case details > Case metadata</p>
+                    {% include "cases/helpers/nav_details.html" with current_section_name='Case details' current_subpage_name='Case metadata' %}
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-body">
+                    <p class="givuk-body">Navigation component with current page: Initial WCAG test > Test metadata</p>
+                    {% include "cases/helpers/nav_details.html" with current_section_name='Initial WCAG test' current_subpage_name='Test metadata' %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+{% endblock %}
