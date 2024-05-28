@@ -111,6 +111,7 @@ PAGE_TITLES_BY_URL = {
     "/exports/[id]/export-confirm-delete/": "Delete EHRC CSV export",
     "/exports/[id]/export-confirm-export/": "Confirm EHRC CSV export",
     "/notifications/notifications-list/": "Comments",
+    "/notifications/task-list/": "Tasks",
     "/overdue/overdue-list/": "Overdue",
     "/reminders/cases/[id]/reminder-create/": "Reminder",
     "/reminders/reminder-list/": "Reminders",
