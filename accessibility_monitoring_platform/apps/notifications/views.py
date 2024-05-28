@@ -6,10 +6,11 @@ from typing import ClassVar, List, Literal, Optional
 from django.contrib import messages
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, TemplateView
 
 from ..cases.models import Case
+from ..reminders.models import Reminder
 from .models import Notification
 
 
@@ -90,12 +91,18 @@ class NotificationMarkAsUnreadView(ListView):
 
 
 @dataclass
+class Option:
+    label: str
+    url: str
+
+
+@dataclass
 class Task:
     date: str
     case: Optional[Case] = None
     description: str = ""
     action_required: str = "n/a"
-    edit_url: str = ""
+    options: List[Option] = None
     NOTIFICATION: ClassVar[str] = "notification"
     REMINDER: ClassVar[str] = "reminder"
     OVERDUE: ClassVar[str] = "overdue"
@@ -112,10 +119,10 @@ class TaskListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        tasks: List[Task] = []
         notifications: QuerySet[Notification] = Notification.objects.filter(
             user=self.request.user, read=False
         )
-        tasks: List[Task] = []
         for notification in notifications:
             path_elements: List[str] = notification.path.split("/")
             if path_elements[1] == "cases":
@@ -124,10 +131,47 @@ class TaskListView(TemplateView):
                 case: Optional[Case] = None
             tasks.append(
                 Task(
-                    date=notification.created_date,
+                    date=notification.created_date.date(),
                     case=case,
                     description=notification.body,
-                    edit_url=notification.path,
+                    options=[
+                        Option(
+                            label="Go to QA page",
+                            url="notification.path",
+                        ),
+                        Option(
+                            label="Mark as seen",
+                            url=reverse(
+                                "notifications:mark-notification-read",
+                                kwargs={"pk": notification.id},
+                            ),
+                        ),
+                    ],
+                )
+            )
+        reminders: QuerySet[Reminder] = Reminder.objects.filter(
+            case__auditor=self.request.user, is_deleted=False
+        )
+        for reminder in reminders:
+            tasks.append(
+                Task(
+                    type=Task.REMINDER,
+                    date=reminder.due_date,
+                    case=reminder.case,
+                    description=reminder.description,
+                    options=[
+                        Option(
+                            label="Edit",
+                            url=reminder.get_absolute_url(),
+                        ),
+                        Option(
+                            label="Delete reminder",
+                            url=reverse(
+                                "reminders:delete-reminder",
+                                kwargs={"pk": reminder.id},
+                            ),
+                        ),
+                    ],
                 )
             )
 
