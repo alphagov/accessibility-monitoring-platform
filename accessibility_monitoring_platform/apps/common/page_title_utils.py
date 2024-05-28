@@ -36,7 +36,7 @@ PAGE_TITLES_BY_URL = {
     "/audits/[id]/edit-statement-feedback/": "Feedback and enforcement procedure",
     "/audits/[id]/edit-statement-custom/": "Custom statement issues",
     "/audits/[id]/edit-retest-statement-overview/": "12-week statement overview",
-    "/audits/[id]/edit-retest-statement-website/": "12-week statement website",
+    "/audits/[id]/edit-retest-statement-website/": "12-week statement information",
     "/audits/[id]/edit-retest-statement-compliance/": "12-week statement compliance",
     "/audits/[id]/edit-retest-statement-non-accessible/": "12-week non-accessible content",
     "/audits/[id]/edit-retest-statement-preparation/": "12-week statement preparation",
