@@ -2,7 +2,7 @@
 
 import re
 
-from ..audits.models import Audit, Page
+from ..audits.models import Audit, Page, Retest, RetestPage
 from ..cases.models import Case
 from ..exports.models import Export
 from .utils import amp_format_date
@@ -75,7 +75,22 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/edit-statement-enforcement/": "Statement enforcement",
     "/cases/[id]/edit-quality-body-metadata/": "Equality body metadata",
     "/cases/[id]/edit-equality-body-correspondence/": "Equality body correspondence",
-    "/cases/[id]/edit-retest-overview/": "Retest overview",
+    "/cases/[id]/retest-overview/": "Retest overview",
+    "/audits/retests/[id]/retest-metadata-update/": "Retest metadata",
+    "/audits/retest-pages/[id]/retest-page-checks/": "Retest page",
+    "/audits/retests/[id]/retest-comparison-update/": "Comparison",
+    "/audits/retests/[id]/retest-compliance-update/": "Compliance decision",
+    "/audits/retests/[id]/edit-equality-body-statement-pages/": "Statement links",
+    "/audits/retests/[id]/edit-equality-body-statement-overview/": "Statement overview",
+    "/audits/retests/[id]/edit-equality-body-statement-website/": "Statement information",
+    "/audits/retests/[id]/edit-equality-body-statement-compliance/": "Compliance status",
+    "/audits/retests/[id]/edit-equality-body-statement-non-accessible/": "Non-accessible content",
+    "/audits/retests/[id]/edit-equality-body-statement-preparation/": "Statement preparation",
+    "/audits/retests/[id]/edit-equality-body-statement-feedback/": "Feedback and enforcement procedure",
+    "/audits/retests/[id]/edit-equality-body-statement-custom/": "Custom statement issues",
+    "/audits/retests/[id]/edit-equality-body-statement-results/": "Statement results",
+    "/audits/retests/[id]/edit-equality-body-disproportionate-burden/": "Disproportionate burden",
+    "/audits/retests/[id]/edit-equality-body-statement-decision/": "Statement decision",
     "/cases/[id]/legacy-end-of-case/": "Legacy end of case data",
     "/cases/create/": "Create case",
     "/common/bulk-url-search/": "Bulk URL search",
@@ -136,6 +151,22 @@ def get_page_title(path: str) -> str:  # noqa: C901
             )
         except Page.DoesNotExist:
             page_title: str = f"Page does not exist: {path}"
+    elif path_without_id.startswith("/audits/retests/[id]/"):
+        try:
+            retest: Retest = Retest.objects.get(id=path.split("/")[3])
+            page_title: str = (
+                f"{retest.case.organisation_name} | {retest} | {page_heading}"
+            )
+        except Retest.DoesNotExist:
+            page_title: str = f"Retest does not exist: {path}"
+    elif path_without_id.startswith("/audits/retest-pages/[id]/"):
+        try:
+            retest_page: RetestPage = RetestPage.objects.get(id=path.split("/")[3])
+            page_title: str = (
+                f"{retest_page.retest.case.organisation_name} | {retest_page.retest} | {retest_page}"
+            )
+        except Retest.DoesNotExist:
+            page_title: str = f"RetestPage does not exist: {path}"
     elif path_without_id.startswith("/exports/[id]/"):
         try:
             export: Export = Export.objects.get(id=path.split("/")[2])

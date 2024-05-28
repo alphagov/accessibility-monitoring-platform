@@ -1,12 +1,12 @@
 """
 Test - function to derive page title from url path
 """
+
 import pytest
 from django.urls import reverse
 
-from ...audits.models import Audit, Page
+from ...audits.models import Audit, Page, Retest, RetestPage
 from ...cases.models import Case
-from ...reminders.models import Reminder
 from ..page_title_utils import get_page_title
 
 ORGANISATION_NAME: str = "Organisation name"
@@ -112,3 +112,26 @@ def test_page_title_for_audit_create_of_non_existant_case_returned():
     path: str = reverse("audits:audit-create", kwargs={"case_id": 0})
 
     assert get_page_title(path) == f"Case does not exist: {path}"
+
+
+@pytest.mark.django_db
+def test_page_title_for_retest_returned():
+    """Page title for equality body requested retest present"""
+    case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+    retest: Retest = Retest.objects.create(case=case, id_within_case=1)
+    path: str = reverse("audits:retest-metadata-update", kwargs={"pk": retest.id})
+
+    assert get_page_title(path) == f"{ORGANISATION_NAME} | {retest} | Retest metadata"
+
+
+@pytest.mark.django_db
+def test_page_title_for_retest_page_returned():
+    """Page title for equality body requested retest page present"""
+    case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit, name="Test page")
+    retest: Retest = Retest.objects.create(case=case, id_within_case=1)
+    retest_page: RetestPage = RetestPage.objects.create(retest=retest, page=page)
+    path: str = reverse("audits:edit-retest-page-checks", kwargs={"pk": retest_page.id})
+
+    assert get_page_title(path) == f"{ORGANISATION_NAME} | {retest} | Test page"
