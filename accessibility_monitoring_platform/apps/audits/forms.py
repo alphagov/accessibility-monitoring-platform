@@ -37,17 +37,18 @@ from .models import (
     WcagDefinition,
 )
 
-CHECK_RESULT_TYPE_FILTER_CHOICES: List[
-    Tuple[str, str]
-] = WcagDefinition.Type.choices + [
-    ("", "All"),
-]
-TEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
-    Tuple[str, str]
-] = CheckResult.Result.choices + [("", "All")]
-RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
-    Tuple[str, str]
-] = CheckResult.RetestResult.choices + [("", "All")]
+CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = (
+    WcagDefinition.Type.choices
+    + [
+        ("", "All"),
+    ]
+)
+TEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[Tuple[str, str]] = (
+    CheckResult.Result.choices + [("", "All")]
+)
+RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[Tuple[str, str]] = (
+    CheckResult.RetestResult.choices + [("", "All")]
+)
 
 
 class AuditMetadataUpdateForm(VersionForm):
@@ -462,7 +463,7 @@ class AuditStatementOverviewUpdateForm(VersionForm):
 
 class AuditStatementWebsiteUpdateForm(VersionForm):
     """
-    Form for editing statement website
+    Form for editing statement information
     """
 
     audit_statement_website_complete_date = AMPDatePageCompleteField()
@@ -1210,7 +1211,7 @@ class AuditRetestStatementOverviewUpdateForm(VersionForm):
 
 class AuditRetestStatementWebsiteUpdateForm(VersionForm):
     """
-    Form for editing statement website
+    Form for editing statement information
     """
 
     audit_retest_statement_website_complete_date = AMPDatePageCompleteField()
@@ -1684,7 +1685,7 @@ class RetestStatementOverviewUpdateForm(VersionForm):
 
 class RetestStatementWebsiteUpdateForm(VersionForm):
     """
-    Form for editing retest statement website
+    Form for editing retest statement information
     """
 
     statement_website_complete_date = AMPDatePageCompleteField()
