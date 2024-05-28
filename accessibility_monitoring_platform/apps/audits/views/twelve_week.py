@@ -155,9 +155,9 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         """Populate next page fields"""
         form = super().get_form()
         form.fields["retest_complete_date"].initial = self.page.retest_complete_date
-        form.fields[
-            "retest_page_missing_date"
-        ].initial = self.page.retest_page_missing_date
+        form.fields["retest_page_missing_date"].initial = (
+            self.page.retest_page_missing_date
+        )
         form.fields["retest_notes"].initial = self.page.retest_notes
         return form
 
@@ -241,12 +241,12 @@ class AuditRetestCaseComplianceWebsite12WeekUpdateView(AuditCaseComplianceUpdate
     View to retest website compliance fields
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestWebsiteDecisionUpdateForm] = (
         AuditRetestWebsiteDecisionUpdateForm
-    ] = AuditRetestWebsiteDecisionUpdateForm
-    case_compliance_form_class: Type[
+    )
+    case_compliance_form_class: Type[CaseComplianceWebsite12WeekUpdateForm] = (
         CaseComplianceWebsite12WeekUpdateForm
-    ] = CaseComplianceWebsite12WeekUpdateForm
+    )
     template_name: str = "audits/forms/retest_website_decision.html"
 
     def get_success_url(self) -> str:
@@ -263,9 +263,9 @@ class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
     View to update statement pages in 12-week retest
     """
 
-    form_class: Type[
+    form_class: Type[TwelveWeekStatementPagesUpdateForm] = (
         TwelveWeekStatementPagesUpdateForm
-    ] = TwelveWeekStatementPagesUpdateForm
+    )
     template_name: str = "audits/forms/twelve_week_statement_pages_formset.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -273,9 +273,9 @@ class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         for form in context["statement_pages_formset"]:
             if form.instance.id is None:
-                form.fields[
-                    "added_stage"
-                ].initial = StatementPage.AddedStage.TWELVE_WEEK
+                form.fields["added_stage"].initial = (
+                    StatementPage.AddedStage.TWELVE_WEEK
+                )
         return context
 
     def get_success_url(self) -> str:
@@ -300,9 +300,9 @@ class AuditRetestStatement1UpdateView(AuditUpdateView):
     View to retest accessibility statement part one
     """
 
-    form_class: Type[
+    form_class: Type[ArchiveAuditRetestStatement1UpdateForm] = (
         ArchiveAuditRetestStatement1UpdateForm
-    ] = ArchiveAuditRetestStatement1UpdateForm
+    )
     template_name: str = "audits/forms/retest_statement_1.html"
 
     def get_success_url(self) -> str:
@@ -318,9 +318,9 @@ class AuditRetestStatement2UpdateView(AuditUpdateView):
     View to retest accessibility statement part two
     """
 
-    form_class: Type[
+    form_class: Type[ArchiveAuditRetestStatement2UpdateForm] = (
         ArchiveAuditRetestStatement2UpdateForm
-    ] = ArchiveAuditRetestStatement2UpdateForm
+    )
     template_name: str = "audits/forms/retest_statement_2.html"
 
     def get_success_url(self) -> str:
@@ -357,9 +357,9 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
                     )
                 )
 
-            context[
-                "retest_statement_check_results_formset"
-            ] = retest_statement_check_results_formset
+            context["retest_statement_check_results_formset"] = (
+                retest_statement_check_results_formset
+            )
 
         return context
 
@@ -393,9 +393,9 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
     View to update statement overview check results retest
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestStatementOverviewUpdateForm] = (
         AuditRetestStatementOverviewUpdateForm
-    ] = AuditRetestStatementOverviewUpdateForm
+    )
     template_name: str = "audits/statement_checks/retest_statement_overview.html"
     statement_check_type: str = StatementCheck.Type.OVERVIEW
 
@@ -414,12 +414,12 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
 
 class AuditRetestStatementWebsiteFormView(AuditRetestStatementCheckingView):
     """
-    View to update statement website check results retest
+    View to update statement information check results retest
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestStatementWebsiteUpdateForm] = (
         AuditRetestStatementWebsiteUpdateForm
-    ] = AuditRetestStatementWebsiteUpdateForm
+    )
     template_name: str = "audits/statement_checks/retest_statement_website.html"
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
@@ -437,9 +437,9 @@ class AuditRetestStatementComplianceFormView(AuditRetestStatementCheckingView):
     View to update statement compliance check results retest
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestStatementComplianceUpdateForm] = (
         AuditRetestStatementComplianceUpdateForm
-    ] = AuditRetestStatementComplianceUpdateForm
+    )
     template_name: str = "audits/statement_checks/retest_statement_compliance.html"
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
@@ -459,9 +459,9 @@ class AuditRetestStatementNonAccessibleFormView(AuditRetestStatementCheckingView
     View to update statement non-accessible check results retest
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestStatementNonAccessibleUpdateForm] = (
         AuditRetestStatementNonAccessibleUpdateForm
-    ] = AuditRetestStatementNonAccessibleUpdateForm
+    )
     template_name: str = "audits/statement_checks/retest_statement_non_accessible.html"
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
@@ -479,9 +479,9 @@ class AuditRetestStatementPreparationFormView(AuditRetestStatementCheckingView):
     View to update statement preparation check results retest
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestStatementPreparationUpdateForm] = (
         AuditRetestStatementPreparationUpdateForm
-    ] = AuditRetestStatementPreparationUpdateForm
+    )
     template_name: str = "audits/statement_checks/retest_statement_preparation.html"
     statement_check_type: str = StatementCheck.Type.PREPARATION
 
@@ -499,9 +499,9 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
     View to update statement feedback check results retest
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestStatementFeedbackUpdateForm] = (
         AuditRetestStatementFeedbackUpdateForm
-    ] = AuditRetestStatementFeedbackUpdateForm
+    )
     template_name: str = "audits/statement_checks/retest_statement_feedback.html"
     statement_check_type: str = StatementCheck.Type.FEEDBACK
 
@@ -519,9 +519,9 @@ class AuditRetestStatementCustomFormView(AuditRetestStatementCheckingView):
     View to update statement custom check results retest
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestStatementCustomUpdateForm] = (
         AuditRetestStatementCustomUpdateForm
-    ] = AuditRetestStatementCustomUpdateForm
+    )
     template_name: str = "audits/statement_checks/retest_statement_other.html"
     statement_check_type: str = StatementCheck.Type.CUSTOM
 
@@ -541,9 +541,9 @@ class TwelveWeekDisproportionateBurdenUpdateView(AuditUpdateView):
     View to update 12-week disproportionate burden fields
     """
 
-    form_class: Type[
+    form_class: Type[TwelveWeekDisproportionateBurdenUpdateForm] = (
         TwelveWeekDisproportionateBurdenUpdateForm
-    ] = TwelveWeekDisproportionateBurdenUpdateForm
+    )
     template_name: str = "audits/forms/twelve_week_disproportionate_burden.html"
 
     def get_success_url(self) -> str:
@@ -562,12 +562,12 @@ class AuditRetestCaseComplianceStatement12WeekUpdateView(AuditCaseComplianceUpda
     View to retest statement decsion
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestStatementDecisionUpdateForm] = (
         AuditRetestStatementDecisionUpdateForm
-    ] = AuditRetestStatementDecisionUpdateForm
-    case_compliance_form_class: Type[
+    )
+    case_compliance_form_class: Type[CaseComplianceStatement12WeekUpdateForm] = (
         CaseComplianceStatement12WeekUpdateForm
-    ] = CaseComplianceStatement12WeekUpdateForm
+    )
     template_name: str = "audits/forms/retest_statement_decision.html"
 
     def get_success_url(self) -> str:
@@ -585,9 +585,9 @@ class AuditRetestStatementComparisonUpdateView(AuditUpdateView):
     View to retest statement comparison
     """
 
-    form_class: Type[
+    form_class: Type[AuditRetestStatementComparisonUpdateForm] = (
         AuditRetestStatementComparisonUpdateForm
-    ] = AuditRetestStatementComparisonUpdateForm
+    )
     template_name: str = "audits/forms/retest_statement_comparison.html"
 
     def get_success_url(self) -> str:

@@ -286,9 +286,9 @@ class AuditPageChecksFormView(FormView):
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
-        other_pages_failed_check_results: Dict[
-            WcagDefinition, List[CheckResult]
-        ] = other_page_failed_check_results(page=self.page)
+        other_pages_failed_check_results: Dict[WcagDefinition, List[CheckResult]] = (
+            other_page_failed_check_results(page=self.page)
+        )
         wcag_definitions: List[WcagDefinition] = list(
             WcagDefinition.objects.on_date(self.page.audit.date_of_test)
         )
@@ -359,9 +359,9 @@ class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView)
     """
 
     form_class: Type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
-    case_compliance_form_class: Type[
+    case_compliance_form_class: Type[CaseComplianceWebsiteInitialUpdateForm] = (
         CaseComplianceWebsiteInitialUpdateForm
-    ] = CaseComplianceWebsiteInitialUpdateForm
+    )
     template_name: str = "audits/forms/website_decision.html"
 
     def get_success_url(self) -> str:
@@ -409,9 +409,9 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
     View to update statement overview check results
     """
 
-    form_class: Type[
+    form_class: Type[AuditStatementOverviewUpdateForm] = (
         AuditStatementOverviewUpdateForm
-    ] = AuditStatementOverviewUpdateForm
+    )
     template_name: str = "audits/statement_checks/statement_overview.html"
     statement_check_type: str = StatementCheck.Type.OVERVIEW
 
@@ -431,7 +431,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
 
 class AuditStatementWebsiteFormView(AuditStatementCheckingView):
     """
-    View to update statement website check results
+    View to update statement information check results
     """
 
     form_class: Type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
@@ -451,9 +451,9 @@ class AuditStatementComplianceFormView(AuditStatementCheckingView):
     View to update statement compliance check results
     """
 
-    form_class: Type[
+    form_class: Type[AuditStatementComplianceUpdateForm] = (
         AuditStatementComplianceUpdateForm
-    ] = AuditStatementComplianceUpdateForm
+    )
     template_name: str = "audits/statement_checks/statement_compliance.html"
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
@@ -470,9 +470,9 @@ class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
     View to update statement non-accessible check results
     """
 
-    form_class: Type[
+    form_class: Type[AuditStatementNonAccessibleUpdateForm] = (
         AuditStatementNonAccessibleUpdateForm
-    ] = AuditStatementNonAccessibleUpdateForm
+    )
     template_name: str = "audits/statement_checks/statement_non_accessible.html"
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
@@ -489,9 +489,9 @@ class AuditStatementPreparationFormView(AuditStatementCheckingView):
     View to update statement preparation check results
     """
 
-    form_class: Type[
+    form_class: Type[AuditStatementPreparationUpdateForm] = (
         AuditStatementPreparationUpdateForm
-    ] = AuditStatementPreparationUpdateForm
+    )
     template_name: str = "audits/statement_checks/statement_preparation.html"
     statement_check_type: str = StatementCheck.Type.PREPARATION
 
@@ -508,9 +508,9 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     View to update statement feedback check results
     """
 
-    form_class: Type[
+    form_class: Type[AuditStatementFeedbackUpdateForm] = (
         AuditStatementFeedbackUpdateForm
-    ] = AuditStatementFeedbackUpdateForm
+    )
     template_name: str = "audits/statement_checks/statement_feedback.html"
     statement_check_type: str = StatementCheck.Type.FEEDBACK
 
@@ -537,9 +537,9 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
         if self.request.POST:
             custom_formset = CustomStatementCheckResultFormset(self.request.POST)
         else:
-            statement_check_results: QuerySet[
-                Contact
-            ] = self.object.custom_statement_check_results
+            statement_check_results: QuerySet[Contact] = (
+                self.object.custom_statement_check_results
+            )
             if "add_custom" in self.request.GET:
                 custom_formset = CustomStatementCheckResultFormsetOneExtra(
                     queryset=statement_check_results
@@ -557,9 +557,9 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
         custom_formset = context["custom_formset"]
         audit: Audit = form.save(commit=False)
         if custom_formset.is_valid():
-            custom_statement_check_results: List[
-                StatementCheckResult
-            ] = custom_formset.save(commit=False)
+            custom_statement_check_results: List[StatementCheckResult] = (
+                custom_formset.save(commit=False)
+            )
             for custom_statement_check_result in custom_statement_check_results:
                 if not custom_statement_check_result.audit_id:
                     custom_statement_check_result.audit = audit
@@ -605,9 +605,9 @@ class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
     View to update initial disproportionate burden fields
     """
 
-    form_class: Type[
+    form_class: Type[InitialDisproportionateBurdenUpdateForm] = (
         InitialDisproportionateBurdenUpdateForm
-    ] = InitialDisproportionateBurdenUpdateForm
+    )
     template_name: str = "audits/forms/initial_disproportionate_burden.html"
 
     def get_success_url(self) -> str:
@@ -624,12 +624,12 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
     View to update statement decision fields
     """
 
-    form_class: Type[
+    form_class: Type[AuditStatementDecisionUpdateForm] = (
         AuditStatementDecisionUpdateForm
-    ] = AuditStatementDecisionUpdateForm
-    case_compliance_form_class: Type[
+    )
+    case_compliance_form_class: Type[CaseComplianceStatementInitialUpdateForm] = (
         CaseComplianceStatementInitialUpdateForm
-    ] = CaseComplianceStatementInitialUpdateForm
+    )
     template_name: str = "audits/forms/statement_decision.html"
 
     def get_success_url(self) -> str:
@@ -645,9 +645,9 @@ class AuditStatement1UpdateView(AuditUpdateView):
     View to update accessibility statement 1 audit fields
     """
 
-    form_class: Type[
+    form_class: Type[ArchiveAuditStatement1UpdateForm] = (
         ArchiveAuditStatement1UpdateForm
-    ] = ArchiveAuditStatement1UpdateForm
+    )
     template_name: str = "audits/forms/statement_1.html"
 
     def form_valid(self, form: ModelForm):
@@ -673,9 +673,9 @@ class AuditStatement2UpdateView(AuditUpdateView):
     View to update accessibility statement 2 audit fields
     """
 
-    form_class: Type[
+    form_class: Type[ArchiveAuditStatement2UpdateForm] = (
         ArchiveAuditStatement2UpdateForm
-    ] = ArchiveAuditStatement2UpdateForm
+    )
     template_name: str = "audits/forms/statement_2.html"
 
     def get_success_url(self) -> str:
@@ -691,9 +691,9 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
     View to update report options
     """
 
-    form_class: Type[
+    form_class: Type[ArchiveAuditReportOptionsUpdateForm] = (
         ArchiveAuditReportOptionsUpdateForm
-    ] = ArchiveAuditReportOptionsUpdateForm
+    )
     template_name: str = "audits/forms/report_options.html"
 
     def form_valid(self, form: ModelForm):

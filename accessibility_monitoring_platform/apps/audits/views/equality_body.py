@@ -259,9 +259,9 @@ class RetestStatementPageFormsetUpdateView(UpdateView):
         if self.request.POST:
             statement_pages_formset = StatementPageFormset(self.request.POST)
         else:
-            statement_pages: QuerySet[
-                StatementPage
-            ] = self.object.case.audit.statement_pages
+            statement_pages: QuerySet[StatementPage] = (
+                self.object.case.audit.statement_pages
+            )
             if "add_extra" in self.request.GET:
                 statement_pages_formset = StatementPageFormsetOneExtra(
                     queryset=statement_pages
@@ -365,9 +365,9 @@ class RetestStatementCheckingView(RetestUpdateView):
                 )
             )
 
-        context[
-            "retest_statement_check_results_formset"
-        ] = retest_statement_check_results_formset
+        context["retest_statement_check_results_formset"] = (
+            retest_statement_check_results_formset
+        )
 
         return context
 
@@ -399,9 +399,9 @@ class RetestStatementOverviewFormView(RetestStatementCheckingView):
     View to update statement overview check results retest
     """
 
-    form_class: Type[
+    form_class: Type[RetestStatementOverviewUpdateForm] = (
         RetestStatementOverviewUpdateForm
-    ] = RetestStatementOverviewUpdateForm
+    )
     template_name: str = (
         "audits/statement_checks/equality_body_retest_statement_overview.html"
     )
@@ -424,12 +424,12 @@ class RetestStatementOverviewFormView(RetestStatementCheckingView):
 
 class RetestStatementWebsiteFormView(RetestStatementCheckingView):
     """
-    View to update statement website check results retest
+    View to update statement information check results retest
     """
 
-    form_class: Type[
+    form_class: Type[RetestStatementWebsiteUpdateForm] = (
         RetestStatementWebsiteUpdateForm
-    ] = RetestStatementWebsiteUpdateForm
+    )
     template_name: str = (
         "audits/statement_checks/equality_body_retest_statement_website.html"
     )
@@ -451,9 +451,9 @@ class RetestStatementComplianceFormView(RetestStatementCheckingView):
     View to update statement compliance check results retest
     """
 
-    form_class: Type[
+    form_class: Type[RetestStatementComplianceUpdateForm] = (
         RetestStatementComplianceUpdateForm
-    ] = RetestStatementComplianceUpdateForm
+    )
     template_name: str = (
         "audits/statement_checks/equality_body_retest_statement_compliance.html"
     )
@@ -475,9 +475,9 @@ class RetestStatementNonAccessibleFormView(RetestStatementCheckingView):
     View to update statement non-accessible check results retest
     """
 
-    form_class: Type[
+    form_class: Type[RetestStatementNonAccessibleUpdateForm] = (
         RetestStatementNonAccessibleUpdateForm
-    ] = RetestStatementNonAccessibleUpdateForm
+    )
     template_name: str = (
         "audits/statement_checks/equality_body_retest_statement_non_accessible.html"
     )
@@ -499,9 +499,9 @@ class RetestStatementPreparationFormView(RetestStatementCheckingView):
     View to update statement preparation check results retest
     """
 
-    form_class: Type[
+    form_class: Type[RetestStatementPreparationUpdateForm] = (
         RetestStatementPreparationUpdateForm
-    ] = RetestStatementPreparationUpdateForm
+    )
     template_name: str = (
         "audits/statement_checks/equality_body_retest_statement_preparation.html"
     )
@@ -523,9 +523,9 @@ class RetestStatementFeedbackFormView(RetestStatementCheckingView):
     View to update statement feedback check results retest
     """
 
-    form_class: Type[
+    form_class: Type[RetestStatementFeedbackUpdateForm] = (
         RetestStatementFeedbackUpdateForm
-    ] = RetestStatementFeedbackUpdateForm
+    )
     template_name: str = (
         "audits/statement_checks/equality_body_retest_statement_feedback.html"
     )
@@ -562,9 +562,9 @@ class RetestStatementCustomFormView(RetestUpdateView):
                 RetestStatementCustomCheckResultFormset(self.request.POST)
             )
         else:
-            retest_statement_check_results: QuerySet[
-                RetestStatementCheckResult
-            ] = retest.custom_statement_check_results
+            retest_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+                retest.custom_statement_check_results
+            )
             if "add_custom" in self.request.GET:
                 retest_statement_check_results_formset = (
                     RetestStatementCustomCheckResultFormsetOneExtra(
@@ -577,9 +577,9 @@ class RetestStatementCustomFormView(RetestUpdateView):
                         queryset=retest_statement_check_results
                     )
                 )
-        context[
-            "retest_statement_check_results_formset"
-        ] = retest_statement_check_results_formset
+        context["retest_statement_check_results_formset"] = (
+            retest_statement_check_results_formset
+        )
         return context
 
     def form_valid(self, form: ModelForm):
@@ -590,9 +590,9 @@ class RetestStatementCustomFormView(RetestUpdateView):
         ]
         retest: Retest = form.save(commit=False)
         if retest_statement_check_results_formset.is_valid():
-            retest_statement_check_results: List[
-                RetestStatementCheckResult
-            ] = retest_statement_check_results_formset.save(commit=False)
+            retest_statement_check_results: List[RetestStatementCheckResult] = (
+                retest_statement_check_results_formset.save(commit=False)
+            )
             for retest_statement_check_result in retest_statement_check_results:
                 if not retest_statement_check_result.id:
                     retest_statement_check_result.retest = retest
@@ -643,9 +643,9 @@ class RetestStatementResultsUpdateView(RetestUpdateView):
     View to show results of statement content checks
     """
 
-    form_class: Type[
+    form_class: Type[RetestStatementResultsUpdateForm] = (
         RetestStatementResultsUpdateForm
-    ] = RetestStatementResultsUpdateForm
+    )
     template_name: str = "audits/forms/equality_body_retest_statement_results.html"
 
     def get_success_url(self) -> str:
@@ -664,9 +664,9 @@ class RetestDisproportionateBurdenUpdateView(RetestUpdateView):
     View to update equality body-requested retest disproportionate burden fields
     """
 
-    form_class: Type[
+    form_class: Type[RetestDisproportionateBurdenUpdateForm] = (
         RetestDisproportionateBurdenUpdateForm
-    ] = RetestDisproportionateBurdenUpdateForm
+    )
     template_name: str = (
         "audits/forms/equality_body_retest_disproportionate_burden.html"
     )
@@ -687,9 +687,9 @@ class RetestStatementDecisionUpdateView(RetestUpdateView):
     View to update equality body-requested retest statement decsion
     """
 
-    form_class: Type[
+    form_class: Type[RetestStatementDecisionUpdateForm] = (
         RetestStatementDecisionUpdateForm
-    ] = RetestStatementDecisionUpdateForm
+    )
     template_name: str = "audits/forms/equality_body_retest_statement_decision.html"
 
     def get_success_url(self) -> str:

@@ -1125,7 +1125,7 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
 ):
     """
     Test that a successful audit statement overview update redirects to
-    statement website if the overiew checks have passed
+    statement information if the overiew checks have passed
     """
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
