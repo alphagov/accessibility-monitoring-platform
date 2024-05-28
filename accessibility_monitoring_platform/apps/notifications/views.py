@@ -1,7 +1,7 @@
 """Views for notifications app"""
 
 from dataclasses import dataclass
-from typing import ClassVar, List, Literal, Optional
+from typing import ClassVar, Dict, List, Literal, Optional
 
 from django.contrib import messages
 from django.db.models import QuerySet
@@ -9,7 +9,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, TemplateView
 
-from ..cases.models import Case
+from ..cases.models import Case, CaseStatus
+from ..overdue.utils import get_overdue_cases
 from ..reminders.models import Reminder
 from .models import Notification
 
@@ -101,7 +102,7 @@ class Task:
     date: str
     case: Optional[Case] = None
     description: str = ""
-    action_required: str = "n/a"
+    action_required: str = "N/A"
     options: List[Option] = None
     NOTIFICATION: ClassVar[str] = "notification"
     REMINDER: ClassVar[str] = "reminder"
@@ -134,6 +135,7 @@ class TaskListView(TemplateView):
                     date=notification.created_date.date(),
                     case=case,
                     description=notification.body,
+                    action_required="Respond to comment",
                     options=[
                         Option(
                             label="Go to QA page",
@@ -172,6 +174,46 @@ class TaskListView(TemplateView):
                             ),
                         ),
                     ],
+                )
+            )
+        overdue_cases: QuerySet[Case] = get_overdue_cases(
+            user_request=self.request.user
+        )
+        for overdue_case in overdue_cases:
+            kwargs_overdue_pk: Dict[str, int] = {"pk": overdue_case.id}
+            if overdue_case.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
+                option: Option = Option(
+                    label="Seven day 'no contact details' response overdue",
+                    url=reverse(
+                        "cases:edit-find-contact-details", kwargs=kwargs_overdue_pk
+                    ),
+                )
+            elif overdue_case.status.status == CaseStatus.Status.IN_REPORT_CORES:
+                option: Option = Option(
+                    label=overdue_case.in_report_correspondence_progress,
+                    url=reverse("cases:edit-cores-overview", kwargs=kwargs_overdue_pk),
+                )
+            elif (
+                overdue_case.status.status
+                == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
+            ):
+                option: Option = Option(
+                    label="Overdue",
+                    url=reverse("cases:edit-cores-overview", kwargs=kwargs_overdue_pk),
+                )
+            elif overdue_case.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
+                option: Option = Option(
+                    label=overdue_case.twelve_week_correspondence_progress,
+                    url=reverse("cases:edit-cores-overview", kwargs=kwargs_overdue_pk),
+                )
+            tasks.append(
+                Task(
+                    type=Task.OVERDUE,
+                    date=overdue_case.next_action_due_date,
+                    case=overdue_case,
+                    description=overdue_case.status.get_status_display(),
+                    action_required="Chase overdue response",
+                    options=[option],
                 )
             )
 

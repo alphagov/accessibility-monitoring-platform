@@ -21,16 +21,23 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% for task in tasks %}
-                    <p class="govuk-body"><b>Date</b> {{ task.date|amp_date }}</p>
-                    <p class="govuk-body"><b>Case</b> {{ task.case }}</p>
-                    <p class="govuk-body"><b>Description</b> {{ task.description }}</p>
-                    <p class="govuk-body">
-                        <b>Action required</b>
+                    <h2 class="govuk-heading-m">
                         {% if task.type == 'notification' %}
-                            Respond to comment
+                            QA comment
                         {% elif task.type == 'reminder' %}
-                            N/A
+                            Reminder
+                        {% elif task.type == 'overdue' %}
+                            Overdue
+                        {% elif task.type == 'postcase' %}
+                            Post case
                         {% endif %}
+                    </h2>
+                    <p class="govuk-body amp-margin-bottom-5"><b>Date</b> {{ task.date|amp_date }}</p>
+                    <p class="govuk-body amp-margin-bottom-5"><b>Case</b> {{ task.case }}</p>
+                    <p class="govuk-body amp-margin-bottom-5"><b>Description</b> {{ task.description }}</p>
+                    <p class="govuk-body amp-margin-bottom-5">
+                        <b>Action required</b>
+                        {{ task.action_required }}
                     </p>
                     <p class="govuk-body">
                         <b>Options</b>
