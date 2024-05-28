@@ -43,7 +43,7 @@
             <p class="govuk-body-m amp-margin-bottom-0">
                 <b>#{{ zendesk_ticket.id_within_case }}</b>
                 {{ zendesk_ticket.created|amp_date }}
-                (<a href="{{ zendesk_ticket.url }}" class="govuk-link">View on zendesk</a> |
+                (<a href="{{ zendesk_ticket.url }}" class="govuk-link" target="_blank">View on zendesk</a> |
                 <a href="{% url 'cases:update-zendesk-ticket' zendesk_ticket.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
             </p>
             <p class="govuk-body-m">{{ zendesk_ticket.summary }}</p>
