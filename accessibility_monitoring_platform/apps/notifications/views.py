@@ -10,6 +10,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, TemplateView
 
 from ..cases.models import Case, CaseStatus
+from ..cases.utils import PostCaseAlert, get_post_case_alerts
 from ..overdue.utils import get_overdue_cases
 from ..reminders.models import Reminder
 from .models import Notification
@@ -214,6 +215,25 @@ class TaskListView(TemplateView):
                     description=overdue_case.status.get_status_display(),
                     action_required="Chase overdue response",
                     options=[option],
+                )
+            )
+        post_case_alerts: List[PostCaseAlert] = get_post_case_alerts(
+            user=self.request.user
+        )
+        for post_case_alert in post_case_alerts:
+            tasks.append(
+                Task(
+                    type=Task.POSTCASE,
+                    date=post_case_alert.date,
+                    case=post_case_alert.case,
+                    description=post_case_alert.description,
+                    action_required=post_case_alert.absolute_url_label,
+                    options=[
+                        Option(
+                            label=post_case_alert.absolute_url_label,
+                            url=post_case_alert.absolute_url,
+                        ),
+                    ],
                 )
             )
 
