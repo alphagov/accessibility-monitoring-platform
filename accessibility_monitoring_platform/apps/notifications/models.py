@@ -24,7 +24,7 @@ class Task(models.Model):
         REPORT_APPROVED = "report-approved"
         REMINDER = "reminder"
         OVERDUE = "overdue"
-        POSTCASE = "postcase"
+        POSTCASE = "postcase", "Post case"
 
     type = models.CharField(max_length=20, choices=Type, default=Type.REMINDER)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -34,7 +34,7 @@ class Task(models.Model):
     read = models.BooleanField(default=False)
     action = models.TextField(default="N/A")
 
-    def options(self) -> List[Option]:
+    def get_options(self) -> List[Option]:
         options: List[Option] = []
         if self.type == Task.Type.QA_COMMENT:
             options.append(

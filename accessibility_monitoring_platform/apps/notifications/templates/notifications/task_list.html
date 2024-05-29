@@ -35,6 +35,10 @@
                             <a href="{{ option.url }}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
                                 {{ option.label }}</a>
                         {% endfor %}
+                        {% for option in task.get_options %}
+                            <a href="{{ option.url }}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                                {{ option.label }}</a>
+                        {% endfor %}
                     </p>
                     <hr class="amp-width-100 amp-margin-bottom-30" />
                 {% endfor %}

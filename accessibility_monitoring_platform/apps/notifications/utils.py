@@ -116,23 +116,22 @@ def build_task_list(user: User) -> List[Task]:
                 action="Chase overdue response",
             )
         )
-    # post_case_alerts: List[PostCaseAlert] = get_post_case_alerts(user=user)
-    # for post_case_alert in post_case_alerts:
-    #     tasks.append(
-    #         Task(
-    #             type=Task.Type.POSTCASE,
-    #             date=post_case_alert.date,
-    #             case=post_case_alert.case,
-    #             description=post_case_alert.description,
-    #             action=post_case_alert.absolute_url_label,
-    #             options=[
-    #                 Option(
-    #                     label=post_case_alert.absolute_url_label,
-    #                     url=post_case_alert.absolute_url,
-    #                 ),
-    #             ],
-    #         )
-    #     )
+    post_case_alerts: List[PostCaseAlert] = get_post_case_alerts(user=user)
+    for post_case_alert in post_case_alerts:
+        task: Task = Task(
+            type=Task.Type.POSTCASE,
+            date=post_case_alert.date,
+            case=post_case_alert.case,
+            description=post_case_alert.description,
+            action=post_case_alert.absolute_url_label,
+        )
+        task.options = [
+            Option(
+                label=post_case_alert.absolute_url_label,
+                url=post_case_alert.absolute_url,
+            ),
+        ]
+        tasks.append(task)
 
     sorted_tasks: List[Task] = sorted(
         tasks,
