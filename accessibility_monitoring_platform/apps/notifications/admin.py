@@ -1,12 +1,13 @@
 """
 Admin for notifications
 """
+
 from django.contrib import admin
 
-from .models import Notification, NotificationSetting
+from .models import Notification, NotificationSetting, Task
 
 
-class NotificationsAdmin(admin.ModelAdmin):
+class NotificationAdmin(admin.ModelAdmin):
     """Django admin configuration for Notification model"""
 
     readonly_fields = ["created_date"]
@@ -26,8 +27,8 @@ class NotificationsAdmin(admin.ModelAdmin):
     ]
 
 
-class NotificationsSettingsAdmin(admin.ModelAdmin):
-    """Django admin configuration for NotificationSettings model"""
+class NotificationSettingAdmin(admin.ModelAdmin):
+    """Django admin configuration for NotificationSetting model"""
 
     search_fields = [
         "user__email",
@@ -39,5 +40,31 @@ class NotificationsSettingsAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Notification, NotificationsAdmin)
-admin.site.register(NotificationSetting, NotificationsSettingsAdmin)
+class TaskAdmin(admin.ModelAdmin):
+    """Django admin configuration for Task model"""
+
+    # readonly_fields = ["created_date"]
+    search_fields = [
+        "case__organisation_name",
+        "description",
+    ]
+    list_display = [
+        "id",
+        "date",
+        "type",
+        "user",
+        "case",
+        "description",
+        "read",
+    ]
+    list_filter = [
+        "type",
+        "read",
+        ("user", admin.RelatedOnlyFieldListFilter),
+    ]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+admin.site.register(Notification, NotificationAdmin)
+admin.site.register(NotificationSetting, NotificationSettingAdmin)
+admin.site.register(Task, TaskAdmin)

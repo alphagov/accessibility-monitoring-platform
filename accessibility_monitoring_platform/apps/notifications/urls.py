@@ -9,7 +9,9 @@ from accessibility_monitoring_platform.apps.notifications.views import (
     NotificationMarkAsReadView,
     NotificationMarkAsUnreadView,
     NotificationView,
+    ReminderTaskUpdateView,
     TaskListView,
+    TaskMarkAsReadView,
 )
 
 app_name = "notifications"
@@ -33,5 +35,15 @@ urlpatterns = [
         "task-list/",
         login_required(TaskListView.as_view()),
         name="task-list",
+    ),
+    path(
+        "<int:pk>/edit-reminder-task/",
+        login_required(ReminderTaskUpdateView.as_view()),
+        name="edit-reminder-task",
+    ),
+    path(
+        "<int:pk>/mark-task-read/",
+        login_required(TaskMarkAsReadView.as_view()),
+        name="mark-task-read",
     ),
 ]

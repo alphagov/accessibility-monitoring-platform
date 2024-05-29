@@ -1,5 +1,6 @@
 """Add notification function for notification app"""
-from typing import TypedDict
+
+from typing import List, TypedDict
 
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
@@ -7,7 +8,10 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template.loader import get_template
 
-from .models import Notification, NotificationSetting
+from ..cases.models import Case
+from ..cases.utils import PostCaseAlert, get_post_case_alerts
+from ..overdue.utils import get_overdue_cases
+from .models import Notification, NotificationSetting, Option, Task
 
 
 class EmailContextType(TypedDict):
@@ -96,3 +100,43 @@ def get_number_of_unread_notifications(user: User) -> int:
     if user.id:
         return Notification.objects.filter(user=user, read=False).count()
     return 0
+
+
+def build_task_list(user: User) -> List[Task]:
+    """Build of tasks from database and items derived dynamically from Cases"""
+    tasks: List[Task] = list(Task.objects.filter(user=user, read=False))
+    overdue_cases: QuerySet[Case] = get_overdue_cases(user_request=user)
+    for overdue_case in overdue_cases:
+        tasks.append(
+            Task(
+                type=Task.Type.OVERDUE,
+                date=overdue_case.next_action_due_date,
+                case=overdue_case,
+                description=overdue_case.status.get_status_display(),
+                action="Chase overdue response",
+            )
+        )
+    # post_case_alerts: List[PostCaseAlert] = get_post_case_alerts(user=user)
+    # for post_case_alert in post_case_alerts:
+    #     tasks.append(
+    #         Task(
+    #             type=Task.Type.POSTCASE,
+    #             date=post_case_alert.date,
+    #             case=post_case_alert.case,
+    #             description=post_case_alert.description,
+    #             action=post_case_alert.absolute_url_label,
+    #             options=[
+    #                 Option(
+    #                     label=post_case_alert.absolute_url_label,
+    #                     url=post_case_alert.absolute_url,
+    #                 ),
+    #             ],
+    #         )
+    #     )
+
+    sorted_tasks: List[Task] = sorted(
+        tasks,
+        key=lambda task: (task.date),
+    )
+
+    return sorted_tasks
