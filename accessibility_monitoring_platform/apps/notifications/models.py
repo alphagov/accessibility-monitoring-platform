@@ -1,13 +1,13 @@
 """Models for notifications app"""
 
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import List
 
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
-from ..cases.models import Case, CaseStatus
+from ..cases.models import Case
 
 
 @dataclass
@@ -75,31 +75,6 @@ class Task(models.Model):
                     ),
                 ),
             )
-        if self.type == Task.Type.OVERDUE:
-            kwargs_case_pk: Dict[str, int] = {"pk": self.case.id}
-            if self.case.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
-                option: Option = Option(
-                    label="Seven day 'no contact details' response overdue",
-                    url=reverse(
-                        "cases:edit-find-contact-details", kwargs=kwargs_case_pk
-                    ),
-                )
-            elif self.case.status.status == CaseStatus.Status.IN_REPORT_CORES:
-                option: Option = Option(
-                    label=self.case.in_report_correspondence_progress,
-                    url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
-                )
-            elif self.case.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
-                option: Option = Option(
-                    label="Overdue",
-                    url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
-                )
-            elif self.case.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
-                option: Option = Option(
-                    label=self.case.twelve_week_correspondence_progress,
-                    url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
-                )
-            options.append(option)
         if self.type in [Task.Type.QA_COMMENT, Task.Type.REPORT_APPROVED]:
             options.append(
                 Option(
