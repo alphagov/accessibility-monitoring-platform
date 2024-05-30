@@ -3633,7 +3633,7 @@ def test_post_case_alerts(admin_client, admin_user):
 
     assertContains(response, "Unresolved correspondence")
     assertContains(response, "Incomplete retest")
-    assertContains(response, "Post case (2)")
+    assertContains(response, "Post case alerts (2)")
 
 
 def test_updating_equality_body_updates_published_report_data_updated_time(

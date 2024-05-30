@@ -284,4 +284,7 @@ def build_task_list(user: User) -> List[Task]:
 
 
 def get_number_of_tasks(user: User) -> int:
-    return len(build_task_list(user=user))
+    """REturn number of tasks"""
+    if user.id:  # If logged in user
+        return len(build_task_list(user=user))
+    return 0
