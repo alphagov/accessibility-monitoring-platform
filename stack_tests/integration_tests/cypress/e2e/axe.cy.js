@@ -82,8 +82,6 @@ const loggedInUrls = [
   '/common/email-template-create/',
   '/common/1/email-template-preview/',
   '/common/1/email-template-update/',
-  '/notifications/notifications-list/',
-  '/overdue/overdue-list/',
   '/reminders/cases/1/reminder-create/',
   '/reminders/reminder-list/',
   '/reports/edit-report-wrapper/',
