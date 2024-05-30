@@ -29,7 +29,6 @@
         </div>
         <div class="govuk-grid-column-three-quarters">
                 <ul class="govuk-list nav-menu-list">
-                    <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
                     <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:edit-user' request.user.id %}">Settings</a></li>
                     <li>
                         <form method="post" action="{% url 'logout' %}">
@@ -41,28 +40,14 @@
                     <li class="amp-padding-left-10"> {{ user.first_name|title }} {{ user.last_name|title }} </li>
                 </ul>
                 <ul class="govuk-list nav-menu-list">
+                    <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
                     <li>
                         <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a>
                     </li>
                     <li>
-                        {% if number_of_unread_notifications > 0 %}<b>{% endif %}
-                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Comments ({{ number_of_unread_notifications }})</a>
-                        {% if number_of_unread_notifications > 0 %}</b>{% endif %}
-                    </li>
-                    <li>
-                        {% if number_of_reminders > 0 %}<b>{% endif %}
-                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'reminders:reminder-list' %}">Reminders ({{ number_of_reminders }})</a>
-                        {% if number_of_reminders > 0 %}</b>{% endif %}
-                    </li>
-                    <li>
-                        {% if number_of_overdue > 0 %}<b>{% endif %}
-                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'overdue:overdue-list' %}">Overdue ({{ number_of_overdue }})</a>
-                        {% if number_of_overdue > 0 %}</b>{% endif %}
-                    </li>
-                    <li>
-                        {% if post_case_alerts_count > 0 %}<b>{% endif %}
-                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:post-case-alerts' %}">Post case ({{ post_case_alerts_count }})</a>
-                        {% if post_case_alerts_count > 0 %}</b>{% endif %}
+                        {% if number_of_tasks > 0 %}<b>{% endif %}
+                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:task-list' %}">Tasks ({{ number_of_tasks }})</a>
+                        {% if number_of_tasks > 0 %}</b>{% endif %}
                     </li>
                 </ul>
         </div>

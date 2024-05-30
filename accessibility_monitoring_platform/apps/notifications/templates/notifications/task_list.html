@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load l10n %}
+{% load humanize %}
 
 {% block title %}Tasks{% endblock %}
 
@@ -15,13 +16,13 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">Tasks</h1>
+                <h1 class="govuk-heading-xl">Tasks ({{ tasks|length|intcomma }})</h1>
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% for task in tasks %}
-                    <h2 class="govuk-heading-m">{{ task.get_type_display }}</h2>
+                    <h2 class="govuk-heading-m amp-margin-bottom-10">{{ task.get_type_display }}</h2>
                     <p class="govuk-body amp-margin-bottom-5"><b>Date</b> {{ task.date|amp_date }}</p>
                     <p class="govuk-body amp-margin-bottom-5"><b>Case</b> {{ task.case }}</p>
                     <p class="govuk-body amp-margin-bottom-5"><b>Description</b> {{ task.description }}</p>

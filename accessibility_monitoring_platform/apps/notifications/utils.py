@@ -281,3 +281,7 @@ def build_task_list(user: User) -> List[Task]:
     )
 
     return sorted_tasks
+
+
+def get_number_of_tasks(user: User) -> int:
+    return len(build_task_list(user=user))
