@@ -7,9 +7,10 @@ from django.forms.models import ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 
-from ..common.utils import record_model_update_event
+from ..cases.models import Case
+from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
 from .utils import build_task_list
@@ -54,6 +55,38 @@ class TaskMarkAsReadView(ListView):
             messages.error(request, "An error occured")
 
         return HttpResponseRedirect(reverse_lazy("notifications:task-list"))
+
+
+class ReminderTaskCreateView(CreateView):
+    """
+    View to create reminder task
+    """
+
+    model: Type[Task] = Task
+    context_object_name: str = "task"
+    form_class: Type[ReminderForm] = ReminderForm
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        if form.changed_data:
+            case: Case = Case.objects.get(pk=self.kwargs["case_id"])
+            self.object: Task = Task.objects.create(
+                date=form.cleaned_data["due_date"],
+                type=Task.Type.REMINDER,
+                case=case,
+                user=case.auditor,
+                description=form.cleaned_data["description"],
+            )
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["case"] = Case.objects.get(pk=self.kwargs["case_id"])
+        return context
+
+    def get_success_url(self) -> str:
+        """Record creation event"""
+        record_model_create_event(user=self.request.user, model_object=self.object)
+        return super().get_success_url()
 
 
 class ReminderTaskUpdateView(UpdateView):
