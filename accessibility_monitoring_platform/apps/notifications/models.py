@@ -34,7 +34,7 @@ class Task(models.Model):
     read = models.BooleanField(default=False)
     action = models.TextField(default="N/A")
 
-    def get_options(self) -> List[Option]:
+    def options(self) -> List[Option]:
         options: List[Option] = []
         if self.type == Task.Type.QA_COMMENT:
             options.append(

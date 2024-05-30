@@ -55,6 +55,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("notifications", "0007_task"),
+        ("reminders", "0004_reminder_updated"),
     ]
 
     operations = [

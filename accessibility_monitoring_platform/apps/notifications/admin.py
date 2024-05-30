@@ -43,7 +43,6 @@ class NotificationSettingAdmin(admin.ModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     """Django admin configuration for Task model"""
 
-    # readonly_fields = ["created_date"]
     search_fields = [
         "case__organisation_name",
         "description",
