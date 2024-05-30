@@ -51,10 +51,10 @@ class TaskAdmin(admin.ModelAdmin):
         "id",
         "date",
         "type",
-        "user",
+        "read",
         "case",
         "description",
-        "read",
+        "user",
     ]
     list_filter = [
         "type",

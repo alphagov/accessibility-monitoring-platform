@@ -25,33 +25,22 @@ class EmailContextType(TypedDict):
     request: HttpRequest
 
 
-def add_notification(
-    user: User, body: str, path: str, list_description: str, request: HttpRequest
-) -> Notification:
-    """Adds notification to DB. Also handles email notifications.
-
-    Parameters
-    ----------
-    user : User
-        user object
-    body : str
-        Message to user for notification
-    path : str
-        The path where the notification exists
-    list_description : str
-        Description of the location of the notification
-    request : HttpRequest
-        Django request
-
-    Returns
-    -------
-    Notifications
-        Notifications model
-    """
-    notification: Notification = Notification(
-        user=user, body=body, path=path, list_description=list_description
+def add_task(
+    user: User,
+    case: Case,
+    type: Task.Type,
+    description: str,
+    list_description: str,
+    request: HttpRequest,
+) -> Task:
+    """Adds notification to DB. Also handles email notifications."""
+    task: Task = Task.objects.create(
+        type=type,
+        date=date.today(),
+        case=case,
+        user=user,
+        description=description,
     )
-    notification.save()
     if NotificationSetting.objects.filter(pk=user.id).exists():  # type: ignore
         email_settings: NotificationSetting = NotificationSetting.objects.get(pk=user.id)  # type: ignore
     else:
@@ -61,11 +50,16 @@ def add_notification(
         )
         email_settings.save()
 
+    if type == Task.Type.QA_COMMENT:
+        path: str = reverse("cases:edit-qa-comments", kwargs={"pk": case.id})
+    else:
+        path: str = reverse("cases:edit-report-approved", kwargs={"pk": case.id})
+
     if email_settings.email_notifications_enabled:
         context: EmailContextType = {
             "user": user,
             "list_description": list_description,
-            "body": body,
+            "body": description,
             "path": path,
             "request": request,
         }
@@ -79,23 +73,17 @@ def add_notification(
         )
         email.content_subtype = "html"
         email.send()
-    return notification
+    return task
 
 
-def read_notification(request: HttpRequest) -> None:
-    """Will read the path and user from the request and remove the notification
-    if a notification exists
-
-    Parameters
-    ----------
-    request : HttpRequest
-    """
-    notifications: QuerySet[Notification] = Notification.objects.filter(
-        user=request.user, path=request.path, read=False
+def read_tasks(user: User, case: Case, type: Task.Type) -> None:
+    """Mark tasks as read"""
+    tasks: QuerySet[Notification] = Task.objects.filter(
+        user=user, case=case, type=type, read=False
     )
-    for notification in notifications:
-        notification.read = True  # type: ignore
-        notification.save()
+    for task in tasks:
+        task.read = True  # type: ignore
+        task.save()
 
 
 def get_number_of_unread_notifications(user: User) -> int:
@@ -284,7 +272,7 @@ def build_task_list(user: User) -> List[Task]:
 
 
 def get_number_of_tasks(user: User) -> int:
-    """REturn number of tasks"""
+    """Return number of tasks"""
     if user.id:  # If logged in user
         return len(build_task_list(user=user))
     return 0

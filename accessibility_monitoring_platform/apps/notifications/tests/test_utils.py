@@ -1,64 +1,70 @@
 """ Tests - test for notifications template tags """
+
+from datetime import date
 from typing import Optional
 
 import pytest
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 
-from ..models import Notification, NotificationSetting
-from ..utils import (
-    add_notification,
-    get_number_of_unread_notifications,
-    read_notification,
-)
+from ...cases.models import Case
+from ..models import Notification, NotificationSetting, Task
+from ..utils import add_task, get_number_of_unread_notifications, read_tasks
 
 
 @pytest.mark.django_db
-def test_read_notifications_marks_notification_as_read(rf):
-    """test to check if read_notifications function marks notifications as read"""
+def test_read_tasks_marks_task_as_read(rf):
+    """test to check if read_tasks function marks tasks as read"""
     request: HttpRequest = rf.get("/")
     user: User = User.objects.create_user(  # type: ignore
         username="mockuser", email="mockuser@mock.com", password="secret"
     )
     request.user = user
+    case: Case = Case.objects.create()
 
-    notification: Notification = Notification.objects.create(
-        user=user, path=request.path
+    task: Task = Task.objects.create(
+        date=date.today(), user=user, case=case, type=Task.Type.QA_COMMENT
     )
 
-    assert not notification.read
+    assert not task.read
 
-    read_notification(request)
+    read_tasks(user=user, case=case, type=Task.Type.QA_COMMENT)
 
-    notification_from_db: Notification = Notification.objects.get(id=notification.id)  # type: ignore
+    task_from_db: Task = Task.objects.get(id=task.id)  # type: ignore
 
-    assert notification_from_db.read
+    assert task_from_db.read
 
 
 @pytest.mark.django_db
-def test_add_notification_creates_notification_and_sends_email(mailoutbox, rf):
-    """test to check if add_notification adds notification and sends email"""
+@pytest.mark.parametrize(
+    "type",
+    [Task.Type.QA_COMMENT, Task.Type.REPORT_APPROVED],
+)
+def test_add_task_creates_task_and_sends_email(type, mailoutbox, rf):
+    """test to check if add_task adds task and sends email"""
     request: HttpRequest = rf.get("/")
     user: User = User.objects.create_user(  # type: ignore
         username="mockuser", email="mockuser@mock.com", password="secret"
     )
     request.user = user
     NotificationSetting.objects.create(user=user)
+    case: Case = Case.objects.create()
 
-    assert Notification.objects.all().first() is None
+    assert Task.objects.all().first() is None
 
-    add_notification(
+    add_task(
         user=user,
-        body="this is a notification",
-        path="/",
+        case=case,
+        type=type,
+        description="this is a notification",
         list_description="There is a notification",
         request=request,
     )
 
-    notification: Optional[Notification] = Notification.objects.all().first()
+    task: Optional[Task] = Task.objects.all().first()
 
-    assert notification is not None
-    assert notification.body == "this is a notification"
+    assert task is not None
+    assert task.description == "this is a notification"
 
     assert len(mailoutbox) == 1
     assert (
@@ -68,37 +74,39 @@ def test_add_notification_creates_notification_and_sends_email(mailoutbox, rf):
 
 
 @pytest.mark.django_db
-def test_add_notification_creates_notification_and_sends_no_email(mailoutbox, rf):
-    """test to check if add_notification adds notification and doesn't send email"""
+def test_add_task_creates_task_and_sends_no_email(mailoutbox, rf):
+    """test to check if add_task adds task and doesn't send email"""
     request: HttpRequest = rf.get("/")
     user: User = User.objects.create_user(  # type: ignore
         username="mockuser", email="mockuser@mock.com", password="secret"
     )
     request.user = user
     NotificationSetting.objects.create(user=user, email_notifications_enabled=False)
+    case: Case = Case.objects.create()
 
-    assert Notification.objects.all().first() is None
+    assert Task.objects.all().first() is None
 
-    add_notification(
+    add_task(
         user=user,
-        body="this is a notification",
-        path="/",
+        case=case,
+        type=type,
+        description="this is a notification",
         list_description="There is a notification",
         request=request,
     )
 
-    notification: Optional[Notification] = Notification.objects.all().first()
+    task: Optional[Task] = Task.objects.all().first()
 
-    assert notification is not None
-    assert notification.body == "this is a notification"
+    assert task is not None
+    assert task.description == "this is a notification"
 
     assert len(mailoutbox) == 0
 
 
 @pytest.mark.django_db
-def test_creates_new_email_notification_model_when_null(mailoutbox, rf):
+def test_add_task_creates_new_email_notification_model_when_null(mailoutbox, rf):
     """
-    Test to see if add_notification will create a NotificationSetting
+    Test to see if add_task will create a NotificationSetting
     model when none exists
     """
     request: HttpRequest = rf.get("/")
@@ -106,28 +114,29 @@ def test_creates_new_email_notification_model_when_null(mailoutbox, rf):
         username="mockuser", email="mockuser@mock.com", password="secret"
     )
     request.user = user
+    case: Case = Case.objects.create()
 
     assert Notification.objects.all().first() is None
     assert NotificationSetting.objects.all().first() is None
 
-    add_notification(
+    add_task(
         user=user,
-        body="this is a notification",
-        path="/",
+        case=case,
+        type=type,
+        description="this is a notification",
         list_description="There is a notification",
         request=request,
     )
 
-    notification: Optional[Notification] = Notification.objects.all().first()
+    task: Optional[Task] = Task.objects.all().first()
 
-    assert notification is not None
-    assert notification.body == "this is a notification"
-
+    assert task is not None
+    assert task.description == "this is a notification"
     assert len(mailoutbox) == 0
 
-    notification_setting: Optional[
-        NotificationSetting
-    ] = NotificationSetting.objects.all().first()
+    notification_setting: Optional[NotificationSetting] = (
+        NotificationSetting.objects.all().first()
+    )
 
     assert notification_setting is not None
     assert notification_setting.user.email == user.email

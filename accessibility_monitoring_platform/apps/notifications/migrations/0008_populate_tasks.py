@@ -9,7 +9,7 @@ def populate_notification_tasks(apps, schema_editor):  # pylint: disable=unused-
     Task = apps.get_model("notifications", "Task")
 
     Notification = apps.get_model("notifications", "Notification")
-    for notification in Notification.objects.all():
+    for notification in Notification.objects.all().order_by("id"):
         path_elements: List[str] = notification.path.split("/")
 
         if path_elements[1] == "cases":
@@ -35,7 +35,7 @@ def populate_notification_tasks(apps, schema_editor):  # pylint: disable=unused-
         )
 
     Reminder = apps.get_model("reminders", "Reminder")
-    for reminder in Reminder.objects.all():
+    for reminder in Reminder.objects.all().order_by("id"):
         Task.objects.create(
             type="reminder",
             date=reminder.due_date,

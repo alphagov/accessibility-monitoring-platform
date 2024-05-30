@@ -117,14 +117,20 @@ class TaskMarkAsReadView(ListView):
         task: Task = Task.objects.get(pk=pk)
         if (
             task.user.id == request.user.id  # type: ignore
-        ):  # Checks whether the comment was posted by user
+        ):  # Checks whether the task was created by user
             task.read = True
             task.save()
-            messages.success(request, "Task marked as read")
+            if task.type == Task.Type.REMINDER:
+                messages.success(request, f"{task.case} Reminder task deleted")
+            else:
+                messages.success(
+                    request,
+                    f"{task.case} {task.get_type_display()} task marked as read",
+                )
         else:
             messages.error(request, "An error occured")
 
-        return HttpResponseRedirect(reverse_lazy("notificationis:tasks-list"))
+        return HttpResponseRedirect(reverse_lazy("notifications:task-list"))
 
 
 class ReminderTaskUpdateView(UpdateView):

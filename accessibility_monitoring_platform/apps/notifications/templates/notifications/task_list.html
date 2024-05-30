@@ -19,6 +19,11 @@
                 <h1 class="govuk-heading-xl">Tasks ({{ tasks|length|intcomma }})</h1>
             </div>
         </div>
+        {% for message in messages %}
+            <div class="govuk-inset-text">
+                {{ message }}
+            </div>
+        {% endfor %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% for task in tasks %}
