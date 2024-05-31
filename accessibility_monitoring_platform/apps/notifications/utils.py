@@ -1,7 +1,7 @@
 """Add notification function for notification app"""
 
 from datetime import date, datetime, timedelta
-from typing import Dict, List, TypedDict
+from typing import Any, Dict, List, Optional, TypedDict
 
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
@@ -245,23 +245,45 @@ def get_post_case_tasks(user: User) -> List[Task]:
     return tasks
 
 
-def build_task_list(user: User) -> List[Task]:
+def build_task_list(
+    user: User,
+    type: Optional[str] = None,
+    read: Optional[str] = None,
+    future: Optional[str] = None,
+) -> List[Task]:
     """Build of tasks from database and items derived dynamically from Cases"""
-    tasks: List[Task] = list(Task.objects.filter(user=user, read=False))
+    task_filter: Dict[str, Any] = {
+        "user": user,
+    }
 
-    overdue_cases: QuerySet[Case] = get_overdue_cases(user_request=user)
-    for overdue_case in overdue_cases:
-        task: Task = Task(
-            type=Task.Type.OVERDUE,
-            date=overdue_case.next_action_due_date,
-            case=overdue_case,
-            description=overdue_case.status.get_status_display(),
-            action="Chase overdue response",
-        )
-        task.options = build_overdue_task_options(case=overdue_case)
-        tasks.append(task)
+    if type is not None:
+        task_filter["type"] = type
 
-    tasks += get_post_case_tasks(user=user)
+    if read is None:
+        task_filter["read"] = False
+    elif read == "read":
+        task_filter["read"] = True
+
+    if future is None:
+        task_filter["date__lte"] = date.today()
+
+    tasks: List[Task] = list(Task.objects.filter(**task_filter))
+
+    if type is None or type == Task.Type.OVERDUE:
+        overdue_cases: QuerySet[Case] = get_overdue_cases(user_request=user)
+        for overdue_case in overdue_cases:
+            task: Task = Task(
+                type=Task.Type.OVERDUE,
+                date=overdue_case.next_action_due_date,
+                case=overdue_case,
+                description=overdue_case.status.get_status_display(),
+                action="Chase overdue response",
+            )
+            task.options = build_overdue_task_options(case=overdue_case)
+            tasks.append(task)
+
+    if type is None or type == Task.Type.POSTCASE:
+        tasks += get_post_case_tasks(user=user)
 
     sorted_tasks: List[Task] = sorted(
         tasks,

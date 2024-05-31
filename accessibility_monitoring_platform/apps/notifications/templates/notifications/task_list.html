@@ -3,7 +3,7 @@
 {% load l10n %}
 {% load humanize %}
 
-{% block title %}Tasks ({{ tasks|length|intcomma }}){% endblock %}
+{% block title %}Tasks ({{ tasks|length|intcomma }}{% if type %} of {{ number_of_tasks|intcomma }}{% endif %}){% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -16,7 +16,7 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">Tasks ({{ tasks|length|intcomma }})</h1>
+                <h1 class="govuk-heading-xl">Tasks ({{ tasks|length|intcomma }}{% if type %} {{ tasks.0.get_type_display }}{% endif %})</h1>
             </div>
         </div>
         {% for message in messages %}
@@ -24,6 +24,38 @@
                 {{ message }}
             </div>
         {% endfor %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <p class="govuk-body">
+                    Filter by type:
+                    <a href="?type=qa-comment{% if read %}&read={{ read }}{% endif %}{% if future %}&future={{ future }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        QA comment</a>
+                    <a href="?type=report-approved{% if read %}&read={{ read }}{% endif %}{% if future %}&future={{ future }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        Report approved</a>
+                    <a href="?type=reminder{% if read %}&read={{ read }}{% endif %}{% if future %}&future={{ future }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        Reminder</a>
+                    <a href="?type=overdue{% if read %}&read={{ read }}{% endif %}{% if future %}&future={{ future }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        Overdue</a>
+                    <a href="?type=postcase{% if read %}&read={{ read }}{% endif %}{% if future %}&future={{ future }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        Post case</a>
+                    <a href="{% url 'notifications:task-list' %}{% if read %}?read={{ read }}{% endif %}{% if future %}&future={{ future }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        All</a>
+                </p>
+                <p class="govuk-body">
+                    Show:
+                    <a href="?read=all{% if type %}&type={{ type }}{% endif %}{% if future %}&future={{ future }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        All</a>
+                    <a href="?read=read{% if type %}&type={{ type }}{% endif %}{% if future %}&future={{ future }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        Read/deleted</a>
+                    <a href="?read=unread{% if type %}&type={{ type }}{% endif %}{% if future %}&future={{ future }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        Unread (default)</a>
+                    <a href="?future=true{% if type %}&type={{ type }}{% endif %}{% if read %}&read={{ read }}{% endif %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        Future</a>
+                    <a href="{% url 'notifications:task-list' %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                        Default (unread and due)</a>
+                </p>
+            </div>
+        </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% for task in tasks %}

@@ -21,7 +21,7 @@ class Task(models.Model):
 
     class Type(models.TextChoices):
         QA_COMMENT = "qa-comment", "QA comment"
-        REPORT_APPROVED = "report-approved"
+        REPORT_APPROVED = "report-approved", "Report approved"
         REMINDER = "reminder"
         OVERDUE = "overdue"
         POSTCASE = "postcase", "Post case"

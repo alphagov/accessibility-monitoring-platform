@@ -26,7 +26,18 @@ class TaskListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["tasks"] = build_task_list(user=self.request.user)
+        type: str = self.request.GET.get("type")
+        read: str = self.request.GET.get("read")
+        future: str = self.request.GET.get("future")
+        if type:
+            context["type"] = type
+        if read:
+            context["read"] = read
+        if future:
+            context["future"] = future
+        context["tasks"] = build_task_list(
+            user=self.request.user, type=type, read=read, future=future
+        )
         return context
 
 
