@@ -3,6 +3,7 @@
 from typing import Type
 
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.forms.models import ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -65,18 +66,23 @@ class ReminderTaskCreateView(CreateView):
     model: Type[Task] = Task
     context_object_name: str = "task"
     form_class: Type[ReminderForm] = ReminderForm
+    template_name: str = "notifications/reminder_task_create.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         if form.changed_data:
             case: Case = Case.objects.get(pk=self.kwargs["case_id"])
+            user: User = case.auditor if case.auditor else self.request.user
             self.object: Task = Task.objects.create(
-                date=form.cleaned_data["due_date"],
+                date=form.cleaned_data["date"],
                 type=Task.Type.REMINDER,
                 case=case,
-                user=case.auditor,
+                user=user,
                 description=form.cleaned_data["description"],
             )
-        return super().form_valid(form)
+            record_model_create_event(user=self.request.user, model_object=self.object)
+        return HttpResponseRedirect(
+            reverse_lazy("cases:case-detail", kwargs={"pk": case.id})
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -98,6 +104,7 @@ class ReminderTaskUpdateView(UpdateView):
     context_object_name: str = "task"
     form_class: Type[ReminderForm] = ReminderForm
     success_url: str = reverse_lazy("notifications:task-list")
+    template_name: str = "notifications/reminder_task_update.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add event on change of task"""

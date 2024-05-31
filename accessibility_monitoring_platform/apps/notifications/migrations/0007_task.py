@@ -34,10 +34,12 @@ class Migration(migrations.Migration):
                     models.CharField(
                         choices=[
                             ("qa-comment", "QA comment"),
-                            ("report-approved", "Report approved"),
+                            ("report-approved", "Report Approved"),
                             ("reminder", "Reminder"),
+                            ("overdue", "Overdue"),
+                            ("postcase", "Post case"),
                         ],
-                        default="notification",
+                        default="reminder",
                         max_length=20,
                     ),
                 ),

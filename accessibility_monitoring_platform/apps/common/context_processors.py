@@ -15,8 +15,6 @@ from ..notifications.utils import (
     get_number_of_tasks,
     get_number_of_unread_notifications,
 )
-from ..overdue.utils import get_overdue_cases
-from ..reminders.utils import get_number_of_reminders_for_user
 from .forms import AMPTopMenuForm
 
 
@@ -36,8 +34,6 @@ def platform_page(
         "number_of_unread_notifications": get_number_of_unread_notifications(
             user=request.user
         ),
-        "number_of_reminders": get_number_of_reminders_for_user(user=request.user),
-        "number_of_overdue": len(get_overdue_cases(user_request=request.user) or []),
         "number_of_tasks": get_number_of_tasks(user=request.user),
         "django_settings": settings,
         "custom_frequently_used_links": FrequentlyUsedLink.objects.filter(

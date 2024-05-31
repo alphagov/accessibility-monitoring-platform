@@ -510,7 +510,7 @@ class Case(VersionModel):
 
     @property
     def reminder(self):
-        return self.reminder_case.filter(is_deleted=False).first()
+        return self.task_set.filter(read=False).first()
 
     @property
     def qa_comments(self):

@@ -1,6 +1,7 @@
 """
 Tests for view - dashboard
 """
+
 from datetime import date, datetime, timedelta
 
 import pytest
@@ -13,7 +14,7 @@ from accessibility_monitoring_platform.apps.common.models import ChangeToPlatfor
 from ...cases.models import Case, CaseCompliance, CaseStatus
 from ...cases.utils import create_case_and_compliance
 from ...common.models import Boolean
-from ...reminders.models import Reminder
+from ...notifications.models import Task
 
 
 def test_dashboard_loads_correctly_when_user_logged_in(admin_client):
@@ -272,8 +273,11 @@ def test_dashboard_shows_link_to_reminder_reviewing(admin_client, admin_user):
     )
     case.compliance.save()
     case.save()
-    reminder: Reminder = Reminder.objects.create(
-        case=case, due_date=date.today() + timedelta(days=10)
+    task: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today() + timedelta(days=10),
+        user=admin_user,
+        case=case,
     )
 
     assert case.status.status == CaseStatus.Status.REVIEWING_CHANGES
@@ -283,7 +287,8 @@ def test_dashboard_shows_link_to_reminder_reviewing(admin_client, admin_user):
     assert response.status_code == 200
 
     assertContains(
-        response, reverse("reminders:edit-reminder", kwargs={"pk": reminder.id})
+        response,
+        reverse("notifications:edit-reminder-task", kwargs={"pk": task.id}),
     )
 
 
@@ -308,8 +313,11 @@ def test_dashboard_shows_link_to_reminder_final(admin_client, admin_user):
     )
     case.compliance.save()
     case.save()
-    reminder: Reminder = Reminder.objects.create(
-        case=case, due_date=date.today() + timedelta(days=10)
+    task: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today() + timedelta(days=10),
+        user=admin_user,
+        case=case,
     )
 
     assert case.status.status == CaseStatus.Status.FINAL_DECISION_DUE
@@ -319,5 +327,6 @@ def test_dashboard_shows_link_to_reminder_final(admin_client, admin_user):
     assert response.status_code == 200
 
     assertContains(
-        response, reverse("reminders:edit-reminder", kwargs={"pk": reminder.id})
+        response,
+        reverse("notifications:edit-reminder-task", kwargs={"pk": task.id}),
     )

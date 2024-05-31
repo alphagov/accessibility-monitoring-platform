@@ -1,6 +1,7 @@
 """
 This command emails reminders due today to their user.
 """
+
 from datetime import date
 from typing import Dict, List, TypedDict
 

@@ -3,7 +3,7 @@ Tests for common views
 """
 
 import logging
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from unittest.mock import Mock, patch
 
 import pytest
@@ -17,10 +17,6 @@ from pytest_django.asserts import assertContains, assertNotContains
 from ...audits.models import Audit, CheckResult, Page, StatementPage, WcagDefinition
 from ...cases.models import Case, CaseCompliance
 from ...cases.utils import create_case_and_compliance
-from ...cases.views import calculate_report_followup_dates
-from ...notifications.models import Notification
-from ...overdue.tests import create_case
-from ...reminders.models import Reminder
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
