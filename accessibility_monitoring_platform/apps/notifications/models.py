@@ -6,6 +6,7 @@ from typing import List
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 from ..cases.models import Case
 
@@ -33,6 +34,10 @@ class Task(models.Model):
     description = models.TextField(default="")
     read = models.BooleanField(default=False)
     action = models.TextField(default="N/A")
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering: List[str] = ["-id"]
 
     def options(self) -> List[Option]:
         options: List[Option] = []

@@ -23,7 +23,7 @@ from ...audits.models import (
 )
 from ...comments.models import Comment
 from ...common.models import Boolean, EmailTemplate
-from ...reminders.models import Reminder
+from ...notifications.models import Task
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
@@ -573,11 +573,17 @@ def test_case_last_edited_from_comment(last_edited_case: Case):
 
 @pytest.mark.django_db
 def test_case_last_edited_from_reminder(last_edited_case: Case):
-    """Test the case last edited date found on Reminder"""
+    """Test the case last edited date found on reminder Task"""
+    user: User = User.objects.create()
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_REMINDER_UPDATED)
     ):
-        Reminder.objects.create(case=last_edited_case, due_date=REMINDER_DUE_DATE)
+        Task.objects.create(
+            type=Task.Type.REMINDER,
+            case=last_edited_case,
+            user=user,
+            date=REMINDER_DUE_DATE,
+        )
 
     assert last_edited_case.last_edited == DATETIME_REMINDER_UPDATED
 

@@ -2,6 +2,7 @@
 from typing import List
 
 from django.db import migrations
+from django.utils import timezone
 
 
 def populate_notification_tasks(apps, schema_editor):  # pylint: disable=unused-argument
@@ -25,6 +26,10 @@ def populate_notification_tasks(apps, schema_editor):  # pylint: disable=unused-
         else:
             print(f"Unknown notification type {notification.path}")
 
+        updated = (
+            notification.created_date if notification.created_date else timezone.now()
+        )
+
         Task.objects.create(
             type=type,
             date=notification.created_date.date(),
@@ -32,10 +37,12 @@ def populate_notification_tasks(apps, schema_editor):  # pylint: disable=unused-
             user=notification.user,
             read=notification.read,
             description=notification.body,
+            updated=updated,
         )
 
     Reminder = apps.get_model("reminders", "Reminder")
     for reminder in Reminder.objects.all().order_by("id"):
+        updated = reminder.updated if reminder.updated else timezone.now()
         Task.objects.create(
             type="reminder",
             date=reminder.due_date,
@@ -43,6 +50,7 @@ def populate_notification_tasks(apps, schema_editor):  # pylint: disable=unused-
             user=reminder.case.auditor,
             read=reminder.is_deleted,
             description=reminder.description,
+            updated=updated,
         )
 
 
