@@ -100,7 +100,6 @@ from .models import (
 from .utils import (
     filter_cases,
     get_case_view_sections,
-    get_post_case_alerts,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -1301,16 +1300,6 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
         CaseStatementEnforcementUpdateForm
     )
     template_name: str = "cases/forms/legacy_end_of_case.html"
-
-
-class PostCaseAlertsTemplateView(TemplateView):
-    template_name: str = "cases/post_case_alerts.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["post_case_alerts"] = get_post_case_alerts(user=self.request.user)
-        return context
 
 
 class CaseZendeskTicketsDetailView(DetailView):

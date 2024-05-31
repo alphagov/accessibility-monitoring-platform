@@ -3617,21 +3617,6 @@ def test_update_equality_body_correspondence_save_redirects(admin_client):
     )
 
 
-def test_post_case_alerts(admin_client, admin_user):
-    """Test post case alerts page renders"""
-    case: Case = Case.objects.create(auditor=admin_user)
-    EqualityBodyCorrespondence.objects.create(case=case)
-    Retest.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(reverse("cases:post-case-alerts"))
-
-    assert response.status_code == 200
-
-    assertContains(response, "Unresolved correspondence")
-    assertContains(response, "Incomplete retest")
-    assertContains(response, "Post case alerts (2)")
-
-
 def test_updating_equality_body_updates_published_report_data_updated_time(
     admin_client,
 ):

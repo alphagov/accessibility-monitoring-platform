@@ -65,7 +65,7 @@ def test_active_qa_auditor_present(admin_client):
 @pytest.mark.django_db
 def test_platform_page_template_context():
     """
-    Check number of reminders for user, prototype name and
+    Check number of tasks for user, prototype name and
     platform settings added to context.
     """
     user: User = User.objects.create(first_name=USER_FIRST_NAME)

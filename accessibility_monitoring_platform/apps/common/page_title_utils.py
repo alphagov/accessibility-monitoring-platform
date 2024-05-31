@@ -113,7 +113,6 @@ PAGE_TITLES_BY_URL = {
     "/notifications/task-list/": "Tasks",
     "/notifications/[id]/edit-reminder-task/": "Reminder",
     "/notifications/cases/[id]/reminder-task-create/": "Reminder",
-    "/reminders/reminder-list/": "Reminders",
     "/reports/edit-report-wrapper/": "Report viewer editor",
     "/reports/[id]/report-publisher/": "Report publisher",
     "/reports/[id]/edit-report-notes/": "Report notes",

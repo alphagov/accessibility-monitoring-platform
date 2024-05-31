@@ -8,7 +8,6 @@ from django.conf import settings
 from django.http import HttpRequest
 from django.utils import timezone
 
-from ..cases.utils import get_post_case_alerts_count
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
 from ..common.utils import get_platform_settings
 from ..notifications.utils import (
@@ -23,7 +22,7 @@ def platform_page(
 ) -> Dict[str, Union[AMPTopMenuForm, str, Platform, int]]:
     """
     Populate context for template rendering. Include search form for top menu,
-    name of prototype, platform settings and number of reminders.
+    name of prototype, platform settings and number of tasks.
     """
     platform: Platform = get_platform_settings()
 
@@ -40,5 +39,4 @@ def platform_page(
             is_deleted=False
         ),
         "custom_footer_links": FooterLink.objects.filter(is_deleted=False),
-        "post_case_alerts_count": get_post_case_alerts_count(user=request.user),
     }
