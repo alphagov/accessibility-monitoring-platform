@@ -10,12 +10,12 @@ from django.core.mail import EmailMessage
 from django.core.management.base import BaseCommand
 from django.template.loader import get_template
 
-from ...models import Reminder
+from ...models import Task
 
 
 class EmailContextType(TypedDict):
     user: User
-    reminders: List[Reminder]
+    reminders: List[Task]
 
 
 class Command(BaseCommand):
@@ -29,23 +29,23 @@ class Command(BaseCommand):
         """
         Find reminders due today, group them by user, and email them to their user.
         """
-        reminders: Reminder = Reminder.objects.filter(due_date=date.today())
-        reminders_by_user: Dict[User, List[Reminder]] = {}
-        for reminder in reminders:
-            user: User = reminder.case.auditor
+        tasks: Task = Task.objects.filter(date=date.today(), type=Task.Type.REMINDER)
+        tasks_by_user: Dict[User, List[Task]] = {}
+        for task in tasks:
+            user: User = task.case.auditor
             if user is None:
                 continue
-            if user in reminders_by_user:
-                reminders_by_user[user].append(reminder)
+            if user in tasks_by_user:
+                tasks_by_user[user].append(task)
             else:
-                reminders_by_user[user] = [reminder]
+                tasks_by_user[user] = [task]
 
-        for user, user_reminders in reminders_by_user.items():
+        for user, user_tasks in tasks_by_user.items():
             context: EmailContextType = {
                 "user": user,
-                "reminders": user_reminders,
+                "tasks": user_tasks,
             }
-            template: str = get_template("reminders/email.txt")
+            template: str = get_template("notifications/reminder_email.txt")
             content: str = template.render(context)
             email: EmailMessage = EmailMessage(
                 subject="You have a reminder in the monitoring platform",

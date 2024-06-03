@@ -63,7 +63,7 @@ def add_task(
             "path": path,
             "request": request,
         }
-        template: str = get_template("notifications/email.txt")
+        template: str = get_template("notifications/notification_email.txt")
         content: str = template.render(context)  # type: ignore
         email: EmailMessage = EmailMessage(
             subject=f"You have a new notification in the monitoring platform : {list_description}",
@@ -84,13 +84,6 @@ def read_tasks(user: User, case: Case, type: Task.Type) -> None:
     for task in tasks:
         task.read = True  # type: ignore
         task.save()
-
-
-def get_number_of_unread_notifications(user: User) -> int:
-    """Return the number of unread notifications for the user"""
-    if user.id:
-        return Notification.objects.filter(user=user, read=False).count()
-    return 0
 
 
 def get_overdue_cases(user_request: User) -> QuerySet[Case]:

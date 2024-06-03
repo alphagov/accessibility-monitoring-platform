@@ -17,6 +17,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 from ...audits.models import Audit, CheckResult, Page, StatementPage, WcagDefinition
 from ...cases.models import Case, CaseCompliance
 from ...cases.utils import create_case_and_compliance
+from ...notifications.models import Task
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
@@ -1211,3 +1212,46 @@ def test_email_templates_view(url_name, expected_heading, admin_client):
     assert response.status_code == 200
 
     assertContains(response, expected_heading)
+
+
+@pytest.mark.django_db
+def test_navbar_tasks_emboldened(admin_client, admin_user):
+    """
+    Test tasks item in the top menu of all pages is rendered as bold when
+    one is due.
+    """
+    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<li>
+            <a class="govuk-link govuk-link--no-visited-state" href="/notifications/task-list/">
+                Tasks (0)
+            </a>
+        </li>""",
+        html=True,
+    )
+
+    case: Case = Case.objects.create(auditor=admin_user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        case=case,
+        user=admin_user,
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<li>
+        <b>
+            <a class="govuk-link govuk-link--no-visited-state" href="/notifications/task-list/">
+                Tasks (1)
+            </a>
+        </b>
+        </li>""",
+        html=True,
+    )

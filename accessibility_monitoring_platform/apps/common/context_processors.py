@@ -10,10 +10,7 @@ from django.utils import timezone
 
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
 from ..common.utils import get_platform_settings
-from ..notifications.utils import (
-    get_number_of_tasks,
-    get_number_of_unread_notifications,
-)
+from ..notifications.utils import get_number_of_tasks
 from .forms import AMPTopMenuForm
 
 
@@ -30,9 +27,6 @@ def platform_page(
         "today": timezone.now(),
         "top_menu_form": AMPTopMenuForm(),
         "platform": platform,
-        "number_of_unread_notifications": get_number_of_unread_notifications(
-            user=request.user
-        ),
         "number_of_tasks": get_number_of_tasks(user=request.user),
         "django_settings": settings,
         "custom_frequently_used_links": FrequentlyUsedLink.objects.filter(
