@@ -2,7 +2,9 @@
 Tests for reports views
 """
 
+from datetime import datetime, timezone
 from typing import Dict
+from unittest.mock import Mock, patch
 
 import pytest
 from django.contrib.auth.models import User
@@ -703,7 +705,9 @@ def test_report_metrics_displays_in_report_logs(admin_client):
     ReportVisitsMetrics.objects.create(
         case=case, fingerprint_hash=5678, fingerprint_codename=SECOND_CODENAME
     )
-    url: str = f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=all"""
+    url: str = (
+        f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=all"""
+    )
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
@@ -714,7 +718,9 @@ def test_report_metrics_displays_in_report_logs(admin_client):
     assertContains(response, "Report visit logs")
     assertContains(response, "View unique visitors")
 
-    url: str = f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=unique-visitors"""
+    url: str = (
+        f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=unique-visitors"""
+    )
     response: HttpResponse = admin_client.get(url)
     assert response.status_code == 200
     assertContains(response, "Viewing 2 visits")
@@ -724,9 +730,47 @@ def test_report_metrics_displays_in_report_logs(admin_client):
     html: str = response.content.decode()
     assert html.index(FIRST_CODENAME) > html.index(SECOND_CODENAME)
 
-    url: str = f'{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?userhash={SECOND_CODENAME}'
+    url: str = (
+        f'{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?userhash={SECOND_CODENAME}'
+    )
     response: HttpResponse = admin_client.get(url)
     assert response.status_code == 200
     assertContains(response, SECOND_CODENAME)
     assertContains(response, "Viewing 1 visits")
     assertContains(response, "View all visits")
+
+
+def test_report_metrics_unique_vists_shows_only_current_report(admin_client):
+    """
+    Visits to other reports can have the same fingerprint hash, make sure
+    that they are not included.
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    case: Case = report.case
+    case.save()
+    other_case: Case = Case.objects.create()
+
+    ReportVisitsMetrics.objects.create(
+        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
+    )
+    ReportVisitsMetrics.objects.create(
+        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
+    )
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2020, 1, 5, tzinfo=timezone.utc)),
+    ):
+        ReportVisitsMetrics.objects.create(
+            case=other_case, fingerprint_hash=5678, fingerprint_codename=SECOND_CODENAME
+        )
+    ReportVisitsMetrics.objects.create(
+        case=case, fingerprint_hash=5678, fingerprint_codename=SECOND_CODENAME
+    )
+
+    url: str = (
+        f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=unique-visitors"""
+    )
+    response: HttpResponse = admin_client.get(url)
+    assert response.status_code == 200
+    assertNotContains(response, "2020-01-05")
