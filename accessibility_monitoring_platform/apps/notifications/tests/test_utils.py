@@ -5,12 +5,11 @@ from typing import List, Optional
 
 import pytest
 from django.contrib.auth.models import User
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest
 from django.urls import reverse
-from pytest_django.asserts import assertContains
 
 from ...audits.models import Retest
-from ...cases.models import Case, CaseCompliance, EqualityBodyCorrespondence
+from ...cases.models import Case, CaseCompliance, CaseStatus, EqualityBodyCorrespondence
 from ...cases.utils import create_case_and_compliance
 from ...cases.views import (
     calculate_report_followup_dates,
@@ -18,7 +17,15 @@ from ...cases.views import (
 )
 from ...common.models import Boolean
 from ..models import Notification, NotificationSetting, Option, Task
-from ..utils import add_task, get_overdue_cases, get_post_case_tasks, read_tasks
+from ..utils import (
+    add_task,
+    build_overdue_task_options,
+    build_task_list,
+    get_number_of_tasks,
+    get_overdue_cases,
+    get_post_case_tasks,
+    read_tasks,
+)
 
 TODAY = date.today()
 YESTERDAY = TODAY - timedelta(days=1)
@@ -444,3 +451,165 @@ def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
         case.twelve_week_correspondence_progress
         == "1-week follow-up sent, case needs to progress"
     )
+
+
+@pytest.mark.django_db
+def test_build_task_list_empty():
+    """Test build_task_list finds no tasks"""
+    user: User = User.objects.create()
+
+    assert build_task_list(user=user) == []
+
+
+@pytest.mark.django_db
+def test_build_task_list_qa_comment():
+    """Test build_task_list finds QA comment task"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today(),
+        case=case,
+        user=user,
+    )
+
+    assert build_task_list(user=user) == [task]
+
+
+@pytest.mark.django_db
+def test_build_task_list_report_approved():
+    """Test build_task_list finds Report approved task"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.REPORT_APPROVED,
+        date=date.today(),
+        case=case,
+        user=user,
+    )
+
+    assert build_task_list(user=user) == [task]
+
+
+@pytest.mark.django_db
+def test_build_task_list_reminder():
+    """Test build_task_list finds reminder task"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        case=case,
+        user=user,
+    )
+
+    assert build_task_list(user=user) == [task]
+
+
+@pytest.mark.django_db
+def test_build_task_list_overdue():
+    """Test build_task_list finds overdue task"""
+    user: User = User.objects.create()
+    case: Case = create_case(user)
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.save()
+
+    tasks: List[Task] = build_task_list(user=user)
+
+    assert len(tasks) == 1
+
+    task: Task = tasks[0]
+
+    assert task.type == Task.Type.OVERDUE
+
+
+@pytest.mark.django_db
+def test_build_task_list_postcase():
+    """Test build_task_list finds post case task"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    EqualityBodyCorrespondence.objects.create(case=case)
+
+    tasks: List[Task] = build_task_list(user=user)
+
+    assert len(tasks) == 1
+
+    task: Task = tasks[0]
+
+    assert task.type == Task.Type.POSTCASE
+
+
+@pytest.mark.django_db
+def test_get_number_of_tasks_empty():
+    """Test get_number_of_tasks finds no tasks"""
+    user: User = User.objects.create()
+
+    assert get_number_of_tasks(user=user) == 0
+
+
+@pytest.mark.django_db
+def test_get_number_of_tasks():
+    """Test get_number_of_tasks"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today(),
+        case=case,
+        user=user,
+    )
+
+    assert get_number_of_tasks(user=user) == 1
+
+
+@pytest.mark.django_db
+def test_build_overdue_task_options_report_ready():
+    """Test build_overdue_task_options with report ready to send"""
+    case: Case = Case.objects.create()
+    case.status.status = CaseStatus.Status.REPORT_READY_TO_SEND
+    option: Option = Option(
+        label="Seven day 'no contact details' response overdue",
+        url=reverse("cases:edit-find-contact-details", kwargs={"pk": case.id}),
+    )
+
+    assert build_overdue_task_options(case=case) == [option]
+
+
+@pytest.mark.django_db
+def test_build_overdue_task_options_report_cores():
+    """Test build_overdue_task_options with in report correspondence"""
+    case: Case = Case.objects.create()
+    case.status.status = CaseStatus.Status.IN_REPORT_CORES
+    option: Option = Option(
+        label=case.in_report_correspondence_progress,
+        url=reverse("cases:edit-cores-overview", kwargs={"pk": case.id}),
+    )
+
+    assert build_overdue_task_options(case=case) == [option]
+
+
+@pytest.mark.django_db
+def test_build_overdue_task_options_12_week_deadline():
+    """Test build_overdue_task_options with awaiting 12-week deadline"""
+    case: Case = Case.objects.create()
+    case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
+    option: Option = Option(
+        label="Overdue",
+        url=reverse("cases:edit-cores-overview", kwargs={"pk": case.id}),
+    )
+
+    assert build_overdue_task_options(case=case) == [option]
+
+
+@pytest.mark.django_db
+def test_build_overdue_task_options_12_week_cores():
+    """Test build_overdue_task_options with 12-week correspondence"""
+    case: Case = Case.objects.create()
+    case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
+    option: Option = Option(
+        label=case.twelve_week_correspondence_progress,
+        url=reverse("cases:edit-cores-overview", kwargs={"pk": case.id}),
+    )
+
+    assert build_overdue_task_options(case=case) == [option]
