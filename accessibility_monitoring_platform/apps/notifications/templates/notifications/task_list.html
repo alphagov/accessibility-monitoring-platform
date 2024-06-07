@@ -29,33 +29,44 @@
                 <p class="govuk-body">
                     Filter by type:
                     {% if type %}
-                        <a href="{% url 'notifications:task-list' %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
-                            All</a>
+                        <a href="{% url 'notifications:task-list' %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">All</a>
                     {% else %}
                         <b class="amp-margin-left-10">All</b>
                     {% endif %}
-                    {% if type == 'qa-comment' %}
+                    {% if type == 'qa-comment' and not read %}
                         <b class="amp-margin-left-10">QA comment</b>
                     {% else %}
-                        <a href="?type=qa-comment" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
-                            QA comment</a>
+                        <a href="?type=qa-comment" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">QA comment</a>
                     {% endif %}
-                    {% if type == 'report-approved' %}
+                    {% if type == 'qa-comment' and read %}
+                        (<b>read</b>)
+                    {% else %}
+                        (<a href="?type=qa-comment&read=true" class="govuk-link govuk-link--no-visited-state">read</a>)
+                    {% endif %}
+                    {% if type == 'report-approved' and not read %}
                         <b class="amp-margin-left-10">Report approved</b>
                     {% else %}
-                        <a href="?type=report-approved" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
-                            Report approved</a>
+                        <a href="?type=report-approved" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">Report approved</a>
                     {% endif %}
-                    {% if type == 'reminder' and not future %}
+                    {% if type == 'report-approved' and read %}
+                        (<b>read</b>)
+                    {% else %}
+                        (<a href="?type=report-approved&read=true" class="govuk-link govuk-link--no-visited-state">read</a>)
+                    {% endif %}
+                    {% if type == 'reminder' and not future and not deleted %}
                         <b class="amp-margin-left-10">Reminder</b>
                     {% else %}
-                        <a href="?type=reminder" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
-                            Reminder</a>
+                        <a href="?type=reminder" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">Reminder</a>
                     {% endif %}
-                    {% if type == 'reminder' and future %}
-                        (<b>+future</b>)
+                    {% if deleted %}
+                        (<b>deleted</b>,
                     {% else %}
-                        (<a href="?type=reminder&future=true" class="govuk-link govuk-link--no-visited-state">+future</a>)
+                        (<a href="?type=reminder&deleted=true" class="govuk-link govuk-link--no-visited-state">deleted</a>,
+                    {% endif %}
+                    {% if future %}
+                        <b>future</b>)
+                    {% else %}
+                        <a href="?type=reminder&future=true" class="govuk-link govuk-link--no-visited-state">future</a>)
                     {% endif %}
                     {% if type == 'overdue' %}
                         <b class="amp-margin-left-10">Overdue</b>

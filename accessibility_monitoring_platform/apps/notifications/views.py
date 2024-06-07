@@ -1,12 +1,12 @@
 """Views for notifications app"""
 
-from typing import Type
+from typing import Dict, Type
 
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.forms.models import ModelForm
 from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -14,7 +14,7 @@ from ..cases.models import Case
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
-from .utils import build_task_list
+from .utils import TASK_LIST_PARAMS, build_task_list
 
 
 class TaskListView(TemplateView):
@@ -26,16 +26,13 @@ class TaskListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        type: str = self.request.GET.get("type")
-        future: str = self.request.GET.get("future")
-        if type:
-            context["type"] = type
-        if future:
-            context["future"] = future
-        context["tasks"] = build_task_list(
-            user=self.request.user, type=type, future=future
-        )
-        return context
+        params: Dict[str, str] = {}
+        for param in TASK_LIST_PARAMS:
+            value: str = self.request.GET.get(param)
+            if value:
+                params[param] = value
+        context["tasks"] = build_task_list(user=self.request.user, **params)
+        return {**context, **params}
 
 
 class TaskMarkAsReadView(ListView):
@@ -100,7 +97,7 @@ class ReminderTaskCreateView(CreateView):
     def get_success_url(self) -> str:
         """Record creation event"""
         record_model_create_event(user=self.request.user, model_object=self.object)
-        return super().get_success_url()
+        return reverse("cases:case-detail", kwargs={"pk": self.object.case.id})
 
 
 class ReminderTaskUpdateView(UpdateView):
@@ -111,7 +108,6 @@ class ReminderTaskUpdateView(UpdateView):
     model: Type[Task] = Task
     context_object_name: str = "task"
     form_class: Type[ReminderForm] = ReminderForm
-    success_url: str = reverse_lazy("notifications:task-list")
     template_name: str = "notifications/reminder_task_update.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -128,3 +124,7 @@ class ReminderTaskUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context["case"] = self.object.case
         return context
+
+    def get_success_url(self) -> str:
+        """Record creation event"""
+        return reverse("cases:case-detail", kwargs={"pk": self.object.case.id})

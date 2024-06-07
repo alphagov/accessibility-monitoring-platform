@@ -16,6 +16,9 @@ from ..audits.models import Retest
 from ..cases.models import Case, CaseStatus, EqualityBodyCorrespondence
 from .models import Notification, NotificationSetting, Option, Task
 
+TASK_LIST_PARAMS: List[str] = ["type", "read", "deleted", "future"]
+TASK_LIST_TIMEDELTA: timedelta = timedelta(days=30)
+
 
 class EmailContextType(TypedDict):
     user: User
@@ -237,6 +240,8 @@ def build_task_list(
     user: User,
     type: Optional[str] = None,
     future: Optional[str] = None,
+    read: Optional[str] = None,
+    deleted: Optional[str] = None,
 ) -> List[Task]:
     """Build list of tasks from database and items derived dynamically from Cases"""
     task_filter: Dict[str, Any] = {
@@ -246,9 +251,11 @@ def build_task_list(
 
     if type is not None:
         task_filter["type"] = type
-
     if future is None:
         task_filter["date__lte"] = date.today()
+    if read is not None or deleted is not None:
+        task_filter["read"] = True
+        task_filter["date__gte"] = date.today() - TASK_LIST_TIMEDELTA
 
     tasks: List[Task] = list(Task.objects.filter(**task_filter))
 
