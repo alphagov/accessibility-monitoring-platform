@@ -236,21 +236,16 @@ def get_post_case_tasks(user: User) -> List[Task]:
 def build_task_list(
     user: User,
     type: Optional[str] = None,
-    read: Optional[str] = None,
     future: Optional[str] = None,
 ) -> List[Task]:
-    """Build of tasks from database and items derived dynamically from Cases"""
+    """Build list of tasks from database and items derived dynamically from Cases"""
     task_filter: Dict[str, Any] = {
         "user": user,
+        "read": False,
     }
 
     if type is not None:
         task_filter["type"] = type
-
-    if read is None:
-        task_filter["read"] = False
-    elif read == "read":
-        task_filter["read"] = True
 
     if future is None:
         task_filter["date__lte"] = date.today()
