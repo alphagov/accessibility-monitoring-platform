@@ -16,7 +16,7 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-30">Tasks ({{ tasks|length|intcomma }})</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-30">Tasks</h1>
             </div>
         </div>
         {% for message in messages %}
@@ -69,6 +69,9 @@
                         <a href="?type=postcase" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
                             Post case</a>
                     {% endif %}
+                </p>
+                <p class="govuk-body">
+                    Found {{ tasks|length|intcomma }} task{% if tasks|length != 1 %}s{% endif %}
                 </p>
             </div>
         </div>
