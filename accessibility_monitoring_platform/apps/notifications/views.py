@@ -26,11 +26,9 @@ class TaskListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        params: Dict[str, str] = {}
-        for param in TASK_LIST_PARAMS:
-            value: str = self.request.GET.get(param)
-            if value:
-                params[param] = value
+        params: Dict[str, str] = {
+            param: self.request.GET.get(param) for param in TASK_LIST_PARAMS
+        }
         context["tasks"] = build_task_list(user=self.request.user, **params)
         return {**context, **params}
 

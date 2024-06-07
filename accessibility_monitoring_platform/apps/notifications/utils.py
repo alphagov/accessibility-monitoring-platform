@@ -17,7 +17,7 @@ from ..cases.models import Case, CaseStatus, EqualityBodyCorrespondence
 from .models import Notification, NotificationSetting, Option, Task
 
 TASK_LIST_PARAMS: List[str] = ["type", "read", "deleted", "future"]
-TASK_LIST_TIMEDELTA: timedelta = timedelta(days=30)
+TASK_LIST_TIMEDELTA: timedelta = timedelta(days=7)
 
 
 class EmailContextType(TypedDict):
@@ -36,7 +36,7 @@ def add_task(
     list_description: str,
     request: HttpRequest,
 ) -> Task:
-    """Adds notification to DB. Also handles email notifications."""
+    """Adds notification to database. Also handles email notifications."""
     task: Task = Task.objects.create(
         type=type,
         date=date.today(),
@@ -236,24 +236,20 @@ def get_post_case_tasks(user: User) -> List[Task]:
     return tasks
 
 
-def build_task_list(
-    user: User,
-    type: Optional[str] = None,
-    future: Optional[str] = None,
-    read: Optional[str] = None,
-    deleted: Optional[str] = None,
-) -> List[Task]:
+def build_task_list(user: User, **kwargs: Dict[str, str]) -> List[Task]:
     """Build list of tasks from database and items derived dynamically from Cases"""
     task_filter: Dict[str, Any] = {
         "user": user,
         "read": False,
     }
 
+    type: Optional[str] = kwargs.get("type")
+
     if type is not None:
         task_filter["type"] = type
-    if future is None:
+    if kwargs.get("future") is None:
         task_filter["date__lte"] = date.today()
-    if read is not None or deleted is not None:
+    if kwargs.get("read") is not None or kwargs.get("deleted") is not None:
         task_filter["read"] = True
         task_filter["date__gte"] = date.today() - TASK_LIST_TIMEDELTA
 

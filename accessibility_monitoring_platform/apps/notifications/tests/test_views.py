@@ -1,6 +1,6 @@
 """Test notifications views"""
 
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 from django.contrib.auth.models import User
@@ -61,8 +61,8 @@ def test_task_list(rf):
     ],
 )
 @pytest.mark.django_db
-def test_task_list_filter(filtered_type, other_type, rf):
-    """Test task list filters"""
+def test_task_list_type_filter(filtered_type, other_type, rf):
+    """Test task list type filters"""
     user: User = User.objects.create()
     case: Case = Case.objects.create(auditor=user)
     filtered_task: Task = Task.objects.create(
@@ -90,6 +90,70 @@ def test_task_list_filter(filtered_type, other_type, rf):
     assertContains(response, "Tasks (1)")
     assertContains(response, f"{filtered_task.get_type_display()}</h2>")
     assertNotContains(response, f"{other_task.get_type_display()}</h2>")
+
+
+@pytest.mark.parametrize("read_param", ["read", "deleted"])
+@pytest.mark.django_db
+def test_task_list_read_filter(read_param, rf):
+    """Test task list read filter"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
+        description=DESCRIPTION,
+        read=True,
+    )
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+
+    request: HttpRequest = rf.get(
+        f'{reverse("notifications:task-list")}?{read_param}=true'
+    )
+    request.user = user
+
+    response: HttpResponse = TaskListView.as_view()(request)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Tasks (1)")
+    assertContains(response, DESCRIPTION)
+
+
+@pytest.mark.django_db
+def test_task_list_future_filter(rf):
+    """Test task list future filter"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today() + timedelta(days=7),
+        user=user,
+        case=case,
+        description=DESCRIPTION,
+    )
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+
+    request: HttpRequest = rf.get(f'{reverse("notifications:task-list")}?future=true')
+    request.user = user
+
+    response: HttpResponse = TaskListView.as_view()(request)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Tasks (1)")
+    assertContains(response, DESCRIPTION)
 
 
 @pytest.mark.django_db
