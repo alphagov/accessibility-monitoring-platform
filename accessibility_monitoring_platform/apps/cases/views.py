@@ -807,7 +807,7 @@ class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
         context["case"] = case
         if case.audit is not None:
             context["issues_tables"] = build_issues_tables(
-                pages=case.audit.testable_pages
+                pages=case.audit.retestable_pages
             )
         return context
 
@@ -822,7 +822,7 @@ class CaseOutstandingIssuesEmailTemplateView(TemplateView):
         context["case"] = case
         if case.audit is not None:
             context["issues_tables"] = build_issues_tables(
-                pages=case.audit.testable_pages,
+                pages=case.audit.retestable_pages,
                 check_results_attr="unfixed_check_results",
             )
         email_template: EmailTemplate = EmailTemplate.objects.get(
