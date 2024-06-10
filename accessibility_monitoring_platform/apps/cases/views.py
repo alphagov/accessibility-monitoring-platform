@@ -1436,7 +1436,7 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
                 pages=self.case.audit.testable_pages
             )
             context["retest_issues_tables"] = build_issues_tables(
-                pages=self.case.audit.testable_pages,
+                pages=self.case.audit.retestable_pages,
                 use_retest_notes=True,
                 check_results_attr="unfixed_check_results",
             )
