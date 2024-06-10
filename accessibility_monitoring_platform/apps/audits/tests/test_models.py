@@ -285,6 +285,27 @@ def test_audit_testable_pages_returns_expected_page():
 
 
 @pytest.mark.django_db
+def test_audit_retestable_pages_returns_expected_page():
+    """
+    Deleted, not found, pages without URLs and missing pages excluded.
+    """
+    audit: Audit = create_audit_and_pages()
+    retestable_page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+    Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.HOME,
+        url="https://example.com",
+        not_found="yes",
+        retest_page_missing_date=date.today(),
+    )
+
+    assert len(audit.retestable_pages) == 1
+    assert audit.retestable_pages[0].id == retestable_page.id
+
+
+@pytest.mark.django_db
 def test_audit_missing_at_retest_pages():
     """Test missing at retest pages."""
     audit: Audit = create_audit_and_pages()
@@ -1114,10 +1135,10 @@ def test_fixed_statement_checks_are_returned():
     passed on a retest.
     """
     audit: Audit = create_audit_and_statement_check_results()
-    statement_check_results: QuerySet[
-        StatementCheckResult
-    ] = StatementCheckResult.objects.filter(
-        audit=audit,
+    statement_check_results: QuerySet[StatementCheckResult] = (
+        StatementCheckResult.objects.filter(
+            audit=audit,
+        )
     )
 
     assert statement_check_results.count() > 2
@@ -1588,9 +1609,9 @@ def test_statement_found_at_12_week_retest_using_overview_statement_check_result
 def test_retest_statement_check_results():
     """Test Retest.statement_check_results"""
     retest: Retest = create_retest_and_statement_check_results()
-    retest_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(retest=retest)
+    retest_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+        RetestStatementCheckResult.objects.filter(retest=retest)
+    )
 
     assertQuerySetEqual(retest.statement_check_results, retest_statement_check_results)
 
@@ -1599,10 +1620,10 @@ def test_retest_statement_check_results():
 def test_retest_failed_statement_check_results():
     """Test Retest.failed_statement_check_results"""
     retest: Retest = create_retest_and_statement_check_results()
-    retest_failed_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(
-        retest=retest, check_result_state=StatementCheckResult.Result.NO
+    retest_failed_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+        RetestStatementCheckResult.objects.filter(
+            retest=retest, check_result_state=StatementCheckResult.Result.NO
+        )
     )
 
     assertQuerySetEqual(
@@ -1614,10 +1635,10 @@ def test_retest_failed_statement_check_results():
 def test_retest_overview_statement_check_results():
     """Test Retest.overview_statement_check_results"""
     retest: Retest = create_retest_and_statement_check_results()
-    retest_overview_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(
-        retest=retest, type=StatementCheck.Type.OVERVIEW
+    retest_overview_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+        RetestStatementCheckResult.objects.filter(
+            retest=retest, type=StatementCheck.Type.OVERVIEW
+        )
     )
 
     assertQuerySetEqual(
@@ -1632,10 +1653,10 @@ def test_retest_all_overview_statement_checks_have_passed():
 
     assert retest.all_overview_statement_checks_have_passed is False
 
-    retest_overview_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(
-        retest=retest, type=StatementCheck.Type.OVERVIEW
+    retest_overview_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+        RetestStatementCheckResult.objects.filter(
+            retest=retest, type=StatementCheck.Type.OVERVIEW
+        )
     )
     for (
         retest_overview_statement_check_result
@@ -1652,10 +1673,10 @@ def test_retest_all_overview_statement_checks_have_passed():
 def test_retest_website_statement_check_results():
     """Test Retest.website_statement_check_results"""
     retest: Retest = create_retest_and_statement_check_results()
-    retest_website_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(
-        retest=retest, type=StatementCheck.Type.WEBSITE
+    retest_website_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+        RetestStatementCheckResult.objects.filter(
+            retest=retest, type=StatementCheck.Type.WEBSITE
+        )
     )
 
     assertQuerySetEqual(
@@ -1667,10 +1688,10 @@ def test_retest_website_statement_check_results():
 def test_retest_compliance_statement_check_results():
     """Test Retest.compliance_statement_check_results"""
     retest: Retest = create_retest_and_statement_check_results()
-    retest_compliance_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(
-        retest=retest, type=StatementCheck.Type.COMPLIANCE
+    retest_compliance_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+        RetestStatementCheckResult.objects.filter(
+            retest=retest, type=StatementCheck.Type.COMPLIANCE
+        )
     )
 
     assertQuerySetEqual(
@@ -1699,10 +1720,10 @@ def test_retest_non_accessible_statement_check_results():
 def test_retest_preparation_statement_check_results():
     """Test Retest.preparation_statement_check_results"""
     retest: Retest = create_retest_and_statement_check_results()
-    retest_preparation_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(
-        retest=retest, type=StatementCheck.Type.PREPARATION
+    retest_preparation_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+        RetestStatementCheckResult.objects.filter(
+            retest=retest, type=StatementCheck.Type.PREPARATION
+        )
     )
 
     assertQuerySetEqual(
@@ -1715,10 +1736,10 @@ def test_retest_preparation_statement_check_results():
 def test_retest_feedback_statement_check_results():
     """Test Retest.feedback_statement_check_results"""
     retest: Retest = create_retest_and_statement_check_results()
-    retest_feedback_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(
-        retest=retest, type=StatementCheck.Type.FEEDBACK
+    retest_feedback_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+        RetestStatementCheckResult.objects.filter(
+            retest=retest, type=StatementCheck.Type.FEEDBACK
+        )
     )
 
     assertQuerySetEqual(
@@ -1731,10 +1752,10 @@ def test_retest_feedback_statement_check_results():
 def test_retest_custom_statement_check_results():
     """Test Retest.custom_statement_check_results"""
     retest: Retest = create_retest_and_statement_check_results()
-    retest_custom_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(
-        retest=retest, type=StatementCheck.Type.CUSTOM
+    retest_custom_statement_check_results: QuerySet[RetestStatementCheckResult] = (
+        RetestStatementCheckResult.objects.filter(
+            retest=retest, type=StatementCheck.Type.CUSTOM
+        )
     )
 
     assertQuerySetEqual(
