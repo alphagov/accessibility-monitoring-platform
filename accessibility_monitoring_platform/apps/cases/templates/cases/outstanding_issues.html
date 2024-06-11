@@ -224,7 +224,7 @@
                                 <h2 id="page-additional-issues" class="govuk-heading-l">Additional issues found by page</h2>
                                 <table class="govuk-table amp-margin-bottom-30">
                                     <tbody class="govuk-table__body">
-                                        {% for page in case.audit.retestable_pages %}
+                                        {% for page in case.audit.testable_pages %}
                                             <tr class="govuk-table__row ">
                                                 <td scope="row" class="govuk-table__cell">
                                                     <b>{{ page }}</b><br>
