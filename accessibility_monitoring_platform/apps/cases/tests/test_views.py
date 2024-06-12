@@ -173,6 +173,7 @@ ZENDESK_URL: str = "https://zendesk.com/ticket"
 ZENDESK_SUMMARY: str = "Zendesk ticket summary"
 PAGE_LOCATION: str = "Press A and then B"
 EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
+RETEST_NOTES: str = "Retest notes"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -3972,3 +3973,21 @@ def test_zendesk_tickets_shown(admin_client):
     assert response.status_code == 200
 
     assertContains(response, ZENDESK_SUMMARY)
+
+
+def test_equality_body_retest_email_contains_retest_notes(admin_client):
+    """
+    Test equality body retest email contains retest notes
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    Retest.objects.create(case=case, retest_notes=RETEST_NOTES)
+    url: str = reverse(
+        "cases:equality-body-retest-email-template", kwargs={"pk": case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, RETEST_NOTES)
