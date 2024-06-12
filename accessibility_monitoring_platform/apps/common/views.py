@@ -21,7 +21,6 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
-from ..common.models import Event
 from .forms import (
     ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
@@ -47,6 +46,7 @@ from .metrics import (
 from .models import (
     ChangeToPlatform,
     EmailTemplate,
+    Event,
     FooterLink,
     FrequentlyUsedLink,
     IssueReport,
@@ -158,7 +158,7 @@ class ActiveQAAuditorUpdateView(UpdateView):
 
     def get_object(self) -> Platform:
         """Return the platform-wide settings"""
-        return Platform.objects.get(pk=1)
+        return get_platform_settings()
 
     def get_success_url(self) -> str:
         """Remain on current page on save"""
