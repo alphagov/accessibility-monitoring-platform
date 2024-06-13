@@ -742,6 +742,10 @@ class Audit(VersionModel):
         return self.every_page.exclude(not_found=Boolean.YES).exclude(url="")
 
     @property
+    def retestable_pages(self):
+        return self.testable_pages.filter(retest_page_missing_date=None)
+
+    @property
     def html_pages(self):
         return self.every_page.exclude(page_type=Page.Type.PDF)
 
