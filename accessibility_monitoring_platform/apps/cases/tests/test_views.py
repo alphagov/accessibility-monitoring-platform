@@ -25,6 +25,7 @@ from ...audits.models import (
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagDefinition,
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
@@ -174,6 +175,8 @@ ZENDESK_SUMMARY: str = "Zendesk ticket summary"
 PAGE_LOCATION: str = "Press A and then B"
 EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
 RETEST_NOTES: str = "Retest notes"
+HOME_PAGE_ERROR_NOTES: str = "Home page error note"
+STATEMENT_PAGE_ERROR_NOTES: str = "Statement page error note"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -3991,3 +3994,60 @@ def test_equality_body_retest_email_contains_retest_notes(admin_client):
     assert response.status_code == 200
 
     assertContains(response, RETEST_NOTES)
+
+
+def test_twelve_week_correspondence_email(admin_client):
+    """
+    Test twelve week correspondence email does not include issues
+    for missing pages.
+    """
+
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    home_page: Page = audit.page_audit.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+    statement_page: Page = audit.page_audit.create(
+        audit=audit, page_type=Page.Type.STATEMENT, url="https://example.com"
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
+        type=WcagDefinition.Type.MANUAL
+    ).first()
+
+    CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+        notes=HOME_PAGE_ERROR_NOTES,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=statement_page,
+        check_result_state=CheckResult.Result.ERROR,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+        notes=STATEMENT_PAGE_ERROR_NOTES,
+    )
+
+    url: str = reverse(
+        "cases:twelve-week-correspondence-email", kwargs={"pk": audit.case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, HOME_PAGE_ERROR_NOTES)
+    assertContains(response, STATEMENT_PAGE_ERROR_NOTES)
+
+    statement_page.retest_page_missing_date = date.today()
+    statement_page.save()
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, HOME_PAGE_ERROR_NOTES)
+    assertNotContains(response, STATEMENT_PAGE_ERROR_NOTES)
