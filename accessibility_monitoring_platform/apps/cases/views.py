@@ -2,6 +2,7 @@
 Views for cases app
 """
 
+from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -1220,8 +1221,8 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
 
 class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
     """
-    View of equality body metadata
-    """
+        View of equality body metadata
+    ge"""
 
     model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
     form_class: Type[EqualityBodyCorrespondenceCreateForm] = (
@@ -1441,4 +1442,132 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
                 check_results_attr="unfixed_check_results",
             )
         context["email_template_render"] = self.object.render(context=context)
+        return context
+
+
+@dataclass
+class SubPage:
+    name: str
+    url: str
+    complete: bool
+
+
+@dataclass
+class ViewSection:
+    name: str
+    disabled: bool = False
+    subpages: Optional[List[SubPage]] = None
+
+    def number_complete(self) -> int:
+        if self.subpages is not None:
+            return len([subpage for subpage in self.subpages if subpage.complete])
+        return 0
+
+
+class CaseNavDetailsDetailView(DetailView):
+    """
+    View showing new navbar made from details elements
+    """
+
+    model: Type[Case] = Case
+    template_name: str = "cases/details/nav_details.html"
+    context_object_name: str = "case"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        kwargs_case_pk: Dict[str, int] = {"pk": case.id}
+        initial_test_section: ViewSection = ViewSection(
+            name="Initial WCAG test",
+            subpages=[],
+        )
+        if case.audit:
+            kwargs_audit_pk: Dict[str, int] = {"pk": case.audit.id}
+            initial_test_section.subpages = [
+                SubPage(
+                    name="Test metadata",
+                    url=reverse("audits:edit-audit-metadata", kwargs=kwargs_audit_pk),
+                    complete=case.audit.audit_metadata_complete_date,
+                ),
+                SubPage(
+                    name="Website compliance decision",
+                    url=reverse("audits:edit-website-decision", kwargs=kwargs_audit_pk),
+                    complete=case.audit.audit_website_decision_complete_date,
+                ),
+                SubPage(
+                    name="Initial disproportionate burden claim",
+                    url=reverse(
+                        "audits:edit-initial-disproportionate-burden",
+                        kwargs=kwargs_audit_pk,
+                    ),
+                    complete=case.audit.initial_disproportionate_burden_complete_date,
+                ),
+                SubPage(
+                    name="Initial statement compliance decision",
+                    url=reverse(
+                        "audits:edit-statement-decision",
+                        kwargs=kwargs_audit_pk,
+                    ),
+                    complete=case.audit.audit_statement_decision_complete_date,
+                ),
+            ]
+        context["case_sections"] = [
+            ViewSection(
+                name="Case details",
+                subpages=[
+                    SubPage(
+                        name="Case metadata",
+                        url=reverse("cases:edit-case-details", kwargs=kwargs_case_pk),
+                        complete=case.case_details_complete_date,
+                    )
+                ],
+            ),
+            initial_test_section,
+            ViewSection(
+                name="Report preview and QA",
+                disabled=True,
+                subpages=[
+                    SubPage(
+                        name="Report details",
+                        url=reverse("cases:edit-report-details", kwargs=kwargs_case_pk),
+                        complete=case.reporting_details_complete_date,
+                    ),
+                    SubPage(
+                        name="QA comments",
+                        url=reverse("cases:edit-qa-comments", kwargs=kwargs_case_pk),
+                        complete=None,
+                    ),
+                ],
+            ),
+            ViewSection(
+                name="Report correspondence",
+                disabled=True,
+                subpages=[
+                    SubPage(
+                        name="Find contact details",
+                        url=reverse(
+                            "cases:edit-find-contact-details", kwargs=kwargs_case_pk
+                        ),
+                        complete=case.find_contact_details_complete_date,
+                    ),
+                    SubPage(
+                        name="Contact details",
+                        url=reverse(
+                            "cases:edit-contact-details", kwargs=kwargs_case_pk
+                        ),
+                        complete=case.contact_details_complete_date,
+                    ),
+                    SubPage(
+                        name="Report sent on",
+                        url=reverse("cases:edit-report-sent-on", kwargs=kwargs_case_pk),
+                        complete=case.report_sent_on_complete_date,
+                    ),
+                ],
+            ),
+            # ViewSection(name="12-week WCAG test", disabled=True),
+            # ViewSection(name="12-week statement", disabled=True),
+            # ViewSection(name="Closing the case", disabled=True),
+            # ViewSection(name="Post case", disabled=True),
+        ]
         return context
