@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta
 import pytest
 from django.http import HttpResponse
 from django.urls import reverse
-from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import ChangeToPlatform
 
@@ -109,13 +109,38 @@ def test_dashboard_shows_link_to_no_contact_email_sent(admin_client, admin_user)
         statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        seven_day_no_contact_email_sent_date=date.today(),
     )
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
     assert response.status_code == 200
 
+    assertContains(
+        response,
+        f"""<a href="{reverse('cases:edit-report-approved', kwargs={'pk': case.id})}" class="govuk-link">
+            Report approved</a>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        f"""<a href="{reverse('cases:edit-find-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
+            No contact details request sent</a>""",
+        html=True,
+    )
+
+    case.seven_day_no_contact_email_sent_date = date.today()
+    case.save()
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+
+    assertNotContains(
+        response,
+        f"""<a href="{reverse('cases:edit-report-approved', kwargs={'pk': case.id})}" class="govuk-link">
+            Report approved</a>""",
+        html=True,
+    )
     assertContains(
         response,
         f"""<a href="{reverse('cases:edit-find-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
