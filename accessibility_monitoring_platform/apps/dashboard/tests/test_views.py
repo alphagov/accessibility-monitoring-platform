@@ -1,12 +1,13 @@
 """
 Tests for view - dashboard
 """
+
 from datetime import date, datetime, timedelta
 
 import pytest
 from django.http import HttpResponse
 from django.urls import reverse
-from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import ChangeToPlatform
 
@@ -94,6 +95,56 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
             <a href="/cases/?auditor={admin_user.id}&status=case-closed-sent-to-equalities-body" class="govuk-link">
                 View all your cases with status "Case closed and sent to equalities body"</a>
         </p>""",
+        html=True,
+    )
+
+
+def test_dashboard_shows_link_to_no_contact_email_sent(admin_client, admin_user):
+    """Check dashboard contains link to find closed and sent to equalities body cases"""
+    case: Case = create_case_and_compliance(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=admin_user,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        report_review_status=Boolean.YES,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+    )
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<a href="{reverse('cases:edit-report-approved', kwargs={'pk': case.id})}" class="govuk-link">
+            Report approved</a>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        f"""<a href="{reverse('cases:edit-find-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
+            No contact details request sent</a>""",
+        html=True,
+    )
+
+    case.seven_day_no_contact_email_sent_date = date.today()
+    case.save()
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+
+    assertNotContains(
+        response,
+        f"""<a href="{reverse('cases:edit-report-approved', kwargs={'pk': case.id})}" class="govuk-link">
+            Report approved</a>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<a href="{reverse('cases:edit-find-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
+            No contact details request sent</a>""",
         html=True,
     )
 
