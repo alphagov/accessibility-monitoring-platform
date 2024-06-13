@@ -85,6 +85,11 @@
                         </li>
                     </ul>
                     <br>
+                    {% if retest.retest_notes %}
+                        <h2 class="amp-margin-bottom-20">Retest notes</h2>
+                        {{ retest.retest_notes|markdown_to_html }}
+                        <br>
+                    {% endif %}
                     <h2 class="amp-margin-bottom-0">Pages we retested</h2>
                     <table id="pages-table">
                         <thead>

@@ -1283,10 +1283,6 @@ class EqualityBodyRetestEmailTemplateView(TemplateView):
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
         context["retest"] = case.retests.first()
-        email_template: EmailTemplate = EmailTemplate.objects.get(
-            slug=EmailTemplate.Slug.EQUALITY_BODY_RETEST
-        )
-        context["email_template_render"] = email_template.render(context=context)
         return context
 
 
