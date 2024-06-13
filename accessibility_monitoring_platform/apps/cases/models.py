@@ -194,6 +194,9 @@ class Case(VersionModel):
         blank=True,
         null=True,
     )
+    is_feedback_requested = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
     case_details_complete_date = models.DateField(null=True, blank=True)
 
     # Historic testing details page
@@ -400,9 +403,6 @@ class Case(VersionModel):
         default=EnforcementBodyClosedCase.NO,
     )
     enforcement_body_finished_date = models.DateField(null=True, blank=True)
-    is_feedback_requested = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
     equality_body_notes = models.TextField(default="", blank=True)
 
     # Deactivate case page
