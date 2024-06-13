@@ -179,6 +179,13 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     )
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
+    is_feedback_requested = AMPChoiceCheckboxField(
+        label="Feedback survey sent?",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
     case_details_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
@@ -230,6 +237,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "parental_organisation_name",
             "website_name",
             "subcategory",
+            "is_feedback_requested",
             "case_details_complete_date",
         ]
 
@@ -883,13 +891,6 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     enforcement_body_finished_date = AMPDateField(
         label="Date equality body completed the case",
     )
-    is_feedback_requested = AMPChoiceCheckboxField(
-        label="Feedback survey sent?",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Feedback survey sent to this organisation?"}
-        ),
-    )
     equality_body_notes = AMPTextField(label="Equality body notes")
 
     class Meta:
@@ -901,7 +902,6 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
             "enforcement_body_case_owner",
             "enforcement_body_closed_case",
             "enforcement_body_finished_date",
-            "is_feedback_requested",
             "equality_body_notes",
         ]
 
