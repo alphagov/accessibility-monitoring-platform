@@ -26,7 +26,7 @@ from ..utils import (
     get_post_case_tasks,
     get_task_type_counts,
     get_tasks_by_type_count,
-    read_tasks,
+    mark_tasks_as_read,
 )
 
 TODAY = date.today()
@@ -61,8 +61,8 @@ def create_case(user: User) -> Case:
 
 
 @pytest.mark.django_db
-def test_read_tasks_marks_task_as_read(rf):
-    """test to check if read_tasks function marks tasks as read"""
+def test_mark_tasks_as_read_marks_task_as_read(rf):
+    """test to check if mark_tasks_as_read function marks tasks as read"""
     request: HttpRequest = rf.get("/")
     user: User = User.objects.create_user(  # type: ignore
         username="mockuser", email="mockuser@mock.com", password="secret"
@@ -76,7 +76,7 @@ def test_read_tasks_marks_task_as_read(rf):
 
     assert not task.read
 
-    read_tasks(user=user, case=case, type=Task.Type.QA_COMMENT)
+    mark_tasks_as_read(user=user, case=case, type=Task.Type.QA_COMMENT)
 
     task_from_db: Task = Task.objects.get(id=task.id)  # type: ignore
 

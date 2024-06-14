@@ -79,7 +79,7 @@ def add_task(
     return task
 
 
-def read_tasks(user: User, case: Case, type: Task.Type) -> None:
+def mark_tasks_as_read(user: User, case: Case, type: Task.Type) -> None:
     """Mark tasks as read"""
     tasks: QuerySet[Notification] = Task.objects.filter(
         user=user, case=case, type=type, read=False
