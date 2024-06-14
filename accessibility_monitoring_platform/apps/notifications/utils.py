@@ -284,3 +284,21 @@ def get_number_of_tasks(user: User) -> int:
     if user.id:  # If logged in user
         return len(build_task_list(user=user))
     return 0
+
+
+def get_tasks_by_type_count(tasks: List[Task], type: Task.Type) -> int:
+    """Return the number of tasks of a specific type"""
+    return len([task for task in tasks if task.type == type])
+
+
+def get_task_type_counts(tasks: List[Task]) -> Dict[str, int]:
+    """Return the number of tasks of each type"""
+    return {
+        "qa_comment": get_tasks_by_type_count(tasks=tasks, type=Task.Type.QA_COMMENT),
+        "report_approved": get_tasks_by_type_count(
+            tasks=tasks, type=Task.Type.REPORT_APPROVED
+        ),
+        "reminder": get_tasks_by_type_count(tasks=tasks, type=Task.Type.REMINDER),
+        "overdue": get_tasks_by_type_count(tasks=tasks, type=Task.Type.OVERDUE),
+        "postcase": get_tasks_by_type_count(tasks=tasks, type=Task.Type.POSTCASE),
+    }

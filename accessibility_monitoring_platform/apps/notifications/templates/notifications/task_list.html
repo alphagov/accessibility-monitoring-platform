@@ -36,9 +36,9 @@
                     </li>
                     <li>
                         {% if type == 'qa-comment' and not read %}
-                            <b>QA comment</b>
+                            <b>QA comment ({{ task_type_counts.qa_comment }})</b>
                         {% else %}
-                            <a href="?type=qa-comment" class="govuk-link govuk-link--no-visited-state">QA comment</a>
+                            <a href="?type=qa-comment" class="govuk-link govuk-link--no-visited-state">QA comment ({{ task_type_counts.qa_comment }})</a>
                         {% endif %}
                         |
                         {% if type == 'qa-comment' and read %}
@@ -49,9 +49,9 @@
                     </li>
                     <li>
                         {% if type == 'report-approved' and not read %}
-                            <b>Report approved</b>
+                            <b>Report approved ({{ task_type_counts.report_approved }})</b>
                         {% else %}
-                            <a href="?type=report-approved" class="govuk-link govuk-link--no-visited-state">Report approved</a>
+                            <a href="?type=report-approved" class="govuk-link govuk-link--no-visited-state">Report approved ({{ task_type_counts.report_approved }})</a>
                         {% endif %}
                         |
                         {% if type == 'report-approved' and read %}
@@ -62,9 +62,9 @@
                     </li>
                     <li>
                         {% if type == 'reminder' and not future and not deleted %}
-                            <b>Reminder</b>
+                            <b>Reminder ({{ task_type_counts.reminder }})</b>
                         {% else %}
-                            <a href="?type=reminder" class="govuk-link govuk-link--no-visited-state">Reminder</a>
+                            <a href="?type=reminder" class="govuk-link govuk-link--no-visited-state">Reminder ({{ task_type_counts.reminder }})</a>
                         {% endif %}
                         |
                         {% if deleted %}
@@ -81,18 +81,18 @@
                     </li>
                     <li>
                         {% if type == 'overdue' %}
-                            <b>Overdue</b>
+                            <b>Overdue ({{ task_type_counts.overdue }})</b>
                         {% else %}
                             <a href="?type=overdue" class="govuk-link govuk-link--no-visited-state">
-                                Overdue</a>
+                                Overdue ({{ task_type_counts.overdue }})</a>
                         {% endif %}
                     </li>
                     <li>
                         {% if type == 'postcase' %}
-                            <b>Post case</b>
+                            <b>Post case ({{ task_type_counts.postcase }})</b>
                         {% else %}
                             <a href="?type=postcase" class="govuk-link govuk-link--no-visited-state">
-                                Post case</a>
+                                Post case ({{ task_type_counts.postcase }})</a>
                         {% endif %}
                     </li>
                 </ul>

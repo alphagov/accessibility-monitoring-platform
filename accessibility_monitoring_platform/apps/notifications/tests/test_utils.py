@@ -24,6 +24,8 @@ from ..utils import (
     get_number_of_tasks,
     get_overdue_cases,
     get_post_case_tasks,
+    get_task_type_counts,
+    get_tasks_by_type_count,
     read_tasks,
 )
 
@@ -613,3 +615,53 @@ def test_build_overdue_task_options_12_week_cores():
     )
 
     assert build_overdue_task_options(case=case) == [option]
+
+
+def test_get_tasks_by_type_count():
+    """Test filtering tasks by type and counting how many there are"""
+    tasks: List[Task] = [
+        Task(type=Task.Type.QA_COMMENT),
+        Task(type=Task.Type.QA_COMMENT),
+        Task(type=Task.Type.REMINDER),
+    ]
+
+    assert get_tasks_by_type_count(tasks=tasks, type=Task.Type.QA_COMMENT) == 2
+
+
+def test_get_task_type_counts():
+    """Test counting the numbers of tasks of each type"""
+    tasks: List[Task] = []
+
+    assert get_task_type_counts(tasks=tasks) == {
+        "qa_comment": 0,
+        "report_approved": 0,
+        "reminder": 0,
+        "overdue": 0,
+        "postcase": 0,
+    }
+
+    tasks: List[Task] = [
+        Task(type=Task.Type.QA_COMMENT),
+        Task(type=Task.Type.REPORT_APPROVED),
+        Task(type=Task.Type.REPORT_APPROVED),
+        Task(type=Task.Type.REMINDER),
+        Task(type=Task.Type.REMINDER),
+        Task(type=Task.Type.REMINDER),
+        Task(type=Task.Type.OVERDUE),
+        Task(type=Task.Type.OVERDUE),
+        Task(type=Task.Type.OVERDUE),
+        Task(type=Task.Type.OVERDUE),
+        Task(type=Task.Type.POSTCASE),
+        Task(type=Task.Type.POSTCASE),
+        Task(type=Task.Type.POSTCASE),
+        Task(type=Task.Type.POSTCASE),
+        Task(type=Task.Type.POSTCASE),
+    ]
+
+    assert get_task_type_counts(tasks=tasks) == {
+        "qa_comment": 1,
+        "report_approved": 2,
+        "reminder": 3,
+        "overdue": 4,
+        "postcase": 5,
+    }

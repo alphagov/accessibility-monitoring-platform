@@ -1,6 +1,6 @@
 """Views for notifications app"""
 
-from typing import Dict, Type
+from typing import Dict, List, Type
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -14,7 +14,7 @@ from ..cases.models import Case
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
-from .utils import TASK_LIST_PARAMS, build_task_list
+from .utils import TASK_LIST_PARAMS, build_task_list, get_task_type_counts
 
 
 class TaskListView(TemplateView):
@@ -30,6 +30,8 @@ class TaskListView(TemplateView):
             param: self.request.GET.get(param) for param in TASK_LIST_PARAMS
         }
         context["tasks"] = build_task_list(user=self.request.user, **params)
+        all_due_tasks: List[Task] = build_task_list(user=self.request.user)
+        context["task_type_counts"] = get_task_type_counts(tasks=all_due_tasks)
         return {**context, **params}
 
 
