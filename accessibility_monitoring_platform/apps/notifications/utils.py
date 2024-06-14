@@ -94,7 +94,7 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
     user: User = get_object_or_404(User, id=user_request.id)
     user_cases: QuerySet[Case] = Case.objects.filter(auditor=user)
     start_date: datetime = datetime(2020, 1, 1)
-    end_date: datetime = datetime.now() - timedelta(days=1)
+    end_date: datetime = datetime.now()
     seven_days_ago = date.today() - timedelta(days=7)
 
     seven_day_no_contact: QuerySet[Case] = user_cases.filter(

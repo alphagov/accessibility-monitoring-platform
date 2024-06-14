@@ -29,15 +29,15 @@ from ..utils import (
 
 TODAY = date.today()
 YESTERDAY = TODAY - timedelta(days=1)
-ONE_WEEK_AGO = TODAY - timedelta(days=8)
-TWO_WEEKS_AGO = TODAY - timedelta(days=15)
-THREE_WEEKS_AGO = TODAY - timedelta(days=22)
-FOUR_WEEKS_AGO = TODAY - timedelta(days=29)
-FIVE_WEEKS_AGO = TODAY - timedelta(days=36)
-ELEVEN_WEEKS_AGO = TODAY - timedelta(days=85)
-TWELVE_WEEKS_AGO = TODAY - timedelta(days=85)
-THIRTEEN_WEEKS_AGO = TODAY - timedelta(days=92)
-FOURTEEN_WEEKS_AGO = TODAY - timedelta(days=99)
+ONE_WEEK_AGO = TODAY - timedelta(days=7)
+TWO_WEEKS_AGO = TODAY - timedelta(days=14)
+THREE_WEEKS_AGO = TODAY - timedelta(days=21)
+FOUR_WEEKS_AGO = TODAY - timedelta(days=28)
+FIVE_WEEKS_AGO = TODAY - timedelta(days=35)
+ELEVEN_WEEKS_AGO = TODAY - timedelta(days=77)
+TWELVE_WEEKS_AGO = TODAY - timedelta(days=84)
+THIRTEEN_WEEKS_AGO = TODAY - timedelta(days=91)
+FOURTEEN_WEEKS_AGO = TODAY - timedelta(days=98)
 
 
 def create_case(user: User) -> Case:
