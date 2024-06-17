@@ -456,6 +456,31 @@ def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
 
 
 @pytest.mark.django_db
+def test_pending_reminder_removes_overdue():
+    """Test overdue cases with pending reminders are excluded"""
+    user: User = User.objects.create()
+    case: Case = create_case(user)
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.save()
+
+    tasks: List[Task] = build_task_list(user=user)
+
+    assert len(tasks) == 1
+
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        user=user,
+        case=case,
+        date=date.today() + timedelta(days=1),
+    )
+
+    tasks: List[Task] = build_task_list(user=user)
+
+    assert len(tasks) == 0
+
+
+@pytest.mark.django_db
 def test_build_task_list_empty():
     """Test build_task_list finds no tasks"""
     user: User = User.objects.create()
@@ -540,6 +565,37 @@ def test_build_task_list_postcase():
     task: Task = tasks[0]
 
     assert task.type == Task.Type.POSTCASE
+
+
+@pytest.mark.django_db
+def test_pending_reminder_removes_postcase():
+    """
+    Test cases with pending reminders are excluded from being post
+    case tasks
+    """
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    EqualityBodyCorrespondence.objects.create(case=case)
+    Retest.objects.create(
+        case=case,
+        retest_compliance_state=Retest.Compliance.NOT_KNOWN,
+        id_within_case=1,
+    )
+
+    tasks: List[Task] = build_task_list(user=user)
+
+    assert len(tasks) == 2
+
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        user=user,
+        case=case,
+        date=date.today() + timedelta(days=1),
+    )
+
+    tasks: List[Task] = build_task_list(user=user)
+
+    assert len(tasks) == 0
 
 
 @pytest.mark.django_db

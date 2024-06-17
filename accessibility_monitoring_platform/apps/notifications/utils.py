@@ -89,7 +89,22 @@ def mark_tasks_as_read(user: User, case: Case, type: Task.Type) -> None:
         task.save()
 
 
-def get_overdue_cases(user_request: User) -> QuerySet[Case]:
+def exclude_cases_with_pending_reminders(cases: QuerySet[Case]) -> List[Case]:
+    """Return only cases without pending reminders"""
+    today: date = date.today()
+    cases_without_pending_reminders: List[Case] = []
+    for case in cases:
+        if (
+            Task.objects.filter(
+                case=case, type=Task.Type.REMINDER, date__gte=today
+            ).first()
+            is None
+        ):
+            cases_without_pending_reminders.append(case)
+    return cases_without_pending_reminders
+
+
+def get_overdue_cases(user_request: User) -> List[Case]:
     """Return cases with overdue correspondence actions"""
     user: User = get_object_or_404(User, id=user_request.id)
     user_cases: QuerySet[Case] = Case.objects.filter(auditor=user)
@@ -146,10 +161,15 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
         | in_12_week_correspondence
     )
 
-    in_correspondence: QuerySet[Case] = sorted(
-        in_correspondence, key=lambda t: t.next_action_due_date  # type: ignore
+    overdue_cases: List[Case] = exclude_cases_with_pending_reminders(
+        cases=in_correspondence
     )
-    return in_correspondence
+
+    sorted_overdue_cases: List[Case] = sorted(
+        overdue_cases, key=lambda t: t.next_action_due_date  # type: ignore
+    )
+
+    return sorted_overdue_cases
 
 
 def build_overdue_task_options(case: Case) -> List[Option]:
@@ -194,21 +214,31 @@ def get_post_case_tasks(user: User) -> List[Task]:
         )
     )
 
+    today: date = date.today()
+
     for equality_body_correspondence in equality_body_correspondences:
-        task: Task = Task(
-            type=Task.Type.POSTCASE,
-            date=equality_body_correspondence.created.date(),
-            case=equality_body_correspondence.case,
-            description="Unresolved correspondence",
-            action="View correspondence",
-        )
-        task.options = [
-            Option(
-                label="View correspondence",
-                url=f"{equality_body_correspondence.get_absolute_url()}?view=unresolved",
+        if (
+            Task.objects.filter(
+                case=equality_body_correspondence.case,
+                type=Task.Type.REMINDER,
+                date__gte=today,
+            ).first()
+            is None
+        ):
+            task: Task = Task(
+                type=Task.Type.POSTCASE,
+                date=equality_body_correspondence.created.date(),
+                case=equality_body_correspondence.case,
+                description="Unresolved correspondence",
+                action="View correspondence",
             )
-        ]
-        tasks.append(task)
+            task.options = [
+                Option(
+                    label="View correspondence",
+                    url=f"{equality_body_correspondence.get_absolute_url()}?view=unresolved",
+                )
+            ]
+            tasks.append(task)
 
     retests: QuerySet[Retest] = Retest.objects.filter(
         is_deleted=False,
@@ -218,20 +248,26 @@ def get_post_case_tasks(user: User) -> List[Task]:
     )
 
     for retest in retests:
-        task: Task = Task(
-            type=Task.Type.POSTCASE,
-            date=retest.date_of_retest,
-            case=retest.case,
-            description="Incomplete retest",
-            action="View retest",
-        )
-        task.options = [
-            Option(
-                label="View retest",
-                url=retest.get_absolute_url(),
+        if (
+            Task.objects.filter(
+                case=retest.case, type=Task.Type.REMINDER, date__gte=today
+            ).first()
+            is None
+        ):
+            task: Task = Task(
+                type=Task.Type.POSTCASE,
+                date=retest.date_of_retest,
+                case=retest.case,
+                description="Incomplete retest",
+                action="View retest",
             )
-        ]
-        tasks.append(task)
+            task.options = [
+                Option(
+                    label="View retest",
+                    url=retest.get_absolute_url(),
+                )
+            ]
+            tasks.append(task)
 
     return tasks
 
