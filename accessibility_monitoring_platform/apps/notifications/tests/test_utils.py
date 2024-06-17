@@ -21,6 +21,7 @@ from ..utils import (
     add_task,
     build_overdue_task_options,
     build_task_list,
+    exclude_cases_with_pending_reminders,
     get_number_of_tasks,
     get_overdue_cases,
     get_post_case_tasks,
@@ -721,3 +722,30 @@ def test_get_task_type_counts():
         "overdue": 4,
         "postcase": 5,
     }
+
+
+@pytest.mark.django_db
+def test_exclude_cases_with_pending_reminders():
+    """
+    Test exclude_cases_with_pending_reminders returns cases
+    without pending reminders
+    """
+
+    assert exclude_cases_with_pending_reminders(cases=[]) == []
+
+    case: Case = Case.objects.create()
+    case_to_exclude: Case = Case.objects.create()
+
+    assert exclude_cases_with_pending_reminders(cases=[case, case_to_exclude]) == [
+        case,
+        case_to_exclude,
+    ]
+
+    user: User = User.objects.create()
+    Task.objects.create(
+        user=user, case=case_to_exclude, type=Task.Type.REMINDER, date=date.today()
+    )
+
+    assert exclude_cases_with_pending_reminders(cases=[case, case_to_exclude]) == [
+        case,
+    ]
