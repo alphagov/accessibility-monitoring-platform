@@ -510,7 +510,7 @@ class Case(VersionModel):
 
     @property
     def reminder(self):
-        return self.reminder_case.filter(is_deleted=False).first()
+        return self.task_set.filter(type="reminder", read=False).first()
 
     @property
     def qa_comments(self):
@@ -681,8 +681,8 @@ class Case(VersionModel):
             updated_times.append(comment.created_date)
             updated_times.append(comment.updated)
 
-        for reminder in self.reminder_case.all():
-            updated_times.append(reminder.updated)
+        for task in self.task_set.all():
+            updated_times.append(task.updated)
 
         if self.report is not None:
             updated_times.append(self.report.updated)

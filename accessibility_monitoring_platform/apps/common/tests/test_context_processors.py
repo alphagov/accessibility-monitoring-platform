@@ -1,6 +1,7 @@
 """
 Test context processor of common app
 """
+
 from typing import Dict, List, Union
 
 import pytest
@@ -64,7 +65,7 @@ def test_active_qa_auditor_present(admin_client):
 @pytest.mark.django_db
 def test_platform_page_template_context():
     """
-    Check number of reminders for user, prototype name and
+    Check number of tasks for user, prototype name and
     platform settings added to context.
     """
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
@@ -75,12 +76,12 @@ def test_platform_page_template_context():
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
         user=user,
     )
-    platform_page_context: Dict[
-        str, Union[AMPTopMenuForm, str, Platform, int]
-    ] = platform_page(mock_request)
+    platform_page_context: Dict[str, Union[AMPTopMenuForm, str, Platform, int]] = (
+        platform_page(mock_request)
+    )
 
     assert platform_page_context["platform"] is not None
-    assert platform_page_context["number_of_reminders"] == 0
+    assert platform_page_context["number_of_tasks"] == 0
 
     assert len(platform_page_context["custom_frequently_used_links"]) == 1
     custom_frequently_used_links: List[FrequentlyUsedLink] = platform_page_context[
@@ -95,6 +96,3 @@ def test_platform_page_template_context():
     ][0]
     assert custom_footer_links.label == LINK_LABEL
     assert custom_footer_links.url == LINK_URL
-
-    assert "post_case_alerts_count" in platform_page_context
-    assert platform_page_context["post_case_alerts_count"] == 0

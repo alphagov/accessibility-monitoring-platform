@@ -3,7 +3,6 @@ Utility functions for cases app
 """
 
 import copy
-from dataclasses import dataclass
 from datetime import date
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
@@ -15,7 +14,6 @@ from django.db.models import Q, QuerySet, When
 from django.http.request import QueryDict
 from django.urls import reverse
 
-from ..audits.models import Retest
 from ..audits.utils import (
     get_initial_test_view_sections,
     get_twelve_week_test_view_sections,
@@ -48,15 +46,7 @@ from .forms import (
     CaseTwelveWeekUpdateRequestedUpdateForm,
     PostCaseUpdateForm,
 )
-from .models import (
-    COMPLIANCE_FIELDS,
-    Case,
-    CaseEvent,
-    CaseStatus,
-    Complaint,
-    EqualityBodyCorrespondence,
-    Sort,
-)
+from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, Complaint, Sort
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -65,17 +55,6 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
-
-
-@dataclass
-class PostCaseAlert:
-    """Data to use in html table row of post case alerts page"""
-
-    date: date
-    case: Case
-    description: str
-    absolute_url: str
-    absolute_url_label: str
 
 
 def get_case_view_sections(case: Case) -> List[ViewSection]:
@@ -654,68 +633,3 @@ def create_case_and_compliance(**kwargs):
         case.compliance.save()
         case.save()
     return case
-
-
-def get_post_case_alerts_count(user: User) -> int:
-    """
-    Return the number of unresolved equality body correspondence entries
-    and incomplete equality body retests for user.
-    """
-    if user.id:
-        return (
-            EqualityBodyCorrespondence.objects.filter(
-                case__auditor=user, status=EqualityBodyCorrespondence.Status.UNRESOLVED
-            ).count()
-            + Retest.objects.filter(
-                is_deleted=False,
-                case__auditor=user,
-                retest_compliance_state=Retest.Compliance.NOT_KNOWN,
-                id_within_case__gt=0,
-            ).count()
-        )
-    return 0
-
-
-def get_post_case_alerts(user: User) -> List[PostCaseAlert]:
-    """
-    Return sorted list of unresolved equality body correspondence entries and
-    incomplete equality body retests for a user.
-    """
-    post_case_alerts: List[PostCaseAlert] = []
-
-    equality_body_correspondences: QuerySet[EqualityBodyCorrespondence] = (
-        EqualityBodyCorrespondence.objects.filter(
-            case__auditor=user,
-            status=EqualityBodyCorrespondence.Status.UNRESOLVED,
-        )
-    )
-
-    for equality_body_correspondence in equality_body_correspondences:
-        post_case_alerts.append(
-            PostCaseAlert(
-                date=equality_body_correspondence.created.date(),
-                case=equality_body_correspondence.case,
-                description="Unresolved correspondence",
-                absolute_url=f"{equality_body_correspondence.get_absolute_url()}?view=unresolved",
-                absolute_url_label="View correspondence",
-            )
-        )
-
-    retests: QuerySet[Retest] = Retest.objects.filter(
-        is_deleted=False,
-        case__auditor=user,
-        retest_compliance_state=Retest.Compliance.NOT_KNOWN,
-        id_within_case__gt=0,
-    )
-
-    for retest in retests:
-        post_case_alerts.append(
-            PostCaseAlert(
-                date=retest.date_of_retest,
-                case=retest.case,
-                description="Incomplete retest",
-                absolute_url=retest.get_absolute_url(),
-                absolute_url_label="View retest",
-            )
-        )
-    return sorted(post_case_alerts, key=lambda alert: alert.date, reverse=True)
