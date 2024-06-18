@@ -1,20 +1,21 @@
 """
 Forms - reminders
 """
+
 from typing import List
 
 from django import forms
 
 from ..common.forms import AMPDateField, AMPDateWidget, AMPTextField
-from .models import Reminder
+from .models import Task
 
 
 class ReminderForm(forms.ModelForm):
     """
-    Form for Reminder model
+    Form for Task model
     """
 
-    due_date = AMPDateField(
+    date = AMPDateField(
         label="Date of reminder",
         required=True,
         widget=AMPDateWidget(attrs={"populate_with_future_dates": True}),
@@ -22,8 +23,8 @@ class ReminderForm(forms.ModelForm):
     description = AMPTextField(label="Description", required=True)
 
     class Meta:
-        model = Reminder
+        model = Task
         fields: List[str] = [
-            "due_date",
+            "date",
             "description",
         ]

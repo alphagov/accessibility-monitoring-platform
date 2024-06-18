@@ -36,7 +36,7 @@ from ...exports.csv_export_utils import (
     EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
-from ...notifications.models import Notification
+from ...notifications.models import Task
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
@@ -2494,14 +2494,10 @@ def test_report_approved_notifies_auditor(rf):
 
     assert response.status_code == 302
 
-    notification: Optional[Notification] = Notification.objects.filter(
-        user=user
-    ).first()
+    task: Optional[Task] = Task.objects.filter(user=user).first()
 
-    assert notification is not None
-    assert (
-        notification.body == f"{request_user.get_full_name()} QA approved Case {case}"
-    )
+    assert task is not None
+    assert task.description == f"{request_user.get_full_name()} QA approved Case {case}"
 
 
 @pytest.mark.django_db
@@ -3623,21 +3619,6 @@ def test_update_equality_body_correspondence_save_redirects(admin_client):
         "cases:edit-equality-body-correspondence",
         kwargs={"pk": equality_body_correspondence.id},
     )
-
-
-def test_post_case_alerts(admin_client, admin_user):
-    """Test post case alerts page renders"""
-    case: Case = Case.objects.create(auditor=admin_user)
-    EqualityBodyCorrespondence.objects.create(case=case)
-    Retest.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(reverse("cases:post-case-alerts"))
-
-    assert response.status_code == 200
-
-    assertContains(response, "Unresolved correspondence")
-    assertContains(response, "Incomplete retest")
-    assertContains(response, "Post case (2)")
 
 
 def test_updating_equality_body_updates_published_report_data_updated_time(

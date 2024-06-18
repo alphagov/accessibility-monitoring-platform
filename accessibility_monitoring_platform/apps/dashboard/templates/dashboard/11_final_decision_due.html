@@ -38,7 +38,7 @@
                         {% endif %}
                         {% if case.reminder %}
                             |
-                            <a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">View reminder</a>
+                            <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">View reminder</a>
                         {% endif %}
                     </td>
                 </tr>

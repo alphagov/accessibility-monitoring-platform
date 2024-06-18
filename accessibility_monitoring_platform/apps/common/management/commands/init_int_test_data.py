@@ -38,7 +38,7 @@ from ....cases.models import (
 from ....comments.models import Comment
 from ....common.models import EmailTemplate
 from ....exports.models import Export, ExportCase
-from ....notifications.models import Notification, NotificationSetting
+from ....notifications.models import Notification, NotificationSetting, Task
 from ....reminders.models import Reminder
 from ....reports.models import Report, ReportVisitsMetrics, ReportWrapper
 from ....s3_read_write.models import S3Report
@@ -80,6 +80,7 @@ class Command(BaseCommand):
 
         delete_from_models(
             [
+                Task,
                 EmailTemplate,
                 ExportCase,
                 Export,

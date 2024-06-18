@@ -81,23 +81,6 @@ def test_page_title_for_non_existant_page_returned():
 
 
 @pytest.mark.django_db
-def test_page_title_for_reminder_page_returned():
-    """Page title for page present"""
-    case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
-    path: str = reverse("reminders:reminder-create", kwargs={"case_id": case.id})
-
-    assert get_page_title(path) == f"{ORGANISATION_NAME} | Reminder"
-
-
-@pytest.mark.django_db
-def test_page_title_for_reminder_of_non_existant_case_returned():
-    """Page title for non-existant case"""
-    path: str = reverse("reminders:reminder-create", kwargs={"case_id": 0})
-
-    assert get_page_title(path) == f"Case does not exist: {path}"
-
-
-@pytest.mark.django_db
 def test_page_title_for_audit_create_page_returned():
     """Page title for page present"""
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)

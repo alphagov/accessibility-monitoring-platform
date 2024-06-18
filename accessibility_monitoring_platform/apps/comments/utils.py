@@ -1,13 +1,14 @@
 """ Comments utilities """
+
 from typing import Set
 
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from django.urls import reverse
 
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
-from ..notifications.utils import add_notification
+from ..notifications.models import Task
+from ..notifications.utils import add_task
 from .models import Comment
 
 
@@ -56,7 +57,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
 
     first_name: str = request.user.first_name
     last_name: str = request.user.last_name
-    body: str = (
+    description: str = (
         f"{first_name} {last_name} left a message in discussion:\n\n{comment.body}"
     )
     organisation_name: str = (
@@ -66,10 +67,11 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
 
     for target_user_id in user_ids:
         target_user = User.objects.get(id=target_user_id)
-        add_notification(
+        add_task(
             user=target_user,
-            body=body,
-            path=reverse("cases:edit-qa-comments", kwargs={"pk": comment.case.id}),  # type: ignore
+            case=comment.case,
+            type=Task.Type.QA_COMMENT,
+            description=description,
             list_description=list_description,
             request=request,
         )

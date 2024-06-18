@@ -1,6 +1,7 @@
 """
 Tests for users views
 """
+
 from typing import Dict, List, TypedDict, Union
 
 import pytest

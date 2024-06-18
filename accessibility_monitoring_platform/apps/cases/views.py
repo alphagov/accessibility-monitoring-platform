@@ -49,7 +49,8 @@ from ..exports.csv_export_utils import (
     download_feedback_survey_cases,
     populate_equality_body_columns,
 )
-from ..notifications.utils import add_notification, read_notification
+from ..notifications.models import Task
+from ..notifications.utils import add_task, mark_tasks_as_read
 from ..reports.utils import (
     build_issues_tables,
     get_report_visits_metrics,
@@ -99,7 +100,6 @@ from .models import (
 from .utils import (
     filter_cases,
     get_case_view_sections,
-    get_post_case_alerts,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -385,9 +385,13 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        read_notification(self.request)
-        if self.object.report:
-            context.update(get_report_visits_metrics(self.object))
+        case: Case = self.object
+        mark_tasks_as_read(user=self.request.user, case=case, type=Task.Type.QA_COMMENT)
+        mark_tasks_as_read(
+            user=self.request.user, case=case, type=Task.Type.REPORT_APPROVED
+        )
+        if case.report:
+            context.update(get_report_visits_metrics(case=case))
         return context
 
     def get_success_url(self) -> str:
@@ -474,12 +478,11 @@ class CaseReportApprovedUpdateView(CaseUpdateView):
             if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
                 case: Case = self.object
                 if case.auditor:
-                    add_notification(
+                    add_task(
                         user=case.auditor,
-                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",
-                        path=reverse(
-                            "cases:edit-report-approved", kwargs={"pk": case.id}
-                        ),
+                        case=case,
+                        type=Task.Type.REPORT_APPROVED,
+                        description=f"{self.request.user.get_full_name()} QA approved Case {case}",
                         list_description=f"{case} - Report approved",
                         request=self.request,
                     )
@@ -1295,16 +1298,6 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
         CaseStatementEnforcementUpdateForm
     )
     template_name: str = "cases/forms/legacy_end_of_case.html"
-
-
-class PostCaseAlertsTemplateView(TemplateView):
-    template_name: str = "cases/post_case_alerts.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["post_case_alerts"] = get_post_case_alerts(user=self.request.user)
-        return context
 
 
 class CaseZendeskTicketsDetailView(DetailView):
