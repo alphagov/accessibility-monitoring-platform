@@ -800,41 +800,6 @@ class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
-    template_name: str = "cases/emails/twelve_week_correspondence.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
-        context["case"] = case
-        if case.audit is not None:
-            context["issues_tables"] = build_issues_tables(
-                pages=case.audit.retestable_pages
-            )
-        return context
-
-
-class CaseOutstandingIssuesEmailTemplateView(TemplateView):
-    template_name: str = "cases/emails/outstanding_issues.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
-        context["case"] = case
-        if case.audit is not None:
-            context["issues_tables"] = build_issues_tables(
-                pages=case.audit.testable_pages,
-                check_results_attr="unfixed_check_results",
-            )
-        email_template: EmailTemplate = EmailTemplate.objects.get(
-            slug=EmailTemplate.Slug.OUTSTANDING_ISSUES
-        )
-        context["email_template_render"] = email_template.render(context=context)
-        return context
-
-
 class CaseNoPSBResponseUpdateView(CaseUpdateView):
     """
     View to set no psb contact flag
@@ -1274,18 +1239,6 @@ class CaseRetestCreateErrorTemplateView(TemplateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
-        return context
-
-
-class EqualityBodyRetestEmailTemplateView(TemplateView):
-    template_name: str = "cases/emails/equality_body_retest_email.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
-        context["case"] = case
-        context["retest"] = case.retests.first()
         return context
 
 
