@@ -654,7 +654,7 @@ def test_build_overdue_task_options_12_week_deadline():
     case: Case = Case.objects.create()
     case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
     option: Option = Option(
-        label="Overdue",
+        label="12-week update due",
         url=reverse("cases:edit-cores-overview", kwargs={"pk": case.id}),
     )
 
