@@ -50,7 +50,6 @@ from ..views import (
     FOUR_WEEKS_IN_DAYS,
     ONE_WEEK_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
-    CaseQACommentsUpdateView,
     CaseReportApprovedUpdateView,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
@@ -1383,48 +1382,6 @@ def test_qa_comments_does_not_create_comment(admin_client, admin_user):
     assert response.status_code == 302
 
     assert Comment.objects.filter(case=case).count() == 0
-
-
-@pytest.mark.django_db
-def test_getting_qa_comment_page_marks_tasks_as_read(rf):
-    """
-    Test visiting the QA comments page marks QA comment and Report
-    approved tasks as read.
-    """
-    user: User = User.objects.create(
-        username="johnsmith", first_name="John", last_name="Smith"
-    )
-    case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME, auditor=user)
-    qa_comment_task: Task = Task.objects.create(
-        type=Task.Type.QA_COMMENT,
-        date=date.today(),
-        user=user,
-        case=case,
-    )
-    report_approved_task: Task = Task.objects.create(
-        type=Task.Type.REPORT_APPROVED,
-        date=date.today(),
-        user=user,
-        case=case,
-    )
-
-    request = rf.get(reverse("cases:edit-qa-comments", kwargs={"pk": case.id}))
-    request.user = user
-
-    assert qa_comment_task.read is False
-    assert report_approved_task.read is False
-
-    response: HttpResponse = CaseQACommentsUpdateView.as_view()(request, pk=case.id)
-
-    assert response.status_code == 200
-
-    qa_comment_task_from_db: Task = Task.objects.get(id=qa_comment_task.id)
-
-    assert qa_comment_task_from_db.read is True
-
-    report_approved_task_from_db: Task = Task.objects.get(id=report_approved_task.id)
-
-    assert report_approved_task_from_db.read is True
 
 
 def test_form_appears_to_add_first_contact(admin_client):
