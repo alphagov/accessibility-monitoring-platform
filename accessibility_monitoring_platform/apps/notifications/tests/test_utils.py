@@ -520,6 +520,31 @@ def test_build_task_list_report_approved():
 
 
 @pytest.mark.django_db
+def test_build_task_list_reverse_sorts_read():
+    """
+    Test build_task_list sorts read tasks by newest first
+    """
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    task_1: Task = Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today() - timedelta(days=1),
+        case=case,
+        user=user,
+        read=True,
+    )
+    task_2: Task = Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today(),
+        case=case,
+        user=user,
+        read=True,
+    )
+
+    assert build_task_list(user=user, read="true") == [task_2, task_1]
+
+
+@pytest.mark.django_db
 def test_build_task_list_reminder():
     """Test build_task_list finds reminder task"""
     user: User = User.objects.create()

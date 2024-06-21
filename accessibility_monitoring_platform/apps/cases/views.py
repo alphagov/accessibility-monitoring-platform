@@ -386,10 +386,6 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        mark_tasks_as_read(user=self.request.user, case=case, type=Task.Type.QA_COMMENT)
-        mark_tasks_as_read(
-            user=self.request.user, case=case, type=Task.Type.REPORT_APPROVED
-        )
         if case.report:
             context.update(get_report_visits_metrics(case=case))
         return context
@@ -409,6 +405,16 @@ class CaseQACommentsUpdateView(CaseUpdateView):
 
     form_class: Type[CaseQACommentsUpdateForm] = CaseQACommentsUpdateForm
     template_name: str = "cases/forms/qa_comments.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Mark unread QA comment and report approved tasks as read"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        mark_tasks_as_read(user=self.request.user, case=case, type=Task.Type.QA_COMMENT)
+        mark_tasks_as_read(
+            user=self.request.user, case=case, type=Task.Type.REPORT_APPROVED
+        )
+        return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""

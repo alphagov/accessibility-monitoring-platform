@@ -17,7 +17,7 @@ from ..cases.models import Case, CaseStatus, EqualityBodyCorrespondence
 from .models import Notification, NotificationSetting, Option, Task
 
 TASK_LIST_PARAMS: List[str] = ["type", "read", "deleted", "future"]
-TASK_LIST_TIMEDELTA: timedelta = timedelta(days=7)
+TASK_LIST_READ_TIMEDELTA: timedelta = timedelta(days=7)
 
 
 class EmailContextType(TypedDict):
@@ -287,13 +287,14 @@ def build_task_list(user: User, **kwargs: Dict[str, str]) -> List[Task]:
 
     type: Optional[str] = kwargs.get("type")
 
+    read: bool = kwargs.get("read") is not None
     if type is not None:
         task_filter["type"] = type
-    if kwargs.get("future") is None:
-        task_filter["date__lte"] = date.today()
-    if kwargs.get("read") is not None or kwargs.get("deleted") is not None:
+    if read or kwargs.get("deleted") is not None:
         task_filter["read"] = True
-        task_filter["date__gte"] = date.today() - TASK_LIST_TIMEDELTA
+        task_filter["date__gte"] = date.today() - TASK_LIST_READ_TIMEDELTA
+    elif kwargs.get("future") is None:
+        task_filter["date__lte"] = date.today()
 
     tasks: List[Task] = list(Task.objects.filter(**task_filter))
 
@@ -316,6 +317,7 @@ def build_task_list(user: User, **kwargs: Dict[str, str]) -> List[Task]:
     sorted_tasks: List[Task] = sorted(
         tasks,
         key=lambda task: (task.date),
+        reverse=read,
     )
 
     return sorted_tasks
