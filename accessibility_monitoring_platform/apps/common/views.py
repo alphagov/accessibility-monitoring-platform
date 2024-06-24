@@ -442,7 +442,7 @@ class BulkURLSearchView(FormView):
         context: Dict[str, Any] = self.get_context_data()
         form = context["form"]
         if form.is_valid():
-            urls: List[str] = form.cleaned_data["urls"].split("\n")
+            urls: List[str] = form.cleaned_data["urls"].splitlines()
             bulk_search_results: List[Dict] = []
             for url in urls:
                 domain: str = extract_domain_from_url(url)
