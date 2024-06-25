@@ -76,8 +76,8 @@ def test_extract_domain_from_url_http():
 
 
 def test_extract_domain_from_url_no_protocol():
-    """Tests that the domain is not extracted from a url with no protocol"""
-    assert extract_domain_from_url(url="example.com") == ""
+    """Tests that the domain is extracted from a url with no protocol"""
+    assert extract_domain_from_url(url="example.com") == "example.com"
 
 
 @pytest.mark.parametrize(
@@ -250,9 +250,9 @@ def test_get_recent_changes_to_platform():
         name="Recent"
     )
 
-    recent_changes_to_platform: QuerySet[
-        ChangeToPlatform
-    ] = get_recent_changes_to_platform()
+    recent_changes_to_platform: QuerySet[ChangeToPlatform] = (
+        get_recent_changes_to_platform()
+    )
 
     assert recent_changes_to_platform.count() == 1
     assert recent_change_to_platform in recent_changes_to_platform
