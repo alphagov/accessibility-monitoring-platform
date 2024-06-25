@@ -109,6 +109,18 @@ def test_case_filtered_by_search_string():
 
 
 @pytest.mark.django_db
+def test_case_search_string_trested_as_regex():
+    """Test that searching for cases uses the search string as a regex"""
+    Case.objects.create(organisation_name="Organisation name one")
+    form: MockForm = MockForm(cleaned_data={"case_search": "Organisation.*one"})
+
+    filtered_cases: List[Case] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Organisation name one"
+
+
+@pytest.mark.django_db
 def test_case_filtered_by_case_number_search_string():
     """Test that searching for case by number is reflected in the queryset"""
     Case.objects.create(case_number=CASE_NUMBER)
