@@ -49,6 +49,7 @@ def sanitise_domain(domain: str) -> str:
         ".co.uk",
         ".org.uk",
         ".ac.uk",
+        ".net",
     ]:
         if domain.endswith(suffix):
             domain = domain[: -len(suffix)]

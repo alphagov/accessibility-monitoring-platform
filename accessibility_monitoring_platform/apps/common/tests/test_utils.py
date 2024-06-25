@@ -97,6 +97,7 @@ def test_extract_domain_from_url_no_protocol():
         ("abc.co.uk", "abc"),
         ("abc.org.uk", "abc"),
         ("abc.ac.uk", "abc"),
+        ("abc.net", "abc"),
     ],
 )
 def test_sanitise_domain(domain: str, expected_result: str):
