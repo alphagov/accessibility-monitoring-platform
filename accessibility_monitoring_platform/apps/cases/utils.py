@@ -471,14 +471,14 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
             else:
                 search_query = (
                     Q(  # pylint: disable=unsupported-binary-operation
-                        organisation_name__icontains=search
+                        organisation_name__iregex=search
                     )
-                    | Q(home_page_url__icontains=search)
-                    | Q(psb_location__icontains=search)
-                    | Q(sector__name__icontains=search)
-                    | Q(parental_organisation_name__icontains=search)
-                    | Q(website_name__icontains=search)
-                    | Q(subcategory__name__icontains=search)
+                    | Q(home_page_url__iregex=search)
+                    | Q(psb_location__iregex=search)
+                    | Q(sector__name__iregex=search)
+                    | Q(parental_organisation_name__iregex=search)
+                    | Q(website_name__iregex=search)
+                    | Q(subcategory__name__iregex=search)
                 )
         for filter_name in ["is_complaint", "enforcement_body"]:
             filter_value: str = form.cleaned_data.get(filter_name, Complaint.ALL)
