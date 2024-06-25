@@ -651,7 +651,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
         label="12-week update request acknowledged by (email address)"
     )
     organisation_response = AMPChoiceRadioField(
-        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’  (included in equality body export)",
+        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’",
         help_text="This field affects the case status",
         choices=Case.OrganisationResponse.choices,
     )
