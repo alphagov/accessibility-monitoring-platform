@@ -23,9 +23,11 @@ from .models import ChangeToPlatform, Event, Platform
 
 def extract_domain_from_url(url: str) -> str:
     """Extract and return domain string from url string"""
-    domain_match: Union[Match[str], None] = re.search(
-        "https?://([A-Za-z_0-9.-]+).*", url
-    )
+    if url.startswith("https://"):
+        url = url[8:]
+    elif url.startswith("http://"):
+        url = url[7:]
+    domain_match: Union[Match[str], None] = re.search("([A-Za-z_0-9.-]+).*", url)
     return domain_match.group(1) if domain_match else ""
 
 
