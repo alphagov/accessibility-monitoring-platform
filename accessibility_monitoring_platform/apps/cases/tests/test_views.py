@@ -21,11 +21,9 @@ from ...audits.models import (
     Audit,
     CheckResult,
     Page,
-    Retest,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
-    WcagDefinition,
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
