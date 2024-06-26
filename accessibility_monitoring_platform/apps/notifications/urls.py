@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 
 from accessibility_monitoring_platform.apps.notifications.views import (
+    CommentsMarkAsReadView,
     ReminderTaskCreateView,
     ReminderTaskUpdateView,
     TaskListView,
@@ -23,6 +24,11 @@ urlpatterns = [
         "<int:pk>/mark-task-read/",
         login_required(TaskMarkAsReadView.as_view()),
         name="mark-task-read",
+    ),
+    path(
+        "cases/<int:case_id>/mark-comments-read/",
+        login_required(CommentsMarkAsReadView.as_view()),
+        name="mark-case-comments-read",
     ),
     path(
         "cases/<int:case_id>/reminder-task-create/",

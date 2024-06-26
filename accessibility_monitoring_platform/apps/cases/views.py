@@ -50,7 +50,7 @@ from ..exports.csv_export_utils import (
     populate_equality_body_columns,
 )
 from ..notifications.models import Task
-from ..notifications.utils import add_task, mark_tasks_as_read
+from ..notifications.utils import add_task
 from ..reports.utils import (
     build_issues_tables,
     get_report_visits_metrics,
@@ -386,10 +386,6 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        mark_tasks_as_read(user=self.request.user, case=case, type=Task.Type.QA_COMMENT)
-        mark_tasks_as_read(
-            user=self.request.user, case=case, type=Task.Type.REPORT_APPROVED
-        )
         if case.report:
             context.update(get_report_visits_metrics(case=case))
         return context

@@ -33,9 +33,9 @@
                         {% include './nav_step.html' with edit_name='audits:edit-retest-statement-custom' name='12-week custom statement issues' complete=audit.audit_retest_statement_custom_complete_date %}
                     </ul>
                 </li>
-                {% include './nav_step.html' with edit_name='audits:edit-twelve-week-disproportionate-burden' name='12-week disproportionate burden claim' complete=audit.twelve_week_disproportionate_burden_complete_date %}
-                {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-decision' name='12-week statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
             {% endif %}
+            {% include './nav_step.html' with edit_name='audits:edit-twelve-week-disproportionate-burden' name='12-week disproportionate burden claim' complete=audit.twelve_week_disproportionate_burden_complete_date %}
+            {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-decision' name='12-week statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
         {% else %}
             {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.archive_audit_retest_statement_1_complete_date %}
             {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.archive_audit_retest_statement_2_complete_date %}
