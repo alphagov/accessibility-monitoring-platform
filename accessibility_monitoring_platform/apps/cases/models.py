@@ -482,8 +482,18 @@ class Case(VersionModel):
     @property
     def next_action_due_date(self) -> Optional[date]:
         if self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
-            if self.seven_day_no_contact_email_sent_date:
-                return self.seven_day_no_contact_email_sent_date + timedelta(
+            if (
+                self.no_contact_one_week_chaser_due_date
+                and self.no_contact_one_week_chaser_sent_date is None
+            ):
+                return self.no_contact_one_week_chaser_due_date
+            if (
+                self.no_contact_four_week_chaser_due_date
+                and self.no_contact_four_week_chaser_sent_date is None
+            ):
+                return self.no_contact_four_week_chaser_due_date
+            if self.no_contact_four_week_chaser_sent_date is not None:
+                return self.no_contact_four_week_chaser_sent_date + timedelta(
                     days=ONE_WEEK_IN_DAYS
                 )
 
