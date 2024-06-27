@@ -382,6 +382,27 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
         label="No contact details request sent",
         help_text="Case will become overdue seven days after this date if “No contact details found” is selected above",
     )
+    seven_day_no_contact_request_sent_to = AMPCharFieldWide(
+        label="Initial request sent to"
+    )
+    no_contact_one_week_chaser_sent_date = AMPDateField(
+        label="No contact details 1-week chaser sent date",
+        # help_text="This field affects the case status",
+    )
+    no_contact_one_week_chaser_due_date = AMPDateField(
+        label="No contact details 1-week chaser due date"
+    )
+    no_contact_one_week_chaser_sent_to = AMPCharFieldWide(label="1-week chaser sent to")
+    no_contact_four_week_chaser_sent_date = AMPDateField(
+        label="No contact details 4-week chaser sent date",
+        # help_text="This field affects the case status",
+    )
+    no_contact_four_week_chaser_due_date = AMPDateField(
+        label="No contact details 4-week chaser due date"
+    )
+    no_contact_four_week_chaser_sent_to = AMPCharFieldWide(
+        label="4-week chaser sent to"
+    )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     find_contact_details_complete_date = AMPDatePageCompleteField()
 
@@ -391,6 +412,13 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
             "version",
             "contact_details_found",
             "seven_day_no_contact_email_sent_date",
+            "seven_day_no_contact_request_sent_to",
+            "no_contact_one_week_chaser_sent_date",
+            "no_contact_one_week_chaser_due_date",
+            "no_contact_one_week_chaser_sent_to",
+            "no_contact_four_week_chaser_sent_date",
+            "no_contact_four_week_chaser_due_date",
+            "no_contact_four_week_chaser_sent_to",
             "correspondence_notes",
             "find_contact_details_complete_date",
         ]
