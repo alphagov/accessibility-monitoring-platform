@@ -16,6 +16,7 @@ from .views import (
     ExportListView,
     export_all_cases,
     export_ready_cases,
+    mark_all_export_cases_as_ready,
     mark_export_case_as_excluded,
     mark_export_case_as_ready,
     mark_export_case_as_unready,
@@ -52,6 +53,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/export-confirm-export/",
         login_required(ConfirmExportUpdateView.as_view()),
         name="export-confirm-export",
+    ),
+    path(
+        "<int:pk>/mark-all-cases-as-ready/",
+        login_required(mark_all_export_cases_as_ready),
+        name="mark-all-cases-as-ready",
     ),
     path(
         "<int:pk>/case-mark-as-ready/",
