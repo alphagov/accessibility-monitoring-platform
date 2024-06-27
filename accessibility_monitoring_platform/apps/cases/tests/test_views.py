@@ -51,6 +51,7 @@ from ..views import (
     ONE_WEEK_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
     CaseReportApprovedUpdateView,
+    calculate_no_contact_chaser_dates,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
     find_duplicate_cases,
@@ -1384,6 +1385,35 @@ def test_qa_comments_does_not_create_comment(admin_client, admin_user):
     assert Comment.objects.filter(case=case).count() == 0
 
 
+def test_no_contact_chaser_dates_set(
+    admin_client,
+):
+    """
+    Test that updating the no-contact email sent date populates chaser due dates
+    """
+    case: Case = Case.objects.create()
+
+    assert case.no_contact_one_week_chaser_due_date is None
+    assert case.no_contact_four_week_chaser_due_date is None
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-find-contact-details", kwargs={"pk": case.id}),
+        {
+            "seven_day_no_contact_email_sent_date_0": TODAY.day,
+            "seven_day_no_contact_email_sent_date_1": TODAY.month,
+            "seven_day_no_contact_email_sent_date_2": TODAY.year,
+            "version": case.version,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.no_contact_one_week_chaser_due_date is not None
+    assert case_from_db.no_contact_four_week_chaser_due_date is not None
+
+
 def test_form_appears_to_add_first_contact(admin_client):
     """Test that when a case has no contacts a form appears to add one"""
     case: Case = Case.objects.create()
@@ -2375,6 +2405,22 @@ def test_calculate_report_followup_dates():
     assert updated_case.report_followup_week_1_due_date == date(2020, 1, 8)
     assert updated_case.report_followup_week_4_due_date == date(2020, 1, 29)
     assert updated_case.report_followup_week_12_due_date == date(2020, 3, 25)
+
+
+def test_calculate_no_contact_chaser_dates():
+    """
+    Test that the no contact details chaser dates are calculated correctly.
+    """
+    case: Case = Case()
+    seven_day_no_contact_email_sent_date: date = date(2020, 1, 1)
+
+    updated_case = calculate_no_contact_chaser_dates(
+        case=case,
+        seven_day_no_contact_email_sent_date=seven_day_no_contact_email_sent_date,
+    )
+
+    assert updated_case.no_contact_one_week_chaser_due_date == date(2020, 1, 8)
+    assert updated_case.no_contact_four_week_chaser_due_date == date(2020, 1, 29)
 
 
 def test_calculate_twelve_week_chaser_dates():
