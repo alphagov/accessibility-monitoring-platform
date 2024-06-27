@@ -54,10 +54,34 @@
 </div>
 
 <div class="govuk-form-group">
-    <label class="govuk-label"><b>Seven day ‘no contact details’ email sent</b></label>
+    <label class="govuk-label"><b>No contact details email sent</b></label>
     <p class="govuk-body-m">
         {% if case.seven_day_no_contact_email_sent_date %}
             Sent {{ case.seven_day_no_contact_email_sent_date|amp_date }}
+        {% else %}
+            Not sent
+        {% endif %}
+        (<a href="{% url 'cases:edit-find-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+    </p>
+</div>
+
+<div class="govuk-form-group">
+    <label class="govuk-label"><b>One week chaser</b></label>
+    <p class="govuk-body-m">
+        {% if case.no_contact_one_week_chaser_sent_date %}
+            Sent {{ case.no_contact_one_week_chaser_sent_date|amp_date }}
+        {% else %}
+            Not sent
+        {% endif %}
+        (<a href="{% url 'cases:edit-find-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+    </p>
+</div>
+
+<div class="govuk-form-group">
+    <label class="govuk-label"><b>Four week chaser</b></label>
+    <p class="govuk-body-m">
+        {% if case.no_contact_four_week_chaser_sent_date %}
+            Sent {{ case.no_contact_four_week_chaser_sent_date|amp_date }}
         {% else %}
             Not sent
         {% endif %}
