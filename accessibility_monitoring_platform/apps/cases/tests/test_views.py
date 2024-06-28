@@ -3362,7 +3362,7 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
