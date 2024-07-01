@@ -1302,47 +1302,6 @@ def test_platform_update_redirects_based_on_case_variant(
     assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
 
 
-def test_add_qa_comment(admin_client, admin_user):
-    """Test adding a QA comment"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
-        {
-            "save_return": "Button value",
-            "body": QA_COMMENT_BODY,
-        },
-    )
-    assert response.status_code == 302
-
-    comment: Comment = Comment.objects.get(case=case)
-
-    assert comment.body == QA_COMMENT_BODY
-    assert comment.user == admin_user
-
-    content_type: ContentType = ContentType.objects.get_for_model(Comment)
-    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
-
-    assert event.type == Event.Type.CREATE
-
-
-def test_add_qa_comment_redirects_to_qa_comments(admin_client):
-    """Test adding a QA comment redirects to QA comments page"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
-        {
-            "save_return": "Button value",
-        },
-    )
-    assert response.status_code == 302
-    assert (
-        response.url
-        == f'{reverse("cases:edit-qa-comments", kwargs={"pk": case.id})}?#qa-discussion'
-    )
-
-
 def test_qa_comments_creates_comment(admin_client, admin_user):
     """Test adding a comment using QA comments page"""
     case: Case = Case.objects.create()
