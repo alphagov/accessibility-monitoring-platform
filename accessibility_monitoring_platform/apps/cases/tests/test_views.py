@@ -24,6 +24,7 @@ from ...audits.models import (
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagDefinition,
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
@@ -3403,8 +3404,6 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
     """
     Test outstanding issues (issues_table) contains only unfixed issues
     """
-    from ...audits.models import WcagDefinition
-
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
     user: User = User.objects.create()
     case: Case = Case.objects.create()
