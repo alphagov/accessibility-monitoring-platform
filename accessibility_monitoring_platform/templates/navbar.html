@@ -1,6 +1,28 @@
 <div class="topnavmenu">
 {% if user.is_authenticated %}
     <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <ul class="govuk-list nav-menu-list">
+                <li> {{ user.first_name|title }} {{ user.last_name|title }} </li>
+                <li class="amp-padding-left-10"> | </li>
+                <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
+                <li>
+                    <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a>
+                </li>
+                <li>
+                    {% if number_of_tasks > 0 %}<b>{% endif %}
+                    <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:task-list' %}">Tasks ({{ number_of_tasks }})</a>
+                    {% if number_of_tasks > 0 %}</b>{% endif %}
+                </li>
+                <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:edit-user' request.user.id %}">Settings</a></li>
+                <li>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="amp-button-as-link amp-margin-left-15 amp-margin-bottom-0 govuk-body-m">Sign out</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
         <div class="govuk-grid-column-one-quarter">
             <form method="get" action="{% url 'cases:case-list' %}">
                 <div class="govuk-form-group amp-margin-bottom-0">
@@ -27,35 +49,15 @@
                 </div>
             </form>
         </div>
-        <div class="govuk-grid-column-three-quarters">
-                <ul class="govuk-list nav-menu-list">
-                    <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:edit-user' request.user.id %}">Settings</a></li>
-                    <li>
-                        <form method="post" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="amp-button-as-link amp-margin-left-15 amp-margin-bottom-0 govuk-body-m">Sign out</button>
-                        </form>
-                    </li>
-                    <li class="amp-padding-left-10"> | </li>
-                    <li class="amp-padding-left-10"> {{ user.first_name|title }} {{ user.last_name|title }} </li>
-                </ul>
-                <ul class="govuk-list nav-menu-list">
-                    <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
-                    <li>
-                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a>
-                    </li>
-                    <li>
-                        {% if number_of_tasks > 0 %}<b>{% endif %}
-                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:task-list' %}">Tasks ({{ number_of_tasks }})</a>
-                        {% if number_of_tasks > 0 %}</b>{% endif %}
-                    </li>
-                </ul>
-        </div>
     </div>
 {% else %}
-    <ul class="govuk-list nav-menu-list">
-        <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
-        <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'two_factor:login' %}">Sign in</a></li>
-    </ul>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <ul class="govuk-list nav-menu-list">
+                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
+                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'two_factor:login' %}">Sign in</a></li>
+            </ul>
+        </div>
+    </div>
 {% endif %}
 </div>

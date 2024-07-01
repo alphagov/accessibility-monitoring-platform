@@ -300,11 +300,6 @@ img, .amp-max-width-100 {
     position: relative;
 }
 
-.custom-body {
-    padding: 10px;
-    padding-bottom: 200px;   /* Height of the footer */
-}
-
 .custom-footer {
     bottom: 0;
     width: 100%;
@@ -414,9 +409,8 @@ img, .amp-max-width-100 {
 
 .nav-menu-list {
     display: block;
-    padding-inline-start: 40px;
     list-style-type: none;
-    text-align: right;
+    margin-top: 7px;
     margin-bottom: 0;
 
     li {
