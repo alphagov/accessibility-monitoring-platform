@@ -49,7 +49,6 @@ from accessibility_monitoring_platform.apps.cases.views import (
     EqualityBodyCorrespondenceCreateView,
     ListCaseEqualityBodyCorrespondenceUpdateView,
     PostCaseUpdateView,
-    QACommentCreateView,
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
     delete_zendesk_ticket,
@@ -89,11 +88,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-qa-comments/",
         login_required(CaseQACommentsUpdateView.as_view()),
         name="edit-qa-comments",
-    ),
-    path(
-        "<int:case_id>/add-qa-comment/",
-        login_required(QACommentCreateView.as_view()),
-        name="add-qa-comment",
     ),
     path(
         "<int:pk>/edit-report-approved/",
