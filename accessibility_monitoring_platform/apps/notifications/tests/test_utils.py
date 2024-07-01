@@ -273,6 +273,52 @@ def test_report_ready_to_send_seven_day_no_contact():
 
 
 @pytest.mark.django_db
+def test_report_ready_to_send_no_contact_one_week_chaser_due():
+    """
+    Show overdue if report is ready to send and no contact
+    1-week chaser due date has been reached but not sent
+    """
+    user: User = User.objects.create()
+
+    case: Case = create_case(user)
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.no_contact_one_week_chaser_sent_date = TODAY
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 0
+
+    case.no_contact_one_week_chaser_sent_date = None
+    case.no_contact_one_week_chaser_due_date = TODAY
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 1
+
+
+@pytest.mark.django_db
+def test_report_ready_to_send_no_contact_four_week_chaser_due():
+    """
+    Show overdue if report is ready to send and no contact
+    4-week chaser due date has been reached but not sent
+    """
+    user: User = User.objects.create()
+
+    case: Case = create_case(user)
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.no_contact_four_week_chaser_sent_date = TODAY
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 0
+
+    case.no_contact_four_week_chaser_sent_date = None
+    case.no_contact_four_week_chaser_due_date = TODAY
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 1
+
+
+@pytest.mark.django_db
 def test_returns_no_overdue_cases():
     """Creates seven cases that are all in correspondence with the PSB but require no further actions.
     Should return an empty queryset as none are overdue.
@@ -653,7 +699,7 @@ def test_build_overdue_task_options_report_ready():
     case: Case = Case.objects.create()
     case.status.status = CaseStatus.Status.REPORT_READY_TO_SEND
     option: Option = Option(
-        label="Seven day 'no contact details' response overdue",
+        label="No contact details response overdue",
         url=reverse("cases:edit-find-contact-details", kwargs={"pk": case.id}),
     )
 

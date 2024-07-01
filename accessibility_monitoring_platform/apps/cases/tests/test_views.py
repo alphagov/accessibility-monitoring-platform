@@ -24,6 +24,7 @@ from ...audits.models import (
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagDefinition,
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
@@ -51,6 +52,7 @@ from ..views import (
     ONE_WEEK_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
     CaseReportApprovedUpdateView,
+    calculate_no_contact_chaser_dates,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
     find_duplicate_cases,
@@ -175,6 +177,7 @@ EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
 RETEST_NOTES: str = "Retest notes"
 HOME_PAGE_ERROR_NOTES: str = "Home page error note"
 STATEMENT_PAGE_ERROR_NOTES: str = "Statement page error note"
+OUTSTANDING_ISSUE_NOTES: str = "Outstanding error found."
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -1384,6 +1387,35 @@ def test_qa_comments_does_not_create_comment(admin_client, admin_user):
     assert Comment.objects.filter(case=case).count() == 0
 
 
+def test_no_contact_chaser_dates_set(
+    admin_client,
+):
+    """
+    Test that updating the no-contact email sent date populates chaser due dates
+    """
+    case: Case = Case.objects.create()
+
+    assert case.no_contact_one_week_chaser_due_date is None
+    assert case.no_contact_four_week_chaser_due_date is None
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-find-contact-details", kwargs={"pk": case.id}),
+        {
+            "seven_day_no_contact_email_sent_date_0": TODAY.day,
+            "seven_day_no_contact_email_sent_date_1": TODAY.month,
+            "seven_day_no_contact_email_sent_date_2": TODAY.year,
+            "version": case.version,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.no_contact_one_week_chaser_due_date is not None
+    assert case_from_db.no_contact_four_week_chaser_due_date is not None
+
+
 def test_form_appears_to_add_first_contact(admin_client):
     """Test that when a case has no contacts a form appears to add one"""
     case: Case = Case.objects.create()
@@ -2377,6 +2409,22 @@ def test_calculate_report_followup_dates():
     assert updated_case.report_followup_week_12_due_date == date(2020, 3, 25)
 
 
+def test_calculate_no_contact_chaser_dates():
+    """
+    Test that the no contact details chaser dates are calculated correctly.
+    """
+    case: Case = Case()
+    seven_day_no_contact_email_sent_date: date = date(2020, 1, 1)
+
+    updated_case = calculate_no_contact_chaser_dates(
+        case=case,
+        seven_day_no_contact_email_sent_date=seven_day_no_contact_email_sent_date,
+    )
+
+    assert updated_case.no_contact_one_week_chaser_due_date == date(2020, 1, 8)
+    assert updated_case.no_contact_four_week_chaser_due_date == date(2020, 1, 29)
+
+
 def test_calculate_twelve_week_chaser_dates():
     """
     Test that the twelve week chaser dates are calculated correctly.
@@ -3350,6 +3398,49 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "We found no major issues.")
+
+
+def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
+    """
+    Test outstanding issues (issues_table) contains only unfixed issues
+    """
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    user: User = User.objects.create()
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+        notes=OUTSTANDING_ISSUE_NOTES,
+    )
+
+    email_template: EmailTemplate = EmailTemplate.objects.create(
+        template="{{ issues_tables.0.rows.0.cell_content_2 }}",
+        created_by=user,
+        updated_by=user,
+    )
+    url: str = reverse(
+        "cases:email-template-preview",
+        kwargs={"case_id": audit.case.id, "pk": email_template.id},
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, OUTSTANDING_ISSUE_NOTES)
+
+    check_result.retest_state = CheckResult.RetestResult.FIXED
+    check_result.save()
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, OUTSTANDING_ISSUE_NOTES)
 
 
 def test_equality_body_correspondence(admin_client):

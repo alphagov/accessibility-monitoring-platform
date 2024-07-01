@@ -26,14 +26,22 @@ def create_cases_and_export(
     enforcement_body: Case.EnforcementBody = Case.EnforcementBody.EHRC,
 ) -> Export:
     """Creates cases and export"""
-    case: Case = Case.objects.create(
+    case_1: Case = Case.objects.create(
         organisation_name=ORGANISATION_NAME,
+        compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE,
+        enforcement_body=enforcement_body,
+    )
+    case_2: Case = Case.objects.create(
+        organisation_name="Other Org Name",
         compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE,
         enforcement_body=enforcement_body,
     )
     with connection.cursor() as cursor:
         cursor.execute(
-            f"UPDATE cases_casestatus SET status = '{CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND}' WHERE id = {case.status.id}"
+            f"UPDATE cases_casestatus SET status = '{CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND}' WHERE id = {case_1.status.id}"
+        )
+        cursor.execute(
+            f"UPDATE cases_casestatus SET status = '{CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND}' WHERE id = {case_2.status.id}"
         )
 
     user: User = User.objects.create()
@@ -181,6 +189,30 @@ def test_export_case_status_updated(path_name, expected_status, admin_client):
     export_case_from_db: ExportCase = ExportCase.objects.get(id=export_case.id)
 
     assert export_case_from_db.status == expected_status
+
+
+def test_ell_export_cases_set_to_ready(admin_client):
+    """Test that all export cases statuses are set to ready"""
+    export: Export = create_cases_and_export()
+    export_case_1: ExportCase = export.exportcase_set.first()
+    export_case_2: ExportCase = export.exportcase_set.last()
+
+    assert export_case_1.id != export_case_2.id
+    assert export_case_1.status == ExportCase.Status.UNREADY
+    assert export_case_2.status == ExportCase.Status.UNREADY
+
+    response: HttpResponse = admin_client.get(
+        reverse("exports:mark-all-cases-as-ready", kwargs={"pk": export.id})
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("exports:export-detail", kwargs={"pk": export.id})
+
+    export_case_1_from_db: ExportCase = ExportCase.objects.get(id=export_case_1.id)
+    export_case_2_from_db: ExportCase = ExportCase.objects.get(id=export_case_2.id)
+
+    assert export_case_1_from_db.status == ExportCase.Status.READY
+    assert export_case_2_from_db.status == ExportCase.Status.READY
 
 
 def test_ready_export_csv_returned(admin_client):
