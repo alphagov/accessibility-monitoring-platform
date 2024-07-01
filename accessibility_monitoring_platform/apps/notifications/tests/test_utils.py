@@ -273,6 +273,52 @@ def test_report_ready_to_send_seven_day_no_contact():
 
 
 @pytest.mark.django_db
+def test_report_ready_to_send_no_contact_one_week_chaser_due():
+    """
+    Show overdue if report is ready to send and no contact
+    1-week chaser due date has been reached but not sent
+    """
+    user: User = User.objects.create()
+
+    case: Case = create_case(user)
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.no_contact_one_week_chaser_sent_date = TODAY
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 0
+
+    case.no_contact_one_week_chaser_sent_date = None
+    case.no_contact_one_week_chaser_due_date = TODAY
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 1
+
+
+@pytest.mark.django_db
+def test_report_ready_to_send_no_contact_four_week_chaser_due():
+    """
+    Show overdue if report is ready to send and no contact
+    4-week chaser due date has been reached but not sent
+    """
+    user: User = User.objects.create()
+
+    case: Case = create_case(user)
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.no_contact_four_week_chaser_sent_date = TODAY
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 0
+
+    case.no_contact_four_week_chaser_sent_date = None
+    case.no_contact_four_week_chaser_due_date = TODAY
+    case.save()
+
+    assert len(get_overdue_cases(user)) == 1
+
+
+@pytest.mark.django_db
 def test_returns_no_overdue_cases():
     """Creates seven cases that are all in correspondence with the PSB but require no further actions.
     Should return an empty queryset as none are overdue.
@@ -520,6 +566,31 @@ def test_build_task_list_report_approved():
 
 
 @pytest.mark.django_db
+def test_build_task_list_reverse_sorts_read():
+    """
+    Test build_task_list sorts read tasks by newest first
+    """
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    task_1: Task = Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today() - timedelta(days=1),
+        case=case,
+        user=user,
+        read=True,
+    )
+    task_2: Task = Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today(),
+        case=case,
+        user=user,
+        read=True,
+    )
+
+    assert build_task_list(user=user, read="true") == [task_2, task_1]
+
+
+@pytest.mark.django_db
 def test_build_task_list_reminder():
     """Test build_task_list finds reminder task"""
     user: User = User.objects.create()
@@ -628,7 +699,7 @@ def test_build_overdue_task_options_report_ready():
     case: Case = Case.objects.create()
     case.status.status = CaseStatus.Status.REPORT_READY_TO_SEND
     option: Option = Option(
-        label="Seven day 'no contact details' response overdue",
+        label="No contact details response overdue",
         url=reverse("cases:edit-find-contact-details", kwargs={"pk": case.id}),
     )
 
@@ -654,7 +725,7 @@ def test_build_overdue_task_options_12_week_deadline():
     case: Case = Case.objects.create()
     case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
     option: Option = Option(
-        label="Overdue",
+        label="12-week update due",
         url=reverse("cases:edit-cores-overview", kwargs={"pk": case.id}),
     )
 

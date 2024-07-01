@@ -14,7 +14,12 @@ from ..cases.models import Case
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
-from .utils import TASK_LIST_PARAMS, build_task_list, get_task_type_counts
+from .utils import (
+    TASK_LIST_PARAMS,
+    build_task_list,
+    get_task_type_counts,
+    mark_tasks_as_read,
+)
 
 
 class TaskListView(TemplateView):
@@ -60,6 +65,24 @@ class TaskMarkAsReadView(ListView):
         else:
             messages.error(request, "An error occured")
 
+        return HttpResponseRedirect(reverse_lazy("notifications:task-list"))
+
+
+class CommentsMarkAsReadView(ListView):
+    """
+    Mark all QA comment and report approves tasks as read
+    """
+
+    model = Task
+
+    def get(self, request, case_id):
+        """Hides a task"""
+        case: Case = Case.objects.get(id=case_id)
+        mark_tasks_as_read(user=self.request.user, case=case, type=Task.Type.QA_COMMENT)
+        mark_tasks_as_read(
+            user=self.request.user, case=case, type=Task.Type.REPORT_APPROVED
+        )
+        messages.success(request, f"{case} comments marked as read")
         return HttpResponseRedirect(reverse_lazy("notifications:task-list"))
 
 

@@ -1272,6 +1272,30 @@ def test_audit_retest_statement_overview_updates_when_no_statement_exists(
     assert audit_from_db.audit_retest_statement_overview_complete_date == date.today()
 
 
+def test_audit_retest_statement_overview_no_statement(
+    admin_client,
+):
+    """
+    Test that the audit retest statement overview page shows checks
+    even if there is no statement page.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    Page.objects.filter(page_type=Page.Type.STATEMENT).delete()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-retest-statement-overview", kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<label class="govuk-label"><b>Success criteria</b></label>""",
+        html=True,
+    )
+
+
 def test_audit_retest_statement_overview_updates_statement_checkresult(
     admin_client,
 ):

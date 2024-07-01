@@ -62,6 +62,13 @@ def test_options_qa_comment():
                 kwargs={"pk": task.id},
             ),
         ),
+        Option(
+            label="Mark case tasks as seen",
+            url=reverse(
+                "notifications:mark-case-comments-read",
+                kwargs={"case_id": case.id},
+            ),
+        ),
     ]
 
 
@@ -90,6 +97,13 @@ def test_options_report_approved():
             url=reverse(
                 "notifications:mark-task-read",
                 kwargs={"pk": task.id},
+            ),
+        ),
+        Option(
+            label="Mark case tasks as seen",
+            url=reverse(
+                "notifications:mark-case-comments-read",
+                kwargs={"case_id": case.id},
             ),
         ),
     ]

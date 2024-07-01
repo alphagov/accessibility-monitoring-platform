@@ -56,6 +56,9 @@ REMINDER_DUE_DATE: date = date(2022, 1, 1)
 DATETIME_REMINDER_UPDATED: datetime = datetime(2021, 9, 27, tzinfo=timezone.utc)
 DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=timezone.utc)
 DATETIME_S3REPORT_UPDATED: datetime = datetime(2021, 9, 29, tzinfo=timezone.utc)
+NO_CONTACT_DATE: date = date(2020, 4, 1)
+NO_CONTACT_ONE_WEEK: date = NO_CONTACT_DATE + timedelta(days=7)
+NO_CONTACT_FOUR_WEEKS: date = NO_CONTACT_DATE + timedelta(days=28)
 
 
 @pytest.fixture
@@ -295,17 +298,29 @@ def test_next_action_due_date_for_report_ready_to_send():
     Check that the next_action_due_date is correctly returned
     when case status is report ready to send.
     """
-    seven_day_no_contact_email_sent_date: date = date(2020, 4, 1)
+    seven_day_no_contact_email_sent_date: date = NO_CONTACT_DATE
+    no_contact_one_week_chaser_due_date: date = NO_CONTACT_ONE_WEEK
+    no_contact_four_week_chaser_due_date: date = NO_CONTACT_FOUR_WEEKS
 
     case: Case = Case.objects.create(
         seven_day_no_contact_email_sent_date=seven_day_no_contact_email_sent_date,
+        no_contact_one_week_chaser_due_date=no_contact_one_week_chaser_due_date,
+        no_contact_four_week_chaser_due_date=no_contact_four_week_chaser_due_date,
     )
     case.status.status = "report-ready-to-send"
 
-    assert (
-        case.next_action_due_date
-        == seven_day_no_contact_email_sent_date + timedelta(days=7)
-    )
+    # Initial no countact details request sent
+    assert case.next_action_due_date == no_contact_one_week_chaser_due_date
+
+    case.no_contact_one_week_chaser_sent_date = NO_CONTACT_ONE_WEEK
+
+    # No contact details 1-week chaser sent
+    assert case.next_action_due_date == no_contact_four_week_chaser_due_date
+
+    case.no_contact_four_week_chaser_sent_date = NO_CONTACT_FOUR_WEEKS
+
+    # No contact details 4-week chaser sent
+    assert case.next_action_due_date == NO_CONTACT_FOUR_WEEKS + timedelta(days=7)
 
 
 @pytest.mark.django_db

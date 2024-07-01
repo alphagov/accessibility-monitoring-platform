@@ -89,6 +89,15 @@ class Task(models.Model):
                     ),
                 )
             )
+            options.append(
+                Option(
+                    label="Mark case tasks as seen",
+                    url=reverse(
+                        "notifications:mark-case-comments-read",
+                        kwargs={"case_id": self.case.id},
+                    ),
+                ),
+            )
         return options
 
 

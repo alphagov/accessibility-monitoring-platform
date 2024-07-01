@@ -50,7 +50,7 @@ from ..exports.csv_export_utils import (
     populate_equality_body_columns,
 )
 from ..notifications.models import Task
-from ..notifications.utils import add_task, mark_tasks_as_read
+from ..notifications.utils import add_task
 from ..reports.utils import (
     build_issues_tables,
     get_report_visits_metrics,
@@ -154,6 +154,23 @@ def calculate_report_followup_dates(case: Case, report_sent_date: date) -> Case:
         )
         case.report_followup_week_12_due_date = report_sent_date + timedelta(
             days=TWELVE_WEEKS_IN_DAYS
+        )
+    return case
+
+
+def calculate_no_contact_chaser_dates(
+    case: Case, seven_day_no_contact_email_sent_date: date
+) -> Case:
+    """Calculate chaser dates based on seven day no contact sent date"""
+    if seven_day_no_contact_email_sent_date is None:
+        case.no_contact_one_week_chaser_due_date = None
+        case.no_contact_four_week_chaser_due_date = None
+    else:
+        case.no_contact_one_week_chaser_due_date = (
+            seven_day_no_contact_email_sent_date + timedelta(days=ONE_WEEK_IN_DAYS)
+        )
+        case.no_contact_four_week_chaser_due_date = (
+            seven_day_no_contact_email_sent_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
         )
     return case
 
@@ -386,10 +403,6 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        mark_tasks_as_read(user=self.request.user, case=case, type=Task.Type.QA_COMMENT)
-        mark_tasks_as_read(
-            user=self.request.user, case=case, type=Task.Type.REPORT_APPROVED
-        )
         if case.report:
             context.update(get_report_visits_metrics(case=case))
         return context
@@ -532,6 +545,21 @@ class CaseFindContactDetailsUpdateView(CaseUpdateView):
         CaseFindContactDetailsUpdateForm
     )
     template_name: str = "cases/forms/find_contact_details.html"
+
+    def form_valid(self, form: CaseReportSentOnUpdateForm):
+        """
+        Recalculate followup dates if report sent date has changed;
+        Otherwise set sent dates based on followup date checkboxes.
+        """
+        self.object: Case = form.save(commit=False)
+        if "seven_day_no_contact_email_sent_date" in form.changed_data:
+            self.object = calculate_no_contact_chaser_dates(
+                case=self.object,
+                seven_day_no_contact_email_sent_date=form.cleaned_data[
+                    "seven_day_no_contact_email_sent_date"
+                ],
+            )
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """

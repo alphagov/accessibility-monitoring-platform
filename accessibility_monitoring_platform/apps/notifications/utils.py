@@ -17,7 +17,7 @@ from ..cases.models import Case, CaseStatus, EqualityBodyCorrespondence
 from .models import Notification, NotificationSetting, Option, Task
 
 TASK_LIST_PARAMS: List[str] = ["type", "read", "deleted", "future"]
-TASK_LIST_TIMEDELTA: timedelta = timedelta(days=7)
+TASK_LIST_READ_TIMEDELTA: timedelta = timedelta(days=7)
 
 
 class EmailContextType(TypedDict):
@@ -113,13 +113,30 @@ def get_overdue_cases(user_request: User) -> List[Case]:
     seven_days_ago = date.today() - timedelta(days=7)
 
     seven_day_no_contact: QuerySet[Case] = user_cases.filter(
-        status__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND,
-        contact_details_found=Case.ContactDetailsFound.NOT_FOUND,
-        seven_day_no_contact_email_sent_date__range=[start_date, seven_days_ago],
+        Q(status__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND),
+        Q(contact_details_found=Case.ContactDetailsFound.NOT_FOUND),
+        Q(
+            Q(
+                seven_day_no_contact_email_sent_date__range=[
+                    start_date,
+                    seven_days_ago,
+                ],
+                no_contact_one_week_chaser_sent_date=None,
+                no_contact_four_week_chaser_sent_date=None,
+            )
+            | Q(
+                no_contact_one_week_chaser_due_date__range=[start_date, end_date],
+                no_contact_one_week_chaser_sent_date=None,
+            )
+            | Q(
+                no_contact_four_week_chaser_due_date__range=[start_date, end_date],
+                no_contact_four_week_chaser_sent_date=None,
+            )
+        ),
     )
 
     in_report_correspondence: QuerySet[Case] = user_cases.filter(
-        Q(status__status="in-report-correspondence"),
+        Q(status__status=CaseStatus.Status.IN_REPORT_CORES),
         Q(
             Q(  # pylint: disable=unsupported-binary-operation
                 report_followup_week_1_due_date__range=[start_date, end_date],
@@ -134,12 +151,12 @@ def get_overdue_cases(user_request: User) -> List[Case]:
     )
 
     in_probation_period: QuerySet[Case] = user_cases.filter(
-        status__status__icontains="in-probation-period",
+        status__status__icontains=CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
         report_followup_week_12_due_date__range=[start_date, end_date],
     )
 
     in_12_week_correspondence: QuerySet[Case] = user_cases.filter(
-        Q(status__status__icontains="in-12-week-correspondence"),
+        Q(status__status__icontains=CaseStatus.Status.IN_12_WEEK_CORES),
         Q(
             Q(
                 twelve_week_1_week_chaser_due_date__range=[start_date, end_date],
@@ -174,30 +191,36 @@ def get_overdue_cases(user_request: User) -> List[Case]:
 
 def build_overdue_task_options(case: Case) -> List[Option]:
     """Build list of options for overdue case task"""
-    options: List[Option] = []
     kwargs_case_pk: Dict[str, int] = {"pk": case.id}
     if case.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
-        option: Option = Option(
-            label="Seven day 'no contact details' response overdue",
-            url=reverse("cases:edit-find-contact-details", kwargs=kwargs_case_pk),
-        )
-    elif case.status.status == CaseStatus.Status.IN_REPORT_CORES:
-        option: Option = Option(
-            label=case.in_report_correspondence_progress,
-            url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
-        )
-    elif case.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
-        option: Option = Option(
-            label="Overdue",
-            url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
-        )
-    elif case.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
-        option: Option = Option(
-            label=case.twelve_week_correspondence_progress,
-            url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
-        )
-    options.append(option)
-    return options
+        return [
+            Option(
+                label="No contact details response overdue",
+                url=reverse("cases:edit-find-contact-details", kwargs=kwargs_case_pk),
+            )
+        ]
+    if case.status.status == CaseStatus.Status.IN_REPORT_CORES:
+        return [
+            Option(
+                label=case.in_report_correspondence_progress,
+                url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
+            )
+        ]
+    if case.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
+        return [
+            Option(
+                label="12-week update due",
+                url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
+            )
+        ]
+    if case.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
+        return [
+            Option(
+                label=case.twelve_week_correspondence_progress,
+                url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
+            )
+        ]
+    return []
 
 
 def get_post_case_tasks(user: User) -> List[Task]:
@@ -281,13 +304,14 @@ def build_task_list(user: User, **kwargs: Dict[str, str]) -> List[Task]:
 
     type: Optional[str] = kwargs.get("type")
 
+    read: bool = kwargs.get("read") is not None
     if type is not None:
         task_filter["type"] = type
-    if kwargs.get("future") is None:
-        task_filter["date__lte"] = date.today()
-    if kwargs.get("read") is not None or kwargs.get("deleted") is not None:
+    if read or kwargs.get("deleted") is not None:
         task_filter["read"] = True
-        task_filter["date__gte"] = date.today() - TASK_LIST_TIMEDELTA
+        task_filter["date__gte"] = date.today() - TASK_LIST_READ_TIMEDELTA
+    elif kwargs.get("future") is None:
+        task_filter["date__lte"] = date.today()
 
     tasks: List[Task] = list(Task.objects.filter(**task_filter))
 
@@ -310,6 +334,7 @@ def build_task_list(user: User, **kwargs: Dict[str, str]) -> List[Task]:
     sorted_tasks: List[Task] = sorted(
         tasks,
         key=lambda task: (task.date),
+        reverse=read,
     )
 
     return sorted_tasks
