@@ -1403,7 +1403,8 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
         context["retest"] = self.case.retests.first()
         if self.case.audit is not None:
             context["issues_tables"] = build_issues_tables(
-                pages=self.case.audit.testable_pages
+                pages=self.case.audit.testable_pages,
+                check_results_attr="unfixed_check_results",
             )
             context["retest_issues_tables"] = build_issues_tables(
                 pages=self.case.audit.retestable_pages,
