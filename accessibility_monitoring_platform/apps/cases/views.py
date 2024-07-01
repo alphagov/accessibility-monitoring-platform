@@ -23,7 +23,6 @@ from ..audits.forms import (
     ArchiveAuditStatement2UpdateForm,
 )
 from ..audits.utils import report_data_updated
-from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.models import Boolean, EmailTemplate

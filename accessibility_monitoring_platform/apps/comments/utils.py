@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest
 
 from ..common.models import Platform
-from ..common.utils import get_platform_settings
+from ..common.utils import get_platform_settings, record_model_create_event
 from ..notifications.models import Task
 from ..notifications.utils import add_task
 from .models import Comment
@@ -67,7 +67,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
 
     for target_user_id in user_ids:
         target_user = User.objects.get(id=target_user_id)
-        add_task(
+        task: Task = add_task(
             user=target_user,
             case=comment.case,
             type=Task.Type.QA_COMMENT,
@@ -75,4 +75,5 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
             list_description=list_description,
             request=request,
         )
+        record_model_create_event(user=request.user, model_object=task)
     return True
