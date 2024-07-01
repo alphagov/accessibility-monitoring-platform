@@ -3358,6 +3358,8 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
     """
     Test outstanding issues (issues_table) contains only unfixed issues
     """
+    from ...audits.models import WcagDefinition
+
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
     user: User = User.objects.create()
     case: Case = Case.objects.create()
