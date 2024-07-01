@@ -158,6 +158,23 @@ def calculate_report_followup_dates(case: Case, report_sent_date: date) -> Case:
     return case
 
 
+def calculate_no_contact_chaser_dates(
+    case: Case, seven_day_no_contact_email_sent_date: date
+) -> Case:
+    """Calculate chaser dates based on seven day no contact sent date"""
+    if seven_day_no_contact_email_sent_date is None:
+        case.no_contact_one_week_chaser_due_date = None
+        case.no_contact_four_week_chaser_due_date = None
+    else:
+        case.no_contact_one_week_chaser_due_date = (
+            seven_day_no_contact_email_sent_date + timedelta(days=ONE_WEEK_IN_DAYS)
+        )
+        case.no_contact_four_week_chaser_due_date = (
+            seven_day_no_contact_email_sent_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
+        )
+    return case
+
+
 def calculate_twelve_week_chaser_dates(
     case: Case, twelve_week_update_requested_date: date
 ) -> Case:
@@ -528,6 +545,21 @@ class CaseFindContactDetailsUpdateView(CaseUpdateView):
         CaseFindContactDetailsUpdateForm
     )
     template_name: str = "cases/forms/find_contact_details.html"
+
+    def form_valid(self, form: CaseReportSentOnUpdateForm):
+        """
+        Recalculate followup dates if report sent date has changed;
+        Otherwise set sent dates based on followup date checkboxes.
+        """
+        self.object: Case = form.save(commit=False)
+        if "seven_day_no_contact_email_sent_date" in form.changed_data:
+            self.object = calculate_no_contact_chaser_dates(
+                case=self.object,
+                seven_day_no_contact_email_sent_date=form.cleaned_data[
+                    "seven_day_no_contact_email_sent_date"
+                ],
+            )
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """

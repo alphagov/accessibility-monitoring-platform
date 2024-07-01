@@ -248,6 +248,19 @@ class Case(VersionModel):
         default=ContactDetailsFound.NOT_CHECKED,
     )
     seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
+    seven_day_no_contact_request_sent_to = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    no_contact_one_week_chaser_due_date = models.DateField(null=True, blank=True)
+    no_contact_one_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    no_contact_one_week_chaser_sent_to = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    no_contact_four_week_chaser_due_date = models.DateField(null=True, blank=True)
+    no_contact_four_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    no_contact_four_week_chaser_sent_to = models.CharField(
+        max_length=200, default="", blank=True
+    )
     correspondence_notes = models.TextField(default="", blank=True)
     find_contact_details_complete_date = models.DateField(null=True, blank=True)
 
@@ -469,8 +482,18 @@ class Case(VersionModel):
     @property
     def next_action_due_date(self) -> Optional[date]:
         if self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
-            if self.seven_day_no_contact_email_sent_date:
-                return self.seven_day_no_contact_email_sent_date + timedelta(
+            if (
+                self.no_contact_one_week_chaser_due_date
+                and self.no_contact_one_week_chaser_sent_date is None
+            ):
+                return self.no_contact_one_week_chaser_due_date
+            if (
+                self.no_contact_four_week_chaser_due_date
+                and self.no_contact_four_week_chaser_sent_date is None
+            ):
+                return self.no_contact_four_week_chaser_due_date
+            if self.no_contact_four_week_chaser_sent_date is not None:
+                return self.no_contact_four_week_chaser_sent_date + timedelta(
                     days=ONE_WEEK_IN_DAYS
                 )
 

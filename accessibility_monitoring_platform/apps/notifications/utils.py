@@ -113,9 +113,26 @@ def get_overdue_cases(user_request: User) -> List[Case]:
     seven_days_ago = date.today() - timedelta(days=7)
 
     seven_day_no_contact: QuerySet[Case] = user_cases.filter(
-        status__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND,
-        contact_details_found=Case.ContactDetailsFound.NOT_FOUND,
-        seven_day_no_contact_email_sent_date__range=[start_date, seven_days_ago],
+        Q(status__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND),
+        Q(contact_details_found=Case.ContactDetailsFound.NOT_FOUND),
+        Q(
+            Q(
+                seven_day_no_contact_email_sent_date__range=[
+                    start_date,
+                    seven_days_ago,
+                ],
+                no_contact_one_week_chaser_sent_date=None,
+                no_contact_four_week_chaser_sent_date=None,
+            )
+            | Q(
+                no_contact_one_week_chaser_due_date__range=[start_date, end_date],
+                no_contact_one_week_chaser_sent_date=None,
+            )
+            | Q(
+                no_contact_four_week_chaser_due_date__range=[start_date, end_date],
+                no_contact_four_week_chaser_sent_date=None,
+            )
+        ),
     )
 
     in_report_correspondence: QuerySet[Case] = user_cases.filter(
@@ -178,7 +195,7 @@ def build_overdue_task_options(case: Case) -> List[Option]:
     if case.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
         return [
             Option(
-                label="Seven day 'no contact details' response overdue",
+                label="No contact details response overdue",
                 url=reverse("cases:edit-find-contact-details", kwargs=kwargs_case_pk),
             )
         ]
