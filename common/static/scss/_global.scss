@@ -49,13 +49,18 @@ pre {
     forced-color-adjust: none;
 }
 
+.amp-search-wrapper {
+    justify-content: flex-end;
+}
+
 .amp-search-button {
     border: 0;
     cursor: pointer;
     position: relative;
     padding: 0;
-    width: 40px;
-    height: 40px;
+    min-width: 25px;
+    max-width: 25px;
+    height: 25px;
     color: #fff;
     background-color: #000;
 }
@@ -300,11 +305,6 @@ img, .amp-max-width-100 {
     position: relative;
 }
 
-.custom-body {
-    padding: 10px;
-    padding-bottom: 200px;   /* Height of the footer */
-}
-
 .custom-footer {
     bottom: 0;
     width: 100%;
@@ -406,18 +406,16 @@ img, .amp-max-width-100 {
 
 // For use in navbar
 
-.topnavmenu {
+.top-nav-menu {
     border-bottom: 1px solid #bfc1c3;
-    padding: 5px 0 5px 0;
+    padding: 10px 0;
     margin-bottom: 0;
 }
 
-.nav-menu-list {
+.top-nav-menu-list {
     display: block;
-    padding-inline-start: 40px;
     list-style-type: none;
-    text-align: right;
-    margin-bottom: 0;
+    margin: 0;
 
     li {
         display: inline-block;
