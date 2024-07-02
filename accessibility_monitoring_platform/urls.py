@@ -35,10 +35,6 @@ urlpatterns = [
     path("comments/", include("accessibility_monitoring_platform.apps.comments.urls")),
     path("common/", include("accessibility_monitoring_platform.apps.common.urls")),
     path("reports/", include("accessibility_monitoring_platform.apps.reports.urls")),
-    path(
-        "reminders/", include("accessibility_monitoring_platform.apps.reminders.urls")
-    ),
-    path("overdue/", include("accessibility_monitoring_platform.apps.overdue.urls")),
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
     path("exports/", include("accessibility_monitoring_platform.apps.exports.urls")),
     path("user/", include("accessibility_monitoring_platform.apps.users.urls")),

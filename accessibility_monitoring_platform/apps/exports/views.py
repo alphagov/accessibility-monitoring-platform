@@ -173,9 +173,20 @@ def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
+def mark_all_export_cases_as_ready(
+    request: HttpRequest, pk: int
+) -> HttpResponseRedirect:
+    """Mark all the cases in an export as ready"""
+    export: Export = get_object_or_404(Export, id=pk)
+    for export_case in export.exportcase_set.all():
+        export_case.status = ExportCase.Status.READY
+        export_case.save()
+    return redirect(reverse("exports:export-detail", kwargs={"pk": export.id}))
+
+
 def mark_export_case_as_ready(request: HttpRequest, pk: int) -> HttpResponseRedirect:
     """Mark export as ready"""
-    export_case: Export = get_object_or_404(ExportCase, id=pk)
+    export_case: ExportCase = get_object_or_404(ExportCase, id=pk)
     export_case.status = ExportCase.Status.READY
     export_case.save()
     return redirect(

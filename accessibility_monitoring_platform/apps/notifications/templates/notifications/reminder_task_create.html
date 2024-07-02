@@ -14,11 +14,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                {% if reminder %}
-                    <form method="post" action="{% url 'reminders:edit-reminder' reminder.id %}">
-                {% else %}
-                    <form method="post" action="{% url 'reminders:reminder-create' case.id %}">
-                {% endif %}
+                    <form method="post" action="{% url 'notifications:reminder-create' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
@@ -32,15 +28,6 @@
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
-                            {% if reminder %}
-                                <input
-                                    type="submit"
-                                    value="Delete reminder"
-                                    name="delete"
-                                    class="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button"
-                                />
-                            {% endif %}
                         </div>
                     </div>
                 </form>

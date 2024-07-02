@@ -23,7 +23,7 @@ from ...audits.models import (
 )
 from ...comments.models import Comment
 from ...common.models import Boolean, EmailTemplate
-from ...reminders.models import Reminder
+from ...notifications.models import Task
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
@@ -56,6 +56,9 @@ REMINDER_DUE_DATE: date = date(2022, 1, 1)
 DATETIME_REMINDER_UPDATED: datetime = datetime(2021, 9, 27, tzinfo=timezone.utc)
 DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=timezone.utc)
 DATETIME_S3REPORT_UPDATED: datetime = datetime(2021, 9, 29, tzinfo=timezone.utc)
+NO_CONTACT_DATE: date = date(2020, 4, 1)
+NO_CONTACT_ONE_WEEK: date = NO_CONTACT_DATE + timedelta(days=7)
+NO_CONTACT_FOUR_WEEKS: date = NO_CONTACT_DATE + timedelta(days=28)
 
 
 @pytest.fixture
@@ -295,17 +298,29 @@ def test_next_action_due_date_for_report_ready_to_send():
     Check that the next_action_due_date is correctly returned
     when case status is report ready to send.
     """
-    seven_day_no_contact_email_sent_date: date = date(2020, 4, 1)
+    seven_day_no_contact_email_sent_date: date = NO_CONTACT_DATE
+    no_contact_one_week_chaser_due_date: date = NO_CONTACT_ONE_WEEK
+    no_contact_four_week_chaser_due_date: date = NO_CONTACT_FOUR_WEEKS
 
     case: Case = Case.objects.create(
         seven_day_no_contact_email_sent_date=seven_day_no_contact_email_sent_date,
+        no_contact_one_week_chaser_due_date=no_contact_one_week_chaser_due_date,
+        no_contact_four_week_chaser_due_date=no_contact_four_week_chaser_due_date,
     )
     case.status.status = "report-ready-to-send"
 
-    assert (
-        case.next_action_due_date
-        == seven_day_no_contact_email_sent_date + timedelta(days=7)
-    )
+    # Initial no countact details request sent
+    assert case.next_action_due_date == no_contact_one_week_chaser_due_date
+
+    case.no_contact_one_week_chaser_sent_date = NO_CONTACT_ONE_WEEK
+
+    # No contact details 1-week chaser sent
+    assert case.next_action_due_date == no_contact_four_week_chaser_due_date
+
+    case.no_contact_four_week_chaser_sent_date = NO_CONTACT_FOUR_WEEKS
+
+    # No contact details 4-week chaser sent
+    assert case.next_action_due_date == NO_CONTACT_FOUR_WEEKS + timedelta(days=7)
 
 
 @pytest.mark.django_db
@@ -573,11 +588,17 @@ def test_case_last_edited_from_comment(last_edited_case: Case):
 
 @pytest.mark.django_db
 def test_case_last_edited_from_reminder(last_edited_case: Case):
-    """Test the case last edited date found on Reminder"""
+    """Test the case last edited date found on reminder Task"""
+    user: User = User.objects.create()
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_REMINDER_UPDATED)
     ):
-        Reminder.objects.create(case=last_edited_case, due_date=REMINDER_DUE_DATE)
+        Task.objects.create(
+            type=Task.Type.REMINDER,
+            case=last_edited_case,
+            user=user,
+            date=REMINDER_DUE_DATE,
+        )
 
     assert last_edited_case.last_edited == DATETIME_REMINDER_UPDATED
 

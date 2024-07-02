@@ -51,6 +51,12 @@
             <div class="govuk-grid-column-one-third">
                 <div class="govuk-button-group amp-flex-end">
                     <a
+                        href="{% url 'exports:mark-all-cases-as-ready' export.id %}"
+                        class="govuk-link govuk-link--no-visited-state float-right"
+                    >
+                        Mark all cases ready
+                    </a>
+                    <a
                         href="{% url 'exports:export-confirm-delete' export.id %}"
                         class="govuk-link govuk-link--no-visited-state float-right"
                     >

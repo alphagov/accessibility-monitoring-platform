@@ -194,6 +194,9 @@ class Case(VersionModel):
         blank=True,
         null=True,
     )
+    is_feedback_requested = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
     case_details_complete_date = models.DateField(null=True, blank=True)
 
     # Historic testing details page
@@ -245,6 +248,19 @@ class Case(VersionModel):
         default=ContactDetailsFound.NOT_CHECKED,
     )
     seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
+    seven_day_no_contact_request_sent_to = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    no_contact_one_week_chaser_due_date = models.DateField(null=True, blank=True)
+    no_contact_one_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    no_contact_one_week_chaser_sent_to = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    no_contact_four_week_chaser_due_date = models.DateField(null=True, blank=True)
+    no_contact_four_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    no_contact_four_week_chaser_sent_to = models.CharField(
+        max_length=200, default="", blank=True
+    )
     correspondence_notes = models.TextField(default="", blank=True)
     find_contact_details_complete_date = models.DateField(null=True, blank=True)
 
@@ -400,9 +416,6 @@ class Case(VersionModel):
         default=EnforcementBodyClosedCase.NO,
     )
     enforcement_body_finished_date = models.DateField(null=True, blank=True)
-    is_feedback_requested = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
     equality_body_notes = models.TextField(default="", blank=True)
 
     # Deactivate case page
@@ -469,8 +482,18 @@ class Case(VersionModel):
     @property
     def next_action_due_date(self) -> Optional[date]:
         if self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
-            if self.seven_day_no_contact_email_sent_date:
-                return self.seven_day_no_contact_email_sent_date + timedelta(
+            if (
+                self.no_contact_one_week_chaser_due_date
+                and self.no_contact_one_week_chaser_sent_date is None
+            ):
+                return self.no_contact_one_week_chaser_due_date
+            if (
+                self.no_contact_four_week_chaser_due_date
+                and self.no_contact_four_week_chaser_sent_date is None
+            ):
+                return self.no_contact_four_week_chaser_due_date
+            if self.no_contact_four_week_chaser_sent_date is not None:
+                return self.no_contact_four_week_chaser_sent_date + timedelta(
                     days=ONE_WEEK_IN_DAYS
                 )
 
@@ -510,7 +533,7 @@ class Case(VersionModel):
 
     @property
     def reminder(self):
-        return self.reminder_case.filter(is_deleted=False).first()
+        return self.task_set.filter(type="reminder", read=False).first()
 
     @property
     def qa_comments(self):
@@ -681,8 +704,8 @@ class Case(VersionModel):
             updated_times.append(comment.created_date)
             updated_times.append(comment.updated)
 
-        for reminder in self.reminder_case.all():
-            updated_times.append(reminder.updated)
+        for task in self.task_set.all():
+            updated_times.append(task.updated)
 
         if self.report is not None:
             updated_times.append(self.report.updated)

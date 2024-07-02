@@ -343,23 +343,22 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object
 
-        if audit.accessibility_statement_found:
-            if self.request.POST:
-                retest_statement_check_results_formset: (
-                    AuditRetestStatementCheckResultFormset
-                ) = AuditRetestStatementCheckResultFormset(self.request.POST)
-            else:
-                retest_statement_check_results_formset: (
-                    AuditRetestStatementCheckResultFormset
-                ) = AuditRetestStatementCheckResultFormset(
-                    queryset=StatementCheckResult.objects.filter(
-                        audit=self.object, type=self.statement_check_type
-                    )
+        if self.request.POST:
+            retest_statement_check_results_formset: (
+                AuditRetestStatementCheckResultFormset
+            ) = AuditRetestStatementCheckResultFormset(self.request.POST)
+        else:
+            retest_statement_check_results_formset: (
+                AuditRetestStatementCheckResultFormset
+            ) = AuditRetestStatementCheckResultFormset(
+                queryset=StatementCheckResult.objects.filter(
+                    audit=audit, type=self.statement_check_type
                 )
-
-            context["retest_statement_check_results_formset"] = (
-                retest_statement_check_results_formset
             )
+
+        context["retest_statement_check_results_formset"] = (
+            retest_statement_check_results_formset
+        )
 
         return context
 

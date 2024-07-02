@@ -69,7 +69,6 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/edit-12-week-update-request-ack/": "12-week update request acknowledged",
     "/cases/[id]/edit-review-changes/": "Reviewing changes",
     "/cases/[id]/edit-test-results/": "Testing details",
-    "/cases/[id]/twelve-week-correspondence-email/": "Email template",
     "/cases/[id]/edit-twelve-week-retest/": "12-week retest",
     "/cases/[id]/view/": "View case",
     "/cases/[id]/edit-statement-enforcement/": "Statement enforcement",
@@ -110,10 +109,9 @@ PAGE_TITLES_BY_URL = {
     "/exports/[id]/export-detail/": "EHRC CSV export",
     "/exports/[id]/export-confirm-delete/": "Delete EHRC CSV export",
     "/exports/[id]/export-confirm-export/": "Confirm EHRC CSV export",
-    "/notifications/notifications-list/": "Comments",
-    "/overdue/overdue-list/": "Overdue",
-    "/reminders/cases/[id]/reminder-create/": "Reminder",
-    "/reminders/reminder-list/": "Reminders",
+    "/notifications/task-list/": "Tasks",
+    "/notifications/[id]/edit-reminder-task/": "Reminder",
+    "/notifications/cases/[id]/reminder-task-create/": "Reminder",
     "/reports/edit-report-wrapper/": "Report viewer editor",
     "/reports/[id]/report-publisher/": "Report publisher",
     "/reports/[id]/edit-report-notes/": "Report notes",
@@ -173,7 +171,7 @@ def get_page_title(path: str) -> str:  # noqa: C901
             page_title: str = f"{page_heading} {amp_format_date(export.cutoff_date)}"
         except Page.DoesNotExist:
             page_title: str = f"Export does not exist: {path}"
-    elif path_without_id == "/reminders/cases/[id]/reminder-create/":
+    elif path_without_id == "/notifications/cases/[id]/reminder-create/":
         try:
             case: Case = Case.objects.get(id=path.split("/")[3])
             page_title: str = f"{case.organisation_name} | {page_heading}"

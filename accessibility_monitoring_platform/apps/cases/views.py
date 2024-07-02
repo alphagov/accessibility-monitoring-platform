@@ -23,7 +23,6 @@ from ..audits.forms import (
     ArchiveAuditStatement2UpdateForm,
 )
 from ..audits.utils import report_data_updated
-from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.models import Boolean, EmailTemplate
@@ -49,7 +48,8 @@ from ..exports.csv_export_utils import (
     download_feedback_survey_cases,
     populate_equality_body_columns,
 )
-from ..notifications.utils import add_notification, read_notification
+from ..notifications.models import Task
+from ..notifications.utils import add_task
 from ..reports.utils import (
     build_issues_tables,
     get_report_visits_metrics,
@@ -99,7 +99,6 @@ from .models import (
 from .utils import (
     filter_cases,
     get_case_view_sections,
-    get_post_case_alerts,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -154,6 +153,23 @@ def calculate_report_followup_dates(case: Case, report_sent_date: date) -> Case:
         )
         case.report_followup_week_12_due_date = report_sent_date + timedelta(
             days=TWELVE_WEEKS_IN_DAYS
+        )
+    return case
+
+
+def calculate_no_contact_chaser_dates(
+    case: Case, seven_day_no_contact_email_sent_date: date
+) -> Case:
+    """Calculate chaser dates based on seven day no contact sent date"""
+    if seven_day_no_contact_email_sent_date is None:
+        case.no_contact_one_week_chaser_due_date = None
+        case.no_contact_four_week_chaser_due_date = None
+    else:
+        case.no_contact_one_week_chaser_due_date = (
+            seven_day_no_contact_email_sent_date + timedelta(days=ONE_WEEK_IN_DAYS)
+        )
+        case.no_contact_four_week_chaser_due_date = (
+            seven_day_no_contact_email_sent_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
         )
     return case
 
@@ -385,9 +401,9 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        read_notification(self.request)
-        if self.object.report:
-            context.update(get_report_visits_metrics(self.object))
+        case: Case = self.object
+        if case.report:
+            context.update(get_report_visits_metrics(case=case))
         return context
 
     def get_success_url(self) -> str:
@@ -427,39 +443,6 @@ class CaseQACommentsUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class QACommentCreateView(CreateView):
-    """
-    View to create a case
-    """
-
-    model: Type[Comment] = Comment
-    form_class: Type[CommentCreateForm] = CommentCreateForm
-    context_object_name: str = "comment"
-    template_name: str = "cases/forms/qa_add_comment.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add undeleted contacts to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        context["case"] = self.case
-        return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        comment: Comment = Comment.objects.create(
-            case=self.case, user=self.request.user, body=form.cleaned_data.get("body")
-        )
-        record_model_create_event(user=self.request.user, model_object=comment)
-        add_comment_notification(self.request, comment)
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        case_pk: Dict[str, int] = {"pk": self.case.id}  # type: ignore
-        return f"{reverse('cases:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
-
-
 class CaseReportApprovedUpdateView(CaseUpdateView):
     """
     View to update QA auditor
@@ -474,12 +457,11 @@ class CaseReportApprovedUpdateView(CaseUpdateView):
             if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
                 case: Case = self.object
                 if case.auditor:
-                    add_notification(
+                    add_task(
                         user=case.auditor,
-                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",
-                        path=reverse(
-                            "cases:edit-report-approved", kwargs={"pk": case.id}
-                        ),
+                        case=case,
+                        type=Task.Type.REPORT_APPROVED,
+                        description=f"{self.request.user.get_full_name()} QA approved Case {case}",
                         list_description=f"{case} - Report approved",
                         request=self.request,
                     )
@@ -529,6 +511,21 @@ class CaseFindContactDetailsUpdateView(CaseUpdateView):
         CaseFindContactDetailsUpdateForm
     )
     template_name: str = "cases/forms/find_contact_details.html"
+
+    def form_valid(self, form: CaseReportSentOnUpdateForm):
+        """
+        Recalculate followup dates if report sent date has changed;
+        Otherwise set sent dates based on followup date checkboxes.
+        """
+        self.object: Case = form.save(commit=False)
+        if "seven_day_no_contact_email_sent_date" in form.changed_data:
+            self.object = calculate_no_contact_chaser_dates(
+                case=self.object,
+                seven_day_no_contact_email_sent_date=form.cleaned_data[
+                    "seven_day_no_contact_email_sent_date"
+                ],
+            )
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """
@@ -795,41 +792,6 @@ class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):
                 "cases:edit-twelve-week-retest", kwargs={"pk": self.object.id}
             )
         return super().get_success_url()
-
-
-class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
-    template_name: str = "cases/emails/twelve_week_correspondence.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
-        context["case"] = case
-        if case.audit is not None:
-            context["issues_tables"] = build_issues_tables(
-                pages=case.audit.testable_pages
-            )
-        return context
-
-
-class CaseOutstandingIssuesEmailTemplateView(TemplateView):
-    template_name: str = "cases/emails/outstanding_issues.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
-        context["case"] = case
-        if case.audit is not None:
-            context["issues_tables"] = build_issues_tables(
-                pages=case.audit.testable_pages,
-                check_results_attr="unfixed_check_results",
-            )
-        email_template: EmailTemplate = EmailTemplate.objects.get(
-            slug=EmailTemplate.Slug.OUTSTANDING_ISSUES
-        )
-        context["email_template_render"] = email_template.render(context=context)
-        return context
 
 
 class CaseNoPSBResponseUpdateView(CaseUpdateView):
@@ -1274,22 +1236,6 @@ class CaseRetestCreateErrorTemplateView(TemplateView):
         return context
 
 
-class EqualityBodyRetestEmailTemplateView(TemplateView):
-    template_name: str = "cases/emails/equality_body_retest_email.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
-        context["case"] = case
-        context["retest"] = case.retests.first()
-        email_template: EmailTemplate = EmailTemplate.objects.get(
-            slug=EmailTemplate.Slug.EQUALITY_BODY_RETEST
-        )
-        context["email_template_render"] = email_template.render(context=context)
-        return context
-
-
 class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
     """
     View to note correspondence with enforcement body
@@ -1299,16 +1245,6 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
         CaseStatementEnforcementUpdateForm
     )
     template_name: str = "cases/forms/legacy_end_of_case.html"
-
-
-class PostCaseAlertsTemplateView(TemplateView):
-    template_name: str = "cases/post_case_alerts.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["post_case_alerts"] = get_post_case_alerts(user=self.request.user)
-        return context
 
 
 class CaseZendeskTicketsDetailView(DetailView):
@@ -1433,10 +1369,11 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
         context["retest"] = self.case.retests.first()
         if self.case.audit is not None:
             context["issues_tables"] = build_issues_tables(
-                pages=self.case.audit.testable_pages
+                pages=self.case.audit.testable_pages,
+                check_results_attr="unfixed_check_results",
             )
             context["retest_issues_tables"] = build_issues_tables(
-                pages=self.case.audit.testable_pages,
+                pages=self.case.audit.retestable_pages,
                 use_retest_notes=True,
                 check_results_attr="unfixed_check_results",
             )

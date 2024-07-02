@@ -29,7 +29,6 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseOneWeekFollowupFinalUpdateView,
     CaseOneWeekFollowupUpdateView,
     CaseOutstandingIssuesDetailView,
-    CaseOutstandingIssuesEmailTemplateView,
     CasePublishReportUpdateView,
     CaseQACommentsUpdateView,
     CaseReactivateUpdateView,
@@ -43,17 +42,13 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseStatementEnforcementUpdateView,
     CaseStatusWorkflowDetailView,
     CaseTestResultsUpdateView,
-    CaseTwelveWeekCorrespondenceEmailTemplateView,
     CaseTwelveWeekRetestUpdateView,
     CaseTwelveWeekUpdateAcknowledgedUpdateView,
     CaseTwelveWeekUpdateRequestedUpdateView,
     CaseZendeskTicketsDetailView,
     EqualityBodyCorrespondenceCreateView,
-    EqualityBodyRetestEmailTemplateView,
     ListCaseEqualityBodyCorrespondenceUpdateView,
-    PostCaseAlertsTemplateView,
     PostCaseUpdateView,
-    QACommentCreateView,
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
     delete_zendesk_ticket,
@@ -93,11 +88,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-qa-comments/",
         login_required(CaseQACommentsUpdateView.as_view()),
         name="edit-qa-comments",
-    ),
-    path(
-        "<int:case_id>/add-qa-comment/",
-        login_required(QACommentCreateView.as_view()),
-        name="add-qa-comment",
     ),
     path(
         "<int:pk>/edit-report-approved/",
@@ -160,11 +150,6 @@ urlpatterns: List[URLPattern] = [
         name="edit-12-week-update-request-ack",
     ),
     path(
-        "<int:pk>/twelve-week-correspondence-email/",
-        login_required(CaseTwelveWeekCorrespondenceEmailTemplateView.as_view()),
-        name="twelve-week-correspondence-email",
-    ),
-    path(
         "<int:pk>/edit-no-psb-response/",
         login_required(CaseNoPSBResponseUpdateView.as_view()),
         name="edit-no-psb-response",
@@ -215,11 +200,6 @@ urlpatterns: List[URLPattern] = [
         name="outstanding-issues",
     ),
     path(
-        "<int:pk>/outstanding-issues-email/",
-        login_required(CaseOutstandingIssuesEmailTemplateView.as_view()),
-        name="outstanding-issues-email",
-    ),
-    path(
         "<int:pk>/statement-enforcement/",
         login_required(CaseStatementEnforcementUpdateView.as_view()),
         name="edit-statement-enforcement",
@@ -258,16 +238,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/legacy-end-of-case/",
         login_required(CaseLegacyEndOfCaseUpdateView.as_view()),
         name="legacy-end-of-case",
-    ),
-    path(
-        "<int:pk>/equality-body-retest-email-template/",
-        login_required(EqualityBodyRetestEmailTemplateView.as_view()),
-        name="equality-body-retest-email-template",
-    ),
-    path(
-        "post-case-alerts/",
-        login_required(PostCaseAlertsTemplateView.as_view()),
-        name="post-case-alerts",
     ),
     path(
         "<int:pk>/zendesk-tickets/",

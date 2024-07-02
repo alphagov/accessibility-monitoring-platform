@@ -21,10 +21,10 @@ from ...audits.models import (
     Audit,
     CheckResult,
     Page,
-    Retest,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagDefinition,
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
@@ -35,7 +35,7 @@ from ...exports.csv_export_utils import (
     EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
-from ...notifications.models import Notification
+from ...notifications.models import Task
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..models import (
@@ -52,6 +52,7 @@ from ..views import (
     ONE_WEEK_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
     CaseReportApprovedUpdateView,
+    calculate_no_contact_chaser_dates,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
     find_duplicate_cases,
@@ -173,6 +174,10 @@ ZENDESK_URL: str = "https://zendesk.com/ticket"
 ZENDESK_SUMMARY: str = "Zendesk ticket summary"
 PAGE_LOCATION: str = "Press A and then B"
 EXAMPLE_EMAIL_TEMPLATE_ID: int = 4
+RETEST_NOTES: str = "Retest notes"
+HOME_PAGE_ERROR_NOTES: str = "Home page error note"
+STATEMENT_PAGE_ERROR_NOTES: str = "Statement page error note"
+OUTSTANDING_ISSUE_NOTES: str = "Outstanding error found."
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -1299,47 +1304,6 @@ def test_platform_update_redirects_based_on_case_variant(
     assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
 
 
-def test_add_qa_comment(admin_client, admin_user):
-    """Test adding a QA comment"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
-        {
-            "save_return": "Button value",
-            "body": QA_COMMENT_BODY,
-        },
-    )
-    assert response.status_code == 302
-
-    comment: Comment = Comment.objects.get(case=case)
-
-    assert comment.body == QA_COMMENT_BODY
-    assert comment.user == admin_user
-
-    content_type: ContentType = ContentType.objects.get_for_model(Comment)
-    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
-
-    assert event.type == Event.Type.CREATE
-
-
-def test_add_qa_comment_redirects_to_qa_comments(admin_client):
-    """Test adding a QA comment redirects to QA comments page"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
-        {
-            "save_return": "Button value",
-        },
-    )
-    assert response.status_code == 302
-    assert (
-        response.url
-        == f'{reverse("cases:edit-qa-comments", kwargs={"pk": case.id})}?#qa-discussion'
-    )
-
-
 def test_qa_comments_creates_comment(admin_client, admin_user):
     """Test adding a comment using QA comments page"""
     case: Case = Case.objects.create()
@@ -1380,6 +1344,35 @@ def test_qa_comments_does_not_create_comment(admin_client, admin_user):
     assert response.status_code == 302
 
     assert Comment.objects.filter(case=case).count() == 0
+
+
+def test_no_contact_chaser_dates_set(
+    admin_client,
+):
+    """
+    Test that updating the no-contact email sent date populates chaser due dates
+    """
+    case: Case = Case.objects.create()
+
+    assert case.no_contact_one_week_chaser_due_date is None
+    assert case.no_contact_four_week_chaser_due_date is None
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-find-contact-details", kwargs={"pk": case.id}),
+        {
+            "seven_day_no_contact_email_sent_date_0": TODAY.day,
+            "seven_day_no_contact_email_sent_date_1": TODAY.month,
+            "seven_day_no_contact_email_sent_date_2": TODAY.year,
+            "version": case.version,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.no_contact_one_week_chaser_due_date is not None
+    assert case_from_db.no_contact_four_week_chaser_due_date is not None
 
 
 def test_form_appears_to_add_first_contact(admin_client):
@@ -2375,6 +2368,22 @@ def test_calculate_report_followup_dates():
     assert updated_case.report_followup_week_12_due_date == date(2020, 3, 25)
 
 
+def test_calculate_no_contact_chaser_dates():
+    """
+    Test that the no contact details chaser dates are calculated correctly.
+    """
+    case: Case = Case()
+    seven_day_no_contact_email_sent_date: date = date(2020, 1, 1)
+
+    updated_case = calculate_no_contact_chaser_dates(
+        case=case,
+        seven_day_no_contact_email_sent_date=seven_day_no_contact_email_sent_date,
+    )
+
+    assert updated_case.no_contact_one_week_chaser_due_date == date(2020, 1, 8)
+    assert updated_case.no_contact_four_week_chaser_due_date == date(2020, 1, 29)
+
+
 def test_calculate_twelve_week_chaser_dates():
     """
     Test that the twelve week chaser dates are calculated correctly.
@@ -2490,14 +2499,10 @@ def test_report_approved_notifies_auditor(rf):
 
     assert response.status_code == 302
 
-    notification: Optional[Notification] = Notification.objects.filter(
-        user=user
-    ).first()
+    task: Optional[Task] = Task.objects.filter(user=user).first()
 
-    assert notification is not None
-    assert (
-        notification.body == f"{request_user.get_full_name()} QA approved Case {case}"
-    )
+    assert task is not None
+    assert task.description == f"{request_user.get_full_name()} QA approved Case {case}"
 
 
 @pytest.mark.django_db
@@ -3354,72 +3359,47 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
     assertContains(response, "We found no major issues.")
 
 
-def test_outstanding_issues_email_template_contains_issues(admin_client):
+def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
     """
-    Test outstanding issues email template contains only unfixed issues.
+    Test outstanding issues (issues_table) contains only unfixed issues
     """
-    audit: Audit = create_audit_and_check_results()
-    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
-    page.url = "https://example.com"
-    page.save()
-    Report.objects.create(case=audit.case)
-    email_template: EmailTemplate = EmailTemplate.objects.get(
-        slug=EmailTemplate.Slug.OUTSTANDING_ISSUES
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    user: User = User.objects.create()
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+        notes=OUTSTANDING_ISSUE_NOTES,
+    )
+
+    email_template: EmailTemplate = EmailTemplate.objects.create(
+        template="{{ issues_tables.0.rows.0.cell_content_2 }}",
+        created_by=user,
+        updated_by=user,
     )
     url: str = reverse(
         "cases:email-template-preview",
         kwargs={"case_id": audit.case.id, "pk": email_template.id},
     )
-    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        audit=audit,
-        type=type,
-        statement_check=statement_check,
-        check_result_state=StatementCheckResult.Result.NO,
-        report_comment=STATEMENT_CHECK_RESULT_REPORT_COMMENT,
-        retest_state=StatementCheckResult.Result.NO,
-        retest_comment=STATEMENT_CHECK_RESULT_RETEST_COMMENT,
-    )
 
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
 
-    assertContains(response, ERROR_NOTES)
-    assertContains(response, STATEMENT_CHECK_RESULT_REPORT_COMMENT)
-    assertContains(response, STATEMENT_CHECK_RESULT_RETEST_COMMENT)
+    assertContains(response, OUTSTANDING_ISSUE_NOTES)
 
-    for check_result in audit.failed_check_results:
-        check_result.retest_state = CheckResult.RetestResult.FIXED
-        check_result.save()
-
-    statement_check_result.retest_state = StatementCheckResult.Result.YES
-    statement_check_result.save()
-
-    url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+    check_result.retest_state = CheckResult.RetestResult.FIXED
+    check_result.save()
 
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
 
-    assertNotContains(response, ERROR_NOTES)
-    assertNotContains(response, STATEMENT_CHECK_RESULT_REPORT_COMMENT)
-    assertNotContains(response, STATEMENT_CHECK_RESULT_RETEST_COMMENT)
-
-
-def test_outstanding_issues_email_template_contains_no_issues(admin_client):
-    """
-    Test outstanding issues email template with no issues contains placeholder text.
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-
-    assertContains(response, "We found no major issues.")
+    assertNotContains(response, OUTSTANDING_ISSUE_NOTES)
 
 
 def test_equality_body_correspondence(admin_client):
@@ -3619,21 +3599,6 @@ def test_update_equality_body_correspondence_save_redirects(admin_client):
         "cases:edit-equality-body-correspondence",
         kwargs={"pk": equality_body_correspondence.id},
     )
-
-
-def test_post_case_alerts(admin_client, admin_user):
-    """Test post case alerts page renders"""
-    case: Case = Case.objects.create(auditor=admin_user)
-    EqualityBodyCorrespondence.objects.create(case=case)
-    Retest.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(reverse("cases:post-case-alerts"))
-
-    assert response.status_code == 200
-
-    assertContains(response, "Unresolved correspondence")
-    assertContains(response, "Incomplete retest")
-    assertContains(response, "Post case (2)")
 
 
 def test_updating_equality_body_updates_published_report_data_updated_time(

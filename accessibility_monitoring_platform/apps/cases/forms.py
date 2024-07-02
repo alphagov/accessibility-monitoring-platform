@@ -179,6 +179,13 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     )
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
+    is_feedback_requested = AMPChoiceCheckboxField(
+        label="Feedback survey sent?",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
     case_details_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
@@ -230,6 +237,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "parental_organisation_name",
             "website_name",
             "subcategory",
+            "is_feedback_requested",
             "case_details_complete_date",
         ]
 
@@ -372,7 +380,25 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
     )
     seven_day_no_contact_email_sent_date = AMPDateField(
         label="No contact details request sent",
-        help_text="Case will become overdue seven days after this date if “No contact details found” is selected above",
+    )
+    seven_day_no_contact_request_sent_to = AMPCharFieldWide(
+        label="Initial request sent to"
+    )
+    no_contact_one_week_chaser_sent_date = AMPDateField(
+        label="No contact details 1-week chaser sent date",
+    )
+    no_contact_one_week_chaser_due_date = AMPDateField(
+        label="No contact details 1-week chaser due date"
+    )
+    no_contact_one_week_chaser_sent_to = AMPCharFieldWide(label="1-week chaser sent to")
+    no_contact_four_week_chaser_sent_date = AMPDateField(
+        label="No contact details 4-week chaser sent date",
+    )
+    no_contact_four_week_chaser_due_date = AMPDateField(
+        label="No contact details 4-week chaser due date"
+    )
+    no_contact_four_week_chaser_sent_to = AMPCharFieldWide(
+        label="4-week chaser sent to"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     find_contact_details_complete_date = AMPDatePageCompleteField()
@@ -383,6 +409,13 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
             "version",
             "contact_details_found",
             "seven_day_no_contact_email_sent_date",
+            "seven_day_no_contact_request_sent_to",
+            "no_contact_one_week_chaser_sent_date",
+            "no_contact_one_week_chaser_due_date",
+            "no_contact_one_week_chaser_sent_to",
+            "no_contact_four_week_chaser_sent_date",
+            "no_contact_four_week_chaser_due_date",
+            "no_contact_four_week_chaser_sent_to",
             "correspondence_notes",
             "find_contact_details_complete_date",
         ]
@@ -643,7 +676,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
         label="12-week update request acknowledged by (email address)"
     )
     organisation_response = AMPChoiceRadioField(
-        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’  (included in equality body export)",
+        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’",
         help_text="This field affects the case status",
         choices=Case.OrganisationResponse.choices,
     )
@@ -883,13 +916,6 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     enforcement_body_finished_date = AMPDateField(
         label="Date equality body completed the case",
     )
-    is_feedback_requested = AMPChoiceCheckboxField(
-        label="Feedback survey sent?",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Feedback survey sent to this organisation?"}
-        ),
-    )
     equality_body_notes = AMPTextField(label="Equality body notes")
 
     class Meta:
@@ -901,7 +927,6 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
             "enforcement_body_case_owner",
             "enforcement_body_closed_case",
             "enforcement_body_finished_date",
-            "is_feedback_requested",
             "equality_body_notes",
         ]
 

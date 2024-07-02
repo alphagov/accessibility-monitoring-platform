@@ -1,88 +1,333 @@
-""" Tests - test for notifications view """
-from django.http import HttpResponse
+"""Test notifications views"""
+
+from datetime import date, timedelta
+
+import pytest
+from django.contrib.auth.models import User
+from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ..models import Notification
+from ...cases.models import Case
+from ...common.models import Event
+from ..models import Task
+from ..views import (
+    CommentsMarkAsReadView,
+    ReminderTaskCreateView,
+    ReminderTaskUpdateView,
+    TaskListView,
+    TaskMarkAsReadView,
+)
 
-UNREAD_NOTIFICATION_BODY: str = "Unread notification"
-READ_NOTIFICATION_BODY: str = "Read notification"
-
-
-def test_list_notifications_defaults_to_showing_unread(admin_client, admin_user):
-    """Test list of notifications defaults to showing unread"""
-    Notification.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
-    Notification.objects.create(user=admin_user, body=READ_NOTIFICATION_BODY, read=True)
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("notifications:notifications-list")}'
-    )
-
-    assertContains(response, UNREAD_NOTIFICATION_BODY)
-    assertNotContains(response, READ_NOTIFICATION_BODY)
+TODAY: date = date.today()
+DESCRIPTION: str = "Task description"
 
 
-def test_list_notifications_shows_unread_on_demand(admin_client, admin_user):
-    """Test list of notifications shows unread on demand"""
-    Notification.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
-    Notification.objects.create(user=admin_user, body=READ_NOTIFICATION_BODY, read=True)
+class MockMessages:
+    def __init__(self):
+        self.messages = []
 
-    response: HttpResponse = admin_client.get(
-        f'{reverse("notifications:notifications-list")}?showing=unread'
-    )
-
-    assertContains(response, UNREAD_NOTIFICATION_BODY)
-    assertNotContains(response, READ_NOTIFICATION_BODY)
+    def add(self, level: str, message: str, extra_tags: str) -> None:
+        self.messages.append((level, message, extra_tags))
 
 
-def test_list_notifications_shows_all_on_demand(admin_client, admin_user):
-    """Test list of notifications shows all on demand"""
-    Notification.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
-    Notification.objects.create(user=admin_user, body=READ_NOTIFICATION_BODY, read=True)
+@pytest.mark.django_db
+def test_empty_task_list(rf):
+    """Test empty task list page renders"""
+    user: User = User.objects.create()
 
-    response: HttpResponse = admin_client.get(
-        f'{reverse("notifications:notifications-list")}?showing=all'
-    )
+    request: HttpRequest = rf.get(reverse("notifications:task-list"))
+    request.user = user
 
-    assertContains(response, UNREAD_NOTIFICATION_BODY)
-    assertContains(response, READ_NOTIFICATION_BODY)
-
-
-def test_mark_notification_as_read(admin_client, admin_user):
-    """Test marking notification as read"""
-    notification: Notification = Notification.objects.create(
-        user=admin_user, body=READ_NOTIFICATION_BODY
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("notifications:mark-notification-read", kwargs={"pk": notification.id}),  # type: ignore
-        follow=True,
-    )
+    response: HttpResponse = TaskListView.as_view()(request)
 
     assert response.status_code == 200
-    assertContains(response, "Notification marked as seen")
-
-    notification_from_db: Notification = Notification.objects.get(id=notification.id)  # type: ignore
-
-    assert notification_from_db.read
+    assertContains(response, "Tasks (0)")
 
 
-def test_mark_notification_as_unread(admin_client, admin_user):
-    """Test marking notification as unread"""
-    notification: Notification = Notification.objects.create(
-        user=admin_user, body=READ_NOTIFICATION_BODY, read=True
+@pytest.mark.django_db
+def test_task_list(rf):
+    """Test task list page renders"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
     )
 
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "notifications:mark-notification-unread", kwargs={"pk": notification.id}  # type: ignore
-        ),
-        follow=True,
-    )
+    request: HttpRequest = rf.get(reverse("notifications:task-list"))
+    request.user = user
+
+    response: HttpResponse = TaskListView.as_view()(request)
 
     assert response.status_code == 200
-    assertContains(response, "Notification marked as unseen")
+    assertContains(response, "Tasks (1)")
 
-    notification_from_db: Notification = Notification.objects.get(id=notification.id)  # type: ignore
 
-    assert not notification_from_db.read
+@pytest.mark.parametrize(
+    "filtered_type, other_type",
+    [
+        ("qa-comment", "reminder"),
+        ("report-approved", "reminder"),
+        ("reminder", "qa-comment"),
+    ],
+)
+@pytest.mark.django_db
+def test_task_list_type_filter(filtered_type, other_type, rf):
+    """Test task list type filters"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    filtered_task: Task = Task.objects.create(
+        type=filtered_type,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+    other_task: Task = Task.objects.create(
+        type=other_type,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+
+    request: HttpRequest = rf.get(
+        f'{reverse("notifications:task-list")}?type={filtered_type}'
+    )
+    request.user = user
+
+    response: HttpResponse = TaskListView.as_view()(request)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Tasks (1)")
+    assertContains(response, f"{filtered_task.get_type_display()}</h2>")
+    assertNotContains(response, f"{other_task.get_type_display()}</h2>")
+
+
+@pytest.mark.parametrize("read_param", ["read", "deleted"])
+@pytest.mark.django_db
+def test_task_list_read_filter(read_param, rf):
+    """Test task list read filter"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
+        description=DESCRIPTION,
+        read=True,
+    )
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+
+    request: HttpRequest = rf.get(
+        f'{reverse("notifications:task-list")}?{read_param}=true'
+    )
+    request.user = user
+
+    response: HttpResponse = TaskListView.as_view()(request)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Tasks (1)")
+    assertContains(response, DESCRIPTION)
+
+
+@pytest.mark.django_db
+def test_task_list_future_filter(rf):
+    """Test task list future filter"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today() + timedelta(days=7),
+        user=user,
+        case=case,
+        description=DESCRIPTION,
+    )
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+
+    request: HttpRequest = rf.get(f'{reverse("notifications:task-list")}?future=true')
+    request.user = user
+
+    response: HttpResponse = TaskListView.as_view()(request)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Tasks (1)")
+    assertContains(response, DESCRIPTION)
+
+
+@pytest.mark.django_db
+def test_reminder_task_create_redirects_to_case(rf):
+    """
+    Test creating a reminder task redirects to parent case details
+    """
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+
+    request: HttpRequest = rf.post(
+        reverse("notifications:reminder-create", kwargs={"case_id": case.id}),
+        {
+            "date_0": TODAY.day,
+            "date_1": TODAY.month,
+            "date_2": TODAY.year,
+            "description": DESCRIPTION,
+            "save": "Save",
+        },
+    )
+    request.user = user
+
+    response: HttpResponse = ReminderTaskCreateView.as_view()(request, case_id=case.id)
+
+    assert response.status_code == 302
+    assert response.url == reverse("cases:case-detail", kwargs={"pk": case.id})
+
+    task: Task = Task.objects.all().first()
+
+    assert task is not None
+    assert task.type == Task.Type.REMINDER
+    assert task.date == TODAY
+    assert task.description == DESCRIPTION
+
+    event: Event = Event.objects.all().first()
+
+    assert event is not None
+    assert event.type == Event.Type.CREATE
+
+
+@pytest.mark.django_db
+def test_reminder_task_update_redirects_to_case(rf):
+    """
+    Test updating a reminder task redirects to parent case details
+    """
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+
+    request: HttpRequest = rf.post(
+        reverse("notifications:edit-reminder-task", kwargs={"pk": task.id}),
+        {
+            "date_0": TODAY.day,
+            "date_1": TODAY.month,
+            "date_2": TODAY.year,
+            "description": DESCRIPTION,
+            "save": "Save",
+        },
+    )
+    request.user = user
+
+    response: HttpResponse = ReminderTaskUpdateView.as_view()(request, pk=task.id)
+
+    assert response.status_code == 302
+    assert response.url == reverse("cases:case-detail", kwargs={"pk": case.id})
+
+    task_from_db: Task = Task.objects.get(id=task.id)
+
+    assert task_from_db is not None
+    assert task_from_db.description == DESCRIPTION
+
+    event: Event = Event.objects.all().first()
+
+    assert event is not None
+    assert event.type == Event.Type.UPDATE
+
+
+@pytest.mark.django_db
+def test_task_mark_as_read(rf):
+    """Test marking task as read"""
+    user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    case: Case = Case.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+
+    request = rf.get(reverse("notifications:mark-task-read", kwargs={"pk": task.id}))
+    request.user = user
+    request._messages = MockMessages()
+
+    assert task.read is False
+
+    response: HttpResponse = TaskMarkAsReadView.as_view()(request, pk=task.id)
+
+    assert response.status_code == 302
+    assert response.url == reverse("notifications:task-list")
+    assert len(request._messages.messages) == 1
+    assert (
+        request._messages.messages[0][1]
+        == f"{task.case} {task.get_type_display()} task marked as read"
+    )
+
+    task_from_db: Task = Task.objects.get(id=task.id)
+
+    assert task_from_db.read is True
+
+
+@pytest.mark.django_db
+def test_comments_mark_as_read_marks_tasks_as_read(rf):
+    """
+    Test marking case comments as read marks QA comment and Report
+    approved tasks as read.
+    """
+    user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    case: Case = Case.objects.create(auditor=user)
+    qa_comment_task: Task = Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+    report_approved_task: Task = Task.objects.create(
+        type=Task.Type.REPORT_APPROVED,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+
+    request = rf.get(
+        reverse("notifications:mark-case-comments-read", kwargs={"case_id": case.id})
+    )
+    request.user = user
+    request._messages = MockMessages()
+
+    assert qa_comment_task.read is False
+    assert report_approved_task.read is False
+
+    response: HttpResponse = CommentsMarkAsReadView.as_view()(request, case_id=case.id)
+
+    assert response.status_code == 302
+    assert response.url == reverse("notifications:task-list")
+    assert len(request._messages.messages) == 1
+    assert request._messages.messages[0][1] == f"{case} comments marked as read"
+
+    qa_comment_task_from_db: Task = Task.objects.get(id=qa_comment_task.id)
+
+    assert qa_comment_task_from_db.read is True
+
+    report_approved_task_from_db: Task = Task.objects.get(id=report_approved_task.id)
+
+    assert report_approved_task_from_db.read is True
