@@ -1,2 +1,6 @@
 const GOVUKFrontend = require('govuk-frontend')
-GOVUKFrontend.initAll()
+GOVUKFrontend.initAll({
+  button: {
+    preventDoubleClick: true
+  }
+})
