@@ -23,7 +23,6 @@ from ..audits.forms import (
     ArchiveAuditStatement2UpdateForm,
 )
 from ..audits.utils import report_data_updated
-from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.models import Boolean, EmailTemplate
@@ -442,39 +441,6 @@ class CaseQACommentsUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             return reverse("cases:edit-report-approved", kwargs={"pk": self.object.id})
         return super().get_success_url()
-
-
-class QACommentCreateView(CreateView):
-    """
-    View to create a case
-    """
-
-    model: Type[Comment] = Comment
-    form_class: Type[CommentCreateForm] = CommentCreateForm
-    context_object_name: str = "comment"
-    template_name: str = "cases/forms/qa_add_comment.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add undeleted contacts to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        context["case"] = self.case
-        return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        comment: Comment = Comment.objects.create(
-            case=self.case, user=self.request.user, body=form.cleaned_data.get("body")
-        )
-        record_model_create_event(user=self.request.user, model_object=comment)
-        add_comment_notification(self.request, comment)
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        case_pk: Dict[str, int] = {"pk": self.case.id}  # type: ignore
-        return f"{reverse('cases:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
 
 
 class CaseReportApprovedUpdateView(CaseUpdateView):
