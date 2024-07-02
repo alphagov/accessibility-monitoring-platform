@@ -2,7 +2,7 @@
 {% if user.is_authenticated %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-three-quarters">
-            <ul class="govuk-list top-nav-menu-list">
+            <ul class="govuk-list top-nav-menu-list govuk-body-s">
                 <li> {{ user.first_name|title }} {{ user.last_name|title }} </li>
                 <li class="amp-padding-left-10"> | </li>
                 <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
@@ -18,7 +18,7 @@
                 <li>
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
-                        <button type="submit" class="amp-button-as-link amp-margin-left-15 amp-margin-bottom-0 govuk-body-m">Sign out</button>
+                        <button type="submit" class="amp-button-as-link amp-margin-left-15 amp-margin-bottom-0">Sign out</button>
                     </form>
                 </li>
             </ul>
@@ -26,7 +26,7 @@
         <div class="govuk-grid-column-one-quarter">
             <form method="get" action="{% url 'cases:case-list' %}">
                 <div class="govuk-form-group amp-margin-bottom-0">
-                    <div class="govuk-input__wrapper">
+                    <div class="govuk-input__wrapper amp-search-wrapper">
                         <span class="govuk-visually-hidden">Search:</span>
                         {{ top_menu_form.search }}
                         <button class="govuk-input__suffix amp-search-button">
@@ -34,15 +34,15 @@
                             <svg
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 40 40"
-                                width="40"
-                                height="40"
+                                viewBox="0 0 30 30"
+                                width="25"
+                                height="3 0"
                                 stroke="currentColor"
-                                stroke-width="3"
+                                stroke-width="2"
                                 fill="none"
                             >
-                                <line x1="22" y1="23" x2="29" y2="31"/>
-                                <circle cx="18" cy="18" r="8" />
+                                <line x1="15" y1="16" x2="25" y2="23"/>
+                                <circle cx="10" cy="13" r="7" />
                             </svg>
                         </button>
                     </div>
@@ -53,7 +53,7 @@
 {% else %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <ul class="govuk-list top-nav-menu-list">
+            <ul class="govuk-list top-nav-menu-list govuk-body-s">
                 <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
                 <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'two_factor:login' %}">Sign in</a></li>
             </ul>

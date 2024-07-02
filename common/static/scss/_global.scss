@@ -49,13 +49,18 @@ pre {
     forced-color-adjust: none;
 }
 
+.amp-search-wrapper {
+    justify-content: flex-end;
+}
+
 .amp-search-button {
     border: 0;
     cursor: pointer;
     position: relative;
     padding: 0;
-    width: 40px;
-    height: 40px;
+    min-width: 25px;
+    max-width: 25px;
+    height: 25px;
     color: #fff;
     background-color: #000;
 }
@@ -410,8 +415,7 @@ img, .amp-max-width-100 {
 .top-nav-menu-list {
     display: block;
     list-style-type: none;
-    margin-top: 5px;
-    margin-bottom: 0;
+    margin: 0;
 
     li {
         display: inline-block;
