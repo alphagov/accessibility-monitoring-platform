@@ -13,6 +13,30 @@ pre {
     border: 2px solid #d4351c;
 }
 
+.amp-case-banner {
+    font-size: 16px;
+    background-color: govuk-colour("light-grey");
+    border: 1px solid govuk-colour("mid-grey");
+    padding: 15px;
+
+    p {
+        margin: 0 0 5px 3px;
+    }
+
+    table {
+        width: 100%;
+
+        .middle-cell {
+            border-left: 2px solid;
+            text-align: center;
+        }
+
+        .last-cell {
+            border-left: 2px solid;
+            text-align: right;
+        }
+    }
+}
 .amp-notes {
     p:first-child {
         margin-top: 0;
