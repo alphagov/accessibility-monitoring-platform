@@ -146,16 +146,13 @@ def test_case_renders_as_organisation_name_bar_id():
 
 
 @pytest.mark.django_db
-def test_case_title_is_organisation_name_bar_domain_bar_id():
-    """Test the Case title string is organisation_name | url | id"""
+def test_case_title_is_organisation_name_bar_id():
+    """Test the Case title string is organisation_name | id"""
     case: Case = Case.objects.create(
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
     )
 
-    assert (
-        case.title
-        == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.case_number}"
-    )
+    assert case.title == f"{case.organisation_name} | #{case.case_number}"
 
 
 @pytest.mark.django_db
