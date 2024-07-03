@@ -5,7 +5,7 @@
     <table>
         <tbody>
             <tr>
-                <td width="15%">
+                <td>
                     {% if case.auditor %}
                         {{ case.auditor.get_full_name }}
                     {% else %}
@@ -28,7 +28,7 @@
                         </a>
                     {% endif %}
                 </td>
-                <td class="middle-cell" width="15%">
+                <td class="middle-cell">
                     {% if case.report.latest_s3_report %}
                         <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                             View report
@@ -37,7 +37,7 @@
                             No report
                     {% endif %}
                 </td>
-                <td class="last-cell" width="13%">
+                <td class="last-cell">
                     <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                         View website
                     </a>

@@ -4,6 +4,11 @@
 
 {% block content %}
 <div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' %}
+        </div>
+    </div>
     {% if show_unresolved %}
         {% include 'cases/helpers/breadcrumbs.html' with page_heading='Unresolved equality body correspondence' %}
     {% else %}

@@ -20,6 +20,9 @@
                     <a class="govuk-footer__link" href="{% url 'common:contact-admin' %}">Contact admin</a>
                   {% endif %}
                 </li>
+                <li class="govuk-footer__inline-list-item">
+                    <a class="govuk-footer__link" href="{% url 'common:issue-report' %}?page_url={{ request.path }}" target="_blank">Report an issue</a>
+                </li>
                 {% for custom_footer_link in custom_footer_links %}
                   <li class="govuk-footer__inline-list-item">
                     <a class="govuk-footer__link" href="{{ custom_footer_link.url }}" target="_blank">
