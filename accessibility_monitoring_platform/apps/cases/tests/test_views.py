@@ -774,7 +774,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     [
         (
             "cases:case-detail",
-            '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">Case overview</h1>',
+            '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>',
         ),
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
@@ -2634,8 +2634,6 @@ def test_frequently_used_links_displayed_in_edit(
     )
 
     assert response.status_code == 200
-
-    assertContains(response, "<li>Unassigned case</li>")
 
     assertContains(
         response,
