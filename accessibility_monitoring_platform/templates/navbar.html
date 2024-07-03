@@ -1,7 +1,7 @@
 <div class="top-nav-menu">
 {% if user.is_authenticated %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
+        <div class="govuk-grid-column-two-thirds amp-vertically-allign">
             <ul class="govuk-list top-nav-menu-list govuk-body-s">
                 <li> {{ user.first_name|title }} {{ user.last_name|title }} </li>
                 <li class="amp-padding-left-10"> | </li>
@@ -23,7 +23,7 @@
                 </li>
             </ul>
         </div>
-        <div class="govuk-grid-column-one-quarter">
+        <div class="govuk-grid-column-one-third">
             <form method="get" action="{% url 'cases:case-list' %}">
                 <div class="govuk-form-group amp-margin-bottom-0">
                     <div class="govuk-input__wrapper amp-search-wrapper">
@@ -34,15 +34,15 @@
                             <svg
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 30 30"
+                                viewBox="0 0 28 30"
                                 width="25"
                                 height="25"
                                 stroke="currentColor"
-                                stroke-width="2"
+                                stroke-width="3"
                                 fill="none"
                             >
-                                <line x1="15" y1="16" x2="25" y2="23"/>
-                                <circle cx="10" cy="13" r="7" />
+                                <line x1="16" y1="17" x2="25" y2="23"/>
+                                <circle cx="10" cy="13" r="8" />
                             </svg>
                         </button>
                     </div>

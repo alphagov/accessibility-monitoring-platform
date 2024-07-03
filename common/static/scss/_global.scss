@@ -53,14 +53,20 @@ pre {
     justify-content: flex-end;
 }
 
+.amp-small-search {
+    font-size: 1rem;
+    line-height: 1.25;
+    height: 2.38rem;
+}
+
 .amp-search-button {
     border: 0;
     cursor: pointer;
     position: relative;
     padding: 0;
-    min-width: 25px;
-    max-width: 25px;
-    height: 25px;
+    min-width: 38px;
+    max-width: 38px;
+    height: 38px;
     color: #fff;
     background-color: #000;
 }
@@ -114,6 +120,7 @@ table#all-issues {
     padding: 0!important;
     cursor: pointer;
     color: #1d70b8;
+    text-decoration: underline;
   }
 
 .amp-control {
@@ -412,21 +419,25 @@ img, .amp-max-width-100 {
     margin-bottom: 0;
 }
 
-.top-nav-menu-list {
-    display: block;
-    list-style-type: none;
-    margin: 0;
+.amp-vertically-allign {
+    display: flex;
+    align-items: center;
+    height: 2.65rem;
+}
 
+.top-nav-menu-list {
+    list-style-type: none;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    
     li {
         display: inline-block;
     }
 
     li a {
         display: block;
-        color: white;
         text-align: right;
         margin: 0 0 0 16px;
-        text-decoration: none;
     }
 }
 
