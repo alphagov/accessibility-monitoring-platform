@@ -19,8 +19,12 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
     {% for retest_page in retest.retestpage_set.all %}
     <li>
     {{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %}
-    ({{ retest_page.unfixed_check_results.count }} of {{ retest_page.original_check_results.count }}
-    issue{% if retest_page.original_check_results.count != 1 %}s{% endif %} remaining)
+    {% if retest_page.missing_date %}
+        (removed by the organisation)
+    {% else %}
+        ({{ retest_page.unfixed_check_results.count }} of {{ retest_page.original_check_results.count }}
+        issue{% if retest_page.original_check_results.count != 1 %}s{% endif %} remaining)
+    {% endif %}
     </li>
     {% endfor %}
     </ul>
