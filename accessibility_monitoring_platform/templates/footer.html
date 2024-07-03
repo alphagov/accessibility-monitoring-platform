@@ -20,9 +20,15 @@
                     <a class="govuk-footer__link" href="{% url 'common:contact-admin' %}">Contact admin</a>
                   {% endif %}
                 </li>
-                <li class="govuk-footer__inline-list-item">
-                    <a class="govuk-footer__link" href="{% url 'common:issue-report' %}?page_url={{ request.path }}" target="_blank">Report an issue</a>
-                </li>
+                {% if user.is_authenticated %}
+                  <li class="govuk-footer__inline-list-item">
+                    {% if django_settings.AMP_PROTOTYPE_NAME and django_settings.AMP_PROTOTYPE_NAME != 'TEST' %}
+                      Report an issue
+                    {% else %}
+                      <a class="govuk-footer__link" href="{% url 'common:issue-report' %}?page_url={{ request.path }}" target="_blank">Report an issue</a>
+                    {% endif %}
+                  </li>
+                {% endif %}
                 {% for custom_footer_link in custom_footer_links %}
                   <li class="govuk-footer__inline-list-item">
                     <a class="govuk-footer__link" href="{{ custom_footer_link.url }}" target="_blank">
