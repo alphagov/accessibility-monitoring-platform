@@ -39,7 +39,7 @@ def test_top_menu_form_present(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        '<input type="text" name="search" class="govuk-input-s govuk-input--width-10"'
+        '<input type="text" name="search" class="govuk-input amp-small-search"'
         ' placeholder="Search" maxlength="100" id="id_search">',
     )
 
