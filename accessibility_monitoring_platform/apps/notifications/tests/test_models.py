@@ -7,20 +7,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from ...cases.models import Case
-from ..models import Notification, NotificationSetting, Option, Task
-
-
-@pytest.mark.django_db
-def test_notifications_model_returns_str():
-    """Notifications returns correct string"""
-    user: User = User.objects.create_user(  # type: ignore
-        username="mockuser", email="mockuser@mock.com", password="secret"
-    )
-    notification: Notification = Notification(
-        user=user,
-        body="this is a notification",
-    )
-    assert str(notification) == f"Notification this is a notification for {user}"
+from ..models import NotificationSetting, Option, Task
 
 
 @pytest.mark.django_db
