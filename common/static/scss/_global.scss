@@ -21,7 +21,11 @@ pre {
     padding: 15px;
 
     p {
-        margin: 0 0 5px 3px;
+        margin: 0;
+
+        &:first-child {
+            margin-bottom: 10px;
+        }
     }
 
     table {
