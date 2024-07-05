@@ -2635,8 +2635,6 @@ def test_frequently_used_links_displayed_in_edit(
 
     assert response.status_code == 200
 
-    assertContains(response, "<li>Unassigned case</li>")
-
     assertContains(
         response,
         """<li>

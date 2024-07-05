@@ -1,19 +1,4 @@
 <nav role="navigation">
-    {% include "cases/helpers/status_requirements.html" %}
-    {% if current_page != 'reminders' %}
-        <h2 class="govuk-heading-m amp-margin-bottom-5">Reminder</h2>
-        <p class="govuk-body-m">
-        {% if case.reminder %}
-            <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                Reminder due {{ case.reminder.due_date|amp_date }}
-            </a>
-        {% else %}
-            <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                Create reminder
-            </a>
-        {% endif %}
-        </p>
-    {% endif %}
     {% if case.archive %}
         <h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>
         <ul class="govuk-list">
