@@ -16,40 +16,40 @@ describe('View case', () => {
 
     cy.get('[id="edit-case-details"]').click()
     cy.title().should('eq', `${organisationName} | Case details`)
-    cy.contains('Case').click()
+    cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-test-results"]').click()
     cy.title().should('eq', `${organisationName} | Testing details`)
-    cy.contains('Case').click()
+    cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-qa-comments"]').click()
     cy.title().should('eq', `${organisationName} | QA comments`)
-    cy.contains('Case').click()
+    cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-report-approved"]').click()
     cy.title().should('eq', `${organisationName} | Report approved`)
-    cy.contains('Case').click()
+    cy.contains(/^Case$/).click()
 
 
     cy.get('[id="edit-publish-report"]').click()
     cy.title().should('eq', `${organisationName} | Publish report`)
-    cy.contains('Case').click()
+    cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-report-details"]').click()
     cy.title().should('eq', `${organisationName} | Report details`)
-    cy.contains('Case').click()
+    cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-contact-details"]').click()
     cy.title().should('eq', `${organisationName} | Contact details`)
-    cy.contains('Case').click()
+    cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-review-changes"]').click()
     cy.title().should('eq', `${organisationName} | Reviewing changes`)
-    cy.contains('Case').click()
+    cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-enforcement-recommendation"]').click()
     cy.title().should('eq', `${organisationName} | Enforcement recommendation`)
-    cy.contains('Case').click()
+    cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-case-close"]').click()
     cy.title().should('eq', `${organisationName} | Closing the case`)
