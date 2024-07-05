@@ -1,0 +1,57 @@
+<div class="amp-case-banner">
+    <div class="amp-case-banner-row amp-margin-bottom-15">
+        <p><b>{{ case.title }}</b></p>
+    </div>
+    <div class="amp-case-banner-row">
+        <p>
+            {% if case.auditor %}
+                {{ case.auditor.get_full_name }}
+            {% else %}
+                No auditor
+            {% endif %}
+        </p>
+        <div class="amp-vertical-line">
+            &nbsp
+        </div>
+        <p>
+            <a href="{% url 'cases:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.status.get_status_display }}
+            </a>
+        </p>
+        <div class="amp-vertical-line">
+            &nbsp
+        </div>
+        <p>
+            {% if case.reminder %}
+                Reminder:
+                <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
+                    {{ case.reminder.date|amp_date }}
+                </a>
+            {% else %}
+                <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    No reminder set
+                </a>
+            {% endif %}
+        </p>
+        <div class="amp-vertical-line">
+            &nbsp
+        </div>
+        <p>
+            {% if case.report.latest_s3_report %}
+                <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    View report
+                </a>
+            {% else %}
+                    No report
+            {% endif %}
+        </p>
+        <div class="amp-vertical-line">
+            &nbsp
+        </div>
+        <p>
+            <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                View website
+            </a>
+        </p>
+    </div>
+</div>
