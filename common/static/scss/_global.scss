@@ -15,33 +15,28 @@ pre {
 
 .amp-case-banner {
     font-family: "GDS Transport",arial,sans-serif;
-    font-size: 16px;
+    font-size: 1rem;
     background-color: govuk-colour("light-grey");
     border: 1px solid govuk-colour("mid-grey");
-    padding: 15px;
+    padding: 20px;
 
     p {
         margin: 0;
-
-        &:first-child {
-            margin-bottom: 10px;
-        }
-    }
-
-    table {
-        width: 100%;
-
-        .middle-cell {
-            border-left: 2px solid;
-            text-align: center;
-        }
-
-        .last-cell {
-            border-left: 2px solid;
-            text-align: right;
-        }
     }
 }
+
+.amp-case-banner-row {
+    display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+
+    .amp-vertical-line {
+        border-left: 2px solid govuk-colour("mid-grey");
+        padding-right: 5px;
+        margin-left: 5px;
+    }
+}
+
 .amp-notes {
     p:first-child {
         margin-top: 0;
