@@ -161,7 +161,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         return post_case_subsections + [
             build_view_section(
                 name="Legacy end of case data",
-                edit_url=reverse("cases:edit-post-case", kwargs=case_pk),
+                edit_url=reverse("cases:legacy-end-of-case", kwargs=case_pk),
                 edit_url_id="edit-post-case",
                 display_fields=get_case_rows(form=PostCaseUpdateForm()),
             )
