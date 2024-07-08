@@ -19,6 +19,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-button-group">
                     <a
@@ -75,9 +78,6 @@
                         </tbody>
                     </table>
                 {% endif %}
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/nav_steps.html' %}
             </div>
         </div>
     </main>

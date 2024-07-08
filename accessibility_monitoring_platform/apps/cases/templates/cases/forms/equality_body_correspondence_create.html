@@ -27,6 +27,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:list-equality-body-correspondence' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:create-equality-body-correspondence' case.id %}">
@@ -59,9 +62,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:list-equality-body-correspondence' %}
             </div>
         </div>
     </main>
