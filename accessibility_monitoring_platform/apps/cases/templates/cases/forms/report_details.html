@@ -18,6 +18,9 @@
         </div>
         {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-report-details' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
                 <div class="govuk-grid-row">
@@ -82,9 +85,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-report-details' %}
             </div>
         </div>
     </main>

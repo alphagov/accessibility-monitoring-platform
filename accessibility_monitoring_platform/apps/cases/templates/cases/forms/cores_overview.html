@@ -17,6 +17,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-cores-overview' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
                 {% include 'cases/helpers/correspondence_overview.html' %}
@@ -31,9 +34,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-cores-overview' %}
             </div>
         </div>
     </main>

@@ -23,6 +23,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-retest-page-checks' page_id=retest_page.id retest=retest_page.retest %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% if not retest_check_results_formset.forms %}
                     <div class="govuk-grid-row amp-margin-bottom-30">
@@ -158,9 +161,6 @@
                         </div>
                     {% endif %}
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-retest-page-checks' page_id=retest_page.id retest=retest_page.retest %}
             </div>
         </div>
     </main>
