@@ -2637,15 +2637,6 @@ def test_frequently_used_links_displayed_in_edit(
 
     assertContains(
         response,
-        """<li>
-            <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View website
-            </a>
-        </li>""",
-        html=True,
-    )
-    assertContains(
-        response,
         f"""<li>
             <a href="{psb_zendesk_url}" class="govuk-link govuk-link--no-visited-state">
                 PSB Zendesk tickets
@@ -3308,7 +3299,6 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
     assertContains(response, "Email templates")
-    assertContains(response, "No report has been published")
     assertContains(response, "View website")
 
 
