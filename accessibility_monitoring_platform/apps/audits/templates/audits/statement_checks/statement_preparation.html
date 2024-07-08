@@ -23,6 +23,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-preparation' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'audits/helpers/statement_pages.html' %}
                 {% include 'common/error_summary.html' with formset=statement_check_results_formset %}
@@ -40,9 +43,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-preparation' %}
             </div>
         </div>
     </main>
