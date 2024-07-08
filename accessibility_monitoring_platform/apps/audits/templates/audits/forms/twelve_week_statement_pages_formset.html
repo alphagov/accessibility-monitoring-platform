@@ -19,6 +19,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-pages' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' with formset=statement_pages_formset %}
                 <form method="post" action="{% url 'audits:edit-audit-retest-statement-pages' audit.id %}">
@@ -71,9 +74,6 @@
                         {% include 'audits/helpers/retest_save_continue_cancel.html' %}
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-pages' %}
             </div>
         </div>
     </main>

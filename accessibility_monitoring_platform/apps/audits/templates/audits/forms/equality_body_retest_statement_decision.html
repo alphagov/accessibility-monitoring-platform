@@ -19,6 +19,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-equality-body-statement-decision' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'audits/helpers/statement_pages_eb_retest.html' with audit=retest.case.audit %}
                 <form method="post" action="{% url 'audits:edit-equality-body-statement-decision' retest.id %}">
@@ -32,9 +35,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-equality-body-statement-decision' %}
             </div>
         </div>
     </main>

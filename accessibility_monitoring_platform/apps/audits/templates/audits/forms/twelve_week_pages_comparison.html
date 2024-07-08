@@ -24,6 +24,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-pages-comparison' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full govuk-button-group">
@@ -190,9 +193,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-pages-comparison' %}
             </div>
         </div>
     </main>

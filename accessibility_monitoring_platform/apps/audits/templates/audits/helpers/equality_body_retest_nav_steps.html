@@ -1,4 +1,4 @@
-<nav role="navigation">
+<nav role="navigation" class="amp-nav-steps">
     <h2 class="govuk-heading-m amp-margin-bottom-5">Retest steps</h2>
     <ul class="govuk-list">
         {% include './nav_step.html' with edit_name='audits:retest-metadata-update' name='Retest metadata' complete=retest.complete_date %}
@@ -28,7 +28,7 @@
         {% endif %}
         {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-results' name='Statement results' complete=retest.statement_results_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-equality-body-disproportionate-burden' name='Disproportionate burden claim' complete=retest.disproportionate_burden_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-decision' name='Statement compliance decision' complete=retest.statement_decision_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-decision' name='Statement decision' complete=retest.statement_decision_complete_date %}
     </ul>
     {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=retest.case %}
 </nav>

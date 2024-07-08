@@ -19,6 +19,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-website-decision' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' with form=case_compliance_form %}
                 {% include 'common/error_summary.html' %}
@@ -34,9 +37,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-website-decision' %}
             </div>
         </div>
     </main>

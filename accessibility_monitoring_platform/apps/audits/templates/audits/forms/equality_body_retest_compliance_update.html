@@ -19,6 +19,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:retest-compliance-update' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
                 <div class="govuk-grid-row">
@@ -55,9 +58,6 @@
                         </form>
                     </div>
                 </div>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:retest-compliance-update' %}
             </div>
         </div>
     </main>

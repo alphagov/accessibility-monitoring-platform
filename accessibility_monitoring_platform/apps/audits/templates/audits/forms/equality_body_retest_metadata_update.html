@@ -19,6 +19,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:retest-metadata-update' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
@@ -107,9 +110,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:retest-metadata-update' %}
             </div>
         </div>
     </main>

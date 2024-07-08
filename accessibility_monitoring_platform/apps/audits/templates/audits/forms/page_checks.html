@@ -23,6 +23,9 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-page-checks' page_id=page.id audit=page.audit %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'audits/helpers/page_check_filters.html' with page='test' %}
                 <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}">
@@ -129,9 +132,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-page-checks' page_id=page.id audit=page.audit %}
             </div>
         </div>
     </main>
