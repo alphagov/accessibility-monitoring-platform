@@ -15,8 +15,8 @@ from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..forms import (
     CaseCloseUpdateForm,
-    CaseDetailUpdateForm,
     CaseFourWeekFollowupUpdateForm,
+    CaseMetadataUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
     CasePublishReportUpdateForm,
@@ -94,7 +94,7 @@ def test_clean_previous_case_url(
     mock_requests.head.return_value = mock_requests_response
 
     case: Case = Case.objects.create()
-    form: CaseDetailUpdateForm = CaseDetailUpdateForm(
+    form: CaseMetadataUpdateForm = CaseMetadataUpdateForm(
         data={
             "version": case.version,
             "home_page_url": HOME_PAGE_URL,

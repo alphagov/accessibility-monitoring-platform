@@ -41,7 +41,7 @@ const loggedInUrls = [
   '/cases/',
   '/cases/1/edit-enforcement-recommendation/',
   '/cases/1/edit-case-close/',
-  '/cases/1/edit-case-details/',
+  '/cases/1/edit-case-metadata/',
   '/cases/1/edit-contact-details/',
   '/cases/1/edit-no-psb-response/',
   '/cases/1/edit-post-case/',

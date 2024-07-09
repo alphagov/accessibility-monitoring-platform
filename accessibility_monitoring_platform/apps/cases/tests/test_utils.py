@@ -91,7 +91,7 @@ def test_build_case_nav_sections():
             subpages=[
                 NavSubPage(
                     name="Case metadata",
-                    url="/cases/1/edit-case-details/",
+                    url="/cases/1/edit-case-metadata/",
                     complete=None,
                 )
             ],

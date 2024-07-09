@@ -63,11 +63,11 @@ from .forms import (
     CaseCorrespondenceOverviewUpdateForm,
     CaseCreateForm,
     CaseDeactivateForm,
-    CaseDetailUpdateForm,
     CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
     CaseFindContactDetailsUpdateForm,
     CaseFourWeekFollowupUpdateForm,
+    CaseMetadataUpdateForm,
     CaseNoPSBContactUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
@@ -299,7 +299,7 @@ class CaseCreateView(CreateView):
         record_case_event(user=user, new_case=case)
         case_pk: Dict[str, int] = {"pk": self.object.id}
         if "save_continue_case" in self.request.POST:
-            url: str = reverse("cases:edit-case-details", kwargs=case_pk)
+            url: str = reverse("cases:edit-case-metadata", kwargs=case_pk)
         elif "save_new_case" in self.request.POST:
             url: str = reverse("cases:case-create")
         elif "save_exit" in self.request.POST:
@@ -353,13 +353,13 @@ class CaseUpdateView(UpdateView):
         return self.request.path
 
 
-class CaseDetailUpdateView(CaseUpdateView):
+class CaseMetadataUpdateView(CaseUpdateView):
     """
-    View to update case details
+    View to update case metadata
     """
 
-    form_class: Type[CaseDetailUpdateForm] = CaseDetailUpdateForm
-    template_name: str = "cases/forms/details.html"
+    form_class: Type[CaseMetadataUpdateForm] = CaseMetadataUpdateForm
+    template_name: str = "cases/forms/metadata.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""

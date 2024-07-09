@@ -165,9 +165,9 @@ class CaseCreateForm(forms.ModelForm):
         return enforcement_body
 
 
-class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
+class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
     """
-    Form for updating case details fields
+    Form for updating case metadata fields
     """
 
     auditor = AMPAuditorModelChoiceField(

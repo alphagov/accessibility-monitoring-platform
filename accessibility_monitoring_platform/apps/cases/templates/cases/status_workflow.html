@@ -26,7 +26,7 @@
                 <h2 class="govuk-heading-s amp-margin-bottom-0">Unassigned case</h2>
                 <ul class="govuk-list">
                     <li>
-                        <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             Assign an auditor
                         </a>
                         {% if case.auditor %}&check;{% endif %}

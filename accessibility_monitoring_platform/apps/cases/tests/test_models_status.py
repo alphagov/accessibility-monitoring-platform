@@ -32,7 +32,7 @@ def test_case_status_deactivated(admin_client):
     assert case.status.status == CaseStatus.Status.DEACTIVATED
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to case details"
+        admin_client, case=case, expected_link_label="Go to case metadata"
     )
 
 
@@ -45,7 +45,7 @@ def test_case_status_unassigned(admin_client):
     assert case.status.status == CaseStatus.Status.UNASSIGNED
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to case details"
+        admin_client, case=case, expected_link_label="Go to case metadata"
     )
 
 
