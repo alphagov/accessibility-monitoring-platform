@@ -824,21 +824,12 @@ svg {
     }
 }
 
-.amp-disabled {
-    color: govuk-colour("mid-grey");
-}
-
-.amp-details[disabled] * {
+.amp-nav-details[disabled] * {
     color: govuk-colour("mid-grey");
     pointer-events: none;
 }
 
-.amp-font-size-16 {
-    font-size: 1rem;
-    line-height: 22px;
-}
-
-.amp-details__summary {
+.amp-nav-details__summary {
     color:  govuk-colour("blue");
     cursor: pointer;
     margin-bottom: 5px;
@@ -848,9 +839,13 @@ svg {
         text-decoration: underline;
     }
 }
-.amp-details__text {
+.amp-nav-details__text {
     border-left: 1px solid govuk-colour("mid-grey");
     padding-left: 16px;
     margin-bottom: 5px;
     font-size: 1rem;
+
+    ul {
+        font-size: 1rem;
+    }
 }

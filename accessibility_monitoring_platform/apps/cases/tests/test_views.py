@@ -2175,7 +2175,7 @@ def test_section_complete_check_displayed_in_nav_details(
 
     assertContains(
         response,
-        f"""<li class="amp-font-size-16"><b>{step_name}</b>
+        f"""<li><b>{step_name}</b>
                 <span class="govuk-visually-hidden">complete</span> &check;
         </li>""",
         html=True,

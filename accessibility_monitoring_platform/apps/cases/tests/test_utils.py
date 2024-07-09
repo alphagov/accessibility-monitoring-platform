@@ -17,6 +17,9 @@ from ...audits.models import Audit
 from ...common.models import Boolean, Sector, SubCategory
 from ..models import Case, CaseCompliance, CaseEvent
 from ..utils import (
+    NavSection,
+    NavSubPage,
+    build_case_nav_sections,
     build_edit_link_html,
     create_case_and_compliance,
     filter_cases,
@@ -74,6 +77,26 @@ def validate_csv_response(
         ), f"Data mismatch on column {position}: {expected_header[position]}"
 
     assert first_data_row == expected_first_data_row
+
+
+@pytest.mark.django_db
+def test_build_case_nav_sections():
+    """Test build_case_nav_sections"""
+    case: Case = Case.objects.create()
+
+    assert build_case_nav_sections(case=case) == [
+        NavSection(
+            name="Case details",
+            disabled=False,
+            subpages=[
+                NavSubPage(
+                    name="Case metadata",
+                    url="/cases/1/edit-case-details/",
+                    complete=None,
+                )
+            ],
+        )
+    ]
 
 
 @pytest.mark.parametrize(

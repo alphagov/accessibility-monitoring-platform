@@ -97,7 +97,7 @@ from .models import (
     ZendeskTicket,
 )
 from .utils import (
-    build_case_sections,
+    build_case_nav_sections,
     filter_cases,
     get_case_view_sections,
     record_case_event,
@@ -321,7 +321,7 @@ class CaseUpdateView(UpdateView):
         """Add case sections to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -999,7 +999,7 @@ class CaseStatusWorkflowDetailView(DetailView):
         """Add case sections to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
 
@@ -1016,7 +1016,7 @@ class CaseOutstandingIssuesDetailView(DetailView):
         view_url_param: Union[str, None] = self.request.GET.get("view")
         show_failures_by_page: bool = not view_url_param == "WCAG view"
         context["show_failures_by_page"] = show_failures_by_page
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
 
         if case.audit and case.audit.unfixed_check_results:
             if show_failures_by_page:
@@ -1172,7 +1172,7 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = case
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
     def form_valid(self, form: ModelForm):
@@ -1239,7 +1239,7 @@ class CaseRetestOverviewTemplateView(TemplateView):
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
         context["equality_body_retests"] = case.retests.filter(id_within_case__gt=0)
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
 
@@ -1251,7 +1251,7 @@ class CaseRetestCreateErrorTemplateView(TemplateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
 
@@ -1279,7 +1279,7 @@ class CaseZendeskTicketsDetailView(DetailView):
         """Add case sections to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
 
@@ -1297,7 +1297,7 @@ class ZendeskTicketCreateView(CreateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = case
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
     def form_valid(self, form: ModelForm):
@@ -1330,7 +1330,7 @@ class ZendeskTicketUpdateView(UpdateView):
         """Add case sections to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object.case
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:

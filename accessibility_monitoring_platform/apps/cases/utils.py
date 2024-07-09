@@ -59,7 +59,7 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
 
 
 @dataclass
-class SubPage:
+class NavSubPage:
     name: str
     url: str
     complete: bool
@@ -69,7 +69,7 @@ class SubPage:
 class NavSection:
     name: str
     disabled: bool = False
-    subpages: Optional[List[SubPage]] = None
+    subpages: Optional[List[NavSubPage]] = None
 
     def number_complete(self) -> int:
         if self.subpages is not None:
@@ -77,14 +77,14 @@ class NavSection:
         return 0
 
 
-def build_case_sections(case: Case) -> List[NavSection]:
+def build_case_nav_sections(case: Case) -> List[NavSection]:
     """Return list of case sections for navigation details elements"""
     kwargs_case_pk: Dict[str, int] = {"pk": case.id}
     return [
         NavSection(
             name="Case details",
             subpages=[
-                SubPage(
+                NavSubPage(
                     name="Case metadata",
                     url=reverse("cases:edit-case-details", kwargs=kwargs_case_pk),
                     complete=case.case_details_complete_date,

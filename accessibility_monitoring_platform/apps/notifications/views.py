@@ -11,7 +11,7 @@ from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import Case
-from ..cases.utils import build_case_sections
+from ..cases.utils import build_case_nav_sections
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
@@ -117,7 +117,7 @@ class ReminderTaskCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         case: Case = Case.objects.get(pk=self.kwargs["case_id"])
         context["case"] = case
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
     def get_success_url(self) -> str:
@@ -150,7 +150,7 @@ class ReminderTaskUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         case: Case = self.object.case
         context["case"] = case
-        context["case_sections"] = build_case_sections(case=case)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
     def get_success_url(self) -> str:
