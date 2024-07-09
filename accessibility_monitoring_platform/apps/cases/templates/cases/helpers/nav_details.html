@@ -14,7 +14,7 @@
                         {% else %}
                             <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state amp-font-size-16">{{ subpage.name }}</a>
                         {% endif %}
-                        {% if subpage.complete %}&check;{% endif %}
+                        {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
                     </li>
                 {% endfor %}
             </ul>
@@ -30,7 +30,7 @@
                     {% for subpage in case_section.subpages %}
                         <li class="amp-font-size-16">
                             <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state amp-font-size-16">{{ subpage.name }}</a>
-                            {% if subpage.complete %}&check;{% endif %}
+                            {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
                         </li>
                     {% endfor %}
                 </ul>

@@ -776,7 +776,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:case-detail",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>',
         ),
-        ("cases:edit-case-details", "<li>Case details</li>"),
+        ("cases:edit-case-details", "<b>Case metadata</b>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
         ("cases:edit-qa-comments", "<li>QA comments</li>"),
@@ -2054,7 +2054,6 @@ def test_no_anchor_section_complete_check_displayed(
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-case-details", "case_details_complete_date", "Case details"),
         ("cases:edit-test-results", "testing_details_complete_date", "Testing details"),
         (
             "cases:edit-report-details",
@@ -2147,6 +2146,38 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     assertContains(
         response,
         f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;',
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "step_url, flag_name, step_name",
+    [
+        ("cases:edit-case-details", "case_details_complete_date", "Case metadata"),
+    ],
+)
+def test_section_complete_check_displayed_in_nav_details(
+    step_url, flag_name, step_name, admin_client
+):
+    """
+    Test that the section complete tick is displayed in list of steps
+    when step is ocmplete
+    """
+    case: Case = Case.objects.create()
+    setattr(case, flag_name, TODAY)
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li class="amp-font-size-16"><b>{step_name}</b>
+                <span class="govuk-visually-hidden">complete</span> &check;
+        </li>""",
         html=True,
     )
 

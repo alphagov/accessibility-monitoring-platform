@@ -2,7 +2,6 @@
 Views for cases app
 """
 
-from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -98,6 +97,7 @@ from .models import (
     ZendeskTicket,
 )
 from .utils import (
+    build_case_sections,
     filter_cases,
     get_case_view_sections,
     record_case_event,
@@ -127,25 +127,6 @@ statement_fields = {
     **ArchiveAuditStatement1UpdateForm().fields,
     **ArchiveAuditStatement2UpdateForm().fields,
 }
-
-
-@dataclass
-class SubPage:
-    name: str
-    url: str
-    complete: bool
-
-
-@dataclass
-class ViewSection:
-    name: str
-    disabled: bool = False
-    subpages: Optional[List[SubPage]] = None
-
-    def number_complete(self) -> int:
-        if self.subpages is not None:
-            return len([subpage for subpage in self.subpages if subpage.complete])
-        return 0
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -340,19 +321,7 @@ class CaseUpdateView(UpdateView):
         """Add case sections to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        kwargs_case_pk: Dict[str, int] = {"pk": case.id}
-        context["case_sections"] = [
-            ViewSection(
-                name="Case details",
-                subpages=[
-                    SubPage(
-                        name="Case metadata",
-                        url=reverse("cases:edit-case-details", kwargs=kwargs_case_pk),
-                        complete=case.case_details_complete_date,
-                    )
-                ],
-            ),
-        ]
+        context["case_sections"] = build_case_sections(case=case)
         return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -1026,6 +995,13 @@ class CaseStatusWorkflowDetailView(DetailView):
     context_object_name: str = "case"
     template_name: str = "cases/status_workflow.html"
 
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        context["case_sections"] = build_case_sections(case=case)
+        return context
+
 
 class CaseOutstandingIssuesDetailView(DetailView):
     model: Type[Case] = Case
@@ -1040,6 +1016,7 @@ class CaseOutstandingIssuesDetailView(DetailView):
         view_url_param: Union[str, None] = self.request.GET.get("view")
         show_failures_by_page: bool = not view_url_param == "WCAG view"
         context["show_failures_by_page"] = show_failures_by_page
+        context["case_sections"] = build_case_sections(case=case)
 
         if case.audit and case.audit.unfixed_check_results:
             if show_failures_by_page:
@@ -1195,6 +1172,7 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = case
+        context["case_sections"] = build_case_sections(case=case)
         return context
 
     def form_valid(self, form: ModelForm):
@@ -1261,6 +1239,7 @@ class CaseRetestOverviewTemplateView(TemplateView):
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
         context["equality_body_retests"] = case.retests.filter(id_within_case__gt=0)
+        context["case_sections"] = build_case_sections(case=case)
         return context
 
 
@@ -1272,6 +1251,7 @@ class CaseRetestCreateErrorTemplateView(TemplateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
+        context["case_sections"] = build_case_sections(case=case)
         return context
 
 
@@ -1295,6 +1275,13 @@ class CaseZendeskTicketsDetailView(DetailView):
     context_object_name: str = "case"
     template_name: str = "cases/zendesk_tickets.html"
 
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        context["case_sections"] = build_case_sections(case=case)
+        return context
+
 
 class ZendeskTicketCreateView(CreateView):
     """
@@ -1310,6 +1297,7 @@ class ZendeskTicketCreateView(CreateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = case
+        context["case_sections"] = build_case_sections(case=case)
         return context
 
     def form_valid(self, form: ModelForm):
@@ -1333,10 +1321,17 @@ class ZendeskTicketUpdateView(UpdateView):
     View to update Zendesk ticket
     """
 
-    model: Type[Case] = ZendeskTicket
+    model: Type[ZendeskTicket] = ZendeskTicket
     form_class: Type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
     context_object_name: str = "zendesk_ticket"
     template_name: str = "cases/forms/zendesk_ticket_update.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object.case
+        context["case_sections"] = build_case_sections(case=case)
+        return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
