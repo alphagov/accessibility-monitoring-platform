@@ -2,6 +2,7 @@
 Views for cases app
 """
 
+from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -126,6 +127,25 @@ statement_fields = {
     **ArchiveAuditStatement1UpdateForm().fields,
     **ArchiveAuditStatement2UpdateForm().fields,
 }
+
+
+@dataclass
+class SubPage:
+    name: str
+    url: str
+    complete: bool
+
+
+@dataclass
+class ViewSection:
+    name: str
+    disabled: bool = False
+    subpages: Optional[List[SubPage]] = None
+
+    def number_complete(self) -> int:
+        if self.subpages is not None:
+            return len([subpage for subpage in self.subpages if subpage.complete])
+        return 0
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -315,6 +335,25 @@ class CaseUpdateView(UpdateView):
 
     model: Type[Case] = Case
     context_object_name: str = "case"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        kwargs_case_pk: Dict[str, int] = {"pk": case.id}
+        context["case_sections"] = [
+            ViewSection(
+                name="Case details",
+                subpages=[
+                    SubPage(
+                        name="Case metadata",
+                        url=reverse("cases:edit-case-details", kwargs=kwargs_case_pk),
+                        complete=case.case_details_complete_date,
+                    )
+                ],
+            ),
+        ]
+        return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""

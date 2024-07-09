@@ -21,6 +21,7 @@
         {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" %}
                 {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-twelve-week-retest' %}
             </div>
             <div class="govuk-grid-column-two-thirds">

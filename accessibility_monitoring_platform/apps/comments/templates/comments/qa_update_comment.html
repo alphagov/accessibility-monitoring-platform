@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ case.organisation_name }} | Edit or delete comment{% endblock %}
+{% block title %}{{ comment.case.organisation_name }} | Edit or delete comment{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -27,6 +27,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" %}
                 {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-qa-comments' case=comment.case %}
             </div>
             <div class="govuk-grid-column-two-thirds">
