@@ -1,6 +1,7 @@
 """
 Models - reports
 """
+
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -15,7 +16,7 @@ from ..common.models import VersionModel
 from ..common.utils import amp_format_datetime
 from ..s3_read_write.models import S3Report
 
-REPORT_VERSION_DEFAULT: str = "v1_2_0__20230523"
+REPORT_VERSION_DEFAULT: str = "v1_3_0__20240710"
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",
     "sent_by",
