@@ -44,6 +44,7 @@ class TaskAdmin(admin.ModelAdmin):
     """Django admin configuration for Task model"""
 
     search_fields = [
+        "case__case_number",
         "case__organisation_name",
         "description",
     ]
