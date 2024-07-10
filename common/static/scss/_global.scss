@@ -824,6 +824,11 @@ svg {
     }
 }
 
+.amp-nav-details {
+    font-family: "GDS Transport",arial,sans-serif;
+    font-size: 1rem;
+}
+
 .amp-nav-details[disabled] * {
     color: govuk-colour("mid-grey");
     pointer-events: none;
@@ -833,7 +838,6 @@ svg {
     color:  govuk-colour("blue");
     cursor: pointer;
     margin-bottom: 5px;
-    font-size: 1rem;
 
     &:hover {
         text-decoration: underline;
@@ -841,9 +845,8 @@ svg {
 }
 .amp-nav-details__text {
     border-left: 1px solid govuk-colour("mid-grey");
-    padding-left: 16px;
+    padding-left: 1rem;
     margin-bottom: 5px;
-    font-size: 1rem;
 
     ul {
         font-size: 1rem;
