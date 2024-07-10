@@ -35,6 +35,8 @@ class TaskListView(TemplateView):
             param: self.request.GET.get(param) for param in TASK_LIST_PARAMS
         }
         user: User = self.request.user
+
+        # Check for parameter to list another user's Tasks. Usefult for live support.
         if "user_id" in self.request.GET:
             user_id: str = self.request.GET.get("user_id")
             if user_id.isnumeric():
@@ -42,6 +44,7 @@ class TaskListView(TemplateView):
                     user: User = User.objects.get(id=user_id)
                 except User.DoesNotExist:
                     pass
+
         context["tasks"] = build_task_list(user=user, **params)
         all_due_tasks: List[Task] = build_task_list(user=user)
         context["task_type_counts"] = get_task_type_counts(tasks=all_due_tasks)
