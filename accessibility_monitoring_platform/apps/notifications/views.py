@@ -34,8 +34,16 @@ class TaskListView(TemplateView):
         params: Dict[str, str] = {
             param: self.request.GET.get(param) for param in TASK_LIST_PARAMS
         }
-        context["tasks"] = build_task_list(user=self.request.user, **params)
-        all_due_tasks: List[Task] = build_task_list(user=self.request.user)
+        user: User = self.request.user
+        if "user_id" in self.request.GET:
+            user_id: str = self.request.GET.get("user_id")
+            if user_id.isnumeric():
+                try:
+                    user: User = User.objects.get(id=user_id)
+                except User.DoesNotExist:
+                    pass
+        context["tasks"] = build_task_list(user=user, **params)
+        all_due_tasks: List[Task] = build_task_list(user=user)
         context["task_type_counts"] = get_task_type_counts(tasks=all_due_tasks)
         return {**context, **params}
 
