@@ -23,7 +23,7 @@ from .models import (
 class AuditAdmin(admin.ModelAdmin):
     """Django admin configuration for Audit model"""
 
-    search_fields = ["case__organisation_name", "case__id"]
+    search_fields = ["case__organisation_name", "case__case_number"]
     list_display = ["date_of_test", "case"]
     readonly_fields = ["case"]
 
@@ -31,7 +31,12 @@ class AuditAdmin(admin.ModelAdmin):
 class PageAdmin(admin.ModelAdmin):
     """Django admin configuration for Page model"""
 
-    search_fields = ["name", "url", "audit__case__organisation_name", "audit__case__id"]
+    search_fields = [
+        "name",
+        "url",
+        "audit__case__organisation_name",
+        "audit__case__case_number",
+    ]
     list_display = ["page_type", "audit", "name", "url"]
     list_filter = ["page_type"]
 
@@ -41,7 +46,7 @@ class CheckResultAdmin(admin.ModelAdmin):
 
     search_fields = [
         "audit__case__organisation_name",
-        "audit__case__id",
+        "audit__case__case_number",
         "wcag_definition__name",
         "page__name",
         "page__page_type",
@@ -121,7 +126,7 @@ class RetestAdmin(admin.ModelAdmin):
 
     search_fields = [
         "case__organisation_name",
-        "case__id",
+        "case__case_number",
         "retest_notes",
         "compliance_notes",
     ]
@@ -165,7 +170,7 @@ class RetestCheckResultAdmin(admin.ModelAdmin):
 class StatementPageAdmin(admin.ModelAdmin):
     """Django admin configuration for StatementPage model"""
 
-    search_fields = ["audit__case__id", "url", "backup_url"]
+    search_fields = ["audit__case__case_number", "url", "backup_url"]
     list_display = ["id", "url", "backup_url", "added_stage", "is_deleted", "created"]
     list_filter = ["added_stage", "is_deleted"]
     readonly_fields = ["audit"]
@@ -175,7 +180,7 @@ class RetestStatementCheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for RetestStatementCheckResult model"""
 
     search_fields = [
-        "retest__case__id",
+        "retest__case__case_number",
         "retest__case__organisation_name",
         "statement_check__label",
         "comment",

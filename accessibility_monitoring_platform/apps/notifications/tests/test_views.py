@@ -66,6 +66,34 @@ def test_task_list(rf):
     assertContains(response, "Tasks (1)")
 
 
+@pytest.mark.django_db
+def test_task_list_other_user(rf):
+    """Test task list page can show other user's tasks"""
+    request_user: User = User.objects.create(
+        username="mockuser1", email="mockuser1@mock.com", password="secret1"
+    )
+    other_user: User = User.objects.create(
+        username="mockuser2", email="mockuser2@mock.com", password="secret2"
+    )
+    case: Case = Case.objects.create(auditor=other_user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=other_user,
+        case=case,
+    )
+
+    request: HttpRequest = rf.get(
+        f'{reverse("notifications:task-list")}?user_id={other_user.id}'
+    )
+    request.user = request_user
+
+    response: HttpResponse = TaskListView.as_view()(request)
+
+    assert response.status_code == 200
+    assertContains(response, "Tasks (1)")
+
+
 @pytest.mark.parametrize(
     "filtered_type, other_type",
     [
