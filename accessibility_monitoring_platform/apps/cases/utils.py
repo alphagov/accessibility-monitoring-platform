@@ -3,6 +3,7 @@ Utility functions for cases app
 """
 
 import copy
+from dataclasses import dataclass
 from datetime import date
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
@@ -28,11 +29,11 @@ from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_se
 from .forms import (
     CaseCloseUpdateForm,
     CaseContactsUpdateForm,
-    CaseDetailUpdateForm,
     CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
     CaseFindContactDetailsUpdateForm,
     CaseFourWeekFollowupUpdateForm,
+    CaseMetadataUpdateForm,
     CaseNoPSBContactUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
@@ -55,6 +56,42 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
+
+
+@dataclass
+class NavSubPage:
+    name: str
+    url: str
+    complete: bool
+
+
+@dataclass
+class NavSection:
+    name: str
+    disabled: bool = False
+    subpages: Optional[List[NavSubPage]] = None
+
+    def number_complete(self) -> int:
+        if self.subpages is not None:
+            return len([subpage for subpage in self.subpages if subpage.complete])
+        return 0
+
+
+def build_case_nav_sections(case: Case) -> List[NavSection]:
+    """Return list of case sections for navigation details elements"""
+    kwargs_case_pk: Dict[str, int] = {"pk": case.id}
+    return [
+        NavSection(
+            name="Case details",
+            subpages=[
+                NavSubPage(
+                    name="Case metadata",
+                    url=reverse("cases:edit-case-metadata", kwargs=kwargs_case_pk),
+                    complete=case.case_details_complete_date,
+                )
+            ],
+        ),
+    ]
 
 
 def get_case_view_sections(case: Case) -> List[ViewSection]:
@@ -210,12 +247,12 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             ]
     return [
         build_view_section(
-            name="Case details",
-            edit_url=reverse("cases:edit-case-details", kwargs=case_pk),
-            edit_url_id="edit-case-details",
+            name="Case metadata",
+            edit_url=reverse("cases:edit-case-metadata", kwargs=case_pk),
+            edit_url_id="edit-case-metadata",
             complete_date=case.case_details_complete_date,
             display_fields=case_details_prefix
-            + get_case_rows(form=CaseDetailUpdateForm()),
+            + get_case_rows(form=CaseMetadataUpdateForm()),
         ),
         build_view_section(
             name="Testing details",

@@ -50,7 +50,7 @@ PAGE_TITLES_BY_URL = {
     "/audits/[id]/edit-wcag-definition/": "WCAG error editor",
     "/cases/": "Search",
     "/cases/[id]/edit-case-close/": "Closing the case",
-    "/cases/[id]/edit-case-details/": "Case details",
+    "/cases/[id]/edit-case-metadata/": "Case metadata",
     "/cases/[id]/edit-contact-details/": "Contact details",
     "/cases/[id]/edit-no-psb-response/": "Public sector body is unresponsive",
     "/cases/[id]/edit-post-case/": "Post case summary",

@@ -63,11 +63,11 @@ from .forms import (
     CaseCorrespondenceOverviewUpdateForm,
     CaseCreateForm,
     CaseDeactivateForm,
-    CaseDetailUpdateForm,
     CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
     CaseFindContactDetailsUpdateForm,
     CaseFourWeekFollowupUpdateForm,
+    CaseMetadataUpdateForm,
     CaseNoPSBContactUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
@@ -97,6 +97,7 @@ from .models import (
     ZendeskTicket,
 )
 from .utils import (
+    build_case_nav_sections,
     filter_cases,
     get_case_view_sections,
     record_case_event,
@@ -298,7 +299,7 @@ class CaseCreateView(CreateView):
         record_case_event(user=user, new_case=case)
         case_pk: Dict[str, int] = {"pk": self.object.id}
         if "save_continue_case" in self.request.POST:
-            url: str = reverse("cases:edit-case-details", kwargs=case_pk)
+            url: str = reverse("cases:edit-case-metadata", kwargs=case_pk)
         elif "save_new_case" in self.request.POST:
             url: str = reverse("cases:case-create")
         elif "save_exit" in self.request.POST:
@@ -315,6 +316,13 @@ class CaseUpdateView(UpdateView):
 
     model: Type[Case] = Case
     context_object_name: str = "case"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        context["case_sections"] = build_case_nav_sections(case=case)
+        return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
@@ -345,13 +353,13 @@ class CaseUpdateView(UpdateView):
         return self.request.path
 
 
-class CaseDetailUpdateView(CaseUpdateView):
+class CaseMetadataUpdateView(CaseUpdateView):
     """
-    View to update case details
+    View to update case metadata
     """
 
-    form_class: Type[CaseDetailUpdateForm] = CaseDetailUpdateForm
-    template_name: str = "cases/forms/details.html"
+    form_class: Type[CaseMetadataUpdateForm] = CaseMetadataUpdateForm
+    template_name: str = "cases/forms/metadata.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
@@ -987,6 +995,13 @@ class CaseStatusWorkflowDetailView(DetailView):
     context_object_name: str = "case"
     template_name: str = "cases/status_workflow.html"
 
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        context["case_sections"] = build_case_nav_sections(case=case)
+        return context
+
 
 class CaseOutstandingIssuesDetailView(DetailView):
     model: Type[Case] = Case
@@ -1001,6 +1016,7 @@ class CaseOutstandingIssuesDetailView(DetailView):
         view_url_param: Union[str, None] = self.request.GET.get("view")
         show_failures_by_page: bool = not view_url_param == "WCAG view"
         context["show_failures_by_page"] = show_failures_by_page
+        context["case_sections"] = build_case_nav_sections(case=case)
 
         if case.audit and case.audit.unfixed_check_results:
             if show_failures_by_page:
@@ -1156,6 +1172,7 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = case
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
     def form_valid(self, form: ModelForm):
@@ -1222,6 +1239,7 @@ class CaseRetestOverviewTemplateView(TemplateView):
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
         context["equality_body_retests"] = case.retests.filter(id_within_case__gt=0)
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
 
@@ -1233,6 +1251,7 @@ class CaseRetestCreateErrorTemplateView(TemplateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
 
@@ -1256,6 +1275,13 @@ class CaseZendeskTicketsDetailView(DetailView):
     context_object_name: str = "case"
     template_name: str = "cases/zendesk_tickets.html"
 
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        context["case_sections"] = build_case_nav_sections(case=case)
+        return context
+
 
 class ZendeskTicketCreateView(CreateView):
     """
@@ -1271,6 +1297,7 @@ class ZendeskTicketCreateView(CreateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = case
+        context["case_sections"] = build_case_nav_sections(case=case)
         return context
 
     def form_valid(self, form: ModelForm):
@@ -1294,10 +1321,17 @@ class ZendeskTicketUpdateView(UpdateView):
     View to update Zendesk ticket
     """
 
-    model: Type[Case] = ZendeskTicket
+    model: Type[ZendeskTicket] = ZendeskTicket
     form_class: Type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
     context_object_name: str = "zendesk_ticket"
     template_name: str = "cases/forms/zendesk_ticket_update.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object.case
+        context["case_sections"] = build_case_nav_sections(case=case)
+        return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""

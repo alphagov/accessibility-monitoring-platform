@@ -19,13 +19,14 @@
         {% include 'cases/helpers/case_title.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" %}
                 {% include 'cases/helpers/nav_steps.html' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-s amp-margin-bottom-0">Unassigned case</h2>
                 <ul class="govuk-list">
                     <li>
-                        <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             Assign an auditor
                         </a>
                         {% if case.auditor %}&check;{% endif %}

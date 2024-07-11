@@ -7,7 +7,7 @@
                     {% include 'cases/details/archive_section_link.html' with section=archived_section %}
                 {% endfor %}
             {% else %}
-                {% include './archive_nav_content.html' with anchor='case-details' id='case-details' edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
+                {% include './archive_nav_content.html' with anchor='case-metadata' id='case-metadata' edit_name='cases:edit-case-metadata' name='Case metadata' complete=case.case_details_complete_date %}
                 {% include './archive_nav_content.html' with anchor='test-results' id='test-results' edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
                 {% include './archive_nav_content.html' with anchor='report-details' id='report-details' edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
                 {% include './archive_nav_content.html' with anchor='qa-comments' id='qa-comments' edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}

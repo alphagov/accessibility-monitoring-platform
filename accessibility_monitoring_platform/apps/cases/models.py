@@ -155,7 +155,7 @@ class Case(VersionModel):
         default=Variant.CLOSE_CASE,
     )
 
-    # Case details page
+    # Case metadata page
     created = models.DateTimeField(blank=True)
     auditor = models.ForeignKey(
         User,

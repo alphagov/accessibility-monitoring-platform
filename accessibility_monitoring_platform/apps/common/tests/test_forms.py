@@ -1,6 +1,7 @@
 """
 Test - common widgets and forms
 """
+
 import logging
 from datetime import date, datetime
 from unittest import mock
@@ -10,7 +11,7 @@ import pytest
 from django import forms
 from pytest_django.asserts import assertHTMLEqual
 
-from ...cases.forms import CaseDetailUpdateForm
+from ...cases.forms import CaseMetadataUpdateForm
 from ...cases.models import Case
 from ..forms import (
     AMPCharField,
@@ -353,7 +354,7 @@ def test_amp_date_sent_field_and_widget_return_none_when_not_checked():
 def test_version_form():
     """Test version form returns and logs version errors"""
     case: Case = Case()
-    version_form: CaseDetailUpdateForm = CaseDetailUpdateForm(
+    version_form: CaseMetadataUpdateForm = CaseMetadataUpdateForm(
         data={"version": 1}, instance=case
     )
 

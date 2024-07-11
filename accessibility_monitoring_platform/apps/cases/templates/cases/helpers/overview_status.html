@@ -3,8 +3,8 @@
     <li>{{ case.status.get_status_display }}</li>
     <li>
         {% if case.status.status == 'unassigned-case' %}
-            <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                Go to case details
+            <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to case metadata
             </a>
         {% elif case.status.status == 'test-in-progress' %}
             <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
@@ -47,8 +47,8 @@
                 Go to post case summary
             </a>
         {% else %}
-            <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                Go to case details
+            <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to case metadata
             </a>
         {% endif %}
     </li>
