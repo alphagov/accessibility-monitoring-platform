@@ -265,6 +265,30 @@ def test_page_str():
 
 
 @pytest.mark.django_db
+def test_html_page_title():
+    """
+    Test Page.title is as expected for HTML page
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = audit.accessibility_statement_page
+
+    assert page.title == "Accessibility statement page"
+
+
+@pytest.mark.django_db
+def test_pdf_page_title():
+    """
+    Test Page.title is as expected for PDF page
+    """
+    create_audit_and_pages()
+    page: Page = Page.objects.get(page_type=Page.Type.PDF)
+    page.name = "File"
+    page.save()
+
+    assert page.title == "File"
+
+
+@pytest.mark.django_db
 def test_audit_testable_pages_returns_expected_page():
     """
     Deleted, not found and pages without URLs excluded.
