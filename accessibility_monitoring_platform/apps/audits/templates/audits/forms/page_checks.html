@@ -4,7 +4,7 @@
 
 {% load static %}
 
-{% block title %}{{ page.audit.case.organisation_name }} | {{ page.title }} test{% endblock %}
+{% block title %}{{ page.audit.case.organisation_name }} | {{ page.test_page_title }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -17,11 +17,11 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" with current_section_name='Initial WCAG test' current_page_name='Add or remove pages' current_subpage_name=page %}
+                {% include "cases/helpers/nav_details.html" with current_section_name='Initial WCAG test' current_page_name='Add or remove pages' current_subpage_name=page.test_page_title %}
                 {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-page-checks' page_id=page.id audit=page.audit %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ page.title }} test</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ page.test_page_title }}</h1>
                 {% include "cases/helpers/messages.html" %}
                 {% include 'audits/helpers/page_check_filters.html' with page='test' %}
                 <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}">

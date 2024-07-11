@@ -107,7 +107,7 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                         complete=case.audit.audit_pages_complete_date,
                         subpages=[
                             NavSubPage(
-                                name=f"{page.title} test",
+                                name=page.test_page_title,
                                 url=reverse(
                                     "audits:edit-audit-page-checks",
                                     kwargs={"pk": page.id},

@@ -7,7 +7,7 @@
                 ({{ case_section.number_complete }}/{{ case_section.pages|length }})
             </p>
             {% include 'cases/helpers/nav_details_text.html' %}
-        {% else %}
+       {% else %}
             <details class="amp-nav-details"{% if case_section.name == section_name %} open{% endif %}{% if case_section.disabled %} disabled{% endif %}>
                 <summary class="amp-nav-details__summary">
                     {{ case_section.name }}
