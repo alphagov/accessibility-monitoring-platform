@@ -14,15 +14,12 @@
     {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='Pages' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Pages' case=audit.case %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" with current_section_name='Initial WCAG test' current_page_name='Add or remove pages' %}
                 {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-pages' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
+                {% include "cases/helpers/edit_header.html" with page_heading='Pages' case=audit.case %}
                 {% include 'common/error_summary.html' %}
                 {% if standard_pages_formset.errors %}
                     {% for form in standard_pages_formset.forms %}

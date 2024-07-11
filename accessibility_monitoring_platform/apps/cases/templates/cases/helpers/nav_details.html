@@ -3,18 +3,32 @@
         {% if case_section.name == current_section_name %}
             <p class="govuk-body-s amp-margin-bottom-5">
                 {{ case_section.name }}
-                ({{ case_section.number_complete }}/{{ case_section.subpages|length }})
+                ({{ case_section.number_complete }}/{{ case_section.pages|length }})
             </p>
             <div class="amp-nav-details__text">
                 <ul class="govuk-list amp-margin-bottom-5">
-                    {% for subpage in case_section.subpages %}
+                    {% for page in case_section.pages %}
                         <li>
-                            {% if subpage.name == current_subpage_name %}
-                                <b>{{ subpage.name }}</b>
+                            {% if page.name == current_page_name and not current_subpage_name %}
+                                <b>{{ page.name }}</b>
                             {% else %}
-                                <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
+                                <a href="{{ page.url }}" class="govuk-link govuk-link--no-visited-state">{{ page.name }}</a>
                             {% endif %}
-                            {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                            {% if page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                            {% if page.subpages %}
+                                <ul class="amp-nav-subpage-list">
+                                    {% for subpage in page.subpages %}
+                                        <li>
+                                            {% if subpage.name|slugify == current_subpage_name|slugify %}
+                                                <b>{{ subpage.name }}</b>
+                                            {% else %}
+                                                <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
+                                                {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
@@ -23,14 +37,24 @@
             <details class="amp-nav-details"{% if case_section.name == section_name %} open{% endif %}{% if case_section.disabled %} disabled{% endif %}>
                 <summary class="amp-nav-details__summary">
                     {{ case_section.name }}
-                    ({{ case_section.number_complete }}/{{ case_section.subpages|length }})
+                    ({{ case_section.number_complete }}/{{ case_section.pages|length }})
                 </summary>
                 <div class="amp-nav-details__text">
                     <ul class="govuk-list amp-margin-bottom-5">
-                        {% for subpage in case_section.subpages %}
+                        {% for page in case_section.pages %}
                             <li>
-                                <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
-                                {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                                <a href="{{ page.url }}" class="govuk-link govuk-link--no-visited-state">{{ page.name }}</a>
+                                {% if page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                                {% if page.subpages %}
+                                    <ul class="govuk-list--bullet">
+                                        {% for subpage in page.subpages %}
+                                            <li>
+                                                <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
+                                                {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
                             </li>
                         {% endfor %}
                     </ul>

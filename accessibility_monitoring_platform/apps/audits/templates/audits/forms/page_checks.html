@@ -16,17 +16,13 @@
     {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='Testing' audit=page.audit %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">Testing {{ page }}</h1>
-                {% include "cases/helpers/case_title.html" with case=page.audit.case %}
-                {% include "cases/helpers/messages.html" %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" with current_section_name='Initial WCAG test' current_page_name='Add or remove pages' current_subpage_name=page %}
                 {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-page-checks' page_id=page.id audit=page.audit %}
             </div>
             <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Testing {{ page }}</h1>
+                {% include "cases/helpers/messages.html" %}
                 {% include 'audits/helpers/page_check_filters.html' with page='test' %}
                 <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}">
                     <div class="govuk-grid-row">

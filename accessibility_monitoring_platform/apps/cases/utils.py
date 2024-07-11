@@ -66,29 +66,73 @@ class NavSubPage:
 
 
 @dataclass
+class NavPage:
+    name: str
+    url: str
+    complete: bool
+    subpages: Optional[List[NavSubPage]] = None
+
+
+@dataclass
 class NavSection:
     name: str
     disabled: bool = False
-    subpages: Optional[List[NavSubPage]] = None
+    pages: Optional[List[NavPage]] = None
 
     def number_complete(self) -> int:
-        if self.subpages is not None:
-            return len([subpage for subpage in self.subpages if subpage.complete])
+        if self.pages is not None:
+            return len([page for page in self.pages if page.complete])
         return 0
 
 
 def build_case_nav_sections(case: Case) -> List[NavSection]:
     """Return list of case sections for navigation details elements"""
     kwargs_case_pk: Dict[str, int] = {"pk": case.id}
+    kwargs_audit_pk: Dict[str, int] = {"pk": case.audit.id}
     return [
         NavSection(
             name="Case details",
-            subpages=[
-                NavSubPage(
+            pages=[
+                NavPage(
                     name="Case metadata",
                     url=reverse("cases:edit-case-metadata", kwargs=kwargs_case_pk),
                     complete=case.case_details_complete_date,
                 )
+            ],
+        ),
+        NavSection(
+            name="Initial WCAG test",
+            pages=[
+                NavPage(
+                    name="Initial test metadata",
+                    url=reverse("audits:edit-audit-metadata", kwargs=kwargs_audit_pk),
+                    complete=case.audit.audit_metadata_complete_date,
+                ),
+                NavPage(
+                    name="Add or remove pages",
+                    url=reverse("audits:edit-audit-pages", kwargs=kwargs_audit_pk),
+                    complete=case.audit.audit_pages_complete_date,
+                    subpages=[
+                        NavSubPage(
+                            name=str(page),
+                            url=reverse(
+                                "audits:edit-audit-page-checks", kwargs={"pk": page.id}
+                            ),
+                            complete=page.complete_date,
+                        )
+                        for page in case.audit.testable_pages
+                    ],
+                ),
+                NavPage(
+                    name="Compliance decision",
+                    url=reverse("audits:edit-website-decision", kwargs=kwargs_audit_pk),
+                    complete=case.audit.audit_website_decision_complete_date,
+                ),
+                NavPage(
+                    name="Test summary",
+                    url=reverse("audits:edit-audit-summary", kwargs=kwargs_audit_pk),
+                    complete=case.audit.audit_summary_complete_date,
+                ),
             ],
         ),
     ]

@@ -14,6 +14,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ...cases.models import Case, CaseEvent
+from ...cases.utils import build_case_nav_sections
 from ...common.utils import (
     amp_format_date,
     get_url_parameters_for_pagination,
@@ -99,6 +100,13 @@ class AuditUpdateView(UpdateView):
 
     model: Type[Audit] = Audit
     context_object_name: str = "audit"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case sections to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object.case
+        context["case_sections"] = build_case_nav_sections(case=case)
+        return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add event on change of audit"""
@@ -240,10 +248,10 @@ class WcagDefinitionListView(ListView):
             return WcagDefinition.objects.none()
 
         if hasattr(self.wcag_definition_search_form, "cleaned_data"):
-            search_str: Optional[
-                str
-            ] = self.wcag_definition_search_form.cleaned_data.get(
-                "wcag_definition_search"
+            search_str: Optional[str] = (
+                self.wcag_definition_search_form.cleaned_data.get(
+                    "wcag_definition_search"
+                )
             )
 
             if search_str:
@@ -333,10 +341,10 @@ class StatementCheckListView(ListView):
             return StatementCheck.objects.none()
 
         if hasattr(self.statement_check_search_form, "cleaned_data"):
-            search_str: Optional[
-                str
-            ] = self.statement_check_search_form.cleaned_data.get(
-                "statement_check_search"
+            search_str: Optional[str] = (
+                self.statement_check_search_form.cleaned_data.get(
+                    "statement_check_search"
+                )
             )
 
             if search_str:
