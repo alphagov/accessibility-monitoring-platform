@@ -102,29 +102,9 @@ class CaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
+    home_page_url = AMPURLField(label="Full URL (included in equality body export)")
     organisation_name = AMPCharFieldWide(
         label="Organisation name (included in equality body export)",
-    )
-    home_page_url = AMPURLField(label="Full URL (included in equality body export)")
-    enforcement_body = AMPChoiceRadioField(
-        label="Which equalities body will check the case? (included in equality body export)",
-        choices=Case.EnforcementBody.choices,
-    )
-    psb_location = AMPChoiceRadioField(
-        label="Public sector body location",
-        choices=Case.PsbLocation.choices,
-    )
-    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
-    previous_case_url = AMPURLField(
-        label="URL to previous case (included in equality body export)",
-        help_text="If the website has been previously audited, include a link to the case below",
-    )
-    is_complaint = AMPChoiceCheckboxField(
-        label="Complaint? (included in equality body export)",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Did this case originate from a complaint?"}
-        ),
     )
     parental_organisation_name = AMPCharFieldWide(
         label="Parent organisation name (included in equality body export)"
@@ -136,20 +116,40 @@ class CaseCreateForm(forms.ModelForm):
         label="Sub-category (included in equality body export)",
         queryset=SubCategory.objects.all(),
     )
+    enforcement_body = AMPChoiceRadioField(
+        label="Which equalities body will check the case? (included in equality body export)",
+        choices=Case.EnforcementBody.choices,
+    )
+    psb_location = AMPChoiceRadioField(
+        label="Public sector body location",
+        choices=Case.PsbLocation.choices,
+    )
+    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
+    is_complaint = AMPChoiceCheckboxField(
+        label="Complaint? (included in equality body export)",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Did this case originate from a complaint?"}
+        ),
+    )
+    previous_case_url = AMPURLField(
+        label="URL to previous case (included in equality body export)",
+        help_text="If the website has been previously audited, include a link to the case below",
+    )
 
     class Meta:
         model = Case
         fields = [
-            "organisation_name",
             "home_page_url",
-            "enforcement_body",
-            "psb_location",
-            "sector",
-            "previous_case_url",
-            "is_complaint",
+            "organisation_name",
             "parental_organisation_name",
             "website_name",
             "subcategory",
+            "enforcement_body",
+            "psb_location",
+            "sector",
+            "is_complaint",
+            "previous_case_url",
         ]
 
     def clean_home_page_url(self):
@@ -165,9 +165,9 @@ class CaseCreateForm(forms.ModelForm):
         return enforcement_body
 
 
-class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
+class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
     """
-    Form for updating case details fields
+    Form for updating case metadata fields
     """
 
     auditor = AMPAuditorModelChoiceField(
@@ -177,8 +177,8 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         label="URL to previous case",
         help_text="If the website has been previously audited, include a link to the case below",
     )
-    trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
+    trello_url = AMPURLField(label="Trello ticket URL")
     is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent?",
         choices=Boolean.choices,
@@ -227,16 +227,16 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "auditor",
             "home_page_url",
             "organisation_name",
+            "parental_organisation_name",
+            "website_name",
+            "subcategory",
             "enforcement_body",
             "psb_location",
             "sector",
             "is_complaint",
             "previous_case_url",
-            "trello_url",
             "notes",
-            "parental_organisation_name",
-            "website_name",
-            "subcategory",
+            "trello_url",
             "is_feedback_requested",
             "case_details_complete_date",
         ]

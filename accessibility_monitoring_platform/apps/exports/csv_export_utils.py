@@ -58,7 +58,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="enforcement_body",
         required=True,
         edit_url_class=Case,
-        edit_url_name="cases:edit-case-details",
+        edit_url_name="cases:edit-case-metadata",
         edit_url_anchor="id_enforcement_body-label",
     ),
     EqualityBodyCSVColumn(
@@ -83,7 +83,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr="organisation_name",
         required=True,
         edit_url_class=Case,
-        edit_url_name="cases:edit-case-details",
+        edit_url_name="cases:edit-case-metadata",
         edit_url_anchor="id_organisation_name-label",
     ),
     EqualityBodyCSVColumn(
@@ -93,7 +93,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         required=True,
         data_type="url",
         edit_url_class=Case,
-        edit_url_name="cases:edit-case-details",
+        edit_url_name="cases:edit-case-metadata",
         edit_url_anchor="id_home_page_url-label",
     ),
     EqualityBodyCSVColumn(
@@ -101,7 +101,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="parental_organisation_name",
         edit_url_class=Case,
-        edit_url_name="cases:edit-case-details",
+        edit_url_name="cases:edit-case-metadata",
         edit_url_anchor="id_parental_organisation_name-label",
     ),
     EqualityBodyCSVColumn(
@@ -109,7 +109,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="subcategory",
         edit_url_class=Case,
-        edit_url_name="cases:edit-case-details",
+        edit_url_name="cases:edit-case-metadata",
         edit_url_anchor="id_subcategory-label",
     ),
     EqualityBodyCSVColumn(
@@ -117,7 +117,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="website_name",
         edit_url_class=Case,
-        edit_url_name="cases:edit-case-details",
+        edit_url_name="cases:edit-case-metadata",
         edit_url_anchor="id_website_name-label",
     ),
     EqualityBodyCSVColumn(
@@ -125,7 +125,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="previous_case_number",
         edit_url_class=Case,
-        edit_url_name="cases:edit-case-details",
+        edit_url_name="cases:edit-case-metadata",
         edit_url_anchor="id_previous_case_url-label",
     ),
     EqualityBodyCSVColumn(
@@ -133,7 +133,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="is_complaint",
         edit_url_class=Case,
-        edit_url_name="cases:edit-case-details",
+        edit_url_name="cases:edit-case-metadata",
         edit_url_anchor="id_is_complaint-label",
     ),
 ]

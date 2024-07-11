@@ -1,0 +1,41 @@
+{% if case.archive %}{% else %}
+    {% for case_section in case_sections %}
+        {% if case_section.name == current_section_name %}
+            <p class="govuk-body-s amp-margin-bottom-5">
+                {{ case_section.name }}
+                ({{ case_section.number_complete }}/{{ case_section.subpages|length }})
+            </p>
+            <div class="amp-nav-details__text">
+                <ul class="govuk-list amp-margin-bottom-5">
+                    {% for subpage in case_section.subpages %}
+                        <li>
+                            {% if subpage.name == current_subpage_name %}
+                                <b>{{ subpage.name }}</b>
+                            {% else %}
+                                <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
+                            {% endif %}
+                            {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <details class="amp-nav-details"{% if case_section.name == section_name %} open{% endif %}{% if case_section.disabled %} disabled{% endif %}>
+                <summary class="amp-nav-details__summary">
+                    {{ case_section.name }}
+                    ({{ case_section.number_complete }}/{{ case_section.subpages|length }})
+                </summary>
+                <div class="amp-nav-details__text">
+                    <ul class="govuk-list amp-margin-bottom-5">
+                        {% for subpage in case_section.subpages %}
+                            <li>
+                                <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
+                                {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </details>
+        {% endif %}
+    {% endfor %}
+{% endif %}

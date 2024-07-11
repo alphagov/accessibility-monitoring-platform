@@ -28,7 +28,7 @@ describe('Create case, tests and report', () => {
     cy.contains('We have found 1 cases matching the details you have given')
     cy.contains('Save and continue case').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Case details`)
+    cy.title().should('eq', `${newOrganisationName} | Case metadata`)
     cy.get('#id_auditor').select('Auditor')
     cy.get('#id_enforcement_body_0').click()
     cy.contains('Save and continue').click()

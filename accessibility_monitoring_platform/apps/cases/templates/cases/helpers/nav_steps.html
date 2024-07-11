@@ -9,9 +9,7 @@
             {% include './nav_step.html' with edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
         </ul>
     {% else %}
-        <h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>
         <ul class="govuk-list">
-            {% include './nav_step.html' with edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
