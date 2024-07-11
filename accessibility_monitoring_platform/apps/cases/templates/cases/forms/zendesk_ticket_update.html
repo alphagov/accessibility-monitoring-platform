@@ -23,16 +23,12 @@
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with case=zendesk_ticket.case page_heading='Edit PSB Zendesk ticket' %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 {% include "cases/helpers/nav_details.html" %}
                 {% include 'cases/helpers/nav_steps.html' with case=zendesk_ticket.case %}
             </div>
             <div class="govuk-grid-column-two-thirds">
+                {% include "cases/helpers/edit_header.html" with case=zendesk_ticket.case page_heading='Edit PSB Zendesk ticket' %}
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:update-zendesk-ticket' zendesk_ticket.id %}">
                     {% csrf_token %}

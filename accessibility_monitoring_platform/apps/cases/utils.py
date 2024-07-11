@@ -88,7 +88,54 @@ class NavSection:
 def build_case_nav_sections(case: Case) -> List[NavSection]:
     """Return list of case sections for navigation details elements"""
     kwargs_case_pk: Dict[str, int] = {"pk": case.id}
-    kwargs_audit_pk: Dict[str, int] = {"pk": case.audit.id}
+    if case.audit is not None:
+        kwargs_audit_pk: Dict[str, int] = {"pk": case.audit.id}
+        audit_nav_sections: List[NavSection] = [
+            NavSection(
+                name="Initial WCAG test",
+                pages=[
+                    NavPage(
+                        name="Initial test metadata",
+                        url=reverse(
+                            "audits:edit-audit-metadata", kwargs=kwargs_audit_pk
+                        ),
+                        complete=case.audit.audit_metadata_complete_date,
+                    ),
+                    NavPage(
+                        name="Add or remove pages",
+                        url=reverse("audits:edit-audit-pages", kwargs=kwargs_audit_pk),
+                        complete=case.audit.audit_pages_complete_date,
+                        subpages=[
+                            NavSubPage(
+                                name=str(page),
+                                url=reverse(
+                                    "audits:edit-audit-page-checks",
+                                    kwargs={"pk": page.id},
+                                ),
+                                complete=page.complete_date,
+                            )
+                            for page in case.audit.testable_pages
+                        ],
+                    ),
+                    NavPage(
+                        name="Compliance decision",
+                        url=reverse(
+                            "audits:edit-website-decision", kwargs=kwargs_audit_pk
+                        ),
+                        complete=case.audit.audit_website_decision_complete_date,
+                    ),
+                    NavPage(
+                        name="Test summary",
+                        url=reverse(
+                            "audits:edit-audit-summary", kwargs=kwargs_audit_pk
+                        ),
+                        complete=case.audit.audit_summary_complete_date,
+                    ),
+                ],
+            ),
+        ]
+    else:
+        audit_nav_sections: List[NavSection] = []
     return [
         NavSection(
             name="Case details",
@@ -100,42 +147,7 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                 )
             ],
         ),
-        NavSection(
-            name="Initial WCAG test",
-            pages=[
-                NavPage(
-                    name="Initial test metadata",
-                    url=reverse("audits:edit-audit-metadata", kwargs=kwargs_audit_pk),
-                    complete=case.audit.audit_metadata_complete_date,
-                ),
-                NavPage(
-                    name="Add or remove pages",
-                    url=reverse("audits:edit-audit-pages", kwargs=kwargs_audit_pk),
-                    complete=case.audit.audit_pages_complete_date,
-                    subpages=[
-                        NavSubPage(
-                            name=str(page),
-                            url=reverse(
-                                "audits:edit-audit-page-checks", kwargs={"pk": page.id}
-                            ),
-                            complete=page.complete_date,
-                        )
-                        for page in case.audit.testable_pages
-                    ],
-                ),
-                NavPage(
-                    name="Compliance decision",
-                    url=reverse("audits:edit-website-decision", kwargs=kwargs_audit_pk),
-                    complete=case.audit.audit_website_decision_complete_date,
-                ),
-                NavPage(
-                    name="Test summary",
-                    url=reverse("audits:edit-audit-summary", kwargs=kwargs_audit_pk),
-                    complete=case.audit.audit_summary_complete_date,
-                ),
-            ],
-        ),
-    ]
+    ] + audit_nav_sections
 
 
 def get_case_view_sections(case: Case) -> List[ViewSection]:
