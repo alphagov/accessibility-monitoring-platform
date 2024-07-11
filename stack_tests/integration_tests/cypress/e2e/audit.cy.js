@@ -35,7 +35,7 @@ describe('View test', () => {
 
   it('can edit a page', () => {
     cy.get('#edit-audit-pages').click()
-    cy.get('[data-cy="nav-step"]').contains('Home').click()
+    cy.contains(/^Home page test$/).click()
     cy.get('[name="form-0-check_result_state"]').check('error')
     cy.get('[name="form-0-notes"]').clear().type(errorText)
     cy.get('[name="complete_date"]').click()

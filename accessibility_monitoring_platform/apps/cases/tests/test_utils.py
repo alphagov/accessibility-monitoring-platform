@@ -13,10 +13,11 @@ from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
-from ...audits.models import Audit
+from ...audits.models import Audit, Page
 from ...common.models import Boolean, Sector, SubCategory
 from ..models import Case, CaseCompliance, CaseEvent
 from ..utils import (
+    NavPage,
     NavSection,
     NavSubPage,
     build_case_nav_sections,
@@ -80,22 +81,81 @@ def validate_csv_response(
 
 
 @pytest.mark.django_db
-def test_build_case_nav_sections():
-    """Test build_case_nav_sections"""
+def test_build_case_nav_sections_no_audit():
+    """Test build_case_nav_sections when case has no audit"""
     case: Case = Case.objects.create()
 
     assert build_case_nav_sections(case=case) == [
         NavSection(
             name="Case details",
             disabled=False,
-            subpages=[
-                NavSubPage(
+            pages=[
+                NavPage(
                     name="Case metadata",
                     url="/cases/1/edit-case-metadata/",
                     complete=None,
                 )
             ],
         )
+    ]
+
+
+@pytest.mark.django_db
+def test_build_case_nav_sections_with_audit():
+    """Test build_case_nav_sections when case has audit"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(audit=audit, url="https://example.com")
+
+    assert build_case_nav_sections(case=case) == [
+        NavSection(
+            name="Case details",
+            disabled=False,
+            pages=[
+                NavPage(
+                    name="Case metadata",
+                    url="/cases/1/edit-case-metadata/",
+                    complete=None,
+                    subpages=None,
+                )
+            ],
+        ),
+        NavSection(
+            name="Initial WCAG test",
+            disabled=False,
+            pages=[
+                NavPage(
+                    name="Initial test metadata",
+                    url="/audits/1/edit-audit-metadata/",
+                    complete=None,
+                    subpages=None,
+                ),
+                NavPage(
+                    name="Add or remove pages",
+                    url="/audits/1/edit-audit-pages/",
+                    complete=None,
+                    subpages=[
+                        NavSubPage(
+                            name="Additional page test",
+                            url="/audits/pages/1/edit-audit-page-checks/",
+                            complete=None,
+                        )
+                    ],
+                ),
+                NavPage(
+                    name="Website compliance decision",
+                    url="/audits/1/edit-website-decision/",
+                    complete=None,
+                    subpages=None,
+                ),
+                NavPage(
+                    name="Test summary",
+                    url="/audits/1/edit-audit-summary/",
+                    complete=None,
+                    subpages=None,
+                ),
+            ],
+        ),
     ]
 
 

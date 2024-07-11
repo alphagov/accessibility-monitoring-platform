@@ -4,7 +4,7 @@
 
 {% load static %}
 
-{% block title %}{{ page.audit.case.organisation_name }} | Testing {{ page }}{% endblock %}
+{% block title %}{{ page.audit.case.organisation_name }} | {{ page.title }} test{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -13,7 +13,7 @@
             {% include 'common/case_banner.html' with case=page.audit.case %}
         </div>
     </div>
-    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='Testing' audit=page.audit %}
+    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='test' audit=page.audit %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
@@ -21,7 +21,7 @@
                 {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-page-checks' page_id=page.id audit=page.audit %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">Testing {{ page }}</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ page.title }} test</h1>
                 {% include "cases/helpers/messages.html" %}
                 {% include 'audits/helpers/page_check_filters.html' with page='test' %}
                 <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}">

@@ -20,7 +20,7 @@
                     {% include 'cases/helpers/nav_steps.html' %}
                 </div>
                 <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading='Outstanding issues' %}
+                    {% include "cases/helpers/edit_header.html" with page_heading='Outstanding issues' %}
                     {% include 'cases/helpers/email_templates.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
@@ -280,6 +280,7 @@
                 </div>
             </div>
         {% else %}
+            {% include "cases/helpers/edit_header.html" with page_heading='Outstanding issues' %}
             <h2 class="govuk-heading-l">Overview</h2>
             <p class="govuk-body">
                 This is a new case and does not have any test data.

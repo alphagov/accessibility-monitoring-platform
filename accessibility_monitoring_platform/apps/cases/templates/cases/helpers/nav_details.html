@@ -1,4 +1,5 @@
-{% if case.archive %}{% else %}
+{% if case.archive %}
+{% else %}
     {% for case_section in case_sections %}
         {% if case_section.name == current_section_name %}
             <p class="govuk-body-s amp-margin-bottom-5">
@@ -16,7 +17,7 @@
                             {% endif %}
                             {% if page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
                             {% if page.subpages %}
-                                <ul class="amp-nav-subpage-list">
+                                <ul class="amp-nav-list-subpages">
                                     {% for subpage in page.subpages %}
                                         <li>
                                             {% if subpage.name|slugify == current_subpage_name|slugify %}
@@ -46,7 +47,7 @@
                                 <a href="{{ page.url }}" class="govuk-link govuk-link--no-visited-state">{{ page.name }}</a>
                                 {% if page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
                                 {% if page.subpages %}
-                                    <ul class="govuk-list--bullet">
+                                    <ul class="amp-nav-list-subpages">
                                         {% for subpage in page.subpages %}
                                             <li>
                                                 <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>

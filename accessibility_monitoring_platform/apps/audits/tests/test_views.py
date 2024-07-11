@@ -444,8 +444,8 @@ def test_create_audit_creates_case_event(admin_client):
     "path_name, expected_content",
     [
         ("audits:audit-detail", "View test"),
-        ("audits:edit-audit-metadata", "Test metadata"),
-        ("audits:edit-audit-pages", "Pages"),
+        ("audits:edit-audit-metadata", "Initial test metadata"),
+        ("audits:edit-audit-pages", "Add or remove pages"),
         ("audits:edit-website-decision", "Website compliance decision"),
         ("audits:edit-audit-statement-1", "Accessibility statement Pt. 1"),
         ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
@@ -1771,7 +1771,7 @@ def test_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Testing Additional")
+    assertContains(response, "Additional page test")
     assertContains(response, "Showing 2 errors")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)

@@ -12,17 +12,13 @@
     {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='Statement links' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">Statement links</h1>
-                {% include "cases/helpers/case_title.html" with case=audit.case %}
-                {% include "cases/helpers/messages.html" %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" %}
                 {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-pages' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Statement links</h1>
+                {% include "cases/helpers/messages.html" %}
                 {% include 'common/error_summary.html' with formset=statement_pages_formset %}
                 <form method="post" action="{% url 'audits:edit-statement-pages' audit.id %}">
                     {% csrf_token %}

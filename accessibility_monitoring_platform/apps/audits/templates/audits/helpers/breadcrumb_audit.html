@@ -6,8 +6,10 @@
             <a class="govuk-breadcrumbs__link" href="{{ audit.get_absolute_url }}">Test</a>
         </li>
         <li class="govuk-breadcrumbs__list-item">
+            {% if page %}
+                {{ page.title }}
+            {% endif %}
             {{ page_heading }}
-            {% if page %}{{ page }}{% endif %}
         </li>
     </ol>
 </div>
