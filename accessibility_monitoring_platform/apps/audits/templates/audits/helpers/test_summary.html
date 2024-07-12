@@ -1,48 +1,3 @@
-{% extends 'base.html' %}
-
-{% load l10n %}
-
-{% block title %}{{ audit.case.organisation_name }} | Test summary{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=audit.case %}
-        </div>
-    </div>
-    {% include 'audits/helpers/breadcrumb_audit.html' with nav_section_name='Initial WCAG test' page_heading='Test summary' %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" with current_section_name='Initial WCAG test' current_page_name='Test summary' %}
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-summary' %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading='Test summary' case=audit.case %}
-                {% include 'common/error_summary.html' %}
-                {% if show_failures_by_page %}
-                    <form method="get" action="{% url 'audits:edit-audit-summary' audit.id %}">
-                        <input
-                            type="submit"
-                            value="Test view"
-                            name="view"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        />
-                    </form>
-                {% else %}
-                    <form method="get" action="{% url 'audits:edit-audit-summary' audit.id %}">
-                        <input
-                            type="submit"
-                            value="Page view"
-                            name="view"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        />
-                    </form>
-                {% endif %}
-                <form method="post" action="{% url 'audits:edit-audit-summary' audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
@@ -144,8 +99,3 @@
                         </div>
                     </div>
                 </form>
-            </div>
-        </div>
-    </main>
-</div>
-{% endblock %}

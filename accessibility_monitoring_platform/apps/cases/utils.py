@@ -127,7 +127,99 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                     NavPage(
                         name="Test summary",
                         url=reverse(
-                            "audits:edit-audit-summary", kwargs=kwargs_audit_pk
+                            "audits:edit-audit-wcag-summary", kwargs=kwargs_audit_pk
+                        ),
+                        complete=case.audit.audit_summary_complete_date,
+                    ),
+                ],
+            ),
+            NavSection(
+                name="Initial statement",
+                pages=[
+                    NavPage(
+                        name="Statement links",
+                        url=reverse(
+                            "audits:edit-statement-pages", kwargs=kwargs_audit_pk
+                        ),
+                        complete=case.audit.audit_statement_pages_complete_date,
+                    ),
+                    NavPage(
+                        name="Statement overview",
+                        url=reverse(
+                            "audits:edit-statement-overview", kwargs=kwargs_audit_pk
+                        ),
+                        complete=case.audit.audit_statement_overview_complete_date,
+                        subpages=[
+                            NavSubPage(
+                                name="Statement information",
+                                url=reverse(
+                                    "audits:edit-statement-website",
+                                    kwargs=kwargs_audit_pk,
+                                ),
+                                complete=case.audit.audit_statement_website_complete_date,
+                            ),
+                            NavSubPage(
+                                name="Compliance status",
+                                url=reverse(
+                                    "audits:edit-statement-compliance",
+                                    kwargs=kwargs_audit_pk,
+                                ),
+                                complete=case.audit.audit_statement_compliance_complete_date,
+                            ),
+                            NavSubPage(
+                                name="Non-accessible content",
+                                url=reverse(
+                                    "audits:edit-statement-non-accessible",
+                                    kwargs=kwargs_audit_pk,
+                                ),
+                                complete=case.audit.audit_statement_non_accessible_complete_date,
+                            ),
+                            NavSubPage(
+                                name="Statement preparation",
+                                url=reverse(
+                                    "audits:edit-statement-preparation",
+                                    kwargs=kwargs_audit_pk,
+                                ),
+                                complete=case.audit.audit_statement_preparation_complete_date,
+                            ),
+                            NavSubPage(
+                                name="Feedback and enforcement procedure",
+                                url=reverse(
+                                    "audits:edit-statement-feedback",
+                                    kwargs=kwargs_audit_pk,
+                                ),
+                                complete=case.audit.audit_statement_feedback_complete_date,
+                            ),
+                            NavSubPage(
+                                name="Custom statement issues",
+                                url=reverse(
+                                    "audits:edit-statement-custom",
+                                    kwargs=kwargs_audit_pk,
+                                ),
+                                complete=case.audit.audit_statement_custom_complete_date,
+                            ),
+                        ],
+                    ),
+                    NavPage(
+                        name="Initial disproportionate burden claim",
+                        url=reverse(
+                            "audits:edit-initial-disproportionate-burden",
+                            kwargs=kwargs_audit_pk,
+                        ),
+                        complete=case.audit.initial_disproportionate_burden_complete_date,
+                    ),
+                    NavPage(
+                        name="Initial statement compliance decision",
+                        url=reverse(
+                            "audits:edit-statement-decision", kwargs=kwargs_audit_pk
+                        ),
+                        complete=case.audit.audit_statement_decision_complete_date,
+                    ),
+                    NavPage(
+                        name="Test summary",
+                        url=reverse(
+                            "audits:edit-audit-statement-summary",
+                            kwargs=kwargs_audit_pk,
                         ),
                         complete=case.audit.audit_summary_complete_date,
                     ),

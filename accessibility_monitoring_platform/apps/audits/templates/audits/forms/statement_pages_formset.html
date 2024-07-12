@@ -13,7 +13,7 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" %}
+                {% include "cases/helpers/nav_details.html" with current_section_name='Initial statement' current_page_name='Statement links' %}
                 {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-pages' %}
             </div>
             <div class="govuk-grid-column-two-thirds">

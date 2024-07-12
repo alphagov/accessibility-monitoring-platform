@@ -760,3 +760,29 @@ class AuditSummaryUpdateView(AuditUpdateView):
             case_pk: Dict[str, int] = {"pk": audit.case.id}
             return reverse("cases:edit-test-results", kwargs=case_pk)
         return super().get_success_url()
+
+
+class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
+    """
+    View to update audit summary
+    """
+
+    form_class: Type[AuditSummaryUpdateForm] = AuditSummaryUpdateForm
+    template_name: str = "audits/forms/wcag_summary.html"
+
+
+class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
+    """
+    View to update audit summary
+    """
+
+    form_class: Type[AuditSummaryUpdateForm] = AuditSummaryUpdateForm
+    template_name: str = "audits/forms/statement_summary.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_exit" in self.request.POST:
+            audit: Audit = self.object
+            case_pk: Dict[str, int] = {"pk": audit.case.id}
+            return reverse("cases:edit-test-results", kwargs=case_pk)
+        return super().get_success_url()

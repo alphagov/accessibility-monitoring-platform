@@ -2,7 +2,7 @@
                 <ul class="govuk-list amp-margin-bottom-5">
                     {% for page in case_section.pages %}
                         <li>
-                            {% if page.name == current_page_name and not current_subpage_name %}
+                            {% if case_section.name == current_section_name and page.name == current_page_name and not current_subpage_name %}
                                 <b>{{ page.name }}</b>
                             {% else %}
                                 <a href="{{ page.url }}" class="govuk-link govuk-link--no-visited-state">{{ page.name }}</a>
@@ -12,7 +12,7 @@
                                 <ul class="amp-nav-list-subpages">
                                     {% for subpage in page.subpages %}
                                         <li>
-                                            {% if subpage.name == current_subpage_name %}
+                                            {% if case_section.name == current_section_name and subpage.name == current_subpage_name %}
                                                 <b>{{ subpage.name }}</b>
                                             {% else %}
                                                 <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
