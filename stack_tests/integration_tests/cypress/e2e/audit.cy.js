@@ -86,7 +86,7 @@ describe('View test', () => {
   })
 
   it('can edit test summary', () => {
-    cy.get('#edit-audit-summary').click()
+    cy.get('#edit-audit-wcag-summary').click()
     cy.get('[name="audit_summary_complete_date"]').click()
     cy.contains('Save').click()
   })

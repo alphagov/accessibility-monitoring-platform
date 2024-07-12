@@ -13,7 +13,7 @@ const loggedInUrls = [
   '/audits/1/edit-audit-retest-statement-decision/',
   '/audits/1/edit-audit-statement-one/',
   '/audits/1/edit-audit-statement-two/',
-  '/audits/1/edit-audit-summary/',
+  '/audits/1/edit-audit-wcag-summary/',
   '/audits/1/edit-audit-pages/',
   '/audits/1/edit-retest-website-decision/',
   '/audits/1/edit-statement-decision/',

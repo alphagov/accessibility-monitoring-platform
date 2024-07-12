@@ -344,8 +344,8 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
         ),
         build_view_section(
             name="Test summary",
-            edit_url=reverse("audits:edit-audit-summary", kwargs=audit_pk),
-            edit_url_id="edit-audit-summary",
+            edit_url=reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk),
+            edit_url_id="edit-audit-wcag-summary",
             anchor="",
         ),
     ]
@@ -708,9 +708,9 @@ def get_all_possible_check_results_for_page(
     to create a list of dictionaries for use in populating the
     CheckResultFormset with all possible results.
     """
-    check_results_by_wcag_definition: Dict[
-        WcagDefinition, CheckResult
-    ] = page.check_results_by_wcag_definition
+    check_results_by_wcag_definition: Dict[WcagDefinition, CheckResult] = (
+        page.check_results_by_wcag_definition
+    )
     check_results: List[Dict[str, Union[str, WcagDefinition]]] = []
 
     for wcag_definition in wcag_definitions:
@@ -823,9 +823,9 @@ def other_page_failed_check_results(
     Returns:
         Dict[WcagDefinition, List[CheckResult]]: Dictionary of failed check results
     """
-    failed_check_results_by_wcag_definition: Dict[
-        WcagDefinition, List[CheckResult]
-    ] = {}
+    failed_check_results_by_wcag_definition: Dict[WcagDefinition, List[CheckResult]] = (
+        {}
+    )
     for check_result in page.audit.failed_check_results.exclude(page=page):
         if check_result.wcag_definition in failed_check_results_by_wcag_definition:
             failed_check_results_by_wcag_definition[

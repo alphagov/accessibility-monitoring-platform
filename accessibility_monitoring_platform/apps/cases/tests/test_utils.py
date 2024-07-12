@@ -178,7 +178,74 @@ def test_build_case_nav_sections_with_audit():
                 ),
                 NavPage(
                     name="Test summary",
-                    url="/audits/1/edit-audit-summary/",
+                    url="/audits/1/edit-audit-wcag-summary/",
+                    complete=None,
+                    subpages=None,
+                ),
+            ],
+        ),
+        NavSection(
+            name="Initial statement",
+            disabled=False,
+            pages=[
+                NavPage(
+                    name="Statement links",
+                    url="/audits/1/edit-statement-pages/",
+                    complete=None,
+                    subpages=None,
+                ),
+                NavPage(
+                    name="Statement overview",
+                    url="/audits/1/edit-statement-overview/",
+                    complete=None,
+                    subpages=[
+                        NavSubPage(
+                            name="Statement information",
+                            url="/audits/1/edit-statement-website/",
+                            complete=None,
+                        ),
+                        NavSubPage(
+                            name="Compliance status",
+                            url="/audits/1/edit-statement-compliance/",
+                            complete=None,
+                        ),
+                        NavSubPage(
+                            name="Non-accessible content",
+                            url="/audits/1/edit-statement-non-accessible/",
+                            complete=None,
+                        ),
+                        NavSubPage(
+                            name="Statement preparation",
+                            url="/audits/1/edit-statement-preparation/",
+                            complete=None,
+                        ),
+                        NavSubPage(
+                            name="Feedback and enforcement procedure",
+                            url="/audits/1/edit-statement-feedback/",
+                            complete=None,
+                        ),
+                        NavSubPage(
+                            name="Custom statement issues",
+                            url="/audits/1/edit-statement-custom/",
+                            complete=None,
+                        ),
+                    ],
+                ),
+                NavPage(
+                    name="Initial disproportionate burden claim",
+                    url="/audits/1/edit-initial-disproportionate-burden/",
+                    complete=None,
+                    subpages=None,
+                ),
+                NavPage(
+                    name="Initial statement compliance decision",
+                    url="/audits/1/edit-statement-decision/",
+                    complete=None,
+                    subpages=None,
+                ),
+                NavPage(
+                    name="Test summary",
+                    url="/audits/1/edit-audit-statement-summary/",
                     complete=None,
                     subpages=None,
                 ),

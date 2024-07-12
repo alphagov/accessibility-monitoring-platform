@@ -3262,18 +3262,39 @@ def test_outstanding_issues_new_case(admin_client):
 
 
 @pytest.mark.parametrize(
-    "type, label",
+    "type, header",
     [
-        ("overview", "Statement overview"),
-        ("website", "Statement information"),
-        ("compliance", "Compliance status"),
-        ("non-accessible", "Non-accessible content overview"),
-        ("preparation", "Preparation"),
-        ("feedback", "Feedback"),
-        ("custom", "Custom statement issues"),
+        (
+            "overview",
+            """<h2 id="statement-overview" class="govuk-heading-l">Statement overview</h2>""",
+        ),
+        (
+            "website",
+            """<h2 id="statement-website" class="govuk-heading-l">Statement information</h2>""",
+        ),
+        (
+            "compliance",
+            """<h2 id="statement-compliance" class="govuk-heading-l">Compliance status</h2>""",
+        ),
+        (
+            "non-accessible",
+            """<h2 id="statement-non-accessible" class="govuk-heading-l">Non-accessible content overview</h2>""",
+        ),
+        (
+            "preparation",
+            """<h2 id="statement-preparation" class="govuk-heading-l">Preparation</h2>""",
+        ),
+        (
+            "feedback",
+            """<h2 id="statement-feedback" class="govuk-heading-l">Feedback and enforcement procedure</h2>""",
+        ),
+        (
+            "custom",
+            """<h2 id="statement-custom" class="govuk-heading-l">Custom statement issues</h2>""",
+        ),
     ],
 )
-def test_outstanding_issues_statement_checks(type, label, admin_client):
+def test_outstanding_issues_statement_checks(type, header, admin_client):
     """Test that outstanding issues shows expected statement checks"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
@@ -3289,7 +3310,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertNotContains(response, label)
+    assertNotContains(response, header, html=True)
     assertNotContains(response, edit_url)
 
     statement_check_result.check_result_state = StatementCheckResult.Result.NO
@@ -3298,7 +3319,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertContains(response, label)
+    assertContains(response, header, html=True)
     assertContains(response, edit_url)
 
     statement_check_result.retest_state = StatementCheckResult.Result.YES
@@ -3307,7 +3328,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertNotContains(response, label)
+    assertNotContains(response, header, html=True)
     assertNotContains(response, edit_url)
 
 

@@ -21,7 +21,7 @@ PAGE_TITLES_BY_URL = {
     "/audits/[id]/edit-audit-retest-statement-decision/": "12-week accessibility statement compliance decision",
     "/audits/[id]/edit-audit-statement-1/": "Accessibility statement Pt. 1",
     "/audits/[id]/edit-audit-statement-2/": "Accessibility statement Pt. 2",
-    "/audits/[id]/edit-audit-summary/": "Test summary",
+    "/audits/[id]/edit-audit-wcag-summary/": "Test summary",
     "/audits/[id]/edit-audit-pages/": "Pages",
     "/audits/[id]/edit-retest-website-decision/": "12-week website compliance decision",
     "/audits/[id]/edit-audit-retest-statement-1/": "12-week accessibility statement Pt. 1",

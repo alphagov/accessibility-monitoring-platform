@@ -454,7 +454,7 @@ def test_create_audit_creates_case_event(admin_client):
             "Accessibility statement compliance decision",
         ),
         ("audits:edit-audit-report-options", "Report options"),
-        ("audits:edit-audit-summary", "Test summary"),
+        ("audits:edit-audit-wcag-summary", "Test summary"),
         ("audits:audit-retest-detail", "View 12-week test"),
         ("audits:edit-audit-retest-metadata", "12-week test metadata"),
         ("audits:edit-audit-retest-pages-comparison", "12-week pages comparison"),
@@ -555,11 +555,11 @@ def test_audit_statement_check_specific_page_loads(
         (
             "audits:edit-audit-report-options",
             "save_continue",
-            "audits:edit-audit-summary",
+            "audits:edit-audit-wcag-summary",
         ),
-        ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
+        ("audits:edit-audit-wcag-summary", "save", "audits:edit-audit-wcag-summary"),
         (
-            "audits:edit-audit-summary",
+            "audits:edit-audit-wcag-summary",
             "save_exit",
             "cases:edit-test-results",
         ),
@@ -655,7 +655,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-decision",
             "save_continue",
-            "audits:edit-audit-summary",
+            "audits:edit-audit-statement-summary",
         ),
         (
             "audits:edit-audit-retest-pages-comparison",
@@ -1434,7 +1434,7 @@ def test_retest_date_change_creates_case_event(admin_client):
 
 @pytest.mark.parametrize(
     "path_name",
-    ["audits:edit-audit-summary"],
+    ["audits:edit-audit-wcag-summary"],
 )
 def test_audit_edit_redirects_to_case(
     path_name,
@@ -3171,7 +3171,7 @@ def test_summary_page_view(admin_client):
     Page.objects.create(audit=audit, is_deleted=True)
 
     response: HttpResponse = admin_client.get(
-        f"{reverse('audits:edit-audit-summary', kwargs=audit_pk)}?view=Page+view",
+        f"{reverse('audits:edit-audit-wcag-summary', kwargs=audit_pk)}?view=Page+view",
     )
 
     assert response.status_code == 200
