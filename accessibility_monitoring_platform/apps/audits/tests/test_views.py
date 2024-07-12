@@ -3798,3 +3798,111 @@ def test_12_week_retest_page_complete_check_displayed(admin_client):
         </li>""",
         html=True,
     )
+
+
+def test_nav_details_page_renders(admin_client):
+    """
+    Test that the nav detail with current page renders as expected
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    Page.objects.create(audit=audit, url="https://example.com")
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-pages", kwargs=audit_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<details class="amp-nav-details">
+            <summary class="amp-nav-details__summary">
+                Case details (0/1)
+            </summary>
+            <div class="amp-nav-details__text">
+                <ul class="govuk-list amp-margin-bottom-5">
+                    <li>
+                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state">
+                            Case metadata</a>
+                    </li>
+                </ul>
+            </div>
+        </details>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-s amp-margin-bottom-5">
+            Initial WCAG test (0/4)
+        </p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<b>Add or remove pages</b>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<ul class="amp-nav-list-subpages">
+            <li>
+                <a href="/audits/pages/6/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                    Additional page test</a>
+            </li>
+        </ul>""",
+        html=True,
+    )
+
+
+def test_nav_details_subpage_renders(admin_client):
+    """
+    Test that the nav detail with current subpage renders as expected
+    """
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    page_pk: Dict[str, int] = {"pk": page.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<details class="amp-nav-details">
+            <summary class="amp-nav-details__summary">
+                Case details (0/1)
+            </summary>
+            <div class="amp-nav-details__text">
+                <ul class="govuk-list amp-margin-bottom-5">
+                    <li>
+                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state">
+                            Case metadata</a>
+                    </li>
+                </ul>
+            </div>
+        </details>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-s amp-margin-bottom-5">
+            Initial WCAG test (0/4)
+        </p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<a href="/audits/1/edit-audit-pages/" class="govuk-link govuk-link--no-visited-state">
+            Add or remove pages</a>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<ul class="amp-nav-list-subpages">
+            <li><b>Additional page test</b></li>
+        </ul>""",
+        html=True,
+    )

@@ -80,6 +80,34 @@ def validate_csv_response(
     assert first_data_row == expected_first_data_row
 
 
+def test_nav_section_number_complete():
+    """Test NavSection.number_complete"""
+
+    assert NavSection(name="Section").number_complete() == 0
+    assert (
+        NavSection(
+            name="Section", pages=[NavPage(name="Page", url="url", complete=False)]
+        ).number_complete()
+        == 0
+    )
+    assert (
+        NavSection(
+            name="Section", pages=[NavPage(name="Page", url="url", complete=True)]
+        ).number_complete()
+        == 1
+    )
+    assert (
+        NavSection(
+            name="Section",
+            pages=[
+                NavPage(name="Page", url="url", complete=True),
+                NavPage(name="Page 2", url="url2", complete=True),
+            ],
+        ).number_complete()
+        == 2
+    )
+
+
 @pytest.mark.django_db
 def test_build_case_nav_sections_no_audit():
     """Test build_case_nav_sections when case has no audit"""

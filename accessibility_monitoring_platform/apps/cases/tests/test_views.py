@@ -3956,3 +3956,33 @@ def test_zendesk_tickets_shown(admin_client):
     assert response.status_code == 200
 
     assertContains(response, ZENDESK_SUMMARY)
+
+
+def test_nav_details_renders(admin_client):
+    """
+    Test that the nav detail for current page renders as expected
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-metadata", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<p class="govuk-body-s amp-margin-bottom-5">
+            Case details (0/1)
+        </p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<div class="amp-nav-details__text">
+            <ul class="govuk-list amp-margin-bottom-5">
+                <li><b>Case metadata</b></li>
+            </ul>
+        </div>""",
+        html=True,
+    )
