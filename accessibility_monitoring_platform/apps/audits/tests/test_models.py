@@ -265,27 +265,27 @@ def test_page_str():
 
 
 @pytest.mark.django_db
-def test_html_page_test_page_title():
+def test_html_page_page_title():
     """
-    Test Page.test_page_title is as expected for HTML page
+    Test Page.page_title is as expected for HTML page
     """
     audit: Audit = create_audit_and_pages()
     page: Page = audit.accessibility_statement_page
 
-    assert page.test_page_title == "Accessibility statement page test"
+    assert page.page_title == "Accessibility statement page"
 
 
 @pytest.mark.django_db
-def test_pdf_page_test_page_title():
+def test_pdf_page_page_title():
     """
-    Test Page.test_page_title is as expected for PDF page
+    Test Page.page_title is as expected for PDF page
     """
     create_audit_and_pages()
     page: Page = Page.objects.get(page_type=Page.Type.PDF)
     page.name = "File"
     page.save()
 
-    assert page.test_page_title == "File test"
+    assert page.page_title == "File"
 
 
 @pytest.mark.django_db
