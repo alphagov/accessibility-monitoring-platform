@@ -353,7 +353,6 @@ class CaseMetadataUpdateView(CaseUpdateView):
 
     form_class: Type[CaseMetadataUpdateForm] = CaseMetadataUpdateForm
     template_name: str = "cases/forms/metadata.html"
-    amp_page_name: str = "Case metadata"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""

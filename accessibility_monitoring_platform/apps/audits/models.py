@@ -1109,11 +1109,10 @@ class Page(models.Model):
         return self.name if self.name else self.get_page_type_display()
 
     @property
-    def test_page_title(self) -> str:
+    def page_title(self) -> str:
         title: str = str(self)
         if self.page_type != Page.Type.PDF:
             title += " page"
-        title += " test"
         return title
 
     def save(self, *args, **kwargs) -> None:
