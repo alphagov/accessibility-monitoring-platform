@@ -2,20 +2,19 @@
 Views for comment app
 """
 
-from typing import Any, Dict, Type
+from typing import Dict, Type
 
 from django.forms.models import ModelForm
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
-from ..cases.models import Case
-from ..cases.utils import build_case_nav_sections
+from ..common.case_nav import CaseNavContextMixin
 from ..common.utils import record_model_update_event
 from .forms import CommentUpdateForm
 from .models import Comment
 
 
-class QACommentUpdateView(UpdateView):
+class QACommentUpdateView(CaseNavContextMixin, UpdateView):
     """
     View to update a comment
     """
@@ -24,13 +23,6 @@ class QACommentUpdateView(UpdateView):
     form_class: Type[CommentUpdateForm] = CommentUpdateForm
     context_object_name: str = "comment"
     template_name: str = "comments/qa_update_comment.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add case sections to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = self.object.case
-        context["case_sections"] = build_case_nav_sections(case=case)
-        return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""

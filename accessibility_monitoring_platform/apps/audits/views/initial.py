@@ -13,8 +13,8 @@ from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
-from ...cases.models import Case, Contact
-from ...cases.utils import build_case_nav_sections
+from ...cases.models import Contact
+from ...common.case_nav import CaseNavContextMixin
 from ...common.form_extract_utils import extract_form_labels_and_values
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.utils import (
@@ -130,7 +130,7 @@ class AuditDetailView(DetailView):
         }
 
 
-class AuditMetadataUpdateView(AuditUpdateView):
+class AuditMetadataUpdateView(AuditUpdateView, CaseNavContextMixin):
     """
     View to update audit metadata
     """
@@ -257,7 +257,7 @@ class AuditPagesUpdateView(AuditUpdateView):
         return url
 
 
-class AuditPageChecksFormView(FormView):
+class AuditPageChecksFormView(CaseNavContextMixin, FormView):
     """
     View to update check results for a page
     """
@@ -283,9 +283,8 @@ class AuditPageChecksFormView(FormView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = self.page.audit.case
-        context["case_sections"] = build_case_nav_sections(case=case)
         context["page"] = self.page
+        context["case"] = self.page.audit.case
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )

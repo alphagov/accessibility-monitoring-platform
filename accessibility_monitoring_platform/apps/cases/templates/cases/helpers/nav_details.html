@@ -1,6 +1,6 @@
 {% if case.archive %}
 {% else %}
-    {% for case_section in case_sections %}
+    {% for case_section in case_nav_sections %}
         {% if case_section.name == current_section_name %}
             <p class="govuk-body-s amp-margin-bottom-5">
                 {{ case_section.name }}
