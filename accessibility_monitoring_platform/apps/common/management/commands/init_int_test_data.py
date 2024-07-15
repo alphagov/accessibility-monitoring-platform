@@ -38,8 +38,7 @@ from ....cases.models import (
 from ....comments.models import Comment
 from ....common.models import EmailTemplate
 from ....exports.models import Export, ExportCase
-from ....notifications.models import Notification, NotificationSetting, Task
-from ....reminders.models import Reminder
+from ....notifications.models import NotificationSetting, Task
 from ....reports.models import Report, ReportVisitsMetrics, ReportWrapper
 from ....s3_read_write.models import S3Report
 from ....users.models import AllowedEmail
@@ -106,7 +105,7 @@ class Command(BaseCommand):
             ["axes_accesslog", "axes_accessattempt", "axes_accessfailurelog"]
         )  # Axes (access)
         delete_from_models([Comment])
-        delete_from_models([Notification, NotificationSetting])
+        delete_from_models([NotificationSetting])
         delete_from_tables(
             [
                 "otp_email_emaildevice",
@@ -123,7 +122,6 @@ class Command(BaseCommand):
                 Report,
             ]
         )
-        delete_from_models([Reminder])
         delete_from_models([Contact, CaseEvent, Case])
         delete_from_models(
             [ChangeToPlatform, Event, IssueReport, Platform, Sector]
