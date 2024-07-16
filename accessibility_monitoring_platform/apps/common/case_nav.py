@@ -46,22 +46,23 @@ class CaseNavContextMixin:
         """Add case navigation values into context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
-        case: Optional[Case] = None
         if "case" in context:
             case: Case = context["case"]
-        elif hasattr(self, "object") and self.object is not None:
-            if isinstance(self.object, Case):
-                case: Case = self.object
-            elif hasattr(self.object, "case"):
-                case: Case = self.object.case
-            elif hasattr(self.object, "audit"):
-                case: Case = self.object.audit.case
-        elif hasattr(self, "page"):
-            case: Case = self.page.audit.case
-        elif "case_id" in self.kwargs:
-            case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        if case is not None:
+        else:
+            if hasattr(self, "object") and self.object is not None:
+                if isinstance(self.object, Case):
+                    case: Case = self.object
+                elif hasattr(self.object, "case"):
+                    case: Case = self.object.case
+                elif hasattr(self.object, "audit"):
+                    case: Case = self.object.audit.case
+            elif hasattr(self, "page"):
+                case: Case = self.page.audit.case
+            elif "case_id" in self.kwargs:
+                case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
             context["case"] = case
+
+        if case is not None:
             context["case_nav_sections"] = build_case_nav_sections(case=case)
 
         return context
