@@ -3834,7 +3834,7 @@ def test_nav_details_page_renders(admin_client):
     assertContains(
         response,
         """<p class="govuk-body-s amp-margin-bottom-5">
-            Initial WCAG test (0/4)
+            Initial WCAG test (0/5)
         </p>""",
         html=True,
     )
@@ -3889,7 +3889,7 @@ def test_nav_details_subpage_renders(admin_client):
     assertContains(
         response,
         """<p class="govuk-body-s amp-margin-bottom-5">
-            Initial WCAG test (0/4)
+            Initial WCAG test (0/5)
         </p>""",
         html=True,
     )

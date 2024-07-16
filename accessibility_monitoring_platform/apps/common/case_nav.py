@@ -64,6 +64,12 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
         "Retest #{retest_page.retest.id_within_case} | {retest_page}",
         format_string=True,
     ),
+    "audits:edit-equality-body-statement-pages": PageName("Statement links"),
+    "audits:retest-comparison-update": PageName("Comparison"),
+    "audits:retest-compliance-update": PageName("Compliance decision"),
+    "audits:edit-equality-body-disproportionate-burden": PageName(
+        "Disproportionate burden"
+    ),
 }
 
 
