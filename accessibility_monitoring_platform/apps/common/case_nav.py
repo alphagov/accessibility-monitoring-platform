@@ -5,38 +5,86 @@ from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.urls import resolve, reverse
 
-from ..audits.models import Page
+from ..audits.models import Page, RetestPage
 from ..cases.models import Case
 
-ALL_PAGE_NAMES: Dict[str, str] = {
-    "cases:edit-case-metadata": "Case metadata",
-    "audits:edit-audit-metadata": "Initial test metadata",
-    "audits:edit-audit-pages": "Add or remove pages",
-    "audits:edit-audit-page-checks": "test",
-    "audits:edit-website-decision": "Website compliance decision",
-    "audits:edit-audit-wcag-summary": "Test summary",
-    "audits:edit-statement-pages": "Statement links",
-    "audits:edit-statement-overview": "Statement overview",
-    "audits:edit-statement-website": "Statement information",
-    "audits:edit-statement-compliance": "Compliance status",
-    "audits:edit-statement-non-accessible": "Non-accessible content",
-    "audits:edit-statement-preparation": "Statement preparation",
-    "audits:edit-statement-feedback": "Feedback and enforcement procedure",
-    "audits:edit-statement-custom": "Custom statement issues",
-    "audits:edit-initial-disproportionate-burden": "Initial disproportionate burden claim",
-    "audits:edit-statement-decision": "Initial statement compliance decision",
-    "audits:edit-audit-statement-summary": "Test summary",
+
+@dataclass
+class PageName:
+    name: str
+    format_string: bool = False
+
+    def get_name(self, **kwargs):
+        if self.format_string is True:
+            return self.name.format(**kwargs)
+        return self.name
+
+
+ALL_PAGE_NAMES: Dict[str, PageName] = {
+    "cases:edit-case-metadata": PageName("Case metadata"),
+    "audits:edit-audit-metadata": PageName("Initial test metadata"),
+    "audits:edit-audit-pages": PageName("Add or remove pages"),
+    "audits:edit-audit-page-checks": PageName(
+        "{page.page_title} test", format_string=True
+    ),
+    "audits:edit-website-decision": PageName("Website compliance decision"),
+    "audits:edit-audit-wcag-summary": PageName("Test summary"),
+    "audits:edit-statement-pages": PageName("Statement links"),
+    "audits:edit-statement-overview": PageName("Statement overview"),
+    "audits:edit-statement-website": PageName("Statement information"),
+    "audits:edit-statement-compliance": PageName("Compliance status"),
+    "audits:edit-statement-non-accessible": PageName("Non-accessible content"),
+    "audits:edit-statement-preparation": PageName("Statement preparation"),
+    "audits:edit-statement-feedback": PageName("Feedback and enforcement procedure"),
+    "audits:edit-statement-custom": PageName("Custom statement issues"),
+    "audits:edit-initial-disproportionate-burden": PageName(
+        "Initial disproportionate burden claim"
+    ),
+    "audits:edit-statement-decision": PageName("Initial statement compliance decision"),
+    "audits:edit-audit-statement-summary": PageName("Test summary"),
+    "cases:zendesk-tickets": PageName("PSB Zendesk tickets"),
+    "cases:create-zendesk-ticket": PageName("Add PSB Zendesk ticket"),
+    "cases:update-zendesk-ticket": PageName("Edit PSB Zendesk ticket"),
+    "notifications:reminder-create": PageName("Reminder"),
+    "notifications:edit-reminder-task": PageName("Reminder"),
+    "cases:edit-12-week-update-request-ack": PageName(
+        "12-week update request acknowledged"
+    ),
+    "cases:edit-12-week-update-requested": PageName("12-week update requested"),
+    "cases:edit-case-close": PageName("Closing the case"),
+    "cases:edit-contact-details": PageName("Contact details"),
+    "comments:edit-qa-comment": PageName("Edit or delete comment"),
+    "audits:edit-audit-retest-statement-2": PageName(
+        "12-week accessibility statement Pt. 2"
+    ),
+    "audits:edit-audit-retest-statement-comparison": PageName(
+        "12-week accessibility statement comparison"
+    ),
+    "audits:edit-retest-page-checks": PageName(
+        "Retest #{retest_page.retest.id_within_case} | {retest_page}",
+        format_string=True,
+    ),
 }
 
 
 def get_amp_page_name(request: HttpRequest) -> str:
     """Lookup and return the name of the requested page"""
     url_name: str = resolve(request.path_info).view_name
+    if url_name in ALL_PAGE_NAMES:
+        page_name: PageName = ALL_PAGE_NAMES.get(url_name)
+    else:
+        return f"Page name not found for {url_name}"
+
     if url_name == "audits:edit-audit-page-checks":
         page_id: int = int(request.path.split("/")[3])
         page: Page = Page.objects.get(id=page_id)
-        return f"{page.page_title} {ALL_PAGE_NAMES.get(url_name)}"
-    return ALL_PAGE_NAMES.get(url_name, f"Page name not found for {url_name}")
+        return page_name.get_name(page=page)
+    if url_name == "audits:edit-retest-page-checks":
+        retest_page_id: int = int(request.path.split("/")[3])
+        retest_page: RetestPage = RetestPage.objects.get(id=retest_page_id)
+        return page_name.get_name(retest_page=retest_page)
+
+    return page_name.get_name()
 
 
 class CaseNavContextMixin:
@@ -49,6 +97,7 @@ class CaseNavContextMixin:
         if "case" in context:
             case: Case = context["case"]
         else:
+            case: Optional[Case] = None
             if hasattr(self, "object") and self.object is not None:
                 if isinstance(self.object, Case):
                     case: Case = self.object
@@ -60,7 +109,8 @@ class CaseNavContextMixin:
                 case: Case = self.page.audit.case
             elif "case_id" in self.kwargs:
                 case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-            context["case"] = case
+            if case is not None:
+                context["case"] = case
 
         if case is not None:
             context["case_nav_sections"] = build_case_nav_sections(case=case)
@@ -70,17 +120,40 @@ class CaseNavContextMixin:
 
 @dataclass
 class NavSubPage:
-    name: str
-    url: str
-    complete: bool
+    url_name: str
+    url_kwargs: Optional[Dict[str, Any]] = None
+    name_kwargs: Optional[Dict[str, Any]] = None
+    complete: bool = False
+
+    def url(self):
+        if self.url_kwargs is None:
+            return reverse(self.url_name)
+        return reverse(self.url_name, kwargs=self.url_kwargs)
+
+    def name(self):
+        if self.url_name in ALL_PAGE_NAMES:
+            if self.name_kwargs is None:
+                return ALL_PAGE_NAMES.get(self.url_name).get_name()
+            return ALL_PAGE_NAMES.get(self.url_name).get_name(**self.name_kwargs)
+        return f"No page name found for {self.url_name}"
 
 
 @dataclass
 class NavPage:
-    name: str
-    url: str
-    complete: bool
+    url_name: str
+    url_kwargs: Optional[Dict[str, Any]] = None
+    complete: bool = False
     subpages: Optional[List[NavSubPage]] = None
+
+    def url(self):
+        if self.url_kwargs is None:
+            return reverse(self.url_name)
+        return reverse(self.url_name, kwargs=self.url_kwargs)
+
+    def name(self):
+        if self.url_name in ALL_PAGE_NAMES:
+            return ALL_PAGE_NAMES.get(self.url_name).get_name()
+        return f"No page name found for {self.url_name}"
 
 
 @dataclass
@@ -89,9 +162,26 @@ class NavSection:
     disabled: bool = False
     pages: Optional[List[NavPage]] = None
 
+    def number_pages_and_subpages(self) -> int:
+        if self.pages is not None:
+            counter: int = len(self.pages)
+            for page in self.pages:
+                if page.subpages is not None:
+                    counter += len(page.subpages)
+            return counter
+        return 0
+
     def number_complete(self) -> int:
         if self.pages is not None:
-            return len([page for page in self.pages if page.complete])
+            counter: int = 0
+            for page in self.pages:
+                if page.complete:
+                    counter += 1
+                if page.subpages is not None:
+                    counter += len(
+                        [subpage for subpage in page.subpages if subpage.complete]
+                    )
+            return counter
         return 0
 
 
@@ -105,40 +195,32 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                 name="Initial WCAG test",
                 pages=[
                     NavPage(
-                        name=ALL_PAGE_NAMES.get("audits:edit-audit-metadata"),
-                        url=reverse(
-                            "audits:edit-audit-metadata", kwargs=kwargs_audit_pk
-                        ),
+                        url_name="audits:edit-audit-metadata",
+                        url_kwargs=kwargs_audit_pk,
                         complete=case.audit.audit_metadata_complete_date,
                     ),
                     NavPage(
-                        name=ALL_PAGE_NAMES.get("audits:edit-audit-pages"),
-                        url=reverse("audits:edit-audit-pages", kwargs=kwargs_audit_pk),
+                        url_name="audits:edit-audit-pages",
+                        url_kwargs=kwargs_audit_pk,
                         complete=case.audit.audit_pages_complete_date,
                         subpages=[
                             NavSubPage(
-                                name=f"{page.page_title} {ALL_PAGE_NAMES.get('audits:edit-audit-page-checks')}",
-                                url=reverse(
-                                    "audits:edit-audit-page-checks",
-                                    kwargs={"pk": page.id},
-                                ),
+                                url_name="audits:edit-audit-page-checks",
+                                url_kwargs={"pk": page.id},
+                                name_kwargs={"page": page},
                                 complete=page.complete_date,
                             )
                             for page in case.audit.testable_pages
                         ],
                     ),
                     NavPage(
-                        name=ALL_PAGE_NAMES.get("audits:edit-website-decision"),
-                        url=reverse(
-                            "audits:edit-website-decision", kwargs=kwargs_audit_pk
-                        ),
+                        url_name="audits:edit-website-decision",
+                        url_kwargs=kwargs_audit_pk,
                         complete=case.audit.audit_website_decision_complete_date,
                     ),
                     NavPage(
-                        name=ALL_PAGE_NAMES.get("audits:edit-audit-wcag-summary"),
-                        url=reverse(
-                            "audits:edit-audit-wcag-summary", kwargs=kwargs_audit_pk
-                        ),
+                        url_name="audits:edit-audit-wcag-summary",
+                        url_kwargs=kwargs_audit_pk,
                         complete=case.audit.audit_summary_complete_date,
                     ),
                 ],
@@ -147,102 +229,60 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                 name="Initial statement",
                 pages=[
                     NavPage(
-                        name=ALL_PAGE_NAMES.get("audits:edit-statement-pages"),
-                        url=reverse(
-                            "audits:edit-statement-pages", kwargs=kwargs_audit_pk
-                        ),
+                        url_name="audits:edit-statement-pages",
+                        url_kwargs=kwargs_audit_pk,
                         complete=case.audit.audit_statement_pages_complete_date,
                     ),
                     NavPage(
-                        name=ALL_PAGE_NAMES.get("audits:edit-statement-overview"),
-                        url=reverse(
-                            "audits:edit-statement-overview", kwargs=kwargs_audit_pk
-                        ),
+                        url_name="audits:edit-statement-overview",
+                        url_kwargs=kwargs_audit_pk,
                         complete=case.audit.audit_statement_overview_complete_date,
                         subpages=[
                             NavSubPage(
-                                name=ALL_PAGE_NAMES.get(
-                                    "audits:edit-statement-website"
-                                ),
-                                url=reverse(
-                                    "audits:edit-statement-website",
-                                    kwargs=kwargs_audit_pk,
-                                ),
+                                url_name="audits:edit-statement-website",
+                                url_kwargs=kwargs_audit_pk,
                                 complete=case.audit.audit_statement_website_complete_date,
                             ),
                             NavSubPage(
-                                name=ALL_PAGE_NAMES.get(
-                                    "audits:edit-statement-compliance"
-                                ),
-                                url=reverse(
-                                    "audits:edit-statement-compliance",
-                                    kwargs=kwargs_audit_pk,
-                                ),
+                                url_name="audits:edit-statement-compliance",
+                                url_kwargs=kwargs_audit_pk,
                                 complete=case.audit.audit_statement_compliance_complete_date,
                             ),
                             NavSubPage(
-                                name=ALL_PAGE_NAMES.get(
-                                    "audits:edit-statement-non-accessible"
-                                ),
-                                url=reverse(
-                                    "audits:edit-statement-non-accessible",
-                                    kwargs=kwargs_audit_pk,
-                                ),
+                                url_name="audits:edit-statement-non-accessible",
+                                url_kwargs=kwargs_audit_pk,
                                 complete=case.audit.audit_statement_non_accessible_complete_date,
                             ),
                             NavSubPage(
-                                name=ALL_PAGE_NAMES.get(
-                                    "audits:edit-statement-preparation"
-                                ),
-                                url=reverse(
-                                    "audits:edit-statement-preparation",
-                                    kwargs=kwargs_audit_pk,
-                                ),
+                                url_name="audits:edit-statement-preparation",
+                                url_kwargs=kwargs_audit_pk,
                                 complete=case.audit.audit_statement_preparation_complete_date,
                             ),
                             NavSubPage(
-                                name=ALL_PAGE_NAMES.get(
-                                    "audits:edit-statement-feedback"
-                                ),
-                                url=reverse(
-                                    "audits:edit-statement-feedback",
-                                    kwargs=kwargs_audit_pk,
-                                ),
+                                url_name="audits:edit-statement-feedback",
+                                url_kwargs=kwargs_audit_pk,
                                 complete=case.audit.audit_statement_feedback_complete_date,
                             ),
                             NavSubPage(
-                                name=ALL_PAGE_NAMES.get("audits:edit-statement-custom"),
-                                url=reverse(
-                                    "audits:edit-statement-custom",
-                                    kwargs=kwargs_audit_pk,
-                                ),
+                                url_name="audits:edit-statement-custom",
+                                url_kwargs=kwargs_audit_pk,
                                 complete=case.audit.audit_statement_custom_complete_date,
                             ),
                         ],
                     ),
                     NavPage(
-                        name=ALL_PAGE_NAMES.get(
-                            "audits:edit-initial-disproportionate-burden"
-                        ),
-                        url=reverse(
-                            "audits:edit-initial-disproportionate-burden",
-                            kwargs=kwargs_audit_pk,
-                        ),
+                        url_name="audits:edit-initial-disproportionate-burden",
+                        url_kwargs=kwargs_audit_pk,
                         complete=case.audit.initial_disproportionate_burden_complete_date,
                     ),
                     NavPage(
-                        name=ALL_PAGE_NAMES.get("audits:edit-statement-decision"),
-                        url=reverse(
-                            "audits:edit-statement-decision", kwargs=kwargs_audit_pk
-                        ),
+                        url_name="audits:edit-statement-decision",
+                        url_kwargs=kwargs_audit_pk,
                         complete=case.audit.audit_statement_decision_complete_date,
                     ),
                     NavPage(
-                        name=ALL_PAGE_NAMES.get("audits:edit-audit-statement-summary"),
-                        url=reverse(
-                            "audits:edit-audit-statement-summary",
-                            kwargs=kwargs_audit_pk,
-                        ),
+                        url_name="audits:edit-audit-statement-summary",
+                        url_kwargs=kwargs_audit_pk,
                         complete=case.audit.audit_summary_complete_date,
                     ),
                 ],
@@ -255,8 +295,8 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
             name="Case details",
             pages=[
                 NavPage(
-                    name=ALL_PAGE_NAMES.get("cases:edit-case-metadata"),
-                    url=reverse("cases:edit-case-metadata", kwargs=kwargs_case_pk),
+                    url_name="cases:edit-case-metadata",
+                    url_kwargs=kwargs_case_pk,
                     complete=case.case_details_complete_date,
                 )
             ],
