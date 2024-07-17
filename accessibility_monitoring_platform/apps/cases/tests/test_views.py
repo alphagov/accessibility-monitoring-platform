@@ -1057,8 +1057,11 @@ def test_create_case_can_create_duplicate_cases(
     assert response.url == expected_redirect_url
 
 
-def test_create_case_creates_case_event(admin_client):
-    """Test that a successful case create also creates a case event"""
+def test_create_case_creates_case_events(admin_client):
+    """
+    Test that a successful case create also creates a case events
+    for the case and audit creation
+    """
     response: HttpResponse = admin_client.post(
         reverse("cases:case-create"),
         {
@@ -1072,11 +1075,16 @@ def test_create_case_creates_case_event(admin_client):
 
     case: Case = Case.objects.get(home_page_url=HOME_PAGE_URL)
     case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
-    assert case_events.count() == 1
 
-    case_event: CaseEvent = case_events[0]
-    assert case_event.event_type == CaseEvent.EventType.CREATE
-    assert case_event.message == "Created case"
+    assert case_events.count() == 2
+
+    case_case_event: CaseEvent = case_events[0]
+    assert case_case_event.event_type == CaseEvent.EventType.CREATE
+    assert case_case_event.message == "Created case"
+
+    audit_case_event: CaseEvent = case_events[1]
+    assert audit_case_event.event_type == CaseEvent.EventType.CREATE_AUDIT
+    assert audit_case_event.message == "Started test"
 
 
 def test_updating_case_creates_case_event(admin_client):

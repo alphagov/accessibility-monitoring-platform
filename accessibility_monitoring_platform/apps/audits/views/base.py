@@ -38,11 +38,7 @@ from ..models import (
     StatementPage,
     WcagDefinition,
 )
-from ..utils import (
-    create_mandatory_pages_for_new_audit,
-    create_statement_checks_for_new_audit,
-    report_data_updated,
-)
+from ..utils import create_audit_and_related_data, report_data_updated
 
 
 def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -61,16 +57,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         return redirect(
             reverse("audits:edit-audit-metadata", kwargs={"pk": case.audit.id})
         )
-    audit: Audit = Audit.objects.create(case=case)
-    record_model_create_event(user=request.user, model_object=audit)
-    create_mandatory_pages_for_new_audit(audit=audit)
-    create_statement_checks_for_new_audit(audit=audit)
-    CaseEvent.objects.create(
-        case=case,
-        done_by=request.user,
-        event_type=CaseEvent.EventType.CREATE_AUDIT,
-        message="Started test",
-    )
+    audit: Audit = create_audit_and_related_data(request=request, case=case)
     return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))
 
 
@@ -240,10 +227,10 @@ class WcagDefinitionListView(ListView):
             return WcagDefinition.objects.none()
 
         if hasattr(self.wcag_definition_search_form, "cleaned_data"):
-            search_str: Optional[
-                str
-            ] = self.wcag_definition_search_form.cleaned_data.get(
-                "wcag_definition_search"
+            search_str: Optional[str] = (
+                self.wcag_definition_search_form.cleaned_data.get(
+                    "wcag_definition_search"
+                )
             )
 
             if search_str:
@@ -333,10 +320,10 @@ class StatementCheckListView(ListView):
             return StatementCheck.objects.none()
 
         if hasattr(self.statement_check_search_form, "cleaned_data"):
-            search_str: Optional[
-                str
-            ] = self.statement_check_search_form.cleaned_data.get(
-                "statement_check_search"
+            search_str: Optional[str] = (
+                self.statement_check_search_form.cleaned_data.get(
+                    "statement_check_search"
+                )
             )
 
             if search_str:

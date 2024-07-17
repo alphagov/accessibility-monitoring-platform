@@ -22,7 +22,7 @@ from ..audits.forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
 )
-from ..audits.utils import report_data_updated
+from ..audits.utils import create_audit_and_related_data, report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.models import Boolean, EmailTemplate
@@ -297,6 +297,7 @@ class CaseCreateView(CreateView):
         user: User = self.request.user
         record_model_create_event(user=user, model_object=case)
         record_case_event(user=user, new_case=case)
+        create_audit_and_related_data(request=self.request, case=case)
         case_pk: Dict[str, int] = {"pk": self.object.id}
         if "save_continue_case" in self.request.POST:
             url: str = reverse("cases:edit-case-metadata", kwargs=case_pk)
