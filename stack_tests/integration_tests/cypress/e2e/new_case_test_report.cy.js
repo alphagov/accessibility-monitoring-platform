@@ -40,6 +40,9 @@ describe('Create case, tests and report', () => {
     cy.contains('Edit test').click()
 
     cy.title().should('eq', `${newOrganisationName} | Test metadata`)
+    cy.get('#id_date_of_test_0').type(17)
+    cy.get('#id_date_of_test_1').type(7)
+    cy.get('#id_date_of_test_2').type(2024)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Pages`)

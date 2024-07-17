@@ -687,14 +687,15 @@ class Case(VersionModel):
             updated_times.append(contact.updated)
 
         if self.audit is not None:
-            updated_times.append(
-                datetime(
-                    self.audit.date_of_test.year,
-                    self.audit.date_of_test.month,
-                    self.audit.date_of_test.day,
-                    tzinfo=datetime_timezone.utc,
+            if self.audit.date_of_test is not None:
+                updated_times.append(
+                    datetime(
+                        self.audit.date_of_test.year,
+                        self.audit.date_of_test.month,
+                        self.audit.date_of_test.day,
+                        tzinfo=datetime_timezone.utc,
+                    )
                 )
-            )
             updated_times.append(self.audit.updated)
             for page in self.audit.page_audit.all():
                 updated_times.append(page.updated)

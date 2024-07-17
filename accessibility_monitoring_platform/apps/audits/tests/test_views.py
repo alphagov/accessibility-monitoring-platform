@@ -89,7 +89,7 @@ PAGE_LOCATION: str = "Press button then click on link"
 
 def create_audit() -> Audit:
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(case=case, date_of_test=date.today())
     return audit
 
 
@@ -2984,12 +2984,16 @@ def test_update_audit_checks_version(admin_client):
     """Test that updating an audit shows an error if the version of the audit has changed"""
     audit: Audit = create_audit()
     case: Case = audit.case
+    today: date = date.today()
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),
         {
             "version": audit.version - 1,
             "case-compliance-version": case.compliance.version,
+            "date_of_test_0": today.day,
+            "date_of_test_1": today.month,
+            "date_of_test_2": today.year,
             "save": "Button value",
         },
     )
