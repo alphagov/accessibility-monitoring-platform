@@ -54,7 +54,16 @@ def backfill_audits(apps, schema_editor):  # pylint: disable=unused-argument
 
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
-    pass
+    Case = apps.get_model("cases", "Case")
+    Audit = apps.get_model("audits", "Audit")
+    Page = apps.get_model("audits", "Page")
+    StatementCheckResult = apps.get_model("audits", "StatementCheckResult")
+    for case_id in OLD_DEACTIVATED_CASE_IDS:
+        case = Case.objects.get(id=case_id)
+        audit = Audit.objects.get(case=case)
+        StatementCheckResult.objects.filter(audit=audit).delete()
+        Page.objects.filter(audit=audit).delete()
+        Audit.objects.filter(id=audit.id).delete()
 
 
 class Migration(migrations.Migration):
