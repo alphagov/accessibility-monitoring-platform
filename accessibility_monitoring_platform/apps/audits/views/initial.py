@@ -2,6 +2,7 @@
 Views for audits app (called tests by users)
 """
 
+from datetime import date
 from functools import partial
 from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
@@ -289,8 +290,13 @@ class AuditPageChecksFormView(FormView):
         other_pages_failed_check_results: Dict[WcagDefinition, List[CheckResult]] = (
             other_page_failed_check_results(page=self.page)
         )
+        wcag_definitions_date: date = (
+            self.page.audit.date_of_test
+            if self.page.audit.date_of_test is not None
+            else date.today()
+        )
         wcag_definitions: List[WcagDefinition] = list(
-            WcagDefinition.objects.on_date(self.page.audit.date_of_test)
+            WcagDefinition.objects.on_date(wcag_definitions_date)
         )
 
         if self.request.POST:

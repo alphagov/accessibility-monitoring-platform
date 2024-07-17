@@ -538,8 +538,6 @@ def test_audit_statement_check_specific_page_loads(
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
-        ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
-        ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages"),
         ("audits:edit-audit-statement-1", "save", "audits:edit-audit-statement-1"),
         (
             "audits:edit-audit-statement-1",
@@ -626,6 +624,44 @@ def test_audit_edit_redirects_based_on_button_pressed(
         reverse(path_name, kwargs=audit_pk),
         {
             "version": audit.version,
+            button_name: "Button value",
+            "case-compliance-version": audit.case.compliance.version,
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
+        ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
+        ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages"),
+    ],
+)
+def test_edit_audit_metadata_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful audit update redirects based on the button pressed
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    today: date = date.today()
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "date_of_test_0": today.day,
+            "date_of_test_1": today.month,
+            "date_of_test_2": today.year,
             button_name: "Button value",
             "case-compliance-version": audit.case.compliance.version,
         },

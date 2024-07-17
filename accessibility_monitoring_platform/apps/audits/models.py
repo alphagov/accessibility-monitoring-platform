@@ -245,7 +245,7 @@ class Audit(VersionModel):
     updated = models.DateTimeField(null=True, blank=True)
 
     # metadata page
-    date_of_test = models.DateField(default=date.today)
+    date_of_test = models.DateField(null=True, blank=True)
     screen_size = models.CharField(
         max_length=20,
         choices=ScreenSize.choices,

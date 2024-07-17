@@ -56,7 +56,7 @@ class AuditMetadataUpdateForm(VersionForm):
     Form for editing check metadata
     """
 
-    date_of_test = AMPDateField(label="Date of test")
+    date_of_test = AMPDateField(label="Date of test", required=True)
     screen_size = AMPChoiceField(label="Screen size", choices=Audit.ScreenSize.choices)
     exemptions_state = AMPChoiceRadioField(
         label="Exemptions?",
