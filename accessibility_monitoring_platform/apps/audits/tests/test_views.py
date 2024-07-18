@@ -3303,6 +3303,15 @@ def test_delete_retest(admin_client):
     retest_from_db: Retest = Retest.objects.get(id=retest.id)
     assert retest_from_db.is_deleted is True
 
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == retest
+    assert events[0].type == Event.Type.UPDATE
+    assert events[0].diff == {
+        "is_deleted": "False -> True",
+    }
+
 
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
