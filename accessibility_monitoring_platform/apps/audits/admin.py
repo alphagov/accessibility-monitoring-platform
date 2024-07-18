@@ -137,6 +137,7 @@ class RetestAdmin(admin.ModelAdmin):
         "date_of_retest",
         "is_deleted",
     ]
+    ordering = ["-id"]
     list_filter = ["retest_compliance_state", "is_deleted"]
 
 

@@ -77,6 +77,17 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
     return redirect(reverse("audits:retest-metadata-update", kwargs={"pk": retest.id}))
 
 
+def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
+    """Set Retest.is_deleted to True"""
+    retest: Retest = get_object_or_404(Retest, id=pk)
+    retest.is_deleted = True
+    record_model_update_event(user=request.user, model_object=retest)
+    retest.save()
+    return redirect(
+        reverse("cases:edit-retest-overview", kwargs={"pk": retest.case.id})
+    )
+
+
 class RetestMetadataUpdateView(UpdateView):
     """
     View to update a equality body retest metadata

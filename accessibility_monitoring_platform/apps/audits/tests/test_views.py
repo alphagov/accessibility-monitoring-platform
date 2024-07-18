@@ -3283,6 +3283,27 @@ def test_create_equality_body_retest_creates_retest_0(admin_client):
     assert retest_2.id_within_case == 2
 
 
+def test_delete_retest(admin_client):
+    """
+    Test that equality body retest deletion works
+    """
+    case: Case = Case.objects.create()
+    # Audit.objects.create(case=case)
+    retest: Retest = Retest.objects.create(case=case)
+
+    assert retest.is_deleted is False
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:delete-retest", kwargs={"pk": retest.id})
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/cases/1/retest-overview/"
+
+    retest_from_db: Retest = Retest.objects.get(id=retest.id)
+    assert retest_from_db.is_deleted is True
+
+
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [

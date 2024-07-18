@@ -48,6 +48,8 @@
                             <p class="govuk-body-m">
                                 <a href="{% url 'audits:retest-metadata-update' equality_body_retest.id %}" class="govuk-link govuk-link--no-visited-state">
                                     Edit retest</a>
+                                <a href="{% url 'audits:delete-retest' equality_body_retest.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
+                                    Delete retest</a>
                             </p>
                             <p class="govuk-body-m amp-margin-bottom-5"><b>Date of retest</b></p>
                             <p class="govuk-body-m">{{ equality_body_retest.date_of_retest|amp_date }}</p>
