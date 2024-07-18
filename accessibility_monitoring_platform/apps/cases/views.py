@@ -1140,7 +1140,7 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
         return super().form_valid(form)
 
 
-class EqualityBodyCorrespondenceCreateView(CreateView):
+class EqualityBodyCorrespondenceCreateView(CaseNavContextMixin, CreateView):
     """
     View to create a case
     """
