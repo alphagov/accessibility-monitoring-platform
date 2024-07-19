@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import HttpRequest
 from django.utils import timezone
 
+from ..common.case_nav import get_amp_page_name
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
 from ..common.utils import get_platform_settings
 from ..notifications.utils import get_number_of_tasks
@@ -33,4 +34,5 @@ def platform_page(
             is_deleted=False
         ),
         "custom_footer_links": FooterLink.objects.filter(is_deleted=False),
+        "amp_page_name": get_amp_page_name(request=request),
     }

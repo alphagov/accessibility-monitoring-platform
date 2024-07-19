@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}{{ case.organisation_name }} | Add PSB Zendesk ticket{% endblock %}
+{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -18,21 +18,17 @@
             <li class="govuk-breadcrumbs__list-item">
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:zendesk-tickets' case.id %}">PSB Zendesk tickets</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">Add PSB Zendesk ticket</li>
+            <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Add PSB Zendesk ticket' %}
-            </div>
-        </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 {% include "cases/helpers/nav_details.html" %}
                 {% include 'cases/helpers/nav_steps.html' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
+                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:create-zendesk-ticket' case.id %}">
                     {% csrf_token %}
