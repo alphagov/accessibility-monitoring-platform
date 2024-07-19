@@ -14,7 +14,7 @@
         {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" with current_section_name='Case details' current_page_name=amp_page_name %}
+                {% include "cases/helpers/nav_details.html" with current_section_name='Case details' current_subpage_name=amp_page_name %}
                 {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-case-metadata' %}
             </div>
             <div class="govuk-grid-column-two-thirds">

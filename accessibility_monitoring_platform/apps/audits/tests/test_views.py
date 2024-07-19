@@ -1771,7 +1771,7 @@ def test_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Testing Additional")
+    assertContains(response, "Additional page test")
     assertContains(response, "Showing 2 errors")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)

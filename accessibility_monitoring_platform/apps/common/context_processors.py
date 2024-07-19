@@ -8,8 +8,8 @@ from django.conf import settings
 from django.http import HttpRequest
 from django.utils import timezone
 
-from ..common.case_nav import get_amp_page_name
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
+from ..common.page_name_utils import get_amp_page_name
 from ..common.utils import get_platform_settings
 from ..notifications.utils import get_number_of_tasks
 from .forms import AMPTopMenuForm

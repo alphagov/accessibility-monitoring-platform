@@ -26,6 +26,7 @@ class MockRequest:
         self.absolute_uri = absolute_uri
         self.user = user
         self.META = {}  # pylint: disable=invalid-name
+        self.path_info = "/cases/1/view/"
 
     def build_absolute_uri(self):
         return self.absolute_uri
