@@ -50,7 +50,7 @@ describe('Create case, tests and report', () => {
     cy.get('[name="form-0-notes').type('Hi, I am an error')
     cy.contains('Save and next page').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Testing Accessibility statement`)
+    cy.title().should('eq', `${newOrganisationName} | Accessibility statement page test`)
     cy.contains('Save and next page').click()
 
     cy.title().should('eq', `${newOrganisationName} | Website compliance decision`)
