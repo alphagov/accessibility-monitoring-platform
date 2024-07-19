@@ -21,8 +21,8 @@ class PageName:
 
 ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:edit-case-metadata": PageName("Case metadata"),
-    "audits:edit-audit-metadata": PageName("Initial test metadata"),
-    "audits:edit-audit-pages": PageName("Add or remove pages"),
+    "audits:edit-audit-metadata": PageName("Test metadata"),
+    "audits:edit-audit-pages": PageName("Pages"),
     "audits:edit-audit-page-checks": PageName(
         "{page.page_title} test", format_string=True
     ),
@@ -134,6 +134,47 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     ),
     "cases:edit-equality-body-correspondence": PageName("Edit Zendesk ticket"),
     "cases:edit-equality-body-metadata": PageName("Equality body metadata"),
+    "cases:edit-find-contact-details": PageName("Find contact details"),
+    "cases:edit-four-week-followup": PageName("Four week follow-up"),
+    "cases:legacy-end-of-case": PageName("Legacy end of case data"),
+    "cases:edit-no-psb-response": PageName("Public sector body is unresponsive"),
+    "cases:edit-one-week-followup": PageName("One week follow-up"),
+    "cases:edit-one-week-followup-final": PageName(
+        "One week follow-up for final update"
+    ),
+    "cases:edit-post-case": PageName("Post case summary"),
+    "cases:edit-publish-report": PageName("Publish report"),
+    "cases:edit-qa-comments": PageName("QA comments"),
+    "cases:reactivate-case": PageName("Reactivate case"),
+    "cases:edit-report-acknowledged": PageName("Report acknowledged"),
+    "cases:edit-report-approved": PageName("Report approved"),
+    "cases:edit-report-details": PageName("Report details"),
+    "cases:edit-report-sent-on": PageName("Report sent on"),
+    "cases:edit-retest-overview": PageName("Retest overview"),
+    "cases:edit-review-changes": PageName("Reviewing changes"),
+    "cases:edit-statement-enforcement": PageName("Statement enforcement"),
+    "cases:edit-test-results": PageName("Testing details"),
+    "cases:edit-twelve-week-retest": PageName("12-week retest"),
+    "cases:outstanding-issues": PageName("Outstanding issues"),
+    "cases:retest-create-error": PageName("Cannot start new retest"),
+    "cases:status-workflow": PageName("Status workflow"),
+    "common:bulk-url-search": PageName("Bulk URL search"),
+    "common:email-template-list": PageName("Email template manager"),
+    "common:metrics-case": PageName("Case metrics"),
+    "common:metrics-policy": PageName("Policy metrics"),
+    "common:metrics-report": PageName("Report metrics"),
+    "common:edit-active-qa-auditor": PageName("Active QA auditor"),
+    "common:edit-footer-links": PageName("Edit footer links"),
+    "common:edit-frequently-used-links": PageName("Edit frequently used links"),
+    "common:markdown-cheatsheet": PageName("Markdown cheatsheet"),
+    "common:more-information": PageName("More information about monitoring"),
+    "common:platform-history": PageName("Platform version history"),
+    "reports:edit-report-notes": PageName("Report notes"),
+    "reports:edit-report-wrapper": PageName("Report viewer editor"),
+    "reports:report-confirm-publish": PageName("Publish report"),
+    "reports:report-publisher": PageName("Report publisher"),
+    "reports:report-metrics-view": PageName("Report visit logs"),
+    "users:edit-user": PageName("Account details"),
 }
 
 
