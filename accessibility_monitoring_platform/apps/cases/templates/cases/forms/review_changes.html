@@ -26,6 +26,7 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                {% include 'cases/helpers/email_templates.html' %}
                 <form method="post" action="{% url 'cases:edit-review-changes' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
