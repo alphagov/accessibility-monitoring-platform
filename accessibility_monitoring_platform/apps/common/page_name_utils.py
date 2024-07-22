@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from django.http import HttpRequest
 from django.urls import URLResolver, resolve
@@ -14,17 +14,23 @@ class PageName:
     page_object_name: str = ""
     page_object_class: Optional[Union[Page, RetestPage, EmailTemplate]] = None
 
-    def get_name(self, url_resolver: URLResolver):
+    def get_name(self, url_resolver: URLResolver, **extra_context: Dict[str, Any]):
         if self.page_object_name != "" and self.page_object_class is not None:
             page_object_id: int = url_resolver.kwargs["pk"]
             page_object: Union[Page, RetestPage, EmailTemplate] = (
                 self.page_object_class.objects.get(id=page_object_id)
             )
-            return self.name.format(**{self.page_object_name: page_object})
+            return self.name.format(
+                **{**extra_context, **{self.page_object_name: page_object}}
+            )
+        if extra_context:
+            return self.name.format(**extra_context)
         return self.name
 
 
 ALL_PAGE_NAMES: Dict[str, PageName] = {
+    "audits:audit-detail": PageName("View test"),
+    "audits:audit-retest-detail": PageName("View 12-week retest"),
     "audits:edit-audit-metadata": PageName("Test metadata"),
     "audits:edit-audit-page-checks": PageName(
         "{page.page_title} test",
@@ -33,7 +39,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     ),
     "audits:edit-audit-pages": PageName("Pages"),
     "audits:edit-audit-report-options": PageName("Report options"),
-    "audits:edit-audit-retest-metadata": PageName("12-week test metadata"),
+    "audits:edit-audit-retest-metadata": PageName("12-week retest metadata"),
     "audits:edit-audit-retest-page-checks": PageName(
         "Retesting {page}", page_object_name="page", page_object_class=Page
     ),
@@ -56,7 +62,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     ),
     "audits:edit-audit-statement-1": PageName("Accessibility statement Pt. 1"),
     "audits:edit-audit-statement-2": PageName("Accessibility statement Pt. 2"),
-    "audits:edit-audit-statement-summary": PageName("Test summary"),
+    "audits:edit-audit-summary": PageName("Test summary"),
     "audits:edit-audit-wcag-summary": PageName("Test summary"),
     "audits:edit-equality-body-disproportionate-burden": PageName(
         "Disproportionate burden"
@@ -114,8 +120,15 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "audits:retest-comparison-update": PageName("Comparison"),
     "audits:retest-compliance-update": PageName("Compliance decision"),
     "audits:retest-metadata-update": PageName("Retest metadata"),
+    "audits:statement-check-create": PageName("Create statement issue"),
     "audits:statement-check-list": PageName("Statement issues editor"),
+    "audits:statement-check-update": PageName("Update statement issue"),
     "audits:wcag-definition-list": PageName("WCAG errors editor"),
+    "audits:wcag-definition-create": PageName("Create WCAG error"),
+    "audits:wcag-definition-update": PageName("Update WCAG definition"),
+    "cases:case-create": PageName("Create case"),
+    "cases:case-detail": PageName("View case"),
+    "cases:case-list": PageName("Search"),
     "cases:create-equality-body-correspondence": PageName("Add Zendesk ticket"),
     "cases:create-zendesk-ticket": PageName("Add PSB Zendesk ticket"),
     "cases:deactivate-case": PageName("Deactivate case"),
@@ -182,6 +195,8 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "common:metrics-report": PageName("Report metrics"),
     "common:more-information": PageName("More information about monitoring"),
     "common:platform-history": PageName("Platform version history"),
+    "exports:export-list": PageName("{enforcement_body} CSV export manager"),
+    "exports:export-create": PageName("New {enforcement_body} export"),
     "notifications:edit-reminder-task": PageName("Reminder"),
     "notifications:reminder-create": PageName("Reminder"),
     "reports:edit-report-notes": PageName("Report notes"),
@@ -202,5 +217,11 @@ def get_amp_page_name(request: HttpRequest) -> str:
         page_name: PageName = ALL_PAGE_NAMES.get(url_name)
     else:
         return f"Page name not found for {url_name}"
+
+    if url_resolver.view_name in ["exports:export-list", "exports:export-create"]:
+        enforcement_body: str = request.GET.get("enforcement_body", "ehrc")
+        return page_name.get_name(
+            url_resolver, enforcement_body=enforcement_body.upper()
+        )
 
     return page_name.get_name(url_resolver)
