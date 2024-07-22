@@ -117,3 +117,23 @@ def test_get_amp_page_name_for_email_template(rf):
     request.user = request_user
 
     assert get_amp_page_name(request) == EMAIL_TEMPLATE_NAME
+
+
+@pytest.mark.django_db
+def test_get_amp_page_name_with_extra_context(rf):
+    """Test get_amp_page_name returns expected name with extra context"""
+    request_user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    request = rf.get(
+        reverse("exports:export-list"),
+    )
+    request.user = request_user
+
+    assert get_amp_page_name(request) == "EHRC CSV export manager"
+
+    request = rf.get(
+        f'{reverse("exports:export-list")}?enforcement_body=ecni',
+    )
+
+    assert get_amp_page_name(request) == "ECNI CSV export manager"

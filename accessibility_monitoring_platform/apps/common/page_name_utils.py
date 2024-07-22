@@ -6,6 +6,7 @@ from django.urls import URLResolver, resolve
 
 from ..audits.models import Page, RetestPage
 from ..common.models import EmailTemplate
+from ..exports.models import Export
 
 
 @dataclass
@@ -182,20 +183,35 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "common:edit-active-qa-auditor": PageName("Active QA auditor"),
     "common:edit-footer-links": PageName("Edit footer links"),
     "common:edit-frequently-used-links": PageName("Edit frequently used links"),
+    "common:email-template-create": PageName("Create email template"),
+    "common:email-template-update": PageName("Email template editor"),
     "common:email-template-list": PageName("Email template manager"),
     "common:email-template-preview": PageName(
         "{email_template.name} preview",
         page_object_name="email_template",
         page_object_class=EmailTemplate,
     ),
+    "common:platform-checking": PageName("Platform checking"),
+    "common:issue-report": PageName("Report an issue"),
+    "common:issue-reports-list": PageName("Issue reports"),
     "common:markdown-cheatsheet": PageName("Markdown cheatsheet"),
     "common:metrics-case": PageName("Case metrics"),
     "common:metrics-policy": PageName("Policy metrics"),
     "common:metrics-report": PageName("Report metrics"),
     "common:more-information": PageName("More information about monitoring"),
     "common:platform-history": PageName("Platform version history"),
+    "dashboard:home": PageName("{home_page_title}"),
     "exports:export-list": PageName("{enforcement_body} CSV export manager"),
+    "exports:export-confirm-delete": PageName(
+        "Delete {export}", page_object_name="export", page_object_class=Export
+    ),
+    "exports:export-confirm-export": PageName(
+        "Confirm {export}", page_object_name="export", page_object_class=Export
+    ),
     "exports:export-create": PageName("New {enforcement_body} CSV export"),
+    "exports:export-detail": PageName(
+        "{export}", page_object_name="export", page_object_class=Export
+    ),
     "notifications:edit-reminder-task": PageName("Reminder"),
     "notifications:reminder-create": PageName("Reminder"),
     "reports:edit-report-notes": PageName("Report notes"),
@@ -222,5 +238,9 @@ def get_amp_page_name(request: HttpRequest) -> str:
         return page_name.get_name(
             url_resolver, enforcement_body=enforcement_body.upper()
         )
+    if url_resolver.view_name == "dashboard:home":
+        view: str = request.GET.get("view", "View your cases")
+        home_page_title: str = "All cases" if view == "View all cases" else "Your cases"
+        return page_name.get_name(url_resolver, home_page_title=home_page_title)
 
     return page_name.get_name(url_resolver)
