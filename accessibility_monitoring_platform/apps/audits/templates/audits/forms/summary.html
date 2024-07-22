@@ -2,7 +2,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ audit.case.organisation_name }} | {{ amp_test_summary }}{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -51,7 +51,7 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 
                     {% if show_failures_by_page %}
-                        <h2 class="govuk-heading-l">{{ amp_test_summary }} | Page view</h2>
+                        <h2 class="govuk-heading-l">{{ amp_page_name }} | Page view</h2>
                         {% for page, failures in audit_failures_by_page.items %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
@@ -70,7 +70,7 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <h2 class="govuk-heading-l">{{ amp_test_summary }} | WCAG view</h2>
+                        <h2 class="govuk-heading-l">{{ amp_page_name }} | WCAG view</h2>
                         {% for wcag_definition, failures in audit_failures_by_wcag.items %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">

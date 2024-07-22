@@ -358,7 +358,7 @@ def test_view_case_includes_tests(admin_client):
     assertContains(response, "Date of test")
     assertContains(response, "Initial statement compliance decision")
 
-    assertContains(response, "12-week test metadata")
+    assertContains(response, "12-week retest metadata")
     assertContains(response, "Date of retest")
 
 

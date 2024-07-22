@@ -63,7 +63,6 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "audits:edit-audit-statement-1": PageName("Accessibility statement Pt. 1"),
     "audits:edit-audit-statement-2": PageName("Accessibility statement Pt. 2"),
     "audits:edit-audit-summary": PageName("Test summary"),
-    "audits:edit-audit-wcag-summary": PageName("Test summary"),
     "audits:edit-equality-body-disproportionate-burden": PageName(
         "Disproportionate burden"
     ),
@@ -196,7 +195,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "common:more-information": PageName("More information about monitoring"),
     "common:platform-history": PageName("Platform version history"),
     "exports:export-list": PageName("{enforcement_body} CSV export manager"),
-    "exports:export-create": PageName("New {enforcement_body} export"),
+    "exports:export-create": PageName("New {enforcement_body} CSV export"),
     "notifications:edit-reminder-task": PageName("Reminder"),
     "notifications:reminder-create": PageName("Reminder"),
     "reports:edit-report-notes": PageName("Report notes"),
