@@ -4,28 +4,47 @@ Test utility functions of cases app
 
 import pytest
 from django.contrib.auth.models import User
-from django.urls import reverse
+from django.urls import URLResolver, resolve, reverse
 
 from ...audits.models import Audit, Page, Retest, RetestPage
 from ...cases.models import Case
 from ...common.models import EmailTemplate
 from ..page_name_utils import PageName, get_amp_page_name
 
+EMAIL_TEMPLATE_NAME: str = "1c. Template name"
 
-def test_page_name():
+
+def test_page_name_literal():
     """Test PageName class returns expected name string"""
-    page_name: PageName = PageName(name="{page.page_title} test")
+    page_name: PageName = PageName(name="Search")
+    url_resolver: URLResolver = resolve("/cases/")
 
-    assert page_name.get_name() == "{page.page_title} test"
-
-    page_name: PageName = PageName(name="{page.page_title} test", format_string=True)
-    page: Page = Page(name="Page name")
-
-    assert page_name.get_name(page=page) == "Page name page test"
+    assert page_name.get_name(url_resolver) == "Search"
 
 
 @pytest.mark.django_db
-def test_get_amp_page_namei_for_case(rf):
+def test_page_name_derived_from_object():
+    """Test PageName class returns expected name string"""
+    email_template: EmailTemplate = EmailTemplate.objects.create(
+        name=EMAIL_TEMPLATE_NAME
+    )
+    page_name: PageName = PageName(
+        name="{email_template.name} preview",
+        page_object_name="email_template",
+        page_object_class=EmailTemplate,
+    )
+    url_resolver: URLResolver = resolve(
+        f"/common/{email_template.id}/email-template-preview/"
+    )
+
+    assert (
+        page_name.get_name(url_resolver=url_resolver)
+        == EMAIL_TEMPLATE_NAME + " preview"
+    )
+
+
+@pytest.mark.django_db
+def test_get_amp_page_name_for_case(rf):
     """Test get_amp_page_name returns expected Case-specific name"""
     case: Case = Case.objects.create()
 
@@ -83,7 +102,7 @@ def test_get_amp_page_name_for_email_template(rf):
     """Test get_amp_page_name returns expected EmailTemplate-specific name"""
     case: Case = Case.objects.create()
     email_template: EmailTemplate = EmailTemplate.objects.create(
-        name="1c. Template name"
+        name=EMAIL_TEMPLATE_NAME
     )
 
     request_user: User = User.objects.create(
@@ -97,4 +116,4 @@ def test_get_amp_page_name_for_email_template(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name(request) == "1c. Template name"
+    assert get_amp_page_name(request) == EMAIL_TEMPLATE_NAME

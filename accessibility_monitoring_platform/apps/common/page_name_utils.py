@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Optional, Union
 
 from django.http import HttpRequest
 from django.urls import URLResolver, resolve
@@ -11,24 +11,31 @@ from ..common.models import EmailTemplate
 @dataclass
 class PageName:
     name: str
-    format_string: bool = False
+    page_object_name: str = ""
+    page_object_class: Optional[Union[Page, RetestPage, EmailTemplate]] = None
 
-    def get_name(self, **kwargs):
-        if self.format_string is True:
-            return self.name.format(**kwargs)
+    def get_name(self, url_resolver: URLResolver):
+        if self.page_object_name != "" and self.page_object_class is not None:
+            page_object_id: int = url_resolver.kwargs["pk"]
+            page_object: Union[Page, RetestPage, EmailTemplate] = (
+                self.page_object_class.objects.get(id=page_object_id)
+            )
+            return self.name.format(**{self.page_object_name: page_object})
         return self.name
 
 
 ALL_PAGE_NAMES: Dict[str, PageName] = {
     "audits:edit-audit-metadata": PageName("Test metadata"),
     "audits:edit-audit-page-checks": PageName(
-        "{page.page_title} test", format_string=True
+        "{page.page_title} test",
+        page_object_name="page",
+        page_object_class=Page,
     ),
     "audits:edit-audit-pages": PageName("Pages"),
     "audits:edit-audit-report-options": PageName("Report options"),
     "audits:edit-audit-retest-metadata": PageName("12-week test metadata"),
     "audits:edit-audit-retest-page-checks": PageName(
-        "Retesting {page}", format_string=True
+        "Retesting {page}", page_object_name="page", page_object_class=Page
     ),
     "audits:edit-audit-retest-pages-comparison": PageName("12-week pages comparison"),
     "audits:edit-audit-retest-statement-1": PageName(
@@ -75,7 +82,8 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     ),
     "audits:edit-retest-page-checks": PageName(
         "Retest #{retest_page.retest.id_within_case} | {retest_page}",
-        format_string=True,
+        page_object_name="retest_page",
+        page_object_class=RetestPage,
     ),
     "audits:edit-retest-statement-compliance": PageName("12-week compliance status"),
     "audits:edit-retest-statement-custom": PageName("12-week custom statement issues"),
@@ -143,7 +151,9 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:edit-twelve-week-retest": PageName("12-week retest"),
     "cases:email-template-list": PageName("Email templates"),
     "cases:email-template-preview": PageName(
-        "{email_template.name}", format_string=True
+        "{email_template.name}",
+        page_object_name="email_template",
+        page_object_class=EmailTemplate,
     ),
     "cases:legacy-end-of-case": PageName("Legacy end of case data"),
     "cases:list-equality-body-correspondence": PageName(
@@ -162,7 +172,9 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "common:edit-frequently-used-links": PageName("Edit frequently used links"),
     "common:email-template-list": PageName("Email template manager"),
     "common:email-template-preview": PageName(
-        "{email_template.name} preview", format_string=True
+        "{email_template.name} preview",
+        page_object_name="email_template",
+        page_object_class=EmailTemplate,
     ),
     "common:markdown-cheatsheet": PageName("Markdown cheatsheet"),
     "common:metrics-case": PageName("Case metrics"),
@@ -185,25 +197,10 @@ def get_amp_page_name(request: HttpRequest) -> str:
     """Lookup and return the name of the requested page"""
     url_resolver: URLResolver = resolve(request.path_info)
     url_name: str = url_resolver.view_name
+
     if url_name in ALL_PAGE_NAMES:
         page_name: PageName = ALL_PAGE_NAMES.get(url_name)
     else:
         return f"Page name not found for {url_name}"
 
-    if url_name in [
-        "audits:edit-audit-page-checks",
-        "audits:edit-audit-retest-page-checks",
-    ]:
-        page_id: int = url_resolver.kwargs["pk"]
-        page: Page = Page.objects.get(id=page_id)
-        return page_name.get_name(page=page)
-    if url_name == "audits:edit-retest-page-checks":
-        retest_page_id: int = url_resolver.kwargs["pk"]
-        retest_page: RetestPage = RetestPage.objects.get(id=retest_page_id)
-        return page_name.get_name(retest_page=retest_page)
-    if url_name in ["cases:email-template-preview", "common:email-template-preview"]:
-        email_template_id: int = url_resolver.kwargs["pk"]
-        email_template: EmailTemplate = EmailTemplate.objects.get(id=email_template_id)
-        return page_name.get_name(email_template=email_template)
-
-    return page_name.get_name()
+    return page_name.get_name(url_resolver)
