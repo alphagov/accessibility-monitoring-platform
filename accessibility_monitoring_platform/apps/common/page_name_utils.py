@@ -1,3 +1,5 @@
+"""Module with all page names to be placed in context"""
+
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Union
 
@@ -179,7 +181,9 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:update-zendesk-ticket": PageName("Edit PSB Zendesk ticket"),
     "cases:zendesk-tickets": PageName("PSB Zendesk tickets"),
     "comments:edit-qa-comment": PageName("Edit or delete comment"),
+    "common:accessibility-statement": PageName("Accessibility statement"),
     "common:bulk-url-search": PageName("Bulk URL search"),
+    "common:contact-admin": PageName("Contact admin"),
     "common:edit-active-qa-auditor": PageName("Active QA auditor"),
     "common:edit-footer-links": PageName("Edit footer links"),
     "common:edit-frequently-used-links": PageName("Edit frequently used links"),
@@ -200,6 +204,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "common:metrics-report": PageName("Report metrics"),
     "common:more-information": PageName("More information about monitoring"),
     "common:platform-history": PageName("Platform version history"),
+    "common:privacy-notice": PageName("Privacy notice"),
     "dashboard:home": PageName("{home_page_title}"),
     "exports:export-list": PageName("{enforcement_body} CSV export manager"),
     "exports:export-confirm-delete": PageName(
@@ -214,6 +219,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     ),
     "notifications:edit-reminder-task": PageName("Reminder"),
     "notifications:reminder-create": PageName("Reminder"),
+    "notifications:task-list": PageName("Tasks"),
     "reports:edit-report-notes": PageName("Report notes"),
     "reports:edit-report-wrapper": PageName("Report viewer editor"),
     "reports:report-confirm-publish": PageName("Publish report"),
