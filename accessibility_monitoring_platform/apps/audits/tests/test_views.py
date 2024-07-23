@@ -293,7 +293,7 @@ def test_audit_retest_detail_shows_sections(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "12-week test metadata")
+    assertContains(response, "12-week retest metadata")
     assertContains(response, "Pages")
     assertContains(response, "12-week website compliance decision")
     assertContains(response, "12-week statement links")
@@ -455,8 +455,8 @@ def test_create_audit_creates_case_event(admin_client):
         ),
         ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-summary", "Test summary"),
-        ("audits:audit-retest-detail", "View 12-week test"),
-        ("audits:edit-audit-retest-metadata", "12-week test metadata"),
+        ("audits:audit-retest-detail", "View 12-week retest"),
+        ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
         ("audits:edit-audit-retest-pages-comparison", "12-week pages comparison"),
         (
             "audits:edit-audit-retest-website-decision",
@@ -1771,7 +1771,7 @@ def test_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Testing Additional")
+    assertContains(response, "Additional page test")
     assertContains(response, "Showing 2 errors")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
@@ -3066,7 +3066,7 @@ def test_statement_check_update_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Statement issue editor")
+    assertContains(response, "Update statement issue")
 
 
 def test_statement_check_list_renders(admin_client):
