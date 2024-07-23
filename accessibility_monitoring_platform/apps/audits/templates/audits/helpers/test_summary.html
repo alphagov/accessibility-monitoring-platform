@@ -1,3 +1,27 @@
+                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name case=audit.case %}
+                {% include 'common/error_summary.html' %}
+                {% if show_failures_by_page %}
+                    <form method="get" action="{% url 'audits:edit-audit-wcag-summary' audit.id %}">
+                        <input
+                            type="submit"
+                            value="Test view"
+                            name="view"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        />
+                    </form>
+                {% else %}
+                    <form method="get" action="{% url 'audits:edit-audit-wcag-summary' audit.id %}">
+                        <input
+                            type="submit"
+                            value="Page view"
+                            name="view"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        />
+                    </form>
+                {% endif %}
+                <form method="post" action="{% url post_url audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
@@ -83,13 +107,23 @@
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
-                            <input
-                                type="submit"
-                                value="Save and exit"
-                                name="save_exit"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
+                            {% if post_url == 'audits:edit-audit-wcag-summary' %}
+                                <input
+                                    type="submit"
+                                    value="Save and continue"
+                                    name="save_continue"
+                                    class="govuk-button govuk-button--secondary"
+                                    data-module="govuk-button"
+                                />
+                            {% else %}
+                                <input
+                                    type="submit"
+                                    value="Save and exit"
+                                    name="save_exit"
+                                    class="govuk-button govuk-button--secondary"
+                                    data-module="govuk-button"
+                                />
+                            {% endif %}
                             <a
                                 href="{{ audit.get_absolute_url }}"
                                 class="govuk-link govuk-link--no-visited-state"

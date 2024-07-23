@@ -125,7 +125,7 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                         url=reverse(
                             "audits:edit-audit-wcag-summary", kwargs=kwargs_audit_pk
                         ),
-                        complete=case.audit.audit_summary_complete_date,
+                        complete=case.audit.audit_wcag_summary_complete_date,
                     ),
                 ],
             ),
@@ -206,7 +206,7 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                             "audits:edit-audit-statement-summary",
                             kwargs=kwargs_audit_pk,
                         ),
-                        complete=case.audit.audit_summary_complete_date,
+                        complete=case.audit.audit_statement_summary_complete_date,
                     ),
                 ],
             ),

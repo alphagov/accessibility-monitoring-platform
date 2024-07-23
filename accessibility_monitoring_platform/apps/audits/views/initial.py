@@ -42,8 +42,9 @@ from ..forms import (
     AuditStatementOverviewUpdateForm,
     AuditStatementPagesUpdateForm,
     AuditStatementPreparationUpdateForm,
+    AuditStatementSummaryUpdateForm,
     AuditStatementWebsiteUpdateForm,
-    AuditSummaryUpdateForm,
+    AuditWcagSummaryUpdateForm,
     AuditWebsiteDecisionUpdateForm,
     CaseComplianceStatementInitialUpdateForm,
     CaseComplianceWebsiteInitialUpdateForm,
@@ -722,9 +723,6 @@ class AuditSummaryUpdateView(AuditUpdateView):
     View to update audit summary
     """
 
-    form_class: Type[AuditSummaryUpdateForm] = AuditSummaryUpdateForm
-    template_name: str = "audits/forms/summary.html"
-
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
@@ -752,22 +750,21 @@ class AuditSummaryUpdateView(AuditUpdateView):
 
         return context
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            audit: Audit = self.object
-            case_pk: Dict[str, int] = {"pk": audit.case.id}
-            return reverse("cases:edit-test-results", kwargs=case_pk)
-        return super().get_success_url()
-
 
 class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
     """
     View to update audit summary
     """
 
-    form_class: Type[AuditSummaryUpdateForm] = AuditSummaryUpdateForm
+    form_class: Type[AuditWcagSummaryUpdateForm] = AuditWcagSummaryUpdateForm
     template_name: str = "audits/forms/wcag_summary.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit: Audit = self.object
+            return reverse("audits:edit-statement-pages", kwargs={"pk": audit.id})
+        return super().get_success_url()
 
 
 class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
@@ -775,7 +772,7 @@ class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
     View to update audit summary
     """
 
-    form_class: Type[AuditSummaryUpdateForm] = AuditSummaryUpdateForm
+    form_class: Type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm
     template_name: str = "audits/forms/statement_summary.html"
 
     def get_success_url(self) -> str:

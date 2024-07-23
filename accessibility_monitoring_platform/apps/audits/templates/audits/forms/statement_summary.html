@@ -19,31 +19,7 @@
                 {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-statement-summary' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name case=audit.case %}
-                {% include 'common/error_summary.html' %}
-                {% if show_failures_by_page %}
-                    <form method="get" action="{% url 'audits:edit-audit-statement-summary' audit.id %}">
-                        <input
-                            type="submit"
-                            value="Test view"
-                            name="view"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        />
-                    </form>
-                {% else %}
-                    <form method="get" action="{% url 'audits:edit-audit-statement-summary' audit.id %}">
-                        <input
-                            type="submit"
-                            value="Page view"
-                            name="view"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        />
-                    </form>
-                {% endif %}
-                <form method="post" action="{% url 'audits:edit-audit-statement-summary' audit.id %}">
-                    {% include 'audits/helpers/test_summary.html' %}
+                {% include 'audits/helpers/test_summary.html' with post_url='audits:edit-audit-statement-summary' %}
             </div>
         </div>
     </main>

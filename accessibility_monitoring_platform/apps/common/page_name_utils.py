@@ -113,7 +113,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "audits:edit-statement-feedback": PageName("Feedback and enforcement procedure"),
     "audits:edit-statement-non-accessible": PageName("Non-accessible content"),
     "audits:edit-statement-overview": PageName("Statement overview"),
-    "audits:edit-statement-pages": PageName("Statement links"),
+    "audits:edit-statement-pages": PageName("Initial statement links"),
     "audits:edit-statement-preparation": PageName("Statement preparation"),
     "audits:edit-statement-website": PageName("Statement information"),
     "audits:edit-twelve-week-disproportionate-burden": PageName(
