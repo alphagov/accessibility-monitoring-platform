@@ -560,6 +560,16 @@ def test_audit_statement_check_specific_page_loads(
         ("audits:edit-audit-wcag-summary", "save", "audits:edit-audit-wcag-summary"),
         (
             "audits:edit-audit-wcag-summary",
+            "save_continue",
+            "audits:edit-statement-pages",
+        ),
+        (
+            "audits:edit-audit-statement-summary",
+            "save",
+            "audits:edit-audit-statement-summary",
+        ),
+        (
+            "audits:edit-audit-statement-summary",
             "save_exit",
             "cases:edit-test-results",
         ),
@@ -1434,7 +1444,7 @@ def test_retest_date_change_creates_case_event(admin_client):
 
 @pytest.mark.parametrize(
     "path_name",
-    ["audits:edit-audit-wcag-summary"],
+    ["audits:edit-audit-statement-summary"],
 )
 def test_audit_edit_redirects_to_case(
     path_name,
