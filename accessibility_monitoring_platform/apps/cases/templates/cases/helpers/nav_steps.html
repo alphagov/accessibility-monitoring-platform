@@ -26,7 +26,9 @@
             {% include './nav_step.html' with edit_name='cases:edit-12-week-update-request-ack' name='12-week update request acknowledged' complete=case.twelve_week_update_request_ack_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-cores-overview' name='Correspondence overview' complete=case.cores_overview_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-twelve-week-retest' name='12-week retest' complete=case.twelve_week_retest_complete_date %}
-            {% include "cases/helpers/nav_details.html" with case_nav_sections=closing_the_case_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
+            <li>
+                {% include "cases/helpers/nav_details.html" with case_nav_sections=closing_the_case_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
+            </li>
         </ul>
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
         <ul class="govuk-list">

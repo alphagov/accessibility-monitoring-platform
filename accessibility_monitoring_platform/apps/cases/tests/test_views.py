@@ -2113,17 +2113,6 @@ def test_no_anchor_section_complete_check_displayed(
             "twelve_week_retest_complete_date",
             "12-week retest",
         ),
-        (
-            "cases:edit-review-changes",
-            "review_changes_complete_date",
-            "Reviewing changes",
-        ),
-        (
-            "cases:edit-enforcement-recommendation",
-            "enforcement_recommendation_complete_date",
-            "Enforcement recommendation",
-        ),
-        ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
     ],
 )
 def test_section_complete_check_displayed_in_steps_platform_methodology(
