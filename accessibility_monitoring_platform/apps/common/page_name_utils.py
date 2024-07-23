@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional, Union
 
 from django.http import HttpRequest
-from django.urls import URLResolver, resolve
+from django.urls import Resolver404, URLResolver, resolve
 
 from ..audits.models import Page, RetestPage
 from ..common.models import EmailTemplate
@@ -229,7 +229,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
 }
 
 
-def get_amp_page_name(request: HttpRequest) -> str:
+def get_amp_page_name_by_request(request: HttpRequest) -> str:
     """Lookup and return the name of the requested page"""
     url_resolver: URLResolver = resolve(request.path_info)
     url_name: str = url_resolver.view_name
@@ -245,8 +245,25 @@ def get_amp_page_name(request: HttpRequest) -> str:
             url_resolver, enforcement_body=enforcement_body.upper()
         )
     if url_resolver.view_name == "dashboard:home":
-        view: str = request.GET.get("view", "View your cases")
-        home_page_title: str = "All cases" if view == "View all cases" else "Your cases"
+        view_param: str = request.GET.get("view", "View your cases")
+        home_page_title: str = (
+            "All cases" if view_param == "View all cases" else "Your cases"
+        )
         return page_name.get_name(url_resolver, home_page_title=home_page_title)
 
-    return page_name.get_name(url_resolver)
+    return page_name.get_name(url_resolver=url_resolver)
+
+
+def get_amp_page_name_by_url(url: str) -> str:
+    """Lookup and return the name of the page the url points to"""
+    try:
+        url_resolver: URLResolver = resolve(url)
+        url_name: str = url_resolver.view_name
+
+        if url_name in ALL_PAGE_NAMES:
+            page_name: PageName = ALL_PAGE_NAMES.get(url_name)
+            return page_name.get_name(url_resolver=url_resolver)
+        else:
+            return f"Page name not found for {url_name}"
+    except Resolver404:
+        return f"URL not found for {url}"

@@ -9,7 +9,11 @@ from django.urls import URLResolver, resolve, reverse
 from ...audits.models import Audit, Page, Retest, RetestPage
 from ...cases.models import Case
 from ...common.models import EmailTemplate
-from ..page_name_utils import PageName, get_amp_page_name
+from ..page_name_utils import (
+    PageName,
+    get_amp_page_name_by_request,
+    get_amp_page_name_by_url,
+)
 
 EMAIL_TEMPLATE_NAME: str = "1c. Template name"
 
@@ -44,8 +48,8 @@ def test_page_name_derived_from_object():
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_for_case(rf):
-    """Test get_amp_page_name returns expected Case-specific name"""
+def test_get_amp_page_name_by_request_for_case(rf):
+    """Test get_amp_page_name_by_request returns expected Case-specific name"""
     case: Case = Case.objects.create()
 
     request_user: User = User.objects.create(
@@ -56,12 +60,12 @@ def test_get_amp_page_name_for_case(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name(request) == "Case metadata"
+    assert get_amp_page_name_by_request(request) == "Case metadata"
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_for_page(rf):
-    """Test get_amp_page_name returns expected Page-specific name"""
+def test_get_amp_page_name_by_request_for_page(rf):
+    """Test get_amp_page_name_by_request returns expected Page-specific name"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
@@ -74,12 +78,12 @@ def test_get_amp_page_name_for_page(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name(request) == "Additional page test"
+    assert get_amp_page_name_by_request(request) == "Additional page test"
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_for_retest_page(rf):
-    """Test get_amp_page_name returns expected RetestPage-specific name"""
+def test_get_amp_page_name_by_request_for_retest_page(rf):
+    """Test get_amp_page_name_by_request returns expected RetestPage-specific name"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
@@ -94,12 +98,12 @@ def test_get_amp_page_name_for_retest_page(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name(request) == "Retest #1 | Additional"
+    assert get_amp_page_name_by_request(request) == "Retest #1 | Additional"
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_for_email_template(rf):
-    """Test get_amp_page_name returns expected EmailTemplate-specific name"""
+def test_get_amp_page_name_by_request_for_email_template(rf):
+    """Test get_amp_page_name_by_request returns expected EmailTemplate-specific name"""
     case: Case = Case.objects.create()
     email_template: EmailTemplate = EmailTemplate.objects.create(
         name=EMAIL_TEMPLATE_NAME
@@ -116,12 +120,12 @@ def test_get_amp_page_name_for_email_template(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name(request) == EMAIL_TEMPLATE_NAME
+    assert get_amp_page_name_by_request(request) == EMAIL_TEMPLATE_NAME
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_with_extra_context(rf):
-    """Test get_amp_page_name returns expected name with extra context"""
+def test_get_amp_page_name_by_request_with_extra_context(rf):
+    """Test get_amp_page_name_by_request returns expected name with extra context"""
     request_user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
@@ -130,10 +134,20 @@ def test_get_amp_page_name_with_extra_context(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name(request) == "EHRC CSV export manager"
+    assert get_amp_page_name_by_request(request) == "EHRC CSV export manager"
 
     request = rf.get(
         f'{reverse("exports:export-list")}?enforcement_body=ecni',
     )
 
-    assert get_amp_page_name(request) == "ECNI CSV export manager"
+    assert get_amp_page_name_by_request(request) == "ECNI CSV export manager"
+
+
+def test_get_amp_page_name_by_url():
+    """Test that page names can be retrieved by URL"""
+    assert get_amp_page_name_by_url("/cases/") == "Search"
+    assert (
+        get_amp_page_name_by_url("/account/login/")
+        == "Page name not found for two_factor:login"
+    )
+    assert get_amp_page_name_by_url("no-such-url") == "URL not found for no-such-url"

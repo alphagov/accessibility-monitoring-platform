@@ -9,7 +9,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
-from ..common.page_name_utils import get_amp_page_name
+from ..common.page_name_utils import get_amp_page_name_by_request
 from ..common.utils import get_platform_settings
 from ..notifications.utils import get_number_of_tasks
 from .forms import AMPTopMenuForm
@@ -34,5 +34,5 @@ def platform_page(
             is_deleted=False
         ),
         "custom_footer_links": FooterLink.objects.filter(is_deleted=False),
-        "amp_page_name": get_amp_page_name(request=request),
+        "amp_page_name": get_amp_page_name_by_request(request=request),
     }
