@@ -8,7 +8,6 @@ from django.conf import settings
 from django.http import HttpRequest
 from django.utils import timezone
 
-from ..common.case_nav import get_amp_page_name
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
 from ..common.page_name_utils import get_amp_page_name_by_request
 from ..common.utils import get_platform_settings

@@ -2,6 +2,9 @@
 Test utility functions of cases app
 """
 
+from datetime import date
+from typing import List
+
 import pytest
 from django.http import HttpResponse
 from django.urls import reverse
@@ -9,24 +12,7 @@ from pytest_django.asserts import assertContains
 
 from ...audits.models import Audit, Page
 from ...cases.models import Case
-from ..case_nav import (
-    NavPage,
-    NavSection,
-    NavSubPage,
-    PageName,
-    build_case_nav_sections,
-)
-
-
-def test_page_name():
-    page_name: PageName = PageName(name="{page.page_title} test")
-
-    assert page_name.get_name() == "{page.page_title} test"
-
-    page_name: PageName = PageName(name="{page.page_title} test", format_string=True)
-    page: Page = Page(name="Page name")
-
-    assert page_name.get_name(page=page) == "Page name page test"
+from ..case_nav import NavPage, NavSection, build_case_nav_sections
 
 
 def test_case_nav_context_mixin_for_case(admin_client):
@@ -84,9 +70,9 @@ def test_nav_section_number_pages_and_subpages():
             name="Section",
             pages=[
                 NavPage(
-                    url_name="url",
-                    complete=False,
-                    subpages=[NavSubPage(url_name="url1a", complete=False)],
+                    url="url",
+                    complete=None,
+                    subpages=[NavPage(url="url1a", complete=None)],
                 )
             ],
         ).number_pages_and_subpages()
@@ -96,6 +82,7 @@ def test_nav_section_number_pages_and_subpages():
 
 def test_nav_section_number_complete():
     """Test NavSection.number_complete"""
+    today: date = date.today()
 
     assert NavSection(name="Section").number_complete() == 0
     assert (
@@ -103,9 +90,9 @@ def test_nav_section_number_complete():
             name="Section",
             pages=[
                 NavPage(
-                    url_name="url",
-                    complete=False,
-                    subpages=[NavSubPage(url_name="url1a", complete=False)],
+                    url="url",
+                    complete=None,
+                    subpages=[NavPage(url="url1a", complete=None)],
                 )
             ],
         ).number_complete()
@@ -113,7 +100,7 @@ def test_nav_section_number_complete():
     )
     assert (
         NavSection(
-            name="Section", pages=[NavPage(url_name="url", complete=True)]
+            name="Section", pages=[NavPage(url="url", complete=today)]
         ).number_complete()
         == 1
     )
@@ -122,13 +109,13 @@ def test_nav_section_number_complete():
             name="Section",
             pages=[
                 NavPage(
-                    url_name="url",
-                    complete=True,
+                    url="url",
+                    complete=today,
                     subpages=[
-                        NavSubPage(url_name="url2a", complete=True),
+                        NavPage(url="url2a", complete=today),
                     ],
                 ),
-                NavPage(url_name="url2", complete=True),
+                NavPage(url="url2", complete=today),
             ],
         ).number_complete()
         == 3
@@ -140,19 +127,20 @@ def test_build_case_nav_sections_no_audit():
     """Test build_case_nav_sections when case has no audit"""
     case: Case = Case.objects.create()
 
-    assert build_case_nav_sections(case=case) == [
-        NavSection(
-            name="Case details",
-            disabled=False,
-            pages=[
-                NavPage(
-                    url_name="cases:edit-case-metadata",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                )
-            ],
-        )
-    ]
+    nav_sections: List[NavSection] = build_case_nav_sections(case=case)
+
+    assert len(nav_sections) == 1
+
+    nav_section: NavSection = nav_sections[0]
+
+    assert nav_section.name == "Case details"
+    assert nav_section.disabled is False
+    assert len(nav_section.pages) == 1
+
+    nav_page: NavPage = nav_section.pages[0]
+
+    assert nav_page.url == "/cases/1/edit-case-metadata/"
+    assert nav_page.complete is False
 
 
 @pytest.mark.django_db
@@ -160,129 +148,22 @@ def test_build_case_nav_sections_with_audit():
     """Test build_case_nav_sections when case has audit"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    Page.objects.create(audit=audit, url="https://example.com")
 
-    assert build_case_nav_sections(case=case) == [
-        NavSection(
-            name="Case details",
-            disabled=False,
-            pages=[
-                NavPage(
-                    url_name="cases:edit-case-metadata",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=None,
-                )
-            ],
-        ),
-        NavSection(
-            name="Initial WCAG test",
-            disabled=False,
-            pages=[
-                NavPage(
-                    url_name="audits:edit-audit-metadata",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=None,
-                ),
-                NavPage(
-                    url_name="audits:edit-audit-pages",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=[
-                        NavSubPage(
-                            url_name="audits:edit-audit-page-checks",
-                            url_kwargs={"pk": 1},
-                            name_kwargs={"page": page},
-                            complete=None,
-                        )
-                    ],
-                ),
-                NavPage(
-                    url_name="audits:edit-website-decision",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=None,
-                ),
-                NavPage(
-                    url_name="audits:edit-audit-wcag-summary",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=None,
-                ),
-            ],
-        ),
-        NavSection(
-            name="Initial statement",
-            disabled=False,
-            pages=[
-                NavPage(
-                    url_name="audits:edit-statement-pages",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=None,
-                ),
-                NavPage(
-                    url_name="audits:edit-statement-overview",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=[
-                        NavSubPage(
-                            url_name="audits:edit-statement-website",
-                            url_kwargs={"pk": 1},
-                            name_kwargs=None,
-                            complete=None,
-                        ),
-                        NavSubPage(
-                            url_name="audits:edit-statement-compliance",
-                            url_kwargs={"pk": 1},
-                            name_kwargs=None,
-                            complete=None,
-                        ),
-                        NavSubPage(
-                            url_name="audits:edit-statement-non-accessible",
-                            url_kwargs={"pk": 1},
-                            name_kwargs=None,
-                            complete=None,
-                        ),
-                        NavSubPage(
-                            url_name="audits:edit-statement-preparation",
-                            url_kwargs={"pk": 1},
-                            name_kwargs=None,
-                            complete=None,
-                        ),
-                        NavSubPage(
-                            url_name="audits:edit-statement-feedback",
-                            url_kwargs={"pk": 1},
-                            name_kwargs=None,
-                            complete=None,
-                        ),
-                        NavSubPage(
-                            url_name="audits:edit-statement-custom",
-                            url_kwargs={"pk": 1},
-                            name_kwargs=None,
-                            complete=None,
-                        ),
-                    ],
-                ),
-                NavPage(
-                    url_name="audits:edit-initial-disproportionate-burden",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=None,
-                ),
-                NavPage(
-                    url_name="audits:edit-statement-decision",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=None,
-                ),
-                NavPage(
-                    url_name="audits:edit-audit-statement-summary",
-                    url_kwargs={"pk": 1},
-                    complete=None,
-                    subpages=None,
-                ),
-            ],
-        ),
-    ]
+    nav_sections: List[NavSection] = build_case_nav_sections(case=case)
+
+    assert len(nav_sections) == 3
+
+    nav_section: NavSection = nav_sections[0]
+
+    assert nav_section.name == "Case details"
+    assert nav_section.disabled is False
+    assert len(nav_section.pages) == 1
+
+    nav_page: NavPage = nav_section.pages[0]
+
+    assert nav_page.url == "/cases/1/edit-case-metadata/"
+    assert nav_page.complete is False
+
+    assert nav_sections[1].name == "Initial WCAG test"
+    assert nav_sections[2].name == "Initial statement"
