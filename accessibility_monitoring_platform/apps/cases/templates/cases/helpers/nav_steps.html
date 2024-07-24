@@ -15,15 +15,9 @@
             {% include './nav_step.html' with edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
             {% include './nav_step.html' with edit_name='cases:edit-report-approved' name='Report approved' complete=case.qa_auditor_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-publish-report' name='Publish report' complete=case.publish_report_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-find-contact-details' name='Find contact details' complete=case.find_contact_details_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-contact-details' name='Contact details' complete=case.contact_details_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-report-sent-on' name='Report sent on' complete=case.report_sent_on_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-one-week-followup' name='One week follow-up' complete=case.one_week_followup_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-four-week-followup' name='Four week follow-up' complete=case.four_week_followup_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-report-acknowledged' name='Report acknowledged' complete=case.report_acknowledged_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-12-week-update-requested' name='12-week update requested' complete=case.twelve_week_update_requested_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-one-week-followup-final' name='One week follow-up for final update' complete=case.one_week_followup_final_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-12-week-update-request-ack' name='12-week update request acknowledged' complete=case.twelve_week_update_request_ack_complete_date %}
+            <li>
+                {% include "cases/helpers/nav_details.html" with case_nav_sections=correspondence_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
+            </li>
             {% include './nav_step.html' with edit_name='cases:edit-cores-overview' name='Correspondence overview' complete=case.cores_overview_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-twelve-week-retest' name='12-week retest' complete=case.twelve_week_retest_complete_date %}
             <li>

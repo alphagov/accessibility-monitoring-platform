@@ -39,6 +39,9 @@ class CaseNavContextMixin:
             context["closing_the_case_nav_sections"] = (
                 build_closing_the_case_nav_sections(case=case)
             )
+            context["correspondence_nav_sections"] = build_correspondence_nav_sections(
+                case=case
+            )
 
         return context
 
@@ -100,6 +103,74 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                     url=reverse("cases:edit-case-metadata", kwargs=kwargs_case_pk),
                     complete=case.case_details_complete_date,
                 )
+            ],
+        ),
+    ]
+
+
+def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
+    """Return correspondence sections for navigation details elements"""
+    kwargs_case_pk: Dict[str, int] = {"pk": case.id}
+    return [
+        NavSection(
+            name="Contact details",
+            pages=[
+                NavPage(
+                    url=reverse(
+                        "cases:edit-find-contact-details", kwargs=kwargs_case_pk
+                    ),
+                    complete=case.find_contact_details_complete_date,
+                ),
+                NavPage(
+                    url=reverse("cases:edit-contact-details", kwargs=kwargs_case_pk),
+                    complete=case.contact_details_complete_date,
+                ),
+            ],
+        ),
+        NavSection(
+            name="Report correspondence",
+            pages=[
+                NavPage(
+                    url=reverse("cases:edit-report-sent-on", kwargs=kwargs_case_pk),
+                    complete=case.report_sent_on_complete_date,
+                ),
+                NavPage(
+                    url=reverse("cases:edit-one-week-followup", kwargs=kwargs_case_pk),
+                    complete=case.one_week_followup_complete_date,
+                ),
+                NavPage(
+                    url=reverse("cases:edit-four-week-followup", kwargs=kwargs_case_pk),
+                    complete=case.four_week_followup_complete_date,
+                ),
+                NavPage(
+                    url=reverse(
+                        "cases:edit-report-acknowledged", kwargs=kwargs_case_pk
+                    ),
+                    complete=case.report_acknowledged_complete_date,
+                ),
+            ],
+        ),
+        NavSection(
+            name="12-week correspondence",
+            pages=[
+                NavPage(
+                    url=reverse(
+                        "cases:edit-12-week-update-requested", kwargs=kwargs_case_pk
+                    ),
+                    complete=case.twelve_week_update_requested_complete_date,
+                ),
+                NavPage(
+                    url=reverse(
+                        "cases:edit-one-week-followup-final", kwargs=kwargs_case_pk
+                    ),
+                    complete=case.one_week_followup_final_complete_date,
+                ),
+                NavPage(
+                    url=reverse(
+                        "cases:edit-12-week-update-request-ack", kwargs=kwargs_case_pk
+                    ),
+                    complete=case.twelve_week_update_request_ack_complete_date,
+                ),
             ],
         ),
     ]
