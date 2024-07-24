@@ -25,6 +25,7 @@ from ..audits.forms import (
 from ..audits.utils import report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
+from ..common.case_nav import CaseNavContextMixin
 from ..common.models import Boolean, EmailTemplate
 from ..common.utils import (
     amp_format_date,
@@ -309,20 +310,13 @@ class CaseCreateView(CreateView):
         return url
 
 
-class CaseUpdateView(UpdateView):
+class CaseUpdateView(CaseNavContextMixin, UpdateView):
     """
     View to update case
     """
 
     model: Type[Case] = Case
     context_object_name: str = "case"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add case sections to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = self.object
-        context["case_sections"] = build_case_nav_sections(case=case)
-        return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
