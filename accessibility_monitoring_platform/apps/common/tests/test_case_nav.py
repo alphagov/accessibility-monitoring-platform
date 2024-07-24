@@ -12,7 +12,12 @@ from pytest_django.asserts import assertContains
 
 from ...audits.models import Audit, Page
 from ...cases.models import Case
-from ..case_nav import NavPage, NavSection, build_case_nav_sections
+from ..case_nav import (
+    NavPage,
+    NavSection,
+    build_case_nav_sections,
+    build_closing_the_case_nav_sections,
+)
 
 
 def test_case_nav_context_mixin_for_case(admin_client):
@@ -26,8 +31,8 @@ def test_case_nav_context_mixin_for_case(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "amp-nav-details")
-    assertContains(response, "Initial WCAG test")
+    assertContains(response, "Case details")
+    assertContains(response, "<b>Case metadata</b>")
 
 
 def test_case_nav_context_mixin_for_audit(admin_client):
@@ -167,3 +172,22 @@ def test_build_case_nav_sections_with_audit():
 
     assert nav_sections[1].name == "Initial WCAG test"
     assert nav_sections[2].name == "Initial statement"
+
+
+@pytest.mark.django_db
+def test_build_closing_the_case_nav_sections():
+    """Test build_case_nav_sections when case has audit"""
+    case: Case = Case.objects.create()
+
+    nav_sections: List[NavSection] = build_closing_the_case_nav_sections(case=case)
+
+    assert len(nav_sections) == 1
+
+    nav_section: NavSection = nav_sections[0]
+
+    assert nav_section.name == "Closing the case"
+    assert len(nav_section.pages) == 3
+
+    assert nav_section.pages[0].name == "Reviewing changes"
+    assert nav_section.pages[1].name == "Enforcement recommendation"
+    assert nav_section.pages[2].name == "Closing the case"

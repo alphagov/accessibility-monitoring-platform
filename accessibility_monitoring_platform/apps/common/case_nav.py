@@ -36,6 +36,9 @@ class CaseNavContextMixin:
 
         if case is not None:
             context["case_nav_sections"] = build_case_nav_sections(case=case)
+            context["closing_the_case_nav_sections"] = (
+                build_closing_the_case_nav_sections(case=case)
+            )
 
         return context
 
@@ -224,3 +227,29 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
             ],
         ),
     ] + audit_nav_sections
+
+
+def build_closing_the_case_nav_sections(case: Case) -> List[NavSection]:
+    """Return closing the case sections for navigation details elements"""
+    kwargs_case_pk: Dict[str, int] = {"pk": case.id}
+    return [
+        NavSection(
+            name="Closing the case",
+            pages=[
+                NavPage(
+                    url=reverse("cases:edit-review-changes", kwargs=kwargs_case_pk),
+                    complete=case.review_changes_complete_date,
+                ),
+                NavPage(
+                    url=reverse(
+                        "cases:edit-enforcement-recommendation", kwargs=kwargs_case_pk
+                    ),
+                    complete=case.enforcement_recommendation_complete_date,
+                ),
+                NavPage(
+                    url=reverse("cases:edit-case-close", kwargs=kwargs_case_pk),
+                    complete=case.case_close_complete_date,
+                ),
+            ],
+        ),
+    ]
