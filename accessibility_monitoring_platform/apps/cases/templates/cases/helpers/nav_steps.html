@@ -9,21 +9,19 @@
             {% include './nav_step.html' with edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
         </ul>
     {% else %}
-        <ul class="govuk-list">
+        <ul class="govuk-list amp-margin-bottom-5">
             {% include './nav_step.html' with edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
             {% include './nav_step.html' with edit_name='cases:edit-report-approved' name='Report approved' complete=case.qa_auditor_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-publish-report' name='Publish report' complete=case.publish_report_complete_date %}
-            <li>
-                {% include "cases/helpers/nav_details.html" with case_nav_sections=correspondence_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
-            </li>
+        </ul>
+        {% include "cases/helpers/nav_details.html" with case_nav_sections=correspondence_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
+        <ul class="govuk-list amp-margin-bottom-5">
             {% include './nav_step.html' with edit_name='cases:edit-cores-overview' name='Correspondence overview' complete=case.cores_overview_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-twelve-week-retest' name='12-week retest' complete=case.twelve_week_retest_complete_date %}
-            <li>
-                {% include "cases/helpers/nav_details.html" with case_nav_sections=closing_the_case_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
-            </li>
         </ul>
+        {% include "cases/helpers/nav_details.html" with case_nav_sections=closing_the_case_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
         <ul class="govuk-list">
             {% include './nav_step.html' with edit_name='cases:edit-statement-enforcement' name='Statement enforcement' %}
