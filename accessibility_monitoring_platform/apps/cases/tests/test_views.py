@@ -786,20 +786,20 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
         ),
-        ("cases:edit-find-contact-details", "<li>Find contact details</li>"),
-        ("cases:edit-contact-details", "<li>Contact details</li>"),
-        ("cases:edit-report-sent-on", "<li>Report sent on</li>"),
-        ("cases:edit-one-week-followup", "<li>One week follow-up</li>"),
-        ("cases:edit-four-week-followup", "<li>Four week follow-up</li>"),
-        ("cases:edit-report-acknowledged", "<li>Report acknowledged</li>"),
-        ("cases:edit-12-week-update-requested", "<li>12-week update requested</li>"),
+        ("cases:edit-find-contact-details", "<b>Find contact details</b>"),
+        ("cases:edit-contact-details", "<b>Contact details</b>"),
+        ("cases:edit-report-sent-on", "<b>Report sent on</b>"),
+        ("cases:edit-one-week-followup", "<b>One week follow-up</b>"),
+        ("cases:edit-four-week-followup", "<b>Four week follow-up</b>"),
+        ("cases:edit-report-acknowledged", "<b>Report acknowledged</b>"),
+        ("cases:edit-12-week-update-requested", "<b>12-week update requested</b>"),
         (
             "cases:edit-one-week-followup-final",
-            "<li>One week follow-up for final update</li>",
+            "<b>One week follow-up for final update</b>",
         ),
         (
             "cases:edit-12-week-update-request-ack",
-            "<li>12-week update request acknowledged</li>",
+            "<b>12-week update request acknowledged</b>",
         ),
         ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
         (
@@ -2063,6 +2063,46 @@ def test_no_anchor_section_complete_check_displayed(
         ("cases:edit-report-approved", "qa_auditor_complete_date", "Report approved"),
         ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
         (
+            "cases:edit-cores-overview",
+            "cores_overview_complete_date",
+            "Correspondence overview",
+        ),
+        (
+            "cases:edit-twelve-week-retest",
+            "twelve_week_retest_complete_date",
+            "12-week retest",
+        ),
+    ],
+)
+def test_section_complete_check_displayed_in_steps_platform_methodology(
+    step_url, flag_name, step_name, admin_client
+):
+    """
+    Test that the section complete tick is displayed in list of steps
+    when case testing methodology is platform
+    """
+    case: Case = Case.objects.create()
+    setattr(case, flag_name, TODAY)
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;',
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "step_url, flag_name, step_name",
+    [
+        ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
+        (
             "cases:edit-find-contact-details",
             "find_contact_details_complete_date",
             "Find contact details",
@@ -2103,46 +2143,6 @@ def test_no_anchor_section_complete_check_displayed(
             "twelve_week_update_request_ack_complete_date",
             "12-week update request acknowledged",
         ),
-        (
-            "cases:edit-cores-overview",
-            "cores_overview_complete_date",
-            "Correspondence overview",
-        ),
-        (
-            "cases:edit-twelve-week-retest",
-            "twelve_week_retest_complete_date",
-            "12-week retest",
-        ),
-    ],
-)
-def test_section_complete_check_displayed_in_steps_platform_methodology(
-    step_url, flag_name, step_name, admin_client
-):
-    """
-    Test that the section complete tick is displayed in list of steps
-    when case testing methodology is platform
-    """
-    case: Case = Case.objects.create()
-    setattr(case, flag_name, TODAY)
-    case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse(step_url, kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;',
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "step_url, flag_name, step_name",
-    [
-        ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
         (
             "cases:edit-review-changes",
             "review_changes_complete_date",
