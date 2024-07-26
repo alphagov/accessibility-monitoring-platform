@@ -71,24 +71,24 @@ class NavSection:
 
     def number_pages_and_subpages(self) -> int:
         if self.pages is not None:
-            counter: int = len(self.pages)
+            count: int = len(self.pages)
             for page in self.pages:
                 if page.subpages is not None:
-                    counter += len(page.subpages)
-            return counter
+                    count += len(page.subpages)
+            return count
         return 0
 
     def number_complete(self) -> int:
         if self.pages is not None:
-            counter: int = 0
+            count: int = 0
             for page in self.pages:
                 if page.complete:
-                    counter += 1
+                    count += 1
                 if page.subpages is not None:
-                    counter += len(
+                    count += len(
                         [subpage for subpage in page.subpages if subpage.complete]
                     )
-            return counter
+            return count
         return 0
 
 
