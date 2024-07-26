@@ -368,7 +368,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
 
     pre_statement_check_sections: List[ViewSection] = [
         build_view_section(
-            name="12-week test metadata",
+            name="12-week retest metadata",
             edit_url=reverse("audits:edit-audit-retest-metadata", kwargs=audit_pk),
             edit_url_id="edit-audit-retest-metadata",
             complete_date=audit.audit_retest_metadata_complete_date,

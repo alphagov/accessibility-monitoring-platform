@@ -358,7 +358,7 @@ def test_view_case_includes_tests(admin_client):
     assertContains(response, "Date of test")
     assertContains(response, "Initial statement compliance decision")
 
-    assertContains(response, "12-week test metadata")
+    assertContains(response, "12-week retest metadata")
     assertContains(response, "Date of retest")
 
 
@@ -2121,17 +2121,6 @@ def test_no_anchor_section_complete_check_displayed(
             "twelve_week_retest_complete_date",
             "12-week retest",
         ),
-        (
-            "cases:edit-review-changes",
-            "review_changes_complete_date",
-            "Reviewing changes",
-        ),
-        (
-            "cases:edit-enforcement-recommendation",
-            "enforcement_recommendation_complete_date",
-            "Enforcement recommendation",
-        ),
-        ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
     ],
 )
 def test_section_complete_check_displayed_in_steps_platform_methodology(
@@ -2162,6 +2151,17 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     "step_url, flag_name, step_name",
     [
         ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
+        (
+            "cases:edit-review-changes",
+            "review_changes_complete_date",
+            "Reviewing changes",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "enforcement_recommendation_complete_date",
+            "Enforcement recommendation",
+        ),
+        ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
     ],
 )
 def test_section_complete_check_displayed_in_nav_details(

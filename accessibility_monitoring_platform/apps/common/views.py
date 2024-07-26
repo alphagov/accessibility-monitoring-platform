@@ -52,7 +52,7 @@ from .models import (
     IssueReport,
     Platform,
 )
-from .page_title_utils import get_page_title
+from .page_name_utils import get_amp_page_name_by_url
 from .utils import (
     extract_domain_from_url,
     get_one_year_ago,
@@ -106,7 +106,7 @@ class IssueReportView(FormView):
     def get(self, request, *args, **kwargs):
         """Populate form"""
         page_url: str = self.request.GET.get("page_url", "")
-        page_title: str = get_page_title(page_url)
+        page_title: str = get_amp_page_name_by_url(page_url)
         description: str = self.request.GET.get("description", "")
         self.form: AMPIssueReportForm = self.form_class(
             {
