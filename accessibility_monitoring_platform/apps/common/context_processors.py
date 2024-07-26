@@ -2,7 +2,6 @@
 Context processors
 """
 
-from datetime import datetime, timedelta
 from typing import Dict, Union
 
 from django.conf import settings
@@ -11,7 +10,7 @@ from django.utils import timezone
 
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
 from ..common.page_name_utils import get_amp_page_name_by_request
-from ..common.utils import get_platform_settings
+from ..common.utils import SessionExpiry, get_platform_settings
 from ..notifications.utils import get_number_of_tasks
 from .forms import AMPTopMenuForm
 
@@ -24,13 +23,10 @@ def platform_page(
     name of prototype, platform settings and number of tasks.
     """
     platform: Platform = get_platform_settings()
-    today: datetime = timezone.now()
-    session_expiry: datetime = request.session.get_expiry_date()
 
     return {
         "today": timezone.now(),
-        "session_expiry": session_expiry,
-        "show_session_expiry_warning": today + timedelta(hours=12) > session_expiry,
+        "session_expiry": SessionExpiry(request=request),
         "top_menu_form": AMPTopMenuForm(),
         "platform": platform,
         "number_of_tasks": get_number_of_tasks(user=request.user),
