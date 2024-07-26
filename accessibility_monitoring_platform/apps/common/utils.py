@@ -20,7 +20,7 @@ from django_otp.plugins.otp_email.models import EmailDevice
 
 from .models import ChangeToPlatform, Event, Platform
 
-SESSION_EXPIRY_WARNING_WINDOW: timedelta = timedelta(hours=12000)
+SESSION_EXPIRY_WARNING_WINDOW: timedelta = timedelta(hours=12)
 
 
 class SessionExpiry:
