@@ -92,7 +92,18 @@ class NavSection:
 def build_case_nav_sections(case: Case) -> List[NavSection]:
     """Return list of case sections for navigation details elements"""
     kwargs_case_pk: Dict[str, int] = {"pk": case.id}
-    if case.audit is not None:
+    if case.audit is None:
+        audit_nav_sections: List[NavSection] = [
+            NavSection(
+                name="Initial WCAG test",
+                disabled=True,
+            ),
+            NavSection(
+                name="Initial statement",
+                disabled=True,
+            ),
+        ]
+    else:
         kwargs_audit_pk: Dict[str, int] = {"pk": case.audit.id}
         audit_nav_sections: List[NavSection] = [
             NavSection(
@@ -214,8 +225,6 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                 ],
             ),
         ]
-    else:
-        audit_nav_sections: List[NavSection] = []
     return [
         NavSection(
             name="Case details",
