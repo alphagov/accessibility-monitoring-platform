@@ -344,8 +344,8 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
         ),
         build_view_section(
             name="Test summary",
-            edit_url=reverse("audits:edit-audit-summary", kwargs=audit_pk),
-            edit_url_id="edit-audit-summary",
+            edit_url=reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk),
+            edit_url_id="edit-audit-wcag-summary",
             anchor="",
         ),
     ]

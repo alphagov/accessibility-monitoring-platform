@@ -58,42 +58,6 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
 ]
 
 
-@dataclass
-class NavSubPage:
-    name: str
-    url: str
-    complete: bool
-
-
-@dataclass
-class NavSection:
-    name: str
-    disabled: bool = False
-    subpages: Optional[List[NavSubPage]] = None
-
-    def number_complete(self) -> int:
-        if self.subpages is not None:
-            return len([subpage for subpage in self.subpages if subpage.complete])
-        return 0
-
-
-def build_case_nav_sections(case: Case) -> List[NavSection]:
-    """Return list of case sections for navigation details elements"""
-    kwargs_case_pk: Dict[str, int] = {"pk": case.id}
-    return [
-        NavSection(
-            name="Case details",
-            subpages=[
-                NavSubPage(
-                    name="Case metadata",
-                    url=reverse("cases:edit-case-metadata", kwargs=kwargs_case_pk),
-                    complete=case.case_details_complete_date,
-                )
-            ],
-        ),
-    ]
-
-
 def get_case_view_sections(case: Case) -> List[ViewSection]:
     """Get sections for case view"""
     get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)

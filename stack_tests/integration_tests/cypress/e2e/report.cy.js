@@ -43,7 +43,7 @@ describe('Report publisher', () => {
 
   it('can edit pages we checked', () => {
     cy.contains('Edit test > Pages').click()
-    cy.title().should('eq', 'ExampleCorp | Pages')
+    cy.title().should('eq', 'ExampleCorp | Add or remove pages')
   })
 
   it('can edit home page issues', () => {

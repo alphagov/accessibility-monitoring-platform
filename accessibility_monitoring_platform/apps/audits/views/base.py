@@ -14,6 +14,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ...cases.models import Case, CaseEvent
+from ...common.case_nav import CaseNavContextMixin
 from ...common.utils import (
     amp_format_date,
     get_url_parameters_for_pagination,
@@ -92,7 +93,7 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))
 
 
-class AuditUpdateView(UpdateView):
+class AuditUpdateView(CaseNavContextMixin, UpdateView):
     """
     View to update audit
     """
@@ -240,10 +241,10 @@ class WcagDefinitionListView(ListView):
             return WcagDefinition.objects.none()
 
         if hasattr(self.wcag_definition_search_form, "cleaned_data"):
-            search_str: Optional[
-                str
-            ] = self.wcag_definition_search_form.cleaned_data.get(
-                "wcag_definition_search"
+            search_str: Optional[str] = (
+                self.wcag_definition_search_form.cleaned_data.get(
+                    "wcag_definition_search"
+                )
             )
 
             if search_str:
@@ -333,10 +334,10 @@ class StatementCheckListView(ListView):
             return StatementCheck.objects.none()
 
         if hasattr(self.statement_check_search_form, "cleaned_data"):
-            search_str: Optional[
-                str
-            ] = self.statement_check_search_form.cleaned_data.get(
-                "statement_check_search"
+            search_str: Optional[str] = (
+                self.statement_check_search_form.cleaned_data.get(
+                    "statement_check_search"
+                )
             )
 
             if search_str:

@@ -35,6 +35,37 @@ def test_case_nav_context_mixin_for_case(admin_client):
     assertContains(response, "<b>Case metadata</b>")
 
 
+def test_case_nav_context_mixin_for_audit(admin_client):
+    """Test case nav context mixin populates context correctly"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "amp-nav-details")
+    assertContains(response, "Initial WCAG test")
+
+
+def test_case_nav_context_mixin_for_page(admin_client):
+    """Test case nav context mixin populates context correctly"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs={"pk": page.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "amp-nav-details")
+    assertContains(response, "Initial WCAG test")
+
+
 def test_nav_section_number_pages_and_subpages():
     """Test NavSection.number_pages_and_subpages"""
 
@@ -103,7 +134,7 @@ def test_build_case_nav_sections_no_audit():
 
     nav_sections: List[NavSection] = build_case_nav_sections(case=case)
 
-    assert len(nav_sections) == 1
+    assert len(nav_sections) == 3
 
     nav_section: NavSection = nav_sections[0]
 
@@ -115,6 +146,37 @@ def test_build_case_nav_sections_no_audit():
 
     assert nav_page.url == "/cases/1/edit-case-metadata/"
     assert nav_page.complete is False
+
+    assert nav_sections[1].name == "Initial WCAG test"
+    assert nav_sections[1].disabled is True
+    assert nav_sections[2].name == "Initial statement"
+    assert nav_sections[2].disabled is True
+
+
+@pytest.mark.django_db
+def test_build_case_nav_sections_with_audit():
+    """Test build_case_nav_sections when case has audit"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(audit=audit, url="https://example.com")
+
+    nav_sections: List[NavSection] = build_case_nav_sections(case=case)
+
+    assert len(nav_sections) == 3
+
+    nav_section: NavSection = nav_sections[0]
+
+    assert nav_section.name == "Case details"
+    assert nav_section.disabled is False
+    assert len(nav_section.pages) == 1
+
+    nav_page: NavPage = nav_section.pages[0]
+
+    assert nav_page.url == "/cases/1/edit-case-metadata/"
+    assert nav_page.complete is False
+
+    assert nav_sections[1].name == "Initial WCAG test"
+    assert nav_sections[2].name == "Initial statement"
 
 
 @pytest.mark.django_db

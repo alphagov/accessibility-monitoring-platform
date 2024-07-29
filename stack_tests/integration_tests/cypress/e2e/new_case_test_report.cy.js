@@ -37,10 +37,10 @@ describe('Create case, tests and report', () => {
     cy.contains('This case does not have a test. Click Start test to move to the testing environment.')
     cy.contains('.govuk-button', 'Start test').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Test metadata`)
+    cy.title().should('eq', `${newOrganisationName} | Initial test metadata`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Pages`)
+    cy.title().should('eq', `${newOrganisationName} | Add or remove pages`)
     cy.get('[name="standard-1-not_found"]').check()
     cy.get('[name="standard-4-url').type(newAccessibilityStatementURL)
     cy.contains('Save and continue').click()
@@ -57,7 +57,7 @@ describe('Create case, tests and report', () => {
     cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Statement links`)
+    cy.title().should('eq', `${newOrganisationName} | Initial statement links`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Statement overview`)

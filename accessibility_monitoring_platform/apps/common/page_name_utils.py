@@ -34,13 +34,13 @@ class PageName:
 ALL_PAGE_NAMES: Dict[str, PageName] = {
     "audits:audit-detail": PageName("View test"),
     "audits:audit-retest-detail": PageName("View 12-week retest"),
-    "audits:edit-audit-metadata": PageName("Test metadata"),
+    "audits:edit-audit-metadata": PageName("Initial test metadata"),
     "audits:edit-audit-page-checks": PageName(
         "{page.page_title} test",
         page_object_name="page",
         page_object_class=Page,
     ),
-    "audits:edit-audit-pages": PageName("Pages"),
+    "audits:edit-audit-pages": PageName("Add or remove pages"),
     "audits:edit-audit-report-options": PageName("Report options"),
     "audits:edit-audit-retest-metadata": PageName("12-week retest metadata"),
     "audits:edit-audit-retest-page-checks": PageName(
@@ -65,7 +65,8 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     ),
     "audits:edit-audit-statement-1": PageName("Accessibility statement Pt. 1"),
     "audits:edit-audit-statement-2": PageName("Accessibility statement Pt. 2"),
-    "audits:edit-audit-summary": PageName("Test summary"),
+    "audits:edit-audit-statement-summary": PageName("Test summary"),
+    "audits:edit-audit-wcag-summary": PageName("Test summary"),
     "audits:edit-equality-body-disproportionate-burden": PageName(
         "Disproportionate burden"
     ),
@@ -112,7 +113,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "audits:edit-statement-feedback": PageName("Feedback and enforcement procedure"),
     "audits:edit-statement-non-accessible": PageName("Non-accessible content"),
     "audits:edit-statement-overview": PageName("Statement overview"),
-    "audits:edit-statement-pages": PageName("Statement links"),
+    "audits:edit-statement-pages": PageName("Initial statement links"),
     "audits:edit-statement-preparation": PageName("Statement preparation"),
     "audits:edit-statement-website": PageName("Statement information"),
     "audits:edit-twelve-week-disproportionate-burden": PageName(

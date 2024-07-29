@@ -14,6 +14,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
 from ...cases.models import Contact
+from ...common.case_nav import CaseNavContextMixin
 from ...common.form_extract_utils import extract_form_labels_and_values
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.utils import (
@@ -41,8 +42,9 @@ from ..forms import (
     AuditStatementOverviewUpdateForm,
     AuditStatementPagesUpdateForm,
     AuditStatementPreparationUpdateForm,
+    AuditStatementSummaryUpdateForm,
     AuditStatementWebsiteUpdateForm,
-    AuditSummaryUpdateForm,
+    AuditWcagSummaryUpdateForm,
     AuditWebsiteDecisionUpdateForm,
     CaseComplianceStatementInitialUpdateForm,
     CaseComplianceWebsiteInitialUpdateForm,
@@ -129,7 +131,7 @@ class AuditDetailView(DetailView):
         }
 
 
-class AuditMetadataUpdateView(AuditUpdateView):
+class AuditMetadataUpdateView(AuditUpdateView, CaseNavContextMixin):
     """
     View to update audit metadata
     """
@@ -256,7 +258,7 @@ class AuditPagesUpdateView(AuditUpdateView):
         return url
 
 
-class AuditPageChecksFormView(FormView):
+class AuditPageChecksFormView(CaseNavContextMixin, FormView):
     """
     View to update check results for a page
     """
@@ -283,6 +285,7 @@ class AuditPageChecksFormView(FormView):
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
+        context["case"] = self.page.audit.case
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
@@ -636,7 +639,7 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-audit-summary", kwargs=audit_pk)
+            return reverse("audits:edit-audit-statement-summary", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -711,7 +714,7 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-audit-summary", kwargs=audit_pk)
+            return reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -719,9 +722,6 @@ class AuditSummaryUpdateView(AuditUpdateView):
     """
     View to update audit summary
     """
-
-    form_class: Type[AuditSummaryUpdateForm] = AuditSummaryUpdateForm
-    template_name: str = "audits/forms/summary.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -749,6 +749,31 @@ class AuditSummaryUpdateView(AuditUpdateView):
         ) + get_audit_rows(form=ArchiveAuditStatement2UpdateForm())
 
         return context
+
+
+class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
+    """
+    View to update audit summary
+    """
+
+    form_class: Type[AuditWcagSummaryUpdateForm] = AuditWcagSummaryUpdateForm
+    template_name: str = "audits/forms/wcag_summary.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit: Audit = self.object
+            return reverse("audits:edit-statement-pages", kwargs={"pk": audit.id})
+        return super().get_success_url()
+
+
+class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
+    """
+    View to update audit summary
+    """
+
+    form_class: Type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm
+    template_name: str = "audits/forms/statement_summary.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

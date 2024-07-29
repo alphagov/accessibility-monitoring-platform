@@ -13,11 +13,6 @@
     </div>
     {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
-            </div>
-        </div>
         {% if case.audit %}
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-one-third">
@@ -25,6 +20,7 @@
                     {% include 'cases/helpers/nav_steps.html' %}
                 </div>
                 <div class="govuk-grid-column-two-thirds">
+                    {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
                     {% include 'cases/helpers/email_templates.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
@@ -61,8 +57,8 @@
                                 </a>
                             </li>
                         {% endif %}
+                        </ul>
                     {% endif %}
-                    </ul>
                     {% if not case.audit.uses_statement_checks or case.audit.outstanding_statement_check_results %}
                         <h3 class="govuk-heading-m">Statement</h3>
                     {% endif %}
@@ -284,6 +280,7 @@
                 </div>
             </div>
         {% else %}
+            {% include "cases/helpers/edit_header.html" with page_heading='Outstanding issues' %}
             <h2 class="govuk-heading-l">Overview</h2>
             <p class="govuk-body">
                 This is a new case and does not have any test data.

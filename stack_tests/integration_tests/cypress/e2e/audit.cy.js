@@ -21,8 +21,7 @@ describe('View test', () => {
     cy.get('[name="exemptions_notes"]').clear().type(exemptionsNote)
     cy.get('[name="audit_metadata_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Test$/).click()
-    cy.title().should('eq', 'ExampleCorp | View test')
+    cy.visit('/audits/1/detail')
     cy.contains(exemptionsNote)
   })
 
@@ -35,12 +34,12 @@ describe('View test', () => {
 
   it('can edit a page', () => {
     cy.get('#edit-audit-pages').click()
-    cy.get('[data-cy="nav-step"]').contains('Home').click()
+    cy.contains(/^Home page test$/).click()
     cy.get('[name="form-0-check_result_state"]').check('error')
     cy.get('[name="form-0-notes"]').clear().type(errorText)
     cy.get('[name="complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Test$/).click()
+    cy.visit('/audits/1/detail')
     cy.contains(errorText)
   })
 
@@ -50,7 +49,7 @@ describe('View test', () => {
     cy.get('[name="case-compliance-website_compliance_notes_initial"]').clear().type(websiteComplianceNote)
     cy.get('[name="audit_website_decision_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Test$/).click()
+    cy.visit('/audits/1/detail')
     cy.contains(websiteComplianceNote)
   })
 
@@ -62,7 +61,6 @@ describe('View test', () => {
     cy.get('[name="archive_disproportionate_burden_state"]').check('assessment')
     cy.get('[name="archive_audit_statement_2_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Test$/).click()
   })
 
   it('can edit accessibility statement compliance decision', () => {
@@ -71,7 +69,7 @@ describe('View test', () => {
     cy.get('[name="case-compliance-statement_compliance_notes_initial"]').clear().type(accessibilityStatementComplianceNote)
     cy.get('[name="audit_statement_decision_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Test$/).click()
+    cy.visit('/audits/1/detail')
     cy.contains(accessibilityStatementComplianceNote)
   })
 
@@ -83,13 +81,13 @@ describe('View test', () => {
     cy.get('[name="archive_report_options_notes"]').clear().type(reportOptionsNote)
     cy.get('[name="archive_audit_report_options_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Test$/).click()
+    cy.visit('/audits/1/detail')
     cy.contains(reportOptionsNote)
   })
 
   it('can edit test summary', () => {
-    cy.get('#edit-audit-summary').click()
-    cy.get('[name="audit_summary_complete_date"]').click()
+    cy.get('#edit-audit-wcag-summary').click()
+    cy.get('[name="audit_wcag_summary_complete_date"]').click()
     cy.contains('Save').click()
   })
 })
