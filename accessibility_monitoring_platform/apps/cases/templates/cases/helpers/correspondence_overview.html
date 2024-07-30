@@ -61,7 +61,7 @@
         {% else %}
             Not sent
         {% endif %}
-        (<a href="{% url 'cases:edit-find-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+        (<a href="{% url 'cases:edit-request-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
     </p>
 </div>
 
@@ -73,7 +73,7 @@
         {% else %}
             Not sent
         {% endif %}
-        (<a href="{% url 'cases:edit-find-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+        (<a href="{% url 'cases:edit-one-week-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
     </p>
 </div>
 
@@ -85,7 +85,7 @@
         {% else %}
             Not sent
         {% endif %}
-        (<a href="{% url 'cases:edit-find-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+        (<a href="{% url 'cases:edit-four-week-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
     </p>
 </div>
 

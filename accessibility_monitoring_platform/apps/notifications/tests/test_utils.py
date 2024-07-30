@@ -699,7 +699,7 @@ def test_build_overdue_task_options_report_ready():
     case.status.status = CaseStatus.Status.REPORT_READY_TO_SEND
     option: Option = Option(
         label="No contact details response overdue",
-        url=reverse("cases:edit-find-contact-details", kwargs={"pk": case.id}),
+        url=reverse("cases:edit-request-contact-details", kwargs={"pk": case.id}),
     )
 
     assert build_overdue_task_options(case=case) == [option]

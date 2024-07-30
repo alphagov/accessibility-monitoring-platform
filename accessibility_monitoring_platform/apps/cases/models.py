@@ -242,32 +242,47 @@ class Case(VersionModel):
     zendesk_url = models.TextField(default="", blank=True)
     cores_overview_complete_date = models.DateField(null=True, blank=True)
 
-    # Find contact details page
+    # Add contact details page
+    contact_notes = models.TextField(default="", blank=True)
+    contact_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Find contact details page - Removed from UI
     contact_details_found = models.CharField(
         max_length=20,
         choices=ContactDetailsFound.choices,
         default=ContactDetailsFound.NOT_CHECKED,
     )
+
+    # Request contact details page
     seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
     seven_day_no_contact_request_sent_to = models.CharField(
         max_length=200, default="", blank=True
     )
+    request_contact_details_complete_date = models.DateField(null=True, blank=True)
+
+    # One week contact details page
     no_contact_one_week_chaser_due_date = models.DateField(null=True, blank=True)
     no_contact_one_week_chaser_sent_date = models.DateField(null=True, blank=True)
     no_contact_one_week_chaser_sent_to = models.CharField(
         max_length=200, default="", blank=True
     )
+    one_week_contact_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Four week contact details page
     no_contact_four_week_chaser_due_date = models.DateField(null=True, blank=True)
     no_contact_four_week_chaser_sent_date = models.DateField(null=True, blank=True)
     no_contact_four_week_chaser_sent_to = models.CharField(
         max_length=200, default="", blank=True
     )
     correspondence_notes = models.TextField(default="", blank=True)
-    find_contact_details_complete_date = models.DateField(null=True, blank=True)
+    four_week_contact_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Contact details page
-    contact_notes = models.TextField(default="", blank=True)
-    contact_details_complete_date = models.DateField(null=True, blank=True)
+    # Unresponsive PSB page
+    no_psb_contact = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    no_psb_contact_notes = models.TextField(default="", blank=True)
+    no_psb_contact_complete_date = models.DateField(null=True, blank=True)
 
     # Report sent on page
     report_sent_date = models.DateField(null=True, blank=True)
@@ -337,12 +352,6 @@ class Case(VersionModel):
 
     # Report correspondence page
     report_correspondence_complete_date = models.DateField(null=True, blank=True)
-
-    # Unable to send report or no response from public sector body page
-    no_psb_contact = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
-    no_psb_contact_notes = models.TextField(default="", blank=True)
 
     # 12-week correspondence page
     twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)

@@ -786,8 +786,10 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
         ),
-        ("cases:edit-find-contact-details", "<b>Find contact details</b>"),
-        ("cases:edit-contact-details", "<b>Contact details</b>"),
+        ("cases:edit-contact-details", "<b>Add contact details</b>"),
+        ("cases:edit-request-contact-details", "<b>Request contact details</b>"),
+        ("cases:edit-one-week-contact-details", "<b>One-week follow-up</b>"),
+        ("cases:edit-four-week-contact-details", "<b>Four-week follow-up</b>"),
         ("cases:edit-report-sent-on", "<b>Report sent on</b>"),
         ("cases:edit-one-week-followup", "<b>One week follow-up</b>"),
         ("cases:edit-four-week-followup", "<b>Four week follow-up</b>"),
@@ -1126,16 +1128,46 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-publish-report",
             "save_continue",
-            "cases:edit-find-contact-details",
-        ),
-        ("cases:edit-find-contact-details", "save", "cases:edit-find-contact-details"),
-        (
-            "cases:edit-find-contact-details",
-            "save_continue",
             "cases:edit-contact-details",
         ),
         ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
-        ("cases:edit-contact-details", "save_continue", "cases:edit-report-sent-on"),
+        (
+            "cases:edit-contact-details",
+            "save_continue",
+            "cases:edit-request-contact-details",
+        ),
+        (
+            "cases:edit-request-contact-details",
+            "save",
+            "cases:edit-request-contact-details",
+        ),
+        (
+            "cases:edit-request-contact-details",
+            "save_continue",
+            "cases:edit-one-week-contact-details",
+        ),
+        (
+            "cases:edit-one-week-contact-details",
+            "save",
+            "cases:edit-one-week-contact-details",
+        ),
+        (
+            "cases:edit-one-week-contact-details",
+            "save_continue",
+            "cases:edit-four-week-contact-details",
+        ),
+        (
+            "cases:edit-four-week-contact-details",
+            "save",
+            "cases:edit-four-week-contact-details",
+        ),
+        (
+            "cases:edit-four-week-contact-details",
+            "save_continue",
+            "cases:edit-no-psb-response",
+        ),
+        ("cases:edit-no-psb-response", "save", "cases:edit-no-psb-response"),
+        ("cases:edit-no-psb-response", "save_continue", "cases:edit-report-sent-on"),
         ("cases:edit-report-sent-on", "save", "cases:edit-report-sent-on"),
         ("cases:edit-report-sent-on", "save_continue", "cases:edit-one-week-followup"),
         ("cases:edit-one-week-followup", "save", "cases:edit-one-week-followup"),
@@ -1185,11 +1217,6 @@ def test_updating_case_creates_case_event(admin_client):
             "cases:edit-12-week-update-request-ack",
             "save_continue",
             "cases:edit-cores-overview",
-        ),
-        (
-            "cases:edit-no-psb-response",
-            "save",
-            "cases:edit-find-contact-details",
         ),
         ("cases:edit-cores-overview", "save", "cases:edit-cores-overview"),
         (
@@ -1358,7 +1385,7 @@ def test_no_contact_chaser_dates_set(
     assert case.no_contact_four_week_chaser_due_date is None
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-find-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-request-contact-details", kwargs={"pk": case.id}),
         {
             "seven_day_no_contact_email_sent_date_0": TODAY.day,
             "seven_day_no_contact_email_sent_date_1": TODAY.month,
@@ -1927,9 +1954,19 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
         ("qa_auditor_complete_date", "Report approved", "edit-report-approved"),
         (
-            "find_contact_details_complete_date",
-            "Find contact details",
-            "edit-find-contact-details",
+            "request_contact_details_complete_date",
+            "Request contact details",
+            "edit-request-contact-details",
+        ),
+        (
+            "one_week_contact_details_complete_date",
+            "One-week follow-up contact details",
+            "edit-one-week-contact-details",
+        ),
+        (
+            "four_week_contact_details_complete_date",
+            "Four-week follow-up contact details",
+            "edit-four-week-contact-details",
         ),
         ("contact_details_complete_date", "Contact details", "edit-contact-details"),
         ("report_sent_on_complete_date", "Report sent on", "edit-report-sent-on"),
@@ -2103,14 +2140,24 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     [
         ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
         (
-            "cases:edit-find-contact-details",
-            "find_contact_details_complete_date",
-            "Find contact details",
-        ),
-        (
             "cases:edit-contact-details",
             "contact_details_complete_date",
-            "Contact details",
+            "Add contact details",
+        ),
+        (
+            "cases:edit-request-contact-details",
+            "request_contact_details_complete_date",
+            "Request contact details",
+        ),
+        (
+            "cases:edit-one-week-contact-details",
+            "one_week_contact_details_complete_date",
+            "One-week follow-up",
+        ),
+        (
+            "cases:edit-four-week-contact-details",
+            "four_week_contact_details_complete_date",
+            "Four-week follow-up",
         ),
         ("cases:edit-report-sent-on", "report_sent_on_complete_date", "Report sent on"),
         (
@@ -3106,11 +3153,19 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "cases:edit-cores-overview",
             "Correspondence overview",
         ),
+        ("cases:edit-contact-details", "Add contact details"),
         (
-            "cases:edit-find-contact-details",
-            "Find contact details",
+            "cases:edit-request-contact-details",
+            "Request contact details",
         ),
-        ("cases:edit-contact-details", "Contact details"),
+        (
+            "cases:edit-one-week-contact-details",
+            "One-week follow-up",
+        ),
+        (
+            "cases:edit-four-week-contact-details",
+            "Four-week follow-up",
+        ),
         ("cases:edit-report-sent-on", "Report sent on"),
         (
             "cases:edit-one-week-followup",
@@ -3948,7 +4003,7 @@ def test_zendesk_tickets_shown(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:edit-find-contact-details",
+            "cases:edit-request-contact-details",
             kwargs={"pk": case.id},
         )
     )

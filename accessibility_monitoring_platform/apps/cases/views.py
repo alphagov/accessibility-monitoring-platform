@@ -12,7 +12,7 @@ from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import URLResolver, resolve, reverse
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -66,10 +66,11 @@ from .forms import (
     CaseDeactivateForm,
     CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
-    CaseFindContactDetailsUpdateForm,
+    CaseFourWeekContactDetailsUpdateForm,
     CaseFourWeekFollowupUpdateForm,
     CaseMetadataUpdateForm,
     CaseNoPSBContactUpdateForm,
+    CaseOneWeekContactDetailsUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseOneWeekFollowupUpdateForm,
     CasePublishReportUpdateForm,
@@ -78,6 +79,7 @@ from .forms import (
     CaseReportApprovedUpdateForm,
     CaseReportDetailsUpdateForm,
     CaseReportSentOnUpdateForm,
+    CaseRequestContactDetailsUpdateForm,
     CaseReviewChangesUpdateForm,
     CaseSearchForm,
     CaseStatementEnforcementUpdateForm,
@@ -498,42 +500,6 @@ class CasePublishReportUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
-            return reverse(
-                "cases:edit-find-contact-details", kwargs={"pk": self.object.id}
-            )
-        return super().get_success_url()
-
-
-class CaseFindContactDetailsUpdateView(CaseUpdateView):
-    """
-    View to update Find contact details
-    """
-
-    form_class: Type[CaseFindContactDetailsUpdateForm] = (
-        CaseFindContactDetailsUpdateForm
-    )
-    template_name: str = "cases/forms/find_contact_details.html"
-
-    def form_valid(self, form: CaseReportSentOnUpdateForm):
-        """
-        Recalculate followup dates if report sent date has changed;
-        Otherwise set sent dates based on followup date checkboxes.
-        """
-        self.object: Case = form.save(commit=False)
-        if "seven_day_no_contact_email_sent_date" in form.changed_data:
-            self.object = calculate_no_contact_chaser_dates(
-                case=self.object,
-                seven_day_no_contact_email_sent_date=form.cleaned_data[
-                    "seven_day_no_contact_email_sent_date"
-                ],
-            )
-        return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """
-        Detect the submit button used and act accordingly.
-        """
-        if "save_continue" in self.request.POST:
             return reverse("cases:edit-contact-details", kwargs={"pk": self.object.id})
         return super().get_success_url()
 
@@ -596,7 +562,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if "save" in self.request.POST:
             return super().get_success_url()
         elif "save_continue" in self.request.POST:
-            return reverse("cases:edit-report-sent-on", kwargs=case_pk)
+            return reverse("cases:edit-request-contact-details", kwargs=case_pk)
         elif "add_contact" in self.request.POST:
             return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true#contact-None"
         else:
@@ -607,6 +573,94 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                 return reverse("cases:edit-contact-details", kwargs=case_pk)
             else:
                 return reverse("cases:case-detail", kwargs=case_pk)
+
+
+class CaseRequestContactDetailsUpdateView(CaseUpdateView):
+    """
+    View to update Request contact details
+    """
+
+    form_class: Type[CaseRequestContactDetailsUpdateForm] = (
+        CaseRequestContactDetailsUpdateForm
+    )
+    template_name: str = "cases/forms/request_initial_contact.html"
+
+    def form_valid(self, form: CaseReportSentOnUpdateForm):
+        """
+        Recalculate followup dates if report sent date has changed;
+        Otherwise set sent dates based on followup date checkboxes.
+        """
+        self.object: Case = form.save(commit=False)
+        if "seven_day_no_contact_email_sent_date" in form.changed_data:
+            self.object = calculate_no_contact_chaser_dates(
+                case=self.object,
+                seven_day_no_contact_email_sent_date=form.cleaned_data[
+                    "seven_day_no_contact_email_sent_date"
+                ],
+            )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-one-week-contact-details", kwargs={"pk": self.object.id}
+            )
+        return super().get_success_url()
+
+
+class CaseOneWeekContactDetailsUpdateView(CaseUpdateView):
+    """
+    View to update One week contact details
+    """
+
+    form_class: Type[CaseOneWeekContactDetailsUpdateForm] = (
+        CaseOneWeekContactDetailsUpdateForm
+    )
+    template_name: str = "cases/forms/one_week_followup_contact.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["current_url"] = "cases:edit-one-week-contact-details"
+        return context
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse(
+                "cases:edit-four-week-contact-details", kwargs={"pk": self.object.id}
+            )
+        return super().get_success_url()
+
+
+class CaseFourWeekContactDetailsUpdateView(CaseUpdateView):
+    """
+    View to update Four week contact details
+    """
+
+    form_class: Type[CaseFourWeekContactDetailsUpdateForm] = (
+        CaseFourWeekContactDetailsUpdateForm
+    )
+    template_name: str = "cases/forms/four_week_followup_contact.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["current_url"] = "cases:edit-four-week-contact-details"
+        return context
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse("cases:edit-no-psb-response", kwargs={"pk": self.object.id})
+        return super().get_success_url()
 
 
 class CaseReportSentOnUpdateView(CaseUpdateView):
@@ -808,9 +862,11 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         """Work out url to redirect to on success"""
         case: Case = self.object
         case_pk: Dict[str, int] = {"pk": case.id}
-        if case.no_psb_contact == Boolean.YES:
-            return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
-        return reverse("cases:edit-find-contact-details", kwargs=case_pk)
+        if "save_continue" in self.request.POST:
+            if case.no_psb_contact == Boolean.YES:
+                return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
+            return reverse("cases:edit-report-sent-on", kwargs=case_pk)
+        return super().get_success_url()
 
 
 class CaseTwelveWeekRetestUpdateView(CaseUpdateView):

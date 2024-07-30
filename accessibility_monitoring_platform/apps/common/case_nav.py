@@ -116,14 +116,30 @@ def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
             name="Contact details",
             pages=[
                 NavPage(
-                    url=reverse(
-                        "cases:edit-find-contact-details", kwargs=kwargs_case_pk
-                    ),
-                    complete=case.find_contact_details_complete_date,
-                ),
-                NavPage(
                     url=reverse("cases:edit-contact-details", kwargs=kwargs_case_pk),
                     complete=case.contact_details_complete_date,
+                ),
+                NavPage(
+                    url=reverse(
+                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                    ),
+                    complete=case.request_contact_details_complete_date,
+                ),
+                NavPage(
+                    url=reverse(
+                        "cases:edit-one-week-contact-details", kwargs=kwargs_case_pk
+                    ),
+                    complete=case.one_week_contact_details_complete_date,
+                ),
+                NavPage(
+                    url=reverse(
+                        "cases:edit-four-week-contact-details", kwargs=kwargs_case_pk
+                    ),
+                    complete=case.four_week_contact_details_complete_date,
+                ),
+                NavPage(
+                    url=reverse("cases:edit-no-psb-response", kwargs=kwargs_case_pk),
+                    complete=case.no_psb_contact_complete_date,
                 ),
             ],
         ),

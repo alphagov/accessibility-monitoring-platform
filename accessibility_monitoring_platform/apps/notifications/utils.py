@@ -196,7 +196,9 @@ def build_overdue_task_options(case: Case) -> List[Option]:
         return [
             Option(
                 label="No contact details response overdue",
-                url=reverse("cases:edit-find-contact-details", kwargs=kwargs_case_pk),
+                url=reverse(
+                    "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                ),
             )
         ]
     if case.status.status == CaseStatus.Status.IN_REPORT_CORES:

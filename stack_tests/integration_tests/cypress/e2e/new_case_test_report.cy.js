@@ -124,10 +124,19 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Publish report`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Find contact details`)
+    cy.title().should('eq', `${newOrganisationName} | Add contact details`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Contact details`)
+    cy.title().should('eq', `${newOrganisationName} | Request contact details`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | One-week follow-up`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Four-week follow-up`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Unresponsive PSB`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report sent on`)

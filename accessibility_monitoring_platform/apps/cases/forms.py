@@ -368,22 +368,36 @@ class CaseCorrespondenceOverviewUpdateForm(VersionForm):
         ]
 
 
-class CaseFindContactDetailsUpdateForm(VersionForm):
+class CaseRequestContactDetailsUpdateForm(VersionForm):
     """
     Form to update Find contact details
     """
 
-    contact_details_found = AMPChoiceRadioField(
-        label="Contact details found?",
-        help_text="If no contact details found, send ‘no contact details’ email to any contact on the website",
-        choices=Case.ContactDetailsFound.choices,
-    )
     seven_day_no_contact_email_sent_date = AMPDateField(
         label="No contact details request sent",
     )
     seven_day_no_contact_request_sent_to = AMPCharFieldWide(
         label="Initial request sent to"
     )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
+    request_contact_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "seven_day_no_contact_email_sent_date",
+            "seven_day_no_contact_request_sent_to",
+            "correspondence_notes",
+            "request_contact_details_complete_date",
+        ]
+
+
+class CaseOneWeekContactDetailsUpdateForm(VersionForm):
+    """
+    Form to update One week contact details
+    """
+
     no_contact_one_week_chaser_sent_date = AMPDateField(
         label="No contact details 1-week chaser sent date",
     )
@@ -391,6 +405,26 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
         label="No contact details 1-week chaser due date"
     )
     no_contact_one_week_chaser_sent_to = AMPCharFieldWide(label="1-week chaser sent to")
+    correspondence_notes = AMPTextField(label="Correspondence notes")
+    one_week_contact_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "no_contact_one_week_chaser_sent_date",
+            "no_contact_one_week_chaser_due_date",
+            "no_contact_one_week_chaser_sent_to",
+            "correspondence_notes",
+            "one_week_contact_details_complete_date",
+        ]
+
+
+class CaseFourWeekContactDetailsUpdateForm(VersionForm):
+    """
+    Form to update Four week contact details
+    """
+
     no_contact_four_week_chaser_sent_date = AMPDateField(
         label="No contact details 4-week chaser sent date",
     )
@@ -401,23 +435,17 @@ class CaseFindContactDetailsUpdateForm(VersionForm):
         label="4-week chaser sent to"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
-    find_contact_details_complete_date = AMPDatePageCompleteField()
+    four_week_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "contact_details_found",
-            "seven_day_no_contact_email_sent_date",
-            "seven_day_no_contact_request_sent_to",
-            "no_contact_one_week_chaser_sent_date",
-            "no_contact_one_week_chaser_due_date",
-            "no_contact_one_week_chaser_sent_to",
             "no_contact_four_week_chaser_sent_date",
             "no_contact_four_week_chaser_due_date",
             "no_contact_four_week_chaser_sent_to",
             "correspondence_notes",
-            "find_contact_details_complete_date",
+            "four_week_contact_details_complete_date",
         ]
 
 
@@ -713,6 +741,7 @@ class CaseNoPSBContactUpdateForm(VersionForm):
     no_psb_contact_notes = AMPTextField(
         label="Public sector body is unresponsive notes"
     )
+    no_psb_contact_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -720,6 +749,7 @@ class CaseNoPSBContactUpdateForm(VersionForm):
             "version",
             "no_psb_contact",
             "no_psb_contact_notes",
+            "no_psb_contact_complete_date",
         ]
 
 

@@ -14,19 +14,14 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 {% include "cases/helpers/nav_details.html" %}
-                {% include 'cases/helpers/nav_steps.html' with current_section_name='Contact details' current_page='cases:edit-no-psb-response' %}
+                {% include 'cases/helpers/nav_steps.html' with current_section_name='Contact details' current_page=current_url_name %}
             </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
-                {% include 'common/error_summary.html' %}
-                <div class="govuk-body">
-                    <p class="govuk-body-m">
-                        The case must be forwarded to the relevant equalities body if you cannot find
-                        contact details for the public sector body or the public sector body does not respond
-                        to the initial report.
-                    </p>
-                </div>
-                <form method="post" action="{% url 'cases:edit-no-psb-response' case.id %}">
+                {% include 'cases/helpers/correspondence_overview_detail.html' %}
+                {% include 'cases/helpers/zendesk_tickets.html' %}
+                {% include 'cases/helpers/email_templates.html' %}
+                <form method="post" action="{% url current_url_name case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
