@@ -56,6 +56,19 @@
 
       <div class="custom-body">
         {% include "navbar.html" %}
+        {% if session_expiry.show_session_expiry_warning %}
+          <div class="govuk-width-container">
+            <div class="govuk-warning-text amp-margin-top-30">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text amp-session-warning">
+                    <span class="govuk-warning-text__assistive">Warning</span>
+                    This login session will expire on {{ session_expiry.session_expiry_date|amp_datetime }}.
+                    <br>
+                    Please sign out and log in again to reset.
+                </strong>
+            </div>
+          </div>
+        {% endif %}
         {% block phase_banner %}{% endblock %}
         {% block content %}
         {% endblock %}
