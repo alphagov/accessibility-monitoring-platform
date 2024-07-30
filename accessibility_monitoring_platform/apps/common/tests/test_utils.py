@@ -4,7 +4,7 @@ Test - common utility functions
 
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
@@ -21,6 +21,7 @@ from django_otp.plugins.otp_email.models import EmailDevice
 from ...cases.models import Case, Contact
 from ..models import ChangeToPlatform, Event, Platform
 from ..utils import (
+    SessionExpiry,
     amp_format_date,
     amp_format_datetime,
     amp_format_time,
@@ -57,10 +58,24 @@ class MockModel:
         self.field_not_in_csv = "field_not_in_csv"
 
 
+class MockSession:
+    def __init__(self, expiry_date: datetime):
+        self.expiry_date = expiry_date
+
+    def get_expiry_date(self):
+        return self.expiry_date
+
+
 class MockRequest:
-    def __init__(self, button: str, user: User):
+    def __init__(
+        self,
+        button: str = "Save",
+        user: Optional[User] = None,
+        session: Optional[MockSession] = None,
+    ):
         self.POST = {button: "Remove"}
         self.user = user
+        self.session = session
 
 
 def test_extract_domain_from_url_https():
@@ -537,3 +552,23 @@ def test_get_one_year_ago(today, expected_result):
     with patch("accessibility_monitoring_platform.apps.common.utils.date") as mock_date:
         mock_date.today.return_value = today
         assert get_one_year_ago() == expected_result
+
+
+def test_session_expiry():
+    """Test SessionExpiry contains time and boolean true if time is soon"""
+    session_expiry_date: datetime = timezone.now() + timedelta(hours=1)
+    mock_request: MockRequest = MockRequest(
+        session=MockSession(expiry_date=session_expiry_date)
+    )
+    session_expiry: SessionExpiry = SessionExpiry(request=mock_request)
+
+    assert session_expiry.session_expiry_date == session_expiry_date
+    assert session_expiry.show_session_expiry_warning is True
+
+    session_expiry_date: datetime = timezone.now() + timedelta(days=1)
+    mock_request: MockRequest = MockRequest(
+        session=MockSession(expiry_date=session_expiry_date)
+    )
+    session_expiry: SessionExpiry = SessionExpiry(request=mock_request)
+
+    assert session_expiry.show_session_expiry_warning is False
