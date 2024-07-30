@@ -825,25 +825,6 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
-            return reverse("cases:edit-cores-overview", kwargs={"pk": self.object.id})
-        return super().get_success_url()
-
-
-class CaseCorrespondenceOverviewUpdateView(CaseUpdateView):
-    """
-    View to update Correspondence overview
-    """
-
-    form_class: Type[CaseCorrespondenceOverviewUpdateForm] = (
-        CaseCorrespondenceOverviewUpdateForm
-    )
-    template_name: str = "cases/forms/cores_overview.html"
-
-    def get_success_url(self) -> str:
-        """
-        Detect the submit button used and act accordingly.
-        """
-        if "save_continue" in self.request.POST:
             return reverse(
                 "cases:edit-twelve-week-retest", kwargs={"pk": self.object.id}
             )

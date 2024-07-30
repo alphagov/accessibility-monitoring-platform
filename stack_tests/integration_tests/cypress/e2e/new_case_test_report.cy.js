@@ -160,9 +160,6 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week update request acknowledged`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Correspondence overview`)
-    cy.contains('Save and continue').click()
-
     cy.title().should('eq', `${newOrganisationName} | 12-week retest`)
     cy.contains('This case does not have a retest. Click Start retest to move to the testing environment.')
     cy.contains('.govuk-button', 'Start retest').click()

@@ -18,7 +18,6 @@
         </ul>
         {% include "cases/helpers/nav_details.html" with case_nav_sections=correspondence_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
         <ul class="govuk-list amp-margin-bottom-5">
-            {% include './nav_step.html' with edit_name='cases:edit-cores-overview' name='Correspondence overview' complete=case.cores_overview_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-twelve-week-retest' name='12-week retest' complete=case.twelve_week_retest_complete_date %}
         </ul>
         {% include "cases/helpers/nav_details.html" with case_nav_sections=closing_the_case_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}

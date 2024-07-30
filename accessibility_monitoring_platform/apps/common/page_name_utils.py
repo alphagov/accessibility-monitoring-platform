@@ -141,7 +141,6 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:edit-case-close": PageName("Closing the case"),
     "cases:edit-case-metadata": PageName("Case metadata"),
     "cases:edit-contact-details": PageName("Add contact details"),
-    "cases:edit-cores-overview": PageName("Correspondence overview"),
     "cases:edit-enforcement-recommendation": PageName("Enforcement recommendation"),
     "cases:edit-equality-body-correspondence": PageName("Edit Zendesk ticket"),
     "cases:edit-equality-body-metadata": PageName("Equality body metadata"),

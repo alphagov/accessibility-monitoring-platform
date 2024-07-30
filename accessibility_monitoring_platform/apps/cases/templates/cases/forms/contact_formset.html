@@ -20,9 +20,7 @@
             <div class="govuk-grid-column-two-thirds">
                 {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
                 {% include 'common/error_summary.html' with formset=contacts_formset %}
-                {% include 'cases/helpers/contact_page_link.html' %}
-                {% include 'cases/helpers/statement_page_link.html' %}
-                {% include 'cases/helpers/no_response_link.html' %}
+                {% include 'cases/helpers/correspondence.html' %}
                 <form method="post" action="{% url 'cases:edit-contact-details' case.id %}">
                     {% csrf_token %}
                     {{ contacts_formset.management_form }}

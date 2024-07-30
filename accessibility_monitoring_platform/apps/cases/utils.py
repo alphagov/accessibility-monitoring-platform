@@ -440,13 +440,6 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             ],
         ),
         build_view_section(
-            name="Correspondence overview",
-            edit_url=reverse("cases:edit-cores-overview", kwargs=case_pk),
-            edit_url_id="edit-cores-overview",
-            complete_date=case.cores_overview_complete_date,
-            anchor="",
-        ),
-        build_view_section(
             name="12-week retest",
             edit_url=reverse("cases:edit-twelve-week-retest", kwargs=case_pk),
             edit_url_id="edit-twelve-week-retest",

@@ -803,7 +803,6 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:edit-12-week-update-request-ack",
             "<b>12-week update request acknowledged</b>",
         ),
-        ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
         (
             "cases:outstanding-issues",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">Outstanding issues</h1>',
@@ -1215,12 +1214,6 @@ def test_updating_case_creates_case_event(admin_client):
         ),
         (
             "cases:edit-12-week-update-request-ack",
-            "save_continue",
-            "cases:edit-cores-overview",
-        ),
-        ("cases:edit-cores-overview", "save", "cases:edit-cores-overview"),
-        (
-            "cases:edit-cores-overview",
             "save_continue",
             "cases:edit-twelve-week-retest",
         ),
@@ -2049,11 +2042,6 @@ def test_section_complete_check_displayed(
 @pytest.mark.parametrize(
     "flag_name, section_name, edit_url_name",
     [
-        (
-            "cores_overview_complete_date",
-            "Correspondence overview",
-            "edit-cores-overview",
-        ),
         ("publish_report_complete_date", "Publish report", "edit-publish-report"),
     ],
 )
@@ -2099,11 +2087,6 @@ def test_no_anchor_section_complete_check_displayed(
         ),
         ("cases:edit-report-approved", "qa_auditor_complete_date", "Report approved"),
         ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
-        (
-            "cases:edit-cores-overview",
-            "cores_overview_complete_date",
-            "Correspondence overview",
-        ),
         (
             "cases:edit-twelve-week-retest",
             "twelve_week_retest_complete_date",
@@ -3148,10 +3131,6 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         (
             "cases:edit-qa-comments",
             "QA comments",
-        ),
-        (
-            "cases:edit-cores-overview",
-            "Correspondence overview",
         ),
         ("cases:edit-contact-details", "Add contact details"),
         (

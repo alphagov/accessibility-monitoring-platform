@@ -51,7 +51,6 @@ const loggedInUrls = [
   '/cases/1/edit-report-details/',
   '/cases/1/edit-review-changes/',
   '/cases/1/edit-test-results/',
-  '/cases/1/edit-cores-overview/',
   '/cases/1/edit-contact-details/',
   '/cases/1/edit-request-contact-details/',
   '/cases/1/edit-one-week-contact-details/',
