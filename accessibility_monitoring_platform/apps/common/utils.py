@@ -20,6 +20,21 @@ from django_otp.plugins.otp_email.models import EmailDevice
 
 from .models import ChangeToPlatform, Event, Platform
 
+SESSION_EXPIRY_WARNING_WINDOW: timedelta = timedelta(hours=12)
+
+
+class SessionExpiry:
+    def __init__(self, request: HttpRequest):
+        if hasattr(request, "session"):
+            self.session_expiry_date: datetime = request.session.get_expiry_date()
+            self.show_session_expiry_warning: bool = (
+                timezone.now() + SESSION_EXPIRY_WARNING_WINDOW
+                > self.session_expiry_date
+            )
+        else:
+            self.session_expiry_date = None
+            self.show_session_expiry_warning = False
+
 
 def extract_domain_from_url(url: str) -> str:
     """Extract and return domain string from url string"""
