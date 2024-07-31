@@ -457,10 +457,13 @@ class CaseContactCreateUpdateForm(forms.ModelForm):
     name = AMPCharFieldWide(label="Name (included in equality body export)")
     job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
     email = AMPCharFieldWide(label="Email (included in equality body export)")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=Contact.Preferred.choices
+    )
 
     class Meta:
         model = Contact
-        fields = ["name", "job_title", "email"]
+        fields = ["name", "job_title", "email", "preferred"]
 
 
 class CaseContactsUpdateForm(VersionForm):

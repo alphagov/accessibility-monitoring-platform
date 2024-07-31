@@ -35,7 +35,6 @@ from ..common.utils import (
     get_id_from_button_name,
     get_url_parameters_for_pagination,
     list_to_dictionary_of_lists,
-    mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
 )
@@ -545,8 +544,6 @@ class CaseContactDetailsCreateView(CaseNavContextMixin, CreateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add field values into context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        context["case"] = case
         context["current_section_name"] = "Contact details"
         return context
 
@@ -561,6 +558,36 @@ class CaseContactDetailsCreateView(CaseNavContextMixin, CreateView):
         """Return to the list of contact details"""
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         case_pk: Dict[str, int] = {"pk": case.id}
+        return reverse("cases:edit-contact-details-list", kwargs=case_pk)
+
+
+class CaseContactDetailsUpdateView(CaseNavContextMixin, UpdateView):
+    """
+    View to create case contact
+    """
+
+    model: Type[Contact] = Contact
+    context_object_name: str = "contact"
+    form_class: Type[CaseContactCreateUpdateForm] = CaseContactCreateUpdateForm
+    template_name: str = "cases/forms/add_contact_details_update.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["current_section_name"] = "Contact details"
+        return context
+
+    def form_valid(self, form: CaseContactCreateUpdateForm):
+        """Mark contact as deleted if button is pressed"""
+        contact: Contact = form.save(commit=False)
+        if "delete_contact" in self.request.POST:
+            contact.is_deleted = True
+        record_model_update_event(user=self.request.user, model_object=contact)
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Return to the list of contact details"""
+        case_pk: Dict[str, int] = {"pk": self.object.case.id}
         return reverse("cases:edit-contact-details-list", kwargs=case_pk)
 
 

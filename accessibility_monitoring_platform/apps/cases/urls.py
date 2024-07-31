@@ -12,6 +12,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseCloseUpdateView,
     CaseContactDetailsCreateView,
     CaseContactDetailsListUpdateView,
+    CaseContactDetailsUpdateView,
     CaseCreateView,
     CaseDeactivateUpdateView,
     CaseDetailView,
@@ -110,6 +111,11 @@ urlpatterns: List[URLPattern] = [
         "<int:case_id>/edit-contact-details-create/",
         login_required(CaseContactDetailsCreateView.as_view()),
         name="edit-contact-details-create",
+    ),
+    path(
+        "contacts/<int:pk>/edit-contact-details-update/",
+        login_required(CaseContactDetailsUpdateView.as_view()),
+        name="edit-contact-details-update",
     ),
     path(
         "<int:pk>/edit-request-contact-details/",
