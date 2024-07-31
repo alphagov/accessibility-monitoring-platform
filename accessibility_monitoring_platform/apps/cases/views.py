@@ -984,7 +984,7 @@ class CaseReactivateUpdateView(CaseUpdateView):
         return HttpResponseRedirect(case.get_absolute_url())
 
 
-class CaseStatusWorkflowDetailView(DetailView):
+class CaseStatusWorkflowDetailView(CaseNavContextMixin, DetailView):
     model: Type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/status_workflow.html"
