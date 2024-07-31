@@ -20,6 +20,7 @@
                 {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
                 {% include 'common/error_summary.html' %}
                 {% block preform %}{% endblock %}
+                {% block form %}
                 <form method="post" action="{% url current_url_name object.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
@@ -33,6 +34,7 @@
                         </div>
                     </div>
                 </form>
+                {% endblock %}
             </div>
         </div>
     </main>

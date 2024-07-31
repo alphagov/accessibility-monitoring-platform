@@ -116,7 +116,9 @@ def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
             name="Contact details",
             pages=[
                 NavPage(
-                    url=reverse("cases:edit-contact-details", kwargs=kwargs_case_pk),
+                    url=reverse(
+                        "cases:edit-contact-details-list", kwargs=kwargs_case_pk
+                    ),
                     complete=case.contact_details_complete_date,
                 ),
                 NavPage(

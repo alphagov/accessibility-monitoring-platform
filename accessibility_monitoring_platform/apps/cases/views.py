@@ -1,4 +1,4 @@
-"""
+"""d
 Views for cases app
 """
 
@@ -58,10 +58,8 @@ from ..reports.utils import (
 )
 from .forms import (
     CaseCloseUpdateForm,
-    CaseContactFormset,
-    CaseContactFormsetOneExtra,
+    CaseContactCreateUpdateForm,
     CaseContactsUpdateForm,
-    CaseCorrespondenceOverviewUpdateForm,
     CaseCreateForm,
     CaseDeactivateForm,
     CaseEnforcementRecommendationUpdateForm,
@@ -308,7 +306,7 @@ class CaseCreateView(CreateView):
         elif "save_exit" in self.request.POST:
             url: str = reverse("cases:case-list")
         else:
-            url: str = reverse("cases:edit-contact-details", kwargs=case_pk)
+            url: str = reverse("cases:edit-contact-details-list", kwargs=case_pk)
         return url
 
 
@@ -500,79 +498,10 @@ class CasePublishReportUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
-            return reverse("cases:edit-contact-details", kwargs={"pk": self.object.id})
+            return reverse(
+                "cases:edit-contact-details-list", kwargs={"pk": self.object.id}
+            )
         return super().get_success_url()
-
-
-class CaseContactFormsetUpdateView(CaseUpdateView):
-    """
-    View to update case contacts
-    """
-
-    form_class: Type[CaseContactsUpdateForm] = CaseContactsUpdateForm
-    template_name: str = "cases/forms/contact_formset.html"
-
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            contacts_formset = CaseContactFormset(self.request.POST)
-        else:
-            contacts: QuerySet[Contact] = self.object.contact_set.filter(
-                is_deleted=False
-            )
-            if "add_extra" in self.request.GET or not self.object.contact_exists:
-                contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
-            else:
-                contacts_formset = CaseContactFormset(queryset=contacts)
-        context["contacts_formset"] = contacts_formset
-        return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
-        contact_formset = context["contacts_formset"]
-        case: Case = form.save(commit=False)
-        if contact_formset.is_valid():
-            contacts: List[Contact] = contact_formset.save(commit=False)
-            for contact in contacts:
-                if not contact.case_id:
-                    contact.case = case
-                    contact.save()
-                    record_model_create_event(
-                        user=self.request.user, model_object=contact
-                    )
-                else:
-                    record_model_update_event(
-                        user=self.request.user, model_object=contact
-                    )
-                    contact.save()
-        else:
-            return super().form_invalid(form)
-        mark_object_as_deleted(
-            request=self.request,
-            delete_button_prefix=REMOVE_CONTACT_BUTTON_PREFIX,
-            object_to_delete_model=Contact,
-        )
-        return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}
-        if "save" in self.request.POST:
-            return super().get_success_url()
-        elif "save_continue" in self.request.POST:
-            return reverse("cases:edit-request-contact-details", kwargs=case_pk)
-        elif "add_contact" in self.request.POST:
-            return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true#contact-None"
-        else:
-            contact_id_to_delete: Optional[int] = get_id_from_button_name(
-                REMOVE_CONTACT_BUTTON_PREFIX, self.request.POST
-            )
-            if contact_id_to_delete is not None:
-                return reverse("cases:edit-contact-details", kwargs=case_pk)
-            else:
-                return reverse("cases:case-detail", kwargs=case_pk)
 
 
 class CaseContactDetailsUpdateView(CaseUpdateView):
@@ -585,6 +514,54 @@ class CaseContactDetailsUpdateView(CaseUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["current_section_name"] = "Contact details"
         return context
+
+
+class CaseContactDetailsListUpdateView(CaseContactDetailsUpdateView):
+    """
+    View to list case contacts
+    """
+
+    form_class: Type[CaseContactsUpdateForm] = CaseContactsUpdateForm
+    template_name: str = "cases/forms/add_contact_details_list.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}
+        if "save_continue" in self.request.POST:
+            return reverse("cases:edit-request-contact-details", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseContactDetailsCreateView(CaseNavContextMixin, CreateView):
+    """
+    View to create case contact
+    """
+
+    model: Type[Contact] = Contact
+    context_object_name: str = "contact"
+    form_class: Type[CaseContactCreateUpdateForm] = CaseContactCreateUpdateForm
+    template_name: str = "cases/forms/add_contact_details_create.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = case
+        context["current_section_name"] = "Contact details"
+        return context
+
+    def form_valid(self, form: CaseContactCreateUpdateForm):
+        """Populate case of contact"""
+        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        contact: Contact = form.save(commit=False)
+        contact.case = case
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Return to the list of contact details"""
+        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        case_pk: Dict[str, int] = {"pk": case.id}
+        return reverse("cases:edit-contact-details-list", kwargs=case_pk)
 
 
 class CaseRequestContactDetailsUpdateView(CaseContactDetailsUpdateView):

@@ -449,29 +449,18 @@ class CaseFourWeekContactDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseContactUpdateForm(forms.ModelForm):
+class CaseContactCreateUpdateForm(forms.ModelForm):
     """
-    Form for updating a contact
+    Form for creating and updating a contact
     """
 
     name = AMPCharFieldWide(label="Name (included in equality body export)")
     job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
     email = AMPCharFieldWide(label="Email (included in equality body export)")
-    preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=Contact.Preferred.choices
-    )
 
     class Meta:
         model = Contact
-        fields = ["name", "job_title", "email", "preferred"]
-
-
-CaseContactFormset: Any = forms.modelformset_factory(
-    Contact, CaseContactUpdateForm, extra=0
-)
-CaseContactFormsetOneExtra: Any = forms.modelformset_factory(
-    Contact, CaseContactUpdateForm, extra=1
-)
+        fields = ["name", "job_title", "email"]
 
 
 class CaseContactsUpdateForm(VersionForm):

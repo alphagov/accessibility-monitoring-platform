@@ -1,0 +1,43 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+{% include 'cases/helpers/correspondence.html' %}
+<p class="govuk-body">
+    + <a href="{% url 'cases:edit-contact-details-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        Add contact</a>
+</p>
+{% for contact in case.contacts %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-quarter">
+            <p class="govuk-body amp-margin-bottom-5"><b>Contact {{ forloop.counter }}</b></p>
+        </div>
+        <div class="govuk-grid-column-three-quarters">
+            <p class="govuk-body amp-margin-bottom-5">Edit or remove</p>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-quarter">
+            <p class="govuk-body amp-margin-bottom-0"><b>Name:</b></p>
+        </div>
+        <div class="govuk-grid-column-three-quarters">
+            <p class="govuk-body amp-margin-bottom-0">{{ contact.name }}</p>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-quarter">
+            <p class="govuk-body amp-margin-bottom-0"><b>Job title:</b></p>
+        </div>
+        <div class="govuk-grid-column-three-quarters">
+            <p class="govuk-body amp-margin-bottom-0">{{ contact.job_title }}</p>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-quarter">
+            <p class="govuk-body"><b>Email:</b></p>
+        </div>
+        <div class="govuk-grid-column-three-quarters">
+            <p class="govuk-body">{{ contact.email }}</p>
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}

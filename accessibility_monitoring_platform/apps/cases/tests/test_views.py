@@ -786,7 +786,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
         ),
-        ("cases:edit-contact-details", "<b>Add contact details</b>"),
+        ("cases:edit-contact-details-list", "<b>Add contact details</b>"),
         ("cases:edit-request-contact-details", "<b>Request contact details</b>"),
         ("cases:edit-one-week-contact-details", "<b>One-week follow-up</b>"),
         ("cases:edit-four-week-contact-details", "<b>Four-week follow-up</b>"),
@@ -1127,11 +1127,11 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-publish-report",
             "save_continue",
-            "cases:edit-contact-details",
+            "cases:edit-contact-details-list",
         ),
-        ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
+        ("cases:edit-contact-details-list", "save", "cases:edit-contact-details-list"),
         (
-            "cases:edit-contact-details",
+            "cases:edit-contact-details-list",
             "save_continue",
             "cases:edit-request-contact-details",
         ),
@@ -1395,90 +1395,6 @@ def test_no_contact_chaser_dates_set(
     assert case_from_db.no_contact_four_week_chaser_due_date is not None
 
 
-def test_form_appears_to_add_first_contact(admin_client):
-    """Test that when a case has no contacts a form appears to add one"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Contact 1")
-    assertContains(response, "id_form-0-email-label")
-
-
-def test_add_contact_form_appears(admin_client):
-    """Test that pressing the add contact button adds a new contact form"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": case.version,
-            "add_contact": "Button value",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-    assertContains(response, "Contact 1")
-
-
-def test_add_contact(admin_client):
-    """Test adding a contact"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "1",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "form-0-id": "",
-            "form-0-name": "",
-            "form-0-job_title": "",
-            "form-0-email": CONTACT_EMAIL,
-            "form-0-notes": "",
-            "version": case.version,
-            "save": "Save",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-
-    contacts: QuerySet[Contact] = Contact.objects.filter(case=case)
-    assert contacts.count() == 1
-    assert list(contacts)[0].email == CONTACT_EMAIL
-
-
-def test_delete_contact(admin_client):
-    """Test that pressing the remove contact button deletes the contact"""
-    case: Case = Case.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": case.version,
-            f"remove_contact_{contact.id}": "Button value",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-
-    contact_on_database = Contact.objects.get(pk=contact.id)
-    assert contact_on_database.is_deleted is True
-
-
 def test_link_to_accessibility_statement_displayed(admin_client):
     """
     Test that the link to the accessibility statement is displayed.
@@ -1490,7 +1406,7 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(
@@ -1518,7 +1434,7 @@ def test_statement_page_location_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1540,7 +1456,7 @@ def test_contact_page_location_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1556,7 +1472,7 @@ def test_link_to_accessibility_statement_not_displayed(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(response, "No accessibility statement")
@@ -1585,35 +1501,6 @@ def test_updating_report_sent_date(admin_client):
     assert (
         case_from_db.report_followup_week_12_due_date == TWELVE_WEEK_FOLLOWUP_DUE_DATE
     )
-
-
-def test_preferred_contact_not_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is not displayed when there is only one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertNotContains(response, "Preferred contact?")
-
-
-def test_preferred_contact_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is displayed when there is more than one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, "Preferred contact?")
 
 
 def test_report_followup_due_dates_changed(admin_client):
@@ -1961,7 +1848,11 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "Four-week follow-up contact details",
             "edit-four-week-contact-details",
         ),
-        ("contact_details_complete_date", "Contact details", "edit-contact-details"),
+        (
+            "contact_details_complete_date",
+            "Contact details",
+            "edit-contact-details-list",
+        ),
         ("report_sent_on_complete_date", "Report sent on", "edit-report-sent-on"),
         (
             "one_week_followup_complete_date",
@@ -2123,7 +2014,7 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     [
         ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
         (
-            "cases:edit-contact-details",
+            "cases:edit-contact-details-list",
             "contact_details_complete_date",
             "Add contact details",
         ),
@@ -2482,7 +2373,7 @@ def test_format_due_date_help_text(due_date, expected_help_text):
         "edit-report-approved",
         "edit-publish-report",
         "edit-qa-comments",
-        "edit-contact-details",
+        "edit-contact-details-list",
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
@@ -2672,7 +2563,7 @@ def test_publish_report_already_published(admin_client):
     "useful_link, edit_url_name",
     [
         ("zendesk_url", "edit-case-metadata"),
-        ("trello_url", "edit-contact-details"),
+        ("trello_url", "edit-contact-details-list"),
         ("zendesk_url", "edit-test-results"),
         ("trello_url", "edit-report-details"),
         ("zendesk_url", "edit-review-changes"),
@@ -2778,105 +2669,6 @@ def test_updating_case_create_event(admin_client):
     assert event.type == Event.Type.UPDATE
 
 
-def test_add_contact_also_creates_event(admin_client):
-    """Test adding a contact also creates an event"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "1",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "form-0-id": "",
-            "form-0-name": "",
-            "form-0-job_title": "",
-            "form-0-email": CONTACT_EMAIL,
-            "form-0-notes": "",
-            "version": case.version,
-            "save": "Save",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-    contacts: QuerySet[Contact] = Contact.objects.filter(case=case)
-    assert contacts.count() == 1
-    contact: Contact = list(contacts)[0]
-
-    content_type: ContentType = ContentType.objects.get_for_model(Contact)
-    event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
-
-    assert event.type == Event.Type.CREATE
-
-
-def test_delete_contact_adds_update_event(admin_client):
-    """Test that pressing the remove contact button adds an update event"""
-    case: Case = Case.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": case.version,
-            f"remove_contact_{contact.id}": "Button value",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-
-    content_type: ContentType = ContentType.objects.get_for_model(Contact)
-    event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
-
-    assert event.type == Event.Type.UPDATE
-
-
-def test_links_to_contact_and_accessibility_pages_shown(admin_client):
-    """
-    Test that links to the contact and accessibility statement pages on the
-    organisation website are shown on the contact details page.
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    Page.objects.create(
-        audit=audit, page_type=Page.Type.STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
-    )
-    Page.objects.create(
-        audit=audit, page_type=Page.Type.CONTACT, url=CONTACT_STATEMENT_URL
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, ACCESSIBILITY_STATEMENT_URL)
-    assertContains(response, CONTACT_STATEMENT_URL)
-
-
-def test_links_to_contact_and_accessibility_pages_not_shown(admin_client):
-    """
-    Test that links to the contact and accessibility statement pages on the
-    organisation website are not shown on the contact details page if none have
-    been recorded.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "No contact page")
-    assertContains(response, "No accessibility statement page")
-
-
 def test_update_case_checks_version(admin_client):
     """Test that updating a case shows an error if the version of the case has changed"""
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
@@ -2913,7 +2705,7 @@ def test_update_case_checks_version(admin_client):
         "edit-report-approved",
         "edit-publish-report",
         "edit-qa-comments",
-        "edit-contact-details",
+        "edit-contact-details-list",
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
@@ -3132,7 +2924,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "cases:edit-qa-comments",
             "QA comments",
         ),
-        ("cases:edit-contact-details", "Add contact details"),
+        ("cases:edit-contact-details-list", "Add contact details"),
         (
             "cases:edit-request-contact-details",
             "Request contact details",
@@ -3782,7 +3574,7 @@ def test_case_close(admin_client):
     # Edit link label used
     assertContains(
         response,
-        """<a href="/cases/1/edit-contact-details/"
+        """<a href="/cases/1/edit-contact-details-list/"
             class="govuk-link govuk-link--no-visited-state">
             Go to contact details</a>""",
         html=True,
