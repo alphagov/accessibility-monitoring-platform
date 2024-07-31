@@ -1087,7 +1087,7 @@ class CaseCompliance(VersionModel):
         )
 
 
-class Contact(models.Model):
+class Contact(VersionModel):
     """
     Model for cases Contact
     """

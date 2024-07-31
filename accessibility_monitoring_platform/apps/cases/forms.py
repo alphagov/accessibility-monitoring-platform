@@ -3,7 +3,7 @@ Forms - cases
 """
 
 import re
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
 import requests
 from django import forms
@@ -449,9 +449,9 @@ class CaseFourWeekContactDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseContactCreateUpdateForm(forms.ModelForm):
+class ContactCreateForm(forms.ModelForm):
     """
-    Form for creating and updating a contact
+    Form for creating a contact
     """
 
     name = AMPCharFieldWide(label="Name (included in equality body export)")
@@ -464,6 +464,23 @@ class CaseContactCreateUpdateForm(forms.ModelForm):
     class Meta:
         model = Contact
         fields = ["name", "job_title", "email", "preferred"]
+
+
+class ContactUpdateForm(VersionForm):
+    """
+    Form for updating a contact
+    """
+
+    name = AMPCharFieldWide(label="Name (included in equality body export)")
+    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
+    email = AMPCharFieldWide(label="Email (included in equality body export)")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=Contact.Preferred.choices
+    )
+
+    class Meta:
+        model = Contact
+        fields = ["version", "name", "job_title", "email", "preferred"]
 
 
 class CaseContactsUpdateForm(VersionForm):

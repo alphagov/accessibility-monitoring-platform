@@ -57,7 +57,6 @@ from ..reports.utils import (
 )
 from .forms import (
     CaseCloseUpdateForm,
-    CaseContactCreateUpdateForm,
     CaseContactsUpdateForm,
     CaseCreateForm,
     CaseDeactivateForm,
@@ -84,6 +83,8 @@ from .forms import (
     CaseTwelveWeekRetestUpdateForm,
     CaseTwelveWeekUpdateAcknowledgedUpdateForm,
     CaseTwelveWeekUpdateRequestedUpdateForm,
+    ContactCreateForm,
+    ContactUpdateForm,
     EqualityBodyCorrespondenceCreateForm,
     ListCaseEqualityBodyCorrespondenceUpdateForm,
     PostCaseUpdateForm,
@@ -538,7 +539,7 @@ class CaseContactDetailsCreateView(CaseNavContextMixin, CreateView):
 
     model: Type[Contact] = Contact
     context_object_name: str = "contact"
-    form_class: Type[CaseContactCreateUpdateForm] = CaseContactCreateUpdateForm
+    form_class: Type[ContactCreateForm] = ContactCreateForm
     template_name: str = "cases/forms/add_contact_details_create.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -547,7 +548,7 @@ class CaseContactDetailsCreateView(CaseNavContextMixin, CreateView):
         context["current_section_name"] = "Contact details"
         return context
 
-    def form_valid(self, form: CaseContactCreateUpdateForm):
+    def form_valid(self, form: ContactCreateForm):
         """Populate case of contact"""
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         contact: Contact = form.save(commit=False)
@@ -568,7 +569,7 @@ class CaseContactDetailsUpdateView(CaseNavContextMixin, UpdateView):
 
     model: Type[Contact] = Contact
     context_object_name: str = "contact"
-    form_class: Type[CaseContactCreateUpdateForm] = CaseContactCreateUpdateForm
+    form_class: Type[ContactUpdateForm] = ContactUpdateForm
     template_name: str = "cases/forms/add_contact_details_update.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -577,7 +578,7 @@ class CaseContactDetailsUpdateView(CaseNavContextMixin, UpdateView):
         context["current_section_name"] = "Contact details"
         return context
 
-    def form_valid(self, form: CaseContactCreateUpdateForm):
+    def form_valid(self, form: ContactUpdateForm):
         """Mark contact as deleted if button is pressed"""
         contact: Contact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
