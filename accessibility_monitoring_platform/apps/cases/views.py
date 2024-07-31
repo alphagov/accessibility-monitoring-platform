@@ -1260,7 +1260,7 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
     template_name: str = "cases/forms/legacy_end_of_case.html"
 
 
-class CaseZendeskTicketsDetailView(DetailView):
+class CaseZendeskTicketsDetailView(CaseNavContextMixin, DetailView):
     """
     View of Zendesk tickets for a case
     """
@@ -1277,7 +1277,7 @@ class CaseZendeskTicketsDetailView(DetailView):
         return context
 
 
-class ZendeskTicketCreateView(CreateView):
+class ZendeskTicketCreateView(CaseNavContextMixin, CreateView):
     """
     View to create a Zendesk ticket
     """
@@ -1310,7 +1310,7 @@ class ZendeskTicketCreateView(CreateView):
         return reverse("cases:zendesk-tickets", kwargs=case_pk)
 
 
-class ZendeskTicketUpdateView(UpdateView):
+class ZendeskTicketUpdateView(CaseNavContextMixin, UpdateView):
     """
     View to update Zendesk ticket
     """
