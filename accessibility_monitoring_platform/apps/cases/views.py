@@ -12,7 +12,7 @@ from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import URLResolver, resolve, reverse
+from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -575,7 +575,19 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                 return reverse("cases:case-detail", kwargs=case_pk)
 
 
-class CaseRequestContactDetailsUpdateView(CaseUpdateView):
+class CaseContactDetailsUpdateView(CaseUpdateView):
+    """
+    View in Contact details case navigation section
+    """
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["current_section_name"] = "Contact details"
+        return context
+
+
+class CaseRequestContactDetailsUpdateView(CaseContactDetailsUpdateView):
     """
     View to update Request contact details
     """
@@ -611,7 +623,7 @@ class CaseRequestContactDetailsUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseOneWeekContactDetailsUpdateView(CaseUpdateView):
+class CaseOneWeekContactDetailsUpdateView(CaseContactDetailsUpdateView):
     """
     View to update One week contact details
     """
@@ -620,12 +632,6 @@ class CaseOneWeekContactDetailsUpdateView(CaseUpdateView):
         CaseOneWeekContactDetailsUpdateForm
     )
     template_name: str = "cases/forms/one_week_followup_contact.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_url"] = "cases:edit-one-week-contact-details"
-        return context
 
     def get_success_url(self) -> str:
         """
@@ -638,7 +644,7 @@ class CaseOneWeekContactDetailsUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseFourWeekContactDetailsUpdateView(CaseUpdateView):
+class CaseFourWeekContactDetailsUpdateView(CaseContactDetailsUpdateView):
     """
     View to update Four week contact details
     """
@@ -660,6 +666,25 @@ class CaseFourWeekContactDetailsUpdateView(CaseUpdateView):
         """
         if "save_continue" in self.request.POST:
             return reverse("cases:edit-no-psb-response", kwargs={"pk": self.object.id})
+        return super().get_success_url()
+
+
+class CaseNoPSBResponseUpdateView(CaseContactDetailsUpdateView):
+    """
+    View to set no psb contact flag
+    """
+
+    form_class: Type[CaseNoPSBContactUpdateForm] = CaseNoPSBContactUpdateForm
+    template_name: str = "cases/forms/no_psb_response.html"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        case: Case = self.object
+        case_pk: Dict[str, int] = {"pk": case.id}
+        if "save_continue" in self.request.POST:
+            if case.no_psb_contact == Boolean.YES:
+                return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
+            return reverse("cases:edit-report-sent-on", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -828,25 +853,6 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
             return reverse(
                 "cases:edit-twelve-week-retest", kwargs={"pk": self.object.id}
             )
-        return super().get_success_url()
-
-
-class CaseNoPSBResponseUpdateView(CaseUpdateView):
-    """
-    View to set no psb contact flag
-    """
-
-    form_class: Type[CaseNoPSBContactUpdateForm] = CaseNoPSBContactUpdateForm
-    template_name: str = "cases/forms/no_psb_response.html"
-
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        case: Case = self.object
-        case_pk: Dict[str, int] = {"pk": case.id}
-        if "save_continue" in self.request.POST:
-            if case.no_psb_contact == Boolean.YES:
-                return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
-            return reverse("cases:edit-report-sent-on", kwargs=case_pk)
         return super().get_success_url()
 
 
