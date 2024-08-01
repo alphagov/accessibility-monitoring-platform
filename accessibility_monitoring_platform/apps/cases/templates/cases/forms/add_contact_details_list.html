@@ -3,7 +3,7 @@
 {% block preform %}
 {% include 'cases/helpers/correspondence.html' %}
 <p class="govuk-body">
-    + <a href="{% url 'cases:edit-contact-details-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+    + <a href="{% url 'cases:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
         Add contact</a>
 </p>
 {% for contact in case.contacts %}
@@ -13,7 +13,7 @@
         </div>
         <div class="govuk-grid-column-two-thirds">
             <p class="govuk-body amp-margin-bottom-5">
-                <a href="{% url 'cases:edit-contact-details-update' contact.id %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'cases:edit-contact-update' contact.id %}" class="govuk-link govuk-link--no-visited-state">
                     Edit or remove</a>
             </p>
         </div>

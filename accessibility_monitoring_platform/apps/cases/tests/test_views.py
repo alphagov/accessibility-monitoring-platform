@@ -787,8 +787,6 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
         ),
         ("cases:edit-contact-details-list", "<b>Add contact details</b>"),
-        ("cases:edit-contact-details-list", "<b>Add contact details</b>"),
-        ("cases:edit-contact-details-list", "<b>Add contact details</b>"),
         ("cases:edit-request-contact-details", "<b>Request contact details</b>"),
         ("cases:edit-one-week-contact-details", "<b>One-week follow-up</b>"),
         ("cases:edit-four-week-contact-details", "<b>Four-week follow-up</b>"),
@@ -829,7 +827,25 @@ def test_create_contact_page_loads(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details-create", kwargs={"case_id": case.id})
+        reverse("cases:edit-contact-create", kwargs={"case_id": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        "<b>Add contact details</b>",
+        html=True,
+    )
+
+
+def test_update_contact_page_loads(admin_client):
+    """Test that the update Contact page loads"""
+    case: Case = Case.objects.create()
+    contact: Contact = Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-update", kwargs={"pk": contact.id})
     )
 
     assert response.status_code == 200

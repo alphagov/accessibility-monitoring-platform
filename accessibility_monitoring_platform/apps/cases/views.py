@@ -532,7 +532,7 @@ class CaseContactDetailsListUpdateView(CaseContactDetailsUpdateView):
         return super().get_success_url()
 
 
-class CaseContactDetailsCreateView(CaseNavContextMixin, CreateView):
+class ContactCreateView(CaseNavContextMixin, CreateView):
     """
     View to create case contact
     """
@@ -540,7 +540,7 @@ class CaseContactDetailsCreateView(CaseNavContextMixin, CreateView):
     model: Type[Contact] = Contact
     context_object_name: str = "contact"
     form_class: Type[ContactCreateForm] = ContactCreateForm
-    template_name: str = "cases/forms/add_contact_details_create.html"
+    template_name: str = "cases/forms/contact_create.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add field values into context"""
@@ -562,7 +562,7 @@ class CaseContactDetailsCreateView(CaseNavContextMixin, CreateView):
         return reverse("cases:edit-contact-details-list", kwargs=case_pk)
 
 
-class CaseContactDetailsUpdateView(CaseNavContextMixin, UpdateView):
+class ContactUpdateView(CaseNavContextMixin, UpdateView):
     """
     View to create case contact
     """
@@ -570,7 +570,7 @@ class CaseContactDetailsUpdateView(CaseNavContextMixin, UpdateView):
     model: Type[Contact] = Contact
     context_object_name: str = "contact"
     form_class: Type[ContactUpdateForm] = ContactUpdateForm
-    template_name: str = "cases/forms/add_contact_details_update.html"
+    template_name: str = "cases/forms/contact_update.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add field values into context"""

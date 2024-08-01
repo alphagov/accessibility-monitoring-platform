@@ -1,8 +1,9 @@
+"""Case navigation sections defined and added to context"""
+
 from dataclasses import dataclass
 from datetime import date
 from typing import Any, Dict, List, Optional
 
-from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from ..cases.models import Case
@@ -30,7 +31,8 @@ class CaseNavContextMixin:
             elif hasattr(self, "page"):
                 case: Case = self.page.audit.case
             elif "case_id" in self.kwargs:
-                case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+                case_id: int = self.kwargs.get("case_id")
+                case: Case = Case.objects.get(id=case_id)
             if case is not None:
                 context["case"] = case
 
