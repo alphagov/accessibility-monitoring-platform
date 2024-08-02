@@ -23,7 +23,7 @@
                 Go to Report sent on
             </a>
         {% elif case.status.status == 'in-report-correspondence' %}
-            <a href="{% url 'cases:edit-one-week-followup' case.id %}" class="govuk-link govuk-link--no-visited-state">
+            <a href="{% url 'cases:edit-report-one-week-followup' case.id %}" class="govuk-link govuk-link--no-visited-state">
                 Go to One week follow-up
             </a>
         {% elif case.status.status == 'in-probation-period' or case.status.status == 'in-12-week-correspondence' %}

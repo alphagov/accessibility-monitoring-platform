@@ -731,7 +731,7 @@ class CaseReportSentOnUpdateView(CaseReportCorrespondenceUpdateView):
         """
         if "save_continue" in self.request.POST:
             return reverse(
-                "cases:edit-one-week-followup", kwargs={"pk": self.object.id}
+                "cases:edit-report-one-week-followup", kwargs={"pk": self.object.id}
             )
         return super().get_success_url()
 
@@ -752,7 +752,7 @@ class CaseReportOneWeekFollowupUpdateView(CaseReportCorrespondenceUpdateView):
         """
         if "save_continue" in self.request.POST:
             return reverse(
-                "cases:edit-four-week-followup", kwargs={"pk": self.object.id}
+                "cases:edit-report-four-week-followup", kwargs={"pk": self.object.id}
             )
         return super().get_success_url()
 
@@ -842,7 +842,8 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseTwelveWeekCorrespondenceUpdate
         """
         if "save_continue" in self.request.POST:
             return reverse(
-                "cases:edit-one-week-followup-final", kwargs={"pk": self.object.id}
+                "cases:edit-12-week-one-week-followup-final",
+                kwargs={"pk": self.object.id},
             )
         return super().get_success_url()
 

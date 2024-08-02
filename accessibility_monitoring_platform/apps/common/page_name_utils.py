@@ -134,6 +134,9 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:create-equality-body-correspondence": PageName("Add Zendesk ticket"),
     "cases:create-zendesk-ticket": PageName("Add PSB Zendesk ticket"),
     "cases:deactivate-case": PageName("Deactivate case"),
+    "cases:edit-12-week-one-week-followup-final": PageName(
+        "One week follow-up for final update"
+    ),
     "cases:edit-12-week-update-request-ack": PageName(
         "12-week update request acknowledged"
     ),
@@ -147,19 +150,16 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:edit-equality-body-correspondence": PageName("Edit Zendesk ticket"),
     "cases:edit-equality-body-metadata": PageName("Equality body metadata"),
     "cases:edit-four-week-contact-details": PageName("Four-week follow-up"),
-    "cases:edit-four-week-followup": PageName("Four week follow-up"),
     "cases:edit-no-psb-response": PageName("Unresponsive PSB"),
     "cases:edit-one-week-contact-details": PageName("One-week follow-up"),
-    "cases:edit-one-week-followup": PageName("One week follow-up"),
-    "cases:edit-one-week-followup-final": PageName(
-        "One week follow-up for final update"
-    ),
     "cases:edit-post-case": PageName("Post case summary"),
     "cases:edit-publish-report": PageName("Publish report"),
     "cases:edit-qa-comments": PageName("QA comments"),
     "cases:edit-report-acknowledged": PageName("Report acknowledged"),
     "cases:edit-report-approved": PageName("Report approved"),
     "cases:edit-report-details": PageName("Report details"),
+    "cases:edit-report-four-week-followup": PageName("Four week follow-up"),
+    "cases:edit-report-one-week-followup": PageName("One week follow-up"),
     "cases:edit-report-sent-on": PageName("Report sent on"),
     "cases:edit-request-contact-details": PageName("Request contact details"),
     "cases:edit-retest-overview": PageName("Retest overview"),

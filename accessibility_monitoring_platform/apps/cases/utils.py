@@ -366,15 +366,15 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         ),
         build_view_section(
             name="One week follow-up",
-            edit_url=reverse("cases:edit-one-week-followup", kwargs=case_pk),
-            edit_url_id="edit-one-week-followup",
+            edit_url=reverse("cases:edit-report-one-week-followup", kwargs=case_pk),
+            edit_url_id="edit-report-one-week-followup",
             complete_date=case.one_week_followup_complete_date,
             display_fields=get_case_rows(form=CaseReportOneWeekFollowupUpdateForm()),
         ),
         build_view_section(
             name="Four week follow-up",
-            edit_url=reverse("cases:edit-four-week-followup", kwargs=case_pk),
-            edit_url_id="edit-four-week-followup",
+            edit_url=reverse("cases:edit-report-four-week-followup", kwargs=case_pk),
+            edit_url_id="edit-report-four-week-followup",
             complete_date=case.four_week_followup_complete_date,
             display_fields=get_case_rows(form=CaseReportFourWeekFollowupUpdateForm()),
         ),
@@ -396,8 +396,10 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         ),
         build_view_section(
             name="One week follow-up for final update",
-            edit_url=reverse("cases:edit-one-week-followup-final", kwargs=case_pk),
-            edit_url_id="edit-one-week-followup-final",
+            edit_url=reverse(
+                "cases:edit-12-week-one-week-followup-final", kwargs=case_pk
+            ),
+            edit_url_id="edit-12-week-one-week-followup-final",
             complete_date=case.one_week_followup_final_complete_date,
             display_fields=get_case_rows(form=CaseOneWeekFollowupFinalUpdateForm()),
         ),

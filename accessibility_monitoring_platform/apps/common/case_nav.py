@@ -155,11 +155,15 @@ def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
                     complete=case.report_sent_on_complete_date,
                 ),
                 NavPage(
-                    url=reverse("cases:edit-one-week-followup", kwargs=kwargs_case_pk),
+                    url=reverse(
+                        "cases:edit-report-one-week-followup", kwargs=kwargs_case_pk
+                    ),
                     complete=case.one_week_followup_complete_date,
                 ),
                 NavPage(
-                    url=reverse("cases:edit-four-week-followup", kwargs=kwargs_case_pk),
+                    url=reverse(
+                        "cases:edit-report-four-week-followup", kwargs=kwargs_case_pk
+                    ),
                     complete=case.four_week_followup_complete_date,
                 ),
                 NavPage(
@@ -181,7 +185,8 @@ def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
                 ),
                 NavPage(
                     url=reverse(
-                        "cases:edit-one-week-followup-final", kwargs=kwargs_case_pk
+                        "cases:edit-12-week-one-week-followup-final",
+                        kwargs=kwargs_case_pk,
                     ),
                     complete=case.one_week_followup_final_complete_date,
                 ),

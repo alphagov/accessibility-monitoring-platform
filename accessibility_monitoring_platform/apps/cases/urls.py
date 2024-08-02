@@ -143,14 +143,14 @@ urlpatterns: List[URLPattern] = [
         name="edit-report-sent-on",
     ),
     path(
-        "<int:pk>/edit-one-week-followup/",
+        "<int:pk>/edit-report-one-week-followup/",
         login_required(CaseReportOneWeekFollowupUpdateView.as_view()),
-        name="edit-one-week-followup",
+        name="edit-report-one-week-followup",
     ),
     path(
-        "<int:pk>/edit-four-week-followup/",
+        "<int:pk>/edit-report-four-week-followup/",
         login_required(CaseReportFourWeekFollowupUpdateView.as_view()),
-        name="edit-four-week-followup",
+        name="edit-report-four-week-followup",
     ),
     path(
         "<int:pk>/edit-report-acknowledged/",
@@ -163,9 +163,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-12-week-update-requested",
     ),
     path(
-        "<int:pk>/edit-one-week-followup-final/",
+        "<int:pk>/edit-12-week-one-week-followup-final/",
         login_required(CaseOneWeekFollowupFinalUpdateView.as_view()),
-        name="edit-one-week-followup-final",
+        name="edit-12-week-one-week-followup-final",
     ),
     path(
         "<int:pk>/edit-12-week-update-request-ack/",

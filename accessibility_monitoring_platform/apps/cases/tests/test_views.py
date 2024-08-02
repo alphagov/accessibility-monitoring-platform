@@ -791,12 +791,12 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-one-week-contact-details", "<b>One-week follow-up</b>"),
         ("cases:edit-four-week-contact-details", "<b>Four-week follow-up</b>"),
         ("cases:edit-report-sent-on", "<b>Report sent on</b>"),
-        ("cases:edit-one-week-followup", "<b>One week follow-up</b>"),
-        ("cases:edit-four-week-followup", "<b>Four week follow-up</b>"),
+        ("cases:edit-report-one-week-followup", "<b>One week follow-up</b>"),
+        ("cases:edit-report-four-week-followup", "<b>Four week follow-up</b>"),
         ("cases:edit-report-acknowledged", "<b>Report acknowledged</b>"),
         ("cases:edit-12-week-update-requested", "<b>12-week update requested</b>"),
         (
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
             "<b>One week follow-up for final update</b>",
         ),
         (
@@ -1203,16 +1203,28 @@ def test_updating_case_creates_case_event(admin_client):
         ("cases:edit-no-psb-response", "save", "cases:edit-no-psb-response"),
         ("cases:edit-no-psb-response", "save_continue", "cases:edit-report-sent-on"),
         ("cases:edit-report-sent-on", "save", "cases:edit-report-sent-on"),
-        ("cases:edit-report-sent-on", "save_continue", "cases:edit-one-week-followup"),
-        ("cases:edit-one-week-followup", "save", "cases:edit-one-week-followup"),
         (
-            "cases:edit-one-week-followup",
+            "cases:edit-report-sent-on",
             "save_continue",
-            "cases:edit-four-week-followup",
+            "cases:edit-report-one-week-followup",
         ),
-        ("cases:edit-four-week-followup", "save", "cases:edit-four-week-followup"),
         (
-            "cases:edit-four-week-followup",
+            "cases:edit-report-one-week-followup",
+            "save",
+            "cases:edit-report-one-week-followup",
+        ),
+        (
+            "cases:edit-report-one-week-followup",
+            "save_continue",
+            "cases:edit-report-four-week-followup",
+        ),
+        (
+            "cases:edit-report-four-week-followup",
+            "save",
+            "cases:edit-report-four-week-followup",
+        ),
+        (
+            "cases:edit-report-four-week-followup",
             "save_continue",
             "cases:edit-report-acknowledged",
         ),
@@ -1230,15 +1242,15 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-12-week-update-requested",
             "save_continue",
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
         ),
         (
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
             "save",
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
         ),
         (
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
             "save_continue",
             "cases:edit-12-week-update-request-ack",
         ),
@@ -1628,7 +1640,7 @@ def test_case_report_one_week_followup_contains_followup_due_date(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-one-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1647,7 +1659,7 @@ def test_case_report_one_week_followup_shows_warning_if_report_ack(admin_client)
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-one-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1658,7 +1670,7 @@ def test_case_report_one_week_followup_shows_warning_if_report_ack(admin_client)
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-one-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1673,7 +1685,7 @@ def test_case_report_four_week_followup_contains_followup_due_date(admin_client)
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-four-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-four-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1692,7 +1704,7 @@ def test_case_report_four_week_followup_shows_warning_if_report_ack(admin_client
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-four-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-four-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1703,7 +1715,7 @@ def test_case_report_four_week_followup_shows_warning_if_report_ack(admin_client
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-four-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-four-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1720,7 +1732,7 @@ def test_case_report_twelve_week_1_week_chaser_contains_followup_due_date(admin_
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup-final", kwargs={"pk": case.id})
+        reverse("cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1741,7 +1753,7 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup-final", kwargs={"pk": case.id})
+        reverse("cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1752,7 +1764,7 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup-final", kwargs={"pk": case.id})
+        reverse("cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1893,12 +1905,12 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         (
             "one_week_followup_complete_date",
             "One week follow-up",
-            "edit-one-week-followup",
+            "edit-report-one-week-followup",
         ),
         (
             "four_week_followup_complete_date",
             "Four week follow-up",
-            "edit-four-week-followup",
+            "edit-report-four-week-followup",
         ),
         (
             "report_acknowledged_complete_date",
@@ -1913,7 +1925,7 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         (
             "one_week_followup_final_complete_date",
             "One week follow-up for final update",
-            "edit-one-week-followup-final",
+            "edit-12-week-one-week-followup-final",
         ),
         (
             "twelve_week_update_request_ack_complete_date",
@@ -2071,12 +2083,12 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
         ),
         ("cases:edit-report-sent-on", "report_sent_on_complete_date", "Report sent on"),
         (
-            "cases:edit-one-week-followup",
+            "cases:edit-report-one-week-followup",
             "one_week_followup_complete_date",
             "One week follow-up",
         ),
         (
-            "cases:edit-four-week-followup",
+            "cases:edit-report-four-week-followup",
             "four_week_followup_complete_date",
             "Four week follow-up",
         ),
@@ -2091,7 +2103,7 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
             "12-week update requested",
         ),
         (
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
             "one_week_followup_final_complete_date",
             "One week follow-up for final update",
         ),
@@ -2975,11 +2987,11 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         ),
         ("cases:edit-report-sent-on", "Report sent on"),
         (
-            "cases:edit-one-week-followup",
+            "cases:edit-report-one-week-followup",
             "One week follow-up",
         ),
         (
-            "cases:edit-four-week-followup",
+            "cases:edit-report-four-week-followup",
             "Four week follow-up",
         ),
         (
@@ -2991,7 +3003,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "12-week update requested",
         ),
         (
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
             "One week follow-up for final update",
         ),
         (

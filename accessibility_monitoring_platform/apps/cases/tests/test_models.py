@@ -24,7 +24,7 @@ from ...audits.models import (
 from ...comments.models import Comment
 from ...common.models import Boolean, EmailTemplate
 from ...notifications.models import Task
-from ...reports.models import Report
+from ...reports.models import Report, ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
@@ -1273,3 +1273,29 @@ def test_case_email_tmplates():
 
     assert email_templates.count() == 4
     assertQuerySetEqual(Case().email_templates, email_templates)
+
+
+@pytest.mark.django_db
+def test_case_report_number_of_visits():
+    """Test Case.report_number_of_visits returns expected data"""
+    case: Case = Case.objects.create()
+
+    assert case.report_number_of_visits == 0
+
+    ReportVisitsMetrics.objects.create(case=case)
+    ReportVisitsMetrics.objects.create(case=case)
+
+    assert case.report_number_of_visits == 2
+
+
+@pytest.mark.django_db
+def test_case_report_number_of_unique_visitors():
+    """Test Case.report_number_of_unique_visitors returns expected data"""
+    case: Case = Case.objects.create()
+
+    assert case.report_number_of_unique_visitors == 0
+
+    ReportVisitsMetrics.objects.create(case=case)
+    ReportVisitsMetrics.objects.create(case=case)
+
+    assert case.report_number_of_unique_visitors == 1
