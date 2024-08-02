@@ -2,7 +2,6 @@
 Models for common data used across project
 """
 
-import json
 from datetime import date
 
 from django.contrib.auth.models import User
@@ -168,36 +167,6 @@ class Event(models.Model):
 
     class Meta:
         ordering = ["-created"]
-
-    @property
-    def old_fields(self):
-        """Return old values of fields"""
-        value_dict = json.loads(self.value)
-        if "old" in value_dict:
-            return json.loads(value_dict["old"])[0]["fields"]
-        return ""
-
-    @property
-    def new_fields(self):
-        """Return new values of fields"""
-        return json.loads(json.loads(self.value).get("new", ""))[0]["fields"]
-
-    @property
-    def diff(self):
-        """Return differences between old and new values of fields"""
-        if self.old_fields == "":
-            return self.new_fields
-        diff = {}
-        for key in self.new_fields:
-            if key in self.old_fields:
-                if self.old_fields[key] != self.new_fields[key]:
-                    diff[key] = f"{self.old_fields[key]} -> {self.new_fields[key]}"
-            else:
-                diff[key] = f"-> {self.new_fields[key]}"
-        for key in self.old_fields:
-            if key not in self.new_fields:
-                diff[key] = f"{self.old_fields[key]} ->"
-        return diff
 
 
 class VersionModel(models.Model):
