@@ -695,7 +695,7 @@ class CaseNoPSBResponseUpdateView(CaseContactDetailsUpdateView):
 
 class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     """
-    View in Contact details case navigation section
+    View in Report correspondence case navigation section
     """
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -799,7 +799,19 @@ class CaseReportAcknowledgedUpdateView(CaseReportCorrespondenceUpdateView):
         return super().get_success_url()
 
 
-class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
+class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
+    """
+    View in 12-week correspondence case navigation section
+    """
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["current_section_name"] = "12-week correspondence"
+        return context
+
+
+class CaseTwelveWeekUpdateRequestedUpdateView(CaseTwelveWeekCorrespondenceUpdateView):
     """
     View to update 12-week update requested
     """
@@ -835,7 +847,7 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseOneWeekFollowupFinalUpdateView(CaseUpdateView):
+class CaseOneWeekFollowupFinalUpdateView(CaseTwelveWeekCorrespondenceUpdateView):
     """
     View to update One week followup for final update
     """
@@ -843,7 +855,7 @@ class CaseOneWeekFollowupFinalUpdateView(CaseUpdateView):
     form_class: Type[CaseOneWeekFollowupFinalUpdateForm] = (
         CaseOneWeekFollowupFinalUpdateForm
     )
-    template_name: str = "cases/forms/one_week_followup_final.html"
+    template_name: str = "cases/forms/12_week_one_week_followup_final.html"
 
     def get_success_url(self) -> str:
         """
@@ -856,7 +868,9 @@ class CaseOneWeekFollowupFinalUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
+class CaseTwelveWeekUpdateAcknowledgedUpdateView(
+    CaseTwelveWeekCorrespondenceUpdateView
+):
     """
     View to update 12-week update request acknowledged
     """
