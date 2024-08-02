@@ -123,7 +123,7 @@ def test_dashboard_shows_link_to_no_contact_email_sent(admin_client, admin_user)
     )
     assertNotContains(
         response,
-        f"""<a href="{reverse('cases:edit-find-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
+        f"""<a href="{reverse('cases:edit-request-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
             No contact details request sent</a>""",
         html=True,
     )
@@ -143,7 +143,7 @@ def test_dashboard_shows_link_to_no_contact_email_sent(admin_client, admin_user)
     )
     assertContains(
         response,
-        f"""<a href="{reverse('cases:edit-find-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
+        f"""<a href="{reverse('cases:edit-request-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
             No contact details request sent</a>""",
         html=True,
     )

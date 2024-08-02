@@ -80,6 +80,20 @@
     }
   },
   {
+    "model": "cases.contact",
+    "pk": 1,
+    "fields": {
+      "version": 0,
+      "created": "2022-09-02T14:36:27.869Z",
+      "case_id": 1,
+      "name": "John Smith",
+      "email": "john.smith@example.com",
+      "job_title": "",
+      "preferred": "yes",
+      "is_deleted": false
+    }
+  },
+  {
     "model": "cases.casecompliance",
     "pk": 1,
     "fields": {

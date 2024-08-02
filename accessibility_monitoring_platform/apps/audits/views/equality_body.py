@@ -2,7 +2,7 @@
 Views for audits app (called tests by users)
 """
 
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Type, Union
 
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm

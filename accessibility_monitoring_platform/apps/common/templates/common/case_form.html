@@ -11,26 +11,35 @@
     </div>
     {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 {% include "cases/helpers/nav_details.html" %}
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-cores-overview' %}
+                {% include 'cases/helpers/nav_steps.html' with current_page=current_url_name %}
             </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
                 {% include 'common/error_summary.html' %}
-                {% include 'cases/helpers/correspondence_overview.html' %}
-                <form method="post" action="{% url 'cases:edit-cores-overview' case.id %}">
+                {% block preform %}{% endblock %}
+                {% block form %}
+                <form method="post" action="{% url current_url_name object.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
+                            {% block formfields %}
                             {% include 'common/amp_form_snippet.html' %}
+                            {% endblock %}
                         </div>
+                    </div>
+                    {% block formbuttons %}
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'cases/helpers/save_continue_cancel.html' %}
                         </div>
                     </div>
+                    {% endblock %}
                 </form>
+                {% endblock %}
             </div>
         </div>
     </main>

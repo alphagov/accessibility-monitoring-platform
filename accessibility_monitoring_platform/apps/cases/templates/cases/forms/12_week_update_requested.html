@@ -1,65 +1,35 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
 {% load static %}
 
-{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block preform %}
+{% include 'cases/helpers/correspondence.html' %}
+{% if case.no_psb_contact == 'yes' %}
+    <p class="govuk-body-m">
+        The public sector body has been as unresponsive to this case.
+        Progress to
+        <a
+            href="{% url 'cases:edit-twelve-week-retest' case.id %}"
+            class="govuk-link govuk-link--no-visited-state">Case > 12-week retest</a>.
+    </p>
+    <p class="govuk-body-m">
+        If the PSB has since responded, untick Mark the PSB as unresponsive
+        to this case in
+        <a
+            href="{% url 'cases:edit-no-psb-response' case.id %}"
+            class="govuk-link govuk-link--no-visited-state">Case > Report correspondence > Public sector body is unresponsive</a>.
+    </p>
+{% endif %}
+{% include 'cases/helpers/report_visits.html' %}
+{% endblock %}
 
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
-        </div>
-    </div>
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" %}
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-12-week-update-requested' %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
-                {% include 'common/error_summary.html' %}
-                {% include 'cases/helpers/correspondence_overview_detail.html' %}
-                {% include 'cases/helpers/zendesk_tickets.html' %}
-                {% include 'cases/helpers/email_templates.html' %}
-                {% if case.no_psb_contact == 'yes' %}
-                    <p class="govuk-body-m">
-                        The public sector body has been as unresponsive to this case.
-                        Progress to
-                        <a
-                            href="{% url 'cases:edit-twelve-week-retest' case.id %}"
-                            class="govuk-link govuk-link--no-visited-state">Case > 12-week retest</a>.
-                    </p>
-                    <p class="govuk-body-m">
-                        If the PSB has since responded, untick Mark the PSB as unresponsive
-                        to this case in
-                        <a
-                            href="{% url 'cases:edit-no-psb-response' case.id %}"
-                            class="govuk-link govuk-link--no-visited-state">Case > Report correspondence > Public sector body is unresponsive</a>.
-                    </p>
-                {% endif %}
-                <form method="post" action="{% url 'cases:edit-12-week-update-requested' case.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                            {% include 'cases/helpers/amp_due_date_field.html' with field=form.twelve_week_update_requested_date due_date=case.report_followup_week_12_due_date due_date_field=form.report_followup_week_12_due_date %}
-                            {% include 'cases/helpers/amp_email_field.html' with field=form.twelve_week_update_request_sent_to_email %}
-                            {% include 'common/amp_field.html' with field=form.twelve_week_correspondence_notes %}
-                            {% include 'common/amp_field.html' with field=form.twelve_week_update_requested_complete_date %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'cases/helpers/save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
+{% block formfields %}
+{% include 'common/form_errors.html' with errors=form.non_field_errors %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'cases/helpers/amp_due_date_field.html' with field=form.twelve_week_update_requested_date due_date=case.report_followup_week_12_due_date due_date_field=form.report_followup_week_12_due_date %}
+{% include 'cases/helpers/amp_email_field.html' with field=form.twelve_week_update_request_sent_to_email %}
+{% include 'common/amp_field.html' with field=form.twelve_week_correspondence_notes %}
+{% include 'common/amp_field.html' with field=form.twelve_week_update_requested_complete_date %}
 {% endblock %}
 
 {% block extrascript %}

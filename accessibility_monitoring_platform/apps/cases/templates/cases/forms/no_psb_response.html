@@ -1,66 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
-        </div>
-    </div>
-    <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-            {% include 'common/breadcrumb_home.html' %}
-            {% include 'cases/helpers/breadcrumb_case.html' %}
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-find-contact-details' case.id %}">
-                    Find contact details</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
-        </ol>
-    </div>
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include 'common/error_summary.html' %}
-                <div class="govuk-body">
-                    <p class="govuk-body-m">
-                        The case must be forwarded to the relevant equalities body if you cannot find
-                        contact details for the public sector body or the public sector body does not respond
-                        to the initial report.
-                    </p>
-                </div>
-                <form method="post" action="{% url 'cases:edit-no-psb-response' case.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save and return"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{% url 'cases:edit-find-contact-details' case.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
+{% block preform %}
+<div class="govuk-body">
+    <p class="govuk-body-m">
+        The case must be forwarded to the relevant equalities body if you cannot find
+        contact details for the public sector body or the public sector body does not respond
+        to the initial report.
+    </p>
 </div>
 {% endblock %}
