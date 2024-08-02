@@ -1,5 +1,6 @@
 """ Common utility functions """
 
+import copy
 import json
 import re
 import urllib
@@ -9,7 +10,6 @@ from typing import Any, Dict, Iterable, List, Match, Optional, Tuple, Union
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
-from django.core import serializers
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
@@ -173,26 +173,52 @@ def get_days_ago_timestamp(days: int = 30) -> datetime:
     )
 
 
+def diff_model_fields(
+    old_fields: Dict[str, Any], new_fields: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Return differences between old and new values of fields"""
+    if not old_fields:
+        return new_fields
+    diff_fields = {}
+    for key in new_fields:
+        if key in old_fields:
+            if old_fields[key] != new_fields[key]:
+                diff_fields[key] = f"{old_fields[key]} -> {new_fields[key]}"
+        else:
+            diff_fields[key] = f"-> {new_fields[key]}"
+    for key in old_fields:
+        if key not in new_fields:
+            diff_fields[key] = f"{old_fields[key]} ->"
+    return diff_fields
+
+
 def record_model_update_event(user: User, model_object: models.Model) -> None:
     """Record model update event"""
-    value: Dict[str, str] = {}
     old_model = model_object.__class__.objects.get(pk=model_object.id)
-    value["old"] = serializers.serialize("json", [old_model])
-    value["new"] = serializers.serialize("json", [model_object])
-    if value["old"] != value["new"]:
+    old_model_fields = copy.copy(vars(old_model))
+    del old_model_fields["_state"]
+    new_model_fields = copy.copy(vars(model_object))
+    del new_model_fields["_state"]
+    diff_fields: Dict[str, Any] = diff_model_fields(
+        old_fields=old_model_fields, new_fields=new_model_fields
+    )
+    if diff_fields:
         Event.objects.create(
-            created_by=user, parent=model_object, value=json.dumps(value)
+            created_by=user,
+            parent=model_object,
+            value=json.dumps(diff_fields, default=str),
         )
 
 
 def record_model_create_event(user: User, model_object: models.Model) -> None:
     """Record model create event"""
-    value: Dict[str, str] = {"new": serializers.serialize("json", [model_object])}
+    new_model_fields = copy.copy(vars(model_object))
+    del new_model_fields["_state"]
     Event.objects.create(
         created_by=user,
         parent=model_object,
         type=Event.Type.CREATE,
-        value=json.dumps(value),
+        value=json.dumps(new_model_fields, default=str),
     )
 
 

@@ -297,6 +297,7 @@ def test_record_model_update_event():
     event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
 
     assert event.type == Event.Type.UPDATE
+    assert event.value == '{"first_name": " -> Changed"}'
 
 
 def test_list_to_dictionary_of_lists():
