@@ -524,7 +524,7 @@ class CaseReportSentOnUpdateForm(VersionForm):
         ]
 
 
-class CaseOneWeekFollowupUpdateForm(VersionForm):
+class CaseReportOneWeekFollowupUpdateForm(VersionForm):
     """
     Form to update One week followup
     """
@@ -561,7 +561,7 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
             self.fields["one_week_followup_sent_to_email"].widget = forms.HiddenInput()
 
 
-class CaseFourWeekFollowupUpdateForm(VersionForm):
+class CaseReportFourWeekFollowupUpdateForm(VersionForm):
     """
     Form to update Four week followup
     """

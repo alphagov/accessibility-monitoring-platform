@@ -889,6 +889,18 @@ class Case(VersionModel):
     def email_templates(self):
         return EmailTemplate.objects.filter(is_deleted=False)
 
+    @property
+    def report_number_of_visits(self):
+        return self.reportvisitsmetrics_set.all().count()
+
+    @property
+    def report_number_of_unique_visitors(self):
+        return (
+            self.reportvisitsmetrics_set.values_list("fingerprint_hash")
+            .distinct()
+            .count()
+        )
+
 
 class CaseStatus(models.Model):
     """

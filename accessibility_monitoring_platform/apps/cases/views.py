@@ -63,17 +63,17 @@ from .forms import (
     CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
     CaseFourWeekContactDetailsUpdateForm,
-    CaseFourWeekFollowupUpdateForm,
     CaseMetadataUpdateForm,
     CaseNoPSBContactUpdateForm,
     CaseOneWeekContactDetailsUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
-    CaseOneWeekFollowupUpdateForm,
     CasePublishReportUpdateForm,
     CaseQACommentsUpdateForm,
     CaseReportAcknowledgedUpdateForm,
     CaseReportApprovedUpdateForm,
     CaseReportDetailsUpdateForm,
+    CaseReportFourWeekFollowupUpdateForm,
+    CaseReportOneWeekFollowupUpdateForm,
     CaseReportSentOnUpdateForm,
     CaseRequestContactDetailsUpdateForm,
     CaseReviewChangesUpdateForm,
@@ -693,7 +693,19 @@ class CaseNoPSBResponseUpdateView(CaseContactDetailsUpdateView):
         return super().get_success_url()
 
 
-class CaseReportSentOnUpdateView(CaseUpdateView):
+class CaseReportCorrespondenceUpdateView(CaseUpdateView):
+    """
+    View in Contact details case navigation section
+    """
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["current_section_name"] = "Report correspondence"
+        return context
+
+
+class CaseReportSentOnUpdateView(CaseReportCorrespondenceUpdateView):
     """
     View to update Report sent on
     """
@@ -724,13 +736,15 @@ class CaseReportSentOnUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseOneWeekFollowupUpdateView(CaseUpdateView):
+class CaseReportOneWeekFollowupUpdateView(CaseReportCorrespondenceUpdateView):
     """
     View to update One week followup
     """
 
-    form_class: Type[CaseOneWeekFollowupUpdateForm] = CaseOneWeekFollowupUpdateForm
-    template_name: str = "cases/forms/one_week_followup.html"
+    form_class: Type[CaseReportOneWeekFollowupUpdateForm] = (
+        CaseReportOneWeekFollowupUpdateForm
+    )
+    template_name: str = "cases/forms/report_one_week_followup.html"
 
     def get_success_url(self) -> str:
         """
@@ -743,13 +757,15 @@ class CaseOneWeekFollowupUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseFourWeekFollowupUpdateView(CaseUpdateView):
+class CaseReportFourWeekFollowupUpdateView(CaseReportCorrespondenceUpdateView):
     """
     View to update Four week followup
     """
 
-    form_class: Type[CaseFourWeekFollowupUpdateForm] = CaseFourWeekFollowupUpdateForm
-    template_name: str = "cases/forms/four_week_followup.html"
+    form_class: Type[CaseReportFourWeekFollowupUpdateForm] = (
+        CaseReportFourWeekFollowupUpdateForm
+    )
+    template_name: str = "cases/forms/report_four_week_followup.html"
 
     def get_success_url(self) -> str:
         """
@@ -762,7 +778,7 @@ class CaseFourWeekFollowupUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseReportAcknowledgedUpdateView(CaseUpdateView):
+class CaseReportAcknowledgedUpdateView(CaseReportCorrespondenceUpdateView):
     """
     View to update Report acknowledged
     """
