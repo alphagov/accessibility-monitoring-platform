@@ -16,76 +16,76 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
     status_parametres: List[
         tuple[str, str, str]
     ] = [  # final dict key, status, and sort
-        (
-            "unknown",
-            CaseStatus.Status.UNKNOWN,
-            "id",
-        ),
-        (
-            "test_in_progress",
-            CaseStatus.Status.TEST_IN_PROGRESS,
-            "id",
-        ),
-        (
-            "reports_in_progress",
-            CaseStatus.Status.REPORT_IN_PROGRESS,
-            "id",
-        ),
-        (
-            "report_ready_to_send",
-            CaseStatus.Status.REPORT_READY_TO_SEND,
-            "id",
-        ),
-        (
-            "qa_in_progress",
-            CaseStatus.Status.QA_IN_PROGRESS,
-            "id",
-        ),
-        (
-            "in_report_correspondence",
-            CaseStatus.Status.IN_REPORT_CORES,
-            "next_action_due_date",
-        ),
-        (
-            "in_probation_period",
-            CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
-            "next_action_due_date",
-        ),
-        (
-            "in_12_week_correspondence",
-            CaseStatus.Status.IN_12_WEEK_CORES,
-            "next_action_due_date",
-        ),
-        (
-            "reviewing_changes",
-            CaseStatus.Status.REVIEWING_CHANGES,
-            "twelve_week_correspondence_acknowledged_date",
-        ),
-        (
-            "final_decision_due",
-            CaseStatus.Status.FINAL_DECISION_DUE,
-            "report_followup_week_12_due_date",
-        ),
-        (
-            "case_closed_waiting_to_be_sent",
-            CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND,
-            "case_close_complete_date",
-        ),
-        (
-            "case_closed_sent_to_equalities_body",
-            CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
-            "sent_to_enforcement_body_sent_date",
-        ),
-        (
-            "in_correspondence_with_equalities_body",
-            CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY,
-            "report_followup_week_12_due_date",
-        ),
-        (
-            "completed",
-            CaseStatus.Status.COMPLETE,
-            "completed_date",
-        ),
+        # (
+        #     "unknown",
+        #     CaseStatus.Status.UNKNOWN,
+        #     "id",
+        # ),
+        # (
+        #     "test_in_progress",
+        #     CaseStatus.Status.TEST_IN_PROGRESS,
+        #     "id",
+        # ),
+        # (
+        #     "reports_in_progress",
+        #     CaseStatus.Status.REPORT_IN_PROGRESS,
+        #     "id",
+        # ),
+        # (
+        #     "report_ready_to_send",
+        #     CaseStatus.Status.REPORT_READY_TO_SEND,
+        #     "id",
+        # ),
+        # (
+        #     "qa_in_progress",
+        #     CaseStatus.Status.QA_IN_PROGRESS,
+        #     "id",
+        # ),
+        # (
+        #     "in_report_correspondence",
+        #     CaseStatus.Status.IN_REPORT_CORES,
+        #     "next_action_due_date",
+        # ),
+        # (
+        #     "in_probation_period",
+        #     CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
+        #     "next_action_due_date",
+        # ),
+        # (
+        #     "in_12_week_correspondence",
+        #     CaseStatus.Status.IN_12_WEEK_CORES,
+        #     "next_action_due_date",
+        # ),
+        # (
+        #     "reviewing_changes",
+        #     CaseStatus.Status.REVIEWING_CHANGES,
+        #     "twelve_week_correspondence_acknowledged_date",
+        # ),
+        # (
+        #     "final_decision_due",
+        #     CaseStatus.Status.FINAL_DECISION_DUE,
+        #     "report_followup_week_12_due_date",
+        # ),
+        # (
+        #     "case_closed_waiting_to_be_sent",
+        #     CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND,
+        #     "case_close_complete_date",
+        # ),
+        # (
+        #     "case_closed_sent_to_equalities_body",
+        #     CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+        #     "sent_to_enforcement_body_sent_date",
+        # ),
+        # (
+        #     "in_correspondence_with_equalities_body",
+        #     CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY,
+        #     "report_followup_week_12_due_date",
+        # ),
+        # (
+        #     "completed",
+        #     CaseStatus.Status.COMPLETE,
+        #     "completed_date",
+        # ),
     ]
 
     for status_key, status, field_to_sort_by in status_parametres:

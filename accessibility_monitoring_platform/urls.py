@@ -8,6 +8,7 @@ from django.contrib import admin
 from django.http import HttpResponse, StreamingHttpResponse
 from django.urls import path
 from django.views.generic import RedirectView
+from debug_toolbar.toolbar import debug_toolbar_urls
 from two_factor.urls import urlpatterns as tf_urls
 
 
@@ -48,4 +49,4 @@ urlpatterns = [
     path("security.txt", get_security_txt),
     path("robots.txt", robots_txt),
     path(".well-known/security.txt", get_security_txt),
-]
+] + debug_toolbar_urls()

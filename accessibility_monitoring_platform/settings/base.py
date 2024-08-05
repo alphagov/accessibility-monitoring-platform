@@ -70,7 +70,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "axes",
-    "django_browser_reload",
+    "debug_toolbar",
+    # "django_browser_reload",
     "django_otp",
     "django_otp.plugins.otp_static",
     "django_otp.plugins.otp_totp",
@@ -100,6 +101,7 @@ MIDDLEWARE = [
     "accessibility_monitoring_platform.apps.common.middleware.permissions_policy_middleware.PermissionsPolicyMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.cache_user_id_middleware.CacheUserUniqueID",
     "csp.middleware.CSPMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     # AxesMiddleware should be the last middleware in the MIDDLEWARE list.
     "axes.middleware.AxesMiddleware",
 ]
@@ -287,11 +289,11 @@ PERMISSIONS_POLICY = {
     "usb": [],
 }
 
-CSP_DEFAULT_SRC = ("'none'",)
-CSP_STYLE_SRC = "'self'"
-CSP_SCRIPT_SRC = ("'self'",)
-CSP_FONT_SRC = ("'self'",)
-CSP_IMG_SRC = ("'self'", "data:")
+# CSP_DEFAULT_SRC = ("'none'",)
+# CSP_STYLE_SRC = "'self'"
+# CSP_SCRIPT_SRC = ("'self'",)
+# CSP_FONT_SRC = ("'self'",)
+# CSP_IMG_SRC = ("'self'", "data:")
 
 AWS_PROTOTYPE_FILE: Path = Path("aws_prototype.json")
 if AWS_PROTOTYPE_FILE.exists():
@@ -308,3 +310,5 @@ else:
 COPILOT_APPLICATION_NAME = os.getenv("COPILOT_APPLICATION_NAME", None)
 
 OTP_EMAIL_SUBJECT = "Platform token"
+
+INTERNAL_IPS = ["127.0.0.1"]

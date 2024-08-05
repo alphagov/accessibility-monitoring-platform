@@ -167,13 +167,6 @@
         </div>
     </div>
     <div class="govuk-accordion__section ">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-case-closed-sent-to-equalities-body">
-                    Case closed and sent to equalities body  - {{ cases_by_status.case_closed_sent_to_equalities_body|length }}
-                </span>
-            </h2>
-        </div>
         <div id="accordion-post-case-content-case-closed-sent-to-equalities-body" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-case-closed-sent-to-equalities-body">
             <p class="govuk-body">
                 {% if show_all_cases %}
@@ -199,13 +192,6 @@
         </div>
     </div>
     <div class="govuk-accordion__section ">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-complete">
-                    Completed cases - {{ cases_by_status.completed|length }}
-                </span>
-            </h2>
-        </div>
         <div id="accordion-post-case-content-complete" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-complete">
             <p class="govuk-body">
                 {% if show_all_cases %}
