@@ -275,7 +275,7 @@ def test_report_published_message_shown(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_header",
     [
-        ("reports:edit-report-notes", ">Notes</h1>"),
+        ("reports:edit-report-notes", ">Report notes</h1>"),
         (
             "reports:report-publisher",
             "<li>which parts of your website we looked at</li>",

@@ -1,23 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ case.organisation_name }} | Status workflow{% endblock %}
+{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading='Status workflow' %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' %}
+        </div>
+    </div>
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">Status workflow</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">{{ amp_page_name }}</h1>
             </div>
         </div>
         {% include 'cases/helpers/case_title.html' %}
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" %}
+                {% include 'cases/helpers/nav_steps.html' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-s amp-margin-bottom-0">Unassigned case</h2>
                 <ul class="govuk-list">
                     <li>
-                        <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             Assign an auditor
                         </a>
                         {% if case.auditor %}&check;{% endif %}
@@ -180,9 +189,6 @@
                         {% if case.enforcement_correspondence_complete_date %}&check;{% endif %}
                     </li>
                 </ul>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/nav_steps.html' %}
             </div>
         </div>
     </main>

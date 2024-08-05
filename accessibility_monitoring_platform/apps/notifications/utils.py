@@ -14,7 +14,7 @@ from django.urls import reverse
 
 from ..audits.models import Retest
 from ..cases.models import Case, CaseStatus, EqualityBodyCorrespondence
-from .models import Notification, NotificationSetting, Option, Task
+from .models import NotificationSetting, Option, Task
 
 TASK_LIST_PARAMS: List[str] = ["type", "read", "deleted", "future"]
 TASK_LIST_READ_TIMEDELTA: timedelta = timedelta(days=7)
@@ -81,7 +81,7 @@ def add_task(
 
 def mark_tasks_as_read(user: User, case: Case, type: Task.Type) -> None:
     """Mark tasks as read"""
-    tasks: QuerySet[Notification] = Task.objects.filter(
+    tasks: QuerySet[Task] = Task.objects.filter(
         user=user, case=case, type=type, read=False
     )
     for task in tasks:

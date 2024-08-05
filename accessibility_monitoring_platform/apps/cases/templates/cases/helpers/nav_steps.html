@@ -1,19 +1,4 @@
-<nav role="navigation">
-    {% include "cases/helpers/status_requirements.html" %}
-    {% if current_page != 'reminders' %}
-        <h2 class="govuk-heading-m amp-margin-bottom-5">Reminder</h2>
-        <p class="govuk-body-m">
-        {% if case.reminder %}
-            <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                Reminder due {{ case.reminder.due_date|amp_date }}
-            </a>
-        {% else %}
-            <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                Create reminder
-            </a>
-        {% endif %}
-        </p>
-    {% endif %}
+<nav role="navigation" class="amp-nav-steps">
     {% if case.archive %}
         <h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>
         <ul class="govuk-list">
@@ -24,9 +9,7 @@
             {% include './nav_step.html' with edit_name='cases:legacy-end-of-case' name='Legacy end of case data' %}
         </ul>
     {% else %}
-        <h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>
         <ul class="govuk-list">
-            {% include './nav_step.html' with edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
@@ -43,9 +26,9 @@
             {% include './nav_step.html' with edit_name='cases:edit-12-week-update-request-ack' name='12-week update request acknowledged' complete=case.twelve_week_update_request_ack_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-cores-overview' name='Correspondence overview' complete=case.cores_overview_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-twelve-week-retest' name='12-week retest' complete=case.twelve_week_retest_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-review-changes' name='Reviewing changes' complete=case.review_changes_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-enforcement-recommendation' name='Enforcement recommendation' complete=case.enforcement_recommendation_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-case-close' name='Closing the case' complete=case.case_close_complete_date %}
+            <li>
+                {% include "cases/helpers/nav_details.html" with case_nav_sections=closing_the_case_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
+            </li>
         </ul>
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
         <ul class="govuk-list">

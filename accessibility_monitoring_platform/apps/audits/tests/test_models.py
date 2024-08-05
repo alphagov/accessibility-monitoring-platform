@@ -455,6 +455,25 @@ def test_page_all_check_results_returns_pdf_check_results_last():
 
 
 @pytest.mark.django_db
+def test_page_page_title():
+    """Test Page.page_title returns expected title."""
+    audit: Audit = create_audit_and_check_results()
+    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
+    pdf_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
+
+    assert home_page.page_title == "Home page"
+    assert pdf_page.page_title == "PDF"
+
+    home_page.name = "Homepage"
+    home_page.save()
+    pdf_page.name = "Document"
+    pdf_page.save()
+
+    assert home_page.page_title == "Homepage page"
+    assert pdf_page.page_title == "Document"
+
+
+@pytest.mark.django_db
 def test_check_result_returns_id_and_fields_for_retest():
     """
     Test check_result attribute of dict_for_retest returns id and fields for retest form.

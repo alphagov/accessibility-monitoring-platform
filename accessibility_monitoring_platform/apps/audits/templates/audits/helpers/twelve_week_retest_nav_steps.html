@@ -1,8 +1,7 @@
-<nav role="navigation">
-    {% include "cases/helpers/status_requirements.html" with case=audit.case %}
+<nav role="navigation" class="amp-nav-steps">
     <h2 class="govuk-heading-m amp-margin-bottom-5">Test steps</h2>
     <ul class="govuk-list">
-        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-metadata' name='12-week test metadata' complete=audit.audit_retest_metadata_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-metadata' name='12-week retest metadata' complete=audit.audit_retest_metadata_complete_date %}
         {% if audit.case.psb_response %}
             {% if audit.testable_pages %}
                 <li>

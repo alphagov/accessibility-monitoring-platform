@@ -2,21 +2,26 @@
 
 {% load static %}
 
-{% block title %}{{ case.organisation_name }} | View case{% endblock %}
+{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' %}
+        </div>
+    </div>
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
-            <li class="govuk-breadcrumbs__list-item">View case</li>
+            <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group">
-                    <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>
+                    <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">{{ amp_page_name }}</h1>
                     {% if case.enforcement_body_pursuing == 'yes-completed' %}
                         <strong class="govuk-tag">
                             Completed
@@ -50,7 +55,6 @@
                 </div>
             </div>
         </div>
-        {% include 'cases/helpers/case_title.html' %}
         {% include 'cases/helpers/messages.html' %}
         {% include 'cases/details/case_detail_notifications.html' %}
         <div class="govuk-grid-row">
@@ -63,11 +67,13 @@
                 {% include 'common/frequently_used_links.html' %}
             </div>
             <div class="govuk-grid-column-one-half">
-                {% include 'cases/helpers/overview.html' %}
+                <div class="amp-margin-bottom-30">
+                    {% include 'cases/helpers/overview.html' %}
+                </div>
             </div>
         </div>
         {% include 'cases/details/search_in_case.html' %}
-        <div id="search-scope" data-search-target-page-name="View case" data-search-target-label="View case" data-search-target-url="{{ case.get_absolute_url }}">
+        <div id="search-scope" data-search-target-page-name="{{ amp_page_name }}" data-search-target-label="{{ amp_page_name }}" data-search-target-url="{{ case.get_absolute_url }}">
             <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
                 {% if case.archive %}
                     {% include 'cases/details/archive.html' %}

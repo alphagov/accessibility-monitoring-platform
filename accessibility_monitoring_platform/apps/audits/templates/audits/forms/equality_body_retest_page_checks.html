@@ -4,20 +4,28 @@
 
 {% load static %}
 
-{% block title %}{{ retest_page.retest.case.organisation_name }} | {{ retest_page.heading }}{% endblock %}
+{% block title %}{{ retest_page.retest.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' with case=retest_page.retest.case %}
+        </div>
+    </div>
     {% include 'audits/helpers/retest_breadcrumb.html' with retest=retest_page.retest page_heading=retest_page %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ retest_page.heading }}</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ amp_page_name }}</h1>
                 {% include "cases/helpers/case_title.html" with case=retest_page.retest.case %}
                 {% include "cases/helpers/messages.html" %}
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-retest-page-checks' page_id=retest_page.id retest=retest_page.retest %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% if not retest_check_results_formset.forms %}
                     <div class="govuk-grid-row amp-margin-bottom-30">
@@ -153,9 +161,6 @@
                         </div>
                     {% endif %}
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-retest-page-checks' page_id=retest_page.id retest=retest_page.retest %}
             </div>
         </div>
     </main>

@@ -293,7 +293,7 @@ def test_audit_retest_detail_shows_sections(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "12-week test metadata")
+    assertContains(response, "12-week retest metadata")
     assertContains(response, "Pages")
     assertContains(response, "12-week website compliance decision")
     assertContains(response, "12-week statement links")
@@ -455,8 +455,8 @@ def test_create_audit_creates_case_event(admin_client):
         ),
         ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-summary", "Test summary"),
-        ("audits:audit-retest-detail", "View 12-week test"),
-        ("audits:edit-audit-retest-metadata", "12-week test metadata"),
+        ("audits:audit-retest-detail", "View 12-week retest"),
+        ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
         ("audits:edit-audit-retest-pages-comparison", "12-week pages comparison"),
         (
             "audits:edit-audit-retest-website-decision",
@@ -1771,7 +1771,7 @@ def test_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Testing Additional")
+    assertContains(response, "Additional page test")
     assertContains(response, "Showing 2 errors")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
@@ -3035,7 +3035,6 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
     assertContains(response, "Email templates")
-    assertContains(response, "No report has been published")
     assertContains(response, "View website")
     assertContains(response, "Link to case view")
     assertContains(response, "Markdown cheatsheet")
@@ -3067,7 +3066,7 @@ def test_statement_check_update_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Statement issue editor")
+    assertContains(response, "Update statement issue")
 
 
 def test_statement_check_list_renders(admin_client):
@@ -3282,6 +3281,36 @@ def test_create_equality_body_retest_creates_retest_0(admin_client):
     retest_2: Retest = Retest.objects.filter(case=case).first()
 
     assert retest_2.id_within_case == 2
+
+
+def test_delete_retest(admin_client):
+    """
+    Test that equality body retest deletion works
+    """
+    case: Case = Case.objects.create()
+    # Audit.objects.create(case=case)
+    retest: Retest = Retest.objects.create(case=case)
+
+    assert retest.is_deleted is False
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:delete-retest", kwargs={"pk": retest.id})
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/cases/1/retest-overview/"
+
+    retest_from_db: Retest = Retest.objects.get(id=retest.id)
+    assert retest_from_db.is_deleted is True
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == retest
+    assert events[0].type == Event.Type.UPDATE
+    assert events[0].diff == {
+        "is_deleted": "False -> True",
+    }
 
 
 @pytest.mark.parametrize(

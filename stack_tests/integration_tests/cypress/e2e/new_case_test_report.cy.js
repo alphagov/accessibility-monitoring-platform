@@ -28,7 +28,7 @@ describe('Create case, tests and report', () => {
     cy.contains('We have found 1 cases matching the details you have given')
     cy.contains('Save and continue case').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Case details`)
+    cy.title().should('eq', `${newOrganisationName} | Case metadata`)
     cy.get('#id_auditor').select('Auditor')
     cy.get('#id_enforcement_body_0').click()
     cy.contains('Save and continue').click()
@@ -45,12 +45,12 @@ describe('Create case, tests and report', () => {
     cy.get('[name="standard-4-url').type(newAccessibilityStatementURL)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Testing Home`)
+    cy.title().should('eq', `${newOrganisationName} | Home page test`)
     cy.get('[name="form-0-check_result_state"]').check('error')
     cy.get('[name="form-0-notes').type('Hi, I am an error')
     cy.contains('Save and next page').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Testing Accessibility statement`)
+    cy.title().should('eq', `${newOrganisationName} | Accessibility statement page test`)
     cy.contains('Save and next page').click()
 
     cy.title().should('eq', `${newOrganisationName} | Website compliance decision`)
@@ -158,7 +158,7 @@ describe('Create case, tests and report', () => {
     cy.contains('This case does not have a retest. Click Start retest to move to the testing environment.')
     cy.contains('.govuk-button', 'Start retest').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week test metadata`)
+    cy.title().should('eq', `${newOrganisationName} | 12-week retest metadata`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Retesting Home`)
@@ -203,7 +203,7 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement comparison`)
     cy.contains('Save and exit').click()
 
-    cy.title().should('eq', `${newOrganisationName} | View 12-week test`)
+    cy.title().should('eq', `${newOrganisationName} | View 12-week retest`)
     cy.contains('Case').click()
     cy.get('#edit-twelve-week-retest').click()
 

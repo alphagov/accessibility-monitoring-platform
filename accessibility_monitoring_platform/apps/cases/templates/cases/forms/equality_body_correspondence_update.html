@@ -1,9 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ equality_body_correspondence.case.organisation_name }} | Edit Zendesk ticket{% endblock %}
+{% block title %}{{ equality_body_correspondence.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' with case=equality_body_correspondence.case %}
+        </div>
+    </div>
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
@@ -12,17 +17,17 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:list-equality-body-correspondence' equality_body_correspondence.case.id %}">
                     All equality body correspondence</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">Edit Zendesk ticket</li>
+            <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Edit Zendesk ticket' %}
+            <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" %}
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:list-equality-body-correspondence' case=equality_body_correspondence.case %}
             </div>
-        </div>
-        <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:edit-equality-body-correspondence' equality_body_correspondence.id %}">
                     {% csrf_token %}
@@ -54,9 +59,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:list-equality-body-correspondence' case=equality_body_correspondence.case %}
             </div>
         </div>
     </main>

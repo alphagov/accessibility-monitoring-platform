@@ -1,19 +1,27 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ audit.case.organisation_name }} | 12-week statement links{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading='12-week statement links' %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' with case=audit.case %}
+        </div>
+    </div>
+    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading=amp_page_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">12-week statement links</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ amp_page_name }}</h1>
                 {% include "cases/helpers/case_title.html" with case=audit.case %}
                 {% include "cases/helpers/messages.html" %}
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-pages' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' with formset=statement_pages_formset %}
                 <form method="post" action="{% url 'audits:edit-audit-retest-statement-pages' audit.id %}">
@@ -66,9 +74,6 @@
                         {% include 'audits/helpers/retest_save_continue_cancel.html' %}
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-pages' %}
             </div>
         </div>
     </main>

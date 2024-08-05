@@ -13,14 +13,14 @@ describe('View test', () => {
     cy.visit('/audits/1/audit-retest-detail')
   })
 
-  it('can edit 12-week test metadata', () => {
+  it('can edit 12-week retest metadata', () => {
     cy.get('#edit-audit-retest-metadata').click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="audit_retest_metadata_notes"]').clear().type(retestMetadataNote)
     cy.get('[name="audit_retest_metadata_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('12-week test').click()
-    cy.title().should('eq', 'ExampleCorp | View 12-week test')
+    cy.title().should('eq', 'ExampleCorp | View 12-week retest')
     cy.contains(retestMetadataNote)
   })
 

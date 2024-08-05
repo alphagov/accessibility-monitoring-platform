@@ -358,7 +358,7 @@ def test_view_case_includes_tests(admin_client):
     assertContains(response, "Date of test")
     assertContains(response, "Initial statement compliance decision")
 
-    assertContains(response, "12-week test metadata")
+    assertContains(response, "12-week retest metadata")
     assertContains(response, "Date of retest")
 
 
@@ -776,7 +776,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:case-detail",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>',
         ),
-        ("cases:edit-case-details", "<li>Case details</li>"),
+        ("cases:edit-case-metadata", "<b>Case metadata</b>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
         ("cases:edit-qa-comments", "<li>QA comments</li>"),
@@ -977,7 +977,7 @@ def test_create_case_shows_error_messages(admin_client):
 @pytest.mark.parametrize(
     "button_name, expected_redirect_url",
     [
-        ("save_continue_case", reverse("cases:edit-case-details", kwargs={"pk": 1})),
+        ("save_continue_case", reverse("cases:edit-case-metadata", kwargs={"pk": 1})),
         ("save_new_case", reverse("cases:case-create")),
         ("save_exit", reverse("cases:case-list")),
     ],
@@ -1030,7 +1030,7 @@ def test_create_case_shows_duplicate_cases(admin_client):
 @pytest.mark.parametrize(
     "button_name, expected_redirect_url",
     [
-        ("save_continue_case", reverse("cases:edit-case-details", kwargs={"pk": 3})),
+        ("save_continue_case", reverse("cases:edit-case-metadata", kwargs={"pk": 3})),
         ("save_new_case", reverse("cases:case-create")),
         ("save_exit", reverse("cases:case-list")),
     ],
@@ -1108,8 +1108,8 @@ def test_updating_case_creates_case_event(admin_client):
 @pytest.mark.parametrize(
     "case_edit_path, button_name, expected_redirect_path",
     [
-        ("cases:edit-case-details", "save", "cases:edit-case-details"),
-        ("cases:edit-case-details", "save_continue", "cases:edit-test-results"),
+        ("cases:edit-case-metadata", "save", "cases:edit-case-metadata"),
+        ("cases:edit-case-metadata", "save_continue", "cases:edit-test-results"),
         ("cases:edit-test-results", "save", "cases:edit-test-results"),
         ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
         ("cases:edit-report-details", "save", "cases:edit-report-details"),
@@ -1922,7 +1922,7 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
 @pytest.mark.parametrize(
     "flag_name, section_name, edit_url_name",
     [
-        ("case_details_complete_date", "Case details", "edit-case-details"),
+        ("case_details_complete_date", "Case metadata", "edit-case-metadata"),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
         ("qa_auditor_complete_date", "Report approved", "edit-report-approved"),
@@ -2054,7 +2054,6 @@ def test_no_anchor_section_complete_check_displayed(
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-case-details", "case_details_complete_date", "Case details"),
         ("cases:edit-test-results", "testing_details_complete_date", "Testing details"),
         (
             "cases:edit-report-details",
@@ -2114,17 +2113,6 @@ def test_no_anchor_section_complete_check_displayed(
             "twelve_week_retest_complete_date",
             "12-week retest",
         ),
-        (
-            "cases:edit-review-changes",
-            "review_changes_complete_date",
-            "Reviewing changes",
-        ),
-        (
-            "cases:edit-enforcement-recommendation",
-            "enforcement_recommendation_complete_date",
-            "Enforcement recommendation",
-        ),
-        ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
     ],
 )
 def test_section_complete_check_displayed_in_steps_platform_methodology(
@@ -2147,6 +2135,49 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     assertContains(
         response,
         f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;',
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "step_url, flag_name, step_name",
+    [
+        ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
+        (
+            "cases:edit-review-changes",
+            "review_changes_complete_date",
+            "Reviewing changes",
+        ),
+        (
+            "cases:edit-enforcement-recommendation",
+            "enforcement_recommendation_complete_date",
+            "Enforcement recommendation",
+        ),
+        ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
+    ],
+)
+def test_section_complete_check_displayed_in_nav_details(
+    step_url, flag_name, step_name, admin_client
+):
+    """
+    Test that the section complete tick is displayed in list of steps
+    when step is ocmplete
+    """
+    case: Case = Case.objects.create()
+    setattr(case, flag_name, TODAY)
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li><b>{step_name}</b>
+                <span class="govuk-visually-hidden">complete</span> &check;
+        </li>""",
         html=True,
     )
 
@@ -2415,7 +2446,7 @@ def test_format_due_date_help_text(due_date, expected_help_text):
 @pytest.mark.parametrize(
     "edit_link_label",
     [
-        "edit-case-details",
+        "edit-case-metadata",
         "edit-test-results",
         "edit-report-details",
         "edit-report-approved",
@@ -2452,7 +2483,7 @@ def test_status_change_message_shown(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "auditor": user.id,
             "home_page_url": HOME_PAGE_URL,
@@ -2610,7 +2641,7 @@ def test_publish_report_already_published(admin_client):
 @pytest.mark.parametrize(
     "useful_link, edit_url_name",
     [
-        ("zendesk_url", "edit-case-details"),
+        ("zendesk_url", "edit-case-metadata"),
         ("trello_url", "edit-contact-details"),
         ("zendesk_url", "edit-test-results"),
         ("trello_url", "edit-report-details"),
@@ -2635,17 +2666,6 @@ def test_frequently_used_links_displayed_in_edit(
 
     assert response.status_code == 200
 
-    assertContains(response, "<li>Unassigned case</li>")
-
-    assertContains(
-        response,
-        """<li>
-            <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View website
-            </a>
-        </li>""",
-        html=True,
-    )
     assertContains(
         response,
         f"""<li>
@@ -2857,7 +2877,7 @@ def test_update_case_checks_version(admin_client):
     "edit_url_name",
     [
         "case-detail",
-        "edit-case-details",
+        "edit-case-metadata",
         "edit-test-results",
         "edit-report-details",
         "edit-report-approved",
@@ -2913,7 +2933,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     assertContains(
         response,
         f"""<li>
-            <a href="{reverse('cases:edit-case-details', kwargs=case_pk_kwargs)}"
+            <a href="{reverse('cases:edit-case-metadata', kwargs=case_pk_kwargs)}"
                 class="govuk-link govuk-link--no-visited-state">
                 Assign an auditor</a></li>""",
         html=True,
@@ -2931,7 +2951,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     assertContains(
         response,
         f"""<li>
-            <a href="{reverse('cases:edit-case-details', kwargs=case_pk_kwargs)}"
+            <a href="{reverse('cases:edit-case-metadata', kwargs=case_pk_kwargs)}"
                 class="govuk-link govuk-link--no-visited-state">
                 Assign an auditor</a>&check;</li>""",
         html=True,
@@ -3138,7 +3158,7 @@ def test_navigation_links_shown(
     nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -3293,7 +3313,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
 
 @pytest.mark.parametrize(
     "url_name",
-    ["cases:case-detail", "cases:edit-case-details"],
+    ["cases:case-detail", "cases:edit-case-metadata"],
 )
 def test_frequently_used_links_displayed(url_name, admin_client):
     """
@@ -3310,7 +3330,6 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
     assertContains(response, "Email templates")
-    assertContains(response, "No report has been published")
     assertContains(response, "View website")
 
 
@@ -3616,7 +3635,7 @@ def test_updating_equality_body_updates_published_report_data_updated_time(
     assert audit.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "enforcement_body": Case.EnforcementBody.ECNI,
             "version": case.version,
@@ -3646,7 +3665,7 @@ def test_updating_home_page_url_updates_published_report_data_updated_time(
     assert audit.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "home_page_url": "https://example.com/updated",
             "version": case.version,
@@ -3676,7 +3695,7 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
     assert audit.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "organisation_name": "New name",
             "version": case.version,
@@ -3765,7 +3784,7 @@ def test_case_close_missing_data(admin_client):
         response,
         """<li>
             Organisation is missing
-            <span class="amp-nowrap">(<a href="/cases/1/edit-case-details/#id_organisation_name-label" class="govuk-link govuk-link--no-visited-state">
+            <span class="amp-nowrap">(<a href="/cases/1/edit-case-metadata/#id_organisation_name-label" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden"> Organisation</span></a>)</span>
         </li>""",
         html=True,
@@ -3774,7 +3793,7 @@ def test_case_close_missing_data(admin_client):
         response,
         """<li>
             Website URL is missing
-            <span class="amp-nowrap">(<a href="/cases/1/edit-case-details/#id_home_page_url-label" class="govuk-link govuk-link--no-visited-state">
+            <span class="amp-nowrap">(<a href="/cases/1/edit-case-metadata/#id_home_page_url-label" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden"> Website URL</span></a>)</span>
         </li>""",
         html=True,

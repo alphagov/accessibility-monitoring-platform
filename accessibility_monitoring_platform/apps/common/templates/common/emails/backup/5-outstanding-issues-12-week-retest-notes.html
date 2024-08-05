@@ -34,6 +34,12 @@ Please review the issues listed below and provide an update.
     </tbody>
     </table>
     {% endif %}
+    {% if issues_table.page.retest_notes %}
+        <b>Additional issues found on page</b>
+        <br>
+        <br>
+        {{ issues_table.page.retest_notes|markdown_to_html}}
+    {% endif %}
     {% endfor %}
 {% else %}
     We found no major issues.

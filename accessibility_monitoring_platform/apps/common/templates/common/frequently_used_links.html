@@ -1,4 +1,5 @@
 <h3 class="govuk-heading-m amp-margin-bottom-5">Frequently used links</h3>
+<div class="amp-nav-steps">
 <ul class="govuk-list">
     <li>
         {% if case.audit %}
@@ -26,20 +27,6 @@
     <li>
         <a href="{% url 'cases:email-template-list' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
             Email templates
-        </a>
-    </li>
-    <li>
-        {% if case.report.latest_s3_report %}
-            <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View published HTML report
-            </a>
-        {% else %}
-            No report has been published
-        {% endif %}
-    </li>
-    <li>
-        <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-            View website
         </a>
     </li>
     {% if in_testing_ui %}
@@ -89,3 +76,4 @@
         </li>
     {% endfor %}
 </ul>
+</div>

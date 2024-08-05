@@ -29,7 +29,7 @@ class ExportCaseAdmin(admin.ModelAdmin):
     search_fields = [
         "export__exporter__username",
         "case__organisation_name",
-        "case__id",
+        "case__case_number",
     ]
     list_display = [
         "export",

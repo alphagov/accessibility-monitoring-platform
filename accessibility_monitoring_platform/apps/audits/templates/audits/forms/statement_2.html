@@ -4,18 +4,26 @@
 
 {% load static %}
 
-{% block title %}{{ audit.case.organisation_name }} | Accessibility statement Pt. 2{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='Accessibility statement Pt. 2' %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' with case=audit.case %}
+        </div>
+    </div>
+    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading=amp_page_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Accessibility statement Pt. 2' case=audit.case %}
+                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name case=audit.case %}
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-statement-2' %}
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'audits/helpers/statement_pages.html' %}
                 {% include 'common/error_summary.html' %}
@@ -52,9 +60,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-statement-2' %}
             </div>
         </div>
     </main>

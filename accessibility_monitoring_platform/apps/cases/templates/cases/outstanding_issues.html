@@ -2,19 +2,28 @@
 
 {% load humanize %}
 
-{% block title %}{{ case.organisation_name }} | Outstanding issues{% endblock %}
+{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading='Outstanding issues' %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' %}
+        </div>
+    </div>
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Outstanding issues' %}
+                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
             </div>
         </div>
         {% if case.audit %}
             <div class="govuk-grid-row">
+                <div class="govuk-grid-column-one-third">
+                    {% include "cases/helpers/nav_details.html" %}
+                    {% include 'cases/helpers/nav_steps.html' %}
+                </div>
                 <div class="govuk-grid-column-two-thirds">
                     {% include 'cases/helpers/email_templates.html' %}
                     <div class="govuk-grid-row">
@@ -272,9 +281,6 @@
                             </div>
                         </div>
                     {% endif %}
-                </div>
-                <div class="govuk-grid-column-one-third">
-                    {% include 'cases/helpers/nav_steps.html' %}
                 </div>
             </div>
         {% else %}

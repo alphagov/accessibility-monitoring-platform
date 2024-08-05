@@ -15,6 +15,7 @@ from django.db import models
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from ..common.models import Boolean, EmailTemplate, Sector, SubCategory, VersionModel
 from ..common.utils import (
@@ -154,7 +155,7 @@ class Case(VersionModel):
         default=Variant.CLOSE_CASE,
     )
 
-    # Case details page
+    # Case metadata page
     created = models.DateTimeField(blank=True)
     auditor = models.ForeignKey(
         User,
@@ -475,9 +476,9 @@ class Case(VersionModel):
     def title(self) -> str:
         title: str = ""
         if self.website_name:
-            title += f"{self.website_name} | "
-        title += f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.case_number}"
-        return title
+            title += f"{self.website_name} &nbsp;|&nbsp; "
+        title += f"{self.organisation_name} &nbsp;|&nbsp; #{self.case_number}"
+        return mark_safe(title)
 
     @property
     def next_action_due_date(self) -> Optional[date]:

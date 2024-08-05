@@ -2,19 +2,24 @@
 
 {% load l10n %}
 
-{% block title %}{{ audit.case.organisation_name }} | Test metadata{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='Test metadata' %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' with case=audit.case %}
+        </div>
+    </div>
+    {% include 'audits/helpers/breadcrumb_audit.html' with nav_section_name='Initial WCAG test' page_heading=amp_page_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Test metadata' case=audit.case %}
+            <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" with current_section_name='Initial WCAG test' current_page_name=amp_page_name %}
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-metadata' %}
             </div>
-        </div>
-        <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name case=audit.case %}
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-metadata' audit.id %}">
                     {% csrf_token %}
@@ -27,9 +32,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-metadata' %}
             </div>
         </div>
     </main>

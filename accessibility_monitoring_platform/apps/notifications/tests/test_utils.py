@@ -16,7 +16,7 @@ from ...cases.views import (
     calculate_twelve_week_chaser_dates,
 )
 from ...common.models import Boolean
-from ..models import Notification, NotificationSetting, Option, Task
+from ..models import NotificationSetting, Option, Task
 from ..utils import (
     add_task,
     build_overdue_task_options,
@@ -165,7 +165,6 @@ def test_add_task_creates_new_email_notification_model_when_null(mailoutbox, rf)
     request.user = user
     case: Case = Case.objects.create()
 
-    assert Notification.objects.all().first() is None
     assert NotificationSetting.objects.all().first() is None
 
     add_task(

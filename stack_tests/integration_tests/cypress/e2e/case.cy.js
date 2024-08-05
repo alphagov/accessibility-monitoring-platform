@@ -32,7 +32,7 @@ describe('View case', () => {
   })
 
   it('can edit case details', () => {
-    cy.get('#edit-case-details').click()
+    cy.get('#edit-case-metadata').click()
     cy.get('#id_auditor').select('Auditor')
     cy.get('[name="psb_location"]').check('uk_wide')
     cy.get('[name="notes"]').clear().type(caseDetailsNote)

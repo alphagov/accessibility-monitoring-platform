@@ -63,7 +63,7 @@ class CaseStatusAdmin(admin.ModelAdmin):
     """Django admin configuration for CaseStatus model"""
 
     readonly_fields = ["case"]
-    search_fields = ["case__organisation_name", "case__id"]
+    search_fields = ["case__organisation_name", "case__case_number"]
     list_filter = ["status"]
 
 
@@ -71,7 +71,7 @@ class CaseComplianceAdmin(admin.ModelAdmin):
     """Django admin configuration for CaseCompliance model"""
 
     readonly_fields = ["case"]
-    search_fields = ["case__organisation_name", "case__id"]
+    search_fields = ["case__organisation_name", "case__case_number"]
     list_display = [
         "case",
         "__str__",
@@ -91,7 +91,7 @@ class CaseEventAdmin(admin.ModelAdmin, ExportCsvMixin):
     readonly_fields = ["case", "event_type", "message", "event_time", "done_by"]
     search_fields = [
         "case__organisation_name",
-        "case__id",
+        "case__case_number",
         "message",
         "done_by__username",
     ]
@@ -108,7 +108,7 @@ class ContactAdmin(admin.ModelAdmin):
         "job_title",
         "email",
         "case__organisation_name",
-        "case__id",
+        "case__case_number",
     ]
     list_display = ["email", "name", "job_title", "case"]
     autocomplete_fields = ["case"]
@@ -121,7 +121,7 @@ class EqualityBodyCorrespondenceAdmin(admin.ModelAdmin):
         "message",
         "notes",
         "case__organisation_name",
-        "case__id",
+        "case__case_number",
     ]
     list_display = ["created", "case", "type", "status", "message"]
     list_filter = ["type", "status"]
@@ -134,7 +134,7 @@ class ZendeskTicketAdmin(admin.ModelAdmin):
         "url",
         "summary",
         "case__organisation_name",
-        "case__id",
+        "case__case_number",
     ]
     list_display = ["url", "summary", "case", "created", "is_deleted"]
     list_filter = ["is_deleted"]
