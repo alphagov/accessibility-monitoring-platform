@@ -2647,15 +2647,17 @@ def test_retest_pages_comparison_groups_by_page_or_wcag(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
-    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
-
-    response: HttpResponse = admin_client.get(url)
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
+    )
 
     assert response.status_code == 200
 
     assertContains(response, "Test summary | Page view")
 
-    response: HttpResponse = admin_client.get(f"{url}?view=WCAG view")
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-pages-comparison-by-wcag", kwargs=audit_pk)
+    )
 
     assert response.status_code == 200
 
