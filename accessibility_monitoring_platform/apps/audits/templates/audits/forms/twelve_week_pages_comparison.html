@@ -178,6 +178,16 @@
                                         {% endfor %}
                                     </tbody>
                                 </table>
+                                <p class="govuk-body-m">
+                                    <b>Additional issues found on page</b>
+                                </p>
+                                <div class="govuk-body-m amp-margin-bottom-30">
+                                    {% if page.retest_notes %}
+                                        {{ page.retest_notes|markdown_to_html}}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
