@@ -134,7 +134,7 @@
                     {% endfor %}
                 {% else %}
                     <h2 class="govuk-heading-l">Test summary | Page view</h2>
-                    {% for page, failures in audit_failures_by_page.items %}
+                    {% for page in audit.testable_pages %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
                                 <h3 class="govuk-heading-m">{{ page }}</h3>
@@ -162,19 +162,22 @@
                                         </tr>
                                     </thead>
                                     <tbody class="govuk-table__body">
-                                        {% for failure in failures %}
-                                            <tr class="govuk-table__row ">
-                                                <td scope="row" class="govuk-table__cell amp-width-one-third">
-                                                    {{ failure.wcag_definition.name }}
-                                                </td>
-                                                <td scope="row" class="govuk-table__cell amp-width-one-third amp-notes">
-                                                    {{ failure.notes|markdown_to_html }}
-                                                </td>
-                                                <td class="govuk-table__cell amp-width-one-third amp-notes">
-                                                    {{ failure.get_retest_state_display }}<br>
-                                                    {{ failure.retest_notes|markdown_to_html }}
-                                                </td>
-                                            </tr>
+                                        {% for failure in page.failed_check_results %}
+                                            {% if hide_fixed and failure.retest_state == 'fixed' %}
+                                            {% else %}
+                                                <tr class="govuk-table__row ">
+                                                    <td scope="row" class="govuk-table__cell amp-width-one-third">
+                                                        {{ failure.wcag_definition.name }}
+                                                    </td>
+                                                    <td scope="row" class="govuk-table__cell amp-width-one-third amp-notes">
+                                                        {{ failure.notes|markdown_to_html }}
+                                                    </td>
+                                                    <td class="govuk-table__cell amp-width-one-third amp-notes">
+                                                        {{ failure.get_retest_state_display }}<br>
+                                                        {{ failure.retest_notes|markdown_to_html }}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
                                         {% endfor %}
                                     </tbody>
                                 </table>

@@ -123,10 +123,6 @@ class AuditRetestPagesComparisonView(AuditUpdateView):
             context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
                 items=check_results, group_by_attr="wcag_definition"
             )
-        else:
-            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                items=check_results, group_by_attr="page"
-            )
 
         context["missing_pages"] = Page.objects.filter(audit=audit).exclude(
             retest_page_missing_date=None
