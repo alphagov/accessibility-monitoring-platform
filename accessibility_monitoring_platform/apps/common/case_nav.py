@@ -31,6 +31,8 @@ class CaseNavContextMixin:
                 case: Case = self.page.audit.case
             elif "case_id" in self.kwargs:
                 case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+            elif "pk" in self.kwargs:
+                case: Case = get_object_or_404(Case, id=self.kwargs.get("pk"))
             if case is not None:
                 context["case"] = case
 

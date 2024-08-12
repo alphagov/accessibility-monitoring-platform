@@ -18,13 +18,13 @@
                 {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
             </div>
         </div>
-        {% if case.audit %}
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-one-third">
-                    {% include "cases/helpers/nav_details.html" %}
-                    {% include 'cases/helpers/nav_steps.html' %}
-                </div>
-                <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" %}
+                {% include 'cases/helpers/nav_steps.html' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                {% if case.audit %}
                     {% include 'cases/helpers/email_templates.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
@@ -281,21 +281,21 @@
                             </div>
                         </div>
                     {% endif %}
-                </div>
+                {% else %}
+                    <h2 class="govuk-heading-l">Overview</h2>
+                    <p class="govuk-body">
+                        This is a new case and does not have any test data.
+                        Complete a
+                        <a href="{% url 'cases:edit-test-results' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state">test</a>
+                        and
+                        <a href="{% url 'cases:edit-twelve-week-retest' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state">retest</a>
+                        before using this page.
+                    </p>
+                {% endif %}
             </div>
-        {% else %}
-            <h2 class="govuk-heading-l">Overview</h2>
-            <p class="govuk-body">
-                This is a new case and does not have any test data.
-                Complete a
-                <a href="{% url 'cases:edit-test-results' case.id %}"
-                    class="govuk-link govuk-link--no-visited-state">test</a>
-                and
-                <a href="{% url 'cases:edit-twelve-week-retest' case.id %}"
-                    class="govuk-link govuk-link--no-visited-state">retest</a>
-                before using this page.
-            </p>
-        {% endif %}
+        </div>
     </main>
 </div>
 {% endblock %}
