@@ -851,6 +851,12 @@ svg {
     ul {
         font-size: 1rem;
     }
+
+    a[disabled] {
+        pointer-events: none;
+        color: govuk-colour("mid-grey");
+        text-decoration: none;
+    }
 }
 
 .amp-session-warning {

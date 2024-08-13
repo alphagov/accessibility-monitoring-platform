@@ -55,6 +55,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
     delete_zendesk_ticket,
+    enable_correspondence_process,
     export_cases,
     export_feedback_suvey_cases,
 )
@@ -116,6 +117,11 @@ urlpatterns: List[URLPattern] = [
         "contacts/<int:pk>/edit-contact-update/",
         login_required(ContactUpdateView.as_view()),
         name="edit-contact-update",
+    ),
+    path(
+        "<int:pk>/enable-correspondence-process/",
+        login_required(enable_correspondence_process),
+        name="enable-correspondence-process",
     ),
     path(
         "<int:pk>/edit-request-contact-details/",

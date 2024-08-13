@@ -253,6 +253,9 @@ class Case(VersionModel):
         default=ContactDetailsFound.NOT_CHECKED,
     )
 
+    # Correspondence process
+    enable_correspondence_process = models.BooleanField(default=False)
+
     # Request contact details page
     seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
     seven_day_no_contact_request_sent_to = models.CharField(

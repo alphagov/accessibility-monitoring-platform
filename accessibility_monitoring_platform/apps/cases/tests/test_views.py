@@ -4,7 +4,7 @@ Tests for cases views
 
 import json
 from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -178,6 +178,12 @@ RETEST_NOTES: str = "Retest notes"
 HOME_PAGE_ERROR_NOTES: str = "Home page error note"
 STATEMENT_PAGE_ERROR_NOTES: str = "Statement page error note"
 OUTSTANDING_ISSUE_NOTES: str = "Outstanding error found."
+CORRESPONDENCE_PROCESS_PAGES: List[Tuple[str, str]] = [
+    ("edit-request-contact-details", "Request contact details"),
+    ("edit-one-week-contact-details", "One-week follow-up"),
+    ("edit-four-week-contact-details", "Four-week follow-up"),
+    ("edit-no-psb-response", "Unresponsive PSB"),
+]
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -3830,3 +3836,125 @@ def test_zendesk_tickets_shown(admin_client):
     assert response.status_code == 200
 
     assertContains(response, ZENDESK_SUMMARY)
+
+
+def test_enable_correspondence_process(admin_client):
+    """Test enabling of correspondence process"""
+    case: Case = Case.objects.create()
+
+    assert case.enable_correspondence_process is False
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:enable-correspondence-process",
+            kwargs={"pk": case.id},
+        )
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "cases:edit-request-contact-details",
+        kwargs={"pk": case.id},
+    )
+
+    case_from_db: Case = Case.objects.get(id=case.id)
+
+    assert case_from_db.enable_correspondence_process is True
+
+
+def test_enabling_correspondence_process(admin_client):
+    """Test enabling of correspondence process pages"""
+    case: Case = Case.objects.create()
+
+    assert case.enable_correspondence_process is False
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:edit-contact-details-list",
+            kwargs={"pk": case.id},
+        )
+    )
+
+    assert response.status_code == 200
+
+    for url, label in CORRESPONDENCE_PROCESS_PAGES:
+        assertContains(
+            response,
+            f"""<a href="/cases/1/{url}/"
+                class="govuk-link govuk-link--no-visited-state"
+                disabled="">
+                {label}</a>""",
+            html=True,
+        )
+
+    case.enable_correspondence_process = True
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:edit-contact-details-list",
+            kwargs={"pk": case.id},
+        )
+    )
+
+    assert response.status_code == 200
+
+    for url, label in CORRESPONDENCE_PROCESS_PAGES:
+        assertContains(
+            response,
+            f"""<a href="/cases/1/{url}/"
+                class="govuk-link govuk-link--no-visited-state"
+                >
+                {label}</a>""",
+            html=True,
+        )
+
+
+def test_add_contact_details_redirects_correctly(admin_client):
+    """
+    Test add contact details page redirects based on
+    enable_correspondence_process value
+    """
+    case: Case = Case.objects.create()
+
+    assert case.enable_correspondence_process is False
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:edit-contact-details-list",
+            kwargs={"pk": case.id},
+        ),
+        {
+            "version": case.version,
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "cases:edit-report-sent-on",
+        kwargs={"pk": case.id},
+    )
+
+    case.enable_correspondence_process = True
+    case.save()
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:edit-contact-details-list",
+            kwargs={"pk": case.id},
+        ),
+        {
+            "version": case.version,
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "cases:edit-request-contact-details",
+        kwargs={"pk": case.id},
+    )

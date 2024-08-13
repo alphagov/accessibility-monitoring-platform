@@ -50,16 +50,19 @@ class CaseNavContextMixin:
 
 class NavPage:
     url: str
+    disabled: bool = False
     complete: bool = False
     subpages: Optional[List["NavPage"]] = None
 
     def __init__(
         self,
         url: str,
+        disabled: bool = False,
         complete: Optional[date] = None,
         subpages: Optional[List["NavPage"]] = None,
     ):
         self.url = url
+        self.disabled = disabled
         self.complete = complete is not None
         self.subpages = subpages
         self.name = get_amp_page_name_by_url(url=url)
@@ -127,22 +130,26 @@ def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
                     url=reverse(
                         "cases:edit-request-contact-details", kwargs=kwargs_case_pk
                     ),
+                    disabled=not case.enable_correspondence_process,
                     complete=case.request_contact_details_complete_date,
                 ),
                 NavPage(
                     url=reverse(
                         "cases:edit-one-week-contact-details", kwargs=kwargs_case_pk
                     ),
+                    disabled=not case.enable_correspondence_process,
                     complete=case.one_week_contact_details_complete_date,
                 ),
                 NavPage(
                     url=reverse(
                         "cases:edit-four-week-contact-details", kwargs=kwargs_case_pk
                     ),
+                    disabled=not case.enable_correspondence_process,
                     complete=case.four_week_contact_details_complete_date,
                 ),
                 NavPage(
                     url=reverse("cases:edit-no-psb-response", kwargs=kwargs_case_pk),
+                    disabled=not case.enable_correspondence_process,
                     complete=case.no_psb_contact_complete_date,
                 ),
             ],

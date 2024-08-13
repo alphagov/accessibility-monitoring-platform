@@ -5,7 +5,7 @@
                             {% if case_section.name == current_section_name and page.name == current_page_name and not current_subpage_name %}
                                 <b>{{ page.name }}</b>
                             {% else %}
-                                <a href="{{ page.url }}" class="govuk-link govuk-link--no-visited-state">{{ page.name }}</a>
+                                <a href="{{ page.url }}" class="govuk-link govuk-link--no-visited-state" {% if page.disabled %}disabled{% endif %}>{{ page.name }}</a>
                             {% endif %}
                             {% if page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
                             {% if page.subpages %}

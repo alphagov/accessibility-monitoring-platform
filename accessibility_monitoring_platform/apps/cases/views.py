@@ -526,9 +526,13 @@ class CaseContactDetailsListUpdateView(CaseContactDetailsUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}
         if "save_continue" in self.request.POST:
-            return reverse("cases:edit-request-contact-details", kwargs=case_pk)
+            case: Case = self.object
+            case_pk: Dict[str, int] = {"pk": case.id}
+            if case.enable_correspondence_process is True:
+                return reverse("cases:edit-request-contact-details", kwargs=case_pk)
+            else:
+                return reverse("cases:edit-report-sent-on", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -1486,3 +1490,15 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
             )
         context["email_template_render"] = self.object.render(context=context)
         return context
+
+
+def enable_correspondence_process(
+    request: HttpRequest, pk: int
+) -> HttpResponseRedirect:
+    """Mark correspondence process as enabled in Case"""
+    case: Case = get_object_or_404(Case, id=pk)
+    case.enable_correspondence_process = True
+    case.save()
+    return redirect(
+        reverse("cases:edit-request-contact-details", kwargs={"pk": case.id})
+    )
