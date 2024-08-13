@@ -1299,3 +1299,23 @@ def test_case_report_number_of_unique_visitors():
     ReportVisitsMetrics.objects.create(case=case)
 
     assert case.report_number_of_unique_visitors == 1
+
+
+@pytest.mark.django_db
+def test_case_website_contact_links_count():
+    """Test Case.website_contact_links_count returns expected data"""
+    case: Case = Case.objects.create()
+
+    assert case.website_contact_links_count == 0
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.website_contact_links_count == 0
+
+    Page.objects.create(audit=audit, page_type=Page.Type.CONTACT, url="url")
+
+    assert case.website_contact_links_count == 1
+
+    Page.objects.create(audit=audit, page_type=Page.Type.STATEMENT, url="url")
+
+    assert case.website_contact_links_count == 2

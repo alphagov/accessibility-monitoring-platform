@@ -901,6 +901,22 @@ class Case(VersionModel):
             .count()
         )
 
+    @property
+    def website_contact_links_count(self):
+        """
+        Count how many links have been entered where the user can look for contacts
+        """
+        links_count: int = 0
+        if self.audit is not None:
+            if self.audit.contact_page is not None and self.audit.contact_page.url:
+                links_count += 1
+            if (
+                self.audit.accessibility_statement_page is not None
+                and self.audit.accessibility_statement_page.url
+            ):
+                links_count += 1
+        return links_count
+
 
 class CaseStatus(models.Model):
     """
