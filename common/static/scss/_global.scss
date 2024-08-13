@@ -850,6 +850,10 @@ svg {
 
     ul {
         font-size: 1rem;
+
+        .amp-nav-list-subpages {
+            list-style-type: disc;
+        }
     }
 
     a[disabled] {

@@ -550,6 +550,7 @@ class ContactCreateView(CaseNavContextMixin, CreateView):
         """Add field values into context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["current_section_name"] = "Contact details"
+        context["current_subpage_name"] = "Add contact"
         return context
 
     def form_valid(self, form: ContactCreateForm):

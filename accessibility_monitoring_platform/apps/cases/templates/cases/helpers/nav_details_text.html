@@ -11,7 +11,7 @@
                             {% if page.subpages %}
                                 <ul class="amp-nav-list-subpages">
                                     {% for subpage in page.subpages %}
-                                        <li>
+                                        <li class="amp-nav-list-subpages">
                                             {% if case_section.name == current_section_name and subpage.name == current_subpage_name %}
                                                 <b>{{ subpage.name }}</b>
                                             {% else %}

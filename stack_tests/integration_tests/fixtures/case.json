@@ -76,6 +76,7 @@
       "is_deactivated": false,
       "deactivate_date": null,
       "deactivate_notes": "",
+      "enable_correspondence_process": true,
       "qa_status": "qa-approved"
     }
   },

@@ -242,7 +242,7 @@ class Case(VersionModel):
     zendesk_url = models.TextField(default="", blank=True)
     cores_overview_complete_date = models.DateField(null=True, blank=True)
 
-    # Add contact details page
+    # Manage contact details page
     contact_notes = models.TextField(default="", blank=True)
     contact_details_complete_date = models.DateField(null=True, blank=True)
 

@@ -792,7 +792,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
         ),
-        ("cases:edit-contact-details-list", "<b>Add contact details</b>"),
+        ("cases:edit-contact-details-list", "<b>Manage contact details</b>"),
         ("cases:edit-request-contact-details", "<b>Request contact details</b>"),
         ("cases:edit-one-week-contact-details", "<b>One-week follow-up</b>"),
         ("cases:edit-four-week-contact-details", "<b>Four-week follow-up</b>"),
@@ -840,7 +840,7 @@ def test_create_contact_page_loads(admin_client):
 
     assertContains(
         response,
-        "<b>Add contact details</b>",
+        "<b>Add contact</b>",
         html=True,
     )
 
@@ -858,7 +858,7 @@ def test_update_contact_page_loads(admin_client):
 
     assertContains(
         response,
-        "<b>Add contact details</b>",
+        """<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit contact</h1>""",
         html=True,
     )
 
@@ -1174,7 +1174,7 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-contact-details-list",
             "save_continue",
-            "cases:edit-request-contact-details",
+            "cases:edit-report-sent-on",
         ),
         (
             "cases:edit-request-contact-details",
@@ -2068,11 +2068,6 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     [
         ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
         (
-            "cases:edit-contact-details-list",
-            "contact_details_complete_date",
-            "Add contact details",
-        ),
-        (
             "cases:edit-request-contact-details",
             "request_contact_details_complete_date",
             "Request contact details",
@@ -2136,7 +2131,7 @@ def test_section_complete_check_displayed_in_nav_details(
 ):
     """
     Test that the section complete tick is displayed in list of steps
-    when step is ocmplete
+    when step is complete
     """
     case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
@@ -2152,6 +2147,35 @@ def test_section_complete_check_displayed_in_nav_details(
         response,
         f"""<li><b>{step_name}</b>
                 <span class="govuk-visually-hidden">complete</span> &check;
+        </li>""",
+        html=True,
+    )
+
+
+def test_manage_contact_details_page_complete_check_displayed_in_nav_details(
+    admin_client,
+):
+    """
+    Test that the Manage contact details complete tick is displayed in list of steps
+    """
+    case: Case = Case.objects.create(contact_details_complete_date=TODAY)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <b>Manage contact details</b>
+            <span class="govuk-visually-hidden">complete</span> &check;
+            <ul class="amp-nav-list-subpages">
+                <li class="amp-nav-list-subpages">
+                    <a href="/cases/1/edit-contact-create/" class="govuk-link govuk-link--no-visited-state">Add contact</a>
+                </li>
+            </ul>
         </li>""",
         html=True,
     )
@@ -2978,7 +3002,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "cases:edit-qa-comments",
             "QA comments",
         ),
-        ("cases:edit-contact-details-list", "Add contact details"),
+        ("cases:edit-contact-details-list", "Manage contact details"),
         (
             "cases:edit-request-contact-details",
             "Request contact details",
@@ -3034,7 +3058,7 @@ def test_navigation_links_shown(
     """
     Test case steps' navigation links are shown
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
     nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
