@@ -817,7 +817,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
 )
 def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the case-specific view page loads"""
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
 
     response: HttpResponse = admin_client.get(
         reverse(path_name, kwargs={"pk": case.id})
@@ -2149,7 +2149,7 @@ def test_section_complete_check_displayed_in_nav_details(
     Test that the section complete tick is displayed in list of steps
     when step is complete
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
     setattr(case, flag_name, TODAY)
     case.save()
 
@@ -3919,11 +3919,10 @@ def test_enabling_correspondence_process(admin_client):
     assert response.status_code == 200
 
     for url, label in CORRESPONDENCE_PROCESS_PAGES:
-        assertContains(
+        assertNotContains(
             response,
             f"""<a href="/cases/1/{url}/"
-                class="govuk-link govuk-link--no-visited-state"
-                disabled="">
+                class="govuk-link govuk-link--no-visited-state">
                 {label}</a>""",
             html=True,
         )
@@ -3944,8 +3943,7 @@ def test_enabling_correspondence_process(admin_client):
         assertContains(
             response,
             f"""<a href="/cases/1/{url}/"
-                class="govuk-link govuk-link--no-visited-state"
-                >
+                class="govuk-link govuk-link--no-visited-state">
                 {label}</a>""",
             html=True,
         )
