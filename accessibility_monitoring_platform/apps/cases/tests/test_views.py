@@ -2188,9 +2188,32 @@ def test_manage_contact_details_page_complete_check_displayed_in_nav_details(
             <b>Manage contact details</b>
             <span class="govuk-visually-hidden">complete</span> &check;
             <ul class="amp-nav-list-subpages">
-                <li class="amp-nav-list-subpages">
-                    <a href="/cases/1/edit-contact-create/" class="govuk-link govuk-link--no-visited-state">Add contact</a>
-                </li>
+            </ul>
+        </li>""",
+        html=True,
+    )
+
+
+def test_add_contact_page_in_case_nav_when_current_page(
+    admin_client,
+):
+    """
+    Test that the Manage contact details complete tick is displayed in list of steps
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-create", kwargs={"case_id": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="/cases/1/edit-contact-details-list/" class="govuk-link govuk-link--no-visited-state">Manage contact details</a>
+            <ul class="amp-nav-list-subpages">
+                <li class="amp-nav-list-subpages"><b>Add contact</b></li>
             </ul>
         </li>""",
         html=True,
