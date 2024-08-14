@@ -125,7 +125,7 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Manage contact details`)
-    cy.contains('Open correspondence process').click()
+    cy.contains('start correspondence process').click()
 
     cy.title().should('eq', `${newOrganisationName} | Request contact details`)
     cy.contains('Save and continue').click()

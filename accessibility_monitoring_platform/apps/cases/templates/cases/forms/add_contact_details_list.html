@@ -3,15 +3,15 @@
 {% block preform %}
 {% include 'cases/helpers/correspondence.html' %}
 <p class="govuk-body">
-    + <a href="{% url 'cases:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
-        Add contact</a>
-</p>
-{% if not case.enable_correspondence_process %}
-    <p class="govuk-body">
-        <a href="{% url 'cases:enable-correspondence-process' case.id %}" class="govuk-link govuk-link--no-visited-state">Open correspondence process</a>
+    {% if case.enable_correspondence_process %}
+        + <a href="{% url 'cases:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+            Add contact</a>
+    {% else %}
+        <a href="{% url 'cases:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Add contact</a> or
+        <a href="{% url 'cases:enable-correspondence-process' case.id %}" class="govuk-link govuk-link--no-visited-state">start correspondence process</a>
         if you’re unable to find sufficient contact details
-    </p>
-{% endif %}
+    {% endif %}
+</p>
 {% for contact in case.contacts %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-third">
