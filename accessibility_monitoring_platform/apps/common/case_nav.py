@@ -116,51 +116,48 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
 def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
     """Return correspondence sections for navigation details elements"""
     kwargs_case_pk: Dict[str, int] = {"pk": case.id}
-    return [
-        NavSection(
-            name="Contact details",
-            pages=[
-                NavPage(
-                    url=reverse(
-                        "cases:edit-contact-details-list", kwargs=kwargs_case_pk
-                    ),
-                    complete=case.contact_details_complete_date,
-                    subpages=[
-                        NavPage(
-                            url=reverse(
-                                "cases:edit-contact-create", kwargs={"case_id": case.id}
-                            ),
-                        ),
-                    ],
-                ),
-                NavPage(
-                    url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
-                    ),
-                    disabled=not case.enable_correspondence_process,
-                    complete=case.request_contact_details_complete_date,
-                ),
-                NavPage(
-                    url=reverse(
-                        "cases:edit-one-week-contact-details", kwargs=kwargs_case_pk
-                    ),
-                    disabled=not case.enable_correspondence_process,
-                    complete=case.one_week_contact_details_complete_date,
-                ),
-                NavPage(
-                    url=reverse(
-                        "cases:edit-four-week-contact-details", kwargs=kwargs_case_pk
-                    ),
-                    disabled=not case.enable_correspondence_process,
-                    complete=case.four_week_contact_details_complete_date,
-                ),
-                NavPage(
-                    url=reverse("cases:edit-no-psb-response", kwargs=kwargs_case_pk),
-                    disabled=not case.enable_correspondence_process,
-                    complete=case.no_psb_contact_complete_date,
-                ),
-            ],
+    correspondence_process: List[NavPage] = [
+        NavPage(
+            url=reverse("cases:edit-request-contact-details", kwargs=kwargs_case_pk),
+            disabled=not case.enable_correspondence_process,
+            complete=case.request_contact_details_complete_date,
         ),
+        NavPage(
+            url=reverse("cases:edit-one-week-contact-details", kwargs=kwargs_case_pk),
+            disabled=not case.enable_correspondence_process,
+            complete=case.one_week_contact_details_complete_date,
+        ),
+        NavPage(
+            url=reverse("cases:edit-four-week-contact-details", kwargs=kwargs_case_pk),
+            disabled=not case.enable_correspondence_process,
+            complete=case.four_week_contact_details_complete_date,
+        ),
+        NavPage(
+            url=reverse("cases:edit-no-psb-response", kwargs=kwargs_case_pk),
+            disabled=not case.enable_correspondence_process,
+            complete=case.no_psb_contact_complete_date,
+        ),
+    ]
+    contact_details: NavSection = NavSection(
+        name="Contact details",
+        pages=[
+            NavPage(
+                url=reverse("cases:edit-contact-details-list", kwargs=kwargs_case_pk),
+                complete=case.contact_details_complete_date,
+                subpages=[
+                    NavPage(
+                        url=reverse(
+                            "cases:edit-contact-create", kwargs={"case_id": case.id}
+                        ),
+                    ),
+                ],
+            ),
+        ],
+    )
+    if case.enable_correspondence_process is True:
+        contact_details.pages += correspondence_process
+    return [
+        contact_details,
         NavSection(
             name="Report correspondence",
             pages=[

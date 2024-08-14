@@ -210,7 +210,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                     .count(),
                 ),
             ]
-    return [
+    before_correspondence_process: List[ViewSection] = [
         build_view_section(
             name="Case details > Case metadata",
             edit_url=reverse("cases:edit-case-metadata", kwargs=case_pk),
@@ -299,33 +299,48 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 for count, contact in enumerate(case.contacts, start=1)
             ],
         ),
-        build_view_section(
-            name="Contact details > Request contact details",
-            edit_url=reverse("cases:edit-request-contact-details", kwargs=case_pk),
-            edit_url_id="edit-request-contact-details",
-            complete_date=case.request_contact_details_complete_date,
-            display_fields=get_case_rows(form=CaseRequestContactDetailsUpdateForm()),
-        ),
-        build_view_section(
-            name="Contact details > One-week follow-up",
-            edit_url=reverse("cases:edit-one-week-contact-details", kwargs=case_pk),
-            edit_url_id="edit-one-week-contact-details",
-            complete_date=case.one_week_contact_details_complete_date,
-            display_fields=get_case_rows(form=CaseOneWeekContactDetailsUpdateForm()),
-        ),
-        build_view_section(
-            name="Contact details > Four-week follow-up",
-            edit_url=reverse("cases:edit-four-week-contact-details", kwargs=case_pk),
-            edit_url_id="edit-four-week-contact-details",
-            complete_date=case.four_week_contact_details_complete_date,
-            display_fields=get_case_rows(form=CaseFourWeekContactDetailsUpdateForm()),
-        ),
-        build_view_section(
-            name="Contact details > Unresponsive PSB",
-            edit_url=reverse("cases:edit-no-psb-response", kwargs=case_pk),
-            edit_url_id="edit-no-psb-response",
-            display_fields=get_case_rows(form=CaseNoPSBContactUpdateForm()),
-        ),
+    ]
+    if case.enable_correspondence_process is True:
+        correspondence_process: List[ViewSection] = [
+            build_view_section(
+                name="Contact details > Request contact details",
+                edit_url=reverse("cases:edit-request-contact-details", kwargs=case_pk),
+                edit_url_id="edit-request-contact-details",
+                complete_date=case.request_contact_details_complete_date,
+                display_fields=get_case_rows(
+                    form=CaseRequestContactDetailsUpdateForm()
+                ),
+            ),
+            build_view_section(
+                name="Contact details > One-week follow-up",
+                edit_url=reverse("cases:edit-one-week-contact-details", kwargs=case_pk),
+                edit_url_id="edit-one-week-contact-details",
+                complete_date=case.one_week_contact_details_complete_date,
+                display_fields=get_case_rows(
+                    form=CaseOneWeekContactDetailsUpdateForm()
+                ),
+            ),
+            build_view_section(
+                name="Contact details > Four-week follow-up",
+                edit_url=reverse(
+                    "cases:edit-four-week-contact-details", kwargs=case_pk
+                ),
+                edit_url_id="edit-four-week-contact-details",
+                complete_date=case.four_week_contact_details_complete_date,
+                display_fields=get_case_rows(
+                    form=CaseFourWeekContactDetailsUpdateForm()
+                ),
+            ),
+            build_view_section(
+                name="Contact details > Unresponsive PSB",
+                edit_url=reverse("cases:edit-no-psb-response", kwargs=case_pk),
+                edit_url_id="edit-no-psb-response",
+                display_fields=get_case_rows(form=CaseNoPSBContactUpdateForm()),
+            ),
+        ]
+    else:
+        correspondence_process: List[ViewSection] = []
+    after_correspondence_process: List[ViewSection] = [
         build_view_section(
             name="Report correspondence > Report sent on",
             edit_url=reverse("cases:edit-report-sent-on", kwargs=case_pk),
@@ -435,7 +450,13 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             complete_date=case.case_close_complete_date,
             display_fields=get_case_rows(form=CaseCloseUpdateForm()),
         ),
-    ] + post_case_subsections
+    ]
+    return (
+        before_correspondence_process
+        + correspondence_process
+        + after_correspondence_process
+        + post_case_subsections
+    )
 
 
 def get_sent_date(

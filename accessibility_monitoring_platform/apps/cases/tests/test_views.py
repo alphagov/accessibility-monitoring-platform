@@ -1974,7 +1974,7 @@ def test_section_complete_check_displayed(
     """
     Test that the section complete tick is displayed in contents
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
     setattr(case, flag_name, TODAY)
     case.save()
     edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
