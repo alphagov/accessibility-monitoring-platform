@@ -51,6 +51,7 @@ class CaseNavContextMixin:
 class NavPage:
     url: str
     disabled: bool = False
+    visible_only_when_current: bool = False
     complete: bool = False
     subpages: Optional[List["NavPage"]] = None
 
@@ -58,11 +59,13 @@ class NavPage:
         self,
         url: str,
         disabled: bool = False,
+        visible_only_when_current: bool = False,
         complete: Optional[date] = None,
         subpages: Optional[List["NavPage"]] = None,
     ):
         self.url = url
         self.disabled = disabled
+        self.visible_only_when_current = visible_only_when_current
         self.complete = complete is not None
         self.subpages = subpages
         self.name = get_amp_page_name_by_url(url=url)
@@ -149,6 +152,7 @@ def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
                         url=reverse(
                             "cases:edit-contact-create", kwargs={"case_id": case.id}
                         ),
+                        visible_only_when_current=True,
                     ),
                 ],
             ),
