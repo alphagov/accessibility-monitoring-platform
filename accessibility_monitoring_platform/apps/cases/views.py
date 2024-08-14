@@ -25,7 +25,7 @@ from ..audits.forms import (
 from ..audits.utils import report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
-from ..common.case_nav import CaseNavContextMixin
+from ..common.case_nav import CaseNavContextMixin, build_case_nav_sections
 from ..common.models import Boolean, EmailTemplate
 from ..common.utils import (
     amp_format_date,
@@ -98,7 +98,6 @@ from .models import (
     ZendeskTicket,
 )
 from .utils import (
-    build_case_nav_sections,
     filter_cases,
     get_case_view_sections,
     record_case_event,
