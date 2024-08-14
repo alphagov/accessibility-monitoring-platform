@@ -1883,73 +1883,89 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
 @pytest.mark.parametrize(
     "flag_name, section_name, edit_url_name",
     [
-        ("case_details_complete_date", "Case metadata", "edit-case-metadata"),
+        (
+            "case_details_complete_date",
+            "Case details > Case metadata",
+            "edit-case-metadata",
+        ),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
         ("qa_auditor_complete_date", "Report approved", "edit-report-approved"),
         (
+            "contact_details_complete_date",
+            "Contact details > Manage contact details",
+            "edit-contact-details-list",
+        ),
+        (
             "request_contact_details_complete_date",
-            "Request contact details",
+            "Contact details > Request contact details",
             "edit-request-contact-details",
         ),
         (
             "one_week_contact_details_complete_date",
-            "One-week follow-up contact details",
+            "Contact details > One-week follow-up",
             "edit-one-week-contact-details",
         ),
         (
             "four_week_contact_details_complete_date",
-            "Four-week follow-up contact details",
+            "Contact details > Four-week follow-up",
             "edit-four-week-contact-details",
         ),
         (
-            "contact_details_complete_date",
-            "Contact details",
-            "edit-contact-details-list",
+            "report_sent_on_complete_date",
+            "Report correspondence > Report sent on",
+            "edit-report-sent-on",
         ),
-        ("report_sent_on_complete_date", "Report sent on", "edit-report-sent-on"),
         (
             "one_week_followup_complete_date",
-            "One week follow-up",
+            "Report correspondence > One week follow-up",
             "edit-report-one-week-followup",
         ),
         (
             "four_week_followup_complete_date",
-            "Four week follow-up",
+            "Report correspondence > Four week follow-up",
             "edit-report-four-week-followup",
         ),
         (
             "report_acknowledged_complete_date",
-            "Report acknowledged",
+            "Report correspondence > Report acknowledged",
             "edit-report-acknowledged",
         ),
         (
             "twelve_week_update_requested_complete_date",
-            "12-week update requested",
+            "12-week correspondence > 12-week update requested",
             "edit-12-week-update-requested",
         ),
         (
             "one_week_followup_final_complete_date",
-            "One week follow-up for final update",
+            "12-week correspondence > One week follow-up for final update",
             "edit-12-week-one-week-followup-final",
         ),
         (
             "twelve_week_update_request_ack_complete_date",
-            "12-week update request acknowledged",
+            "12-week correspondence > 12-week update request acknowledged",
             "edit-12-week-update-request-ack",
         ),
-        ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
         (
             "twelve_week_retest_complete_date",
             "12-week retest",
             "edit-twelve-week-retest",
         ),
         (
+            "review_changes_complete_date",
+            "Closing the case > Reviewing changes",
+            "edit-review-changes",
+        ),
+        (
             "enforcement_recommendation_complete_date",
-            "Enforcement recommendation",
+            "Closing the case > Enforcement recommendation",
             "edit-enforcement-recommendation",
         ),
-        ("case_close_complete_date", "Closing the case", "edit-case-close"),
+        (
+            "case_close_complete_date",
+            "Closing the case > Closing the case",
+            "edit-case-close",
+        ),
     ],
 )
 def test_section_complete_check_displayed(
