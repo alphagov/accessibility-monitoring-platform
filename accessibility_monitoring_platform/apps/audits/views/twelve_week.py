@@ -96,12 +96,10 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
 
 
 class AuditRetestPagesComparisonView(AuditUpdateView):
-    """
-    View to update audit retest pages page
-    """
+    """View to show issues grouped by page"""
 
     form_class: Type[AuditRetestPagesUpdateForm] = AuditRetestPagesUpdateForm
-    template_name: str = "audits/forms/twelve_week_pages_comparison.html"
+    template_name: str = "audits/forms/twelve_week_pages_comparison_by_page.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
@@ -110,23 +108,6 @@ class AuditRetestPagesComparisonView(AuditUpdateView):
 
         hide_fixed = "hide-fixed" in self.request.GET
         context["hide_fixed"] = hide_fixed
-
-        check_results: QuerySet[CheckResult] = (
-            audit.unfixed_check_results if hide_fixed else audit.failed_check_results
-        )
-
-        view_url_param: Union[str, None] = self.request.GET.get("view")
-        show_failures_by_wcag: bool = view_url_param == "WCAG view"
-        context["show_failures_by_wcag"] = show_failures_by_wcag
-
-        if show_failures_by_wcag:
-            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-                items=check_results, group_by_attr="wcag_definition"
-            )
-        else:
-            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                items=check_results, group_by_attr="page"
-            )
 
         context["missing_pages"] = Page.objects.filter(audit=audit).exclude(
             retest_page_missing_date=None
@@ -140,6 +121,30 @@ class AuditRetestPagesComparisonView(AuditUpdateView):
             audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
         return super().get_success_url()
+
+
+class AuditRetestPagesComparisonByWcagView(AuditRetestPagesComparisonView):
+    """View to show issues grouped by WCAG"""
+
+    form_class: Type[AuditRetestPagesUpdateForm] = AuditRetestPagesUpdateForm
+    template_name: str = "audits/forms/twelve_week_pages_comparison_by_wcag.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        audit: Audit = self.object
+
+        hide_fixed = context.get("hide_fixed", False)
+
+        check_results: QuerySet[CheckResult] = (
+            audit.unfixed_check_results if hide_fixed else audit.failed_check_results
+        )
+
+        context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+            items=check_results, group_by_attr="wcag_definition"
+        )
+
+        return context
 
 
 class AuditRetestPageChecksFormView(AuditPageChecksFormView):
