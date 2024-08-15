@@ -50,9 +50,7 @@ class EventAdmin(admin.ModelAdmin):
         "value",
         "created",
         "created_by",
-        "old_fields",
-        "new_fields",
-        "diff",
+        "value",
     ]
     search_fields = ["value", "created_by__username"]
     list_display = [
@@ -61,7 +59,7 @@ class EventAdmin(admin.ModelAdmin):
         "type",
         "created",
         "created_by",
-        "diff",
+        "value",
     ]
     list_filter = [
         "type",
@@ -75,9 +73,6 @@ class EventAdmin(admin.ModelAdmin):
                 "fields": (
                     ("content_type", "object_id"),
                     ("created_by", "created"),
-                    ("diff",),
-                    ("old_fields",),
-                    ("new_fields",),
                     ("value",),
                 )
             },
