@@ -184,7 +184,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr=None,
         data_type="pre",
         edit_url_class=Case,
-        edit_url_name="cases:edit-contact-details-list",
+        edit_url_name="cases:manage-contact-details",
         edit_url_label="Go to contact details",
     ),
     EqualityBodyCSVColumn(

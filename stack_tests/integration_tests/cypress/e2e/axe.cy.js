@@ -50,7 +50,7 @@ const loggedInUrls = [
   '/cases/1/edit-report-details/',
   '/cases/1/edit-review-changes/',
   '/cases/1/edit-test-results/',
-  '/cases/1/edit-contact-details-list/',
+  '/cases/1/manage-contact-details/',
   '/cases/1/edit-contact-create/',
   '/cases/1/edit-request-contact-details/',
   '/cases/1/edit-one-week-contact-details/',

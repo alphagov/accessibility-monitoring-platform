@@ -792,7 +792,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
         ),
-        ("cases:edit-contact-details-list", "<b>Manage contact details</b>"),
+        ("cases:manage-contact-details", "<b>Manage contact details</b>"),
         ("cases:edit-request-contact-details", "<b>Request contact details</b>"),
         ("cases:edit-one-week-contact-details", "<b>One-week follow-up</b>"),
         ("cases:edit-four-week-contact-details", "<b>Four-week follow-up</b>"),
@@ -1168,11 +1168,11 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-publish-report",
             "save_continue",
-            "cases:edit-contact-details-list",
+            "cases:manage-contact-details",
         ),
-        ("cases:edit-contact-details-list", "save", "cases:edit-contact-details-list"),
+        ("cases:manage-contact-details", "save", "cases:manage-contact-details"),
         (
-            "cases:edit-contact-details-list",
+            "cases:manage-contact-details",
             "save_continue",
             "cases:edit-report-sent-on",
         ),
@@ -1459,7 +1459,7 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(
@@ -1487,7 +1487,7 @@ def test_statement_page_location_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1509,7 +1509,7 @@ def test_contact_page_location_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1525,7 +1525,7 @@ def test_link_to_accessibility_statement_not_displayed(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(response, "No accessibility statement")
@@ -1894,7 +1894,7 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         (
             "contact_details_complete_date",
             "Contact details > Manage contact details",
-            "edit-contact-details-list",
+            "manage-contact-details",
         ),
         (
             "request_contact_details_complete_date",
@@ -2046,7 +2046,7 @@ def test_no_anchor_section_complete_check_displayed(
         "cases:edit-qa-comments",
         "cases:edit-report-approved",
         "cases:edit-publish-report",
-        "cases:edit-contact-details-list",
+        "cases:manage-contact-details",
         "cases:edit-contact-create",
         "cases:edit-request-contact-details",
         "cases:edit-one-week-contact-details",
@@ -2320,7 +2320,7 @@ def test_manage_contact_details_page_complete_check_displayed_in_nav_details(
     case: Case = Case.objects.create(contact_details_complete_date=TODAY)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2354,7 +2354,7 @@ def test_add_contact_page_in_case_nav_when_current_page(
     assertContains(
         response,
         """<li>
-            <a href="/cases/1/edit-contact-details-list/" class="govuk-link govuk-link--no-visited-state">Manage contact details</a>
+            <a href="/cases/1/manage-contact-details/" class="govuk-link govuk-link--no-visited-state">Manage contact details</a>
             <ul class="amp-nav-list-subpages">
                 <li class="amp-nav-list-subpages"><b>Add contact</b></li>
             </ul>
@@ -2633,7 +2633,7 @@ def test_format_due_date_help_text(due_date, expected_help_text):
         "edit-report-approved",
         "edit-publish-report",
         "edit-qa-comments",
-        "edit-contact-details-list",
+        "manage-contact-details",
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
@@ -2823,7 +2823,7 @@ def test_publish_report_already_published(admin_client):
     "useful_link, edit_url_name",
     [
         ("zendesk_url", "edit-case-metadata"),
-        ("trello_url", "edit-contact-details-list"),
+        ("trello_url", "manage-contact-details"),
         ("zendesk_url", "edit-test-results"),
         ("trello_url", "edit-report-details"),
         ("zendesk_url", "edit-review-changes"),
@@ -2965,7 +2965,7 @@ def test_update_case_checks_version(admin_client):
         "edit-report-approved",
         "edit-publish-report",
         "edit-qa-comments",
-        "edit-contact-details-list",
+        "manage-contact-details",
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
@@ -3184,7 +3184,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "cases:edit-qa-comments",
             "QA comments",
         ),
-        ("cases:edit-contact-details-list", "Manage contact details"),
+        ("cases:manage-contact-details", "Manage contact details"),
         (
             "cases:edit-request-contact-details",
             "Request contact details",
@@ -3834,7 +3834,7 @@ def test_case_close(admin_client):
     # Edit link label used
     assertContains(
         response,
-        """<a href="/cases/1/edit-contact-details-list/"
+        """<a href="/cases/1/manage-contact-details/"
             class="govuk-link govuk-link--no-visited-state">
             Go to contact details</a>""",
         html=True,
@@ -4077,7 +4077,7 @@ def test_enabling_correspondence_process(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:edit-contact-details-list",
+            "cases:manage-contact-details",
             kwargs={"pk": case.id},
         )
     )
@@ -4098,7 +4098,7 @@ def test_enabling_correspondence_process(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:edit-contact-details-list",
+            "cases:manage-contact-details",
             kwargs={"pk": case.id},
         )
     )
@@ -4126,7 +4126,7 @@ def test_add_contact_details_redirects_correctly(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "cases:edit-contact-details-list",
+            "cases:manage-contact-details",
             kwargs={"pk": case.id},
         ),
         {
@@ -4147,7 +4147,7 @@ def test_add_contact_details_redirects_correctly(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "cases:edit-contact-details-list",
+            "cases:manage-contact-details",
             kwargs={"pk": case.id},
         ),
         {

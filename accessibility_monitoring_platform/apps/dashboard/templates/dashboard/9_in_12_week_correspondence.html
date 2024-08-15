@@ -32,7 +32,7 @@
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-contact-details-list' case.id %}" class="govuk-link"> {{case.twelve_week_correspondence_progress}} </a>
+                            <a href="{% url 'cases:manage-contact-details' case.id %}" class="govuk-link"> {{case.twelve_week_correspondence_progress}} </a>
                         {% endif %}
                     </td>
                 </tr>

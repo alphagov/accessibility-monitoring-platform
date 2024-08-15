@@ -712,7 +712,7 @@ def test_build_overdue_task_options_report_cores():
     case.status.status = CaseStatus.Status.IN_REPORT_CORES
     option: Option = Option(
         label=case.in_report_correspondence_progress,
-        url=reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
+        url=reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert build_overdue_task_options(case=case) == [option]
@@ -725,7 +725,7 @@ def test_build_overdue_task_options_12_week_deadline():
     case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
     option: Option = Option(
         label="12-week update due",
-        url=reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
+        url=reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert build_overdue_task_options(case=case) == [option]
@@ -738,7 +738,7 @@ def test_build_overdue_task_options_12_week_cores():
     case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
     option: Option = Option(
         label=case.twelve_week_correspondence_progress,
-        url=reverse("cases:edit-contact-details-list", kwargs={"pk": case.id}),
+        url=reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert build_overdue_task_options(case=case) == [option]

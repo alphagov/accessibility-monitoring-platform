@@ -83,7 +83,7 @@ describe('View case', () => {
   })
 
   it('can edit contact details', () => {
-    cy.get('#edit-contact-details-list').click()
+    cy.get('#manage-contact-details').click()
     cy.contains('Edit or remove').click()
     cy.get('[name="name"]').clear().type(contactName)
     cy.get('[name="email"]').clear().type(contactEmail)

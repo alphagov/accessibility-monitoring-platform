@@ -147,7 +147,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:edit-12-week-update-requested": PageName("12-week update requested"),
     "cases:edit-case-close": PageName("Closing the case"),
     "cases:edit-case-metadata": PageName("Case metadata"),
-    "cases:edit-contact-details-list": PageName("Manage contact details"),
+    "cases:manage-contact-details": PageName("Manage contact details"),
     "cases:edit-contact-create": PageName("Add contact"),
     "cases:edit-contact-update": PageName(
         "Edit contact {contact.name} {contact.email}",

@@ -305,7 +305,7 @@ class CaseCreateView(CreateView):
         elif "save_exit" in self.request.POST:
             url: str = reverse("cases:case-list")
         else:
-            url: str = reverse("cases:edit-contact-details-list", kwargs=case_pk)
+            url: str = reverse("cases:manage-contact-details", kwargs=case_pk)
         return url
 
 
@@ -498,7 +498,7 @@ class CasePublishReportUpdateView(CaseUpdateView):
         """
         if "save_continue" in self.request.POST:
             return reverse(
-                "cases:edit-contact-details-list", kwargs={"pk": self.object.id}
+                "cases:manage-contact-details", kwargs={"pk": self.object.id}
             )
         return super().get_success_url()
 
@@ -515,13 +515,13 @@ class CaseContactDetailsUpdateView(CaseUpdateView):
         return context
 
 
-class CaseContactDetailsListUpdateView(CaseContactDetailsUpdateView):
+class ManageContactDetailsUpdateView(CaseContactDetailsUpdateView):
     """
     View to list case contacts
     """
 
     form_class: Type[CaseContactsUpdateForm] = CaseContactsUpdateForm
-    template_name: str = "cases/forms/add_contact_details_list.html"
+    template_name: str = "cases/forms/manage_contact_details.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -563,7 +563,7 @@ class ContactCreateView(CaseNavContextMixin, CreateView):
         """Return to the list of contact details"""
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         case_pk: Dict[str, int] = {"pk": case.id}
-        return reverse("cases:edit-contact-details-list", kwargs=case_pk)
+        return reverse("cases:manage-contact-details", kwargs=case_pk)
 
 
 class ContactUpdateView(CaseNavContextMixin, UpdateView):
@@ -595,7 +595,7 @@ class ContactUpdateView(CaseNavContextMixin, UpdateView):
     def get_success_url(self) -> str:
         """Return to the list of contact details"""
         case_pk: Dict[str, int] = {"pk": self.object.case.id}
-        return reverse("cases:edit-contact-details-list", kwargs=case_pk)
+        return reverse("cases:manage-contact-details", kwargs=case_pk)
 
 
 class CaseRequestContactDetailsUpdateView(CaseContactDetailsUpdateView):

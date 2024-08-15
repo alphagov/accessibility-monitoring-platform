@@ -1146,7 +1146,7 @@ class Contact(VersionModel):
         return str(f"Contact {self.name} {self.email}")
 
     def get_absolute_url(self) -> str:
-        return reverse("cases:edit-contact-details-list", kwargs={"pk": self.case.id})
+        return reverse("cases:manage-contact-details", kwargs={"pk": self.case.id})
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()

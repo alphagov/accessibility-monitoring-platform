@@ -10,7 +10,6 @@ from django.urls.resolvers import URLPattern
 
 from accessibility_monitoring_platform.apps.cases.views import (
     CaseCloseUpdateView,
-    CaseContactDetailsListUpdateView,
     CaseCreateView,
     CaseDeactivateUpdateView,
     CaseDetailView,
@@ -51,6 +50,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     ContactUpdateView,
     EqualityBodyCorrespondenceCreateView,
     ListCaseEqualityBodyCorrespondenceUpdateView,
+    ManageContactDetailsUpdateView,
     PostCaseUpdateView,
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
@@ -104,9 +104,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-publish-report",
     ),
     path(
-        "<int:pk>/edit-contact-details-list/",
-        login_required(CaseContactDetailsListUpdateView.as_view()),
-        name="edit-contact-details-list",
+        "<int:pk>/manage-contact-details/",
+        login_required(ManageContactDetailsUpdateView.as_view()),
+        name="manage-contact-details",
     ),
     path(
         "<int:case_id>/edit-contact-create/",
