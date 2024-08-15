@@ -2038,6 +2038,137 @@ def test_no_anchor_section_complete_check_displayed(
 
 
 @pytest.mark.parametrize(
+    "case_page_url",
+    [
+        "cases:edit-case-metadata",
+        "cases:edit-test-results",
+        "cases:edit-report-details",
+        "cases:edit-qa-comments",
+        "cases:edit-report-approved",
+        "cases:edit-publish-report",
+        "cases:edit-contact-details-list",
+        "cases:edit-contact-create",
+        "cases:edit-request-contact-details",
+        "cases:edit-one-week-contact-details",
+        "cases:edit-four-week-contact-details",
+        # "cases:edit-no-psb-response",  Nav not in UI design
+        "cases:edit-report-sent-on",
+        "cases:edit-report-one-week-followup",
+        "cases:edit-report-four-week-followup",
+        "cases:edit-report-acknowledged",
+        "cases:edit-12-week-update-requested",
+        "cases:edit-12-week-one-week-followup-final",
+        "cases:edit-12-week-update-request-ack",
+        "cases:edit-twelve-week-retest",
+        "cases:edit-review-changes",
+        "cases:edit-enforcement-recommendation",
+        "cases:edit-case-close",
+        "cases:edit-post-case",
+        "cases:status-workflow",
+        "cases:outstanding-issues",
+        "cases:edit-statement-enforcement",
+        "cases:edit-equality-body-metadata",
+        "cases:list-equality-body-correspondence",
+        "cases:create-equality-body-correspondence",
+        "cases:edit-retest-overview",
+        "cases:legacy-end-of-case",
+        "cases:zendesk-tickets",
+        "cases:create-zendesk-ticket",
+        # "cases:email-template-list",  Nav not in UI design
+        # "cases:email-template-preview",  Nav not in UI design
+    ],
+)
+def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
+    """
+    Test that the case navigation sections appear on all case pages
+    """
+    case: Case = Case.objects.create(enable_correspondence_process=True)
+
+    case_key: str = (
+        "case_id"
+        if case_page_url
+        in [
+            "cases:create-equality-body-correspondence",
+            "cases:create-zendesk-ticket",
+            "cases:edit-contact-create",
+        ]
+        else "pk"
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(case_page_url, kwargs={case_key: case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Closing the case (0/3)", html=True)
+
+
+def test_case_navigation_shown_on_edit_equality_body_cores_page(admin_client):
+    """
+    Test that the case navigation sections appear on edit equality
+    body correspondence page
+    """
+    case: Case = Case.objects.create()
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:edit-equality-body-correspondence",
+            kwargs={"pk": equality_body_correspondence.id},
+        ),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Closing the case (0/3)", html=True)
+
+
+def test_case_navigation_shown_on_edit_contact_page(admin_client):
+    """
+    Test that the case navigation sections appear on edit contact page
+    """
+    case: Case = Case.objects.create()
+    contact: Contact = Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:edit-contact-update",
+            kwargs={"pk": contact.id},
+        ),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Closing the case (0/3)", html=True)
+
+
+def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
+    """
+    Test that the case navigation sections appear on edit zendesk ticket page
+    """
+    case: Case = Case.objects.create()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:update-zendesk-ticket",
+            kwargs={"pk": zendesk_ticket.id},
+        ),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Closing the case (0/3)", html=True)
+
+
+@pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
         ("cases:edit-test-results", "testing_details_complete_date", "Testing details"),

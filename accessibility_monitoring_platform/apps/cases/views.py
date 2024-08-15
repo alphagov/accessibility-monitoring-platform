@@ -1069,7 +1069,7 @@ class CaseReactivateUpdateView(CaseUpdateView):
         return HttpResponseRedirect(case.get_absolute_url())
 
 
-class CaseStatusWorkflowDetailView(DetailView):
+class CaseStatusWorkflowDetailView(CaseNavContextMixin, DetailView):
     model: Type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/status_workflow.html"
@@ -1082,7 +1082,7 @@ class CaseStatusWorkflowDetailView(DetailView):
         return context
 
 
-class CaseOutstandingIssuesDetailView(DetailView):
+class CaseOutstandingIssuesDetailView(CaseNavContextMixin, DetailView):
     model: Type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/outstanding_issues.html"
@@ -1234,7 +1234,7 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
         return super().form_valid(form)
 
 
-class EqualityBodyCorrespondenceCreateView(CreateView):
+class EqualityBodyCorrespondenceCreateView(CaseNavContextMixin, CreateView):
     """
     View to create a case
     """
@@ -1276,7 +1276,7 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
         )
 
 
-class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
+class CaseEqualityBodyCorrespondenceUpdateView(CaseNavContextMixin, UpdateView):
     """
     View of equality body metadata
     """
@@ -1309,14 +1309,14 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
         return HttpResponseRedirect(url)
 
 
-class CaseRetestOverviewTemplateView(TemplateView):
+class CaseRetestOverviewTemplateView(CaseUpdateView):
     template_name: str = "cases/forms/retest_overview.html"
+    fields = ["version"]
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add platform settings to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
-        context["case"] = case
+        case: Case = self.object
         context["equality_body_retests"] = case.retests.filter(id_within_case__gt=0)
         context["case_sections"] = build_case_nav_sections(case=case)
         return context
@@ -1345,7 +1345,7 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
     template_name: str = "cases/forms/legacy_end_of_case.html"
 
 
-class CaseZendeskTicketsDetailView(DetailView):
+class CaseZendeskTicketsDetailView(CaseNavContextMixin, DetailView):
     """
     View of Zendesk tickets for a case
     """
@@ -1362,7 +1362,7 @@ class CaseZendeskTicketsDetailView(DetailView):
         return context
 
 
-class ZendeskTicketCreateView(CreateView):
+class ZendeskTicketCreateView(CaseNavContextMixin, CreateView):
     """
     View to create a Zendesk ticket
     """
@@ -1395,7 +1395,7 @@ class ZendeskTicketCreateView(CreateView):
         return reverse("cases:zendesk-tickets", kwargs=case_pk)
 
 
-class ZendeskTicketUpdateView(UpdateView):
+class ZendeskTicketUpdateView(CaseNavContextMixin, UpdateView):
     """
     View to update Zendesk ticket
     """

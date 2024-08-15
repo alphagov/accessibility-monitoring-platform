@@ -48,6 +48,9 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
         "Retesting {page}", page_object_name="page", page_object_class=Page
     ),
     "audits:edit-audit-retest-pages-comparison": PageName("12-week pages comparison"),
+    "audits:edit-audit-retest-pages-comparison-by-wcag": PageName(
+        "12-week pages comparison"
+    ),
     "audits:edit-audit-retest-statement-1": PageName(
         "12-week accessibility statement Pt. 1"
     ),
