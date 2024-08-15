@@ -27,7 +27,6 @@ from ..common.utils import build_filters
 from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
 from .forms import (
     CaseCloseUpdateForm,
-    CaseContactsUpdateForm,
     CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
     CaseFourWeekContactDetailsUpdateForm,
@@ -46,6 +45,7 @@ from .forms import (
     CaseStatementEnforcementUpdateForm,
     CaseTwelveWeekUpdateAcknowledgedUpdateForm,
     CaseTwelveWeekUpdateRequestedUpdateForm,
+    ManageContactDetailsUpdateForm,
     PostCaseUpdateForm,
 )
 from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, Complaint, Sort
@@ -272,8 +272,8 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             name="Contact details > Manage contact details",
             edit_url=reverse("cases:manage-contact-details", kwargs=case_pk),
             edit_url_id="manage-contact-details",
-            complete_date=case.contact_details_complete_date,
-            display_fields=get_case_rows(form=CaseContactsUpdateForm()),
+            complete_date=case.manage_contact_details_complete_date,
+            display_fields=get_case_rows(form=ManageContactDetailsUpdateForm()),
             subtables=[
                 ViewSubTable(
                     name=f"Contact {count}",

@@ -1892,7 +1892,7 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
         ("qa_auditor_complete_date", "Report approved", "edit-report-approved"),
         (
-            "contact_details_complete_date",
+            "manage_contact_details_complete_date",
             "Contact details > Manage contact details",
             "manage-contact-details",
         ),
@@ -2317,7 +2317,7 @@ def test_manage_contact_details_page_complete_check_displayed_in_nav_details(
     """
     Test that the Manage contact details complete tick is displayed in list of steps
     """
-    case: Case = Case.objects.create(contact_details_complete_date=TODAY)
+    case: Case = Case.objects.create(manage_contact_details_complete_date=TODAY)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:manage-contact-details", kwargs={"pk": case.id}),

@@ -16,7 +16,7 @@
                 {% include './archive_nav_content.html' with anchor='zendesk-tickets' id='zendesk-tickets' edit_name='cases:zendesk-tickets' name='PSB Zendesk tickets' %}
                 <li>
                     <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                        {% include './archive_nav_content.html' with anchor='contact-details' id='contact-details' edit_name='cases:manage-contact-details' name='Manage contact details' complete=case.contact_details_complete_date %}
+                        {% include './archive_nav_content.html' with anchor='contact-details' id='contact-details' edit_name='cases:manage-contact-details' name='Manage contact details' complete=case.manage_contact_details_complete_date %}
                         {% include './archive_nav_content.html' with anchor='request-contact-details' id='request-contact-details' edit_name='cases:edit-request-contact-details' name='Request contact details' complete=case.request_contact_details_complete_date %}
                         {% include './archive_nav_content.html' with anchor='one-week-contact-details' id='one-week-contact-details' edit_name='cases:edit-one-week-contact-details' name='One-week follow-up' complete=case.one_week_contact_details_complete_date %}
                         {% include './archive_nav_content.html' with anchor='four-week-contact-details' id='four-week-contact-details' edit_name='cases:edit-four-week-contact-details' name='Four-week follow-up' complete=case.four_week_contact_details_complete_date %}

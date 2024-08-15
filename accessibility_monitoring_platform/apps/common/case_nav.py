@@ -152,7 +152,7 @@ def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
         pages=[
             NavPage(
                 url=reverse("cases:manage-contact-details", kwargs=kwargs_case_pk),
-                complete=case.contact_details_complete_date,
+                complete=case.manage_contact_details_complete_date,
                 subpages=[
                     NavPage(
                         url=reverse(

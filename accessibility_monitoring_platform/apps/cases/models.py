@@ -244,7 +244,7 @@ class Case(VersionModel):
 
     # Manage contact details page
     contact_notes = models.TextField(default="", blank=True)
-    contact_details_complete_date = models.DateField(null=True, blank=True)
+    manage_contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Find contact details page - Removed from UI
     contact_details_found = models.CharField(

@@ -88,7 +88,7 @@ describe('View case', () => {
     cy.get('[name="name"]').clear().type(contactName)
     cy.get('[name="email"]').clear().type(contactEmail)
     cy.contains('Save and return').click()
-    cy.get('[name="contact_details_complete_date"]').click()
+    cy.get('[name="manage_contact_details_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Case').click()
     cy.contains(contactName)

@@ -57,7 +57,6 @@ from ..reports.utils import (
 )
 from .forms import (
     CaseCloseUpdateForm,
-    CaseContactsUpdateForm,
     CaseCreateForm,
     CaseDeactivateForm,
     CaseEnforcementRecommendationUpdateForm,
@@ -87,6 +86,7 @@ from .forms import (
     ContactUpdateForm,
     EqualityBodyCorrespondenceCreateForm,
     ListCaseEqualityBodyCorrespondenceUpdateForm,
+    ManageContactDetailsUpdateForm,
     PostCaseUpdateForm,
     ZendeskTicketCreateUpdateForm,
 )
@@ -520,7 +520,7 @@ class ManageContactDetailsUpdateView(CaseContactDetailsUpdateView):
     View to list case contacts
     """
 
-    form_class: Type[CaseContactsUpdateForm] = CaseContactsUpdateForm
+    form_class: Type[ManageContactDetailsUpdateForm] = ManageContactDetailsUpdateForm
     template_name: str = "cases/forms/manage_contact_details.html"
 
     def get_success_url(self) -> str:

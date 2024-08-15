@@ -353,19 +353,55 @@ class CasePublishReportUpdateForm(VersionForm):
                 self.fields["publish_report_complete_date"].widget = forms.HiddenInput()
 
 
-class CaseCorrespondenceOverviewUpdateForm(VersionForm):
+class ManageContactDetailsUpdateForm(VersionForm):
     """
-    Form to update Correspondence overview
+    Form for updating test results
     """
 
-    cores_overview_complete_date = AMPDatePageCompleteField()
+    contact_notes = AMPTextField(label="Contact detail notes")
+    manage_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "cores_overview_complete_date",
+            "contact_notes",
+            "manage_contact_details_complete_date",
         ]
+
+
+class ContactCreateForm(forms.ModelForm):
+    """
+    Form for creating a contact
+    """
+
+    name = AMPCharFieldWide(label="Name (included in equality body export)")
+    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
+    email = AMPCharFieldWide(label="Email (included in equality body export)")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=Contact.Preferred.choices
+    )
+
+    class Meta:
+        model = Contact
+        fields = ["name", "job_title", "email", "preferred"]
+
+
+class ContactUpdateForm(VersionForm):
+    """
+    Form for updating a contact
+    """
+
+    name = AMPCharFieldWide(label="Name (included in equality body export)")
+    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
+    email = AMPCharFieldWide(label="Email (included in equality body export)")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=Contact.Preferred.choices
+    )
+
+    class Meta:
+        model = Contact
+        fields = ["version", "name", "job_title", "email", "preferred"]
 
 
 class CaseRequestContactDetailsUpdateForm(VersionForm):
@@ -446,57 +482,6 @@ class CaseFourWeekContactDetailsUpdateForm(VersionForm):
             "no_contact_four_week_chaser_sent_to",
             "correspondence_notes",
             "four_week_contact_details_complete_date",
-        ]
-
-
-class ContactCreateForm(forms.ModelForm):
-    """
-    Form for creating a contact
-    """
-
-    name = AMPCharFieldWide(label="Name (included in equality body export)")
-    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
-    email = AMPCharFieldWide(label="Email (included in equality body export)")
-    preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=Contact.Preferred.choices
-    )
-
-    class Meta:
-        model = Contact
-        fields = ["name", "job_title", "email", "preferred"]
-
-
-class ContactUpdateForm(VersionForm):
-    """
-    Form for updating a contact
-    """
-
-    name = AMPCharFieldWide(label="Name (included in equality body export)")
-    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
-    email = AMPCharFieldWide(label="Email (included in equality body export)")
-    preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=Contact.Preferred.choices
-    )
-
-    class Meta:
-        model = Contact
-        fields = ["version", "name", "job_title", "email", "preferred"]
-
-
-class CaseContactsUpdateForm(VersionForm):
-    """
-    Form for updating test results
-    """
-
-    contact_notes = AMPTextField(label="Contact detail notes")
-    contact_details_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "contact_notes",
-            "contact_details_complete_date",
         ]
 
 
