@@ -2102,6 +2102,9 @@ def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Report correspondence (0/4)", html=True)
+    assertContains(response, "12-week correspondence (0/3)", html=True)
     assertContains(response, "Closing the case (0/3)", html=True)
 
 
@@ -2110,7 +2113,7 @@ def test_case_navigation_shown_on_edit_equality_body_cores_page(admin_client):
     Test that the case navigation sections appear on edit equality
     body correspondence page
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
     equality_body_correspondence: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(case=case)
     )
@@ -2125,6 +2128,9 @@ def test_case_navigation_shown_on_edit_equality_body_cores_page(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Report correspondence (0/4)", html=True)
+    assertContains(response, "12-week correspondence (0/3)", html=True)
     assertContains(response, "Closing the case (0/3)", html=True)
 
 
@@ -2132,7 +2138,7 @@ def test_case_navigation_shown_on_edit_contact_page(admin_client):
     """
     Test that the case navigation sections appear on edit contact page
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
     contact: Contact = Contact.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
@@ -2145,6 +2151,9 @@ def test_case_navigation_shown_on_edit_contact_page(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Report correspondence (0/4)", html=True)
+    assertContains(response, "12-week correspondence (0/3)", html=True)
     assertContains(response, "Closing the case (0/3)", html=True)
 
 
@@ -2152,7 +2161,7 @@ def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
     """
     Test that the case navigation sections appear on edit zendesk ticket page
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
     zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
@@ -2165,6 +2174,9 @@ def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Report correspondence (0/4)", html=True)
+    assertContains(response, "12-week correspondence (0/3)", html=True)
     assertContains(response, "Closing the case (0/3)", html=True)
 
 
