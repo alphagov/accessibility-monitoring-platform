@@ -997,7 +997,7 @@ class CaseStatusWorkflowDetailView(CaseNavContextMixin, DetailView):
         return context
 
 
-class CaseOutstandingIssuesDetailView(DetailView):
+class CaseOutstandingIssuesDetailView(CaseNavContextMixin, DetailView):
     model: Type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/outstanding_issues.html"
@@ -1149,7 +1149,7 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
         return super().form_valid(form)
 
 
-class EqualityBodyCorrespondenceCreateView(CreateView):
+class EqualityBodyCorrespondenceCreateView(CaseNavContextMixin, CreateView):
     """
     View to create a case
     """
@@ -1191,7 +1191,7 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
         )
 
 
-class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
+class CaseEqualityBodyCorrespondenceUpdateView(CaseNavContextMixin, UpdateView):
     """
     View of equality body metadata
     """
@@ -1224,7 +1224,7 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
         return HttpResponseRedirect(url)
 
 
-class CaseRetestOverviewTemplateView(TemplateView):
+class CaseRetestOverviewTemplateView(CaseNavContextMixin, TemplateView):
     template_name: str = "cases/forms/retest_overview.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
