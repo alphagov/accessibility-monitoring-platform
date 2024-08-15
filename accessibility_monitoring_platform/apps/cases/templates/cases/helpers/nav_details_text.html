@@ -13,7 +13,7 @@
                         <ul class="amp-nav-list-subpages">
                             {% for subpage in page.subpages %}
                                 {% if not subpage.visible_only_when_current or subpage.visible_only_when_current and case_section.name == current_section_name and subpage.name == current_subpage_name %}
-                                    <li class="amp-nav-list-subpages">
+                                    <li class="amp-nav-list-subpages amp-margin-top-5">
                                         {% if case_section.name == current_section_name and subpage.name == current_subpage_name %}
                                             <b>{{ subpage.name }}</b>
                                         {% else %}

@@ -150,7 +150,7 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:manage-contact-details": PageName("Manage contact details"),
     "cases:edit-contact-create": PageName("Add contact"),
     "cases:edit-contact-update": PageName(
-        "Edit contact {contact.name} {contact.email}",
+        "Edit contact {contact}",
         page_object_name="contact",
         page_object_class=Contact,
     ),

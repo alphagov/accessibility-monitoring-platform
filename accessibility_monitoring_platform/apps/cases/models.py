@@ -1143,7 +1143,12 @@ class Contact(VersionModel):
         ordering = ["-preferred", "-id"]
 
     def __str__(self) -> str:
-        return str(f"Contact {self.name} {self.email}")
+        string: str = ""
+        if self.name:
+            string = self.name
+        if self.email:
+            string += f" {self.email}"
+        return string
 
     def get_absolute_url(self) -> str:
         return reverse("cases:manage-contact-details", kwargs={"pk": self.case.id})

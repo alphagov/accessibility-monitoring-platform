@@ -2341,7 +2341,8 @@ def test_add_contact_page_in_case_nav_when_current_page(
     admin_client,
 ):
     """
-    Test that the Manage contact details complete tick is displayed in list of steps
+    Test that the add contact page appears in the case nav
+    when it is the current page
     """
     case: Case = Case.objects.create()
 
@@ -2356,7 +2357,7 @@ def test_add_contact_page_in_case_nav_when_current_page(
         """<li>
             <a href="/cases/1/manage-contact-details/" class="govuk-link govuk-link--no-visited-state">Manage contact details</a>
             <ul class="amp-nav-list-subpages">
-                <li class="amp-nav-list-subpages"><b>Add contact</b></li>
+                <li class="amp-nav-list-subpages amp-margin-top-5"><b>Add contact</b></li>
             </ul>
         </li>""",
         html=True,
