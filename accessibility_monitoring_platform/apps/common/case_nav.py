@@ -82,7 +82,13 @@ class NavSection:
             count: int = len(self.pages)
             for page in self.pages:
                 if page.subpages is not None:
-                    count += len(page.subpages)
+                    count += len(
+                        [
+                            page
+                            for page in page.subpages
+                            if page.visible_only_when_current is False
+                        ]
+                    )
             return count
         return 0
 
@@ -154,6 +160,15 @@ def build_correspondence_nav_sections(case: Case) -> List[NavSection]:
                         ),
                         visible_only_when_current=True,
                     ),
+                ]
+                + [
+                    NavPage(
+                        url=reverse(
+                            "cases:edit-contact-update", kwargs={"pk": contact.id}
+                        ),
+                        visible_only_when_current=True,
+                    )
+                    for contact in case.contacts
                 ],
             ),
         ],

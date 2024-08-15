@@ -7,6 +7,7 @@ from django.http import HttpRequest
 from django.urls import Resolver404, URLResolver, resolve
 
 from ..audits.models import Page, RetestPage
+from ..cases.models import Contact
 from ..common.models import EmailTemplate
 from ..exports.models import Export
 
@@ -145,7 +146,11 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:edit-case-metadata": PageName("Case metadata"),
     "cases:edit-contact-details-list": PageName("Manage contact details"),
     "cases:edit-contact-create": PageName("Add contact"),
-    "cases:edit-contact-update": PageName("Edit contact"),
+    "cases:edit-contact-update": PageName(
+        "Edit contact {contact.name} {contact.email}",
+        page_object_name="contact",
+        page_object_class=Contact,
+    ),
     "cases:edit-enforcement-recommendation": PageName("Enforcement recommendation"),
     "cases:edit-equality-body-correspondence": PageName("Edit Zendesk ticket"),
     "cases:edit-equality-body-metadata": PageName("Equality body metadata"),

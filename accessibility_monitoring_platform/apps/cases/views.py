@@ -579,7 +579,9 @@ class ContactUpdateView(CaseNavContextMixin, UpdateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add field values into context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+        contact: Contact = self.object
         context["current_section_name"] = "Contact details"
+        context["current_subpage_name"] = f"Edit contact {contact.name} {contact.email}"
         return context
 
     def form_valid(self, form: ContactUpdateForm):
