@@ -2,6 +2,7 @@
 Test - common utility functions
 """
 
+import json
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
 from typing import Any, Dict, List, Optional, Tuple
@@ -30,6 +31,7 @@ from ..utils import (
     check_dict_for_truthy_values,
     checks_if_2fa_is_enabled,
     convert_date_to_datetime,
+    diff_model_fields,
     extract_domain_from_url,
     format_outstanding_issues,
     format_statement_check_overview,
@@ -49,6 +51,21 @@ from ..utils import (
     undo_double_escapes,
     validate_url,
 )
+
+CHANGED_FIELD_OLD_FIELDS: str = {"field1": "value1", "field2": "value2"}
+CHANGED_FIELD_NEW_FIELDS: str = {"field1": "value1a", "field2": "value2"}
+CHANGED_FIELD_DIFF: str = {"field1": "value1 -> value1a"}
+
+CREATE_ROW_OLD_FIELDS: str = ""
+CREATE_ROW_NEW_FIELDS: str = {"field1": "value1", "field2": "value2"}
+
+ADD_FIELD_OLD_FIELDS: str = {"field1": "value1"}
+ADD_FIELD_NEW_FIELDS: str = {"field1": "value1", "field2": "value2"}
+ADD_FIELD_DIFF: str = {"field2": "-> value2"}
+
+REMOVE_FIELD_OLD_FIELDS: str = {"field1": "value1", "field2": "value2"}
+REMOVE_FIELD_NEW_FIELDS: str = {"field1": "value1"}
+REMOVE_FIELD_DIFF: str = {"field2": "value2 ->"}
 
 
 class MockModel:
@@ -285,6 +302,15 @@ def test_record_model_create_event():
 
     assert event.type == Event.Type.CREATE
 
+    value_dict: Dict[str, Any] = json.loads(event.value)
+
+    assert "last_login" in value_dict
+    assert value_dict["last_login"] is None
+    assert "is_active" in value_dict
+    assert value_dict["is_active"] is True
+    assert "is_staff" in value_dict
+    assert value_dict["is_staff"] is False
+
 
 @pytest.mark.django_db
 def test_record_model_update_event():
@@ -297,6 +323,7 @@ def test_record_model_update_event():
     event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
 
     assert event.type == Event.Type.UPDATE
+    assert event.value == '{"first_name": " -> Changed"}'
 
 
 def test_list_to_dictionary_of_lists():
@@ -572,3 +599,31 @@ def test_session_expiry():
     session_expiry: SessionExpiry = SessionExpiry(request=mock_request)
 
     assert session_expiry.show_session_expiry_warning is False
+
+
+@pytest.mark.parametrize(
+    "old_fields, new_fields, expected_diff",
+    [
+        (
+            CHANGED_FIELD_OLD_FIELDS,
+            CHANGED_FIELD_NEW_FIELDS,
+            CHANGED_FIELD_DIFF,
+        ),
+        (
+            CREATE_ROW_OLD_FIELDS,
+            CREATE_ROW_NEW_FIELDS,
+            CREATE_ROW_NEW_FIELDS,
+        ),
+        (ADD_FIELD_OLD_FIELDS, ADD_FIELD_NEW_FIELDS, ADD_FIELD_DIFF),
+        (
+            REMOVE_FIELD_OLD_FIELDS,
+            REMOVE_FIELD_NEW_FIELDS,
+            REMOVE_FIELD_DIFF,
+        ),
+    ],
+)
+def test_diff_model_fields(old_fields, new_fields, expected_diff):
+    """Test event diff contains expected value"""
+    assert (
+        diff_model_fields(old_fields=old_fields, new_fields=new_fields) == expected_diff
+    )
