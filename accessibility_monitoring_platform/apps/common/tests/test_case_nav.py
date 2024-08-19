@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ...audits.models import Audit
+from ...audits.models import Audit, Page
 from ...cases.models import Case
 from ..case_nav import (
     NavPage,

@@ -3885,7 +3885,7 @@ def test_nav_details_page_renders(admin_client):
     assertContains(
         response,
         """<ul class="amp-nav-list-subpages">
-            <li>
+            <li class="amp-nav-list-subpages amp-margin-top-5">
                 <a href="/audits/pages/6/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
                     Additional page test</a>
             </li>
@@ -3941,7 +3941,7 @@ def test_nav_details_subpage_renders(admin_client):
     assertContains(
         response,
         """<ul class="amp-nav-list-subpages">
-            <li><b>Additional page test</b></li>
+            <li class="amp-nav-list-subpages amp-margin-top-5"><b>Additional page test</b></li>
         </ul>""",
         html=True,
     )

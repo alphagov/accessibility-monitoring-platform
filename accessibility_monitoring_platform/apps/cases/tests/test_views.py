@@ -3356,7 +3356,7 @@ def test_outstanding_issues_new_case(admin_client):
         ("compliance", "Compliance status"),
         ("non-accessible", "Non-accessible content overview"),
         ("preparation", "Preparation"),
-        ("feedback", "Feedback"),
+        ("feedback", "Feedback and enforcement procedure"),
         ("custom", "Custom statement issues"),
     ],
 )
@@ -3376,7 +3376,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertNotContains(response, label)
+    assertNotContains(response, f"{label}</h2>")
     assertNotContains(response, edit_url)
 
     statement_check_result.check_result_state = StatementCheckResult.Result.NO
@@ -3385,7 +3385,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertContains(response, label)
+    assertContains(response, f"{label}</h2>")
     assertContains(response, edit_url)
 
     statement_check_result.retest_state = StatementCheckResult.Result.YES
@@ -3394,7 +3394,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertNotContains(response, label)
+    assertNotContains(response, f"{label}</h2>")
     assertNotContains(response, edit_url)
 
 

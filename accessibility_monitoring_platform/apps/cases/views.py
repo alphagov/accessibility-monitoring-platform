@@ -1293,7 +1293,7 @@ class CaseEqualityBodyCorrespondenceUpdateView(CaseNavContextMixin, UpdateView):
         return HttpResponseRedirect(url)
 
 
-class CaseRetestOverviewTemplateView(CaseNavContextMixin, CaseUpdateView):
+class CaseRetestOverviewTemplateView(CaseUpdateView):
     template_name: str = "cases/forms/retest_overview.html"
     fields = ["version"]
 
