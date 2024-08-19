@@ -40,7 +40,7 @@ describe('View case', () => {
     cy.contains(/^Case$/).click()
 
     cy.get('[id="manage-contact-details"]').click()
-    cy.title().should('eq', `${organisationName} | Contact details`)
+    cy.title().should('eq', `${organisationName} | Manage contact details`)
     cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-review-changes"]').click()
