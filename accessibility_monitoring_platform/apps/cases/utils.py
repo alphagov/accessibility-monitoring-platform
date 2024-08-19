@@ -3,7 +3,6 @@ Utility functions for cases app
 """
 
 import copy
-from dataclasses import dataclass
 from datetime import date
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
@@ -28,23 +27,25 @@ from ..common.utils import build_filters
 from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
 from .forms import (
     CaseCloseUpdateForm,
-    CaseContactsUpdateForm,
     CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
-    CaseFindContactDetailsUpdateForm,
-    CaseFourWeekFollowupUpdateForm,
+    CaseFourWeekContactDetailsUpdateForm,
     CaseMetadataUpdateForm,
     CaseNoPSBContactUpdateForm,
+    CaseOneWeekContactDetailsUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
-    CaseOneWeekFollowupUpdateForm,
     CaseReportAcknowledgedUpdateForm,
     CaseReportApprovedUpdateForm,
     CaseReportDetailsUpdateForm,
+    CaseReportFourWeekFollowupUpdateForm,
+    CaseReportOneWeekFollowupUpdateForm,
     CaseReportSentOnUpdateForm,
+    CaseRequestContactDetailsUpdateForm,
     CaseReviewChangesUpdateForm,
     CaseStatementEnforcementUpdateForm,
     CaseTwelveWeekUpdateAcknowledgedUpdateForm,
     CaseTwelveWeekUpdateRequestedUpdateForm,
+    ManageContactDetailsUpdateForm,
     PostCaseUpdateForm,
 )
 from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, Complaint, Sort
@@ -209,9 +210,9 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                     .count(),
                 ),
             ]
-    return [
+    before_correspondence_process: List[ViewSection] = [
         build_view_section(
-            name="Case metadata",
+            name="Case details > Case metadata",
             edit_url=reverse("cases:edit-case-metadata", kwargs=case_pk),
             edit_url_id="edit-case-metadata",
             complete_date=case.case_details_complete_date,
@@ -268,18 +269,11 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             complete_date=case.publish_report_complete_date,
         ),
         build_view_section(
-            name="Find contact details",
-            edit_url=reverse("cases:edit-find-contact-details", kwargs=case_pk),
-            edit_url_id="edit-find-contact-details",
-            complete_date=case.find_contact_details_complete_date,
-            display_fields=get_case_rows(form=CaseFindContactDetailsUpdateForm()),
-        ),
-        build_view_section(
-            name="Contact details",
-            edit_url=reverse("cases:edit-contact-details", kwargs=case_pk),
-            edit_url_id="edit-contact-details",
-            complete_date=case.contact_details_complete_date,
-            display_fields=get_case_rows(form=CaseContactsUpdateForm()),
+            name="Contact details > Manage contact details",
+            edit_url=reverse("cases:manage-contact-details", kwargs=case_pk),
+            edit_url_id="manage-contact-details",
+            complete_date=case.manage_contact_details_complete_date,
+            display_fields=get_case_rows(form=ManageContactDetailsUpdateForm()),
             subtables=[
                 ViewSubTable(
                     name=f"Contact {count}",
@@ -305,36 +299,78 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 for count, contact in enumerate(case.contacts, start=1)
             ],
         ),
+    ]
+    if case.enable_correspondence_process is True:
+        correspondence_process: List[ViewSection] = [
+            build_view_section(
+                name="Contact details > Request contact details",
+                edit_url=reverse("cases:edit-request-contact-details", kwargs=case_pk),
+                edit_url_id="edit-request-contact-details",
+                complete_date=case.request_contact_details_complete_date,
+                display_fields=get_case_rows(
+                    form=CaseRequestContactDetailsUpdateForm()
+                ),
+            ),
+            build_view_section(
+                name="Contact details > One-week follow-up",
+                edit_url=reverse("cases:edit-one-week-contact-details", kwargs=case_pk),
+                edit_url_id="edit-one-week-contact-details",
+                complete_date=case.one_week_contact_details_complete_date,
+                display_fields=get_case_rows(
+                    form=CaseOneWeekContactDetailsUpdateForm()
+                ),
+            ),
+            build_view_section(
+                name="Contact details > Four-week follow-up",
+                edit_url=reverse(
+                    "cases:edit-four-week-contact-details", kwargs=case_pk
+                ),
+                edit_url_id="edit-four-week-contact-details",
+                complete_date=case.four_week_contact_details_complete_date,
+                display_fields=get_case_rows(
+                    form=CaseFourWeekContactDetailsUpdateForm()
+                ),
+            ),
+            build_view_section(
+                name="Contact details > Unresponsive PSB",
+                edit_url=reverse("cases:edit-no-psb-response", kwargs=case_pk),
+                edit_url_id="edit-no-psb-response",
+                display_fields=get_case_rows(form=CaseNoPSBContactUpdateForm()),
+            ),
+        ]
+    else:
+        correspondence_process: List[ViewSection] = []
+    after_correspondence_process: List[ViewSection] = [
         build_view_section(
-            name="Report sent on",
+            name="Report correspondence > Report sent on",
             edit_url=reverse("cases:edit-report-sent-on", kwargs=case_pk),
             edit_url_id="edit-report-sent-on",
             complete_date=case.report_sent_on_complete_date,
             display_fields=get_case_rows(form=CaseReportSentOnUpdateForm()),
         ),
         build_view_section(
-            name="One week follow-up",
-            edit_url=reverse("cases:edit-one-week-followup", kwargs=case_pk),
-            edit_url_id="edit-one-week-followup",
+            name="Report correspondence > One week follow-up",
+            edit_url=reverse("cases:edit-report-one-week-followup", kwargs=case_pk),
+            edit_url_id="edit-report-one-week-followup",
             complete_date=case.one_week_followup_complete_date,
-            display_fields=get_case_rows(form=CaseOneWeekFollowupUpdateForm()),
+            display_fields=get_case_rows(form=CaseReportOneWeekFollowupUpdateForm()),
         ),
         build_view_section(
-            name="Four week follow-up",
-            edit_url=reverse("cases:edit-four-week-followup", kwargs=case_pk),
-            edit_url_id="edit-four-week-followup",
+            name="Report correspondence > Four week follow-up",
+            edit_url=reverse("cases:edit-report-four-week-followup", kwargs=case_pk),
+            edit_url_id="edit-report-four-week-followup",
             complete_date=case.four_week_followup_complete_date,
-            display_fields=get_case_rows(form=CaseFourWeekFollowupUpdateForm()),
+            display_fields=get_case_rows(form=CaseReportFourWeekFollowupUpdateForm()),
         ),
         build_view_section(
-            name="Report acknowledged",
+            name="Report correspondence > Report acknowledged",
             edit_url=reverse("cases:edit-report-acknowledged", kwargs=case_pk),
             edit_url_id="edit-report-acknowledged",
             complete_date=case.report_acknowledged_complete_date,
             display_fields=get_case_rows(form=CaseReportAcknowledgedUpdateForm()),
         ),
         build_view_section(
-            name="12-week update requested",
+            name="12-week correspondence > 12-week update requested",
             edit_url=reverse("cases:edit-12-week-update-requested", kwargs=case_pk),
             edit_url_id="edit-12-week-update-requested",
             complete_date=case.twelve_week_update_requested_complete_date,
@@ -343,26 +379,22 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             ),
         ),
         build_view_section(
-            name="One week follow-up for final update",
-            edit_url=reverse("cases:edit-one-week-followup-final", kwargs=case_pk),
-            edit_url_id="edit-one-week-followup-final",
+            name="12-week correspondence > One week follow-up for final update",
+            edit_url=reverse(
+                "cases:edit-12-week-one-week-followup-final", kwargs=case_pk
+            ),
+            edit_url_id="edit-12-week-one-week-followup-final",
             complete_date=case.one_week_followup_final_complete_date,
             display_fields=get_case_rows(form=CaseOneWeekFollowupFinalUpdateForm()),
         ),
         build_view_section(
-            name="12-week update request acknowledged",
+            name="12-week correspondence > 12-week update request acknowledged",
             edit_url=reverse("cases:edit-12-week-update-request-ack", kwargs=case_pk),
             edit_url_id="edit-12-week-update-request-ack",
             complete_date=case.twelve_week_update_request_ack_complete_date,
             display_fields=get_case_rows(
                 form=CaseTwelveWeekUpdateAcknowledgedUpdateForm()
             ),
-        ),
-        build_view_section(
-            name="Public sector body is unresponsive",
-            edit_url=reverse("cases:edit-no-psb-response", kwargs=case_pk),
-            edit_url_id="edit-no-psb-response",
-            display_fields=get_case_rows(form=CaseNoPSBContactUpdateForm()),
         ),
         build_view_section(
             name="PSB Zendesk tickets",
@@ -388,13 +420,6 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             ],
         ),
         build_view_section(
-            name="Correspondence overview",
-            edit_url=reverse("cases:edit-cores-overview", kwargs=case_pk),
-            edit_url_id="edit-cores-overview",
-            complete_date=case.cores_overview_complete_date,
-            anchor="",
-        ),
-        build_view_section(
             name="12-week retest",
             edit_url=reverse("cases:edit-twelve-week-retest", kwargs=case_pk),
             edit_url_id="edit-twelve-week-retest",
@@ -403,14 +428,14 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             subsections=twelve_week_test_subsections,
         ),
         build_view_section(
-            name="Reviewing changes",
+            name="Closing the case > Reviewing changes",
             edit_url=reverse("cases:edit-review-changes", kwargs=case_pk),
             edit_url_id="edit-review-changes",
             complete_date=case.review_changes_complete_date,
             display_fields=get_case_rows(form=CaseReviewChangesUpdateForm()),
         ),
         build_view_section(
-            name="Enforcement recommendation",
+            name="Closing the case > Enforcement recommendation",
             edit_url=reverse("cases:edit-enforcement-recommendation", kwargs=case_pk),
             edit_url_id="edit-enforcement-recommendation",
             complete_date=case.enforcement_recommendation_complete_date,
@@ -419,13 +444,19 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             ),
         ),
         build_view_section(
-            name="Closing the case",
+            name="Closing the case > Closing the case",
             edit_url=reverse("cases:edit-case-close", kwargs=case_pk),
             edit_url_id="edit-case-close",
             complete_date=case.case_close_complete_date,
             display_fields=get_case_rows(form=CaseCloseUpdateForm()),
         ),
-    ] + post_case_subsections
+    ]
+    return (
+        before_correspondence_process
+        + correspondence_process
+        + after_correspondence_process
+        + post_case_subsections
+    )
 
 
 def get_sent_date(

@@ -24,6 +24,7 @@
             <div class="govuk-grid-column-two-thirds">
                 {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
                 {% include 'common/error_summary.html' %}
+                {% include 'cases/helpers/zendesk_tickets.html' %}
                 {% include 'cases/helpers/email_templates.html' %}
                 {% if case.audit %}
                     <details class="govuk-details" data-module="govuk-details">

@@ -13,14 +13,18 @@
     </div>
     {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        {% if case.audit %}
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-one-third">
-                    {% include "cases/helpers/nav_details.html" %}
-                    {% include 'cases/helpers/nav_steps.html' %}
-                </div>
-                <div class="govuk-grid-column-two-thirds">
-                    {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include "cases/helpers/nav_details.html" %}
+                {% include 'cases/helpers/nav_steps.html' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                {% if case.audit %}
                     {% include 'cases/helpers/email_templates.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
@@ -57,8 +61,8 @@
                                 </a>
                             </li>
                         {% endif %}
-                        </ul>
                     {% endif %}
+                    </ul>
                     {% if not case.audit.uses_statement_checks or case.audit.outstanding_statement_check_results %}
                         <h3 class="govuk-heading-m">Statement</h3>
                     {% endif %}
@@ -277,22 +281,21 @@
                             </div>
                         </div>
                     {% endif %}
-                </div>
+                {% else %}
+                    <h2 class="govuk-heading-l">Overview</h2>
+                    <p class="govuk-body">
+                        This is a new case and does not have any test data.
+                        Complete a
+                        <a href="{% url 'cases:edit-test-results' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state">test</a>
+                        and
+                        <a href="{% url 'cases:edit-twelve-week-retest' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state">retest</a>
+                        before using this page.
+                    </p>
+                {% endif %}
             </div>
-        {% else %}
-            {% include "cases/helpers/edit_header.html" with page_heading='Outstanding issues' %}
-            <h2 class="govuk-heading-l">Overview</h2>
-            <p class="govuk-body">
-                This is a new case and does not have any test data.
-                Complete a
-                <a href="{% url 'cases:edit-test-results' case.id %}"
-                    class="govuk-link govuk-link--no-visited-state">test</a>
-                and
-                <a href="{% url 'cases:edit-twelve-week-retest' case.id %}"
-                    class="govuk-link govuk-link--no-visited-state">retest</a>
-                before using this page.
-            </p>
-        {% endif %}
+        </div>
     </main>
 </div>
 {% endblock %}

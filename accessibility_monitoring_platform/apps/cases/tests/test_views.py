@@ -4,7 +4,7 @@ Tests for cases views
 
 import json
 from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -178,6 +178,12 @@ RETEST_NOTES: str = "Retest notes"
 HOME_PAGE_ERROR_NOTES: str = "Home page error note"
 STATEMENT_PAGE_ERROR_NOTES: str = "Statement page error note"
 OUTSTANDING_ISSUE_NOTES: str = "Outstanding error found."
+CORRESPONDENCE_PROCESS_PAGES: List[Tuple[str, str]] = [
+    ("edit-request-contact-details", "Request contact details"),
+    ("edit-one-week-contact-details", "One-week follow-up"),
+    ("edit-four-week-contact-details", "Four-week follow-up"),
+    ("edit-no-psb-response", "Unresponsive PSB"),
+]
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -786,22 +792,23 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
         ),
-        ("cases:edit-find-contact-details", "<li>Find contact details</li>"),
-        ("cases:edit-contact-details", "<li>Contact details</li>"),
-        ("cases:edit-report-sent-on", "<li>Report sent on</li>"),
-        ("cases:edit-one-week-followup", "<li>One week follow-up</li>"),
-        ("cases:edit-four-week-followup", "<li>Four week follow-up</li>"),
-        ("cases:edit-report-acknowledged", "<li>Report acknowledged</li>"),
-        ("cases:edit-12-week-update-requested", "<li>12-week update requested</li>"),
+        ("cases:manage-contact-details", "<b>Manage contact details</b>"),
+        ("cases:edit-request-contact-details", "<b>Request contact details</b>"),
+        ("cases:edit-one-week-contact-details", "<b>One-week follow-up</b>"),
+        ("cases:edit-four-week-contact-details", "<b>Four-week follow-up</b>"),
+        ("cases:edit-report-sent-on", "<b>Report sent on</b>"),
+        ("cases:edit-report-one-week-followup", "<b>One week follow-up</b>"),
+        ("cases:edit-report-four-week-followup", "<b>Four week follow-up</b>"),
+        ("cases:edit-report-acknowledged", "<b>Report acknowledged</b>"),
+        ("cases:edit-12-week-update-requested", "<b>12-week update requested</b>"),
         (
-            "cases:edit-one-week-followup-final",
-            "<li>One week follow-up for final update</li>",
+            "cases:edit-12-week-one-week-followup-final",
+            "<b>One week follow-up for final update</b>",
         ),
         (
             "cases:edit-12-week-update-request-ack",
-            "<li>12-week update request acknowledged</li>",
+            "<b>12-week update request acknowledged</b>",
         ),
-        ("cases:edit-cores-overview", "<li>Correspondence overview</li>"),
         (
             "cases:outstanding-issues",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">Outstanding issues</h1>',
@@ -810,7 +817,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
 )
 def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the case-specific view page loads"""
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
 
     response: HttpResponse = admin_client.get(
         reverse(path_name, kwargs={"pk": case.id})
@@ -819,6 +826,41 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     assert response.status_code == 200
 
     assertContains(response, expected_content, html=True)
+
+
+def test_create_contact_page_loads(admin_client):
+    """Test that the create Contact page loads"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-create", kwargs={"case_id": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        "<b>Add contact</b>",
+        html=True,
+    )
+
+
+def test_update_contact_page_loads(admin_client):
+    """Test that the update Contact page loads"""
+    case: Case = Case.objects.create()
+    contact: Contact = Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-update", kwargs={"pk": contact.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit contact</h1>""",
+        html=True,
+    )
 
 
 def test_create_zendesk_ticket_page_loads(admin_client):
@@ -1126,27 +1168,69 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-publish-report",
             "save_continue",
-            "cases:edit-find-contact-details",
+            "cases:manage-contact-details",
         ),
-        ("cases:edit-find-contact-details", "save", "cases:edit-find-contact-details"),
+        ("cases:manage-contact-details", "save", "cases:manage-contact-details"),
         (
-            "cases:edit-find-contact-details",
+            "cases:manage-contact-details",
             "save_continue",
-            "cases:edit-contact-details",
+            "cases:edit-report-sent-on",
         ),
-        ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
-        ("cases:edit-contact-details", "save_continue", "cases:edit-report-sent-on"),
+        (
+            "cases:edit-request-contact-details",
+            "save",
+            "cases:edit-request-contact-details",
+        ),
+        (
+            "cases:edit-request-contact-details",
+            "save_continue",
+            "cases:edit-one-week-contact-details",
+        ),
+        (
+            "cases:edit-one-week-contact-details",
+            "save",
+            "cases:edit-one-week-contact-details",
+        ),
+        (
+            "cases:edit-one-week-contact-details",
+            "save_continue",
+            "cases:edit-four-week-contact-details",
+        ),
+        (
+            "cases:edit-four-week-contact-details",
+            "save",
+            "cases:edit-four-week-contact-details",
+        ),
+        (
+            "cases:edit-four-week-contact-details",
+            "save_continue",
+            "cases:edit-no-psb-response",
+        ),
+        ("cases:edit-no-psb-response", "save", "cases:edit-no-psb-response"),
+        ("cases:edit-no-psb-response", "save_continue", "cases:edit-report-sent-on"),
         ("cases:edit-report-sent-on", "save", "cases:edit-report-sent-on"),
-        ("cases:edit-report-sent-on", "save_continue", "cases:edit-one-week-followup"),
-        ("cases:edit-one-week-followup", "save", "cases:edit-one-week-followup"),
         (
-            "cases:edit-one-week-followup",
+            "cases:edit-report-sent-on",
             "save_continue",
-            "cases:edit-four-week-followup",
+            "cases:edit-report-one-week-followup",
         ),
-        ("cases:edit-four-week-followup", "save", "cases:edit-four-week-followup"),
         (
-            "cases:edit-four-week-followup",
+            "cases:edit-report-one-week-followup",
+            "save",
+            "cases:edit-report-one-week-followup",
+        ),
+        (
+            "cases:edit-report-one-week-followup",
+            "save_continue",
+            "cases:edit-report-four-week-followup",
+        ),
+        (
+            "cases:edit-report-four-week-followup",
+            "save",
+            "cases:edit-report-four-week-followup",
+        ),
+        (
+            "cases:edit-report-four-week-followup",
             "save_continue",
             "cases:edit-report-acknowledged",
         ),
@@ -1164,15 +1248,15 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-12-week-update-requested",
             "save_continue",
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
         ),
         (
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
             "save",
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
         ),
         (
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
             "save_continue",
             "cases:edit-12-week-update-request-ack",
         ),
@@ -1183,17 +1267,6 @@ def test_updating_case_creates_case_event(admin_client):
         ),
         (
             "cases:edit-12-week-update-request-ack",
-            "save_continue",
-            "cases:edit-cores-overview",
-        ),
-        (
-            "cases:edit-no-psb-response",
-            "save",
-            "cases:edit-find-contact-details",
-        ),
-        ("cases:edit-cores-overview", "save", "cases:edit-cores-overview"),
-        (
-            "cases:edit-cores-overview",
             "save_continue",
             "cases:edit-twelve-week-retest",
         ),
@@ -1358,7 +1431,7 @@ def test_no_contact_chaser_dates_set(
     assert case.no_contact_four_week_chaser_due_date is None
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-find-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-request-contact-details", kwargs={"pk": case.id}),
         {
             "seven_day_no_contact_email_sent_date_0": TODAY.day,
             "seven_day_no_contact_email_sent_date_1": TODAY.month,
@@ -1375,90 +1448,6 @@ def test_no_contact_chaser_dates_set(
     assert case_from_db.no_contact_four_week_chaser_due_date is not None
 
 
-def test_form_appears_to_add_first_contact(admin_client):
-    """Test that when a case has no contacts a form appears to add one"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Contact 1")
-    assertContains(response, "id_form-0-email-label")
-
-
-def test_add_contact_form_appears(admin_client):
-    """Test that pressing the add contact button adds a new contact form"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": case.version,
-            "add_contact": "Button value",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-    assertContains(response, "Contact 1")
-
-
-def test_add_contact(admin_client):
-    """Test adding a contact"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "1",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "form-0-id": "",
-            "form-0-name": "",
-            "form-0-job_title": "",
-            "form-0-email": CONTACT_EMAIL,
-            "form-0-notes": "",
-            "version": case.version,
-            "save": "Save",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-
-    contacts: QuerySet[Contact] = Contact.objects.filter(case=case)
-    assert contacts.count() == 1
-    assert list(contacts)[0].email == CONTACT_EMAIL
-
-
-def test_delete_contact(admin_client):
-    """Test that pressing the remove contact button deletes the contact"""
-    case: Case = Case.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": case.version,
-            f"remove_contact_{contact.id}": "Button value",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-
-    contact_on_database = Contact.objects.get(pk=contact.id)
-    assert contact_on_database.is_deleted is True
-
-
 def test_link_to_accessibility_statement_displayed(admin_client):
     """
     Test that the link to the accessibility statement is displayed.
@@ -1470,7 +1459,7 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(
@@ -1498,7 +1487,7 @@ def test_statement_page_location_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1520,7 +1509,7 @@ def test_contact_page_location_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1536,7 +1525,7 @@ def test_link_to_accessibility_statement_not_displayed(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(response, "No accessibility statement")
@@ -1565,35 +1554,6 @@ def test_updating_report_sent_date(admin_client):
     assert (
         case_from_db.report_followup_week_12_due_date == TWELVE_WEEK_FOLLOWUP_DUE_DATE
     )
-
-
-def test_preferred_contact_not_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is not displayed when there is only one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertNotContains(response, "Preferred contact?")
-
-
-def test_preferred_contact_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is displayed when there is more than one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, "Preferred contact?")
 
 
 def test_report_followup_due_dates_changed(admin_client):
@@ -1686,7 +1646,7 @@ def test_case_report_one_week_followup_contains_followup_due_date(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-one-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1705,7 +1665,7 @@ def test_case_report_one_week_followup_shows_warning_if_report_ack(admin_client)
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-one-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1716,7 +1676,7 @@ def test_case_report_one_week_followup_shows_warning_if_report_ack(admin_client)
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-one-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1731,7 +1691,7 @@ def test_case_report_four_week_followup_contains_followup_due_date(admin_client)
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-four-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-four-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1750,7 +1710,7 @@ def test_case_report_four_week_followup_shows_warning_if_report_ack(admin_client
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-four-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-four-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1761,7 +1721,7 @@ def test_case_report_four_week_followup_shows_warning_if_report_ack(admin_client
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-four-week-followup", kwargs={"pk": case.id})
+        reverse("cases:edit-report-four-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1778,7 +1738,7 @@ def test_case_report_twelve_week_1_week_chaser_contains_followup_due_date(admin_
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup-final", kwargs={"pk": case.id})
+        reverse("cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1799,7 +1759,7 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup-final", kwargs={"pk": case.id})
+        reverse("cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1810,7 +1770,7 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-one-week-followup-final", kwargs={"pk": case.id})
+        reverse("cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1832,6 +1792,7 @@ def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
             "save_continue": "Button value",
         },
     )
+
     assert response.status_code == 302
     assert (
         response.url
@@ -1922,59 +1883,89 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
 @pytest.mark.parametrize(
     "flag_name, section_name, edit_url_name",
     [
-        ("case_details_complete_date", "Case metadata", "edit-case-metadata"),
+        (
+            "case_details_complete_date",
+            "Case details > Case metadata",
+            "edit-case-metadata",
+        ),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
         ("qa_auditor_complete_date", "Report approved", "edit-report-approved"),
         (
-            "find_contact_details_complete_date",
-            "Find contact details",
-            "edit-find-contact-details",
+            "manage_contact_details_complete_date",
+            "Contact details > Manage contact details",
+            "manage-contact-details",
         ),
-        ("contact_details_complete_date", "Contact details", "edit-contact-details"),
-        ("report_sent_on_complete_date", "Report sent on", "edit-report-sent-on"),
+        (
+            "request_contact_details_complete_date",
+            "Contact details > Request contact details",
+            "edit-request-contact-details",
+        ),
+        (
+            "one_week_contact_details_complete_date",
+            "Contact details > One-week follow-up",
+            "edit-one-week-contact-details",
+        ),
+        (
+            "four_week_contact_details_complete_date",
+            "Contact details > Four-week follow-up",
+            "edit-four-week-contact-details",
+        ),
+        (
+            "report_sent_on_complete_date",
+            "Report correspondence > Report sent on",
+            "edit-report-sent-on",
+        ),
         (
             "one_week_followup_complete_date",
-            "One week follow-up",
-            "edit-one-week-followup",
+            "Report correspondence > One week follow-up",
+            "edit-report-one-week-followup",
         ),
         (
             "four_week_followup_complete_date",
-            "Four week follow-up",
-            "edit-four-week-followup",
+            "Report correspondence > Four week follow-up",
+            "edit-report-four-week-followup",
         ),
         (
             "report_acknowledged_complete_date",
-            "Report acknowledged",
+            "Report correspondence > Report acknowledged",
             "edit-report-acknowledged",
         ),
         (
             "twelve_week_update_requested_complete_date",
-            "12-week update requested",
+            "12-week correspondence > 12-week update requested",
             "edit-12-week-update-requested",
         ),
         (
             "one_week_followup_final_complete_date",
-            "One week follow-up for final update",
-            "edit-one-week-followup-final",
+            "12-week correspondence > One week follow-up for final update",
+            "edit-12-week-one-week-followup-final",
         ),
         (
             "twelve_week_update_request_ack_complete_date",
-            "12-week update request acknowledged",
+            "12-week correspondence > 12-week update request acknowledged",
             "edit-12-week-update-request-ack",
         ),
-        ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
         (
             "twelve_week_retest_complete_date",
             "12-week retest",
             "edit-twelve-week-retest",
         ),
         (
+            "review_changes_complete_date",
+            "Closing the case > Reviewing changes",
+            "edit-review-changes",
+        ),
+        (
             "enforcement_recommendation_complete_date",
-            "Enforcement recommendation",
+            "Closing the case > Enforcement recommendation",
             "edit-enforcement-recommendation",
         ),
-        ("case_close_complete_date", "Closing the case", "edit-case-close"),
+        (
+            "case_close_complete_date",
+            "Closing the case > Closing the case",
+            "edit-case-close",
+        ),
     ],
 )
 def test_section_complete_check_displayed(
@@ -1983,7 +1974,7 @@ def test_section_complete_check_displayed(
     """
     Test that the section complete tick is displayed in contents
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
     setattr(case, flag_name, TODAY)
     case.save()
     edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
@@ -2012,11 +2003,6 @@ def test_section_complete_check_displayed(
 @pytest.mark.parametrize(
     "flag_name, section_name, edit_url_name",
     [
-        (
-            "cores_overview_complete_date",
-            "Correspondence overview",
-            "edit-cores-overview",
-        ),
         ("publish_report_complete_date", "Publish report", "edit-publish-report"),
     ],
 )
@@ -2052,6 +2038,149 @@ def test_no_anchor_section_complete_check_displayed(
 
 
 @pytest.mark.parametrize(
+    "case_page_url",
+    [
+        "cases:edit-case-metadata",
+        "cases:edit-test-results",
+        "cases:edit-report-details",
+        "cases:edit-qa-comments",
+        "cases:edit-report-approved",
+        "cases:edit-publish-report",
+        "cases:manage-contact-details",
+        "cases:edit-contact-create",
+        "cases:edit-request-contact-details",
+        "cases:edit-one-week-contact-details",
+        "cases:edit-four-week-contact-details",
+        # "cases:edit-no-psb-response",  Nav not in UI design
+        "cases:edit-report-sent-on",
+        "cases:edit-report-one-week-followup",
+        "cases:edit-report-four-week-followup",
+        "cases:edit-report-acknowledged",
+        "cases:edit-12-week-update-requested",
+        "cases:edit-12-week-one-week-followup-final",
+        "cases:edit-12-week-update-request-ack",
+        "cases:edit-twelve-week-retest",
+        "cases:edit-review-changes",
+        "cases:edit-enforcement-recommendation",
+        "cases:edit-case-close",
+        "cases:edit-post-case",
+        "cases:status-workflow",
+        "cases:outstanding-issues",
+        "cases:edit-statement-enforcement",
+        "cases:edit-equality-body-metadata",
+        "cases:list-equality-body-correspondence",
+        "cases:create-equality-body-correspondence",
+        "cases:edit-retest-overview",
+        "cases:legacy-end-of-case",
+        "cases:zendesk-tickets",
+        "cases:create-zendesk-ticket",
+        # "cases:email-template-list",  Nav not in UI design
+        # "cases:email-template-preview",  Nav not in UI design
+    ],
+)
+def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
+    """
+    Test that the case navigation sections appear on all case pages
+    """
+    case: Case = Case.objects.create(enable_correspondence_process=True)
+
+    case_key: str = (
+        "case_id"
+        if case_page_url
+        in [
+            "cases:create-equality-body-correspondence",
+            "cases:create-zendesk-ticket",
+            "cases:edit-contact-create",
+        ]
+        else "pk"
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(case_page_url, kwargs={case_key: case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Report correspondence (0/4)", html=True)
+    assertContains(response, "12-week correspondence (0/3)", html=True)
+    assertContains(response, "Closing the case (0/3)", html=True)
+
+
+def test_case_navigation_shown_on_edit_equality_body_cores_page(admin_client):
+    """
+    Test that the case navigation sections appear on edit equality
+    body correspondence page
+    """
+    case: Case = Case.objects.create(enable_correspondence_process=True)
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:edit-equality-body-correspondence",
+            kwargs={"pk": equality_body_correspondence.id},
+        ),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Report correspondence (0/4)", html=True)
+    assertContains(response, "12-week correspondence (0/3)", html=True)
+    assertContains(response, "Closing the case (0/3)", html=True)
+
+
+def test_case_navigation_shown_on_edit_contact_page(admin_client):
+    """
+    Test that the case navigation sections appear on edit contact page
+    """
+    case: Case = Case.objects.create(enable_correspondence_process=True)
+    contact: Contact = Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:edit-contact-update",
+            kwargs={"pk": contact.id},
+        ),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Report correspondence (0/4)", html=True)
+    assertContains(response, "12-week correspondence (0/3)", html=True)
+    assertContains(response, "Closing the case (0/3)", html=True)
+
+
+def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
+    """
+    Test that the case navigation sections appear on edit zendesk ticket page
+    """
+    case: Case = Case.objects.create(enable_correspondence_process=True)
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:update-zendesk-ticket",
+            kwargs={"pk": zendesk_ticket.id},
+        ),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Report correspondence (0/4)", html=True)
+    assertContains(response, "12-week correspondence (0/3)", html=True)
+    assertContains(response, "Closing the case (0/3)", html=True)
+
+
+@pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
         ("cases:edit-test-results", "testing_details_complete_date", "Testing details"),
@@ -2062,52 +2191,6 @@ def test_no_anchor_section_complete_check_displayed(
         ),
         ("cases:edit-report-approved", "qa_auditor_complete_date", "Report approved"),
         ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
-        (
-            "cases:edit-find-contact-details",
-            "find_contact_details_complete_date",
-            "Find contact details",
-        ),
-        (
-            "cases:edit-contact-details",
-            "contact_details_complete_date",
-            "Contact details",
-        ),
-        ("cases:edit-report-sent-on", "report_sent_on_complete_date", "Report sent on"),
-        (
-            "cases:edit-one-week-followup",
-            "one_week_followup_complete_date",
-            "One week follow-up",
-        ),
-        (
-            "cases:edit-four-week-followup",
-            "four_week_followup_complete_date",
-            "Four week follow-up",
-        ),
-        (
-            "cases:edit-report-acknowledged",
-            "report_acknowledged_complete_date",
-            "Report acknowledged",
-        ),
-        (
-            "cases:edit-12-week-update-requested",
-            "twelve_week_update_requested_complete_date",
-            "12-week update requested",
-        ),
-        (
-            "cases:edit-one-week-followup-final",
-            "one_week_followup_final_complete_date",
-            "One week follow-up for final update",
-        ),
-        (
-            "cases:edit-12-week-update-request-ack",
-            "twelve_week_update_request_ack_complete_date",
-            "12-week update request acknowledged",
-        ),
-        (
-            "cases:edit-cores-overview",
-            "cores_overview_complete_date",
-            "Correspondence overview",
-        ),
         (
             "cases:edit-twelve-week-retest",
             "twelve_week_retest_complete_date",
@@ -2144,6 +2227,52 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     [
         ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
         (
+            "cases:edit-request-contact-details",
+            "request_contact_details_complete_date",
+            "Request contact details",
+        ),
+        (
+            "cases:edit-one-week-contact-details",
+            "one_week_contact_details_complete_date",
+            "One-week follow-up",
+        ),
+        (
+            "cases:edit-four-week-contact-details",
+            "four_week_contact_details_complete_date",
+            "Four-week follow-up",
+        ),
+        ("cases:edit-report-sent-on", "report_sent_on_complete_date", "Report sent on"),
+        (
+            "cases:edit-report-one-week-followup",
+            "one_week_followup_complete_date",
+            "One week follow-up",
+        ),
+        (
+            "cases:edit-report-four-week-followup",
+            "four_week_followup_complete_date",
+            "Four week follow-up",
+        ),
+        (
+            "cases:edit-report-acknowledged",
+            "report_acknowledged_complete_date",
+            "Report acknowledged",
+        ),
+        (
+            "cases:edit-12-week-update-requested",
+            "twelve_week_update_requested_complete_date",
+            "12-week update requested",
+        ),
+        (
+            "cases:edit-12-week-one-week-followup-final",
+            "one_week_followup_final_complete_date",
+            "One week follow-up for final update",
+        ),
+        (
+            "cases:edit-12-week-update-request-ack",
+            "twelve_week_update_request_ack_complete_date",
+            "12-week update request acknowledged",
+        ),
+        (
             "cases:edit-review-changes",
             "review_changes_complete_date",
             "Reviewing changes",
@@ -2161,9 +2290,9 @@ def test_section_complete_check_displayed_in_nav_details(
 ):
     """
     Test that the section complete tick is displayed in list of steps
-    when step is ocmplete
+    when step is complete
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
     setattr(case, flag_name, TODAY)
     case.save()
 
@@ -2177,6 +2306,59 @@ def test_section_complete_check_displayed_in_nav_details(
         response,
         f"""<li><b>{step_name}</b>
                 <span class="govuk-visually-hidden">complete</span> &check;
+        </li>""",
+        html=True,
+    )
+
+
+def test_manage_contact_details_page_complete_check_displayed_in_nav_details(
+    admin_client,
+):
+    """
+    Test that the Manage contact details complete tick is displayed in list of steps
+    """
+    case: Case = Case.objects.create(manage_contact_details_complete_date=TODAY)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <b>Manage contact details</b>
+            <span class="govuk-visually-hidden">complete</span> &check;
+            <ul class="amp-nav-list-subpages">
+            </ul>
+        </li>""",
+        html=True,
+    )
+
+
+def test_add_contact_page_in_case_nav_when_current_page(
+    admin_client,
+):
+    """
+    Test that the add contact page appears in the case nav
+    when it is the current page
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-create", kwargs={"case_id": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="/cases/1/manage-contact-details/" class="govuk-link govuk-link--no-visited-state">Manage contact details</a>
+            <ul class="amp-nav-list-subpages">
+                <li class="amp-nav-list-subpages amp-margin-top-5"><b>Add contact</b></li>
+            </ul>
         </li>""",
         html=True,
     )
@@ -2452,7 +2634,7 @@ def test_format_due_date_help_text(due_date, expected_help_text):
         "edit-report-approved",
         "edit-publish-report",
         "edit-qa-comments",
-        "edit-contact-details",
+        "manage-contact-details",
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
@@ -2642,7 +2824,7 @@ def test_publish_report_already_published(admin_client):
     "useful_link, edit_url_name",
     [
         ("zendesk_url", "edit-case-metadata"),
-        ("trello_url", "edit-contact-details"),
+        ("trello_url", "manage-contact-details"),
         ("zendesk_url", "edit-test-results"),
         ("trello_url", "edit-report-details"),
         ("zendesk_url", "edit-review-changes"),
@@ -2748,105 +2930,6 @@ def test_updating_case_create_event(admin_client):
     assert event.type == Event.Type.UPDATE
 
 
-def test_add_contact_also_creates_event(admin_client):
-    """Test adding a contact also creates an event"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "1",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "form-0-id": "",
-            "form-0-name": "",
-            "form-0-job_title": "",
-            "form-0-email": CONTACT_EMAIL,
-            "form-0-notes": "",
-            "version": case.version,
-            "save": "Save",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-    contacts: QuerySet[Contact] = Contact.objects.filter(case=case)
-    assert contacts.count() == 1
-    contact: Contact = list(contacts)[0]
-
-    content_type: ContentType = ContentType.objects.get_for_model(Contact)
-    event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
-
-    assert event.type == Event.Type.CREATE
-
-
-def test_delete_contact_adds_update_event(admin_client):
-    """Test that pressing the remove contact button adds an update event"""
-    case: Case = Case.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": case.version,
-            f"remove_contact_{contact.id}": "Button value",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-
-    content_type: ContentType = ContentType.objects.get_for_model(Contact)
-    event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
-
-    assert event.type == Event.Type.UPDATE
-
-
-def test_links_to_contact_and_accessibility_pages_shown(admin_client):
-    """
-    Test that links to the contact and accessibility statement pages on the
-    organisation website are shown on the contact details page.
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    Page.objects.create(
-        audit=audit, page_type=Page.Type.STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
-    )
-    Page.objects.create(
-        audit=audit, page_type=Page.Type.CONTACT, url=CONTACT_STATEMENT_URL
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, ACCESSIBILITY_STATEMENT_URL)
-    assertContains(response, CONTACT_STATEMENT_URL)
-
-
-def test_links_to_contact_and_accessibility_pages_not_shown(admin_client):
-    """
-    Test that links to the contact and accessibility statement pages on the
-    organisation website are not shown on the contact details page if none have
-    been recorded.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "No contact page")
-    assertContains(response, "No accessibility statement page")
-
-
 def test_update_case_checks_version(admin_client):
     """Test that updating a case shows an error if the version of the case has changed"""
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
@@ -2883,7 +2966,7 @@ def test_update_case_checks_version(admin_client):
         "edit-report-approved",
         "edit-publish-report",
         "edit-qa-comments",
-        "edit-contact-details",
+        "manage-contact-details",
         "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
@@ -3102,22 +3185,26 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "cases:edit-qa-comments",
             "QA comments",
         ),
+        ("cases:manage-contact-details", "Manage contact details"),
         (
-            "cases:edit-cores-overview",
-            "Correspondence overview",
+            "cases:edit-request-contact-details",
+            "Request contact details",
         ),
         (
-            "cases:edit-find-contact-details",
-            "Find contact details",
+            "cases:edit-one-week-contact-details",
+            "One-week follow-up",
         ),
-        ("cases:edit-contact-details", "Contact details"),
+        (
+            "cases:edit-four-week-contact-details",
+            "Four-week follow-up",
+        ),
         ("cases:edit-report-sent-on", "Report sent on"),
         (
-            "cases:edit-one-week-followup",
+            "cases:edit-report-one-week-followup",
             "One week follow-up",
         ),
         (
-            "cases:edit-four-week-followup",
+            "cases:edit-report-four-week-followup",
             "Four week follow-up",
         ),
         (
@@ -3129,7 +3216,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "12-week update requested",
         ),
         (
-            "cases:edit-one-week-followup-final",
+            "cases:edit-12-week-one-week-followup-final",
             "One week follow-up for final update",
         ),
         (
@@ -3154,7 +3241,7 @@ def test_navigation_links_shown(
     """
     Test case steps' navigation links are shown
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(enable_correspondence_process=True)
     nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
@@ -3262,39 +3349,18 @@ def test_outstanding_issues_new_case(admin_client):
 
 
 @pytest.mark.parametrize(
-    "type, header",
+    "type, label",
     [
-        (
-            "overview",
-            """<h2 id="statement-overview" class="govuk-heading-l">Statement overview</h2>""",
-        ),
-        (
-            "website",
-            """<h2 id="statement-website" class="govuk-heading-l">Statement information</h2>""",
-        ),
-        (
-            "compliance",
-            """<h2 id="statement-compliance" class="govuk-heading-l">Compliance status</h2>""",
-        ),
-        (
-            "non-accessible",
-            """<h2 id="statement-non-accessible" class="govuk-heading-l">Non-accessible content overview</h2>""",
-        ),
-        (
-            "preparation",
-            """<h2 id="statement-preparation" class="govuk-heading-l">Preparation</h2>""",
-        ),
-        (
-            "feedback",
-            """<h2 id="statement-feedback" class="govuk-heading-l">Feedback and enforcement procedure</h2>""",
-        ),
-        (
-            "custom",
-            """<h2 id="statement-custom" class="govuk-heading-l">Custom statement issues</h2>""",
-        ),
+        ("overview", "Statement overview"),
+        ("website", "Statement information"),
+        ("compliance", "Compliance status"),
+        ("non-accessible", "Non-accessible content overview"),
+        ("preparation", "Preparation"),
+        ("feedback", "Feedback"),
+        ("custom", "Custom statement issues"),
     ],
 )
-def test_outstanding_issues_statement_checks(type, header, admin_client):
+def test_outstanding_issues_statement_checks(type, label, admin_client):
     """Test that outstanding issues shows expected statement checks"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
@@ -3310,7 +3376,7 @@ def test_outstanding_issues_statement_checks(type, header, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertNotContains(response, header, html=True)
+    assertNotContains(response, label)
     assertNotContains(response, edit_url)
 
     statement_check_result.check_result_state = StatementCheckResult.Result.NO
@@ -3319,7 +3385,7 @@ def test_outstanding_issues_statement_checks(type, header, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertContains(response, header, html=True)
+    assertContains(response, label)
     assertContains(response, edit_url)
 
     statement_check_result.retest_state = StatementCheckResult.Result.YES
@@ -3328,7 +3394,7 @@ def test_outstanding_issues_statement_checks(type, header, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertNotContains(response, header, html=True)
+    assertNotContains(response, label)
     assertNotContains(response, edit_url)
 
 
@@ -3769,7 +3835,7 @@ def test_case_close(admin_client):
     # Edit link label used
     assertContains(
         response,
-        """<a href="/cases/1/edit-contact-details/"
+        """<a href="/cases/1/manage-contact-details/"
             class="govuk-link govuk-link--no-visited-state">
             Go to contact details</a>""",
         html=True,
@@ -3969,7 +4035,7 @@ def test_zendesk_tickets_shown(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:edit-find-contact-details",
+            "cases:edit-request-contact-details",
             kwargs={"pk": case.id},
         )
     )
@@ -3979,31 +4045,121 @@ def test_zendesk_tickets_shown(admin_client):
     assertContains(response, ZENDESK_SUMMARY)
 
 
-def test_nav_details_renders(admin_client):
-    """
-    Test that the nav detail for current page renders as expected
-    """
+def test_enable_correspondence_process(admin_client):
+    """Test enabling of correspondence process"""
     case: Case = Case.objects.create()
 
+    assert case.enable_correspondence_process is False
+
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id})
+        reverse(
+            "cases:enable-correspondence-process",
+            kwargs={"pk": case.id},
+        )
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "cases:edit-request-contact-details",
+        kwargs={"pk": case.id},
+    )
+
+    case_from_db: Case = Case.objects.get(id=case.id)
+
+    assert case_from_db.enable_correspondence_process is True
+
+
+def test_enabling_correspondence_process(admin_client):
+    """Test enabling of correspondence process pages"""
+    case: Case = Case.objects.create()
+
+    assert case.enable_correspondence_process is False
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:manage-contact-details",
+            kwargs={"pk": case.id},
+        )
     )
 
     assert response.status_code == 200
 
-    assertContains(
-        response,
-        """<p class="govuk-body-s amp-margin-bottom-5">
-            Case details (0/1)
-        </p>""",
-        html=True,
+    for url, label in CORRESPONDENCE_PROCESS_PAGES:
+        assertNotContains(
+            response,
+            f"""<a href="/cases/1/{url}/"
+                class="govuk-link govuk-link--no-visited-state">
+                {label}</a>""",
+            html=True,
+        )
+
+    case.enable_correspondence_process = True
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "cases:manage-contact-details",
+            kwargs={"pk": case.id},
+        )
     )
-    assertContains(
-        response,
-        """<div class="amp-nav-details__text">
-            <ul class="govuk-list amp-margin-bottom-5">
-                <li><b>Case metadata</b></li>
-            </ul>
-        </div>""",
-        html=True,
+
+    assert response.status_code == 200
+
+    for url, label in CORRESPONDENCE_PROCESS_PAGES:
+        assertContains(
+            response,
+            f"""<a href="/cases/1/{url}/"
+                class="govuk-link govuk-link--no-visited-state">
+                {label}</a>""",
+            html=True,
+        )
+
+
+def test_add_contact_details_redirects_correctly(admin_client):
+    """
+    Test add contact details page redirects based on
+    enable_correspondence_process value
+    """
+    case: Case = Case.objects.create()
+
+    assert case.enable_correspondence_process is False
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:manage-contact-details",
+            kwargs={"pk": case.id},
+        ),
+        {
+            "version": case.version,
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "cases:edit-report-sent-on",
+        kwargs={"pk": case.id},
+    )
+
+    case.enable_correspondence_process = True
+    case.save()
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:manage-contact-details",
+            kwargs={"pk": case.id},
+        ),
+        {
+            "version": case.version,
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "cases:edit-request-contact-details",
+        kwargs={"pk": case.id},
     )

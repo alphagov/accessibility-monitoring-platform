@@ -263,6 +263,10 @@ img, .amp-max-width-100 {
     margin-top: 0;
 }
 
+.amp-margin-top-5 {
+    margin-top: 5px;
+}
+
 .amp-margin-top-10 {
     margin-top: 10px;
 }
@@ -824,35 +828,68 @@ svg {
     }
 }
 
+.temp_post_case_margin_top {
+    margin-top: 15px;
+}
+
+.temp_nav_bar {
+    margin-bottom: 10px;
+    li {
+        padding-bottom: 4px;
+    }
+}
+
 .amp-nav-details {
     font-family: "GDS Transport",arial,sans-serif;
     font-size: 1rem;
+    margin-bottom: 5px;
 }
 
 .amp-nav-details[disabled] * {
     color: govuk-colour("mid-grey");
     pointer-events: none;
+    padding-left: 30px;
 }
 
 .amp-nav-details__summary {
-    color:  govuk-colour("blue");
     cursor: pointer;
+    color:  govuk-colour("blue");
     margin-bottom: 5px;
-
-    &:hover {
-        text-decoration: underline;
+    &::before {
+        content: "";
+        display: inline-block;
+        text-decoration: none;
     }
 }
+
 .amp-nav-details__text {
     border-left: 1px solid govuk-colour("mid-grey");
     padding-left: 1rem;
-    margin-bottom: 5px;
-
+    padding-top: 4px;
+    margin-bottom: 10px;
     ul {
         font-size: 1rem;
 
         .amp-nav-list-subpages {
             list-style-type: disc;
         }
+<<<<<<< HEAD
+=======
     }
+
+    li {
+        padding-bottom: 4px;
+    }
+
+    a[disabled] {
+        pointer-events: none;
+        color: govuk-colour("mid-grey");
+        text-decoration: none;
+>>>>>>> dev
+    }
+}
+
+.amp-session-warning {
+    color: govuk-colour("red");
+    font-weight: bold;
 }

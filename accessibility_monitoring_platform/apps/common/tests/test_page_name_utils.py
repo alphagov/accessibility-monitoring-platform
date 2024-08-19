@@ -10,8 +10,9 @@ from ...audits.models import Audit, Page, Retest, RetestPage
 from ...cases.models import Case
 from ...common.models import EmailTemplate
 from ..page_name_utils import (
+    AmpPage,
     PageName,
-    get_amp_page_name_by_request,
+    get_amp_page_by_request,
     get_amp_page_name_by_url,
 )
 
@@ -48,8 +49,8 @@ def test_page_name_derived_from_object():
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_by_request_for_case(rf):
-    """Test get_amp_page_name_by_request returns expected Case-specific name"""
+def test_get_amp_page_by_request_for_case(rf):
+    """Test get_amp_page_by_request returns expected Case-specific name"""
     case: Case = Case.objects.create()
 
     request_user: User = User.objects.create(
@@ -60,12 +61,14 @@ def test_get_amp_page_name_by_request_for_case(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name_by_request(request) == "Case metadata"
+    assert get_amp_page_by_request(request) == AmpPage(
+        name="Case metadata", url_name="cases:edit-case-metadata"
+    )
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_by_request_for_page(rf):
-    """Test get_amp_page_name_by_request returns expected Page-specific name"""
+def test_get_amp_page_by_request_for_page(rf):
+    """Test get_amp_page_by_request returns expected Page-specific name"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
@@ -78,12 +81,14 @@ def test_get_amp_page_name_by_request_for_page(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name_by_request(request) == "Additional page test"
+    assert get_amp_page_by_request(request) == AmpPage(
+        name="Additional page test", url_name="audits:edit-audit-page-checks"
+    )
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_by_request_for_retest_page(rf):
-    """Test get_amp_page_name_by_request returns expected RetestPage-specific name"""
+def test_get_amp_page_by_request_for_retest_page(rf):
+    """Test get_amp_page_by_request returns expected RetestPage-specific name"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
@@ -98,12 +103,14 @@ def test_get_amp_page_name_by_request_for_retest_page(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name_by_request(request) == "Retest #1 | Additional"
+    assert get_amp_page_by_request(request) == AmpPage(
+        name="Retest #1 | Additional", url_name="audits:edit-retest-page-checks"
+    )
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_by_request_for_email_template(rf):
-    """Test get_amp_page_name_by_request returns expected EmailTemplate-specific name"""
+def test_get_amp_page_by_request_for_email_template(rf):
+    """Test get_amp_page_by_request returns expected EmailTemplate-specific name"""
     case: Case = Case.objects.create()
     email_template: EmailTemplate = EmailTemplate.objects.create(
         name=EMAIL_TEMPLATE_NAME
@@ -120,12 +127,14 @@ def test_get_amp_page_name_by_request_for_email_template(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name_by_request(request) == EMAIL_TEMPLATE_NAME
+    assert get_amp_page_by_request(request) == AmpPage(
+        name=EMAIL_TEMPLATE_NAME, url_name="cases:email-template-preview"
+    )
 
 
 @pytest.mark.django_db
-def test_get_amp_page_name_by_request_with_extra_context(rf):
-    """Test get_amp_page_name_by_request returns expected name with extra context"""
+def test_get_amp_page_by_request_with_extra_context(rf):
+    """Test get_amp_page_by_request returns expected name with extra context"""
     request_user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
@@ -134,13 +143,17 @@ def test_get_amp_page_name_by_request_with_extra_context(rf):
     )
     request.user = request_user
 
-    assert get_amp_page_name_by_request(request) == "EHRC CSV export manager"
+    assert get_amp_page_by_request(request) == AmpPage(
+        name="EHRC CSV export manager", url_name="exports:export-list"
+    )
 
     request = rf.get(
         f'{reverse("exports:export-list")}?enforcement_body=ecni',
     )
 
-    assert get_amp_page_name_by_request(request) == "ECNI CSV export manager"
+    assert get_amp_page_by_request(request) == AmpPage(
+        name="ECNI CSV export manager", url_name="exports:export-list"
+    )
 
 
 def test_get_amp_page_name_by_url():

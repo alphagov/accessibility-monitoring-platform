@@ -1921,10 +1921,10 @@ def test_page_checks_edit_saves_results(admin_client):
     assert events[1].type == Event.Type.CREATE
     assert events[2].parent == page
     assert events[2].type == Event.Type.UPDATE
-    assert events[2].diff == {
-        "complete_date": f"None -> {TODAY}",
-        "no_errors_date": f"None -> {TODAY}",
-    }
+    assert (
+        events[2].value
+        == f"""{{"complete_date": "None -> {TODAY}", "no_errors_date": "None -> {TODAY}"}}"""
+    )
 
 
 def test_page_checks_edit_stays_on_page(admin_client):
@@ -2538,11 +2538,10 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     assert events[1].type == Event.Type.UPDATE
     assert events[2].parent == page
     assert events[2].type == Event.Type.UPDATE
-    assert events[2].diff == {
-        "retest_complete_date": f"None -> {TODAY}",
-        "retest_page_missing_date": f"None -> {TODAY}",
-        "retest_notes": " -> Retest notes",
-    }
+    assert (
+        events[2].value
+        == f'{{"retest_complete_date": "None -> {TODAY}", "retest_page_missing_date": "None -> {TODAY}", "retest_notes": " -> Retest notes"}}'
+    )
 
 
 def test_retest_page_shows_and_hides_fixed_errors(admin_client):
@@ -2657,15 +2656,17 @@ def test_retest_pages_comparison_groups_by_page_or_wcag(admin_client):
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
-    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
-
-    response: HttpResponse = admin_client.get(url)
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
+    )
 
     assert response.status_code == 200
 
     assertContains(response, "Test summary | Page view")
 
-    response: HttpResponse = admin_client.get(f"{url}?view=WCAG view")
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-pages-comparison-by-wcag", kwargs=audit_pk)
+    )
 
     assert response.status_code == 200
 
@@ -3318,9 +3319,7 @@ def test_delete_retest(admin_client):
     assert events.count() == 1
     assert events[0].parent == retest
     assert events[0].type == Event.Type.UPDATE
-    assert events[0].diff == {
-        "is_deleted": "False -> True",
-    }
+    assert events[0].value == '{"is_deleted": "False -> True"}'
 
 
 @pytest.mark.parametrize(

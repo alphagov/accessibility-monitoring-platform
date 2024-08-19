@@ -242,32 +242,50 @@ class Case(VersionModel):
     zendesk_url = models.TextField(default="", blank=True)
     cores_overview_complete_date = models.DateField(null=True, blank=True)
 
-    # Find contact details page
+    # Manage contact details page
+    contact_notes = models.TextField(default="", blank=True)
+    manage_contact_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Find contact details page - Removed from UI
     contact_details_found = models.CharField(
         max_length=20,
         choices=ContactDetailsFound.choices,
         default=ContactDetailsFound.NOT_CHECKED,
     )
+
+    # Correspondence process
+    enable_correspondence_process = models.BooleanField(default=False)
+
+    # Request contact details page
     seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
     seven_day_no_contact_request_sent_to = models.CharField(
         max_length=200, default="", blank=True
     )
+    request_contact_details_complete_date = models.DateField(null=True, blank=True)
+
+    # One week contact details page
     no_contact_one_week_chaser_due_date = models.DateField(null=True, blank=True)
     no_contact_one_week_chaser_sent_date = models.DateField(null=True, blank=True)
     no_contact_one_week_chaser_sent_to = models.CharField(
         max_length=200, default="", blank=True
     )
+    one_week_contact_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Four week contact details page
     no_contact_four_week_chaser_due_date = models.DateField(null=True, blank=True)
     no_contact_four_week_chaser_sent_date = models.DateField(null=True, blank=True)
     no_contact_four_week_chaser_sent_to = models.CharField(
         max_length=200, default="", blank=True
     )
     correspondence_notes = models.TextField(default="", blank=True)
-    find_contact_details_complete_date = models.DateField(null=True, blank=True)
+    four_week_contact_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Contact details page
-    contact_notes = models.TextField(default="", blank=True)
-    contact_details_complete_date = models.DateField(null=True, blank=True)
+    # Unresponsive PSB page
+    no_psb_contact = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    no_psb_contact_notes = models.TextField(default="", blank=True)
+    no_psb_contact_complete_date = models.DateField(null=True, blank=True)
 
     # Report sent on page
     report_sent_date = models.DateField(null=True, blank=True)
@@ -337,12 +355,6 @@ class Case(VersionModel):
 
     # Report correspondence page
     report_correspondence_complete_date = models.DateField(null=True, blank=True)
-
-    # Unable to send report or no response from public sector body page
-    no_psb_contact = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
-    no_psb_contact_notes = models.TextField(default="", blank=True)
 
     # 12-week correspondence page
     twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
@@ -880,6 +892,34 @@ class Case(VersionModel):
     def email_templates(self):
         return EmailTemplate.objects.filter(is_deleted=False)
 
+    @property
+    def report_number_of_visits(self):
+        return self.reportvisitsmetrics_set.all().count()
+
+    @property
+    def report_number_of_unique_visitors(self):
+        return (
+            self.reportvisitsmetrics_set.values_list("fingerprint_hash")
+            .distinct()
+            .count()
+        )
+
+    @property
+    def website_contact_links_count(self):
+        """
+        Count how many links have been entered where the user can look for contacts
+        """
+        links_count: int = 0
+        if self.audit is not None:
+            if self.audit.contact_page is not None and self.audit.contact_page.url:
+                links_count += 1
+            if (
+                self.audit.accessibility_statement_page is not None
+                and self.audit.accessibility_statement_page.url
+            ):
+                links_count += 1
+        return links_count
+
 
 class CaseStatus(models.Model):
     """
@@ -1078,7 +1118,7 @@ class CaseCompliance(VersionModel):
         )
 
 
-class Contact(models.Model):
+class Contact(VersionModel):
     """
     Model for cases Contact
     """
@@ -1103,10 +1143,15 @@ class Contact(models.Model):
         ordering = ["-preferred", "-id"]
 
     def __str__(self) -> str:
-        return str(f"Contact {self.name} {self.email}")
+        string: str = ""
+        if self.name:
+            string = self.name
+        if self.email:
+            string += f" {self.email}"
+        return string
 
     def get_absolute_url(self) -> str:
-        return reverse("cases:edit-contact-details", kwargs={"pk": self.case.id})
+        return reverse("cases:manage-contact-details", kwargs={"pk": self.case.id})
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()

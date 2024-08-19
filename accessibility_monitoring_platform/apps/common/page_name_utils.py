@@ -7,6 +7,7 @@ from django.http import HttpRequest
 from django.urls import Resolver404, URLResolver, resolve
 
 from ..audits.models import Page, RetestPage
+from ..cases.models import Contact
 from ..common.models import EmailTemplate
 from ..exports.models import Export
 
@@ -47,6 +48,9 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
         "Retesting {page}", page_object_name="page", page_object_class=Page
     ),
     "audits:edit-audit-retest-pages-comparison": PageName("12-week pages comparison"),
+    "audits:edit-audit-retest-pages-comparison-by-wcag": PageName(
+        "12-week pages comparison"
+    ),
     "audits:edit-audit-retest-statement-1": PageName(
         "12-week accessibility statement Pt. 1"
     ),
@@ -135,31 +139,38 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
     "cases:create-equality-body-correspondence": PageName("Add Zendesk ticket"),
     "cases:create-zendesk-ticket": PageName("Add PSB Zendesk ticket"),
     "cases:deactivate-case": PageName("Deactivate case"),
+    "cases:edit-12-week-one-week-followup-final": PageName(
+        "One week follow-up for final update"
+    ),
     "cases:edit-12-week-update-request-ack": PageName(
         "12-week update request acknowledged"
     ),
     "cases:edit-12-week-update-requested": PageName("12-week update requested"),
     "cases:edit-case-close": PageName("Closing the case"),
     "cases:edit-case-metadata": PageName("Case metadata"),
-    "cases:edit-contact-details": PageName("Contact details"),
-    "cases:edit-cores-overview": PageName("Correspondence overview"),
+    "cases:manage-contact-details": PageName("Manage contact details"),
+    "cases:edit-contact-create": PageName("Add contact"),
+    "cases:edit-contact-update": PageName(
+        "Edit contact {contact}",
+        page_object_name="contact",
+        page_object_class=Contact,
+    ),
     "cases:edit-enforcement-recommendation": PageName("Enforcement recommendation"),
     "cases:edit-equality-body-correspondence": PageName("Edit Zendesk ticket"),
     "cases:edit-equality-body-metadata": PageName("Equality body metadata"),
-    "cases:edit-find-contact-details": PageName("Find contact details"),
-    "cases:edit-four-week-followup": PageName("Four week follow-up"),
-    "cases:edit-no-psb-response": PageName("Public sector body is unresponsive"),
-    "cases:edit-one-week-followup": PageName("One week follow-up"),
-    "cases:edit-one-week-followup-final": PageName(
-        "One week follow-up for final update"
-    ),
+    "cases:edit-four-week-contact-details": PageName("Four-week follow-up"),
+    "cases:edit-no-psb-response": PageName("Unresponsive PSB"),
+    "cases:edit-one-week-contact-details": PageName("One-week follow-up"),
     "cases:edit-post-case": PageName("Post case summary"),
     "cases:edit-publish-report": PageName("Publish report"),
     "cases:edit-qa-comments": PageName("QA comments"),
     "cases:edit-report-acknowledged": PageName("Report acknowledged"),
     "cases:edit-report-approved": PageName("Report approved"),
     "cases:edit-report-details": PageName("Report details"),
+    "cases:edit-report-four-week-followup": PageName("Four week follow-up"),
+    "cases:edit-report-one-week-followup": PageName("One week follow-up"),
     "cases:edit-report-sent-on": PageName("Report sent on"),
+    "cases:edit-request-contact-details": PageName("Request contact details"),
     "cases:edit-retest-overview": PageName("Retest overview"),
     "cases:edit-review-changes": PageName("Reviewing changes"),
     "cases:edit-statement-enforcement": PageName("Statement enforcement"),
@@ -230,7 +241,13 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
 }
 
 
-def get_amp_page_name_by_request(request: HttpRequest) -> str:
+@dataclass
+class AmpPage:
+    name: str
+    url_name: str
+
+
+def get_amp_page_by_request(request: HttpRequest) -> AmpPage:
     """Lookup and return the name of the requested page"""
     url_resolver: URLResolver = resolve(request.path_info)
     url_name: str = url_resolver.view_name
@@ -238,21 +255,30 @@ def get_amp_page_name_by_request(request: HttpRequest) -> str:
     if url_name in ALL_PAGE_NAMES:
         page_name: PageName = ALL_PAGE_NAMES.get(url_name)
     else:
-        return f"Page name not found for {url_name}"
+        return AmpPage(name=f"Page name not found for {url_name}", url_name=url_name)
 
     if url_resolver.view_name in ["exports:export-list", "exports:export-create"]:
         enforcement_body: str = request.GET.get("enforcement_body", "ehrc")
-        return page_name.get_name(
-            url_resolver, enforcement_body=enforcement_body.upper()
+        return AmpPage(
+            name=page_name.get_name(
+                url_resolver, enforcement_body=enforcement_body.upper()
+            ),
+            url_name=url_name,
         )
     if url_resolver.view_name == "dashboard:home":
         view_param: str = request.GET.get("view", "View your cases")
         home_page_title: str = (
             "All cases" if view_param == "View all cases" else "Your cases"
         )
-        return page_name.get_name(url_resolver, home_page_title=home_page_title)
+        return AmpPage(
+            name=page_name.get_name(url_resolver, home_page_title=home_page_title),
+            url_name=url_name,
+        )
 
-    return page_name.get_name(url_resolver=url_resolver)
+    return AmpPage(
+        name=page_name.get_name(url_resolver=url_resolver),
+        url_name=url_name,
+    )
 
 
 def get_amp_page_name_by_url(url: str) -> str:

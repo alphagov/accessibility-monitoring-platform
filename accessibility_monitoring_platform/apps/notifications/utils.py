@@ -196,28 +196,30 @@ def build_overdue_task_options(case: Case) -> List[Option]:
         return [
             Option(
                 label="No contact details response overdue",
-                url=reverse("cases:edit-find-contact-details", kwargs=kwargs_case_pk),
+                url=reverse(
+                    "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                ),
             )
         ]
     if case.status.status == CaseStatus.Status.IN_REPORT_CORES:
         return [
             Option(
                 label=case.in_report_correspondence_progress,
-                url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
+                url=reverse("cases:manage-contact-details", kwargs=kwargs_case_pk),
             )
         ]
     if case.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
         return [
             Option(
                 label="12-week update due",
-                url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
+                url=reverse("cases:manage-contact-details", kwargs=kwargs_case_pk),
             )
         ]
     if case.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
         return [
             Option(
                 label=case.twelve_week_correspondence_progress,
-                url=reverse("cases:edit-cores-overview", kwargs=kwargs_case_pk),
+                url=reverse("cases:manage-contact-details", kwargs=kwargs_case_pk),
             )
         ]
     return []
