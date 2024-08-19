@@ -3,7 +3,7 @@ Forms - cases
 """
 
 import re
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
 import requests
 from django import forms
@@ -353,77 +353,26 @@ class CasePublishReportUpdateForm(VersionForm):
                 self.fields["publish_report_complete_date"].widget = forms.HiddenInput()
 
 
-class CaseCorrespondenceOverviewUpdateForm(VersionForm):
+class ManageContactDetailsUpdateForm(VersionForm):
     """
-    Form to update Correspondence overview
+    Form for updating test results
     """
 
-    cores_overview_complete_date = AMPDatePageCompleteField()
+    contact_notes = AMPTextField(label="Contact detail notes")
+    manage_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "cores_overview_complete_date",
+            "contact_notes",
+            "manage_contact_details_complete_date",
         ]
 
 
-class CaseFindContactDetailsUpdateForm(VersionForm):
+class ContactCreateForm(forms.ModelForm):
     """
-    Form to update Find contact details
-    """
-
-    contact_details_found = AMPChoiceRadioField(
-        label="Contact details found?",
-        help_text="If no contact details found, send ‘no contact details’ email to any contact on the website",
-        choices=Case.ContactDetailsFound.choices,
-    )
-    seven_day_no_contact_email_sent_date = AMPDateField(
-        label="No contact details request sent",
-    )
-    seven_day_no_contact_request_sent_to = AMPCharFieldWide(
-        label="Initial request sent to"
-    )
-    no_contact_one_week_chaser_sent_date = AMPDateField(
-        label="No contact details 1-week chaser sent date",
-    )
-    no_contact_one_week_chaser_due_date = AMPDateField(
-        label="No contact details 1-week chaser due date"
-    )
-    no_contact_one_week_chaser_sent_to = AMPCharFieldWide(label="1-week chaser sent to")
-    no_contact_four_week_chaser_sent_date = AMPDateField(
-        label="No contact details 4-week chaser sent date",
-    )
-    no_contact_four_week_chaser_due_date = AMPDateField(
-        label="No contact details 4-week chaser due date"
-    )
-    no_contact_four_week_chaser_sent_to = AMPCharFieldWide(
-        label="4-week chaser sent to"
-    )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
-    find_contact_details_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "contact_details_found",
-            "seven_day_no_contact_email_sent_date",
-            "seven_day_no_contact_request_sent_to",
-            "no_contact_one_week_chaser_sent_date",
-            "no_contact_one_week_chaser_due_date",
-            "no_contact_one_week_chaser_sent_to",
-            "no_contact_four_week_chaser_sent_date",
-            "no_contact_four_week_chaser_due_date",
-            "no_contact_four_week_chaser_sent_to",
-            "correspondence_notes",
-            "find_contact_details_complete_date",
-        ]
-
-
-class CaseContactUpdateForm(forms.ModelForm):
-    """
-    Form for updating a contact
+    Form for creating a contact
     """
 
     name = AMPCharFieldWide(label="Name (included in equality body export)")
@@ -438,28 +387,101 @@ class CaseContactUpdateForm(forms.ModelForm):
         fields = ["name", "job_title", "email", "preferred"]
 
 
-CaseContactFormset: Any = forms.modelformset_factory(
-    Contact, CaseContactUpdateForm, extra=0
-)
-CaseContactFormsetOneExtra: Any = forms.modelformset_factory(
-    Contact, CaseContactUpdateForm, extra=1
-)
-
-
-class CaseContactsUpdateForm(VersionForm):
+class ContactUpdateForm(VersionForm):
     """
-    Form for updating test results
+    Form for updating a contact
     """
 
-    contact_notes = AMPTextField(label="Contact detail notes")
-    contact_details_complete_date = AMPDatePageCompleteField()
+    name = AMPCharFieldWide(label="Name (included in equality body export)")
+    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
+    email = AMPCharFieldWide(label="Email (included in equality body export)")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=Contact.Preferred.choices
+    )
+
+    class Meta:
+        model = Contact
+        fields = ["version", "name", "job_title", "email", "preferred"]
+
+
+class CaseRequestContactDetailsUpdateForm(VersionForm):
+    """
+    Form to update Find contact details
+    """
+
+    seven_day_no_contact_email_sent_date = AMPDateField(
+        label="No contact details request sent",
+    )
+    seven_day_no_contact_request_sent_to = AMPCharFieldWide(
+        label="Initial request sent to"
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
+    request_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "contact_notes",
-            "contact_details_complete_date",
+            "seven_day_no_contact_email_sent_date",
+            "seven_day_no_contact_request_sent_to",
+            "correspondence_notes",
+            "request_contact_details_complete_date",
+        ]
+
+
+class CaseOneWeekContactDetailsUpdateForm(VersionForm):
+    """
+    Form to update One week contact details
+    """
+
+    no_contact_one_week_chaser_sent_date = AMPDateField(
+        label="No contact details 1-week chaser sent date",
+    )
+    no_contact_one_week_chaser_due_date = AMPDateField(
+        label="No contact details 1-week chaser due date"
+    )
+    no_contact_one_week_chaser_sent_to = AMPCharFieldWide(label="1-week chaser sent to")
+    correspondence_notes = AMPTextField(label="Correspondence notes")
+    one_week_contact_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "no_contact_one_week_chaser_sent_date",
+            "no_contact_one_week_chaser_due_date",
+            "no_contact_one_week_chaser_sent_to",
+            "correspondence_notes",
+            "one_week_contact_details_complete_date",
+        ]
+
+
+class CaseFourWeekContactDetailsUpdateForm(VersionForm):
+    """
+    Form to update Four week contact details
+    """
+
+    no_contact_four_week_chaser_sent_date = AMPDateField(
+        label="No contact details 4-week chaser sent date",
+    )
+    no_contact_four_week_chaser_due_date = AMPDateField(
+        label="No contact details 4-week chaser due date"
+    )
+    no_contact_four_week_chaser_sent_to = AMPCharFieldWide(
+        label="4-week chaser sent to"
+    )
+    correspondence_notes = AMPTextField(label="Correspondence notes")
+    four_week_contact_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "no_contact_four_week_chaser_sent_date",
+            "no_contact_four_week_chaser_due_date",
+            "no_contact_four_week_chaser_sent_to",
+            "correspondence_notes",
+            "four_week_contact_details_complete_date",
         ]
 
 
@@ -487,7 +509,7 @@ class CaseReportSentOnUpdateForm(VersionForm):
         ]
 
 
-class CaseOneWeekFollowupUpdateForm(VersionForm):
+class CaseReportOneWeekFollowupUpdateForm(VersionForm):
     """
     Form to update One week followup
     """
@@ -524,7 +546,7 @@ class CaseOneWeekFollowupUpdateForm(VersionForm):
             self.fields["one_week_followup_sent_to_email"].widget = forms.HiddenInput()
 
 
-class CaseFourWeekFollowupUpdateForm(VersionForm):
+class CaseReportFourWeekFollowupUpdateForm(VersionForm):
     """
     Form to update Four week followup
     """
@@ -713,6 +735,7 @@ class CaseNoPSBContactUpdateForm(VersionForm):
     no_psb_contact_notes = AMPTextField(
         label="Public sector body is unresponsive notes"
     )
+    no_psb_contact_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -720,6 +743,7 @@ class CaseNoPSBContactUpdateForm(VersionForm):
             "version",
             "no_psb_contact",
             "no_psb_contact_notes",
+            "no_psb_contact_complete_date",
         ]
 
 

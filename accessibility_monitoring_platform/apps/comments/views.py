@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
 from ..cases.models import Case
-from ..cases.utils import build_case_nav_sections
+from ..common.case_nav import build_case_nav_sections
 from ..common.utils import record_model_update_event
 from .forms import CommentUpdateForm
 from .models import Comment
