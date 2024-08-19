@@ -15,11 +15,11 @@ from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ..forms import (
     CaseCloseUpdateForm,
-    CaseFourWeekFollowupUpdateForm,
     CaseMetadataUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
-    CaseOneWeekFollowupUpdateForm,
     CasePublishReportUpdateForm,
+    CaseReportFourWeekFollowupUpdateForm,
+    CaseReportOneWeekFollowupUpdateForm,
     CaseSearchForm,
 )
 from ..models import Case
@@ -120,13 +120,17 @@ def test_one_week_followup_hidden_when_report_ack():
     acknowledged
     """
     case: Case = Case.objects.create()
-    form: CaseOneWeekFollowupUpdateForm = CaseOneWeekFollowupUpdateForm(instance=case)
+    form: CaseReportOneWeekFollowupUpdateForm = CaseReportOneWeekFollowupUpdateForm(
+        instance=case
+    )
 
     hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version"]
 
     case.report_acknowledged_date = TODAY
-    form: CaseOneWeekFollowupUpdateForm = CaseOneWeekFollowupUpdateForm(instance=case)
+    form: CaseReportOneWeekFollowupUpdateForm = CaseReportOneWeekFollowupUpdateForm(
+        instance=case
+    )
     hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
 
     assert hidden_fields == [
@@ -144,13 +148,17 @@ def test_four_week_followup_hidden_when_report_ack():
     acknowledged
     """
     case: Case = Case.objects.create()
-    form: CaseFourWeekFollowupUpdateForm = CaseFourWeekFollowupUpdateForm(instance=case)
+    form: CaseReportFourWeekFollowupUpdateForm = CaseReportFourWeekFollowupUpdateForm(
+        instance=case
+    )
 
     hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version"]
 
     case.report_acknowledged_date = TODAY
-    form: CaseFourWeekFollowupUpdateForm = CaseFourWeekFollowupUpdateForm(instance=case)
+    form: CaseReportFourWeekFollowupUpdateForm = CaseReportFourWeekFollowupUpdateForm(
+        instance=case
+    )
     hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
 
     assert hidden_fields == [

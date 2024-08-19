@@ -10,13 +10,14 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ...audits.models import Audit, Page
+from ...audits.models import Audit
 from ...cases.models import Case
 from ..case_nav import (
     NavPage,
     NavSection,
     build_case_nav_sections,
     build_closing_the_case_nav_sections,
+    build_correspondence_nav_sections,
 )
 
 
@@ -134,3 +135,17 @@ def test_build_closing_the_case_nav_sections():
     assert nav_section.pages[0].name == "Reviewing changes"
     assert nav_section.pages[1].name == "Enforcement recommendation"
     assert nav_section.pages[2].name == "Closing the case"
+
+
+@pytest.mark.django_db
+def test_build_correspondence_nav_sections():
+    """Test build_correspondence_nav_sections"""
+    case: Case = Case.objects.create()
+
+    nav_sections: List[NavSection] = build_correspondence_nav_sections(case=case)
+
+    assert len(nav_sections) == 3
+
+    assert nav_sections[0].name == "Contact details"
+    assert nav_sections[1].name == "Report correspondence"
+    assert nav_sections[2].name == "12-week correspondence"

@@ -11,7 +11,7 @@ from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import Case
-from ..cases.utils import build_case_nav_sections
+from ..common.case_nav import build_case_nav_sections
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
