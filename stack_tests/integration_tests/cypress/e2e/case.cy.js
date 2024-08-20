@@ -45,8 +45,6 @@ describe('View case', () => {
 
   it('can edit testing details', () => {
     cy.get('#edit-test-results').click()
-    cy.get('[name="testing_details_complete_date"]').click()
-    cy.contains('Save').click()
   })
 
   it('can edit report details', () => {

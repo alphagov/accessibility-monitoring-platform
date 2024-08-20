@@ -135,7 +135,7 @@ def test_build_case_nav_sections_no_audit():
 
     nav_sections: List[NavSection] = build_case_nav_sections(case=case)
 
-    assert len(nav_sections) == 3
+    assert len(nav_sections) == 1
 
     nav_section: NavSection = nav_sections[0]
 
@@ -147,11 +147,6 @@ def test_build_case_nav_sections_no_audit():
 
     assert nav_page.url == "/cases/1/edit-case-metadata/"
     assert nav_page.complete is False
-
-    assert nav_sections[1].name == "Initial WCAG test"
-    assert nav_sections[1].disabled is True
-    assert nav_sections[2].name == "Initial statement"
-    assert nav_sections[2].disabled is True
 
 
 @pytest.mark.django_db

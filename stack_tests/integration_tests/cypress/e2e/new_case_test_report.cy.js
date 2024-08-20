@@ -34,7 +34,7 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Testing details`)
-    cy.contains('This case does not have a test. Click Start test to move to the testing environment.')
+    cy.contains('This case does not have a test. Click Start test to begin.')
     cy.contains('.govuk-button', 'Start test').click()
 
     cy.title().should('eq', `${newOrganisationName} | Initial test metadata`)

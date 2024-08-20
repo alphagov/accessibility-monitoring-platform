@@ -10,7 +10,9 @@
         </ul>
     {% else %}
         <ul class="govuk-list temp_nav_bar">
-            {% include './nav_step.html' with edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
+            {% if not case.audit %}
+                {% include './nav_step.html' with edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
+            {% endif %}
             {% include './nav_step.html' with edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
             {% include './nav_step.html' with edit_name='cases:edit-report-approved' name='Report approved' complete=case.qa_auditor_complete_date %}

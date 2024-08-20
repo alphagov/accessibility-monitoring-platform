@@ -2364,48 +2364,6 @@ def test_add_contact_page_in_case_nav_when_current_page(
     )
 
 
-def test_test_results_page_shows_if_statement_exists(
-    admin_client,
-):
-    """
-    Test that the test results page shows if statement exists.
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Statement exists</th>
-            <td class="govuk-table__cell amp-width-one-half">No</td>
-        </tr>""",
-        html=True,
-    )
-
-    StatementPage.objects.create(audit=audit)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Statement exists</th>
-            <td class="govuk-table__cell amp-width-one-half">Yes</td>
-        </tr>""",
-        html=True,
-    )
-
-
 def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
     admin_client,
 ):

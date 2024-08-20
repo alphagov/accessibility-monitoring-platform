@@ -25,7 +25,7 @@ from ..audits.forms import (
 from ..audits.utils import report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
-from ..common.case_nav import CaseNavContextMixin, build_case_nav_sections
+from ..common.case_nav import CaseNavContextMixin
 from ..common.models import Boolean, EmailTemplate
 from ..common.utils import (
     amp_format_date,
@@ -316,6 +316,7 @@ class CaseUpdateView(CaseNavContextMixin, UpdateView):
 
     model: Type[Case] = Case
     context_object_name: str = "case"
+    template_name: str = "common/case_form.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
@@ -352,7 +353,12 @@ class CaseMetadataUpdateView(CaseUpdateView):
     """
 
     form_class: Type[CaseMetadataUpdateForm] = CaseMetadataUpdateForm
-    template_name: str = "cases/forms/metadata.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["current_section_name"] = "Case details"
+        return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
@@ -369,8 +375,12 @@ class CaseMetadataUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-test-results", kwargs=case_pk)
+            case: Case = self.object
+            if case.audit:
+                return reverse(
+                    "audits:edit-audit-metadata", kwargs={"pk": case.audit.id}
+                )
+            return reverse("cases:edit-test-results", kwargs={"pk": case.id})
         return super().get_success_url()
 
 
@@ -381,6 +391,12 @@ class CaseTestResultsUpdateView(CaseUpdateView):
 
     form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["current_section_name"] = "Start initial test"
+        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
