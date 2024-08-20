@@ -1,8 +1,216 @@
+{% load humanize %}
+
 <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
    <summary class="govuk-details__summary">
         <span class="govuk-details__summary-text">Correspondence overview</span>
     </summary>
     <div class="govuk-details__text">
-        {% include 'cases/helpers/correspondence_overview.html' %}
+      {% for contact in case.contacts %}
+          <div class="govuk-form-group">
+              <label class="govuk-label"><b>Contact {{ forloop.counter }}</b></label>
+              <p class="govuk-body-m">
+                  {{ contact.name }}
+                  {{ contact.job_title }}
+                  {{ contact.email }}
+                  (<a href="{% url 'cases:manage-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              </p>
+          </div>
+      {% endfor %}
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>Report visits</b></label>
+          <p class="govuk-body-m">
+              {% if case.report %}
+                  {{ case.report.visits_metrics.number_of_visits|intcomma }}
+                  (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+              {% else %}
+                  None
+              {% endif %}
+          </p>
+      </div>
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>Unique report users</b></label>
+          <p class="govuk-body-m">
+              {% if case.report %}
+                  {{ case.report.visits_metrics.number_of_unique_visitors|intcomma }}
+                  (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+              {% else %}
+                  None
+              {% endif %}
+          </p>
+      </div>
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>PSB Zendesk tickets</b></label>
+          {% if case.zendesk_tickets %}
+              {% for zendesk_ticket in case.zendesk_tickets %}
+                  <p class="govuk-body-m amp-margin-bottom-0">
+                      <b>#{{ zendesk_ticket.id_within_case }}</b>
+                      {{ zendesk_ticket.created|amp_date }}
+                      (<a href="{{ zendesk_ticket.url }}" class="govuk-link" target="_blank">View on zendesk</a> |
+                      <a href="{% url 'cases:update-zendesk-ticket' zendesk_ticket.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+                  </p>
+                  <p class="govuk-body-m">{{ zendesk_ticket.summary }}</p>
+              {% endfor %}
+          {% else %}
+              <p class="govuk-body-m">None</p>
+          {% endif %}
+      </div>
+
+      {% if case.enable_correspondence_process %}
+          <div class="govuk-form-group">
+              <label class="govuk-label"><b>No contact details email sent</b></label>
+              <p class="govuk-body-m">
+                  {% if case.seven_day_no_contact_email_sent_date %}
+                      Sent {{ case.seven_day_no_contact_email_sent_date|amp_date }}
+                  {% else %}
+                      Not sent
+                  {% endif %}
+                  (<a href="{% url 'cases:edit-request-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              </p>
+          </div>
+
+          <div class="govuk-form-group">
+              <label class="govuk-label"><b>One week chaser</b></label>
+              <p class="govuk-body-m">
+                  {% if case.no_contact_one_week_chaser_sent_date %}
+                      Sent {{ case.no_contact_one_week_chaser_sent_date|amp_date }}
+                  {% else %}
+                      Not sent
+                  {% endif %}
+                  (<a href="{% url 'cases:edit-one-week-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              </p>
+          </div>
+
+          <div class="govuk-form-group">
+              <label class="govuk-label"><b>Four week chaser</b></label>
+              <p class="govuk-body-m">
+                  {% if case.no_contact_four_week_chaser_sent_date %}
+                      Sent {{ case.no_contact_four_week_chaser_sent_date|amp_date }}
+                  {% else %}
+                      Not sent
+                  {% endif %}
+                  (<a href="{% url 'cases:edit-four-week-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              </p>
+          </div>
+      {% endif %}
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>Report sent on</b></label>
+          <p class="govuk-body-m">
+              {% if case.report_sent_date %}
+                  {{ case.report_sent_date|amp_date }}
+                  {% if case.report_sent_to_email %}
+                      to {{ case.report_sent_to_email }}
+                  {% endif %}
+              {% else %}
+                  Not sent
+              {% endif %}
+              (<a href="{% url 'cases:edit-report-sent-on' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+          </p>
+      </div>
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>One week followup</b></label>
+          <p class="govuk-body-m">
+              {% if case.report_followup_week_1_sent_date %}
+                  Sent {{ case.report_followup_week_1_sent_date|amp_date }}
+                  {% if case.one_week_followup_sent_to_email %}
+                      to {{ case.one_week_followup_sent_to_email }}
+                  {% endif %}
+              {% else %}
+                  Not sent
+              {% endif %}
+              (<a href="{% url 'cases:edit-report-one-week-followup' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+          </p>
+      </div>
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>Four week followup</b></label>
+          <p class="govuk-body-m">
+              {% if case.report_followup_week_4_sent_date %}
+                  Sent {{ case.report_followup_week_4_sent_date|amp_date }}
+                  {% if case.four_week_followup_sent_to_email %}
+                      to {{ case.four_week_followup_sent_to_email }}
+                  {% endif %}
+              {% else %}
+                  Not sent
+              {% endif %}
+              (<a href="{% url 'cases:edit-report-four-week-followup' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+          </p>
+      </div>
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>Report acknowledged</b></label>
+          <p class="govuk-body-m">
+              {% if case.report_acknowledged_date %}
+                  Sent {{ case.report_acknowledged_date|amp_date }}
+                  {% if case.report_acknowledged_by_email %}
+                      to {{ case.report_acknowledged_by_email }}
+                  {% endif %}
+              {% else %}
+                  Not sent
+              {% endif %}
+              (<a href="{% url 'cases:edit-report-acknowledged' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+          </p>
+      </div>
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>12-week deadline</b></label>
+          <p class="govuk-body-m">
+              {% if case.report_followup_week_12_due_date %}
+                  {{ case.report_followup_week_12_due_date|amp_date }}
+              {% else %}
+                  None
+              {% endif %}
+              (<a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+          </p>
+      </div>
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>12-week update requested</b></label>
+          <p class="govuk-body-m">
+              {% if case.twelve_week_update_requested_date %}
+                  Sent {{ case.twelve_week_update_requested_date|amp_date }}
+                  {% if case.twelve_week_update_request_sent_to_email %}
+                      to {{ case.twelve_week_update_request_sent_to_email }}
+                  {% endif %}
+              {% else %}
+                  Not sent
+              {% endif %}
+              (<a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+          </p>
+      </div>
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>One week follow-up for final update</b></label>
+          <p class="govuk-body-m">
+              {% if case.twelve_week_1_week_chaser_sent_date %}
+                  Sent {{ case.twelve_week_1_week_chaser_sent_date|amp_date }}
+                  {% if case.twelve_week_1_week_chaser_sent_to_email %}
+                      to {{ case.twelve_week_1_week_chaser_sent_to_email }}
+                  {% endif %}
+              {% else %}
+                  Not sent
+              {% endif %}
+              (<a href="{% url 'cases:edit-12-week-one-week-followup-final' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+          </p>
+      </div>
+
+      <div class="govuk-form-group">
+          <label class="govuk-label"><b>12-week update request acknowledged</b></label>
+          <p class="govuk-body-m">
+              {% if case.twelve_week_correspondence_acknowledged_date %}
+                  {{ case.twelve_week_correspondence_acknowledged_date|amp_date }}
+                  {% if case.twelve_week_correspondence_acknowledged_by_email %}
+                      from {{ case.twelve_week_correspondence_acknowledged_by_email }}
+                  {% endif %}
+              {% else %}
+                  Not received
+              {% endif %}
+              (<a href="{% url 'cases:edit-12-week-update-request-ack' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+          </p>
+      </div>
     </div>
 </details>
