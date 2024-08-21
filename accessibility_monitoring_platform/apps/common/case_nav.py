@@ -113,6 +113,74 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
         audit_nav_sections: List[NavSection] = []
     else:
         kwargs_audit_pk: Dict[str, int] = {"pk": case.audit.id}
+        if case.audit.uses_statement_checks:
+            statement_sections: List[NavPage] = [
+                NavPage(
+                    url=reverse(
+                        "audits:edit-statement-overview", kwargs=kwargs_audit_pk
+                    ),
+                    complete=case.audit.audit_statement_overview_complete_date,
+                    subpages=[
+                        NavPage(
+                            url=reverse(
+                                "audits:edit-statement-website",
+                                kwargs=kwargs_audit_pk,
+                            ),
+                            complete=case.audit.audit_statement_website_complete_date,
+                        ),
+                        NavPage(
+                            url=reverse(
+                                "audits:edit-statement-compliance",
+                                kwargs=kwargs_audit_pk,
+                            ),
+                            complete=case.audit.audit_statement_compliance_complete_date,
+                        ),
+                        NavPage(
+                            url=reverse(
+                                "audits:edit-statement-non-accessible",
+                                kwargs=kwargs_audit_pk,
+                            ),
+                            complete=case.audit.audit_statement_non_accessible_complete_date,
+                        ),
+                        NavPage(
+                            url=reverse(
+                                "audits:edit-statement-preparation",
+                                kwargs=kwargs_audit_pk,
+                            ),
+                            complete=case.audit.audit_statement_preparation_complete_date,
+                        ),
+                        NavPage(
+                            url=reverse(
+                                "audits:edit-statement-feedback",
+                                kwargs=kwargs_audit_pk,
+                            ),
+                            complete=case.audit.audit_statement_feedback_complete_date,
+                        ),
+                        NavPage(
+                            url=reverse(
+                                "audits:edit-statement-custom",
+                                kwargs=kwargs_audit_pk,
+                            ),
+                            complete=case.audit.audit_statement_custom_complete_date,
+                        ),
+                    ],
+                ),
+            ]
+        else:
+            statement_sections: List[NavPage] = [
+                NavPage(
+                    url=reverse(
+                        "audits:edit-audit-statement-1", kwargs=kwargs_audit_pk
+                    ),
+                    complete=case.audit.archive_audit_statement_1_complete_date,
+                ),
+                NavPage(
+                    url=reverse(
+                        "audits:edit-audit-statement-2", kwargs=kwargs_audit_pk
+                    ),
+                    complete=case.audit.archive_audit_statement_2_complete_date,
+                ),
+            ]
         audit_nav_sections: List[NavSection] = [
             NavSection(
                 name="Initial WCAG test",
@@ -160,56 +228,9 @@ def build_case_nav_sections(case: Case) -> List[NavSection]:
                         ),
                         complete=case.audit.audit_statement_pages_complete_date,
                     ),
-                    NavPage(
-                        url=reverse(
-                            "audits:edit-statement-overview", kwargs=kwargs_audit_pk
-                        ),
-                        complete=case.audit.audit_statement_overview_complete_date,
-                        subpages=[
-                            NavPage(
-                                url=reverse(
-                                    "audits:edit-statement-website",
-                                    kwargs=kwargs_audit_pk,
-                                ),
-                                complete=case.audit.audit_statement_website_complete_date,
-                            ),
-                            NavPage(
-                                url=reverse(
-                                    "audits:edit-statement-compliance",
-                                    kwargs=kwargs_audit_pk,
-                                ),
-                                complete=case.audit.audit_statement_compliance_complete_date,
-                            ),
-                            NavPage(
-                                url=reverse(
-                                    "audits:edit-statement-non-accessible",
-                                    kwargs=kwargs_audit_pk,
-                                ),
-                                complete=case.audit.audit_statement_non_accessible_complete_date,
-                            ),
-                            NavPage(
-                                url=reverse(
-                                    "audits:edit-statement-preparation",
-                                    kwargs=kwargs_audit_pk,
-                                ),
-                                complete=case.audit.audit_statement_preparation_complete_date,
-                            ),
-                            NavPage(
-                                url=reverse(
-                                    "audits:edit-statement-feedback",
-                                    kwargs=kwargs_audit_pk,
-                                ),
-                                complete=case.audit.audit_statement_feedback_complete_date,
-                            ),
-                            NavPage(
-                                url=reverse(
-                                    "audits:edit-statement-custom",
-                                    kwargs=kwargs_audit_pk,
-                                ),
-                                complete=case.audit.audit_statement_custom_complete_date,
-                            ),
-                        ],
-                    ),
+                ]
+                + statement_sections
+                + [
                     NavPage(
                         url=reverse(
                             "audits:edit-initial-disproportionate-burden",

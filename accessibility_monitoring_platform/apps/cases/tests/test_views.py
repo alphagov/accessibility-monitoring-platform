@@ -360,7 +360,7 @@ def test_view_case_includes_tests(admin_client):
     )
     assert response.status_code == 200
 
-    assertContains(response, "Test metadata")
+    assertContains(response, "Initial test metadata")
     assertContains(response, "Date of test")
     assertContains(response, "Initial statement compliance decision")
 
@@ -1828,7 +1828,7 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         assert duplicate_cases[1] == organisation_name_case
 
 
-def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(
+def test_audit_shows_link_to_create_audit_when_no_audit_exists(
     admin_client,
 ):
     """

@@ -728,7 +728,7 @@ class AuditCaseComplianceStatementInitialUpdateView(
         return super().get_success_url()
 
 
-class AuditStatement1UpdateView(AuditUpdateView):
+class AuditStatement1UpdateView(AuditInitialStatementUpdateView, AuditUpdateView):
     """
     View to update accessibility statement 1 audit fields
     """
@@ -756,7 +756,7 @@ class AuditStatement1UpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatement2UpdateView(AuditUpdateView):
+class AuditStatement2UpdateView(AuditInitialStatementUpdateView, AuditUpdateView):
     """
     View to update accessibility statement 2 audit fields
     """

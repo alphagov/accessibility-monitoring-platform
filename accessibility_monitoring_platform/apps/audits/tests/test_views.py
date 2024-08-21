@@ -186,7 +186,7 @@ def test_audit_detail_shows_number_of_errors(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "PDF (2)")
+    assertContains(response, "PDF test (2)")
 
 
 def test_audit_detail_shows_sections(admin_client):
@@ -201,8 +201,8 @@ def test_audit_detail_shows_sections(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "Test metadata")
-    assertContains(response, "Pages")
+    assertContains(response, "Initial test metadata")
+    assertContains(response, "Add or remove pages")
     assertContains(response, "Website compliance decision")
     assertContains(response, "Statement links")
     assertContains(response, "Initial disproportionate burden claim")
@@ -3686,56 +3686,6 @@ def test_retest_comparison_page_groups_by_page_or_wcag(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Test summary | WCAG view")
-
-
-def test_initial_page_complete_check_displayed(admin_client):
-    """
-    Test that the page complete tick is displayed in contents
-    """
-    audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.all().first()
-    page.url = "https://example.com"
-    page.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-detail", kwargs={"pk": audit.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<li>
-            <a href="#initial-page-1" class="govuk-link govuk-link--no-visited-state">
-                Initial test Home (0)</a>
-            |
-            <a id="edit-initial-page-1" href="/audits/pages/1/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                Edit</a>
-        </li>""",
-        html=True,
-    )
-
-    page.complete_date = TODAY
-    page.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-detail", kwargs={"pk": audit.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<li>
-            <a href="#initial-page-1" class="govuk-link govuk-link--no-visited-state">
-                Initial test Home (0)<span class="govuk-visually-hidden">complete</span></a>
-            |
-            <a id="edit-initial-page-1" href="/audits/pages/1/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                Edit<span class="govuk-visually-hidden">complete</span></a>
-            ✓
-        </li>""",
-        html=True,
-    )
 
 
 def test_retest_comparison_page_shows_location(admin_client):
