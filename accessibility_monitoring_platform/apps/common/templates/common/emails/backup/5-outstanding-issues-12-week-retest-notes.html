@@ -7,12 +7,14 @@ Please review the issues listed below and provide an update.
 <br>
 {% if case.audit.unfixed_check_results %}
     {% for issues_table in retest_issues_tables %}
-    {% if issues_table.rows %}
+    {% if issues_table.rows or issues_table.page.retest_notes %}
     <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
     <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
     {{ issues_table.page.location }}
     <br>
     <br>
+    {% endif %}
+    {% if issues_table.rows %}
     <table id="email-issues-table-{{ forloop.counter }}">
     <thead>
     <tr>
