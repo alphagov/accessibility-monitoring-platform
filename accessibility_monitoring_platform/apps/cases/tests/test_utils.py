@@ -14,12 +14,10 @@ from django.http import HttpResponse
 from django.http.request import QueryDict
 
 from ...audits.models import Audit
+from ...common.case_nav import NavPage, NavSection, build_case_nav_sections
 from ...common.models import Boolean, Sector, SubCategory
 from ..models import Case, CaseCompliance, CaseEvent
 from ..utils import (
-    NavSection,
-    NavSubPage,
-    build_case_nav_sections,
     build_edit_link_html,
     create_case_and_compliance,
     filter_cases,
@@ -84,19 +82,23 @@ def test_build_case_nav_sections():
     """Test build_case_nav_sections"""
     case: Case = Case.objects.create()
 
-    assert build_case_nav_sections(case=case) == [
-        NavSection(
-            name="Case details",
-            disabled=False,
-            subpages=[
-                NavSubPage(
-                    name="Case metadata",
-                    url="/cases/1/edit-case-metadata/",
-                    complete=None,
-                )
-            ],
-        )
-    ]
+    nav_sections: List[NavSection] = build_case_nav_sections(case=case)
+
+    assert len(nav_sections) == 1
+
+    nav_section: NavSection = nav_sections[0]
+
+    assert nav_section.name == "Case details"
+    assert nav_section.disabled is False
+    assert len(nav_section.pages) == 1
+
+    nav_page: NavPage = nav_section.pages[0]
+
+    assert nav_page.url == "/cases/1/edit-case-metadata/"
+    assert nav_page.name == "Case metadata"
+    assert nav_page.disabled is False
+    assert nav_page.complete is False
+    assert nav_page.subpages is None
 
 
 @pytest.mark.parametrize(

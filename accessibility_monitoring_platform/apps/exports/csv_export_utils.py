@@ -184,7 +184,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_attr=None,
         data_type="pre",
         edit_url_class=Case,
-        edit_url_name="cases:edit-contact-details",
+        edit_url_name="cases:manage-contact-details",
         edit_url_label="Go to contact details",
     ),
     EqualityBodyCSVColumn(
@@ -470,7 +470,7 @@ CASE_COLUMNS_FOR_EXPORT: List[CSVColumn] = [
     CSVColumn(
         column_header="Contact details page complete",
         source_class=Case,
-        source_attr="contact_details_complete_date",
+        source_attr="manage_contact_details_complete_date",
     ),
     CSVColumn(
         column_header="Seven day 'no contact details' email sent",

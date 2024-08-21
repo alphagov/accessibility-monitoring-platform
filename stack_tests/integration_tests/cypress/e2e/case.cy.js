@@ -83,10 +83,12 @@ describe('View case', () => {
   })
 
   it('can edit contact details', () => {
-    cy.get('#edit-contact-details').click()
-    cy.get('[name="form-0-name"]').clear().type(contactName)
-    cy.get('[name="form-0-email"]').clear().type(contactEmail)
-    cy.get('[name="contact_details_complete_date"]').click()
+    cy.get('#manage-contact-details').click()
+    cy.contains('Edit or remove').click()
+    cy.get('[name="name"]').clear().type(contactName)
+    cy.get('[name="email"]').clear().type(contactEmail)
+    cy.contains('Save and return').click()
+    cy.get('[name="manage_contact_details_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Case').click()
     cy.contains(contactName)

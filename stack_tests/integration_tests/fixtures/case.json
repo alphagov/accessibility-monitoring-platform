@@ -30,7 +30,7 @@
       "report_final_pdf_url": "",
       "report_final_odt_url": "",
       "qa_process_complete_date": null,
-      "contact_details_complete_date": null,
+      "manage_contact_details_complete_date": null,
       "report_sent_date": null,
       "report_followup_week_1_sent_date": null,
       "report_followup_week_4_sent_date": null,
@@ -76,7 +76,22 @@
       "is_deactivated": false,
       "deactivate_date": null,
       "deactivate_notes": "",
+      "enable_correspondence_process": true,
       "qa_status": "qa-approved"
+    }
+  },
+  {
+    "model": "cases.contact",
+    "pk": 1,
+    "fields": {
+      "version": 0,
+      "created": "2022-09-02T14:36:27.869Z",
+      "case_id": 1,
+      "name": "John Smith",
+      "email": "john.smith@example.com",
+      "job_title": "",
+      "preferred": "yes",
+      "is_deleted": false
     }
   },
   {
