@@ -1,0 +1,93 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    {% if show_failures_by_page %}
+        <form method="get" action="{% url 'audits:edit-audit-wcag-summary' audit.id %}">
+            <input
+                type="submit"
+                value="Test view"
+                name="view"
+                class="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+            />
+        </form>
+    {% else %}
+        <form method="get" action="{% url 'audits:edit-audit-wcag-summary' audit.id %}">
+            <input
+                type="submit"
+                value="Page view"
+                name="view"
+                class="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+            />
+        </form>
+    {% endif %}
+    {% if show_failures_by_page %}
+        <h2 class="govuk-heading-l">{{ amp_page_name }} | Page view</h2>
+        {% for page, failures in audit_failures_by_page.items %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <h3 class="govuk-heading-m">{{ page }}</h3>
+                    <table class="govuk-table">
+                        <tbody class="govuk-table__body">
+                            {% for failure in failures %}
+                                <tr class="govuk-table__row ">
+                                    <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.wcag_definition.name }}</th>
+                                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ failure.notes|markdown_to_html }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h2 class="govuk-heading-l">{{ amp_page_name }} | WCAG view</h2>
+        {% for wcag_definition, failures in audit_failures_by_wcag.items %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <h3 class="govuk-heading-m">{{ wcag_definition.name }}</h3>
+                    <p class="govuk-body-m">{{ wcag_definition.description }}</p>
+                    <table class="govuk-table">
+                        <tbody class="govuk-table__body">
+                            {% for failure in failures %}
+                                <tr class="govuk-table__row ">
+                                    <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.page }}</th>
+                                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ failure.notes|markdown_to_html }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <h2 class="govuk-heading-l">Accessibility statement</h2>
+    <p class="govuk-body">As part of the regulations you must publish an accessibility statement.</p>
+    {% if audit.accessibility_statement_found %}
+        {% if audit.uses_statement_checks %}
+            {% include 'audits/helpers/statement_summary.html' with title='Statement overview' edit_link='audits:edit-statement-overview' check_results=audit.overview_statement_check_results %}
+            {% include 'audits/helpers/statement_summary.html' with title='Statement information' edit_link='audits:edit-statement-website' check_results=audit.website_statement_check_results %}
+            {% include 'audits/helpers/statement_summary.html' with title='Compliance status' edit_link='audits:edit-statement-compliance' check_results=audit.compliance_statement_check_results %}
+            {% include 'audits/helpers/statement_summary.html' with title='Non-accessible content' edit_link='audits:edit-statement-non-accessible' check_results=audit.non_accessible_statement_check_results %}
+            {% include 'audits/helpers/statement_summary.html' with title='Statement preparation' edit_link='audits:edit-statement-preparation' check_results=audit.preparation_statement_check_results %}
+            {% include 'audits/helpers/statement_summary.html' with title='Feedback and enforcement procedure' edit_link='audits:edit-statement-feedback' check_results=audit.feedback_statement_check_results %}
+            {% include 'audits/helpers/statement_summary.html' with title='Custom statement issues' edit_link='audits:edit-statement-custom' check_results=audit.custom_statement_check_results %}
+        {% else %}
+            <table class="govuk-table">
+                <tbody class="govuk-table__body">
+                    {% for row in audit_statement_rows %}
+                        {% include 'cases/helpers/detail_row.html' with row=row %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% else %}
+        <p class="govuk-body">
+            An accessibility page for the website could not be found or the page did
+            not include a statement. Every public sector website must include an
+            accessibility statement and it is against the law to not have one.
+        </p>
+    {% endif %}
+{% endblock %}

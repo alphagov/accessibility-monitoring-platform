@@ -451,7 +451,7 @@ def test_create_audit_creates_case_event(admin_client):
         ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
         (
             "audits:edit-statement-decision",
-            "Accessibility statement compliance decision",
+            "Initial statement compliance decision",
         ),
         ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-wcag-summary", "Test summary"),
@@ -570,8 +570,8 @@ def test_audit_statement_check_specific_page_loads(
         ),
         (
             "audits:edit-audit-statement-summary",
-            "save_exit",
-            "cases:edit-test-results",
+            "save_continue",
+            "cases:edit-report-details",
         ),
         (
             "audits:edit-audit-retest-metadata",
@@ -654,7 +654,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-website-decision",
             "save_continue",
-            "audits:edit-statement-pages",
+            "audits:edit-audit-wcag-summary",
         ),
         (
             "audits:edit-audit-statement-2",
@@ -1440,34 +1440,6 @@ def test_retest_date_change_creates_case_event(admin_client):
     case_event: CaseEvent = case_events[0]
     assert case_event.event_type == CaseEvent.EventType.START_RETEST
     assert case_event.message == "Started retest (date set to 30 November 2022)"
-
-
-@pytest.mark.parametrize(
-    "path_name",
-    ["audits:edit-audit-statement-summary"],
-)
-def test_audit_edit_redirects_to_case(
-    path_name,
-    admin_client,
-):
-    """Test that a successful audit save and exit redirects to the case"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    case_pk: Dict[str, int] = {"pk": audit.case.id}
-
-    response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs=audit_pk),
-        {
-            "version": audit.version,
-            "save_exit": "Button value",
-            "case-compliance-version": audit.case.compliance.version,
-        },
-    )
-
-    assert response.status_code == 302
-
-    expected_path: str = reverse("cases:edit-test-results", kwargs=case_pk)
-    assert response.url == expected_path
 
 
 def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
@@ -3047,8 +3019,7 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "View outstanding issues")
     assertContains(response, "Email templates")
     assertContains(response, "View website")
-    assertContains(response, "Link to case view")
-    assertContains(response, "Markdown cheatsheet")
+    assertContains(response, "PSB Zendesk tickets")
 
 
 @pytest.mark.parametrize(

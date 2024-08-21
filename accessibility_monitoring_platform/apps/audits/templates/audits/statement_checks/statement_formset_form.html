@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 
-{% load l10n %}
-
-{% load static %}
-
 {% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
 
 {% block content %}
@@ -13,32 +9,41 @@
             {% include 'common/case_banner.html' with case=audit.case %}
         </div>
     </div>
-    {% include 'audits/helpers/breadcrumb_audit.html' with nav_section_name='Initial statement' page_heading=amp_page_name %}
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" with current_section_name='Initial statement' current_page_name='Statement overview' current_subpage_name=amp_page_name %}
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-compliance' %}
+                {% block casenav %}
+                {% include "cases/helpers/nav_details.html" with current_page_name=amp_page_name %}
+                {% include 'cases/helpers/nav_steps.html' %}
+                {% endblock %}
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ amp_page_name }}</h1>
                 {% include "cases/helpers/messages.html" %}
                 {% include 'audits/helpers/statement_pages.html' %}
                 {% include 'common/error_summary.html' with formset=statement_check_results_formset %}
-                <form method="post" action="{% url 'audits:edit-statement-compliance' audit.id %}">
+                {% block form %}
+                <form method="post" action="{% url current_url_name audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {% include 'audits/helpers/statement_check_formset.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.audit_statement_compliance_complete_date %}
+                            <hr class="amp-width-100 amp-margin-bottom-30" />
+                            {% for field in form.visible_fields %}
+                                {% include 'common/amp_field.html' %}
+                            {% endfor %}
                         </div>
+                    </div>
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'audits/helpers/save_continue_cancel.html' %}
                         </div>
                     </div>
                 </form>
+                {% endblock %}
             </div>
         </div>
     </main>

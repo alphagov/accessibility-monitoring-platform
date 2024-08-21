@@ -1,90 +1,59 @@
-{% extends 'base.html' %}
+{% extends 'audits/statement_checks/statement_subpage_formset_form.html' %}
 
-{% load l10n %}
-
-{% load static %}
-
-{% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=audit.case %}
-        </div>
-    </div>
-    {% include 'audits/helpers/breadcrumb_audit.html' with nav_section_name='Initial statement' page_heading=amp_page_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+{% block form %}
+    <form method="post" action="{% url 'audits:edit-statement-custom' audit.id %}">
+        {% csrf_token %}
+        {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+        {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+        {{ custom_formset.management_form }}
+        <table class="govuk-table">
+            <tbody class="govuk-table__body">
+            {% if custom_formset.forms %}
+                {% for custom_form in custom_formset %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <h2 id="custom-{{ custom_form.instance.id }}" class="govuk-heading-m">Custom issue #{{ forloop.counter }}</h2>
+                                    {% include 'common/form_errors.html' with errors=custom_form.non_field_errors %}
+                                    {% include 'common/form_hidden_fields.html' with hidden_fields=custom_form.hidden_fields %}
+                                    {% for field in custom_form.visible_fields %}
+                                        {% include 'common/amp_field.html' %}
+                                    {% endfor %}
+                                </div>
+                                {% if custom_form.instance.id %}
+                                    <div class="govuk-grid-column-full">
+                                        <input
+                                            type="submit"
+                                            value="Remove issue"
+                                            name="remove_custom_{{ custom_form.instance.id }}"
+                                            class="govuk-button govuk-button--secondary"
+                                            data-module="govuk-button" />
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <p class="govuk-body-l">No custom statement issues have been entered</p>
+            {% endif %}
+            </tbody>
+        </table>
+        <input
+            type="submit"
+            value={% if custom_formset.forms %}"Save and add additional issue"{% else %}"Create issue"{% endif %}
+            name="add_custom"
+            class="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+        />
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" with current_section_name='Initial statement' current_page_name='Statement overview' current_subpage_name=amp_page_name %}
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-custom' %}
+            <div class="govuk-grid-column-full">
+                {% include 'common/amp_field.html' with field=form.audit_statement_custom_complete_date %}
             </div>
-            <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ amp_page_name }}</h1>
-                {% include "cases/helpers/messages.html" %}
-                {% include 'audits/helpers/statement_pages.html' %}
-                {% include 'common/error_summary.html' with formset=custom_formset %}
-                <form method="post" action="{% url 'audits:edit-statement-custom' audit.id %}">
-                    {% csrf_token %}
-                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {{ custom_formset.management_form }}
-                    <table class="govuk-table">
-                        <tbody class="govuk-table__body">
-                        {% if custom_formset.forms %}
-                            {% for custom_form in custom_formset %}
-                                <tr class="govuk-table__row">
-                                    <td class="govuk-table__cell">
-                                        <div class="govuk-grid-row">
-                                            <div class="govuk-grid-column-full">
-                                                <h2 id="custom-{{ custom_form.instance.id }}" class="govuk-heading-m">Custom issue #{{ forloop.counter }}</h2>
-                                                {% include 'common/form_errors.html' with errors=custom_form.non_field_errors %}
-                                                {% include 'common/form_hidden_fields.html' with hidden_fields=custom_form.hidden_fields %}
-                                                {% for field in custom_form.visible_fields %}
-                                                    {% include 'common/amp_field.html' %}
-                                                {% endfor %}
-                                            </div>
-                                            {% if custom_form.instance.id %}
-                                                <div class="govuk-grid-column-full">
-                                                    <input
-                                                        type="submit"
-                                                        value="Remove issue"
-                                                        name="remove_custom_{{ custom_form.instance.id }}"
-                                                        class="govuk-button govuk-button--secondary"
-                                                        data-module="govuk-button" />
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <p class="govuk-body-l">No custom statement issues have been entered</p>
-                        {% endif %}
-                        </tbody>
-                    </table>
-                    <input
-                        type="submit"
-                        value={% if custom_formset.forms %}"Save and add additional issue"{% else %}"Create issue"{% endif %}
-                        name="add_custom"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    />
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.audit_statement_custom_complete_date %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'audits/helpers/save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
+            <div class="govuk-grid-column-full govuk-button-group">
+                {% include 'audits/helpers/save_continue_cancel.html' %}
             </div>
         </div>
-    </main>
-</div>
-{% endblock %}
-
-{% block extrascript %}
+    </form>
 {% endblock %}

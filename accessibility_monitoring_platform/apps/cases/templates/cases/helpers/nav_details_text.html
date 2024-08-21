@@ -18,8 +18,8 @@
                                             <b>{{ subpage.name }}</b>
                                         {% else %}
                                             <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
-                                            {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
                                         {% endif %}
+                                        {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
                                     </li>
                                 {% endif %}
                             {% endfor %}

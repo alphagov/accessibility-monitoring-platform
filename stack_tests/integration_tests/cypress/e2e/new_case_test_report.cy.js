@@ -57,6 +57,9 @@ describe('Create case, tests and report', () => {
     cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | Test summary`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | Initial statement links`)
     cy.contains('Save and continue').click()
 
@@ -90,13 +93,7 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
-    cy.contains('Save and exit').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Testing details`)
-    cy.contains('Case').click()
-
-    cy.title().should('eq', `${newOrganisationName} | View case`)
-    cy.get('#edit-report-details').click()
+    cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report details`)
     cy.contains('This case currently does not have a report.')

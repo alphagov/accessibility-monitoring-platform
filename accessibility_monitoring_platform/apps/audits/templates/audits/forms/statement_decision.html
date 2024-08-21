@@ -16,7 +16,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 {% include "cases/helpers/nav_details.html" with current_section_name='Initial statement' current_page_name=amp_page_name %}
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-decision' %}
+                {% include 'cases/helpers/nav_steps.html' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name case=audit.case %}

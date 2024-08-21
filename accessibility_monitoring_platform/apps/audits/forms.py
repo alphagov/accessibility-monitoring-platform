@@ -445,9 +445,6 @@ class AuditStatementOverviewUpdateForm(VersionForm):
     Form for editing statement overview
     """
 
-    accessibility_statement_backup_url = AMPURLField(
-        label="Link to saved accessibility statement",
-    )
     statement_extra_report_text = AMPTextField(label="Extra report text")
     audit_statement_overview_complete_date = AMPDatePageCompleteField()
 
@@ -455,7 +452,6 @@ class AuditStatementOverviewUpdateForm(VersionForm):
         model = Audit
         fields: List[str] = [
             "version",
-            "accessibility_statement_backup_url",
             "statement_extra_report_text",
             "audit_statement_overview_complete_date",
         ]
