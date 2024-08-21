@@ -43,8 +43,10 @@ describe('View case', () => {
     cy.contains(caseDetailsNote)
   })
 
-  it('can edit testing details', () => {
-    cy.get('#edit-test-results').click()
+  it('can edit test metadata', () => {
+    cy.get('#edit-audit-metadata').click()
+    cy.get('[name="audit_metadata_complete_date"]').click()
+    cy.contains('Save').click()
   })
 
   it('can edit report details', () => {
