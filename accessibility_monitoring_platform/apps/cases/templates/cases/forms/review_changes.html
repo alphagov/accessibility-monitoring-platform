@@ -22,6 +22,7 @@
             <div class="govuk-grid-column-two-thirds">
                 {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
                 {% include 'common/error_summary.html' %}
+                {% include 'cases/helpers/correspondence_overview_detail.html' %}
                 {% include 'cases/helpers/email_templates.html' %}
                 <form method="post" action="{% url 'cases:edit-review-changes' case.id %}">
                     {% csrf_token %}
