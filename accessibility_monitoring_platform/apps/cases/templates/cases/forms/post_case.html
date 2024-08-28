@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ case.organisation_name }} | {{ current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -9,7 +9,7 @@
             {% include 'common/case_banner.html' %}
         </div>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading=current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         {% include 'cases/helpers/compliant_website_notification.html' %}
         {% if case.no_psb_contact == 'yes' %}
@@ -27,7 +27,7 @@
                 {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-post-case' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
+                {% include "cases/helpers/edit_header.html" with page_heading=current_platform_page.get_name %}
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:edit-post-case' case.id %}">
                     {% csrf_token %}

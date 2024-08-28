@@ -2,24 +2,32 @@
     <h2 class="govuk-heading-m">Contents</h2>
     <div class="amp-left-border">
         <ul class="govuk-list">
-            {% for view_section in view_sections %}
-                {% if view_section.name == 'Statement enforcement' %}
-                    </ul>
-                    <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
-                    <ul class="govuk-list">
+            {% for platform_page_group in sitemap %}
+                {% if platform_page_group.show %}
+                    {% for platform_page in platform_page_group.pages %}
+                        {% if platform_page.url_name == 'cases:edit-statement-enforcement' %}
+                            </ul>
+                            <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
+                            <ul class="govuk-list">
+                        {% endif %}
+                        {% if platform_page.show %}
+                            <li>
+                                {% include 'common/view_accordion/toc_link.html' with page=platform_page %}
+                                {% if platform_page.subpages %}
+                                    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                                        {% for subpage in platform_page.subpages %}
+                                            {% if subpage.show %}
+                                                <li>
+                                                    {% include 'common/view_accordion/toc_link.html' with page=subpage %}
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
                 {% endif %}
-                <li>
-                    {% include 'common/view_accordion/toc_link.html' with section=view_section %}
-                    {% if view_section.subsections and not view_section.type == 'audit-results-on-view-case' %}
-                        <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                            {% for subsection in view_section.subsections %}
-                                <li>
-                                    {% include 'common/view_accordion/toc_link.html' with section=subsection %}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </li>
             {% endfor %}
         </ul>
     </div>

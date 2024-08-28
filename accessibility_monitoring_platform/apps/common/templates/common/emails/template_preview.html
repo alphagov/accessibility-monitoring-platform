@@ -6,7 +6,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ amp_page_name }}{% endblock %}
+{% block title %}{{ current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -20,10 +20,10 @@
                         <li class="govuk-breadcrumbs__list-item">
                             <a class="govuk-breadcrumbs__link" href="{% url 'common:email-template-list' %}">Email template manager</a>
                         </li>
-                        <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
+                        <li class="govuk-breadcrumbs__list-item">{{ current_platform_page.get_name }}</li>
                     </ol>
                 </div>
-                <h1 class="govuk-heading-xl">{{ amp_page_name }}</h1>
+                <h1 class="govuk-heading-xl">{{ current_platform_page.get_name }}</h1>
             </div>
         </div>
         <div class="govuk-grid-row">

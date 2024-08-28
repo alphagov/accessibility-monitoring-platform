@@ -1,17 +1,28 @@
 {% if case.archive %}
 {% else %}
-    {% for case_section in case_nav_sections %}
-        {% if case_section.name == current_section_name %}
+    {% for platform_page_group in sitemap %}
+        {% if platform_page_group.name == '' %}
+            {% for platform_page in platform_page_group.pages %}
+                <p class="govuk-body-s amp-margin-bottom-5">
+                    {% if platform_page.name == current_page_name %}
+                        <b>{{ platform_page.get_name }}</b>
+                    {% else %}
+                        <a href="{{ platform_page.url }}" class="govuk-link govuk-link--no-visited-state">{{ platform_page.get_name }}</a>
+                    {% endif %}
+                    {% if platform_page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                </p>
+            {% endfor %}
+        {% elif platform_page_group.name == current_section_name %}
             <p class="govuk-body-s amp-margin-bottom-5">
-                {{ case_section.name }}
-                ({{ case_section.number_complete }}/{{ case_section.number_pages_and_subpages }})
+                {{ platform_page_group.name }}
+                ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
             </p>
             {% include 'cases/helpers/nav_details_text.html' %}
        {% else %}
-            <details class="amp-nav-details"{% if case_section.name == section_name %} open{% endif %}{% if case_section.disabled %} disabled{% endif %}>
+            <details class="amp-nav-details"{% if platform_page_group.name == section_name %} open{% endif %}{% if platform_page_group.disabled %} disabled{% endif %}>
                 <summary class="amp-nav-details__summary">
-                    {{ case_section.name }}
-                    ({{ case_section.number_complete }}/{{ case_section.number_pages_and_subpages }})
+                    {{ platform_page_group.name }}
+                    ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
                 </summary>
                 {% include 'cases/helpers/nav_details_text.html' %}
             </details>

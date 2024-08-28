@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 from django.urls import reverse
 
 from ..cases.models import Case
-from ..common.page_name_utils import get_amp_page_name_by_url
+from ..common.sitemap import get_platform_page_name_by_url
 
 
 class CaseNavContextMixin:
@@ -68,7 +68,7 @@ class NavPage:
         self.visible_only_when_current = visible_only_when_current
         self.complete = complete is not None
         self.subpages = subpages
-        self.name = get_amp_page_name_by_url(url=url)
+        self.name = get_platform_page_name_by_url(url=url)
 
 
 @dataclass

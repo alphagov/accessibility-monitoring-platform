@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ case.organisation_name }} | {{ current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -9,11 +9,11 @@
             {% include 'common/case_banner.html' %}
         </div>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading=current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
+                {% include "cases/helpers/edit_header.html" with page_heading=current_platform_page.get_name %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -21,7 +21,7 @@
                 {% include 'common/error_summary.html' %}
                 <div class="govuk-body">
                     <p class="govuk-body-m">
-                        {{ amp_page_name }} will add the case to the dashboard and platform metrics.
+                        {{ current_platform_page.get_name }} will add the case to the dashboard and platform metrics.
                     </p>
                 </div>
                 <form method="post" action="{% url 'cases:reactivate-case' case.id %}">
@@ -33,7 +33,7 @@
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
-                                value="{{ amp_page_name }}"
+                                value="{{ current_platform_page.get_name }}"
                                 name="reactivate"
                                 class="govuk-button"
                                 data-module="govuk-button"

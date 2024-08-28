@@ -1,12 +1,12 @@
-{% if section.anchor %}
-    <a href="#{{ section.anchor }}" class="govuk-link govuk-link--no-visited-state">
-        {{ section.name }}{% if section.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+{% if page.toc_anchor %}
+    <a href="#{{ page.toc_anchor }}" class="govuk-link govuk-link--no-visited-state">
+        {% if platform_page_group.name %}{{ platform_page_group.name }} &gt; {% endif %}{{ page.get_name }}{% if page.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
 {% else %}
-    {{ section.name }}{% if section.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+    {% if platform_page_group.name %}{{ platform_page_group.name }} &gt; {% endif %}{{ page.get_name }}{% if page.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
 {% endif %}
-{% if section.edit_url %}
+{% if page.url %}
     |
-    <a id="{{ section.edit_url_id }}" href="{{ section.edit_url }}" class="govuk-link govuk-link--no-visited-state">
-        Edit{% if section.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
-    {% if section.complete %}&check;{% endif %}
+    <a id="{{ page.url_id }}" href="{{ page.url }}" class="govuk-link govuk-link--no-visited-state">
+        Edit{% if page.complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+    {% if page.complete %}&check;{% endif %}
 {% endif %}

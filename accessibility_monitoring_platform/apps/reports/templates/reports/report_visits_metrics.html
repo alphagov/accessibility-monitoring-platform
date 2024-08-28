@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ report.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ report.case.organisation_name }} | {{ current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -9,12 +9,12 @@
             {% include 'common/case_banner.html' with case=report.case %}
         </div>
     </div>
-    {% include 'reports/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
+    {% include 'reports/helpers/breadcrumbs.html' with page_heading=current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div class="govuk-button-group">
-                    <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ amp_page_name }}</h1>
+                    <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ current_platform_page.get_name }}</h1>
                 </div>
             </div>
         </div>

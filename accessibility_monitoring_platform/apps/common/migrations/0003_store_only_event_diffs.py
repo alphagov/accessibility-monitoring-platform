@@ -30,12 +30,7 @@ def tidy_event_values(apps, schema_editor):  # pylint: disable=unused-argument
             old_fields = json.loads(value_dict["old"])[0]["fields"]
         else:
             old_fields = ""
-        try:
-            new_fields = json.loads(value_dict.get("new", ""))[0]["fields"]
-        except:
-            import pdb
-
-            pdb.set_trace()
+        new_fields = json.loads(value_dict.get("new", ""))[0]["fields"]
         event.value = diff(old_fields, new_fields)
         event.save()
 

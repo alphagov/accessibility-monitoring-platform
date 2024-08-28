@@ -27,6 +27,7 @@ from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.case_nav import CaseNavContextMixin
 from ..common.models import Boolean, EmailTemplate
+from ..common.sitemap import PlatformPageGroup, build_sitemap_for_request
 from ..common.utils import (
     amp_format_date,
     check_dict_for_truthy_values,
@@ -207,12 +208,15 @@ class CaseDetailView(DetailView):
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
+        sitemap: List[PlatformPageGroup] = build_sitemap_for_request(
+            request=self.request
+        )
 
         if not case.report:
             context.update(get_report_visits_metrics(case))
 
         return {
-            **{"view_sections": get_case_view_sections(case=case)},
+            **{"view_sections": get_case_view_sections(case=case, sitemap=sitemap)},
             **context,
         }
 

@@ -1,6 +1,6 @@
 {% extends 'audits/statement_checks/statement_formset_form.html' %}
 
 {% block casenav %}
-{% include "cases/helpers/nav_details.html" with current_page_name='Statement overview' current_subpage_name=amp_page_name %}
+{% include "cases/helpers/nav_details.html" with current_page_name='Statement overview' current_subpage_name=current_platform_page.get_name %}
 {% include 'cases/helpers/nav_steps.html' %}
 {% endblock %}

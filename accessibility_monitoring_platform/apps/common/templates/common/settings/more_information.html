@@ -2,11 +2,11 @@
 
 {% load l10n %}
 
-{% block title %}{{ amp_page_name }}{% endblock %}
+{% block title %}{{ current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'common/settings/breadcrumbs.html' with page_heading=amp_page_name %}
+    {% include 'common/settings/breadcrumbs.html' with page_heading=current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">

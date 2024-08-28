@@ -23,7 +23,7 @@
         </form>
     {% endif %}
     {% if show_failures_by_page %}
-        <h2 class="govuk-heading-l">{{ amp_page_name }} | Page view</h2>
+        <h2 class="govuk-heading-l">{{ current_platform_page.get_name }} | Page view</h2>
         {% for page, failures in audit_failures_by_page.items %}
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
@@ -42,7 +42,7 @@
             </div>
         {% endfor %}
     {% else %}
-        <h2 class="govuk-heading-l">{{ amp_page_name }} | WCAG view</h2>
+        <h2 class="govuk-heading-l">{{ current_platform_page.get_name }} | WCAG view</h2>
         {% for wcag_definition, failures in audit_failures_by_wcag.items %}
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">

@@ -1,23 +1,23 @@
 <div class="amp-nav-details__text">
     <ul class="govuk-list amp-margin-bottom-5">
-        {% for page in case_section.pages %}
-            {% if not page.visible_only_when_current or page.visible_only_when_current and case_section.name == current_section_name and page.name == current_page_name %}
+        {% for platform_page in platform_page_group.pages %}
+            {% if not platform_page.visible_only_when_current or platform_page.visible_only_when_current and case_section.name == current_section_name and platform_page.name == current_platform_page_name %}
                 <li>
-                    {% if case_section.name == current_section_name and page.name == current_page_name and not current_subpage_name %}
-                        <b>{{ page.name }}</b>
+                    {% if platform_page.url == current_platform_page.url %}
+                        <b>{{ platform_page.name }}</b>
                     {% else %}
-                        <a href="{{ page.url }}" class="govuk-link govuk-link--no-visited-state" {% if page.disabled %}disabled{% endif %}>{{ page.name }}</a>
+                        <a href="{{ platform_page.url }}" class="govuk-link govuk-link--no-visited-state" {% if platform_page.disabled %}disabled{% endif %}>{{ platform_page.name }}</a>
                     {% endif %}
-                    {% if page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
-                    {% if page.subpages %}
+                    {% if platform_page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+                    {% if platform_page.subpages %}
                         <ul class="amp-nav-list-subpages">
-                            {% for subpage in page.subpages %}
+                            {% for subpage in platform_page.subpages %}
                                 {% if not subpage.visible_only_when_current or subpage.visible_only_when_current and case_section.name == current_section_name and subpage.name == current_subpage_name %}
                                     <li class="amp-nav-list-subpages amp-margin-top-5">
-                                        {% if case_section.name == current_section_name and subpage.name == current_subpage_name %}
-                                            <b>{{ subpage.name }}</b>
+                                        {% if subpage.url == current_platform_page.url %}
+                                            <b>{{ subpage.get_name }}</b>
                                         {% else %}
-                                            <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
+                                            <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.get_name }}</a>
                                         {% endif %}
                                         {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
                                     </li>

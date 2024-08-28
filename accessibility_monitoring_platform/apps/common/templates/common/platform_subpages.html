@@ -1,0 +1,10 @@
+<ol>
+    {% for page in pages %}
+        <li>
+            {{ page.name }} ({% if page.url_name %}{{ page.url_name }}{% else %}NONE{% endif %})
+            {% if page.subpages %}
+                {% include 'common/platform_subpages.html' with pages=page.subpages %}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ol>

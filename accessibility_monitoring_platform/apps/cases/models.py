@@ -669,6 +669,14 @@ class Case(VersionModel):
             return None
 
     @property
+    def no_audit(self):
+        return self.audit is None
+
+    @property
+    def has_audit(self):
+        return not self.no_audit
+
+    @property
     def report(self):
         try:
             return self.report_case

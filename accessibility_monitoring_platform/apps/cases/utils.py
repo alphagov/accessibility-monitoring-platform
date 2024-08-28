@@ -22,6 +22,7 @@ from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
 )
+from ..common.sitemap import PlatformPageGroup
 from ..common.templatetags.common_tags import amp_date, amp_datetime
 from ..common.utils import build_filters
 from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
@@ -59,10 +60,18 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
 ]
 
 
-def get_case_view_sections(case: Case) -> List[ViewSection]:
+def get_case_view_sections(
+    case: Case, sitemap: List[PlatformPageGroup]
+) -> List[ViewSection]:
     """Get sections for case view"""
     get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
     case_pk: Dict[str, int] = {"pk": case.id}
+    view_sections: List[ViewSection] = []
+    for platform_page_group in sitemap:
+        if platform_page_group.show is True:
+            for platform_page in platform_page_group.pages:
+                pass
+
     case_details_prefix: List[FieldLabelAndValue] = [
         FieldLabelAndValue(
             label="Date created",
