@@ -4,19 +4,15 @@ import copy
 from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional, Type, Union
 
-from django import forms
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.urls import Resolver404, URLResolver, resolve, reverse
-from django.utils.text import slugify
 
 from ..audits.models import Audit, Page, Retest, RetestPage
-from ..cases.forms import CaseMetadataUpdateForm
 from ..cases.models import Case, Contact
 from ..exports.models import Export
 from ..notifications.models import Task
 from ..reports.models import Report
-from .form_extract_utils import FieldLabelAndValue, extract_form_labels_and_values
 from .models import EmailTemplate
 
 
@@ -27,7 +23,6 @@ class PlatformPage:
     object_class: Optional[Union[Type[Audit], Type[Case], Type[Retest]]] = None
     object: Optional[Union[Audit, Case]] = None
     object_required: bool = False
-    update_form: Optional[forms.ModelForm] = None
     complete_flag_name: Optional[str] = None
     show_flag_name: Optional[str] = None
     visible_only_when_current: bool = False
@@ -41,7 +36,6 @@ class PlatformPage:
         object_class: Optional[Union[Type[Audit], Type[Case], Type[Retest]]] = None,
         object: Optional[Union[Audit, Case, Page]] = None,
         object_required: bool = False,
-        update_form: Optional[forms.ModelForm] = None,
         complete_flag_name: Optional[str] = None,
         show_flag_name: Optional[str] = None,
         subpages: Optional[List["PlatformPage"]] = None,
@@ -55,7 +49,6 @@ class PlatformPage:
         self.object_class = object_class
         self.object = object
         self.object_required = object_required
-        self.update_form = update_form
         self.complete_flag_name = complete_flag_name
         self.show_flag_name = show_flag_name
         self.subpages = subpages
@@ -80,23 +73,6 @@ class PlatformPage:
         return reverse(self.url_name)
 
     @property
-    def toc_anchor(self) -> Optional[str]:
-        if self.url_name is None:
-            return None
-        if self.object is None or self.url_kwarg_key is None:
-            return slugify(self.url_name)
-        return slugify(
-            reverse(self.url_name, kwargs={self.url_kwarg_key: self.object.id})
-        )
-
-    @property
-    def display_fields(self) -> Optional[FieldLabelAndValue]:
-        if self.update_form is not None and object is not None:
-            return extract_form_labels_and_values(
-                instance=self.object, form=self.update_form()
-            )
-
-    @property
     def show(self):
         if self.object is not None and self.show_flag_name is not None:
             return getattr(self.object, self.show_flag_name)
@@ -109,10 +85,7 @@ class PlatformPage:
         if self.object is not None and self.complete_flag_name is not None:
             return getattr(self.object, self.complete_flag_name)
 
-    def set_object_from_id(self, object_id: int):
-        self.object = self.object_class.objects.get(id=object_id)
-
-    def populate(self):
+    def populate_subpage_objects(self):
         if self.object is not None:
             if self.subpages is not None:
                 for subpage in self.subpages:
@@ -123,17 +96,17 @@ class PlatformPage:
                         subpage.object = self.object
 
     def populate_from_case(self, case: Case):
-        self.populate()
+        self.populate_subpage_objects()
 
     def populate_from_request(self, request: HttpRequest):
-        """Set page object and name from request"""
+        """Set page object from request"""
         if self.object_class is not None:
             url_resolver: URLResolver = resolve(request.path_info)
             if self.url_kwarg_key in url_resolver.captured_kwargs:
                 self.object = self.object_class.objects.get(
                     id=url_resolver.captured_kwargs[self.url_kwarg_key]
                 )
-                self.populate()
+                self.populate_subpage_objects()
 
     def get_name(self) -> str:
         if self.object is None:
@@ -148,6 +121,8 @@ class PlatformPage:
                 return self.object.case
             if hasattr(self.object, "audit"):
                 return self.object.audit.case
+            if hasattr(self.object, "retest"):
+                return self.object.retest.case
 
 
 class HomePlatformPage(PlatformPage):
@@ -195,7 +170,7 @@ class CaseContactsPlatformPage(CasePlatformPage):
                 ),
             ] + [
                 PlatformPage(
-                    name="Edit contact {object} test",
+                    name="Edit contact {object}",
                     url_name="cases:edit-contact-update",
                     url_kwarg_key="pk",
                     object=contact,
@@ -294,12 +269,12 @@ class RetestOverviewPlatformPage(CasePlatformPage):
             if retest.id_within_case > 0
         ]
         for subpage in self.subpages:
-            subpage.populate()
+            subpage.populate_subpage_objects()
         super().populate_from_case(case=case)
 
 
 class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
-    def populate(self):
+    def populate_subpage_objects(self):
         self.subpages = [
             PlatformPage(
                 name="{object.retest} | {object}",
@@ -312,7 +287,7 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
             )
             for retest_page in self.object.retestpage_set.all()
         ]
-        super().populate()
+        super().populate_subpage_objects()
 
 
 # Page group types
@@ -391,7 +366,6 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Case metadata",
                 url_name="cases:edit-case-metadata",
                 complete_flag_name="case_details_complete_date",
-                update_form=CaseMetadataUpdateForm,
             )
         ],
     ),
@@ -581,7 +555,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                         url_kwarg_key="case_id",
                     ),
                     PlatformPage(
-                        name="Edit contact {object} test",
+                        name="Edit contact {object}",
                         url_name="cases:edit-contact-update",
                         url_kwarg_key="pk",
                         object_required=True,
@@ -1107,25 +1081,24 @@ SITE_MAP: List[PlatformPageGroup] = [
 ]
 
 sitemap_by_url_name: Dict[str, PlatformPage] = {}
+
+
+def add_pages(pages: List[PlatformPage]):
+    """Iterate through pages list adding to sitemap dictionary"""
+    for page in pages:
+        if page.url_name:
+            if page.url_name in sitemap_by_url_name:
+                print(f"Duplicate page url_name found for {page.url_name} ({page})")
+            else:
+                sitemap_by_url_name[page.url_name] = page
+        if page.subpages is not None:
+            add_pages(pages=page.subpages)
+
+
 site_map: List[PlatformPageGroup] = copy.copy(SITE_MAP)
 for platform_page_group in site_map:
     if platform_page_group.pages is not None:
-        for platform_page in platform_page_group.pages:
-            if platform_page.url_name:
-                if platform_page.url_name in sitemap_by_url_name:
-                    print(
-                        f"Duplicate page url_name found for {platform_page.url_name} ({platform_page})"
-                    )
-                sitemap_by_url_name[platform_page.url_name] = platform_page
-            if platform_page.subpages is not None:
-                for subpage in platform_page.subpages:
-                    if subpage.url_name:
-                        if subpage.url_name in sitemap_by_url_name:
-                            print(
-                                f"Duplicate subpage url_name found for {subpage.url_name} ({subpage})"
-                            )
-                        else:
-                            sitemap_by_url_name[subpage.url_name] = subpage
+        add_pages(pages=platform_page_group.pages)
 
 
 def get_current_platform_page(request: HttpRequest) -> PlatformPage:

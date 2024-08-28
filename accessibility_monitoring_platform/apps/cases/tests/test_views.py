@@ -861,7 +861,7 @@ def test_update_contact_page_loads(admin_client):
 
     assertContains(
         response,
-        f"""<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit contact {contact} test</h1>""",
+        f"""<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit contact {contact}</h1>""",
         html=True,
     )
 

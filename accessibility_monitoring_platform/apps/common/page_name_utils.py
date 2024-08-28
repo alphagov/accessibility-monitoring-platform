@@ -3,7 +3,6 @@
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Union
 
-from django.http import HttpRequest
 from django.urls import Resolver404, URLResolver, resolve
 
 from ..audits.models import Page, RetestPage
@@ -245,40 +244,6 @@ ALL_PAGE_NAMES: Dict[str, PageName] = {
 class AmpPage:
     name: str
     url_name: str
-
-
-def get_amp_page_by_request(request: HttpRequest) -> AmpPage:
-    """Lookup and return the name of the requested page"""
-    url_resolver: URLResolver = resolve(request.path_info)
-    url_name: str = url_resolver.view_name
-
-    if url_name in ALL_PAGE_NAMES:
-        page_name: PageName = ALL_PAGE_NAMES.get(url_name)
-    else:
-        return AmpPage(name=f"Page name not found for {url_name}", url_name=url_name)
-
-    if url_resolver.view_name in ["exports:export-list", "exports:export-create"]:
-        enforcement_body: str = request.GET.get("enforcement_body", "ehrc")
-        return AmpPage(
-            name=page_name.get_name(
-                url_resolver, enforcement_body=enforcement_body.upper()
-            ),
-            url_name=url_name,
-        )
-    if url_resolver.view_name == "dashboard:home":
-        view_param: str = request.GET.get("view", "View your cases")
-        home_page_title: str = (
-            "All cases" if view_param == "View all cases" else "Your cases"
-        )
-        return AmpPage(
-            name=page_name.get_name(url_resolver, home_page_title=home_page_title),
-            url_name=url_name,
-        )
-
-    return AmpPage(
-        name=page_name.get_name(url_resolver=url_resolver),
-        url_name=url_name,
-    )
 
 
 def get_amp_page_name_by_url(url: str) -> str:
