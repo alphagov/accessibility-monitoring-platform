@@ -52,6 +52,7 @@ from .models import (
     IssueReport,
     Platform,
 )
+from .platform_template_view import PlatformTemplateView
 from .sitemap import SITE_MAP, get_platform_page_name_by_url
 from .utils import (
     extract_domain_from_url,
@@ -174,18 +175,6 @@ class ChangeToPlatformListView(ListView):
     template_name: str = "common/settings/platform_history.html"
     context_object_name: str = "changes_to_platform"
     paginate_by: int = 10
-
-
-class PlatformTemplateView(TemplateView):
-    """
-    View of platform-level settings
-    """
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["platform"] = get_platform_settings()
-        return context
 
 
 class AccessibilityStatementTemplateView(PlatformTemplateView):

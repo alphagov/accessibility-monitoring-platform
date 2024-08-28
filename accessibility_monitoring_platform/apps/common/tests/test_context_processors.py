@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.http.response import HttpResponse
 from pytest_django.asserts import assertContains
 
+from ...cases.models import Case
 from ...common.models import FooterLink, FrequentlyUsedLink, Platform
 from ...common.utils import get_platform_settings
 from ..context_processors import platform_page
@@ -72,6 +73,7 @@ def test_platform_page_template_context():
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
     FrequentlyUsedLink.objects.create(label=LINK_LABEL, url=LINK_URL)
     FooterLink.objects.create(label=LINK_LABEL, url=LINK_URL)
+    Case.objects.create()
     mock_request = MockRequest(
         path="/",
         absolute_uri="https://prototype-name.london.cloudapps.digital/",

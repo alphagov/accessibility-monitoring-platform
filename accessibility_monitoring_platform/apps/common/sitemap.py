@@ -934,7 +934,7 @@ SITE_MAP: List[PlatformPageGroup] = [
             CasePlatformPage(
                 name="Email templates", url_name="cases:email-template-list"
             ),
-            CasePlatformPage(
+            PlatformPage(
                 name="{object.name}",
                 url_name="cases:email-template-preview",
                 object_class=EmailTemplate,

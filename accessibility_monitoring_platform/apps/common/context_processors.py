@@ -36,6 +36,6 @@ def platform_page(
             is_deleted=False
         ),
         "custom_footer_links": FooterLink.objects.filter(is_deleted=False),
-        "amp_page_name": current_platform_page.name,
+        "amp_page_name": current_platform_page.get_name(),
         "current_url_name": current_platform_page.url_name,
     }

@@ -59,6 +59,7 @@ from ..views import (
     format_due_date_help_text,
 )
 
+CONTACT_NAME: str = "Contact Name"
 CONTACT_EMAIL: str = "test@email.com"
 DOMAIN: str = "domain.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}"
@@ -848,7 +849,9 @@ def test_create_contact_page_loads(admin_client):
 def test_update_contact_page_loads(admin_client):
     """Test that the update Contact page loads"""
     case: Case = Case.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
+    contact: Contact = Contact.objects.create(
+        case=case, name=CONTACT_NAME, email=CONTACT_EMAIL
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-contact-update", kwargs={"pk": contact.id})
@@ -858,7 +861,7 @@ def test_update_contact_page_loads(admin_client):
 
     assertContains(
         response,
-        """<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit contact</h1>""",
+        f"""<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit contact {contact} test</h1>""",
         html=True,
     )
 
