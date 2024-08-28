@@ -9,7 +9,21 @@ from django.urls import reverse
 from ...audits.models import Audit, Page, Retest, RetestPage
 from ...cases.models import Case, Contact
 from ...common.models import EmailTemplate
-from ..sitemap import HomePlatformPage, PlatformPage, get_current_platform_page
+from ...reports.models import Report
+from ..sitemap import (
+    AuditPagesPlatformPage,
+    AuditPlatformPage,
+    AuditRetestPagesPlatformPage,
+    CaseContactsPlatformPage,
+    CasePlatformPage,
+    EqualityBodyRetestPlatformPage,
+    ExportPlatformPage,
+    HomePlatformPage,
+    PlatformPage,
+    ReportPlatformPage,
+    RetestOverviewPlatformPage,
+    get_current_platform_page,
+)
 
 PLATFORM_PAGE_NAME: str = "Platform page name"
 URL_NAME: str = "url-name"
@@ -78,7 +92,7 @@ def test_platform_page_url_missing_object():
     """Test PlatformPage.url returns empty string when a required object is missing"""
     assert (
         PlatformPage(
-            name=PLATFORM_PAGE_NAME, url_name=URL_NAME, object_required=True
+            name=PLATFORM_PAGE_NAME, url_name=URL_NAME, object_required_for_url=True
         ).url
         == ""
     )
@@ -186,7 +200,7 @@ def test_populate_from_request(rf):
     platform_page: PlatformPage = PlatformPage(
         name="Edit contact {object}",
         url_name="cases:edit-contact-update",
-        object_required=True,
+        object_required_for_url=True,
         object_class=Contact,
     )
 
@@ -254,6 +268,199 @@ def test_home_platform_page():
     home_platform_page.populate_from_request(request=mock_request)
 
     assert home_platform_page.get_name() == "Your cases"
+
+
+def test_export_platform_page():
+    """Test ExportPlatformPage sets name based on GET parameters"""
+    export_platform_page: ExportPlatformPage = ExportPlatformPage(
+        name="{enforcement_body} CSV export manager"
+    )
+
+    mock_request: MockRequest = MockRequest()
+
+    export_platform_page.populate_from_request(request=mock_request)
+
+    assert export_platform_page.get_name() == "EHRC CSV export manager"
+
+    mock_request: MockRequest = MockRequest({"enforcement_body": "ecni"})
+
+    export_platform_page.populate_from_request(request=mock_request)
+
+    assert export_platform_page.get_name() == "ECNI CSV export manager"
+
+    mock_request: MockRequest = MockRequest({"enforcement_body": "ehrc"})
+
+    export_platform_page.populate_from_request(request=mock_request)
+
+    assert export_platform_page.get_name() == "EHRC CSV export manager"
+
+
+def test_case_platform_page():
+    """Test CasePlatformPage"""
+    case_platform_page: CasePlatformPage = CasePlatformPage(name=PLATFORM_PAGE_NAME)
+
+    assert case_platform_page.object_required_for_url is True
+    assert case_platform_page.object_class == Case
+    assert case_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case()
+
+    case_platform_page.populate_from_case(case=case)
+
+    assert case_platform_page.object == case
+
+
+@pytest.mark.django_db
+def test_case_contacts_platform_page():
+    """Test CaseContactsPlatformPage"""
+    case_contacts_platform_page: CaseContactsPlatformPage = CaseContactsPlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
+
+    assert case_contacts_platform_page.object_required_for_url is True
+    assert case_contacts_platform_page.object_class == Case
+    assert case_contacts_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case, name="Contact One")
+    Contact.objects.create(case=case, name="Contact Two")
+
+    case_contacts_platform_page.populate_from_case(case=case)
+
+    assert case_contacts_platform_page.object == case
+    assert len(case_contacts_platform_page.subpages) == 3
+    assert case_contacts_platform_page.subpages[0].get_name() == "Add contact"
+    assert (
+        case_contacts_platform_page.subpages[1].get_name() == "Edit contact Contact Two"
+    )
+    assert (
+        case_contacts_platform_page.subpages[2].get_name() == "Edit contact Contact One"
+    )
+
+
+@pytest.mark.django_db
+def test_audit_platform_page():
+    """Test AuditPlatformPage"""
+    audit_platform_page: AuditPlatformPage = AuditPlatformPage(name=PLATFORM_PAGE_NAME)
+
+    assert audit_platform_page.object_required_for_url is True
+    assert audit_platform_page.object_class == Audit
+    assert audit_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    audit_platform_page.populate_from_case(case=case)
+
+    assert audit_platform_page.object == audit
+
+
+@pytest.mark.django_db
+def test_audit_pages_platform_page():
+    """Test AuditPagesPlatformPage"""
+    audit_pages_platform_page: AuditPagesPlatformPage = AuditPagesPlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
+
+    assert audit_pages_platform_page.object_required_for_url is True
+    assert audit_pages_platform_page.object_class == Audit
+    assert audit_pages_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(audit=audit, name="Page one", url="url")
+    Page.objects.create(audit=audit, name="Page two", url="url")
+
+    audit_pages_platform_page.populate_from_case(case=case)
+
+    assert audit_pages_platform_page.object == audit
+    assert len(audit_pages_platform_page.subpages) == 2
+    assert audit_pages_platform_page.subpages[0].get_name() == "Page one page test"
+    assert audit_pages_platform_page.subpages[1].get_name() == "Page two page test"
+
+
+@pytest.mark.django_db
+def test_report_platform_page():
+    """Test ReportPlatformPage"""
+    report_platform_page: ReportPlatformPage = ReportPlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
+
+    assert report_platform_page.object_required_for_url is True
+    assert report_platform_page.object_class == Report
+    assert report_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case.objects.create()
+    report: Report = Report.objects.create(case=case)
+
+    report_platform_page.populate_from_case(case=case)
+
+    assert report_platform_page.object == report
+
+
+@pytest.mark.django_db
+def test_audit_retest_pages_platform_page():
+    """Test AuditRetestPagesPlatformPage"""
+    audit_retest_pages_platform_page: AuditRetestPagesPlatformPage = (
+        AuditRetestPagesPlatformPage(name=PLATFORM_PAGE_NAME)
+    )
+
+    assert audit_retest_pages_platform_page.object_required_for_url is True
+    assert audit_retest_pages_platform_page.object_class == Audit
+    assert audit_retest_pages_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(audit=audit, name="Page one", url="url")
+    Page.objects.create(audit=audit, name="Page two", url="url")
+
+    audit_retest_pages_platform_page.populate_from_case(case=case)
+
+    assert audit_retest_pages_platform_page.object == audit
+    assert len(audit_retest_pages_platform_page.subpages) == 2
+    assert (
+        audit_retest_pages_platform_page.subpages[0].get_name()
+        == "Retesting Page one page"
+    )
+    assert (
+        audit_retest_pages_platform_page.subpages[1].get_name()
+        == "Retesting Page two page"
+    )
+
+
+def test_equality_body_retest_pages_platform_page():
+    """Test EqualityBodyRetestPlatformPage"""
+    equality_body_retest_pages_platform_page: EqualityBodyRetestPlatformPage = (
+        EqualityBodyRetestPlatformPage(name=PLATFORM_PAGE_NAME)
+    )
+
+    assert equality_body_retest_pages_platform_page.object_required_for_url is True
+    assert equality_body_retest_pages_platform_page.object_class == Retest
+    assert equality_body_retest_pages_platform_page.url_kwarg_key == "pk"
+
+
+@pytest.mark.django_db
+def test_retest_overview_platform_page():
+    """Test RetestOverviewPlatformPage"""
+    retest_overview_platform_page: RetestOverviewPlatformPage = (
+        RetestOverviewPlatformPage(name=PLATFORM_PAGE_NAME)
+    )
+
+    assert retest_overview_platform_page.object_required_for_url is True
+    assert retest_overview_platform_page.object_class == Case
+    assert retest_overview_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case.objects.create()
+    Retest.objects.create(case=case, id_within_case=0)
+    Retest.objects.create(case=case, id_within_case=1)
+    Retest.objects.create(case=case, id_within_case=2)
+
+    retest_overview_platform_page.populate_from_case(case=case)
+
+    assert retest_overview_platform_page.object == case
+    assert len(retest_overview_platform_page.subpages) == 2
+    assert retest_overview_platform_page.subpages[0].get_name() == "Retest #2"
+    assert retest_overview_platform_page.subpages[1].get_name() == "Retest #1"
 
 
 @pytest.mark.django_db

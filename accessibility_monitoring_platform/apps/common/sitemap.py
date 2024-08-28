@@ -22,7 +22,7 @@ class PlatformPage:
     url_kwarg_key: Optional[str] = None
     object_class: Optional[Union[Type[Audit], Type[Case], Type[Retest]]] = None
     object: Optional[Union[Audit, Case]] = None
-    object_required: bool = False
+    object_required_for_url: bool = False
     complete_flag_name: Optional[str] = None
     show_flag_name: Optional[str] = None
     visible_only_when_current: bool = False
@@ -35,7 +35,7 @@ class PlatformPage:
         url_kwarg_key: Optional[str] = None,
         object_class: Optional[Union[Type[Audit], Type[Case], Type[Retest]]] = None,
         object: Optional[Union[Audit, Case, Page]] = None,
-        object_required: bool = False,
+        object_required_for_url: bool = False,
         complete_flag_name: Optional[str] = None,
         show_flag_name: Optional[str] = None,
         subpages: Optional[List["PlatformPage"]] = None,
@@ -48,7 +48,7 @@ class PlatformPage:
             self.url_kwarg_key = url_kwarg_key
         self.object_class = object_class
         self.object = object
-        self.object_required = object_required
+        self.object_required_for_url = object_required_for_url
         self.complete_flag_name = complete_flag_name
         self.show_flag_name = show_flag_name
         self.subpages = subpages
@@ -67,7 +67,7 @@ class PlatformPage:
             return None
         if self.object is not None and self.url_kwarg_key is not None:
             return reverse(self.url_name, kwargs={self.url_kwarg_key: self.object.id})
-        if self.object_required and self.object is None:
+        if self.object_required_for_url and self.object is None:
             print(f"No object for {self} ({self.url_name})")
             return ""
         return reverse(self.url_name)
@@ -147,7 +147,7 @@ class ExportPlatformPage(PlatformPage):
 class CasePlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.object_required = True
+        self.object_required_for_url = True
         self.object_class: Type[Case] = Case
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
@@ -166,7 +166,7 @@ class CaseContactsPlatformPage(CasePlatformPage):
                     name="Add contact",
                     url_name="cases:edit-contact-create",
                     url_kwarg_key="case_id",
-                    object_required=True,
+                    object_required_for_url=True,
                 ),
             ] + [
                 PlatformPage(
@@ -174,7 +174,7 @@ class CaseContactsPlatformPage(CasePlatformPage):
                     url_name="cases:edit-contact-update",
                     url_kwarg_key="pk",
                     object=contact,
-                    object_required=True,
+                    object_required_for_url=True,
                     object_class=Contact,
                 )
                 for contact in case.contacts
@@ -185,7 +185,7 @@ class CaseContactsPlatformPage(CasePlatformPage):
 class AuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.object_required = True
+        self.object_required_for_url = True
         self.object_class: Type[Audit] = Audit
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
@@ -205,7 +205,7 @@ class AuditPagesPlatformPage(AuditPlatformPage):
                     url_name="audits:edit-audit-page-checks",
                     url_kwarg_key="pk",
                     object=page,
-                    object_required=True,
+                    object_required_for_url=True,
                     object_class=Page,
                     complete_flag_name="complete_date",
                 )
@@ -217,7 +217,7 @@ class AuditPagesPlatformPage(AuditPlatformPage):
 class ReportPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.object_required = True
+        self.object_required_for_url = True
         self.object_class: Type[Report] = Report
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
@@ -237,7 +237,7 @@ class AuditRetestPagesPlatformPage(AuditPlatformPage):
                     url_name="audits:edit-audit-retest-page-checks",
                     url_kwarg_key="pk",
                     object=page,
-                    object_required=True,
+                    object_required_for_url=True,
                     object_class=Page,
                     complete_flag_name="retest_complete_date",
                 )
@@ -249,7 +249,7 @@ class AuditRetestPagesPlatformPage(AuditPlatformPage):
 class EqualityBodyRetestPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.object_required = True
+        self.object_required_for_url = True
         self.object_class: Type[Retest] = Retest
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
@@ -262,14 +262,12 @@ class RetestOverviewPlatformPage(CasePlatformPage):
             EqualityBodyRetestPlatformPage(
                 name="Retest #{object.id_within_case}",
                 object=retest,
-                object_required=True,
+                object_required_for_url=True,
                 object_class=Retest,
             )
             for retest in case.retests
             if retest.id_within_case > 0
         ]
-        for subpage in self.subpages:
-            subpage.populate_subpage_objects()
         super().populate_from_case(case=case)
 
 
@@ -281,7 +279,7 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
                 url_name="audits:edit-audit-retest-page-checks",
                 url_kwarg_key="pk",
                 object=retest_page,
-                object_required=True,
+                object_required_for_url=True,
                 object_class=RetestPage,
                 complete_flag_name="retest_complete_date",
             )
@@ -558,7 +556,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                         name="Edit contact {object}",
                         url_name="cases:edit-contact-update",
                         url_kwarg_key="pk",
-                        object_required=True,
+                        object_required_for_url=True,
                         object_class=Contact,
                     ),
                 ],
@@ -928,7 +926,7 @@ SITE_MAP: List[PlatformPageGroup] = [
             PlatformPage(
                 name="Edit or delete comment",
                 url_name="comments:edit-qa-comment",
-                object_required=True,
+                object_required_for_url=True,
             ),
         ],
     ),
@@ -943,13 +941,13 @@ SITE_MAP: List[PlatformPageGroup] = [
             PlatformPage(
                 name="Delete {object}",
                 url_name="exports:export-confirm-delete",
-                object_required=True,
+                object_required_for_url=True,
                 object_class=Export,
             ),
             PlatformPage(
                 name="Confirm {object}",
                 url_name="exports:export-confirm-export",
-                object_required=True,
+                object_required_for_url=True,
                 object_class=Export,
             ),
             ExportPlatformPage(
@@ -959,7 +957,7 @@ SITE_MAP: List[PlatformPageGroup] = [
             PlatformPage(
                 name="{object}",
                 url_name="exports:export-detail",
-                object_required=True,
+                object_required_for_url=True,
                 object_class=Export,
             ),
         ],
@@ -1000,12 +998,12 @@ SITE_MAP: List[PlatformPageGroup] = [
                     PlatformPage(
                         name="Create WCAG error",
                         url_name="audits:wcag-definition-create",
-                        object_required=True,
+                        object_required_for_url=True,
                     ),
                     PlatformPage(
                         name="Update WCAG definition",
                         url_name="audits:wcag-definition-update",
-                        object_required=True,
+                        object_required_for_url=True,
                     ),
                 ],
             ),
@@ -1020,7 +1018,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                     PlatformPage(
                         name="Update statement issue",
                         url_name="audits:statement-check-update",
-                        object_required=True,
+                        object_required_for_url=True,
                     ),
                 ],
             ),
@@ -1031,7 +1029,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                     PlatformPage(
                         name="{object.name} preview",
                         url_name="common:email-template-preview",
-                        object_required=True,
+                        object_required_for_url=True,
                         object_class=EmailTemplate,
                     ),
                     PlatformPage(
@@ -1041,7 +1039,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                     PlatformPage(
                         name="Email template editor",
                         url_name="common:email-template-update",
-                        object_required=True,
+                        object_required_for_url=True,
                         object_class=EmailTemplate,
                     ),
                 ],
@@ -1066,7 +1064,7 @@ SITE_MAP: List[PlatformPageGroup] = [
             PlatformPage(
                 name="Reminder",
                 url_name="notifications:edit-reminder-task",
-                object_required=True,
+                object_required_for_url=True,
                 object_class=Task,
             ),
             PlatformPage(name="Privacy notice", url_name="common:privacy-notice"),
