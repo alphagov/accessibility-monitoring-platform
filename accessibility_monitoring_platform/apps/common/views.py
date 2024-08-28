@@ -52,7 +52,7 @@ from .models import (
     IssueReport,
     Platform,
 )
-from .page_name_utils import get_amp_page_name_by_url
+from .sitemap import SITE_MAP, get_platform_page_name_by_url
 from .utils import (
     extract_domain_from_url,
     get_one_year_ago,
@@ -106,7 +106,7 @@ class IssueReportView(FormView):
     def get(self, request, *args, **kwargs):
         """Populate form"""
         page_url: str = self.request.GET.get("page_url", "")
-        page_title: str = get_amp_page_name_by_url(page_url)
+        page_title: str = get_platform_page_name_by_url(page_url)
         description: str = self.request.GET.get("description", "")
         self.form: AMPIssueReportForm = self.form_class(
             {
@@ -390,6 +390,7 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
             created__lte=get_one_year_ago()
         ).count()
         context["number_of_old_events"] = number_of_old_events
+        context["sitemap"] = SITE_MAP
         return context
 
     def form_valid(self, form):

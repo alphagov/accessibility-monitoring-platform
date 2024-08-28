@@ -9,7 +9,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
-from ..common.page_name_utils import AmpPage, get_amp_page_by_request
+from ..common.sitemap import PlatformPage, get_current_platform_page
 from ..common.utils import SessionExpiry, get_platform_settings
 from ..notifications.utils import get_number_of_tasks
 from .forms import AMPTopMenuForm
@@ -23,7 +23,7 @@ def platform_page(
     name of prototype, platform settings and number of tasks.
     """
     platform: Platform = get_platform_settings()
-    amp_page: AmpPage = get_amp_page_by_request(request=request)
+    current_platform_page: PlatformPage = get_current_platform_page(request=request)
 
     return {
         "today": timezone.now(),
@@ -36,6 +36,6 @@ def platform_page(
             is_deleted=False
         ),
         "custom_footer_links": FooterLink.objects.filter(is_deleted=False),
-        "amp_page_name": amp_page.name,
-        "current_url_name": amp_page.url_name,
+        "amp_page_name": current_platform_page.name,
+        "current_url_name": current_platform_page.url_name,
     }
