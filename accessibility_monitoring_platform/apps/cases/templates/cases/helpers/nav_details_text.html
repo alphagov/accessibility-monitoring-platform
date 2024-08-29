@@ -1,31 +1,23 @@
 <div class="amp-nav-details__text">
     <ul class="govuk-list amp-margin-bottom-5">
-        {% for page in case_section.pages %}
-            {% if not page.visible_only_when_current or page.visible_only_when_current and case_section.name == current_section_name and page.name == current_page_name %}
-                <li>
-                    {% if case_section.name == current_section_name and page.name == current_page_name and not current_subpage_name %}
-                        <b>{{ page.name }}</b>
-                    {% else %}
-                        <a href="{{ page.url }}" class="govuk-link govuk-link--no-visited-state" {% if page.disabled %}disabled{% endif %}>{{ page.name }}</a>
-                    {% endif %}
-                    {% if page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
-                    {% if page.subpages %}
-                        <ul class="amp-nav-list-subpages">
-                            {% for subpage in page.subpages %}
-                                {% if not subpage.visible_only_when_current or subpage.visible_only_when_current and case_section.name == current_section_name and subpage.name == current_subpage_name %}
-                                    <li class="amp-nav-list-subpages amp-margin-top-5">
-                                        {% if case_section.name == current_section_name and subpage.name == current_subpage_name %}
-                                            <b>{{ subpage.name }}</b>
-                                        {% else %}
-                                            <a href="{{ subpage.url }}" class="govuk-link govuk-link--no-visited-state">{{ subpage.name }}</a>
-                                        {% endif %}
-                                        {% if subpage.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </li>
+        {% for platform_page in platform_page_group.pages %}
+            {% if platform_page.show %}
+                {% if not platform_page.visible_only_when_current or platform_page.visible_only_when_current and platform_page.url == current_url %}
+                    <li>
+                        {% include 'cases/helpers/nav_details_url.html' %}
+                        {% if platform_page.subpages %}
+                            <ul class="amp-nav-list-subpages">
+                                {% for subpage in platform_page.subpages %}
+                                    {% if not subpage.visible_only_when_current or subpage.visible_only_when_current and subpage.url == current_url %}
+                                        <li class="amp-nav-list-subpages amp-margin-top-5">
+                                            {% include 'cases/helpers/nav_details_url.html' with platform_page=subpage %}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endif %}
             {% endif %}
         {% endfor %}
     </ul>

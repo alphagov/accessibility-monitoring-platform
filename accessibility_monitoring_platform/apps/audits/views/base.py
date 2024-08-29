@@ -14,7 +14,6 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ...cases.models import Case, CaseEvent
-from ...common.case_nav import CaseNavContextMixin
 from ...common.utils import (
     amp_format_date,
     get_url_parameters_for_pagination,
@@ -93,7 +92,7 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))
 
 
-class AuditUpdateView(CaseNavContextMixin, UpdateView):
+class AuditUpdateView(UpdateView):
     """
     View to update audit
     """

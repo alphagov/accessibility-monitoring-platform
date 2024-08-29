@@ -11,7 +11,6 @@ from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import Case
-from ..common.case_nav import CaseNavContextMixin
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
@@ -98,7 +97,7 @@ class CommentsMarkAsReadView(ListView):
         return HttpResponseRedirect(reverse_lazy("notifications:task-list"))
 
 
-class ReminderTaskCreateView(CaseNavContextMixin, CreateView):
+class ReminderTaskCreateView(CreateView):
     """
     View to create reminder task
     """
@@ -130,7 +129,7 @@ class ReminderTaskCreateView(CaseNavContextMixin, CreateView):
         return reverse("cases:case-detail", kwargs={"pk": self.object.case.id})
 
 
-class ReminderTaskUpdateView(CaseNavContextMixin, UpdateView):
+class ReminderTaskUpdateView(UpdateView):
     """
     View to update reminder
     """

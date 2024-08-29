@@ -25,7 +25,6 @@ from ..audits.forms import (
 from ..audits.utils import report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
-from ..common.case_nav import CaseNavContextMixin
 from ..common.models import Boolean, EmailTemplate
 from ..common.utils import (
     amp_format_date,
@@ -309,7 +308,7 @@ class CaseCreateView(CreateView):
         return url
 
 
-class CaseUpdateView(CaseNavContextMixin, UpdateView):
+class CaseUpdateView(UpdateView):
     """
     View to update case
     """
@@ -551,7 +550,7 @@ class ManageContactDetailsUpdateView(CaseContactDetailsUpdateView):
         return super().get_success_url()
 
 
-class ContactCreateView(CaseNavContextMixin, CreateView):
+class ContactCreateView(CreateView):
     """
     View to create case contact
     """
@@ -582,7 +581,7 @@ class ContactCreateView(CaseNavContextMixin, CreateView):
         return reverse("cases:manage-contact-details", kwargs=case_pk)
 
 
-class ContactUpdateView(CaseNavContextMixin, UpdateView):
+class ContactUpdateView(UpdateView):
     """
     View to create case contact
     """
@@ -1085,13 +1084,13 @@ class CaseReactivateUpdateView(CaseUpdateView):
         return HttpResponseRedirect(case.get_absolute_url())
 
 
-class CaseStatusWorkflowDetailView(CaseNavContextMixin, DetailView):
+class CaseStatusWorkflowDetailView(DetailView):
     model: Type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/status_workflow.html"
 
 
-class CaseOutstandingIssuesDetailView(CaseNavContextMixin, DetailView):
+class CaseOutstandingIssuesDetailView(DetailView):
     model: Type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/outstanding_issues.html"
@@ -1242,7 +1241,7 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
         return super().form_valid(form)
 
 
-class EqualityBodyCorrespondenceCreateView(CaseNavContextMixin, CreateView):
+class EqualityBodyCorrespondenceCreateView(CreateView):
     """
     View to create a case
     """
@@ -1276,7 +1275,7 @@ class EqualityBodyCorrespondenceCreateView(CaseNavContextMixin, CreateView):
         )
 
 
-class CaseEqualityBodyCorrespondenceUpdateView(CaseNavContextMixin, UpdateView):
+class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
     """
     View of equality body metadata
     """
@@ -1321,7 +1320,7 @@ class CaseRetestOverviewTemplateView(CaseUpdateView):
         return context
 
 
-class CaseRetestCreateErrorTemplateView(CaseNavContextMixin, TemplateView):
+class CaseRetestCreateErrorTemplateView(TemplateView):
     template_name: str = "cases/retest_create_error.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -1343,7 +1342,7 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
     template_name: str = "cases/forms/legacy_end_of_case.html"
 
 
-class CaseZendeskTicketsDetailView(CaseNavContextMixin, DetailView):
+class CaseZendeskTicketsDetailView(DetailView):
     """
     View of Zendesk tickets for a case
     """
@@ -1353,7 +1352,7 @@ class CaseZendeskTicketsDetailView(CaseNavContextMixin, DetailView):
     template_name: str = "cases/zendesk_tickets.html"
 
 
-class ZendeskTicketCreateView(CaseNavContextMixin, CreateView):
+class ZendeskTicketCreateView(CreateView):
     """
     View to create a Zendesk ticket
     """
@@ -1385,7 +1384,7 @@ class ZendeskTicketCreateView(CaseNavContextMixin, CreateView):
         return reverse("cases:zendesk-tickets", kwargs=case_pk)
 
 
-class ZendeskTicketUpdateView(CaseNavContextMixin, UpdateView):
+class ZendeskTicketUpdateView(UpdateView):
     """
     View to update Zendesk ticket
     """

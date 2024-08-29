@@ -2,14 +2,19 @@
 Context processors
 """
 
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils import timezone
 
 from ..common.models import FooterLink, FrequentlyUsedLink, Platform
-from ..common.sitemap import PlatformPage, get_current_platform_page
+from ..common.sitemap import (
+    PlatformPage,
+    PlatformPageGroup,
+    build_sitemap_for_request,
+    get_current_platform_page,
+)
 from ..common.utils import SessionExpiry, get_platform_settings
 from ..notifications.utils import get_number_of_tasks
 from .forms import AMPTopMenuForm
@@ -24,6 +29,7 @@ def platform_page(
     """
     platform: Platform = get_platform_settings()
     current_platform_page: PlatformPage = get_current_platform_page(request=request)
+    sitemap: List[PlatformPageGroup] = build_sitemap_for_request(request=request)
 
     return {
         "today": timezone.now(),
@@ -38,4 +44,7 @@ def platform_page(
         "custom_footer_links": FooterLink.objects.filter(is_deleted=False),
         "amp_page_name": current_platform_page.get_name(),
         "current_url_name": current_platform_page.url_name,
+        "current_url": current_platform_page.url,
+        "sitemap": sitemap,
+        "case": current_platform_page.get_case(),
     }

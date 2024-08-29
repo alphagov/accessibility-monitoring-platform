@@ -8,13 +8,12 @@ from django.forms.models import ModelForm
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
-from ..common.case_nav import CaseNavContextMixin
 from ..common.utils import record_model_update_event
 from .forms import CommentUpdateForm
 from .models import Comment
 
 
-class QACommentUpdateView(CaseNavContextMixin, UpdateView):
+class QACommentUpdateView(UpdateView):
     """
     View to update a comment
     """

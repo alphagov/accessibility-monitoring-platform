@@ -38,6 +38,7 @@ class PlatformPage:
         object_required_for_url: bool = False,
         complete_flag_name: Optional[str] = None,
         show_flag_name: Optional[str] = None,
+        visible_only_when_current: bool = False,
         subpages: Optional[List["PlatformPage"]] = None,
     ):
         self.name = name
@@ -51,6 +52,7 @@ class PlatformPage:
         self.object_required_for_url = object_required_for_url
         self.complete_flag_name = complete_flag_name
         self.show_flag_name = show_flag_name
+        self.visible_only_when_current = visible_only_when_current
         self.subpages = subpages
 
     def __repr__(self):
@@ -317,16 +319,10 @@ class PlatformPageGroup:
 
     def number_pages_and_subpages(self) -> int:
         if self.pages is not None:
-            count: int = len(self.pages)
+            count: int = len([page for page in self.pages if page.show])
             for page in self.pages:
                 if page.subpages is not None:
-                    count += len(
-                        [
-                            page
-                            for page in page.subpages
-                            if page.visible_only_when_current is False
-                        ]
-                    )
+                    count += len([page for page in page.subpages if not page.show])
             return count
         return 0
 
@@ -334,11 +330,17 @@ class PlatformPageGroup:
         if self.pages is not None:
             count: int = 0
             for page in self.pages:
+                if not page.show:
+                    continue
                 if page.complete:
                     count += 1
                 if page.subpages is not None:
                     count += len(
-                        [subpage for subpage in page.subpages if subpage.complete]
+                        [
+                            subpage
+                            for subpage in page.subpages
+                            if subpage.complete and subpage.show
+                        ]
                     )
             return count
         return 0
@@ -556,6 +558,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                         name="Add contact",
                         url_name="cases:edit-contact-create",
                         url_kwarg_key="case_id",
+                        visible_only_when_current=True,
                     ),
                     PlatformPage(
                         name="Edit contact {object}",
@@ -570,21 +573,25 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Request contact details",
                 url_name="cases:edit-request-contact-details",
                 complete_flag_name="request_contact_details_complete_date",
+                show_flag_name="enable_correspondence_process",
             ),
             CasePlatformPage(
                 name="One-week follow-up",
                 url_name="cases:edit-one-week-contact-details",
                 complete_flag_name="one_week_contact_details_complete_date",
+                show_flag_name="enable_correspondence_process",
             ),
             CasePlatformPage(
                 name="Four-week follow-up",
                 url_name="cases:edit-four-week-contact-details",
                 complete_flag_name="four_week_contact_details_complete_date",
+                show_flag_name="enable_correspondence_process",
             ),
             CasePlatformPage(
                 name="Unresponsive PSB",
                 url_name="cases:edit-no-psb-response",
                 complete_flag_name="no_psb_contact_complete_date",
+                show_flag_name="enable_correspondence_process",
             ),
         ],
     ),

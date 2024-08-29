@@ -864,6 +864,10 @@ class Audit(VersionModel):
         return self.statement_check_results.count() > 0
 
     @property
+    def uses_old_statement_checks(self) -> bool:
+        return not self.uses_statement_checks
+
+    @property
     def overview_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
 

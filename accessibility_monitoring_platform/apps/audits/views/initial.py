@@ -14,7 +14,6 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
 from ...cases.models import Contact
-from ...common.case_nav import CaseNavContextMixin
 from ...common.form_extract_utils import extract_form_labels_and_values
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.utils import (
@@ -131,7 +130,7 @@ class AuditDetailView(DetailView):
         }
 
 
-class AuditInitialWcagUpdateView(AuditUpdateView, CaseNavContextMixin):
+class AuditInitialWcagUpdateView(AuditUpdateView):
     """Populate context for initial WCAG test views"""
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -268,7 +267,7 @@ class AuditPagesUpdateView(AuditInitialWcagUpdateView):
         return url
 
 
-class AuditPageChecksFormView(CaseNavContextMixin, FormView):
+class AuditPageChecksFormView(FormView):
     """
     View to update check results for a page
     """
@@ -435,7 +434,7 @@ class AuditWcagSummaryUpdateView(AuditInitialWcagUpdateView, AuditSummaryUpdateV
         return super().get_success_url()
 
 
-class AuditInitialStatementUpdateView(AuditUpdateView, CaseNavContextMixin):
+class AuditInitialStatementUpdateView(AuditUpdateView):
     """Populate context for initial statement test views"""
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
