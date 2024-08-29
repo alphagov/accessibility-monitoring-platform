@@ -88,24 +88,14 @@ class PlatformPage:
     def populate_subpage_objects(self):
         if self.object is not None:
             if self.subpages is not None:
+                subpage_instances: List[PlatformPage] = []
                 for subpage in self.subpages:
-                    if (
-                        subpage.object is None
-                        and subpage.object_class == self.object_class
-                    ):
-                        subpage.object = self.object
-                        subpage.populate_subpage_objects()
-                # subpage_instances: List[PlatformPage] = []
-                # for subpage in self.subpages:
-                #     new_subpage: PlatformPage = copy.copy(subpage)
-                #     if (
-                #         new_subpage.object is None
-                #         and new_subpage.object_class == self.object_class
-                #     ):
-                #         new_subpage.object = self.object
-                #         new_subpage.populate_subpage_objects()
-                #         subpage_instances.append(new_subpage)
-                # self.subpages = subpage_instances
+                    subpage_instance: PlatformPage = copy.copy(subpage)
+                    if subpage_instance.object_class == self.object_class:
+                        subpage_instance.object = self.object
+                    subpage_instance.populate_subpage_objects()
+                    subpage_instances.append(subpage_instance)
+                self.subpages = subpage_instances
 
     def populate_from_case(self, case: Case):
         self.populate_subpage_objects()
@@ -173,25 +163,26 @@ class CaseContactsPlatformPage(CasePlatformPage):
     def populate_from_case(self, case: Case):
         if case is not None:
             self.object = case
-            self.subpages = [
-                CasePlatformPage(
-                    name="Add contact",
-                    url_name="cases:edit-contact-create",
-                    url_kwarg_key="case_id",
-                    object_required_for_url=True,
-                ),
-            ] + [
-                PlatformPage(
-                    name="Edit contact {object}",
-                    url_name="cases:edit-contact-update",
-                    url_kwarg_key="pk",
-                    object=contact,
-                    object_required_for_url=True,
-                    object_class=Contact,
+            if self.url_name and self.url_name in sitemap_by_url_name:
+                self.subpages = copy.deepcopy(
+                    sitemap_by_url_name.get(self.url_name).subpages
                 )
-                for contact in case.contacts
-            ]
-        super().populate_from_case(case=case)
+            if self.subpages is not None:
+                subpage_instances: List[PlatformPage] = []
+                for subpage in self.subpages:
+                    if subpage.object_class == Case:
+                        subpage_instance: PlatformPage = copy.copy(subpage)
+                        subpage_instance.object = case
+                        subpage_instance.populate_subpage_objects()
+                        subpage_instances.append(subpage_instance)
+                for contact in case.contacts:
+                    for subpage in self.subpages:
+                        if subpage.object_class == Contact:
+                            subpage_instance: PlatformPage = copy.copy(subpage)
+                            subpage_instance.object = contact
+                            subpage_instance.populate_subpage_objects()
+                            subpage_instances.append(subpage_instance)
+                self.subpages = subpage_instances
 
 
 class AuditPlatformPage(PlatformPage):
@@ -211,19 +202,20 @@ class AuditPagesPlatformPage(AuditPlatformPage):
     def populate_from_case(self, case: Case):
         if case.audit is not None:
             self.object = case.audit
-            self.subpages = [
-                PlatformPage(
-                    name="{object.page_title} test",
-                    url_name="audits:edit-audit-page-checks",
-                    url_kwarg_key="pk",
-                    object=page,
-                    object_required_for_url=True,
-                    object_class=Page,
-                    complete_flag_name="complete_date",
+            if self.url_name and self.url_name in sitemap_by_url_name:
+                self.subpages = copy.deepcopy(
+                    sitemap_by_url_name.get(self.url_name).subpages
                 )
-                for page in case.audit.testable_pages
-            ]
-        super().populate_from_case(case=case)
+            if self.subpages is not None:
+                subpage_instances: List[PlatformPage] = []
+                for page in case.audit.testable_pages:
+                    for subpage in self.subpages:
+                        if subpage.object_class == Page:
+                            subpage_instance: PlatformPage = copy.copy(subpage)
+                            subpage_instance.object = page
+                            subpage_instance.populate_subpage_objects()
+                            subpage_instances.append(subpage_instance)
+                self.subpages = subpage_instances
 
 
 class ReportPlatformPage(PlatformPage):
@@ -243,19 +235,20 @@ class AuditRetestPagesPlatformPage(AuditPlatformPage):
     def populate_from_case(self, case: Case):
         if case.audit is not None:
             self.object = case.audit
-            self.subpages = [
-                PlatformPage(
-                    name="Retesting {object.page_title}",
-                    url_name="audits:edit-audit-retest-page-checks",
-                    url_kwarg_key="pk",
-                    object=page,
-                    object_required_for_url=True,
-                    object_class=Page,
-                    complete_flag_name="retest_complete_date",
+            if self.url_name and self.url_name in sitemap_by_url_name:
+                self.subpages = copy.deepcopy(
+                    sitemap_by_url_name.get(self.url_name).subpages
                 )
-                for page in case.audit.testable_pages
-            ]
-        super().populate_from_case(case=case)
+            if self.subpages is not None:
+                subpage_instances: List[PlatformPage] = []
+                for page in case.audit.testable_pages:
+                    for subpage in self.subpages:
+                        if subpage.object_class == Page:
+                            subpage_instance: PlatformPage = copy.copy(subpage)
+                            subpage_instance.object = page
+                            subpage_instance.populate_subpage_objects()
+                            subpage_instances.append(subpage_instance)
+                self.subpages = subpage_instances
 
 
 class EqualityBodyRetestPlatformPage(PlatformPage):
@@ -280,12 +273,11 @@ class RetestOverviewPlatformPage(CasePlatformPage):
                 if retest.id_within_case > 0:
                     for subpage in self.subpages:
                         if subpage.object_class == Retest:
-                            new_subpage: PlatformPage = copy.copy(subpage)
-                            new_subpage.object = retest
-                            new_subpage.populate_subpage_objects()
-                            subpage_instances.append(new_subpage)
+                            subpage_instance: PlatformPage = copy.copy(subpage)
+                            subpage_instance.object = retest
+                            subpage_instance.populate_subpage_objects()
+                            subpage_instances.append(subpage_instance)
             self.subpages = subpage_instances
-        super().populate_from_case(case=case)
 
 
 class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
@@ -295,9 +287,9 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
             for retest_page in self.object.retestpage_set.all():
                 for subpage in self.subpages:
                     if subpage.object_class == RetestPage:
-                        new_subpage: PlatformPage = copy.copy(subpage)
-                        new_subpage.object = retest_page
-                        subpage_instances.append(new_subpage)
+                        subpage_instance: PlatformPage = copy.copy(subpage)
+                        subpage_instance.object = retest_page
+                        subpage_instances.append(subpage_instance)
             self.subpages = subpage_instances
 
 
@@ -666,6 +658,7 @@ SITE_MAP: List[PlatformPageGroup] = [
             ),
             AuditRetestPagesPlatformPage(
                 name="Pages",
+                url_name="audits:audit-retest-pages",
                 subpages=[
                     PlatformPage(
                         name="Retesting {object.page_title}",

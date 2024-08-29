@@ -315,7 +315,8 @@ def test_case_platform_page():
 def test_case_contacts_platform_page():
     """Test CaseContactsPlatformPage"""
     case_contacts_platform_page: CaseContactsPlatformPage = CaseContactsPlatformPage(
-        name=PLATFORM_PAGE_NAME
+        name="Manage contact details",
+        url_name="cases:manage-contact-details",
     )
 
     assert case_contacts_platform_page.object_required_for_url is True
@@ -360,7 +361,8 @@ def test_audit_platform_page():
 def test_audit_pages_platform_page():
     """Test AuditPagesPlatformPage"""
     audit_pages_platform_page: AuditPagesPlatformPage = AuditPagesPlatformPage(
-        name=PLATFORM_PAGE_NAME
+        name="Add or remove pages",
+        url_name="audits:edit-audit-pages",
     )
 
     assert audit_pages_platform_page.object_required_for_url is True
@@ -403,7 +405,10 @@ def test_report_platform_page():
 def test_audit_retest_pages_platform_page():
     """Test AuditRetestPagesPlatformPage"""
     audit_retest_pages_platform_page: AuditRetestPagesPlatformPage = (
-        AuditRetestPagesPlatformPage(name=PLATFORM_PAGE_NAME)
+        AuditRetestPagesPlatformPage(
+            name="Pages",
+            url_name="audits:audit-retest-pages",
+        )
     )
 
     assert audit_retest_pages_platform_page.object_required_for_url is True

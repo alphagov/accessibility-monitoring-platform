@@ -216,6 +216,11 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-retest-metadata",
     ),
     path(
+        "<int:pk>/audit-retest-pages/",
+        login_required(AuditRetestPagesComparisonView.as_view()),
+        name="audit-retest-pages",
+    ),
+    path(
         "<int:pk>/edit-audit-retest-pages-comparison/",
         login_required(AuditRetestPagesComparisonView.as_view()),
         name="edit-audit-retest-pages-comparison",
