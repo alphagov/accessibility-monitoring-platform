@@ -1,4 +1,4 @@
-"""d
+"""
 Views for cases app
 """
 
@@ -1164,12 +1164,7 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}
-            if case.variant == Case.Variant.CLOSE_CASE:
-                return reverse(
-                    "cases:list-equality-body-correspondence", kwargs=case_pk
-                )
-            else:
-                return reverse("cases:legacy-end-of-case", kwargs=case_pk)
+            return reverse("cases:list-equality-body-correspondence", kwargs=case_pk)
         return super().get_success_url()
 
 
