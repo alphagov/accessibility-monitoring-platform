@@ -16,6 +16,7 @@ from ..sitemap import (
     AuditRetestPagesPlatformPage,
     CaseContactsPlatformPage,
     CasePlatformPage,
+    EqualityBodyRetestPagesPlatformPage,
     EqualityBodyRetestPlatformPage,
     ExportPlatformPage,
     HomePlatformPage,
@@ -428,22 +429,25 @@ def test_audit_retest_pages_platform_page():
     )
 
 
-def test_equality_body_retest_pages_platform_page():
+def test_equality_body_retest_platform_page():
     """Test EqualityBodyRetestPlatformPage"""
-    equality_body_retest_pages_platform_page: EqualityBodyRetestPlatformPage = (
+    equality_body_retest_platform_page: EqualityBodyRetestPlatformPage = (
         EqualityBodyRetestPlatformPage(name=PLATFORM_PAGE_NAME)
     )
 
-    assert equality_body_retest_pages_platform_page.object_required_for_url is True
-    assert equality_body_retest_pages_platform_page.object_class == Retest
-    assert equality_body_retest_pages_platform_page.url_kwarg_key == "pk"
+    assert equality_body_retest_platform_page.object_required_for_url is True
+    assert equality_body_retest_platform_page.object_class == Retest
+    assert equality_body_retest_platform_page.url_kwarg_key == "pk"
 
 
 @pytest.mark.django_db
 def test_retest_overview_platform_page():
     """Test RetestOverviewPlatformPage"""
     retest_overview_platform_page: RetestOverviewPlatformPage = (
-        RetestOverviewPlatformPage(name=PLATFORM_PAGE_NAME)
+        RetestOverviewPlatformPage(
+            name="Retest overview",
+            url_name="cases:edit-retest-overview",
+        )
     )
 
     assert retest_overview_platform_page.object_required_for_url is True
@@ -461,6 +465,83 @@ def test_retest_overview_platform_page():
     assert len(retest_overview_platform_page.subpages) == 2
     assert retest_overview_platform_page.subpages[0].get_name() == "Retest #2"
     assert retest_overview_platform_page.subpages[1].get_name() == "Retest #1"
+
+
+@pytest.mark.django_db
+def test_equality_body_retest_pages_platform_page():
+    """Test EqualityBodyRetestPagesPlatformPage"""
+    equality_body_retest_pages_platform_page: EqualityBodyRetestPagesPlatformPage = (
+        EqualityBodyRetestPagesPlatformPage(
+            name="Pages",
+            subpages=[
+                PlatformPage(
+                    name="{object.retest} | {object}",
+                    url_name="audits:edit-retest-page-checks",
+                    object_class=RetestPage,
+                    complete_flag_name="complete_date",
+                )
+            ],
+        )
+    )
+
+    assert equality_body_retest_pages_platform_page.object_required_for_url is True
+    assert equality_body_retest_pages_platform_page.object_class == Retest
+    assert equality_body_retest_pages_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit, name="Test Page")
+    retest: Retest = Retest.objects.create(case=case, id_within_case=1)
+    RetestPage.objects.create(retest=retest, page=page)
+    RetestPage.objects.create(retest=retest, page=page)
+
+    equality_body_retest_pages_platform_page.object = retest
+    equality_body_retest_pages_platform_page.populate_subpage_objects()
+
+    assert len(equality_body_retest_pages_platform_page.subpages) == 2
+    assert (
+        equality_body_retest_pages_platform_page.subpages[0].get_name()
+        == f"{retest} | {page}"
+    )
+    assert (
+        equality_body_retest_pages_platform_page.subpages[1].get_name()
+        == f"{retest} | {page}"
+    )
+
+
+@pytest.mark.django_db
+def test_retest_overview_platform_page_populates_subpages():
+    """Test RetestOverviewPlatformPage populates subpages from case"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page_1: Page = Page.objects.create(audit=audit, name="Test page one")
+    page_2: Page = Page.objects.create(audit=audit, name="Test page two")
+    retest: Retest = Retest.objects.create(case=case, id_within_case=1)
+    RetestPage.objects.create(retest=retest, page=page_1)
+    RetestPage.objects.create(retest=retest, page=page_2)
+
+    retest_overview_platform_page: RetestOverviewPlatformPage = (
+        RetestOverviewPlatformPage(
+            name="Retest overview",
+            url_name="cases:edit-retest-overview",
+        )
+    )
+    retest_overview_platform_page.populate_from_case(case=case)
+
+    assert retest_overview_platform_page.object == case
+    assert len(retest_overview_platform_page.subpages) == 1
+    assert retest_overview_platform_page.subpages[0].get_name() == "Retest #1"
+
+    retest_1: PlatformPage = retest_overview_platform_page.subpages[0]
+
+    assert len(retest_1.subpages) > 2
+    assert retest_1.subpages[1].get_name() == "Pages"
+
+    retest_1_pages: PlatformPage = retest_1.subpages[1]
+
+    assert len(retest_1_pages.subpages) == 2
+    assert retest_1_pages.subpages[0].get_name() == f"{retest} | {page_1}"
+    assert retest_1_pages.subpages[1].get_name() == f"{retest} | {page_2}"
 
 
 @pytest.mark.django_db

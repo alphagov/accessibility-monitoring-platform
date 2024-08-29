@@ -94,6 +94,18 @@ class PlatformPage:
                         and subpage.object_class == self.object_class
                     ):
                         subpage.object = self.object
+                        subpage.populate_subpage_objects()
+                # subpage_instances: List[PlatformPage] = []
+                # for subpage in self.subpages:
+                #     new_subpage: PlatformPage = copy.copy(subpage)
+                #     if (
+                #         new_subpage.object is None
+                #         and new_subpage.object_class == self.object_class
+                #     ):
+                #         new_subpage.object = self.object
+                #         new_subpage.populate_subpage_objects()
+                #         subpage_instances.append(new_subpage)
+                # self.subpages = subpage_instances
 
     def populate_from_case(self, case: Case):
         self.populate_subpage_objects()
@@ -258,34 +270,35 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
 class RetestOverviewPlatformPage(CasePlatformPage):
     def populate_from_case(self, case: Case):
         self.object = case
-        self.subpages = [
-            EqualityBodyRetestPlatformPage(
-                name="Retest #{object.id_within_case}",
-                object=retest,
-                object_required_for_url=True,
-                object_class=Retest,
+        if self.url_name and self.url_name in sitemap_by_url_name:
+            self.subpages = copy.deepcopy(
+                sitemap_by_url_name.get(self.url_name).subpages
             )
-            for retest in case.retests
-            if retest.id_within_case > 0
-        ]
+        if self.subpages is not None:
+            subpage_instances: List[PlatformPage] = []
+            for retest in case.retests:
+                if retest.id_within_case > 0:
+                    for subpage in self.subpages:
+                        if subpage.object_class == Retest:
+                            new_subpage: PlatformPage = copy.copy(subpage)
+                            new_subpage.object = retest
+                            new_subpage.populate_subpage_objects()
+                            subpage_instances.append(new_subpage)
+            self.subpages = subpage_instances
         super().populate_from_case(case=case)
 
 
 class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
     def populate_subpage_objects(self):
-        self.subpages = [
-            PlatformPage(
-                name="{object.retest} | {object}",
-                url_name="audits:edit-audit-retest-page-checks",
-                url_kwarg_key="pk",
-                object=retest_page,
-                object_required_for_url=True,
-                object_class=RetestPage,
-                complete_flag_name="retest_complete_date",
-            )
-            for retest_page in self.object.retestpage_set.all()
-        ]
-        super().populate_subpage_objects()
+        if self.subpages is not None and self.object is not None:
+            subpage_instances: List[PlatformPage] = []
+            for retest_page in self.object.retestpage_set.all():
+                for subpage in self.subpages:
+                    if subpage.object_class == RetestPage:
+                        new_subpage: PlatformPage = copy.copy(subpage)
+                        new_subpage.object = retest_page
+                        subpage_instances.append(new_subpage)
+            self.subpages = subpage_instances
 
 
 # Page group types
