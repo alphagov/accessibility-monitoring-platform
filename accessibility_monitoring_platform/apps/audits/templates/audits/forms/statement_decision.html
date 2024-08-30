@@ -15,8 +15,7 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" with current_section_name='Initial statement' current_page_name=amp_page_name %}
-                {% include 'cases/helpers/nav_steps.html' %}
+                {% include "cases/helpers/nav_details.html" %}
             </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name case=audit.case %}

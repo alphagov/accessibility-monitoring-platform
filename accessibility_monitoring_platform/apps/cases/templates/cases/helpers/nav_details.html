@@ -1,9 +1,8 @@
-{% if case.archive %}
-{% else %}
-    {% for platform_page_group in sitemap %}
-        {% if platform_page_group.show %}
-            {% if platform_page_group.name == '' %}
-                {% for platform_page in platform_page_group.pages %}
+{% for platform_page_group in sitemap %}
+    {% if platform_page_group.show %}
+        {% if platform_page_group.name == '' %}
+            {% for platform_page in platform_page_group.pages %}
+                {% if platform_page.show %}
                     {% if platform_page.url_name == 'cases:edit-statement-enforcement' %}
                         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
                     {% endif %}
@@ -14,23 +13,23 @@
                             {% include 'cases/helpers/nav_details_url.html' %}
                         {% endif %}
                     </p>
-                {% endfor %}
-            {% elif platform_page_group.name == current_section_name %}
-                <p class="govuk-body-s amp-margin-bottom-5">
+                {% endif %}
+            {% endfor %}
+        {% elif platform_page_group.name == current_platform_page.platform_page_group_name %}
+            <p class="govuk-body-s amp-margin-bottom-5">
+                {{ platform_page_group.name }}
+                ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
+            </p>
+            {% include 'cases/helpers/nav_details_text.html' %}
+       {% else %}
+            <details class="amp-nav-details"{% if platform_page_group.name == section_name %} open{% endif %}{% if platform_page_group.disabled %} disabled{% endif %}>
+                <summary class="amp-nav-details__summary">
                     {{ platform_page_group.name }}
                     ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
-                </p>
+                </summary>
                 {% include 'cases/helpers/nav_details_text.html' %}
-           {% else %}
-                <details class="amp-nav-details"{% if platform_page_group.name == section_name %} open{% endif %}{% if platform_page_group.disabled %} disabled{% endif %}>
-                    <summary class="amp-nav-details__summary">
-                        {{ platform_page_group.name }}
-                        ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
-                    </summary>
-                    {% include 'cases/helpers/nav_details_text.html' %}
-                </details>
-            {% endif %}
+            </details>
         {% endif %}
-    {% endfor %}
-    {% include 'common/frequently_used_links.html' %}
-{% endif %}
+    {% endif %}
+{% endfor %}
+{% include 'common/frequently_used_links.html' %}

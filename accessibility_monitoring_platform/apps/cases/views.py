@@ -353,12 +353,6 @@ class CaseMetadataUpdateView(CaseUpdateView):
 
     form_class: Type[CaseMetadataUpdateForm] = CaseMetadataUpdateForm
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_section_name"] = "Case details"
-        return context
-
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         case: Case = self.object
@@ -390,12 +384,6 @@ class CaseTestResultsUpdateView(CaseUpdateView):
 
     form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_section_name"] = "Start initial test"
-        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -518,19 +506,7 @@ class CasePublishReportUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseContactDetailsUpdateView(CaseUpdateView):
-    """
-    View in Contact details case navigation section
-    """
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_section_name"] = "Contact details"
-        return context
-
-
-class ManageContactDetailsUpdateView(CaseContactDetailsUpdateView):
+class ManageContactDetailsUpdateView(CaseUpdateView):
     """
     View to list case contacts
     """
@@ -560,13 +536,6 @@ class ContactCreateView(CreateView):
     form_class: Type[ContactCreateForm] = ContactCreateForm
     template_name: str = "cases/forms/contact_create.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_section_name"] = "Contact details"
-        context["current_subpage_name"] = "Add contact"
-        return context
-
     def form_valid(self, form: ContactCreateForm):
         """Populate case of contact"""
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
@@ -591,14 +560,6 @@ class ContactUpdateView(UpdateView):
     form_class: Type[ContactUpdateForm] = ContactUpdateForm
     template_name: str = "cases/forms/contact_update.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        contact: Contact = self.object
-        context["current_section_name"] = "Contact details"
-        context["current_subpage_name"] = f"Edit contact {contact.name} {contact.email}"
-        return context
-
     def form_valid(self, form: ContactUpdateForm):
         """Mark contact as deleted if button is pressed"""
         contact: Contact = form.save(commit=False)
@@ -613,7 +574,7 @@ class ContactUpdateView(UpdateView):
         return reverse("cases:manage-contact-details", kwargs=case_pk)
 
 
-class CaseRequestContactDetailsUpdateView(CaseContactDetailsUpdateView):
+class CaseRequestContactDetailsUpdateView(CaseUpdateView):
     """
     View to update Request contact details
     """
@@ -649,7 +610,7 @@ class CaseRequestContactDetailsUpdateView(CaseContactDetailsUpdateView):
         return super().get_success_url()
 
 
-class CaseOneWeekContactDetailsUpdateView(CaseContactDetailsUpdateView):
+class CaseOneWeekContactDetailsUpdateView(CaseUpdateView):
     """
     View to update One week contact details
     """
@@ -670,7 +631,7 @@ class CaseOneWeekContactDetailsUpdateView(CaseContactDetailsUpdateView):
         return super().get_success_url()
 
 
-class CaseFourWeekContactDetailsUpdateView(CaseContactDetailsUpdateView):
+class CaseFourWeekContactDetailsUpdateView(CaseUpdateView):
     """
     View to update Four week contact details
     """
@@ -689,7 +650,7 @@ class CaseFourWeekContactDetailsUpdateView(CaseContactDetailsUpdateView):
         return super().get_success_url()
 
 
-class CaseNoPSBResponseUpdateView(CaseContactDetailsUpdateView):
+class CaseNoPSBResponseUpdateView(CaseUpdateView):
     """
     View to set no psb contact flag
     """
@@ -708,19 +669,7 @@ class CaseNoPSBResponseUpdateView(CaseContactDetailsUpdateView):
         return super().get_success_url()
 
 
-class CaseReportCorrespondenceUpdateView(CaseUpdateView):
-    """
-    View in Report correspondence case navigation section
-    """
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_section_name"] = "Report correspondence"
-        return context
-
-
-class CaseReportSentOnUpdateView(CaseReportCorrespondenceUpdateView):
+class CaseReportSentOnUpdateView(CaseUpdateView):
     """
     View to update Report sent on
     """
@@ -751,7 +700,7 @@ class CaseReportSentOnUpdateView(CaseReportCorrespondenceUpdateView):
         return super().get_success_url()
 
 
-class CaseReportOneWeekFollowupUpdateView(CaseReportCorrespondenceUpdateView):
+class CaseReportOneWeekFollowupUpdateView(CaseUpdateView):
     """
     View to update One week followup
     """
@@ -772,7 +721,7 @@ class CaseReportOneWeekFollowupUpdateView(CaseReportCorrespondenceUpdateView):
         return super().get_success_url()
 
 
-class CaseReportFourWeekFollowupUpdateView(CaseReportCorrespondenceUpdateView):
+class CaseReportFourWeekFollowupUpdateView(CaseUpdateView):
     """
     View to update Four week followup
     """
@@ -793,7 +742,7 @@ class CaseReportFourWeekFollowupUpdateView(CaseReportCorrespondenceUpdateView):
         return super().get_success_url()
 
 
-class CaseReportAcknowledgedUpdateView(CaseReportCorrespondenceUpdateView):
+class CaseReportAcknowledgedUpdateView(CaseUpdateView):
     """
     View to update Report acknowledged
     """
@@ -814,19 +763,7 @@ class CaseReportAcknowledgedUpdateView(CaseReportCorrespondenceUpdateView):
         return super().get_success_url()
 
 
-class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
-    """
-    View in 12-week correspondence case navigation section
-    """
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_section_name"] = "12-week correspondence"
-        return context
-
-
-class CaseTwelveWeekUpdateRequestedUpdateView(CaseTwelveWeekCorrespondenceUpdateView):
+class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
     """
     View to update 12-week update requested
     """
@@ -863,7 +800,7 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseTwelveWeekCorrespondenceUpdate
         return super().get_success_url()
 
 
-class CaseOneWeekFollowupFinalUpdateView(CaseTwelveWeekCorrespondenceUpdateView):
+class CaseOneWeekFollowupFinalUpdateView(CaseUpdateView):
     """
     View to update One week followup for final update
     """
@@ -884,9 +821,7 @@ class CaseOneWeekFollowupFinalUpdateView(CaseTwelveWeekCorrespondenceUpdateView)
         return super().get_success_url()
 
 
-class CaseTwelveWeekUpdateAcknowledgedUpdateView(
-    CaseTwelveWeekCorrespondenceUpdateView
-):
+class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
     """
     View to update 12-week update request acknowledged
     """

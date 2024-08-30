@@ -19,6 +19,7 @@ from .models import EmailTemplate
 
 class PlatformPage:
     name: str
+    platform_page_group_name: str = ""
     url_name: Optional[str] = None
     url_kwarg_key: Optional[str] = None
     object_class: Optional[Union[Type[Audit], Type[Case], Type[Retest]]] = None
@@ -32,6 +33,7 @@ class PlatformPage:
     def __init__(
         self,
         name: str,
+        platform_page_group_name: str = "",
         url_name: Optional[str] = None,
         url_kwarg_key: Optional[str] = None,
         object_class: Optional[Union[Type[Audit], Type[Case], Type[Retest]]] = None,
@@ -43,6 +45,7 @@ class PlatformPage:
         subpages: Optional[List["PlatformPage"]] = None,
     ):
         self.name = name
+        self.platform_page_group_name = platform_page_group_name
         self.url_name = url_name
         if url_kwarg_key is None and object_class is not None:
             self.url_kwarg_key = "pk"
@@ -405,6 +408,7 @@ class CasePlatformPageGroup(PlatformPageGroup):
 SITE_MAP: List[PlatformPageGroup] = [
     CasePlatformPageGroup(
         name="Case details",
+        show_flag_name="not_archived",
         pages=[
             CasePlatformPage(
                 name="Case metadata",
@@ -415,7 +419,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="",
-        show_flag_name="no_audit",
+        show_flag_name="show_start_test",
         pages=[
             CasePlatformPage(
                 name="Testing details",
@@ -543,6 +547,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     CasePlatformPageGroup(
         name="",
         type=PREVIOUS_CASE_NAV,
+        show_flag_name="not_archived",
         pages=[
             CasePlatformPage(
                 name="Report details",
@@ -586,6 +591,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="Contact details",
+        show_flag_name="not_archived",
         pages=[
             CaseContactsPlatformPage(
                 name="Manage contact details",
@@ -636,6 +642,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="Report correspondence",
+        show_flag_name="not_archived",
         pages=[
             CasePlatformPage(
                 name="Report sent on",
@@ -661,6 +668,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="12-week correspondence",
+        show_flag_name="not_archived",
         pages=[
             CasePlatformPage(
                 name="12-week update requested",
@@ -682,6 +690,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     CasePlatformPageGroup(
         name="",
         type=PREVIOUS_CASE_NAV,
+        show_flag_name="not_archived",
         pages=[
             CasePlatformPage(
                 name="12-week retest",
@@ -693,6 +702,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     CasePlatformPageGroup(
         name="12-week-retest",
         type=FUTURE_CASE_NAV,
+        show_flag_name="not_archived",
         pages=[
             AuditPlatformPage(
                 name="View 12-week retest", url_name="audits:audit-retest-detail"
@@ -801,6 +811,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="Closing the case",
+        show_flag_name="not_archived",
         pages=[
             CasePlatformPage(
                 name="Reviewing changes",
@@ -1143,22 +1154,25 @@ SITE_MAP: List[PlatformPageGroup] = [
 sitemap_by_url_name: Dict[str, PlatformPage] = {}
 
 
-def add_pages(pages: List[PlatformPage]):
+def add_pages(pages: List[PlatformPage], platform_page_group: PlatformPageGroup):
     """Iterate through pages list adding to sitemap dictionary"""
     for page in pages:
+        page.platform_page_group_name: str = platform_page_group.name
         if page.url_name:
             if page.url_name in sitemap_by_url_name:
                 print(f"Duplicate page url_name found for {page.url_name} ({page})")
             else:
                 sitemap_by_url_name[page.url_name] = page
         if page.subpages is not None:
-            add_pages(pages=page.subpages)
+            add_pages(pages=page.subpages, platform_page_group=platform_page_group)
 
 
 site_map: List[PlatformPageGroup] = copy.copy(SITE_MAP)
 for platform_page_group in site_map:
     if platform_page_group.pages is not None:
-        add_pages(pages=platform_page_group.pages)
+        add_pages(
+            pages=platform_page_group.pages, platform_page_group=platform_page_group
+        )
 
 
 def get_current_platform_page(request: HttpRequest) -> PlatformPage:

@@ -130,17 +130,7 @@ class AuditDetailView(DetailView):
         }
 
 
-class AuditInitialWcagUpdateView(AuditUpdateView):
-    """Populate context for initial WCAG test views"""
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_section_name"] = "Initial WCAG test"
-        return context
-
-
-class AuditMetadataUpdateView(AuditInitialWcagUpdateView):
+class AuditMetadataUpdateView(AuditUpdateView):
     """
     View to update audit metadata
     """
@@ -156,7 +146,7 @@ class AuditMetadataUpdateView(AuditInitialWcagUpdateView):
         return super().get_success_url()
 
 
-class AuditPagesUpdateView(AuditInitialWcagUpdateView):
+class AuditPagesUpdateView(AuditUpdateView):
     """
     View to update audit pages page
     """
@@ -418,7 +408,7 @@ class AuditSummaryUpdateView(AuditUpdateView):
         return context
 
 
-class AuditWcagSummaryUpdateView(AuditInitialWcagUpdateView, AuditSummaryUpdateView):
+class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
     """
     View to update audit summary
     """
@@ -432,16 +422,6 @@ class AuditWcagSummaryUpdateView(AuditInitialWcagUpdateView, AuditSummaryUpdateV
             audit: Audit = self.object
             return reverse("audits:edit-statement-pages", kwargs={"pk": audit.id})
         return super().get_success_url()
-
-
-class AuditInitialStatementUpdateView(AuditUpdateView):
-    """Populate context for initial statement test views"""
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_section_name"] = "Initial statement"
-        return context
 
 
 class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
@@ -475,9 +455,7 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
             return current_url
 
 
-class AuditStatementOverviewFormView(
-    AuditInitialStatementUpdateView, AuditStatementCheckingView
-):
+class AuditStatementOverviewFormView(AuditStatementCheckingView):
     """
     View to update statement overview check results
     """
@@ -502,15 +480,13 @@ class AuditStatementOverviewFormView(
         return super().get_success_url()
 
 
-class AuditStatementWebsiteFormView(
-    AuditInitialStatementUpdateView, AuditStatementCheckingView
-):
+class AuditStatementWebsiteFormView(AuditStatementCheckingView):
     """
     View to update statement information check results
     """
 
     form_class: Type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
-    template_name: str = "audits/statement_checks/statement_subpage_formset_form.html"
+    template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
     def get_success_url(self) -> str:
@@ -521,9 +497,7 @@ class AuditStatementWebsiteFormView(
         return super().get_success_url()
 
 
-class AuditStatementComplianceFormView(
-    AuditInitialStatementUpdateView, AuditStatementCheckingView
-):
+class AuditStatementComplianceFormView(AuditStatementCheckingView):
     """
     View to update statement compliance check results
     """
@@ -531,7 +505,7 @@ class AuditStatementComplianceFormView(
     form_class: Type[AuditStatementComplianceUpdateForm] = (
         AuditStatementComplianceUpdateForm
     )
-    template_name: str = "audits/statement_checks/statement_subpage_formset_form.html"
+    template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
     def get_success_url(self) -> str:
@@ -542,9 +516,7 @@ class AuditStatementComplianceFormView(
         return super().get_success_url()
 
 
-class AuditStatementNonAccessibleFormView(
-    AuditInitialStatementUpdateView, AuditStatementCheckingView
-):
+class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
     """
     View to update statement non-accessible check results
     """
@@ -552,7 +524,7 @@ class AuditStatementNonAccessibleFormView(
     form_class: Type[AuditStatementNonAccessibleUpdateForm] = (
         AuditStatementNonAccessibleUpdateForm
     )
-    template_name: str = "audits/statement_checks/statement_subpage_formset_form.html"
+    template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
     def get_success_url(self) -> str:
@@ -563,9 +535,7 @@ class AuditStatementNonAccessibleFormView(
         return super().get_success_url()
 
 
-class AuditStatementPreparationFormView(
-    AuditInitialStatementUpdateView, AuditStatementCheckingView
-):
+class AuditStatementPreparationFormView(AuditStatementCheckingView):
     """
     View to update statement preparation check results
     """
@@ -573,7 +543,7 @@ class AuditStatementPreparationFormView(
     form_class: Type[AuditStatementPreparationUpdateForm] = (
         AuditStatementPreparationUpdateForm
     )
-    template_name: str = "audits/statement_checks/statement_subpage_formset_form.html"
+    template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.PREPARATION
 
     def get_success_url(self) -> str:
@@ -584,9 +554,7 @@ class AuditStatementPreparationFormView(
         return super().get_success_url()
 
 
-class AuditStatementFeedbackFormView(
-    AuditInitialStatementUpdateView, AuditStatementCheckingView
-):
+class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     """
     View to update statement feedback check results
     """
@@ -594,7 +562,7 @@ class AuditStatementFeedbackFormView(
     form_class: Type[AuditStatementFeedbackUpdateForm] = (
         AuditStatementFeedbackUpdateForm
     )
-    template_name: str = "audits/statement_checks/statement_subpage_formset_form.html"
+    template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.FEEDBACK
 
     def get_success_url(self) -> str:
@@ -605,7 +573,7 @@ class AuditStatementFeedbackFormView(
         return super().get_success_url()
 
 
-class AuditStatementCustomFormsetView(AuditInitialStatementUpdateView, AuditUpdateView):
+class AuditStatementCustomFormsetView(AuditUpdateView):
     """
     View to add/update custom statement issues check results
     """
@@ -683,9 +651,7 @@ class AuditStatementCustomFormsetView(AuditInitialStatementUpdateView, AuditUpda
         return f"{reverse('audits:edit-statement-custom', kwargs=audit_pk)}"
 
 
-class InitialDisproportionateBurdenUpdateView(
-    AuditInitialStatementUpdateView, AuditUpdateView
-):
+class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
     """
     View to update initial disproportionate burden fields
     """
@@ -704,9 +670,7 @@ class InitialDisproportionateBurdenUpdateView(
         return super().get_success_url()
 
 
-class AuditCaseComplianceStatementInitialUpdateView(
-    AuditInitialStatementUpdateView, AuditCaseComplianceUpdateView
-):
+class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateView):
     """
     View to update statement decision fields
     """
@@ -727,7 +691,7 @@ class AuditCaseComplianceStatementInitialUpdateView(
         return super().get_success_url()
 
 
-class AuditStatement1UpdateView(AuditInitialStatementUpdateView, AuditUpdateView):
+class AuditStatement1UpdateView(AuditUpdateView):
     """
     View to update accessibility statement 1 audit fields
     """
@@ -755,7 +719,7 @@ class AuditStatement1UpdateView(AuditInitialStatementUpdateView, AuditUpdateView
         return super().get_success_url()
 
 
-class AuditStatement2UpdateView(AuditInitialStatementUpdateView, AuditUpdateView):
+class AuditStatement2UpdateView(AuditUpdateView):
     """
     View to update accessibility statement 2 audit fields
     """
@@ -802,9 +766,7 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementSummaryUpdateView(
-    AuditInitialStatementUpdateView, AuditSummaryUpdateView
-):
+class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
     """
     View to update audit summary
     """

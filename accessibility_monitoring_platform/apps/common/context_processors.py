@@ -46,5 +46,6 @@ def platform_page(
         "current_url_name": current_platform_page.url_name,
         "current_url": current_platform_page.url,
         "sitemap": sitemap,
+        "current_platform_page": current_platform_page,
         "case": current_platform_page.get_case(),
     }

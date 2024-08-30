@@ -18,11 +18,11 @@
             {% include './nav_step.html' with edit_name='cases:edit-report-approved' name='Report approved' complete=case.qa_auditor_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-publish-report' name='Publish report' complete=case.publish_report_complete_date %}
         </ul>
-        {% include "cases/helpers/nav_details.html" with case_nav_sections=correspondence_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
+        {% include "cases/helpers/nav_details.html" with case_nav_sections=correspondence_nav_sections %}
         <ul class="govuk-list temp_nav_bar">
             {% include './nav_step.html' with edit_name='cases:edit-twelve-week-retest' name='12-week retest' complete=case.twelve_week_retest_complete_date %}
         </ul>
-        {% include "cases/helpers/nav_details.html" with case_nav_sections=closing_the_case_nav_sections current_section_name=current_section_name current_page_name=amp_page_name %}
+        {% include "cases/helpers/nav_details.html" with case_nav_sections=closing_the_case_nav_sections %}
         <h3 class="govuk-heading-s temp_nav_bar temp_post_case_margin_top">Post case</h3>
         <ul class="govuk-list temp_nav_bar">
             {% include './nav_step.html' with edit_name='cases:edit-statement-enforcement' name='Statement enforcement' %}
