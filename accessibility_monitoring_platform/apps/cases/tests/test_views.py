@@ -1359,7 +1359,10 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     "case_edit_path, expected_redirect_path",
     [
         ("cases:edit-case-close", "cases:edit-equality-body-metadata"),
-        ("cases:edit-equality-body-metadata", "cases:legacy-end-of-case"),
+        (
+            "cases:edit-equality-body-metadata",
+            "cases:list-equality-body-correspondence",
+        ),
     ],
 )
 def test_platform_update_redirects_based_on_case_variant(
