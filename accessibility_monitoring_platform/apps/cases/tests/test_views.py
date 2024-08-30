@@ -788,10 +788,22 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "cases:edit-test-results",
             '<p class="govuk-body-s amp-margin-bottom-10">Testing details</p>',
         ),
-        ("cases:edit-report-details", "<li>Report details</li>"),
-        ("cases:edit-qa-comments", "<li>QA comments</li>"),
-        ("cases:edit-report-approved", "<li>Report approved</li>"),
-        ("cases:edit-publish-report", "<li>Publish report</li>"),
+        (
+            "cases:edit-report-details",
+            '<p class="govuk-body-s amp-margin-bottom-10">Report details</p>',
+        ),
+        (
+            "cases:edit-qa-comments",
+            '<p class="govuk-body-s amp-margin-bottom-10">QA comments</p>',
+        ),
+        (
+            "cases:edit-report-approved",
+            '<p class="govuk-body-s amp-margin-bottom-10">Report approved</p>',
+        ),
+        (
+            "cases:edit-publish-report",
+            '<p class="govuk-body-s amp-margin-bottom-10">Publish report</p>',
+        ),
         (
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',

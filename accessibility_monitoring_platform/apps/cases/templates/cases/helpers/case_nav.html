@@ -9,6 +9,7 @@
                     <p class="govuk-body-s amp-margin-bottom-10">
                         {% if platform_page.url == current_url %}
                             {{ platform_page.name }}
+                            {% if platform_page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
                         {% else %}
                             {% include 'cases/helpers/case_nav_url.html' %}
                         {% endif %}
