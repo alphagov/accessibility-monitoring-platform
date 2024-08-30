@@ -80,7 +80,9 @@ class PlatformPage:
             return reverse(self.url_name, kwargs={self.url_kwarg_key: self.object.id})
         if self.object_required_for_url and self.object is None:
             logger.warn(
-                "Expected object missing; Url cannot be calculated", self.url_name, self
+                "Expected object missing; Url cannot be calculated %s %s",
+                self.url_name,
+                self,
             )
             return ""
         return reverse(self.url_name)
@@ -1168,7 +1170,7 @@ def add_pages(pages: List[PlatformPage], platform_page_group: PlatformPageGroup)
         page.platform_page_group_name: str = platform_page_group.name
         if page.url_name:
             if page.url_name in sitemap_by_url_name:
-                logger.warn("Duplicate page url_name found", page.url_name, page)
+                logger.warn("Duplicate page url_name found %s %s", page.url_name, page)
             else:
                 sitemap_by_url_name[page.url_name] = page
         if page.subpages is not None:
