@@ -1,6 +1,7 @@
 """Module with all page names to be placed in context"""
 
 import copy
+import logging
 from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional, Type, Union
 
@@ -15,6 +16,8 @@ from ..exports.models import Export
 from ..notifications.models import Task
 from ..reports.models import Report
 from .models import EmailTemplate
+
+logger = logging.getLogger(__name__)
 
 
 class PlatformPage:
@@ -76,7 +79,9 @@ class PlatformPage:
         if self.object is not None and self.url_kwarg_key is not None:
             return reverse(self.url_name, kwargs={self.url_kwarg_key: self.object.id})
         if self.object_required_for_url and self.object is None:
-            print(f"No object for {self} ({self.url_name})")
+            logger.warn(
+                "Expected object missing; Url cannot be calculated", self.url_name, self
+            )
             return ""
         return reverse(self.url_name)
 
@@ -1163,7 +1168,7 @@ def add_pages(pages: List[PlatformPage], platform_page_group: PlatformPageGroup)
         page.platform_page_group_name: str = platform_page_group.name
         if page.url_name:
             if page.url_name in sitemap_by_url_name:
-                print(f"Duplicate page url_name found for {page.url_name} ({page})")
+                logger.warn("Duplicate page url_name found", page.url_name, page)
             else:
                 sitemap_by_url_name[page.url_name] = page
         if page.subpages is not None:
