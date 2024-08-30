@@ -9,7 +9,7 @@ from django.http import HttpRequest
 from django.urls import Resolver404, URLResolver, resolve, reverse
 
 from ..audits.models import Audit, Page, Retest, RetestPage
-from ..cases.models import Case, Contact
+from ..cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
 from ..comments.models import Comment
 from ..exports.models import Export
 from ..notifications.models import Task
@@ -969,9 +969,10 @@ SITE_MAP: List[PlatformPageGroup] = [
                 url_kwarg_key="case_id",
             ),
             CasePlatformPage(name="Deactivate case", url_name="cases:deactivate-case"),
-            CasePlatformPage(
+            PlatformPage(
                 name="Edit Zendesk ticket",
                 url_name="cases:edit-equality-body-correspondence",
+                object_class=EqualityBodyCorrespondence,
             ),
             CasePlatformPage(name="Post case summary", url_name="cases:edit-post-case"),
             CasePlatformPage(
@@ -989,8 +990,10 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Cannot start new retest", url_name="cases:retest-create-error"
             ),
             CasePlatformPage(name="Status workflow", url_name="cases:status-workflow"),
-            CasePlatformPage(
-                name="Edit PSB Zendesk ticket", url_name="cases:update-zendesk-ticket"
+            PlatformPage(
+                name="Edit PSB Zendesk ticket",
+                url_name="cases:update-zendesk-ticket",
+                object_class=ZendeskTicket,
             ),
             CasePlatformPage(
                 name="PSB Zendesk tickets", url_name="cases:zendesk-tickets"
