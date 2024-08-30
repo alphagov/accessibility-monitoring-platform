@@ -10,7 +10,7 @@
                         {% if platform_page.url == current_url %}
                             {{ platform_page.name }}
                         {% else %}
-                            {% include 'cases/helpers/nav_details_url.html' %}
+                            {% include 'cases/helpers/case_nav_url.html' %}
                         {% endif %}
                     </p>
                 {% endif %}
@@ -20,14 +20,14 @@
                 {{ platform_page_group.name }}
                 ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
             </p>
-            {% include 'cases/helpers/nav_details_text.html' %}
+            {% include 'cases/helpers/case_nav_group_pages.html' %}
        {% else %}
             <details class="amp-nav-details"{% if platform_page_group.name == section_name %} open{% endif %}{% if platform_page_group.disabled %} disabled{% endif %}>
                 <summary class="amp-nav-details__summary">
                     {{ platform_page_group.name }}
                     ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
                 </summary>
-                {% include 'cases/helpers/nav_details_text.html' %}
+                {% include 'cases/helpers/case_nav_group_pages.html' %}
             </details>
         {% endif %}
     {% endif %}

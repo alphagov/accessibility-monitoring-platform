@@ -4,13 +4,13 @@
             {% if platform_page.show %}
                 {% if not platform_page.visible_only_when_current or platform_page.visible_only_when_current and platform_page.url == current_url %}
                     <li>
-                        {% include 'cases/helpers/nav_details_url.html' %}
+                        {% include 'cases/helpers/case_nav_url.html' %}
                         {% if platform_page.subpages %}
                             <ul class="amp-nav-list-subpages">
                                 {% for subpage in platform_page.subpages %}
                                     {% if not subpage.visible_only_when_current or subpage.visible_only_when_current and subpage.url == current_url %}
                                         <li class="amp-nav-list-subpages amp-margin-top-5">
-                                            {% include 'cases/helpers/nav_details_url.html' with platform_page=subpage %}
+                                            {% include 'cases/helpers/case_nav_url.html' with platform_page=subpage %}
                                         </li>
                                     {% endif %}
                                 {% endfor %}
