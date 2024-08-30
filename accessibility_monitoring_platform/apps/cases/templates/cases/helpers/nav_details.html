@@ -5,7 +5,7 @@
             {% if platform_page_group.name == '' %}
                 {% for platform_page in platform_page_group.pages %}
                     {% if platform_page.url_name == 'cases:edit-statement-enforcement' %}
-                        <h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>
+                        <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
                     {% endif %}
                     <p class="govuk-body-s amp-margin-bottom-10">
                         {% if platform_page.url == current_url %}
@@ -32,4 +32,5 @@
             {% endif %}
         {% endif %}
     {% endfor %}
+    {% include 'common/frequently_used_links.html' %}
 {% endif %}

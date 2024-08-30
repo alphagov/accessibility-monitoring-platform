@@ -10,6 +10,7 @@ from django.urls import Resolver404, URLResolver, resolve, reverse
 
 from ..audits.models import Audit, Page, Retest, RetestPage
 from ..cases.models import Case, Contact
+from ..comments.models import Comment
 from ..exports.models import Export
 from ..notifications.models import Task
 from ..reports.models import Report
@@ -67,6 +68,8 @@ class PlatformPage:
     def url(self) -> Optional[str]:
         if self.url_name is None:
             return None
+        if self.name.startswith("Page not found for "):
+            return ""
         if self.object is not None and self.url_kwarg_key is not None:
             return reverse(self.url_name, kwargs={self.url_kwarg_key: self.object.id})
         if self.object_required_for_url and self.object is None:
@@ -233,6 +236,30 @@ class ReportPlatformPage(PlatformPage):
         super().populate_from_case(case=case)
 
 
+class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
+    case: Optional[Case] = None
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.object_required_for_url = True
+        self.object_class: Type[EmailTemplate] = EmailTemplate
+        if self.url_kwarg_key is None:
+            self.url_kwarg_key: str = "pk"
+
+    @property
+    def url(self) -> Optional[str]:
+        if self.case is None or self.object is None:
+            return ""
+        return reverse(
+            self.url_name,
+            kwargs={"case_id": self.case.id, self.url_kwarg_key: self.object.id},
+        )
+
+    def populate_from_case(self, case: Case):
+        self.case = case
+        super().populate_from_case(case=case)
+
+
 class AuditRetestPagesPlatformPage(AuditPlatformPage):
     def populate_from_case(self, case: Case):
         if case.audit is not None:
@@ -319,10 +346,22 @@ class PlatformPageGroup:
 
     def number_pages_and_subpages(self) -> int:
         if self.pages is not None:
-            count: int = len([page for page in self.pages if page.show])
+            count: int = len(
+                [
+                    page
+                    for page in self.pages
+                    if page.show and not page.visible_only_when_current
+                ]
+            )
             for page in self.pages:
                 if page.subpages is not None:
-                    count += len([page for page in page.subpages if not page.show])
+                    count += len(
+                        [
+                            page
+                            for page in page.subpages
+                            if page.show and not page.visible_only_when_current
+                        ]
+                    )
             return count
         return 0
 
@@ -330,7 +369,7 @@ class PlatformPageGroup:
         if self.pages is not None:
             count: int = 0
             for page in self.pages:
-                if not page.show:
+                if not page.show or page.visible_only_when_current:
                     continue
                 if page.complete:
                     count += 1
@@ -382,7 +421,6 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Testing details",
                 url_name="cases:edit-test-results",
             ),
-            # AuditPlatformPage(name="View test", url_name="audits:audit-detail"),
         ],
     ),
     CasePlatformPageGroup(
@@ -564,6 +602,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                         name="Edit contact {object}",
                         url_name="cases:edit-contact-update",
                         url_kwarg_key="pk",
+                        visible_only_when_current=True,
                         object_required_for_url=True,
                         object_class=Contact,
                     ),
@@ -793,7 +832,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 url_name="cases:edit-equality-body-metadata",
             ),
             CasePlatformPage(
-                name="All equality body correspondence",
+                name="Equality body correspondence",
                 url_name="cases:list-equality-body-correspondence",
             ),
             RetestOverviewPlatformPage(
@@ -902,13 +941,21 @@ SITE_MAP: List[PlatformPageGroup] = [
         name="",
         pages=[
             CasePlatformPage(name="View case", url_name="cases:case-detail"),
-            CasePlatformPage(name="Reminder", url_name="notifications:reminder-create"),
+            AuditPlatformPage(name="View test", url_name="audits:audit-detail"),
+            CasePlatformPage(
+                name="Reminder",
+                url_name="notifications:reminder-create",
+                url_kwarg_key="case_id",
+            ),
             CasePlatformPage(
                 name="Add Zendesk ticket",
                 url_name="cases:create-equality-body-correspondence",
+                url_kwarg_key="case_id",
             ),
             CasePlatformPage(
-                name="Add PSB Zendesk ticket", url_name="cases:create-zendesk-ticket"
+                name="Add PSB Zendesk ticket",
+                url_name="cases:create-zendesk-ticket",
+                url_kwarg_key="case_id",
             ),
             CasePlatformPage(name="Deactivate case", url_name="cases:deactivate-case"),
             CasePlatformPage(
@@ -919,10 +966,9 @@ SITE_MAP: List[PlatformPageGroup] = [
             CasePlatformPage(
                 name="Email templates", url_name="cases:email-template-list"
             ),
-            PlatformPage(
+            CaseEmailTemplatePreviewPlatformPage(
                 name="{object.name}",
                 url_name="cases:email-template-preview",
-                object_class=EmailTemplate,
             ),
             CasePlatformPage(
                 name="Outstanding issues", url_name="cases:outstanding-issues"
@@ -935,10 +981,13 @@ SITE_MAP: List[PlatformPageGroup] = [
             CasePlatformPage(
                 name="Edit PSB Zendesk ticket", url_name="cases:update-zendesk-ticket"
             ),
-            PlatformPage(name="PSB Zendesk tickets", url_name="cases:zendesk-tickets"),
+            CasePlatformPage(
+                name="PSB Zendesk tickets", url_name="cases:zendesk-tickets"
+            ),
             PlatformPage(
                 name="Edit or delete comment",
                 url_name="comments:edit-qa-comment",
+                object_class=Comment,
                 object_required_for_url=True,
             ),
         ],

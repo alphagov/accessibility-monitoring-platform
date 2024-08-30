@@ -784,7 +784,10 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>',
         ),
         ("cases:edit-case-metadata", "<b>Case metadata</b>"),
-        ("cases:edit-test-results", "<li>Testing details</li>"),
+        (
+            "cases:edit-test-results",
+            '<p class="govuk-body-s amp-margin-bottom-10">Testing details</p>',
+        ),
         ("cases:edit-report-details", "<li>Report details</li>"),
         ("cases:edit-qa-comments", "<li>QA comments</li>"),
         ("cases:edit-report-approved", "<li>Report approved</li>"),
@@ -2186,7 +2189,6 @@ def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-test-results", "testing_details_complete_date", "Testing details"),
         (
             "cases:edit-report-details",
             "reporting_details_complete_date",
@@ -2206,7 +2208,6 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
 ):
     """
     Test that the section complete tick is displayed in list of steps
-    when case testing methodology is platform
     """
     case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)

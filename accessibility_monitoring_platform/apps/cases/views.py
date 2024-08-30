@@ -680,12 +680,6 @@ class CaseFourWeekContactDetailsUpdateView(CaseContactDetailsUpdateView):
     )
     template_name: str = "cases/forms/four_week_followup_contact.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["current_url"] = "cases:edit-four-week-contact-details"
-        return context
-
     def get_success_url(self) -> str:
         """
         Detect the submit button used and act accordingly.
