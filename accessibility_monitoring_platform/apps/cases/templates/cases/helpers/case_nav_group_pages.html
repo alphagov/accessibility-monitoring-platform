@@ -8,10 +8,12 @@
                         {% if platform_page.subpages %}
                             <ul class="amp-nav-list-subpages">
                                 {% for subpage in platform_page.subpages %}
-                                    {% if not subpage.visible_only_when_current or subpage.visible_only_when_current and subpage.url == sitemap.current_platform_page.url %}
-                                        <li class="amp-nav-list-subpages amp-margin-top-5">
-                                            {% include 'cases/helpers/case_nav_url.html' with platform_page=subpage %}
-                                        </li>
+                                    {% if subpage.show %}
+                                        {% if not subpage.visible_only_when_current or subpage.visible_only_when_current and subpage.url == sitemap.current_platform_page.url %}
+                                            <li class="amp-nav-list-subpages amp-margin-top-5">
+                                                {% include 'cases/helpers/case_nav_url.html' with platform_page=subpage %}
+                                            </li>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             </ul>
