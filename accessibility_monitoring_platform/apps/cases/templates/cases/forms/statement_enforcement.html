@@ -1,76 +1,26 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
-        </div>
+{% block formfields %}
+{% include 'common/form_errors.html' with errors=form.non_field_errors %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+<div class="govuk-form-group">
+    <label class="govuk-label"><b>Statement issues</b></label>
+    <div class="govuk-hint">
+        <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_statement|safe }}</p>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/case_nav.html" %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'cases:edit-statement-enforcement' case.id %}">
-                    {% csrf_token %}
-                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Statement issues</b></label>
-                                <div class="govuk-hint">
-                                    <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_statement|safe }}</p>
-                                </div>
-                            </div>
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Case completed</b></label>
-                                <div class="govuk-hint">
-                                    <p class="govuk-body-m amp-margin-bottom-10">{{ case.completed_date|amp_date }}</p>
-                                </div>
-                            </div>
-                            {% include 'common/amp_field.html' with field=form.post_case_notes %}
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Public sector body statement appeal deadline</b></label>
-                                <div class="govuk-hint">
-                                    <p class="govuk-body-m amp-margin-bottom-10">{{ case.psb_appeal_deadline }}</p>
-                                </div>
-                            </div>
-                            {% include 'common/amp_field.html' with field=form.psb_appeal_notes %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and continue"
-                                name="save_continue"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{{ case.get_absolute_url }}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel and return to case view
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
 </div>
+<div class="govuk-form-group">
+    <label class="govuk-label"><b>Case completed</b></label>
+    <div class="govuk-hint">
+        <p class="govuk-body-m amp-margin-bottom-10">{{ case.completed_date|amp_date }}</p>
+    </div>
+</div>
+{% include 'common/amp_field.html' with field=form.post_case_notes %}
+<div class="govuk-form-group">
+    <label class="govuk-label"><b>Public sector body statement appeal deadline</b></label>
+    <div class="govuk-hint">
+        <p class="govuk-body-m amp-margin-bottom-10">{{ case.psb_appeal_deadline }}</p>
+    </div>
+</div>
+{% include 'common/amp_field.html' with field=form.psb_appeal_notes %}
 {% endblock %}

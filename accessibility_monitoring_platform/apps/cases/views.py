@@ -1093,7 +1093,7 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
     form_class: Type[CaseEqualityBodyMetadataUpdateForm] = (
         CaseEqualityBodyMetadataUpdateForm
     )
-    template_name: str = "cases/forms/equality_body_metadata.html"
+    template_name: str = "common/case_form.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -1167,15 +1167,21 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
 
 class EqualityBodyCorrespondenceCreateView(CreateView):
     """
-    View to create a case
+    View to create an equality body correspondence
     """
 
     model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
     form_class: Type[EqualityBodyCorrespondenceCreateForm] = (
         EqualityBodyCorrespondenceCreateForm
     )
-    context_object_name: str = "equality_body_correspondence"
     template_name: str = "cases/forms/equality_body_correspondence_create.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add case to context as object"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["object"] = case
+        return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
@@ -1286,10 +1292,10 @@ class ZendeskTicketCreateView(CreateView):
     template_name: str = "cases/forms/zendesk_ticket_create.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
+        """Add case to context as object"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        context["case"] = case
+        context["object"] = case
         return context
 
     def form_valid(self, form: ModelForm):
