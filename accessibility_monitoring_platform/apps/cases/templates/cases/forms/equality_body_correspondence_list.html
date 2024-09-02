@@ -4,7 +4,7 @@
 {% if show_unresolved %}
     {% include "cases/helpers/edit_header.html" with page_heading='Unresolved equality body correspondence' %}
 {% else %}
-    {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
+    {% include "cases/helpers/edit_header.html" with page_heading=sitemap.current_platform_page.get_name %}
 {% endif %}
 {% endblock %}
 

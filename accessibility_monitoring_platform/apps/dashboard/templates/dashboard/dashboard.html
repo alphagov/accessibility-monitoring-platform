@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Home | {{ amp_page_name }}{% endblock %}
+{% block title %}Home | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -42,7 +42,7 @@
             {% endif %}
 
             <div class="govuk-grid-column-one-third">
-                <h1 class="govuk-heading-xl">{{ amp_page_name }}</h1>
+                <h1 class="govuk-heading-xl">{{ sitemap.current_platform_page.get_name }}</h1>
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <a

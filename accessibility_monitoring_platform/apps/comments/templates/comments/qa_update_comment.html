@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ comment.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ comment.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -16,7 +16,7 @@
             <li class="govuk-breadcrumbs__list-item">
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-qa-comments' comment.case.id %}">QA comments</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
@@ -25,7 +25,7 @@
                 {% include "cases/helpers/case_nav.html" %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
+                {% include "cases/helpers/edit_header.html" with page_heading=sitemap.current_platform_page.get_name %}
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'comments:edit-qa-comment' comment.id %}">
                     {% csrf_token %}

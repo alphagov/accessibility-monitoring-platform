@@ -2,7 +2,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ retest }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ retest }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -11,11 +11,11 @@
             {% include 'common/case_banner.html' with case=retest.case %}
         </div>
     </div>
-    {% include 'audits/helpers/retest_breadcrumb.html' with page_heading=amp_page_name %}
+    {% include 'audits/helpers/retest_breadcrumb.html' with page_heading=sitemap.current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name case=retest.case retest_header=True %}
+                {% include "cases/helpers/edit_header.html" with page_heading=sitemap.current_platform_page.get_name case=retest.case retest_header=True %}
             </div>
         </div>
         <div class="govuk-grid-row">

@@ -3,7 +3,7 @@
 {% block preform %}
 <div class="govuk-body">
     <p class="govuk-body-m">
-        {{ amp_page_name }} will add the case to the dashboard and platform metrics.
+        {{ sitemap.current_platform_page.get_name }} will add the case to the dashboard and platform metrics.
     </p>
 </div>
 {% endblock %}
@@ -13,7 +13,7 @@
     <div class="govuk-grid-column-full govuk-button-group">
         <input
             type="submit"
-            value="{{ amp_page_name }}"
+            value="{{ sitemap.current_platform_page.get_name }}"
             name="reactivate"
             class="govuk-button"
             data-module="govuk-button"

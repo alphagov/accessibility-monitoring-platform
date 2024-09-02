@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block form %}
-<form method="post" action="{% url current_url_name case.id %}">
+<form method="post" action="{% url sitemap.current_platform_page.url_name case.id %}">
     {% csrf_token %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">

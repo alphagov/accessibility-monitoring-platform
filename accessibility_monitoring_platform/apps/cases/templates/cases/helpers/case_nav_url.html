@@ -1,4 +1,4 @@
-{% if platform_page.url == current_url %}
+{% if platform_page.url == sitemap.current_platform_page.url %}
     <b>{{ platform_page.get_name }}</b>
 {% else %}
     <a href="{{ platform_page.url }}" class="govuk-link govuk-link--no-visited-state" {% if platform_page.disabled %}disabled{% endif %}>{{ platform_page.get_name }}</a>

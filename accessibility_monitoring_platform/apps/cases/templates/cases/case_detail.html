@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -14,14 +14,14 @@
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
-            <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group">
-                    <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">{{ amp_page_name }}</h1>
+                    <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">{{ sitemap.current_platform_page.get_name }}</h1>
                     {% if case.enforcement_body_pursuing == 'yes-completed' %}
                         <strong class="govuk-tag">
                             Completed
@@ -73,7 +73,7 @@
             </div>
         </div>
         {% include 'cases/details/search_in_case.html' %}
-        <div id="search-scope" data-search-target-page-name="{{ amp_page_name }}" data-search-target-label="{{ amp_page_name }}" data-search-target-url="{{ case.get_absolute_url }}">
+        <div id="search-scope" data-search-target-page-name="{{ sitemap.current_platform_page.get_name }}" data-search-target-label="{{ sitemap.current_platform_page.get_name }}" data-search-target-url="{{ case.get_absolute_url }}">
             <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
                 {% if case.archive %}
                     {% include 'cases/details/archive.html' %}

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -9,19 +9,19 @@
             {% include 'common/case_banner.html' with case=audit.case %}
         </div>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading=sitemap.current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 {% include "cases/helpers/case_nav.html" %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ amp_page_name }}</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
                 {% include "cases/helpers/messages.html" %}
                 {% include 'audits/helpers/statement_pages.html' %}
                 {% include 'common/error_summary.html' with formset=statement_check_results_formset %}
                 {% block form %}
-                <form method="post" action="{% url current_url_name audit.id %}">
+                <form method="post" action="{% url sitemap.current_platform_page.url_name audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}

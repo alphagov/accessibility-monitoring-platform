@@ -3,7 +3,7 @@
 {% block preform %}
 <div class="govuk-body">
     <p class="govuk-body-m">
-        {{ amp_page_name }} removes the case from the dashboard, platform metrics,
+        {{ sitemap.current_platform_page.get_name }} removes the case from the dashboard, platform metrics,
         and will be given an inactive status.
     </p>
 </div>
@@ -14,7 +14,7 @@
     <div class="govuk-grid-column-full govuk-button-group">
         <input
             type="submit"
-            value="{{ amp_page_name }}"
+            value="{{ sitemap.current_platform_page.get_name }}"
             name="deactivate"
             class="govuk-button"
             data-module="govuk-button"
