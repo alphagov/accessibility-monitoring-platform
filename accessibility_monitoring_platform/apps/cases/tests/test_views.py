@@ -786,7 +786,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-case-metadata", "<b>Case metadata</b>"),
         (
             "cases:edit-test-results",
-            '<p class="govuk-body-s amp-margin-bottom-10">Testing details</p>',
+            "<li><b>Testing details</b></li>",
         ),
         (
             "cases:edit-report-details",
