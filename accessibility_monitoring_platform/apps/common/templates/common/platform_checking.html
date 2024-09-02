@@ -102,11 +102,11 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <ol>
-                                {% for section in sitemap %}
+                                {% for platform_page_group in sitemap.platform_page_groups %}
                                     <li>
-                                        {% if section.name %}{{ section.name }}{% else %}PAGE GROUP{% endif %}{% if section.type %} ({{ section.type }}){% endif %}:
-                                        {% if section.pages %}
-                                            {% include 'common/platform_subpages.html' with pages=section.pages %}
+                                        {% if platform_page_group.name %}{{ platform_page_group.name }}{% else %}PAGE GROUP{% endif %}{% if platform_page_group.type %} ({{ platform_page_group.type }}){% endif %}:
+                                        {% if platform_page_group.pages %}
+                                            {% include 'common/platform_subpages.html' with pages=platform_page_group.pages %}
                                         {% endif %}
                                     </li>
                                 {% endfor %}

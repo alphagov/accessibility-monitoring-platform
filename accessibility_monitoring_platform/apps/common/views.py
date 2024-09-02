@@ -379,7 +379,6 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
             created__lte=get_one_year_ago()
         ).count()
         context["number_of_old_events"] = number_of_old_events
-        context["sitemap"] = SITE_MAP
         return context
 
     def form_valid(self, form):

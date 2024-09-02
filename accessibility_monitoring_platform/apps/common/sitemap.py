@@ -412,6 +412,17 @@ class CasePlatformPageGroup(PlatformPageGroup):
         super().populate_from_case(case=case)
 
 
+class Sitemap:
+    platform_page_groups: List[PlatformPageGroup]
+    current_platform_page: PlatformPage
+
+    def __init__(self, request: HttpRequest):
+        self.current_platform_page = get_current_platform_page(request=request)
+        self.platform_page_groups = build_sitemap_for_current_page(
+            current_platform_page=self.current_platform_page
+        )
+
+
 SITE_MAP: List[PlatformPageGroup] = [
     CasePlatformPageGroup(
         name="Case details",
@@ -1196,9 +1207,10 @@ def get_current_platform_page(request: HttpRequest) -> PlatformPage:
     return platform_page
 
 
-def build_sitemap_for_request(request: HttpRequest) -> List[PlatformPageGroup]:
+def build_sitemap_for_current_page(
+    current_platform_page: PlatformPage,
+) -> List[PlatformPageGroup]:
     """Populate the sitemap based on the current request url"""
-    current_platform_page: PlatformPage = get_current_platform_page(request=request)
     case: Optional[Case] = current_platform_page.get_case()
     site_map = copy.deepcopy(SITE_MAP)
     if case is not None:

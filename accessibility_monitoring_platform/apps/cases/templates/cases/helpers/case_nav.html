@@ -1,4 +1,4 @@
-{% for platform_page_group in sitemap %}
+{% for platform_page_group in sitemap.platform_page_groups %}
     {% if platform_page_group.show %}
         {% if platform_page_group.name == '' %}
             {% for platform_page in platform_page_group.pages %}
