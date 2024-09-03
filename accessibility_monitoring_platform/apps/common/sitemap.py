@@ -25,7 +25,23 @@ class PlatformPage:
     platform_page_group_name: str = ""
     url_name: Optional[str] = None
     url_kwarg_key: Optional[str] = None
-    object_class: Optional[Union[Type[Audit], Type[Case], Type[Retest]]] = None
+    object_class: Optional[
+        Union[
+            Type[Audit],
+            Type[Case],
+            Type[Comment],
+            Type[Contact],
+            Type[EmailTemplate],
+            Type[EqualityBodyCorrespondence],
+            Type[Export],
+            Type[Page],
+            Type[Report],
+            Type[RetestPage],
+            Type[Task],
+            Type[User],
+            Type[ZendeskTicket],
+        ]
+    ] = None
     object: Optional[Union[Audit, Case]] = None
     object_required_for_url: bool = False
     complete_flag_name: Optional[str] = None
@@ -39,7 +55,23 @@ class PlatformPage:
         platform_page_group_name: str = "",
         url_name: Optional[str] = None,
         url_kwarg_key: Optional[str] = None,
-        object_class: Optional[Union[Type[Audit], Type[Case], Type[Retest]]] = None,
+        object_class: Optional[
+            Union[
+                Type[Audit],
+                Type[Case],
+                Type[Comment],
+                Type[Contact],
+                Type[EmailTemplate],
+                Type[EqualityBodyCorrespondence],
+                Type[Export],
+                Type[Page],
+                Type[Report],
+                Type[RetestPage],
+                Type[Task],
+                Type[User],
+                Type[ZendeskTicket],
+            ]
+        ] = None,
         object: Optional[Union[Audit, Case, Page]] = None,
         object_required_for_url: bool = False,
         complete_flag_name: Optional[str] = None,
@@ -79,7 +111,7 @@ class PlatformPage:
         if self.object is not None and self.url_kwarg_key is not None:
             return reverse(self.url_name, kwargs={self.url_kwarg_key: self.object.id})
         if self.object_required_for_url and self.object is None:
-            logger.warn(
+            logger.warning(
                 "Expected object missing; Url cannot be calculated %s %s",
                 self.url_name,
                 self,
@@ -115,15 +147,19 @@ class PlatformPage:
     def populate_from_case(self, case: Case):
         self.populate_subpage_objects()
 
-    def populate_from_request(self, request: HttpRequest):
-        """Set page object from request"""
+    def populate_from_url(self, url: str):
+        """Set page object from url"""
         if self.object_class is not None:
-            url_resolver: URLResolver = resolve(request.path_info)
+            url_resolver: URLResolver = resolve(url)
             if self.url_kwarg_key in url_resolver.captured_kwargs:
                 self.object = self.object_class.objects.get(
                     id=url_resolver.captured_kwargs[self.url_kwarg_key]
                 )
                 self.populate_subpage_objects()
+
+    def populate_from_request(self, request: HttpRequest):
+        """Set page object from request"""
+        self.populate_from_url(url=request.path_info)
 
     def get_name(self) -> str:
         if self.object is None:
@@ -178,10 +214,7 @@ class CaseContactsPlatformPage(CasePlatformPage):
     def populate_from_case(self, case: Case):
         if case is not None:
             self.object = case
-            if self.url_name and self.url_name in sitemap_by_url_name:
-                self.subpages = copy.deepcopy(
-                    sitemap_by_url_name.get(self.url_name).subpages
-                )
+            self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
                 subpage_instances: List[PlatformPage] = []
                 for subpage in self.subpages:
@@ -217,10 +250,7 @@ class AuditPagesPlatformPage(AuditPlatformPage):
     def populate_from_case(self, case: Case):
         if case.audit is not None:
             self.object = case.audit
-            if self.url_name and self.url_name in sitemap_by_url_name:
-                self.subpages = copy.deepcopy(
-                    sitemap_by_url_name.get(self.url_name).subpages
-                )
+            self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
                 subpage_instances: List[PlatformPage] = []
                 for page in case.audit.testable_pages:
@@ -274,10 +304,7 @@ class AuditRetestPagesPlatformPage(AuditPlatformPage):
     def populate_from_case(self, case: Case):
         if case.audit is not None:
             self.object = case.audit
-            if self.url_name and self.url_name in sitemap_by_url_name:
-                self.subpages = copy.deepcopy(
-                    sitemap_by_url_name.get(self.url_name).subpages
-                )
+            self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
                 subpage_instances: List[PlatformPage] = []
                 for page in case.audit.testable_pages:
@@ -302,10 +329,7 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
 class RetestOverviewPlatformPage(CasePlatformPage):
     def populate_from_case(self, case: Case):
         self.object = case
-        if self.url_name and self.url_name in sitemap_by_url_name:
-            self.subpages = copy.deepcopy(
-                sitemap_by_url_name.get(self.url_name).subpages
-            )
+        self.subpages = get_subpages_by_url_name(url_name=self.url_name)
         if self.subpages is not None:
             subpage_instances: List[PlatformPage] = []
             for retest in case.retests:
@@ -410,17 +434,6 @@ class CasePlatformPageGroup(PlatformPageGroup):
     def populate_from_case(self, case: Case):
         self.case = case
         super().populate_from_case(case=case)
-
-
-class Sitemap:
-    platform_page_groups: List[PlatformPageGroup]
-    current_platform_page: PlatformPage
-
-    def __init__(self, request: HttpRequest):
-        self.current_platform_page = get_current_platform_page(request=request)
-        self.platform_page_groups = build_sitemap_for_current_page(
-            current_platform_page=self.current_platform_page
-        )
 
 
 SITE_MAP: List[PlatformPageGroup] = [
@@ -1184,7 +1197,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
 ]
 
-sitemap_by_url_name: Dict[str, PlatformPage] = {}
+SITEMAP_BY_URL_NAME: Dict[str, PlatformPage] = {}
 
 
 def add_pages(pages: List[PlatformPage], platform_page_group: PlatformPageGroup):
@@ -1192,14 +1205,17 @@ def add_pages(pages: List[PlatformPage], platform_page_group: PlatformPageGroup)
     for page in pages:
         page.platform_page_group_name: str = platform_page_group.name
         if page.url_name:
-            if page.url_name in sitemap_by_url_name:
-                logger.warn("Duplicate page url_name found %s %s", page.url_name, page)
+            if page.url_name in SITEMAP_BY_URL_NAME:
+                logger.warning(
+                    "Duplicate page url_name found %s %s", page.url_name, page
+                )
             else:
-                sitemap_by_url_name[page.url_name] = page
+                SITEMAP_BY_URL_NAME[page.url_name] = page
         if page.subpages is not None:
             add_pages(pages=page.subpages, platform_page_group=platform_page_group)
 
 
+logger.info("Initialise SITEMAP_BY_URL_NAME")
 site_map: List[PlatformPageGroup] = copy.copy(SITE_MAP)
 for platform_page_group in site_map:
     if platform_page_group.pages is not None:
@@ -1208,11 +1224,19 @@ for platform_page_group in site_map:
         )
 
 
+def get_subpages_by_url_name(url_name: Optional[str]) -> Optional[List[PlatformPage]]:
+    if url_name and url_name in SITEMAP_BY_URL_NAME:
+        subpages: Optional[List[PlatformPage]] = copy.deepcopy(
+            SITEMAP_BY_URL_NAME.get(url_name).subpages
+        )
+        return subpages
+
+
 def get_current_platform_page(request: HttpRequest) -> PlatformPage:
     """Return the current platform page"""
     url_resolver: URLResolver = resolve(request.path_info)
     url_name: str = url_resolver.view_name
-    platform_page: PlatformPage = sitemap_by_url_name.get(
+    platform_page: PlatformPage = SITEMAP_BY_URL_NAME.get(
         url_name, PlatformPage(name=f"Page not found for {url_name}", url_name=url_name)
     )
     platform_page.populate_from_request(request=request)
@@ -1238,14 +1262,26 @@ def build_sitemap_for_current_page(
     return SITE_MAP
 
 
+class Sitemap:
+    platform_page_groups: List[PlatformPageGroup]
+    current_platform_page: PlatformPage
+
+    def __init__(self, request: HttpRequest):
+        self.current_platform_page = get_current_platform_page(request=request)
+        self.platform_page_groups = build_sitemap_for_current_page(
+            current_platform_page=self.current_platform_page
+        )
+
+
 def get_platform_page_name_by_url(url: str) -> str:
     """Lookup and return the name of the page the url points to"""
     try:
         url_resolver: URLResolver = resolve(url)
         url_name: str = url_resolver.view_name
 
-        if url_name in sitemap_by_url_name:
-            platform_page: PlatformPage = sitemap_by_url_name.get(url_name)
+        if url_name in SITEMAP_BY_URL_NAME:
+            platform_page: PlatformPage = SITEMAP_BY_URL_NAME.get(url_name)
+            platform_page.populate_from_url(url=url)
             return platform_page.get_name()
         else:
             return f"Page name not found for {url_name}"
