@@ -505,19 +505,19 @@ SITE_MAP: List[PlatformPageGroup] = [
             AuditPlatformPage(
                 name="Accessibility statement Pt. 1",
                 url_name="audits:edit-audit-statement-1",
-                show_flag_name="uses_old_statement_checks",
+                show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_statement_1_complete_date",
             ),
             AuditPlatformPage(
                 name="Accessibility statement Pt. 2",
                 url_name="audits:edit-audit-statement-2",
-                show_flag_name="uses_old_statement_checks",
+                show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_statement_2_complete_date",
             ),
             AuditPlatformPage(
                 name="Report options",
                 url_name="audits:edit-audit-report-options",
-                show_flag_name="uses_old_statement_checks",
+                show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_report_options_complete_date",
             ),
             AuditPlatformPage(

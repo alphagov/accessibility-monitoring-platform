@@ -1,11 +1,14 @@
 {% extends 'common/case_form.html' %}
 
 {% block header %}
-{% if show_unresolved %}
-    {% include "cases/helpers/edit_header.html" with page_heading='Unresolved equality body correspondence' %}
-{% else %}
-    {% include "cases/helpers/edit_header.html" with page_heading=sitemap.current_platform_page.get_name %}
-{% endif %}
+<h1 class="govuk-heading-xl amp-margin-bottom-15">
+    {% if show_unresolved %}
+        Unresolved equality body correspondence
+    {% else %}
+        {{ sitemap.current_platform_page.get_name }}
+    {% endif %}
+</h1>
+{% include "cases/helpers/messages.html" %}
 {% endblock %}
 
 {% block formfields %}

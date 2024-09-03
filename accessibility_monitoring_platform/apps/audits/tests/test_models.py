@@ -901,18 +901,18 @@ def test_audit_statement_check_results():
 
 
 @pytest.mark.django_db
-def test_audit_uses_statement_checks():
+def test_audit_uses_pre_2023_statement_checks():
     """
-    Tests an audit.uses_statement_checks shows if statement check results exist
+    Tests an audit.uses_pre_2023_statement_checks shows if no statement check results exist
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
-    assert audit.uses_statement_checks is False
+    assert audit.uses_pre_2023_statement_checks is True
 
     audit: Audit = create_audit_and_statement_check_results()
 
-    assert audit.uses_statement_checks is True
+    assert audit.uses_pre_2023_statement_checks is False
 
 
 @pytest.mark.parametrize(

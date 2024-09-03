@@ -2,9 +2,9 @@
     <ol class="govuk-breadcrumbs__list">
         {% include 'common/breadcrumb_home.html' %}
         {% include 'cases/helpers/breadcrumb_case.html' %}
-        {% if nav_section_name %}
-            <li class="govuk-breadcrumbs__list-item">{{ nav_section_name }}</li>
+        {% if sitemap.current_platform_page.platform_page_group_name %}
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group_name }}</li>
         {% endif %}
-        <li class="govuk-breadcrumbs__list-item">{{ page_heading }}</li>
+        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
     </ol>
 </div>
