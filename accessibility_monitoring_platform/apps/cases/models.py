@@ -669,16 +669,16 @@ class Case(VersionModel):
             return None
 
     @property
-    def show_start_test(self):
-        return self.audit is None and self.archive == ""
-
-    @property
-    def has_audit(self):
-        return self.audit is not None and self.archive == ""
-
-    @property
     def not_archived(self):
         return self.archive == ""
+
+    @property
+    def show_start_test(self):
+        return self.not_archived and self.audit is None
+
+    @property
+    def not_archived_has_audit(self):
+        return self.not_archived and self.audit is not None
 
     @property
     def report(self):

@@ -1319,3 +1319,58 @@ def test_case_website_contact_links_count():
     Page.objects.create(audit=audit, page_type=Page.Type.STATEMENT, url="url")
 
     assert case.website_contact_links_count == 2
+
+
+def test_case_not_archived():
+    """Test that Case.not_archived is true if Case.archived is empty"""
+    case: Case = Case()
+
+    assert case.not_archived is True
+
+    case.archive = "archive"
+
+    assert case.not_archived is False
+
+
+@pytest.mark.django_db
+def test_case_show_start_tests():
+    """
+    Test that Case.show_start_tests is true when no audit exists and
+    the case is not archived
+    """
+    case: Case = Case.objects.create()
+
+    assert case.show_start_test is True
+
+    case.archive = "archive"
+
+    assert case.show_start_test is False
+
+    case.archive = ""
+
+    assert case.show_start_test is True
+
+    Audit.objects.create(case=case)
+
+    assert case.show_start_test is False
+
+
+@pytest.mark.django_db
+def test_case_not_archived_has_audit():
+    """
+    Test that Case.not_archived_has_audit is true when audit exists and
+    the case is not archived
+    """
+    case: Case = Case.objects.create()
+
+    assert case.not_archived_has_audit is False
+
+    Audit.objects.create(case=case)
+
+    case: Case = Case.objects.get(id=case.id)
+
+    assert case.not_archived_has_audit is True
+
+    case.archive = "archive"
+
+    assert case.not_archived_has_audit is False

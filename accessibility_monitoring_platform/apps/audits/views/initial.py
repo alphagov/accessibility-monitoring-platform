@@ -284,7 +284,6 @@ class AuditPageChecksFormView(FormView):
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
-        context["case"] = self.page.audit.case
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )

@@ -460,7 +460,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="Initial WCAG test",
-        show_flag_name="has_audit",
+        show_flag_name="not_archived_has_audit",
         pages=[
             AuditPlatformPage(
                 name="Initial test metadata",
@@ -495,7 +495,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="Initial statement",
-        show_flag_name="has_audit",
+        show_flag_name="not_archived_has_audit",
         pages=[
             AuditPlatformPage(
                 name="Initial statement links",
