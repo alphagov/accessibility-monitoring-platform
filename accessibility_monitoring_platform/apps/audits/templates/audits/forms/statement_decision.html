@@ -18,7 +18,7 @@
                 {% include "cases/helpers/case_nav.html" %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=sitemap.current_platform_page.get_name case=audit.case %}
+                {% include "cases/helpers/edit_header.html" %}
                 {% include 'audits/helpers/statement_pages.html' %}
                 {% include 'common/error_summary.html' with form=case_compliance_form %}
                 {% include 'common/error_summary.html' %}

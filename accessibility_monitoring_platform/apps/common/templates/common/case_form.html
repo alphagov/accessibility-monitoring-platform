@@ -20,7 +20,7 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 {% block header %}
-                {% include "cases/helpers/edit_header.html" with page_heading=sitemap.current_platform_page.get_name %}
+                {% include "cases/helpers/edit_header.html" %}
                 {% endblock %}
                 {% include 'common/error_summary.html' %}
                 {% block preform %}{% endblock %}

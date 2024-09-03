@@ -27,7 +27,7 @@
                 {% include "cases/helpers/case_nav.html" %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with case=zendesk_ticket.case page_heading=sitemap.current_platform_page.get_name %}
+                {% include "cases/helpers/edit_header.html" %}
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:update-zendesk-ticket' zendesk_ticket.id %}">
                     {% csrf_token %}

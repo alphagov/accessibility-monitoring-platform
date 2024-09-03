@@ -17,7 +17,7 @@
                 {% include "cases/helpers/case_nav.html" %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=sitemap.current_platform_page.get_name %}
+                {% include "cases/helpers/edit_header.html" %}
                 {% include 'common/error_summary.html' %}
                 {% include 'cases/helpers/qa_links.html' %}
                 <form method="post" action="{% url 'cases:edit-qa-comments' case.id %}">

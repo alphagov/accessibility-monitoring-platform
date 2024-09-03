@@ -13,7 +13,7 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading=sitemap.current_platform_page.get_name case=retest.case retest_header=True %}
+                {% include "cases/helpers/edit_header.html" with retest_header=True %}
                 {% include "cases/helpers/messages.html" %}
             </div>
         </div>

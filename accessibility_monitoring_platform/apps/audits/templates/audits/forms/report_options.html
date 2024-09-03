@@ -18,7 +18,7 @@
                 {% include "cases/helpers/case_nav.html" %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=sitemap.current_platform_page.get_name case=audit.case %}
+                {% include "cases/helpers/edit_header.html" %}
                 <h2 class="govuk-heading-l">Report text</h2>
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-report-options' audit.id %}">
