@@ -9,6 +9,7 @@ Please review the issues listed below and provide an update.
     {% for issues_table in issues_tables %}
     {% if issues_table.rows %}
     <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
+    <br>
     <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
     <br>
     <br>
@@ -37,7 +38,10 @@ Please review the issues listed below and provide an update.
 {% else %}
     We found no major issues.
 {% endif %}
+<br>
+<br>
 <h2>Your statement</h2>
+<br>
 {% if case.audit.uses_statement_checks %}
     {% if case.audit.outstanding_statement_check_results %}
     <table id="email-statement-issues-table">
