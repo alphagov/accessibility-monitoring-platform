@@ -389,7 +389,9 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
             ).count()
             Event.objects.filter(created__lte=one_year_ago).delete()
             logger.warning(
-                f"{self.request.user.email} deleted {number_of_old_events:,} old events",
+                "%s deleted %d old events",
+                self.request.user.email,
+                number_of_old_events,
             )
             return super().form_valid(form)
         if "trigger_400" in self.request.POST:

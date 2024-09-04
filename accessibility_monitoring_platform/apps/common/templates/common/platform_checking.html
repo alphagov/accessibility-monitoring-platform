@@ -98,24 +98,25 @@
                             />
                         </div>
                     </div>
-                    <h2 class="govuk-heading-m">Sitemap</h2>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <ol>
-                                {% for platform_page_group in sitemap.platform_page_groups %}
-                                    <li>
-                                        {% if platform_page_group.name %}{{ platform_page_group.name }}{% else %}ANONYMOUS{% endif %}{% if platform_page_group.type %} ({{ platform_page_group.type }}){% endif %}:
-                                        {% if platform_page_group.pages %}
-                                            {% include 'common/platform_subpages.html' with pages=platform_page_group.pages %}
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ol>
-                        </div>
-                    </div>
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h2 class="govuk-heading-m">Sitemap</h2>
+                <ol>
+                    {% for platform_page_group in sitemap.platform_page_groups %}
+                        <li>
+                            {% if platform_page_group.name %}<i>{{ platform_page_group.name }}</i>{% else %}ANONYMOUS{% endif %}
+                            (page group type {% if platform_page_group.type %}<code>{{ platform_page_group.type }}</code>{% else %}none{% endif %}):
+                            {% if platform_page_group.pages %}
+                                {% include 'common/platform_subpages.html' with pages=platform_page_group.pages %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
             </div>
         </div>
     </main>
