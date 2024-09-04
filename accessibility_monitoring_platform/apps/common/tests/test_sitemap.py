@@ -2,16 +2,21 @@
 Test utility functions of cases app
 """
 
+from datetime import date
 from typing import List
 
 import pytest
 from django.contrib.auth.models import User
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
+from pytest_django.asserts import assertContains
 
 from ...audits.models import Audit, Page, Retest, RetestPage
-from ...cases.models import Case, Contact
+from ...cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
+from ...comments.models import Comment
 from ...common.models import EmailTemplate
+from ...exports.models import Export
+from ...notifications.models import Task
 from ...reports.models import Report
 from ..sitemap import (
     SITE_MAP,
@@ -40,6 +45,7 @@ PLATFORM_PAGE_NAME: str = "Platform page name"
 URL_NAME: str = "url-name"
 ORGANISATION_NAME: str = "Organisation name"
 EMAIL_TEMPLATE_NAME: str = "1c. Template name"
+FIRST_SEPTEMBER_2024 = date(2024, 9, 1)
 
 
 class MockRequest:
@@ -778,3 +784,67 @@ def test_get_platform_page_name_by_url():
         )
         == f"{page.page_title} test"
     )
+
+
+@pytest.mark.parametrize(
+    "url, expected_page_name",
+    [
+        ("/", "Your cases"),
+        ("/cases/1/edit-case-metadata/", "Case metadata"),
+        ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
+        ("/audits/pages/1/edit-audit-page-checks/", "Pagename page test"),
+        ("/reports/1/report-publisher/", "Report publisher"),
+        (
+            "/cases/contacts/1/edit-contact-update/",
+            "Edit contact Contact Name a.b@example.com",
+        ),
+        ("/audits/retests/1/retest-metadata-update/", "Retest #1 | Retest metadata"),
+        ("/audits/retest-pages/1/retest-page-checks/", "Retest #1 | Pagename"),
+        ("/notifications/cases/1/reminder-task-create/", "Reminder"),
+        ("/notifications/1/edit-reminder-task/", "Reminder"),
+        ("/cases/1/edit-equality-body-correspondence/", "Edit Zendesk ticket"),
+        ("/cases/1/update-zendesk-ticket/", "Edit PSB Zendesk ticket"),
+        ("/cases/1/1/email-template-preview/", "12-week update request"),
+        ("/comments/1/edit-qa-comment/", "Edit or delete comment"),
+        ("/exports/export-create/?enforcement_body=ecni", "New ECNI CSV export"),
+        ("/exports/1/export-detail/", "EHRC CSV export 1 September 2024"),
+        ("/user/1/edit-user/", "Account details"),
+        ("/common/edit-active-qa-auditor/", "Active QA auditor"),
+        ("/audits/1/edit-wcag-definition/", "Update WCAG definition"),
+        ("/audits/1/edit-statement-check/", "Update statement issue"),
+        ("/common/1/email-template-preview/", "12-week update request preview"),
+    ],
+)
+def test_page_name(url, expected_page_name, admin_client):
+    """
+    Test that the page renders and its name is as expected.
+    Also that an issue on that page can be reported.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit, name="Pagename")
+    Report.objects.create(case=case)
+    Contact.objects.create(case=case, name="Contact Name", email="a.b@example.com")
+    retest: Retest = Retest.objects.create(case=case)
+    RetestPage.objects.create(retest=retest, page=page)
+    user: User = User.objects.create()
+    Task.objects.create(case=case, date=FIRST_SEPTEMBER_2024, user=user)
+    EqualityBodyCorrespondence.objects.create(case=case)
+    ZendeskTicket.objects.create(case=case)
+    Comment.objects.create(case=case, user=user)
+    Export.objects.create(cutoff_date=FIRST_SEPTEMBER_2024, exporter=user)
+
+    response: HttpResponse = admin_client.get(url)
+    assert response.status_code == 200
+
+    assertContains(response, expected_page_name)
+
+    issue_report_response: HttpResponse = admin_client.get(
+        f"/common/report-issue/?page_url={url}"
+    )
+
+    assert issue_report_response.status_code == 200
+
+    assertContains(response, "Report an issue")
+    assertContains(response, url)
+    assertContains(response, expected_page_name)
