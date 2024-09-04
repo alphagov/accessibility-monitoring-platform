@@ -2,8 +2,11 @@
 Test utility functions of cases app
 """
 
+from typing import List
+
 import pytest
 from django.contrib.auth.models import User
+from django.http import HttpRequest
 from django.urls import reverse
 
 from ...audits.models import Audit, Page, Retest, RetestPage
@@ -11,6 +14,8 @@ from ...cases.models import Case, Contact
 from ...common.models import EmailTemplate
 from ...reports.models import Report
 from ..sitemap import (
+    SITE_MAP,
+    SITEMAP_BY_URL_NAME,
     AuditPagesPlatformPage,
     AuditPlatformPage,
     AuditRetestPagesPlatformPage,
@@ -21,9 +26,14 @@ from ..sitemap import (
     ExportPlatformPage,
     HomePlatformPage,
     PlatformPage,
+    PlatformPageGroup,
     ReportPlatformPage,
     RetestOverviewPlatformPage,
-    get_current_platform_page,
+    Sitemap,
+    build_sitemap_for_current_page,
+    get_platform_page_name_by_url,
+    get_requested_platform_page,
+    get_subpages_by_url_name,
 )
 
 PLATFORM_PAGE_NAME: str = "Platform page name"
@@ -229,7 +239,7 @@ def test_platform_page_get_name():
 
 def test_platform_page_get_case():
     """Test PlatformPage.get_case()"""
-    assert PlatformPage(name=PLATFORM_PAGE_NAME).get_case() == None
+    assert PlatformPage(name=PLATFORM_PAGE_NAME).get_case() is None
 
     case: Case = Case()
 
@@ -550,8 +560,8 @@ def test_retest_overview_platform_page_populates_subpages():
 
 
 @pytest.mark.django_db
-def test_get_current_platform_page_for_case(rf):
-    """Test get_current_platform_page returns expected Case-specific page"""
+def test_get_requested_platform_page_for_case(rf):
+    """Test get_requested_platform_page returns expected Case-specific page"""
     case: Case = Case.objects.create()
 
     request_user: User = User.objects.create(
@@ -562,15 +572,15 @@ def test_get_current_platform_page_for_case(rf):
     )
     request.user = request_user
 
-    current_platform_page: PlatformPage = get_current_platform_page(request)
+    current_platform_page: PlatformPage = get_requested_platform_page(request)
 
     assert current_platform_page.get_name() == "Case metadata"
     assert current_platform_page.url_name == "cases:edit-case-metadata"
 
 
 @pytest.mark.django_db
-def test_get_current_platform_page_for_page(rf):
-    """Test get_current_platform_page returns expected Page-specific page"""
+def test_get_requested_platform_page_for_page(rf):
+    """Test get_requested_platform_page returns expected Page-specific page"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
@@ -583,15 +593,15 @@ def test_get_current_platform_page_for_page(rf):
     )
     request.user = request_user
 
-    current_platform_page: PlatformPage = get_current_platform_page(request)
+    current_platform_page: PlatformPage = get_requested_platform_page(request)
 
     assert current_platform_page.get_name() == "Additional page test"
     assert current_platform_page.url_name == "audits:edit-audit-page-checks"
 
 
 @pytest.mark.django_db
-def test_get_current_platform_page_for_retest_page(rf):
-    """Test get_current_platform_page returns expected RetestPage-specific page"""
+def test_get_requested_platform_page_for_retest_page(rf):
+    """Test get_requested_platform_page returns expected RetestPage-specific page"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
@@ -606,15 +616,15 @@ def test_get_current_platform_page_for_retest_page(rf):
     )
     request.user = request_user
 
-    current_platform_page: PlatformPage = get_current_platform_page(request)
+    current_platform_page: PlatformPage = get_requested_platform_page(request)
 
     assert current_platform_page.get_name() == "Retest #1 | Additional"
     assert current_platform_page.url_name == "audits:edit-retest-page-checks"
 
 
 @pytest.mark.django_db
-def test_get_current_platform_page_for_email_template(rf):
-    """Test get_current_platform_page returns expected EmailTemplate-specific name"""
+def test_get_requested_platform_page_for_email_template(rf):
+    """Test get_requested_platform_page returns expected EmailTemplate-specific name"""
     case: Case = Case.objects.create()
     email_template: EmailTemplate = EmailTemplate.objects.create(
         name=EMAIL_TEMPLATE_NAME
@@ -631,15 +641,15 @@ def test_get_current_platform_page_for_email_template(rf):
     )
     request.user = request_user
 
-    current_platform_page: PlatformPage = get_current_platform_page(request)
+    current_platform_page: PlatformPage = get_requested_platform_page(request)
 
     assert current_platform_page.get_name() == EMAIL_TEMPLATE_NAME
     assert current_platform_page.url_name == "cases:email-template-preview"
 
 
 @pytest.mark.django_db
-def test_get_current_platform_page_with_extra_context(rf):
-    """Test get_current_platform_page returns expected name with extra context"""
+def test_get_requested_platform_page_with_extra_context(rf):
+    """Test get_requested_platform_page returns expected name with extra context"""
     request_user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
@@ -648,7 +658,7 @@ def test_get_current_platform_page_with_extra_context(rf):
     )
     request.user = request_user
 
-    current_platform_page: PlatformPage = get_current_platform_page(request)
+    current_platform_page: PlatformPage = get_requested_platform_page(request)
 
     assert current_platform_page.get_name() == "EHRC CSV export manager"
     assert current_platform_page.url_name == "exports:export-list"
@@ -657,7 +667,114 @@ def test_get_current_platform_page_with_extra_context(rf):
         f'{reverse("exports:export-list")}?enforcement_body=ecni',
     )
 
-    current_platform_page: PlatformPage = get_current_platform_page(request)
+    current_platform_page: PlatformPage = get_requested_platform_page(request)
 
     assert current_platform_page.get_name() == "ECNI CSV export manager"
     assert current_platform_page.url_name == "exports:export-list"
+
+
+def test_sitemap_by_url_name():
+    """Test SITEMAP_BY_URL_NAME has been built correctly"""
+    assert isinstance(SITEMAP_BY_URL_NAME, dict) is True
+
+    assert "cases:edit-case-metadata" in SITEMAP_BY_URL_NAME
+    assert SITEMAP_BY_URL_NAME["cases:edit-case-metadata"].get_name() == "Case metadata"
+
+
+def test_get_subpages_by_url_name():
+    """Test get_subpages_by_url_name returns expected subpages"""
+
+    assert get_subpages_by_url_name("cases:edit-case-metadata") is None
+
+    subpages: List[PlatformPage] = get_subpages_by_url_name(
+        "audits:edit-statement-overview"
+    )
+
+    assert subpages is not None
+    assert len(subpages) > 0
+    assert subpages[0].name == "Statement information"
+
+
+def test_build_sitemap_for_non_case_current_page():
+    """Test build_sitemap_for_current_page when current page is not Case-related"""
+    platform_page: PlatformPage = PlatformPage(
+        name="Test", url_name="common:platform-checking"
+    )
+    platform_page_groups: List[PlatformPageGroup] = build_sitemap_for_current_page(
+        current_platform_page=platform_page
+    )
+
+    assert platform_page_groups == SITE_MAP
+
+
+@pytest.mark.django_db
+def test_build_sitemap_for_case_related_current_page():
+    """Test build_sitemap_for_current_page when current page is Case-related"""
+    case: Case = Case.objects.create()
+    platform_page: PlatformPage = PlatformPage(
+        name="Test", url_name="cases:case-metadata", object_class=Case, object=case
+    )
+    platform_page_groups: List[PlatformPageGroup] = build_sitemap_for_current_page(
+        current_platform_page=platform_page
+    )
+
+    assert len(platform_page_groups) < len(SITE_MAP)
+    assert len(platform_page_groups) > 0
+
+    platform_page_group: PlatformPageGroup = platform_page_groups[0]
+
+    assert platform_page_group.pages is not None
+    assert len(platform_page_group.pages) > 0
+
+    platform_page: PlatformPage = platform_page_group.pages[0]
+
+    assert platform_page.get_case() == case
+
+
+def test_non_case_sitemap(rf):
+    """Test non-Case sitemap creation"""
+    request: HttpRequest = rf.get("/")
+    sitemap: Sitemap = Sitemap(request=request)
+
+    assert sitemap.current_platform_page is not None
+    assert sitemap.platform_page_groups is not None
+
+    assert sitemap.current_platform_page.get_case() is None
+    assert len(sitemap.platform_page_groups) == len(SITE_MAP)
+
+
+@pytest.mark.django_db
+def test_case_sitemap(rf):
+    """Test Case-specific sitemap creation"""
+    case: Case = Case.objects.create()
+    request: HttpRequest = rf.get("/cases/1/view/")
+    sitemap: Sitemap = Sitemap(request=request)
+
+    assert sitemap.current_platform_page is not None
+    assert sitemap.platform_page_groups is not None
+
+    assert sitemap.current_platform_page.get_case() == case
+    assert len(sitemap.platform_page_groups) < len(SITE_MAP)
+
+
+@pytest.mark.django_db
+def test_get_platform_page_name_by_url():
+    """Test get_platform_page_name_by_url returns the name of the page"""
+
+    assert get_platform_page_name_by_url("/") == "Your cases"
+    assert (
+        get_platform_page_name_by_url("/account/login/")
+        == "Page name not found for two_factor:login"
+    )
+    assert get_platform_page_name_by_url("/x/") == "URL not found for /x/"
+
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit, name="PSB page one")
+
+    assert (
+        get_platform_page_name_by_url(
+            f"/audits/pages/{page.id}/edit-audit-page-checks/"
+        )
+        == f"{page.page_title} test"
+    )

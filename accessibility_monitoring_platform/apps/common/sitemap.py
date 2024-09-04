@@ -1232,7 +1232,7 @@ def get_subpages_by_url_name(url_name: Optional[str]) -> Optional[List[PlatformP
         return subpages
 
 
-def get_current_platform_page(request: HttpRequest) -> PlatformPage:
+def get_requested_platform_page(request: HttpRequest) -> PlatformPage:
     """Return the current platform page"""
     url_resolver: URLResolver = resolve(request.path_info)
     url_name: str = url_resolver.view_name
@@ -1246,7 +1246,11 @@ def get_current_platform_page(request: HttpRequest) -> PlatformPage:
 def build_sitemap_for_current_page(
     current_platform_page: PlatformPage,
 ) -> List[PlatformPageGroup]:
-    """Populate the sitemap based on the current request url"""
+    """
+    Populate the sitemap based on the current page.
+    Return the case navigation subset of the sitemap if the current
+    page is case-related, otherwise return the entire sitemap.
+    """
     case: Optional[Case] = current_platform_page.get_case()
     site_map = copy.deepcopy(SITE_MAP)
     if case is not None:
@@ -1267,7 +1271,7 @@ class Sitemap:
     current_platform_page: PlatformPage
 
     def __init__(self, request: HttpRequest):
-        self.current_platform_page = get_current_platform_page(request=request)
+        self.current_platform_page = get_requested_platform_page(request=request)
         self.platform_page_groups = build_sitemap_for_current_page(
             current_platform_page=self.current_platform_page
         )

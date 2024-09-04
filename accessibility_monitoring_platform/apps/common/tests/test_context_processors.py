@@ -11,6 +11,7 @@ from pytest_django.asserts import assertContains
 
 from ...cases.models import Case
 from ...common.models import FooterLink, FrequentlyUsedLink, Platform
+from ...common.sitemap import PlatformPage, Sitemap
 from ...common.utils import get_platform_settings
 from ..context_processors import platform_page
 from ..forms import AMPTopMenuForm
@@ -26,8 +27,9 @@ class MockRequest:
         self.path = path
         self.absolute_uri = absolute_uri
         self.user = user
-        self.META = {}  # pylint: disable=invalid-name
-        self.path_info = "/cases/1/view/"
+        self.META = {}
+        self.GET = {}
+        self.path_info = path
 
     def build_absolute_uri(self):
         return self.absolute_uri
@@ -73,7 +75,6 @@ def test_platform_page_template_context():
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
     FrequentlyUsedLink.objects.create(label=LINK_LABEL, url=LINK_URL)
     FooterLink.objects.create(label=LINK_LABEL, url=LINK_URL)
-    Case.objects.create()
     mock_request = MockRequest(
         path="/",
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
@@ -99,3 +100,58 @@ def test_platform_page_template_context():
     ][0]
     assert custom_footer_links.label == LINK_LABEL
     assert custom_footer_links.url == LINK_URL
+
+
+@pytest.mark.django_db
+def test_platform_page_case_sitemap_template_context():
+    """
+    Check sitemap for Case-specific page
+    """
+    user: User = User.objects.create(first_name=USER_FIRST_NAME)
+    case: Case = Case.objects.create()
+    mock_request = MockRequest(
+        path="/cases/1/view/",
+        absolute_uri="https://prototype-name.london.cloudapps.digital/",
+        user=user,
+    )
+    platform_page_context: Dict[str, Union[AMPTopMenuForm, str, Platform, int]] = (
+        platform_page(mock_request)
+    )
+
+    assert platform_page_context["sitemap"] is not None
+
+    sitemap: Sitemap = platform_page_context["sitemap"]
+
+    assert sitemap.current_platform_page is not None
+
+    current_platform_page: PlatformPage = sitemap.current_platform_page
+
+    assert current_platform_page.get_name() == "View case"
+    assert current_platform_page.get_case() is not None
+    assert current_platform_page.get_case() == case
+
+
+@pytest.mark.django_db
+def test_platform_page_non_case_sitemap_template_context():
+    """
+    Check sitemap for non-Case-specific page
+    """
+    user: User = User.objects.create(first_name=USER_FIRST_NAME)
+    mock_request = MockRequest(
+        path="/",
+        absolute_uri="https://prototype-name.london.cloudapps.digital/",
+        user=user,
+    )
+    platform_page_context: Dict[str, Union[AMPTopMenuForm, str, Platform, int]] = (
+        platform_page(mock_request)
+    )
+
+    assert platform_page_context["sitemap"] is not None
+
+    sitemap: Sitemap = platform_page_context["sitemap"]
+
+    assert sitemap.current_platform_page is not None
+
+    current_platform_page: PlatformPage = sitemap.current_platform_page
+
+    assert current_platform_page.get_name() == "Your cases"
