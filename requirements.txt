@@ -9,30 +9,30 @@ asgiref==3.8.1
     #   django
     #   django-axes
     #   django-browser-reload
-attrs==23.2.0
+attrs==24.2.0
     # via
     #   outcome
     #   trio
-boto3==1.34.142
+boto3==1.35.12
     # via
     #   -r requirements.in
     #   moto
-botocore==1.34.142
+botocore==1.35.12
     # via
     #   boto3
     #   moto
     #   s3transfer
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   requests
     #   selenium
-cffi==1.16.0
+cffi==1.17.1
     # via cryptography
 charset-normalizer==3.3.2
     # via requests
-cryptography==42.0.8
+cryptography==43.0.1
     # via moto
-django==5.0.8
+django==5.1.1
     # via
     #   -r requirements.in
     #   django-axes
@@ -44,23 +44,23 @@ django==5.0.8
     #   django-two-factor-auth
 django-axes==6.5.1
     # via -r requirements.in
-django-browser-reload==1.13.0
+django-browser-reload==1.15.0
     # via -r requirements.in
 django-csp==3.8
     # via -r requirements.in
 django-formtools==2.5.1
     # via django-two-factor-auth
-django-otp==1.5.0
+django-otp==1.5.3
     # via django-two-factor-auth
-django-phonenumber-field==7.3.0
+django-phonenumber-field==8.0.0
     # via django-two-factor-auth
-django-two-factor-auth==1.16.0
+django-two-factor-auth==1.17.0
     # via -r requirements.in
 docopt==0.6.2
     # via notifications-python-client
 h11==0.14.0
     # via wsproto
-idna==3.7
+idna==3.8
     # via
     #   requests
     #   trio
@@ -72,15 +72,15 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-markdown==3.6
+markdown==3.7
     # via -r requirements.in
 markupsafe==2.1.5
     # via
     #   jinja2
     #   werkzeug
-moto==5.0.11
+moto==5.0.13
     # via -r requirements.in
-notifications-python-client==9.1.0
+notifications-python-client==10.0.0
     # via -r requirements.in
 outcome==1.3.0.post0
     # via trio
@@ -88,7 +88,7 @@ packaging==24.1
     # via
     #   pytest
     #   webdriver-manager
-phonenumbers==8.13.40
+phonenumbers==8.13.44
     # via -r requirements.in
 pluggy==1.5.0
     # via pytest
@@ -96,15 +96,15 @@ psycopg2==2.9.9
     # via -r requirements.in
 pycparser==2.22
     # via cffi
-pyjwt==2.8.0
+pyjwt==2.9.0
     # via notifications-python-client
 pypng==0.20220715.0
     # via qrcode
 pysocks==1.7.1
     # via urllib3
-pytest==8.2.2
+pytest==8.3.2
     # via pytest-django
-pytest-django==4.8.0
+pytest-django==4.9.0
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
@@ -114,7 +114,7 @@ python-dotenv==1.0.1
     # via
     #   -r requirements.in
     #   webdriver-manager
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via responses
 qrcode==7.4.2
     # via django-two-factor-auth
@@ -128,7 +128,7 @@ responses==0.25.3
     # via moto
 s3transfer==0.10.2
     # via boto3
-selenium==4.22.0
+selenium==4.24.0
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
@@ -136,9 +136,9 @@ sniffio==1.3.1
     # via trio
 sortedcontainers==2.4.0
     # via trio
-sqlparse==0.5.0
+sqlparse==0.5.1
     # via django
-trio==0.26.0
+trio==0.26.2
     # via
     #   selenium
     #   trio-websocket
@@ -156,11 +156,11 @@ urllib3[socks]==2.2.2
     #   selenium
 waitress==3.0.0
     # via -r requirements.in
-webdriver-manager==4.0.1
+webdriver-manager==4.0.2
     # via -r requirements.in
 websocket-client==1.8.0
     # via selenium
-werkzeug==3.0.3
+werkzeug==3.0.4
     # via moto
 whitenoise==6.7.0
     # via -r requirements.in
