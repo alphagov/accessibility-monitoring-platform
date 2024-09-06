@@ -41,7 +41,7 @@
     "cypress-axe": "^1.0.0",
     "dotenv": "^16.0.0",
     "eslint-plugin-html": "^7.1.0",
-    "gulp": "^4.0.2",
+    "gulp": "^5.0.0",
     "gulp-rename": "^2.0.0",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-uglify": "^3.0.2",
