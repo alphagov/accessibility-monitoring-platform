@@ -1473,6 +1473,9 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
         """Add case and email template to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["12_weeks_from_today"] = date.today() + timedelta(
+            days=TWELVE_WEEKS_IN_DAYS
+        )
         context["case"] = self.case
         context["retest"] = self.case.retests.first()
         if self.case.audit is not None:
