@@ -240,10 +240,10 @@ class WcagDefinitionListView(ListView):
             return WcagDefinition.objects.none()
 
         if hasattr(self.wcag_definition_search_form, "cleaned_data"):
-            search_str: Optional[
-                str
-            ] = self.wcag_definition_search_form.cleaned_data.get(
-                "wcag_definition_search"
+            search_str: Optional[str] = (
+                self.wcag_definition_search_form.cleaned_data.get(
+                    "wcag_definition_search"
+                )
             )
 
             if search_str:
@@ -333,10 +333,10 @@ class StatementCheckListView(ListView):
             return StatementCheck.objects.none()
 
         if hasattr(self.statement_check_search_form, "cleaned_data"):
-            search_str: Optional[
-                str
-            ] = self.statement_check_search_form.cleaned_data.get(
-                "statement_check_search"
+            search_str: Optional[str] = (
+                self.statement_check_search_form.cleaned_data.get(
+                    "statement_check_search"
+                )
             )
 
             if search_str:

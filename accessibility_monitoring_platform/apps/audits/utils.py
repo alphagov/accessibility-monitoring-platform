@@ -134,7 +134,7 @@ def build_initial_statement_content_subsections(audit: Audit) -> List[ViewSectio
     """
     return [
         build_view_section(
-            name=statement_content_subsection.name,
+            name=f"Initial statement > {statement_content_subsection.name}",
             edit_url=reverse(
                 f"audits:edit-statement-{statement_content_subsection.url_suffix}",
                 kwargs={"pk": audit.id},
@@ -210,21 +210,21 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
         page_subtables.append(view_sub_table)
     pre_statement_check_sections: List[ViewSection] = [
         build_view_section(
-            name="Test metadata",
+            name="Initial WCAG test > Initial test metadata",
             edit_url=reverse("audits:edit-audit-metadata", kwargs=audit_pk),
             edit_url_id="edit-audit-metadata",
             complete_date=audit.audit_metadata_complete_date,
             display_fields=get_audit_rows(form=AuditMetadataUpdateForm()),
         ),
         build_view_section(
-            name="Pages",
+            name="Initial WCAG test > Add or remove pages",
             edit_url=reverse("audits:edit-audit-pages", kwargs=audit_pk),
             edit_url_id="edit-audit-pages",
             complete_date=audit.audit_pages_complete_date,
             subtables=page_subtables,
             subsections=[
                 build_view_section(
-                    name=f"Initial test {str(page)} ({page.failed_check_results.count()})",
+                    name=f"Initial WCAG test > {page.page_title} test ({page.failed_check_results.count()})",
                     edit_url=reverse(
                         "audits:edit-audit-page-checks", kwargs={"pk": page.id}
                     ),
@@ -238,7 +238,7 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
             ],
         ),
         build_view_section(
-            name="Website compliance decision",
+            name="Initial WCAG test > Website compliance decision",
             edit_url=reverse("audits:edit-website-decision", kwargs=audit_pk),
             edit_url_id="edit-website-decision",
             complete_date=audit.audit_website_decision_complete_date,
@@ -247,7 +247,14 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
             ),
         ),
         build_view_section(
-            name="Statement links",
+            name="Initial WCAG test > Test summary",
+            edit_url=reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk),
+            edit_url_id="edit-audit-wcag-summary",
+            complete_date=audit.audit_wcag_summary_complete_date,
+            anchor="",
+        ),
+        build_view_section(
+            name="Initial statement > Statement links",
             edit_url=reverse("audits:edit-statement-pages", kwargs=audit_pk),
             edit_url_id="edit-statement-pages",
             complete_date=audit.audit_statement_pages_complete_date,
@@ -288,7 +295,7 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
         )
         statement_content_sections: List[ViewSection] = [
             build_view_section(
-                name="Statement overview",
+                name="Initial statement > Statement overview",
                 edit_url=reverse("audits:edit-statement-overview", kwargs=audit_pk),
                 edit_url_id="edit-statement-overview",
                 complete_date=audit.audit_statement_overview_complete_date,
@@ -323,7 +330,7 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
         ]
     post_statement_check_sections: List[ViewSection] = [
         build_view_section(
-            name="Initial disproportionate burden claim",
+            name="Initial statement > Initial disproportionate burden claim",
             edit_url=reverse(
                 "audits:edit-initial-disproportionate-burden", kwargs=audit_pk
             ),
@@ -334,7 +341,7 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
             ),
         ),
         build_view_section(
-            name="Initial statement compliance decision",
+            name="Initial statement > Initial statement compliance decision",
             edit_url=reverse("audits:edit-statement-decision", kwargs=audit_pk),
             edit_url_id="edit-statement-decision",
             complete_date=audit.audit_statement_decision_complete_date,
@@ -343,9 +350,10 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
             ),
         ),
         build_view_section(
-            name="Test summary",
-            edit_url=reverse("audits:edit-audit-summary", kwargs=audit_pk),
-            edit_url_id="edit-audit-summary",
+            name="Initial statement > Test summary",
+            edit_url=reverse("audits:edit-audit-statement-summary", kwargs=audit_pk),
+            edit_url_id="edit-audit-statement-summary",
+            complete_date=audit.audit_statement_summary_complete_date,
             anchor="",
         ),
     ]

@@ -59,6 +59,7 @@ from ..views import (
     format_due_date_help_text,
 )
 
+CONTACT_NAME: str = "Contact Name"
 CONTACT_EMAIL: str = "test@email.com"
 DOMAIN: str = "domain.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}"
@@ -360,7 +361,7 @@ def test_view_case_includes_tests(admin_client):
     )
     assert response.status_code == 200
 
-    assertContains(response, "Test metadata")
+    assertContains(response, "Initial test metadata")
     assertContains(response, "Date of test")
     assertContains(response, "Initial statement compliance decision")
 
@@ -783,11 +784,26 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>',
         ),
         ("cases:edit-case-metadata", "<b>Case metadata</b>"),
-        ("cases:edit-test-results", "<li>Testing details</li>"),
-        ("cases:edit-report-details", "<li>Report details</li>"),
-        ("cases:edit-qa-comments", "<li>QA comments</li>"),
-        ("cases:edit-report-approved", "<li>Report approved</li>"),
-        ("cases:edit-publish-report", "<li>Publish report</li>"),
+        (
+            "cases:edit-test-results",
+            "<li><b>Testing details</b></li>",
+        ),
+        (
+            "cases:edit-report-details",
+            '<p class="govuk-body-s amp-margin-bottom-10">Report details</p>',
+        ),
+        (
+            "cases:edit-qa-comments",
+            '<p class="govuk-body-s amp-margin-bottom-10">QA comments</p>',
+        ),
+        (
+            "cases:edit-report-approved",
+            '<p class="govuk-body-s amp-margin-bottom-10">Report approved</p>',
+        ),
+        (
+            "cases:edit-publish-report",
+            '<p class="govuk-body-s amp-margin-bottom-10">Publish report</p>',
+        ),
         (
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
@@ -848,7 +864,9 @@ def test_create_contact_page_loads(admin_client):
 def test_update_contact_page_loads(admin_client):
     """Test that the update Contact page loads"""
     case: Case = Case.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
+    contact: Contact = Contact.objects.create(
+        case=case, name=CONTACT_NAME, email=CONTACT_EMAIL
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-contact-update", kwargs={"pk": contact.id})
@@ -858,7 +876,7 @@ def test_update_contact_page_loads(admin_client):
 
     assertContains(
         response,
-        """<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit contact</h1>""",
+        f"""<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit contact {contact}</h1>""",
         html=True,
     )
 
@@ -1831,7 +1849,7 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         assert duplicate_cases[1] == organisation_name_case
 
 
-def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(
+def test_audit_shows_link_to_create_audit_when_no_audit_exists(
     admin_client,
 ):
     """
@@ -2186,7 +2204,6 @@ def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-test-results", "testing_details_complete_date", "Testing details"),
         (
             "cases:edit-report-details",
             "reporting_details_complete_date",
@@ -2206,7 +2223,6 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
 ):
     """
     Test that the section complete tick is displayed in list of steps
-    when case testing methodology is platform
     """
     case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
@@ -2363,48 +2379,6 @@ def test_add_contact_page_in_case_nav_when_current_page(
                 <li class="amp-nav-list-subpages amp-margin-top-5"><b>Add contact</b></li>
             </ul>
         </li>""",
-        html=True,
-    )
-
-
-def test_test_results_page_shows_if_statement_exists(
-    admin_client,
-):
-    """
-    Test that the test results page shows if statement exists.
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Statement exists</th>
-            <td class="govuk-table__cell amp-width-one-half">No</td>
-        </tr>""",
-        html=True,
-    )
-
-    StatementPage.objects.create(audit=audit)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Statement exists</th>
-            <td class="govuk-table__cell amp-width-one-half">Yes</td>
-        </tr>""",
         html=True,
     )
 
@@ -3359,7 +3333,7 @@ def test_outstanding_issues_new_case(admin_client):
         ("compliance", "Compliance status"),
         ("non-accessible", "Non-accessible content overview"),
         ("preparation", "Preparation"),
-        ("feedback", "Feedback"),
+        ("feedback", "Feedback and enforcement procedure"),
         ("custom", "Custom statement issues"),
     ],
 )
@@ -3379,7 +3353,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertNotContains(response, label)
+    assertNotContains(response, f"{label}</h2>")
     assertNotContains(response, edit_url)
 
     statement_check_result.check_result_state = StatementCheckResult.Result.NO
@@ -3388,7 +3362,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertContains(response, label)
+    assertContains(response, f"{label}</h2>")
     assertContains(response, edit_url)
 
     statement_check_result.retest_state = StatementCheckResult.Result.YES
@@ -3397,7 +3371,7 @@ def test_outstanding_issues_statement_checks(type, label, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertNotContains(response, label)
+    assertNotContains(response, f"{label}</h2>")
     assertNotContains(response, edit_url)
 
 

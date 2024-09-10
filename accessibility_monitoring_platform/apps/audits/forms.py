@@ -445,9 +445,6 @@ class AuditStatementOverviewUpdateForm(VersionForm):
     Form for editing statement overview
     """
 
-    accessibility_statement_backup_url = AMPURLField(
-        label="Link to saved accessibility statement",
-    )
     statement_extra_report_text = AMPTextField(label="Extra report text")
     audit_statement_overview_complete_date = AMPDatePageCompleteField()
 
@@ -455,7 +452,6 @@ class AuditStatementOverviewUpdateForm(VersionForm):
         model = Audit
         fields: List[str] = [
             "version",
-            "accessibility_statement_backup_url",
             "statement_extra_report_text",
             "audit_statement_overview_complete_date",
         ]
@@ -619,18 +615,33 @@ class CaseComplianceStatementInitialUpdateForm(VersionForm):
         ]
 
 
-class AuditSummaryUpdateForm(VersionForm):
+class AuditWcagSummaryUpdateForm(VersionForm):
     """
-    Form for editing audit summary
+    Form for editing WCAG audit summary
     """
 
-    audit_summary_complete_date = AMPDatePageCompleteField()
+    audit_wcag_summary_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_summary_complete_date",
+            "audit_wcag_summary_complete_date",
+        ]
+
+
+class AuditStatementSummaryUpdateForm(VersionForm):
+    """
+    Form for editing statement audit summary
+    """
+
+    audit_statement_summary_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_statement_summary_complete_date",
         ]
 
 

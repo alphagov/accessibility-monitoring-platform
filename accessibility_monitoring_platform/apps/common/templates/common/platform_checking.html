@@ -2,7 +2,7 @@
 
 {% load humanize %}
 
-{% block title %}{{ amp_page_name }}{% endblock %}
+{% block title %}{{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block phase_banner %}{% endblock %}
 
@@ -11,13 +11,13 @@
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
-            <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ amp_page_name }}</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -101,6 +101,22 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h2 class="govuk-heading-m">Sitemap</h2>
+                <ol>
+                    {% for platform_page_group in sitemap.platform_page_groups %}
+                        <li>
+                            {% if platform_page_group.name %}<i>{{ platform_page_group.name }}</i>{% else %}ANONYMOUS{% endif %}
+                            (page group type {% if platform_page_group.type %}<code>{{ platform_page_group.type }}</code>{% else %}none{% endif %}):
+                            {% if platform_page_group.pages %}
+                                {% include 'common/platform_subpages.html' with pages=platform_page_group.pages %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
             </div>
         </div>
     </main>

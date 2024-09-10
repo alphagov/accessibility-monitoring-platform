@@ -11,7 +11,6 @@ from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import Case
-from ..common.case_nav import build_case_nav_sections
 from ..common.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
@@ -124,13 +123,6 @@ class ReminderTaskCreateView(CreateView):
             reverse_lazy("cases:case-detail", kwargs={"pk": case.id})
         )
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        case: Case = Case.objects.get(pk=self.kwargs["case_id"])
-        context["case"] = case
-        context["case_sections"] = build_case_nav_sections(case=case)
-        return context
-
     def get_success_url(self) -> str:
         """Record creation event"""
         record_model_create_event(user=self.request.user, model_object=self.object)
@@ -156,13 +148,6 @@ class ReminderTaskUpdateView(UpdateView):
             record_model_update_event(user=self.request.user, model_object=self.object)
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        case: Case = self.object.case
-        context["case"] = case
-        context["case_sections"] = build_case_nav_sections(case=case)
-        return context
 
     def get_success_url(self) -> str:
         """Record creation event"""
