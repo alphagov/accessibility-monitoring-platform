@@ -1,13 +1,17 @@
-Dear <span class="amp-email-placeholder">(team responsible for the website)</span>
+Dear {{ case.organisation_name }},
 <br>
 <br>
 I am {{ case.auditor.get_full_name }} from the accessibility monitoring team at the Government Digital Service.
 <br>
 <br>
 {% if case.previous_case_url %}
-We are required to test a proportion of websites that we have previously tested. Your website was chosen from a random sample to be monitored again.
+We are required to test a proportion of websites that we have previously tested. Your website
+(<a href="{{ case.home_page_url }}">{{ case.home_page_url }}</a>)
+was chosen from a random sample to be monitored again.
 {% else %}
-We have been given the role to monitor the accessibility of public sector websites. Your website was chosen from a random sample to be monitored.
+We have been given the role to monitor the accessibility of public sector websites and mobile apps. Your website
+(<a href="{{ case.home_page_url }}">{{ case.home_page_url }}</a>)
+was chosen from a random sample to be monitored.
 {% endif %}
 <br>
 <br>
@@ -38,7 +42,13 @@ We are asking that you:
 <li>publish a compliant accessibility statement on your website</li>
 </ul>
 <br>
-We will retest your website after <span class="amp-email-placeholder">(add date)</span> to check that accessibility issues have been fixed.
+After 12 weeks,
+{% if case.report_followup_week_12_due_date %}
+{{ case.report_followup_week_12_due_date|amp_date }},
+{% else %}
+<span class="amp-email-placeholder">(add date)</span>,
+{% endif %}
+we will contact you and ask for an update on your progress, and we will retest your website to check that any accessibility issues have been fixed.
 <br>
 <br>
 Any remaining accessibility issues will be passed to the {{ case.get_enforcement_body_display }} for further action and a list of websites without correct accessibility statements will be published by the Cabinet Office.
@@ -52,8 +62,4 @@ To find out more about the accessibility monitoring and the legislation go to
 <br>
 <br>
 If you have received this email and you are not the person responsible to take the specified actions you must forward it to the correct person urgently.
-<br>
-<br>
-Many thanks,
-<br>
 <br>

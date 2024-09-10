@@ -1,19 +1,15 @@
 Subject: Missing website accessibility statement
 <br>
 <br>
-Date: {% now "j F Y" %}
-<br>
-<br>
-Website: {{ case.domain }}
-<br>
-<br>
-Dear <span class="amp-email-placeholder">(team responsible for the website)</span>,
+Dear {{ case.organisation_name }},
 <br>
 <br>
 I am {{ case.auditor.get_full_name }} from the accessibility monitoring team at Government Digital Service.
 <br>
 <br>
-Our role is to monitor the accessibility of public sector websites. Your website was chosen from a random sample.
+Our role is to monitor the accessibility of public sector websites and mobile apps. Your website
+(<a href="{{ case.home_page_url }}">{{ case.home_page_url }}</a>)
+was chosen from a random sample.
 <br>
 <br>
 All public sector websites published since 23 September 2018 need to have an accessibility statement. We could not find an accessibility statement on your website.
@@ -35,7 +31,4 @@ Please acknowledge that you have received this email within 7 days.
 <br>
 <br>
 You should add an accessibility statement to your website and contact us when you have done this. You should do this within 12 weeks.
-<br>
-<br>
-Many thanks
 <br>

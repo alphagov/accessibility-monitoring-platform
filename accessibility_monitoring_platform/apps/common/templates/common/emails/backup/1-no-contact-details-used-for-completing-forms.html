@@ -1,7 +1,7 @@
-To: {{ case.organisation_name }}
+Dear {{ case.organisation_name }},
 <br>
 <br>
-I am {{ case.auditor.get_full_name }} from the accessibility monitoring team at Government Digital Service. It is a requirement of The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 that public sector websites are accessible to everyone. This came into force on 23 September 2018.
+I am {{ case.auditor.get_full_name }} from the accessibility monitoring team at Government Digital Service. It is a requirement of The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 that public sector websites and mobile apps are accessible to everyone. This came into force on 23 September 2018.
 <br>
 <br>
 We have been unable to find a suitable contact email address for your organisation. You must email us at
@@ -11,11 +11,3 @@ within 7 days to give us the email address of the person or team who are respons
 <br>
 <span class="amp-email-placeholder">-- Only include the signature if you’re filling in a contact form and there’s space for it, otherwise it should come from Gmail or Zendesk:</span>
 <br>
-<br>
-{{ case.auditor.get_full_name }}
-<br>
-Accessibility officer
-<br>
-Government Digital Service
-<br>
-Cabinet Office

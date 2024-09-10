@@ -1,16 +1,9 @@
-Subject: Accessibility of website
+Dear {{ case.organisation_name }},
 <br>
 <br>
-Date: {% now "j F Y" %}
-<br>
-<br>
-Website: {{ case.domain }}
-<br>
-<br>
-Dear <span class="amp-email-placeholder">(organisation or individual if we have a contact name)</span>,
-<br>
-<br>
-We have been contacted by a member of the public about your website. They found that your website may not meet the new Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (<a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>).
+We have been contacted by a member of the public about your website. They found that your website
+(<a href="{{ case.home_page_url }}">{{ case.home_page_url }}</a>)
+may not meet the new Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (<a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>).
 <br>
 <br>
 The regulations came into force on 23 September 2018. Public sector bodies now have a legal obligation to meet accessibility requirements for their websites.
@@ -40,7 +33,13 @@ We are asking that you:
 <li>publish a compliant accessibility statement on your website</li>
 </ul>
 <br>
-We will retest your website after <span class="amp-email-placeholder">(add date)</span> to check that any accessibility issues have been fixed.
+After 12 weeks,
+{% if case.report_followup_week_12_due_date %}
+{{ case.report_followup_week_12_due_date|amp_date }},
+{% else %}
+<span class="amp-email-placeholder">(add date)</span>,
+{% endif %}
+we will contact you and ask for an update on your progress, and we will retest your website to check that any accessibility issues have been fixed.
 <br>
 <br>
 Any remaining accessibility issues will be passed to the {{ case.get_enforcement_body_display }} for further action and a list of websites without correct accessibility statements will be published by the Cabinet Office.
@@ -50,8 +49,4 @@ Where possible we will direct you to relevant resources and information that may
 <br>
 <br>
 To find out more about the accessibility monitoring and the legislation go to <a href="https://www.gov.uk/service-manual/helping-people-to-use-your-service/making-your-service-accessible-an-introduction">https://www.gov.uk/service-manual/helping-people-to-use-your-service/making-your-service-accessible-an-introduction</a>
-<br>
-<br>
-Many thanks,
-<br>
 <br>
