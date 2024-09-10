@@ -26,7 +26,7 @@ describe('View test', () => {
 
   it('can edit retesting home', () => {
     cy.get('#edit-twelve-week-page-1').click()
-    cy.title().should('eq', 'ExampleCorp | Retesting Home')
+    cy.title().should('eq', 'ExampleCorp | Retesting Home page')
     cy.get('[name="form-0-retest_state"]').check('fixed')
     cy.get('[name="form-0-retest_notes"]').clear().type(retestErrorText)
     cy.contains('Save').click()

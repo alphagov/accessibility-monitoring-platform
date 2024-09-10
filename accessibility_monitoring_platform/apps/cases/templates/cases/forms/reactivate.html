@@ -1,54 +1,29 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block preform %}
+<div class="govuk-body">
+    <p class="govuk-body-m">
+        {{ sitemap.current_platform_page.get_name }} will add the case to the dashboard and platform metrics.
+    </p>
+</div>
+{% endblock %}
 
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
-        </div>
+{% block formbuttons %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <input
+            type="submit"
+            value="{{ sitemap.current_platform_page.get_name }}"
+            name="reactivate"
+            class="govuk-button"
+            data-module="govuk-button"
+        />
+        <a
+            href="{{ case.get_absolute_url }}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Cancel and return to case view
+        </a>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include 'common/error_summary.html' %}
-                <div class="govuk-body">
-                    <p class="govuk-body-m">
-                        {{ amp_page_name }} will add the case to the dashboard and platform metrics.
-                    </p>
-                </div>
-                <form method="post" action="{% url 'cases:reactivate-case' case.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="{{ amp_page_name }}"
-                                name="reactivate"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{{ case.get_absolute_url }}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel and return to case view
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
 </div>
 {% endblock %}

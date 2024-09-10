@@ -53,8 +53,9 @@ from .views.initial import (
     AuditStatementNonAccessibleFormView,
     AuditStatementOverviewFormView,
     AuditStatementPreparationFormView,
+    AuditStatementSummaryUpdateView,
     AuditStatementWebsiteFormView,
-    AuditSummaryUpdateView,
+    AuditWcagSummaryUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementPageFormsetUpdateView,
     clear_published_report_data_updated_time,
@@ -180,9 +181,14 @@ urlpatterns: List[URLPattern] = [
         name="edit-statement-decision",
     ),
     path(
-        "<int:pk>/edit-audit-summary/",
-        login_required(AuditSummaryUpdateView.as_view()),
-        name="edit-audit-summary",
+        "<int:pk>/edit-audit-wcag-summary/",
+        login_required(AuditWcagSummaryUpdateView.as_view()),
+        name="edit-audit-wcag-summary",
+    ),
+    path(
+        "<int:pk>/edit-audit-statement-summary/",
+        login_required(AuditStatementSummaryUpdateView.as_view()),
+        name="edit-audit-statement-summary",
     ),
     path(
         "<int:pk>/edit-audit-report-options/",
@@ -208,6 +214,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-retest-metadata/",
         login_required(AuditRetestMetadataUpdateView.as_view()),
         name="edit-audit-retest-metadata",
+    ),
+    path(
+        "<int:pk>/audit-retest-pages/",
+        login_required(AuditRetestPagesComparisonView.as_view()),
+        name="audit-retest-pages",
     ),
     path(
         "<int:pk>/edit-audit-retest-pages-comparison/",

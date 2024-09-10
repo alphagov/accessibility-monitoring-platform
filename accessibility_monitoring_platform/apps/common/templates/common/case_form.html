@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -9,20 +9,23 @@
             {% include 'common/case_banner.html' %}
         </div>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
+    {% block breadcrumbs %}
+    {% include 'cases/helpers/breadcrumbs.html' %}
+    {% endblock %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" %}
-                {% include 'cases/helpers/nav_steps.html' with current_page=current_url_name %}
+                {% include "cases/helpers/case_nav.html" %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
+                {% block header %}
+                {% include "cases/helpers/edit_header.html" %}
+                {% endblock %}
                 {% include 'common/error_summary.html' %}
                 {% block preform %}{% endblock %}
                 {% block form %}
-                <form method="post" action="{% url current_url_name object.id %}">
+                <form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">

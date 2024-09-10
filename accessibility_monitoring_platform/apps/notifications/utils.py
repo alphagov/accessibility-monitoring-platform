@@ -212,7 +212,9 @@ def build_overdue_task_options(case: Case) -> List[Option]:
         return [
             Option(
                 label="12-week update due",
-                url=reverse("cases:manage-contact-details", kwargs=kwargs_case_pk),
+                url=reverse(
+                    "cases:edit-12-week-one-week-followup-final", kwargs=kwargs_case_pk
+                ),
             )
         ]
     if case.status.status == CaseStatus.Status.IN_12_WEEK_CORES:

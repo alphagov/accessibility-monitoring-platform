@@ -71,7 +71,6 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         ),
         FieldLabelAndValue(label="Status", value=case.status.get_status_display()),
     ]
-    testing_details_subsections: Optional[List[ViewSection]] = None
     twelve_week_test_subsections: Optional[List[ViewSection]] = None
     report_details_fields: List[FieldLabelAndValue] = []
     equality_body_metadata: ViewSection = build_view_section(
@@ -168,11 +167,21 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 display_fields=get_case_rows(form=PostCaseUpdateForm()),
             )
         ]
-    if case.audit is not None:
-        testing_details_subsections: List[FieldLabelAndValue] = (
-            get_initial_test_view_sections(audit=case.audit)
+    if case.audit is None:
+        initial_test_sections: List[ViewSection] = [
+            build_view_section(
+                name="Testing details",
+                edit_url=reverse("cases:edit-test-results", kwargs=case_pk),
+                edit_url_id="edit-test-results",
+                complete_date=case.testing_details_complete_date,
+                placeholder="A test does not exist for this case",
+            )
+        ]
+    else:
+        initial_test_sections: List[ViewSection] = get_initial_test_view_sections(
+            audit=case.audit
         )
-        twelve_week_test_subsections: List[FieldLabelAndValue] = (
+        twelve_week_test_subsections: List[ViewSection] = (
             get_twelve_week_test_view_sections(audit=case.audit)
         )
         if case.report is not None:
@@ -210,96 +219,92 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                     .count(),
                 ),
             ]
-    before_correspondence_process: List[ViewSection] = [
-        build_view_section(
-            name="Case details > Case metadata",
-            edit_url=reverse("cases:edit-case-metadata", kwargs=case_pk),
-            edit_url_id="edit-case-metadata",
-            complete_date=case.case_details_complete_date,
-            display_fields=case_details_prefix
-            + get_case_rows(form=CaseMetadataUpdateForm()),
-        ),
-        build_view_section(
-            name="Testing details",
-            edit_url=reverse("cases:edit-test-results", kwargs=case_pk),
-            edit_url_id="edit-test-results",
-            complete_date=case.testing_details_complete_date,
-            placeholder="A test does not exist for this case.",
-            type=ViewSection.AUDIT_RESULTS_ON_VIEW_CASE,
-            subsections=testing_details_subsections,
-        ),
-        build_view_section(
-            name="Report details",
-            edit_url=reverse("cases:edit-report-details", kwargs=case_pk),
-            edit_url_id="edit-report-details",
-            complete_date=case.reporting_details_complete_date,
-            placeholder="A report does not exist for this case.",
-            display_fields=(
-                report_details_fields
-                + get_case_rows(form=CaseReportDetailsUpdateForm())
-                if case.report is not None
-                else None
+    before_correspondence_process: List[ViewSection] = (
+        [
+            build_view_section(
+                name="Case details > Case metadata",
+                edit_url=reverse("cases:edit-case-metadata", kwargs=case_pk),
+                edit_url_id="edit-case-metadata",
+                complete_date=case.case_details_complete_date,
+                display_fields=case_details_prefix
+                + get_case_rows(form=CaseMetadataUpdateForm()),
             ),
-        ),
-        build_view_section(
-            name="QA comments",
-            edit_url=reverse("cases:edit-qa-comments", kwargs=case_pk),
-            edit_url_id="edit-qa-comments",
-            display_fields=[
-                FieldLabelAndValue(
-                    type=FieldLabelAndValue.NOTES_TYPE,
-                    label=f"{comment.user.get_full_name()} on {amp_datetime(comment.created_date)}",
-                    value=comment.body,
-                )
-                for comment in case.qa_comments
-            ],
-        ),
-        build_view_section(
-            name="Report approved",
-            edit_url=reverse("cases:edit-report-approved", kwargs=case_pk),
-            edit_url_id="edit-report-approved",
-            complete_date=case.qa_auditor_complete_date,
-            display_fields=get_case_rows(form=CaseReportApprovedUpdateForm()),
-        ),
-        build_view_section(
-            name="Publish report",
-            edit_url=reverse("cases:edit-publish-report", kwargs=case_pk),
-            edit_url_id="edit-publish-report",
-            anchor="",
-            complete_date=case.publish_report_complete_date,
-        ),
-        build_view_section(
-            name="Contact details > Manage contact details",
-            edit_url=reverse("cases:manage-contact-details", kwargs=case_pk),
-            edit_url_id="manage-contact-details",
-            complete_date=case.manage_contact_details_complete_date,
-            display_fields=get_case_rows(form=ManageContactDetailsUpdateForm()),
-            subtables=[
-                ViewSubTable(
-                    name=f"Contact {count}",
-                    display_fields=[
-                        FieldLabelAndValue(
-                            label="Name",
-                            value=contact.name,
-                        ),
-                        FieldLabelAndValue(
-                            label="Job title",
-                            value=contact.job_title,
-                        ),
-                        FieldLabelAndValue(
-                            label="Email",
-                            value=contact.email,
-                        ),
-                        FieldLabelAndValue(
-                            label="Preferred contact",
-                            value=contact.get_preferred_display(),
-                        ),
-                    ],
-                )
-                for count, contact in enumerate(case.contacts, start=1)
-            ],
-        ),
-    ]
+        ]
+        + initial_test_sections
+        + [
+            build_view_section(
+                name="Report details",
+                edit_url=reverse("cases:edit-report-details", kwargs=case_pk),
+                edit_url_id="edit-report-details",
+                complete_date=case.reporting_details_complete_date,
+                placeholder="A report does not exist for this case.",
+                display_fields=(
+                    report_details_fields
+                    + get_case_rows(form=CaseReportDetailsUpdateForm())
+                    if case.report is not None
+                    else None
+                ),
+            ),
+            build_view_section(
+                name="QA comments",
+                edit_url=reverse("cases:edit-qa-comments", kwargs=case_pk),
+                edit_url_id="edit-qa-comments",
+                display_fields=[
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.NOTES_TYPE,
+                        label=f"{comment.user.get_full_name()} on {amp_datetime(comment.created_date)}",
+                        value=comment.body,
+                    )
+                    for comment in case.qa_comments
+                ],
+            ),
+            build_view_section(
+                name="Report approved",
+                edit_url=reverse("cases:edit-report-approved", kwargs=case_pk),
+                edit_url_id="edit-report-approved",
+                complete_date=case.qa_auditor_complete_date,
+                display_fields=get_case_rows(form=CaseReportApprovedUpdateForm()),
+            ),
+            build_view_section(
+                name="Publish report",
+                edit_url=reverse("cases:edit-publish-report", kwargs=case_pk),
+                edit_url_id="edit-publish-report",
+                anchor="",
+                complete_date=case.publish_report_complete_date,
+            ),
+            build_view_section(
+                name="Contact details > Manage contact details",
+                edit_url=reverse("cases:manage-contact-details", kwargs=case_pk),
+                edit_url_id="manage-contact-details",
+                complete_date=case.manage_contact_details_complete_date,
+                display_fields=get_case_rows(form=ManageContactDetailsUpdateForm()),
+                subtables=[
+                    ViewSubTable(
+                        name=f"Contact {count}",
+                        display_fields=[
+                            FieldLabelAndValue(
+                                label="Name",
+                                value=contact.name,
+                            ),
+                            FieldLabelAndValue(
+                                label="Job title",
+                                value=contact.job_title,
+                            ),
+                            FieldLabelAndValue(
+                                label="Email",
+                                value=contact.email,
+                            ),
+                            FieldLabelAndValue(
+                                label="Preferred contact",
+                                value=contact.get_preferred_display(),
+                            ),
+                        ],
+                    )
+                    for count, contact in enumerate(case.contacts, start=1)
+                ],
+            ),
+        ]
+    )
     if case.enable_correspondence_process is True:
         correspondence_process: List[ViewSection] = [
             build_view_section(

@@ -1,117 +1,98 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% block title %}{{ case.organisation_name }} | {% if show_unresolved %}Unresolved equality body correspondence{% else %}{{ amp_page_name }}{% endif %}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
-        </div>
-    </div>
+{% block header %}
+<h1 class="govuk-heading-xl amp-margin-bottom-15">
     {% if show_unresolved %}
-        {% include 'cases/helpers/breadcrumbs.html' with page_heading='Unresolved equality body correspondence' %}
+        Unresolved equality body correspondence
     {% else %}
-        {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
+        {{ sitemap.current_platform_page.get_name }}
     {% endif %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" %}
-                {% include 'cases/helpers/nav_steps.html' with current_page='cases:list-equality-body-correspondence' %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% if show_unresolved %}
-                    {% include "cases/helpers/edit_header.html" with page_heading='Unresolved equality body correspondence' %}
+</h1>
+{% include "cases/helpers/messages.html" %}
+{% endblock %}
+
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <a
+            href="{% url 'cases:list-equality-body-correspondence' case.id %}{% if not show_unresolved %}?view=unresolved{% endif %}"
+            role="button"
+            draggable="false"
+            class="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+        >
+        Filter {% if show_unresolved %}all{% else %}unresolved{% endif %} correspondence
+        </a>
+        <a
+            href="{% url 'cases:create-equality-body-correspondence' case.id %}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Add Zendesk ticket
+        </a>
+    </div>
+    <div class="govuk-grid-column-full govuk-button-group">
+        <a
+            href="{% url 'cases:edit-retest-overview' case.id %}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            View retest overview
+        </a>
+    </div>
+    <div class="govuk-grid-column-full">
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+        {% for equality_body_correspondence in equality_body_correspondences %}
+            <h2 class="govuk-heading-m">
+                Zendesk correspondence #{{ equality_body_correspondence.id_within_case }}
+                ({{ equality_body_correspondence.get_status_display }})
+            </h2>
+            <p class="govuk-body-m">
+                <a href="{% url 'cases:edit-equality-body-correspondence' equality_body_correspondence.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Edit ticket</a>
+            </p>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>Time added to platform</b></p>
+            <p class="govuk-body-m">{{ equality_body_correspondence.created|amp_datetime }}</p>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>Type</b></p>
+            <p class="govuk-body-m">{{ equality_body_correspondence.get_type_display }}</p>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>Zendesk message</b></p>
+            <div class="amp-report-wrapper">
+                {% if equality_body_correspondence.message %}
+                    {{ equality_body_correspondence.message|markdown_to_html }}
                 {% else %}
-                    {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
+                    <p>None</p>
                 {% endif %}
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'cases:list-equality-body-correspondence' case.id %}">
-                    {% csrf_token %}
-                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <a
-                                href="{% url 'cases:list-equality-body-correspondence' case.id %}{% if not show_unresolved %}?view=unresolved{% endif %}"
-                                role="button"
-                                draggable="false"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            >
-                            Filter {% if show_unresolved %}all{% else %}unresolved{% endif %} correspondence
-                            </a>
-                            <a
-                                href="{% url 'cases:create-equality-body-correspondence' case.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Add Zendesk ticket
-                            </a>
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <a
-                                href="{% url 'cases:edit-retest-overview' case.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                View retest overview
-                            </a>
-                        </div>
-                        <div class="govuk-grid-column-full">
-                            <hr class="amp-width-100 amp-margin-bottom-30" />
-                            {% for equality_body_correspondence in equality_body_correspondences %}
-                                <h2 class="govuk-heading-m">
-                                    Zendesk correspondence #{{ equality_body_correspondence.id_within_case }}
-                                    ({{ equality_body_correspondence.get_status_display }})
-                                </h2>
-                                <p class="govuk-body-m">
-                                    <a href="{% url 'cases:edit-equality-body-correspondence' equality_body_correspondence.id %}" class="govuk-link govuk-link--no-visited-state">
-                                        Edit ticket</a>
-                                </p>
-                                <p class="govuk-body-m amp-margin-bottom-5"><b>Time added to platform</b></p>
-                                <p class="govuk-body-m">{{ equality_body_correspondence.created|amp_datetime }}</p>
-                                <p class="govuk-body-m amp-margin-bottom-5"><b>Type</b></p>
-                                <p class="govuk-body-m">{{ equality_body_correspondence.get_type_display }}</p>
-                                <p class="govuk-body-m amp-margin-bottom-5"><b>Zendesk message</b></p>
-                                <div class="amp-report-wrapper">
-                                    {% if equality_body_correspondence.message %}
-                                        {{ equality_body_correspondence.message|markdown_to_html }}
-                                    {% else %}
-                                        <p>None</p>
-                                    {% endif %}
-                                </div>
-                                <p class="govuk-body-m amp-margin-bottom-5"><b>Auditor notes</b></p>
-                                <div class="amp-report-wrapper">
-                                    {% if equality_body_correspondence.notes %}
-                                        {{ equality_body_correspondence.notes|markdown_to_html }}
-                                    {% else %}
-                                        <p>None</p>
-                                    {% endif %}
-                                </div>
-                                <p class="govuk-body-m amp-margin-bottom-5"><b>Link to Zendesk ticket</b></p>
-                                <p class="govuk-body-m">
-                                    {% if equality_body_correspondence.zendesk_url %}
-                                        <a href="{{ equality_body_correspondence.zendesk_url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
-                                            {{ equality_body_correspondence.zendesk_url }}</a>
-                                    {% else %}
-                                        None
-                                    {% endif %}
-                                </p>
-                                <div class="govuk-button-group">
-                                    <input
-                                        type="submit"
-                                        value="Mark as {% if equality_body_correspondence.status == 'resolved' %}unresolved{% else %}resolved{% endif %}"
-                                        name="toggle_status_{{ equality_body_correspondence.id }}"
-                                        class="govuk-button govuk-button--secondary"
-                                        data-module="govuk-button"
-                                    />
-                                </div>
-                                <hr class="amp-width-100 amp-margin-bottom-30" />
-                            {% endfor %}
-                        </div>
-                    </div>
-                </form>
             </div>
-        </div>
-    </main>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>Auditor notes</b></p>
+            <div class="amp-report-wrapper">
+                {% if equality_body_correspondence.notes %}
+                    {{ equality_body_correspondence.notes|markdown_to_html }}
+                {% else %}
+                    <p>None</p>
+                {% endif %}
+            </div>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>Link to Zendesk ticket</b></p>
+            <p class="govuk-body-m">
+                {% if equality_body_correspondence.zendesk_url %}
+                    <a href="{{ equality_body_correspondence.zendesk_url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                        {{ equality_body_correspondence.zendesk_url }}</a>
+                {% else %}
+                    None
+                {% endif %}
+            </p>
+            <div class="govuk-button-group">
+                <input
+                    type="submit"
+                    value="Mark as {% if equality_body_correspondence.status == 'resolved' %}unresolved{% else %}resolved{% endif %}"
+                    name="toggle_status_{{ equality_body_correspondence.id }}"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button"
+                />
+            </div>
+            <hr class="amp-width-100 amp-margin-bottom-30" />
+        {% endfor %}
+    </div>
 </div>
+{% endblock %}
+
+{% block formbuttons %}
 {% endblock %}

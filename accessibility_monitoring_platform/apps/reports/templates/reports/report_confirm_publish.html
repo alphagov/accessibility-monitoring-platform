@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ report.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ report.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -9,7 +9,7 @@
             {% include 'common/case_banner.html' with case=report.case %}
         </div>
     </div>
-    {% include 'reports/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
+    {% include 'reports/helpers/breadcrumbs.html' with page_heading=sitemap.current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">

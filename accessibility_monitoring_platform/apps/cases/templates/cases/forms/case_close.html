@@ -1,155 +1,116 @@
-<!DOCTYPE html>
+{% extends 'common/case_form.html' %}
 
-{% extends 'base.html' %}
-
-{% load static %}
-
-{% block title %}{{ case.organisation_name }} | {{ amp_page_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
+{% block preform %}
+{% if not required_data_missing_columns %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
+            <div class="govuk-notification-banner" role="region" aria-labelledby="banner-title-no-missing-columns" data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                  <h2 class="govuk-notification-banner__title" id="banner-title-no-missing-columns">
+                    Important
+                  </h2>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    <h3 class="govuk-notification-banner__heading">
+                        All fields are complete and the case can now be closed. Ensure the information below is correct.
+                    </h3>
+                </div>
+            </div>
         </div>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' with page_heading=amp_page_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        {% include 'cases/helpers/compliant_website_notification.html' %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/nav_details.html" %}
-                {% include 'cases/helpers/nav_steps.html' with current_section_name='Closing the case' current_page='cases:edit-case-close' %}
+{% endif %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <nav role="navigation" class="amp-margin-bottom-40">
+            <h2 class="govuk-heading-m">Contents</h2>
+            <div class="amp-left-border">
+                <ul class="govuk-list amp-margin-bottom-5">
+                    <li>
+                        <a href="#guidance-on-closing-the-case" class="govuk-link govuk-link--no-visited-state">
+                            Guidance on closing the case</a>
+                    </li>
+                    {% if required_data_missing_columns %}
+                        <li>
+                            <a href="#missing-data" class="govuk-link govuk-link--no-visited-state">
+                                Missing data ({{ required_data_missing_columns|length }})</a>
+                        </li>
+                    {% endif %}
+                    <li>
+                        <a href="#1-metadata" class="govuk-link govuk-link--no-visited-state">
+                            1. Metadata</a>
+                    </li>
+                    <li>
+                        <a href="#2-report-and-recommendation" class="govuk-link govuk-link--no-visited-state">
+                            2. Report and recommendation</a>
+                    </li>
+                    <li>
+                        <a href="#3-correspondence" class="govuk-link govuk-link--no-visited-state">
+                            3. Correspondence</a>
+                    </li>
+                    <li>
+                        <a href="#4-test-summary" class="govuk-link govuk-link--no-visited-state">
+                            4. Test summary</a>
+                    </li>
+                    <li>
+                        <a href="#id_case_completed-label" class="govuk-link govuk-link--no-visited-state">
+                            Case completed</a>
+                    </li>
+                </ul>
             </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name %}
-                {% include 'common/error_summary.html' %}
-                {% if not required_data_missing_columns %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <div class="govuk-notification-banner" role="region" aria-labelledby="banner-title-no-missing-columns" data-module="govuk-notification-banner">
-                                <div class="govuk-notification-banner__header">
-                                  <h2 class="govuk-notification-banner__title" id="banner-title-no-missing-columns">
-                                    Important
-                                  </h2>
-                                </div>
-                                <div class="govuk-notification-banner__content">
-                                    <h3 class="govuk-notification-banner__heading">
-                                        All fields are complete and the case can now be closed. Ensure the information below is correct.
-                                    </h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-full">
-                        <nav role="navigation" class="amp-margin-bottom-40">
-                            <h2 class="govuk-heading-m">Contents</h2>
-                            <div class="amp-left-border">
-                                <ul class="govuk-list amp-margin-bottom-5">
-                                    <li>
-                                        <a href="#guidance-on-closing-the-case" class="govuk-link govuk-link--no-visited-state">
-                                            Guidance on closing the case</a>
-                                    </li>
-                                    {% if required_data_missing_columns %}
-                                        <li>
-                                            <a href="#missing-data" class="govuk-link govuk-link--no-visited-state">
-                                                Missing data ({{ required_data_missing_columns|length }})</a>
-                                        </li>
-                                    {% endif %}
-                                    <li>
-                                        <a href="#1-metadata" class="govuk-link govuk-link--no-visited-state">
-                                            1. Metadata</a>
-                                    </li>
-                                    <li>
-                                        <a href="#2-report-and-recommendation" class="govuk-link govuk-link--no-visited-state">
-                                            2. Report and recommendation</a>
-                                    </li>
-                                    <li>
-                                        <a href="#3-correspondence" class="govuk-link govuk-link--no-visited-state">
-                                            3. Correspondence</a>
-                                    </li>
-                                    <li>
-                                        <a href="#4-test-summary" class="govuk-link govuk-link--no-visited-state">
-                                            4. Test summary</a>
-                                    </li>
-                                    <li>
-                                        <a href="#id_case_completed-label" class="govuk-link govuk-link--no-visited-state">
-                                            Case completed</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </nav>
-                    </div>
-                </div>
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-full">
-                        <h2 class="govuk-heading-m" id="guidance-on-closing-the-case">Guidance on closing the case</h2>
-                        <p class="govuk-body-m">
-                            Select "Case should not be sent to the equality body" if the case does not require further action,
-                            closing it immediately.
-                        </p>
-                        <p class="govuk-body-m">
-                            If the case <b>needs to be sent to the equality body</b>,
-                            complete and verify all required fields before proceeding.
-                        </p>
-                        {% if required_data_missing_columns %}
-                            <h2 class="govuk-heading-m" id="missing-data">Missing data</h2>
-                            {% if not case.audit %}
-                                <p class="govuk-body-m">
-                                    There isn't an initial test
-                                    (<a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to testing details</a>)
-                                </p>
-                            {% endif %}
-                            <p class="govuk-body-m">
-                                The case has missing data and can not be submitted to EHRC. Please correct the following fields.
-                            </p>
-                            <ul class="govuk-list govuk-list--bullet">
-                                {% for required_data_missing_column in required_data_missing_columns %}
-                                    <li>
-                                        {{ required_data_missing_column.column_header }} is missing
-                                        {% if required_data_missing_column.edit_url %}
-                                            <span class="amp-nowrap">(<a href="{{ required_data_missing_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">{{ required_data_missing_column.edit_url_label }}{% if required_data_missing_column.edit_url_label == 'Edit' %}<span class="govuk-visually-hidden"> {{ required_data_missing_column.column_header }}</span>{% endif %}</a>)</span>
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-
-                        <h2 class="govuk-heading-m" id="1-metadata">1. Metadata</h2>
-                        {% for equality_body_column in equality_body_metadata_columns %}
-                            {% include 'cases/helpers/csv_column.html' %}
-                        {% endfor %}
-                        <h2 class="govuk-heading-m" id="2-report-and-recommendation">2. Report and recommendation</h2>
-                        {% for equality_body_column in equality_body_report_columns %}
-                            {% include 'cases/helpers/csv_column.html' %}
-                        {% endfor %}
-                        <h2 class="govuk-heading-m" id="3-correspondence">3. Correspondence</h2>
-                        {% for equality_body_column in equality_body_correspondence_columns %}
-                            {% include 'cases/helpers/csv_column.html' %}
-                        {% endfor %}
-                        <h2 class="govuk-heading-m" id="4-test-summary">4. Test summary</h2>
-                        {% for equality_body_column in equality_body_test_summary_columns %}
-                            {% include 'cases/helpers/csv_column.html' %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <hr class="amp-width-100 amp-margin-bottom-30" />
-                <form method="post" action="{% url 'cases:edit-case-close' case.id %}">
-                    {% csrf_token %}
-                    {% include 'common/amp_form_snippet.html' %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'cases/helpers/save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
+        </nav>
+    </div>
 </div>
-{% endblock %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h2 class="govuk-heading-m" id="guidance-on-closing-the-case">Guidance on closing the case</h2>
+        <p class="govuk-body-m">
+            Select "Case should not be sent to the equality body" if the case does not require further action,
+            closing it immediately.
+        </p>
+        <p class="govuk-body-m">
+            If the case <b>needs to be sent to the equality body</b>,
+            complete and verify all required fields before proceeding.
+        </p>
+        {% if required_data_missing_columns %}
+            <h2 class="govuk-heading-m" id="missing-data">Missing data</h2>
+            {% if not case.audit %}
+                <p class="govuk-body-m">
+                    There isn't an initial test
+                    (<a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to testing details</a>)
+                </p>
+            {% endif %}
+            <p class="govuk-body-m">
+                The case has missing data and can not be submitted to EHRC. Please correct the following fields.
+            </p>
+            <ul class="govuk-list govuk-list--bullet">
+                {% for required_data_missing_column in required_data_missing_columns %}
+                    <li>
+                        {{ required_data_missing_column.column_header }} is missing
+                        {% if required_data_missing_column.edit_url %}
+                            <span class="amp-nowrap">(<a href="{{ required_data_missing_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">{{ required_data_missing_column.edit_url_label }}{% if required_data_missing_column.edit_url_label == 'Edit' %}<span class="govuk-visually-hidden"> {{ required_data_missing_column.column_header }}</span>{% endif %}</a>)</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-{% block extrascript %}
+        <h2 class="govuk-heading-m" id="1-metadata">1. Metadata</h2>
+        {% for equality_body_column in equality_body_metadata_columns %}
+            {% include 'cases/helpers/csv_column.html' %}
+        {% endfor %}
+        <h2 class="govuk-heading-m" id="2-report-and-recommendation">2. Report and recommendation</h2>
+        {% for equality_body_column in equality_body_report_columns %}
+            {% include 'cases/helpers/csv_column.html' %}
+        {% endfor %}
+        <h2 class="govuk-heading-m" id="3-correspondence">3. Correspondence</h2>
+        {% for equality_body_column in equality_body_correspondence_columns %}
+            {% include 'cases/helpers/csv_column.html' %}
+        {% endfor %}
+        <h2 class="govuk-heading-m" id="4-test-summary">4. Test summary</h2>
+        {% for equality_body_column in equality_body_test_summary_columns %}
+            {% include 'cases/helpers/csv_column.html' %}
+        {% endfor %}
+    </div>
+</div>
+<hr class="amp-width-100 amp-margin-bottom-30" />
 {% endblock %}

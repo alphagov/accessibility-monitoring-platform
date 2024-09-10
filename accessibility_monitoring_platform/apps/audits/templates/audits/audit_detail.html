@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -13,14 +13,14 @@
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
             {% include 'cases/helpers/breadcrumb_case.html' with case=audit.case %}
-            <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group">
-                    <h1 class="govuk-heading-xl amp-margin-bottom-0 amp-padding-right-20">{{ amp_page_name }}</h1>
+                    <h1 class="govuk-heading-xl amp-margin-bottom-0 amp-padding-right-20">{{ sitemap.current_platform_page.get_name }}</h1>
                     {% if audit.is_deleted %}
                         <strong class="govuk-tag govuk-tag--red">
                             Deleted

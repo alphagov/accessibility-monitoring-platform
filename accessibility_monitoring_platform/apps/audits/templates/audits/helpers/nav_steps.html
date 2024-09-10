@@ -1,42 +1,12 @@
 <nav role="navigation" class="amp-nav-steps">
-    <h2 class="govuk-heading-m amp-margin-bottom-5">Test steps</h2>
     <ul class="govuk-list">
-        {% include './nav_step.html' with edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-audit-pages' name='Pages' complete=audit.audit_pages_complete_date %}
-        {% if audit.testable_pages %}
-            <li>
-                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                    {% for page in audit.testable_pages %}
-                        {% include './nav_step.html' with edit_name='audits:edit-audit-page-checks' complete=page.complete_date %}
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endif %}
-        {% include './nav_step.html' with edit_name='audits:edit-website-decision' name='Website compliance decision' complete=audit.audit_website_decision_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-statement-pages' name='Statement links' complete=audit.audit_statement_pages_complete_date %}
         {% if audit.uses_statement_checks %}
-            {% include './nav_step.html' with edit_name='audits:edit-statement-overview' name='Statement overview' complete=audit.audit_statement_overview_complete_date %}
-            {% if audit.all_overview_statement_checks_have_passed %}
-                <li>
-                    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                        {% include './nav_step.html' with edit_name='audits:edit-statement-website' name='Statement information' complete=audit.audit_statement_website_complete_date %}
-                        {% include './nav_step.html' with edit_name='audits:edit-statement-compliance' name='Compliance status' complete=audit.audit_statement_compliance_complete_date %}
-                        {% include './nav_step.html' with edit_name='audits:edit-statement-non-accessible' name='Non-accessible content' complete=audit.audit_statement_non_accessible_complete_date %}
-                        {% include './nav_step.html' with edit_name='audits:edit-statement-preparation' name='Statement preparation' complete=audit.audit_statement_preparation_complete_date %}
-                        {% include './nav_step.html' with edit_name='audits:edit-statement-feedback' name='Feedback and enforcement procedure' complete=audit.audit_statement_feedback_complete_date %}
-                        {% include './nav_step.html' with edit_name='audits:edit-statement-custom' name='Custom statement issues' complete=audit.audit_statement_custom_complete_date %}
-                    </ul>
-                </li>
-            {% endif %}
-            {% include './nav_step.html' with edit_name='audits:edit-initial-disproportionate-burden' name='Initial disproportionate burden claim' complete=audit.initial_disproportionate_burden_complete_date %}
-            {% include './nav_step.html' with edit_name='audits:edit-statement-decision' name='Initial statement compliance decision' complete=audit.audit_statement_decision_complete_date %}
         {% else %}
             {% include './nav_step.html' with edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.archive_audit_statement_1_complete_date %}
             {% include './nav_step.html' with edit_name='audits:edit-audit-statement-2' name='Accessibility statement 2' complete=audit.archive_audit_statement_2_complete_date %}
             {% include './nav_step.html' with edit_name='audits:edit-statement-decision' name='Accessibility statement compliance decision' complete=audit.audit_statement_decision_complete_date %}
             {% include './nav_step.html' with edit_name='audits:edit-audit-report-options' name='Report options' complete=audit.archive_audit_report_options_complete_date %}
         {% endif %}
-        {% include './nav_step.html' with edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}
     </ul>
     {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=audit.case %}
 </nav>
