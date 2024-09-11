@@ -1979,7 +1979,7 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ),
         (
             "enforcement_recommendation_complete_date",
-            "Closing the case > Enforcement recommendation",
+            "Closing the case > Recommendation",
             "edit-enforcement-recommendation",
         ),
         (
@@ -2299,7 +2299,7 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
         (
             "cases:edit-enforcement-recommendation",
             "enforcement_recommendation_complete_date",
-            "Enforcement recommendation",
+            "Recommendation",
         ),
         ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
     ],
