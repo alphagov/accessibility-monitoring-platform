@@ -24,8 +24,8 @@ We found some accessibility issues with the website. Details of the issues can b
 <a href="{{ case.published_report_url }}">{{ case.published_report_url }}</a>
 <br>
 <br>
-We have published
-<a href="https://reports.accessibility-monitoring.service.gov.uk/reports/more-information">more information on public sector accessibility monitoring and what you need to do</a>.
+We have published more information on public sector accessibility monitoring and what you need to do at
+<a href="https://reports.accessibility-monitoring.service.gov.uk/reports/more-information">https://reports.accessibility-monitoring.service.gov.uk/reports/more-information</a>.
 <br>
 <br>
 <h2>What you have to do</h2>
@@ -36,15 +36,17 @@ Under the Regulations your website must meet Web Content Accessibility Guideline
 We are asking that you:
 <ul>
 <li>email us within 7 days to confirm you have received the report</li>
-<li><span class="amp-email-red">send us your disproportionate burden assessment evidence</span></li>
+{% if case.audit.initial_disproportionate_burden_claim == 'no-assessment' %}
+<li>send us your disproportionate burden assessment evidence</li>
+{% endif %}
 <li>carry out an accessibility audit of your website to find what needs to be fixed, if you have not had an audit completed recently</li>
 <li>fix the issues on your website within 12 weeks <span class="amp-email-red">(within the timeline provided)</span></li>
 <li>publish a compliant accessibility statement on your website</li>
 </ul>
 <br>
-After 12 weeks,
+After 12 weeks
 {% if case.report_followup_week_12_due_date %}
-{{ case.report_followup_week_12_due_date|amp_date }},
+({{ case.report_followup_week_12_due_date|amp_date }}),
 {% else %}
 <span class="amp-email-placeholder">(add date)</span>,
 {% endif %}
@@ -61,5 +63,5 @@ To find out more about the accessibility monitoring and the legislation go to
 <a href="https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring">https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring</a>
 <br>
 <br>
-If you have received this email and you are not the person responsible to take the specified actions you must forward it to the correct person urgently.
+If you have received this email and you are not the person responsible to take the specified actions please forward it to the correct person.
 <br>
