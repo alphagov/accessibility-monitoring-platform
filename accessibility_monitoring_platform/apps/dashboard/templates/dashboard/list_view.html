@@ -2,7 +2,7 @@
 
 <h2 class="govuk-heading-l">QA cases</h2>
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-qa-cases">
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-qa-cases-heading-report-ready-to-qa">
@@ -10,7 +10,7 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-qa-cases-content-report-ready-to-qa" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-qa-cases-heading-report-ready-to-qa">
+        <div id="accordion-qa-cases-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-qa-cases-heading-report-ready-to-qa">
             {% include "./13_reports_in_qa.html" %}
         </div>
     </div>
@@ -18,7 +18,7 @@
 <h2 class="govuk-heading-l">Audit cases</h2>
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
     {% if cases_by_status.unknown %}
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-unknown">
@@ -26,12 +26,12 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-unknown table-padding" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-unknown">
+        <div id="accordion-default-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-unknown">
             {% include "./1_new_cases_table.html" with cases=cases_by_status.unknown %}
         </div>
     </div>
     {% endif %}
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-unassigned-cases">
@@ -39,11 +39,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-unassigned-cases table-padding" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-unassigned-cases">
+        <div id="accordion-default-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-unassigned-cases">
             {% include "./1_new_cases_table.html" with cases=cases_by_status.unassigned_cases %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-test-in-progress">
@@ -51,11 +51,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-test-in-progress" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-test-in-progress">
+        <div id="accordion-default-content-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-test-in-progress">
             {% include "./2_tests_in_progress_table.html" with cases=cases_by_status.test_in_progress %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-reports-in-progress">
@@ -63,11 +63,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-reports-in-progress" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-reports-in-progress">
+        <div id="accordion-default-content-3" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-reports-in-progress">
             {% include "./3_reports_in_progress_table.html" with cases=cases_by_status.reports_in_progress %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-qa-in-progress">
@@ -75,11 +75,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-qa-in-progress" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-qa-in-progress">
+        <div id="accordion-default-content-4" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-qa-in-progress">
             {% include "./4_qa_in_progress_table.html" with cases=cases_by_status.qa_in_progress %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-reports-ready-to-send">
@@ -87,11 +87,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-reports-ready-to-send" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-reports-ready-to-send">
+        <div id="accordion-default-content-5" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-reports-ready-to-send">
             {% include "./6_report_ready_to_send.html" with cases=cases_by_status.report_ready_to_send %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-in-report-correspondence">
@@ -99,11 +99,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-in-report-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-report-correspondence">
+        <div id="accordion-default-content-6" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-report-correspondence">
             {% include "./7_in_report_correspondence.html" with cases=cases_by_status.in_report_correspondence %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-in-probation-period">
@@ -111,11 +111,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-in-probation-period" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-probation-period">
+        <div id="accordion-default-content-7" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-probation-period">
             {% include "./8_in_probation_period.html" with cases=cases_by_status.in_probation_period %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-in-twelve-week-correspondence">
@@ -123,11 +123,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-in-twelve-week-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
+        <div id="accordion-default-content-8" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
             {% include "./9_in_12_week_correspondence.html" with cases=cases_by_status.in_12_week_correspondence %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-reviewing-changes">
@@ -135,11 +135,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-reviewing-changes" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
+        <div id="accordion-default-content-9" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
             {% include "./10_reviewing_changes.html" with cases=cases_by_status.reviewing_changes %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-final-decision-due">
@@ -147,14 +147,14 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-final-decision-due" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-final-decision-due">
+        <div id="accordion-default-content-10" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-final-decision-due">
             {% include "./11_final_decision_due.html" with cases=cases_by_status.final_decision_due %}
         </div>
     </div>
 </div>
 <h2 class="govuk-heading-l">Post case</h2>
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-post-case">
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-post-case-heading-case-closed-waiting-to-be-sent">
@@ -162,11 +162,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-post-case-content-case-closed-waiting-to-be-sent" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-content-case-closed-waiting-to-be-sent">
+        <div id="accordion-post-case-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-content-case-closed-waiting-to-be-sent">
             {% include "./12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_waiting_to_be_sent %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-post-case-heading-case-closed-sent-to-equalities-body">
@@ -174,7 +174,7 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-post-case-content-case-closed-sent-to-equalities-body" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-case-closed-sent-to-equalities-body">
+        <div id="accordion-post-case-content-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-case-closed-sent-to-equalities-body">
             <p class="govuk-body">
                 {% if show_all_cases %}
                     <a href="{% url 'cases:case-list' %}?status=case-closed-sent-to-equalities-body" class="govuk-link">
@@ -186,7 +186,7 @@
             </p>
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-post-case-heading-equality-body-correspondence">
@@ -194,11 +194,11 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-post-case-content-equality-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-equality-body-correspondence">
+        <div id="accordion-post-case-content-3" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-equality-body-correspondence">
             {% include "./12_in_correspondence_with_equality_body.html" with cases=cases_by_status.in_correspondence_with_equalities_body %}
         </div>
     </div>
-    <div class="govuk-accordion__section ">
+    <div class="govuk-accordion__section">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-post-case-heading-complete">
@@ -206,7 +206,7 @@
                 </span>
             </h2>
         </div>
-        <div id="accordion-post-case-content-complete" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-complete">
+        <div id="accordion-post-case-content-4" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-complete">
             <p class="govuk-body">
                 {% if show_all_cases %}
                     <a href="{% url 'cases:case-list' %}?status=complete" class="govuk-link">
