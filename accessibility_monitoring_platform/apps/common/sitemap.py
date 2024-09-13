@@ -1252,8 +1252,8 @@ def build_sitemap_for_current_page(
     page is case-related, otherwise return the entire sitemap.
     """
     case: Optional[Case] = current_platform_page.get_case()
-    site_map = copy.deepcopy(SITE_MAP)
     if case is not None:
+        site_map = copy.deepcopy(SITE_MAP)
         case_navigation: List[PlatformPageGroup] = [
             platform_page_group
             for platform_page_group in site_map
