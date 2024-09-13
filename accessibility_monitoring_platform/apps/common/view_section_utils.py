@@ -4,7 +4,8 @@ Utility function to build context object for view pages' sections
 
 from dataclasses import dataclass
 from datetime import date
-from typing import ClassVar, List, Literal, Optional
+from enum import StrEnum
+from typing import List, Optional
 
 from django.db.models.query import QuerySet
 from django.utils.text import slugify
@@ -21,6 +22,14 @@ class ViewSubTable:
 
 @dataclass
 class ViewSection:
+    class Type(StrEnum):
+        AUDIT_RESULTS_ON_VIEW_CASE: str = "audit-results-on-view-case"
+        INITIAL_WCAG_RESULTS: str = "initial-wcag-results"
+        INITIAL_STATEMENT_RESULTS: str = "initial-statement-results"
+        TWELVE_WEEK_WCAG_RESULTS: str = "12-week-wcag-results"
+        TWELVE_WEEK_STATEMENT_RESULTS: str = "12-week-statement-results"
+        FORM_TYPE: str = "form"
+
     name: str
     anchor: str = ""
     edit_url: str = ""
@@ -30,20 +39,7 @@ class ViewSection:
     subtables: List[ViewSubTable] = None
     subsections: List["ViewSection"] = None
     placeholder: str = "None"
-    AUDIT_RESULTS_ON_VIEW_CASE: ClassVar[str] = "audit-results-on-view-case"
-    INITIAL_WCAG_RESULTS: ClassVar[str] = "initial-wcag-results"
-    INITIAL_STATEMENT_RESULTS: ClassVar[str] = "initial-statement-results"
-    TWELVE_WEEK_WCAG_RESULTS: ClassVar[str] = "12-week-wcag-results"
-    TWELVE_WEEK_STATEMENT_RESULTS: ClassVar[str] = "12-week-statement-results"
-    FORM_TYPE: ClassVar[str] = "form"
-    type: Literal[
-        FORM_TYPE,
-        AUDIT_RESULTS_ON_VIEW_CASE,
-        INITIAL_WCAG_RESULTS,
-        INITIAL_STATEMENT_RESULTS,
-        TWELVE_WEEK_WCAG_RESULTS,
-        TWELVE_WEEK_STATEMENT_RESULTS,
-    ] = FORM_TYPE
+    type: Type = Type.FORM_TYPE
     page: Optional[Page] = None
     statement_check_results: QuerySet[StatementCheckResult] = None
 
@@ -59,13 +55,20 @@ class ViewSection:
 
     def __post_init__(self):
         if (
-            self.type in [self.INITIAL_WCAG_RESULTS, self.TWELVE_WEEK_WCAG_RESULTS]
+            self.type
+            in [
+                ViewSection.Type.INITIAL_WCAG_RESULTS,
+                ViewSection.Type.TWELVE_WEEK_WCAG_RESULTS,
+            ]
             and self.page is None
         ):
             raise ValueError("Page missing from WCAG results section.")
         if (
             self.type
-            in [self.INITIAL_STATEMENT_RESULTS, self.TWELVE_WEEK_STATEMENT_RESULTS]
+            in [
+                ViewSection.Type.INITIAL_STATEMENT_RESULTS,
+                ViewSection.Type.TWELVE_WEEK_STATEMENT_RESULTS,
+            ]
             and self.statement_check_results is None
         ):
             raise ValueError("Results missing from statement results section.")
@@ -81,7 +84,7 @@ def build_view_section(
     display_fields: Optional[List[FieldLabelAndValue]] = None,
     subtables: Optional[ViewSubTable] = None,
     subsections: Optional[ViewSection] = None,
-    type: str = ViewSection.FORM_TYPE,
+    type: str = ViewSection.Type.FORM_TYPE,
     page: Optional[Page] = None,
     statement_check_results: QuerySet[StatementCheckResult] = None,
 ) -> ViewSection:

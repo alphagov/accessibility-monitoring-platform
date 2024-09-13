@@ -18,7 +18,7 @@ PLACEHOLDER: str = "No data to display"
 
 @pytest.mark.parametrize(
     "type",
-    [ViewSection.INITIAL_WCAG_RESULTS, ViewSection.TWELVE_WEEK_WCAG_RESULTS],
+    [ViewSection.Type.INITIAL_WCAG_RESULTS, ViewSection.Type.TWELVE_WEEK_WCAG_RESULTS],
 )
 def test_view_section_raises_missing_page_exception(type):
     """Test ViewSection raises missing page exception."""
@@ -31,7 +31,10 @@ def test_view_section_raises_missing_page_exception(type):
 
 @pytest.mark.parametrize(
     "type",
-    [ViewSection.INITIAL_STATEMENT_RESULTS, ViewSection.TWELVE_WEEK_STATEMENT_RESULTS],
+    [
+        ViewSection.Type.INITIAL_STATEMENT_RESULTS,
+        ViewSection.Type.TWELVE_WEEK_STATEMENT_RESULTS,
+    ],
 )
 def test_view_section_raises_missing_statement_results_exception(type):
     """Test ViewSection raises missing statement results exception."""
@@ -93,7 +96,7 @@ def test_build_view_section():
     assert view_section.display_fields is None
     assert view_section.subtables is None
     assert view_section.subsections is None
-    assert view_section.type == ViewSection.FORM_TYPE
+    assert view_section.type == ViewSection.Type.FORM_TYPE
     assert view_section.page is None
     assert view_section.statement_check_results is None
 
@@ -107,7 +110,7 @@ def test_build_view_section():
         display_fields=["fields"],
         subtables=["subtable"],
         subsections=["subsection"],
-        type=ViewSection.INITIAL_STATEMENT_RESULTS,
+        type=ViewSection.Type.INITIAL_STATEMENT_RESULTS,
         page="Page",
         statement_check_results=["statement_check_result"],
     )
@@ -121,6 +124,6 @@ def test_build_view_section():
     assert view_section.display_fields == ["fields"]
     assert view_section.subtables == ["subtable"]
     assert view_section.subsections == ["subsection"]
-    assert view_section.type == ViewSection.INITIAL_STATEMENT_RESULTS
+    assert view_section.type == ViewSection.Type.INITIAL_STATEMENT_RESULTS
     assert view_section.page == "Page"
     assert view_section.statement_check_results == ["statement_check_result"]
