@@ -4,7 +4,7 @@
         <div class="govuk-grid-column-two-thirds amp-vertically-allign">
             <ul class="govuk-list top-nav-menu-list govuk-body-s">
                 <li> {{ user.first_name|title }} {{ user.last_name|title }} </li>
-                <li class="amp-padding-left-10"> | </li>
+                <li class="amp-padding-left-10" aria-hidden="true"> | </li>
                 <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
                 <li>
                     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a>
