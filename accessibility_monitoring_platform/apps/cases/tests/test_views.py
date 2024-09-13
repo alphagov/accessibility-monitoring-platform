@@ -3524,6 +3524,41 @@ def test_equality_body_correspondence(admin_client):
     assertContains(response, UNRESOLVED_EQUALITY_BODY_NOTES)
 
 
+def test_equality_body_correspondence_nav_links(admin_client):
+    """
+    Test equality body correspondence page contains links to to next
+    page and parent case.
+    """
+    case: Case = Case.objects.create()
+    url: str = reverse(
+        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    retest_overview_url: str = reverse(
+        "cases:edit-retest-overview", kwargs={"pk": case.id}
+    )
+    case_detail_url: str = reverse("cases:case-detail", kwargs={"pk": case.id})
+
+    assertContains(
+        response,
+        f"""<a href="{retest_overview_url}" class="govuk-link govuk-link--no-visited-state">
+            Continue to retest overview
+        </a>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<a href="{case_detail_url}" class="govuk-link govuk-link--no-visited-state">
+            Return to view case
+        </a>""",
+        html=True,
+    )
+
+
 def test_equality_body_correspondence_status_toggle(admin_client):
     """
     Test equality body correspondence page buttons toggles the status
