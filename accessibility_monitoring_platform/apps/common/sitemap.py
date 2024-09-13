@@ -422,7 +422,7 @@ class PlatformPageGroup:
 class CasePlatformPageGroup(PlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.CASE_NAV, **kwargs):
         super().__init__(**kwargs)
-        self.type: Type = type
+        self.type: PlatformPageGroup.Type = type
         self.case: Optional[Case] = None
 
     @property
