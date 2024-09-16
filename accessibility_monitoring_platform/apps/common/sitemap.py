@@ -3,7 +3,8 @@
 import copy
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Literal, Optional, Type, Union
+from enum import StrEnum, auto
+from typing import Dict, List, Optional, Type, Union
 
 from django.contrib.auth.models import User
 from django.http import HttpRequest
@@ -356,17 +357,16 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
             self.subpages = subpage_instances
 
 
-# Page group types
-CASE_NAV: str = "case-nav"
-FUTURE_CASE_NAV: str = "future-case-nav"
-PREVIOUS_CASE_NAV: str = "previous-case-nav"
-DEFAULT: str = ""
-
-
 @dataclass
 class PlatformPageGroup:
+    class Type(StrEnum):
+        CASE_NAV: str = auto()
+        FUTURE_CASE_NAV: str = auto()
+        PREVIOUS_CASE_NAV: str = auto()
+        DEFAULT: str = auto()
+
     name: str
-    type: Literal[DEFAULT, CASE_NAV, FUTURE_CASE_NAV, PREVIOUS_CASE_NAV] = DEFAULT
+    type: Type = Type.DEFAULT
     show_flag_name: Optional[str] = None
     pages: Optional[List[PlatformPage]] = None
 
@@ -420,9 +420,9 @@ class PlatformPageGroup:
 
 
 class CasePlatformPageGroup(PlatformPageGroup):
-    def __init__(self, type=CASE_NAV, **kwargs):
+    def __init__(self, type=PlatformPageGroup.Type.CASE_NAV, **kwargs):
         super().__init__(**kwargs)
-        self.type: Literal[DEFAULT, CASE_NAV, FUTURE_CASE_NAV, PREVIOUS_CASE_NAV] = type
+        self.type: PlatformPageGroup.Type = type
         self.case: Optional[Case] = None
 
     @property
@@ -583,7 +583,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="",
-        type=PREVIOUS_CASE_NAV,
+        type=PlatformPageGroup.Type.PREVIOUS_CASE_NAV,
         show_flag_name="not_archived",
         pages=[
             CasePlatformPage(
@@ -726,7 +726,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="",
-        type=PREVIOUS_CASE_NAV,
+        type=PlatformPageGroup.Type.PREVIOUS_CASE_NAV,
         show_flag_name="not_archived",
         pages=[
             CasePlatformPage(
@@ -738,7 +738,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="12-week-retest",
-        type=FUTURE_CASE_NAV,
+        type=PlatformPageGroup.Type.FUTURE_CASE_NAV,
         show_flag_name="not_archived",
         pages=[
             AuditPlatformPage(
@@ -875,7 +875,7 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="",
-        type=PREVIOUS_CASE_NAV,
+        type=PlatformPageGroup.Type.PREVIOUS_CASE_NAV,
         pages=[
             CasePlatformPage(
                 name="Statement enforcement",
@@ -1257,8 +1257,8 @@ def build_sitemap_for_current_page(
         case_navigation: List[PlatformPageGroup] = [
             platform_page_group
             for platform_page_group in site_map
-            if platform_page_group.type == CASE_NAV
-            or platform_page_group.type == PREVIOUS_CASE_NAV
+            if platform_page_group.type == PlatformPageGroup.Type.CASE_NAV
+            or platform_page_group.type == PlatformPageGroup.Type.PREVIOUS_CASE_NAV
         ]
         for platform_page_group in case_navigation:
             platform_page_group.populate_from_case(case=case)

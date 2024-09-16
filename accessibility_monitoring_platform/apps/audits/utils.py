@@ -144,7 +144,7 @@ def build_initial_statement_content_subsections(audit: Audit) -> List[ViewSectio
                 audit,
                 f"audit_statement_{statement_content_subsection.attr_unique}_complete_date",
             ),
-            type=ViewSection.INITIAL_STATEMENT_RESULTS,
+            type=ViewSection.Type.INITIAL_STATEMENT_RESULTS,
             statement_check_results=getattr(
                 audit,
                 f"{statement_content_subsection.attr_unique}_statement_check_results",
@@ -170,7 +170,7 @@ def build_twelve_week_statement_content_subsections(audit: Audit) -> List[ViewSe
                 audit,
                 f"audit_retest_statement_{statement_content_subsection.attr_unique}_complete_date",
             ),
-            type=ViewSection.TWELVE_WEEK_STATEMENT_RESULTS,
+            type=ViewSection.Type.TWELVE_WEEK_STATEMENT_RESULTS,
             statement_check_results=getattr(
                 audit,
                 f"{statement_content_subsection.attr_unique}_statement_check_results",
@@ -231,7 +231,7 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
                     edit_url_id=f"edit-initial-page-{page.id}",
                     anchor=f"initial-page-{page.id}",
                     complete_date=page.complete_date,
-                    type=ViewSection.INITIAL_WCAG_RESULTS,
+                    type=ViewSection.Type.INITIAL_WCAG_RESULTS,
                     page=page,
                 )
                 for page in audit.testable_pages
@@ -299,7 +299,7 @@ def get_initial_test_view_sections(audit: Audit) -> List[ViewSection]:
                 edit_url=reverse("audits:edit-statement-overview", kwargs=audit_pk),
                 edit_url_id="edit-statement-overview",
                 complete_date=audit.audit_statement_overview_complete_date,
-                type=ViewSection.INITIAL_STATEMENT_RESULTS,
+                type=ViewSection.Type.INITIAL_STATEMENT_RESULTS,
                 statement_check_results=audit.overview_statement_check_results,
                 subsections=statement_content_subsections,
             ),
@@ -412,7 +412,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
                     edit_url_id=f"edit-twelve-week-page-{page.id}",
                     anchor=f"twelve-week-page-{page.id}",
                     complete_date=page.retest_complete_date,
-                    type=ViewSection.TWELVE_WEEK_WCAG_RESULTS,
+                    type=ViewSection.Type.TWELVE_WEEK_WCAG_RESULTS,
                     page=page,
                 )
                 for page in audit.testable_pages
@@ -487,7 +487,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
                 ),
                 edit_url_id="edit-retest-statement-overview",
                 complete_date=audit.audit_retest_statement_overview_complete_date,
-                type=ViewSection.TWELVE_WEEK_STATEMENT_RESULTS,
+                type=ViewSection.Type.TWELVE_WEEK_STATEMENT_RESULTS,
                 statement_check_results=audit.overview_statement_check_results,
                 subsections=statement_content_subsections,
             ),
