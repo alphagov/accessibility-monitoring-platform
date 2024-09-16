@@ -186,7 +186,7 @@ def test_audit_detail_shows_number_of_errors(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "PDF (2)")
+    assertContains(response, "PDF test (2)")
 
 
 def test_audit_detail_shows_sections(admin_client):
@@ -201,8 +201,8 @@ def test_audit_detail_shows_sections(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "Test metadata")
-    assertContains(response, "Pages")
+    assertContains(response, "Initial test metadata")
+    assertContains(response, "Add or remove pages")
     assertContains(response, "Website compliance decision")
     assertContains(response, "Statement links")
     assertContains(response, "Initial disproportionate burden claim")
@@ -444,17 +444,17 @@ def test_create_audit_creates_case_event(admin_client):
     "path_name, expected_content",
     [
         ("audits:audit-detail", "View test"),
-        ("audits:edit-audit-metadata", "Test metadata"),
-        ("audits:edit-audit-pages", "Pages"),
+        ("audits:edit-audit-metadata", "Initial test metadata"),
+        ("audits:edit-audit-pages", "Add or remove pages"),
         ("audits:edit-website-decision", "Website compliance decision"),
         ("audits:edit-audit-statement-1", "Accessibility statement Pt. 1"),
         ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
         (
             "audits:edit-statement-decision",
-            "Accessibility statement compliance decision",
+            "Initial statement compliance decision",
         ),
         ("audits:edit-audit-report-options", "Report options"),
-        ("audits:edit-audit-summary", "Test summary"),
+        ("audits:edit-audit-wcag-summary", "Test summary"),
         ("audits:audit-retest-detail", "View 12-week retest"),
         ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
         ("audits:edit-audit-retest-pages-comparison", "12-week pages comparison"),
@@ -555,13 +555,23 @@ def test_audit_statement_check_specific_page_loads(
         (
             "audits:edit-audit-report-options",
             "save_continue",
-            "audits:edit-audit-summary",
+            "audits:edit-audit-wcag-summary",
         ),
-        ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
+        ("audits:edit-audit-wcag-summary", "save", "audits:edit-audit-wcag-summary"),
         (
-            "audits:edit-audit-summary",
-            "save_exit",
-            "cases:edit-test-results",
+            "audits:edit-audit-wcag-summary",
+            "save_continue",
+            "audits:edit-statement-pages",
+        ),
+        (
+            "audits:edit-audit-statement-summary",
+            "save",
+            "audits:edit-audit-statement-summary",
+        ),
+        (
+            "audits:edit-audit-statement-summary",
+            "save_continue",
+            "cases:edit-report-details",
         ),
         (
             "audits:edit-audit-retest-metadata",
@@ -644,7 +654,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-website-decision",
             "save_continue",
-            "audits:edit-statement-pages",
+            "audits:edit-audit-wcag-summary",
         ),
         (
             "audits:edit-audit-statement-2",
@@ -655,7 +665,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-decision",
             "save_continue",
-            "audits:edit-audit-summary",
+            "audits:edit-audit-statement-summary",
         ),
         (
             "audits:edit-audit-retest-pages-comparison",
@@ -1430,34 +1440,6 @@ def test_retest_date_change_creates_case_event(admin_client):
     case_event: CaseEvent = case_events[0]
     assert case_event.event_type == CaseEvent.EventType.START_RETEST
     assert case_event.message == "Started retest (date set to 30 November 2022)"
-
-
-@pytest.mark.parametrize(
-    "path_name",
-    ["audits:edit-audit-summary"],
-)
-def test_audit_edit_redirects_to_case(
-    path_name,
-    admin_client,
-):
-    """Test that a successful audit save and exit redirects to the case"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    case_pk: Dict[str, int] = {"pk": audit.case.id}
-
-    response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs=audit_pk),
-        {
-            "version": audit.version,
-            "save_exit": "Button value",
-            "case-compliance-version": audit.case.compliance.version,
-        },
-    )
-
-    assert response.status_code == 302
-
-    expected_path: str = reverse("cases:edit-test-results", kwargs=case_pk)
-    assert response.url == expected_path
 
 
 def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
@@ -3037,8 +3019,7 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "View outstanding issues")
     assertContains(response, "Email templates")
     assertContains(response, "View website")
-    assertContains(response, "Link to case view")
-    assertContains(response, "Markdown cheatsheet")
+    assertContains(response, "PSB Zendesk tickets")
 
 
 @pytest.mark.parametrize(
@@ -3172,7 +3153,7 @@ def test_summary_page_view(admin_client):
     Page.objects.create(audit=audit, is_deleted=True)
 
     response: HttpResponse = admin_client.get(
-        f"{reverse('audits:edit-audit-summary', kwargs=audit_pk)}?view=Page+view",
+        f"{reverse('audits:edit-audit-wcag-summary', kwargs=audit_pk)}?view=Page+view",
     )
 
     assert response.status_code == 200
@@ -3707,56 +3688,6 @@ def test_retest_comparison_page_groups_by_page_or_wcag(admin_client):
     assertContains(response, "Test summary | WCAG view")
 
 
-def test_initial_page_complete_check_displayed(admin_client):
-    """
-    Test that the page complete tick is displayed in contents
-    """
-    audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.all().first()
-    page.url = "https://example.com"
-    page.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-detail", kwargs={"pk": audit.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<li>
-            <a href="#initial-page-1" class="govuk-link govuk-link--no-visited-state">
-                Initial test Home (0)</a>
-            |
-            <a id="edit-initial-page-1" href="/audits/pages/1/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                Edit</a>
-        </li>""",
-        html=True,
-    )
-
-    page.complete_date = TODAY
-    page.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-detail", kwargs={"pk": audit.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<li>
-            <a href="#initial-page-1" class="govuk-link govuk-link--no-visited-state">
-                Initial test Home (0)<span class="govuk-visually-hidden">complete</span></a>
-            |
-            <a id="edit-initial-page-1" href="/audits/pages/1/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                Edit<span class="govuk-visually-hidden">complete</span></a>
-            ✓
-        </li>""",
-        html=True,
-    )
-
-
 def test_retest_comparison_page_shows_location(admin_client):
     """
     Test that equality body retest comparison page shows page location
@@ -3825,5 +3756,113 @@ def test_12_week_retest_page_complete_check_displayed(admin_client):
                 Edit<span class="govuk-visually-hidden">complete</span></a>
             ✓
         </li>""",
+        html=True,
+    )
+
+
+def test_nav_details_page_renders(admin_client):
+    """
+    Test that the nav detail with current page renders as expected
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    Page.objects.create(audit=audit, url="https://example.com")
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-pages", kwargs=audit_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<details class="amp-nav-details">
+            <summary class="amp-nav-details__summary">
+                Case details (0/1)
+            </summary>
+            <div class="amp-nav-details__text">
+                <ul class="govuk-list amp-margin-bottom-5">
+                    <li>
+                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state">
+                            Case metadata</a>
+                    </li>
+                </ul>
+            </div>
+        </details>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-s amp-margin-bottom-5">
+            Initial WCAG test (0/5)
+        </p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<b>Add or remove pages</b>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<ul class="amp-nav-list-subpages">
+            <li class="amp-nav-list-subpages amp-margin-top-5">
+                <a href="/audits/pages/6/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                    Additional page test</a>
+            </li>
+        </ul>""",
+        html=True,
+    )
+
+
+def test_nav_details_subpage_renders(admin_client):
+    """
+    Test that the nav detail with current subpage renders as expected
+    """
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    page_pk: Dict[str, int] = {"pk": page.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<details class="amp-nav-details">
+            <summary class="amp-nav-details__summary">
+                Case details (0/1)
+            </summary>
+            <div class="amp-nav-details__text">
+                <ul class="govuk-list amp-margin-bottom-5">
+                    <li>
+                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state">
+                            Case metadata</a>
+                    </li>
+                </ul>
+            </div>
+        </details>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-s amp-margin-bottom-5">
+            Initial WCAG test (0/5)
+        </p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<a href="/audits/1/edit-audit-pages/" class="govuk-link govuk-link--no-visited-state">
+            Add or remove pages</a>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<ul class="amp-nav-list-subpages">
+            <li class="amp-nav-list-subpages amp-margin-top-5"><b>Additional page test</b></li>
+        </ul>""",
         html=True,
     )

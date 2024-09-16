@@ -52,7 +52,8 @@ from .models import (
     IssueReport,
     Platform,
 )
-from .page_name_utils import get_amp_page_name_by_url
+from .platform_template_view import PlatformTemplateView
+from .sitemap import get_platform_page_name_by_url
 from .utils import (
     extract_domain_from_url,
     get_one_year_ago,
@@ -105,13 +106,13 @@ class IssueReportView(FormView):
 
     def get(self, request, *args, **kwargs):
         """Populate form"""
-        page_url: str = self.request.GET.get("page_url", "")
-        page_title: str = get_amp_page_name_by_url(page_url)
+        target_page_url: str = self.request.GET.get("page_url", "")
+        target_page_name: str = get_platform_page_name_by_url(target_page_url)
         description: str = self.request.GET.get("description", "")
         self.form: AMPIssueReportForm = self.form_class(
             {
-                "page_url": page_url,
-                "page_title": page_title,
+                "page_url": target_page_url,
+                "page_title": target_page_name,
                 "description": description,
             }
         )
@@ -174,18 +175,6 @@ class ChangeToPlatformListView(ListView):
     template_name: str = "common/settings/platform_history.html"
     context_object_name: str = "changes_to_platform"
     paginate_by: int = 10
-
-
-class PlatformTemplateView(TemplateView):
-    """
-    View of platform-level settings
-    """
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["platform"] = get_platform_settings()
-        return context
 
 
 class AccessibilityStatementTemplateView(PlatformTemplateView):
@@ -399,8 +388,10 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
                 created__lte=one_year_ago
             ).count()
             Event.objects.filter(created__lte=one_year_ago).delete()
-            logger.warn(
-                f"{self.request.user.email} deleted {number_of_old_events:,} old events",
+            logger.warning(
+                "%s deleted %d old events",
+                self.request.user.email,
+                number_of_old_events,
             )
             return super().form_valid(form)
         if "trigger_400" in self.request.POST:

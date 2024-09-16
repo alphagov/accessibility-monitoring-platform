@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Home | {{ amp_page_name }}{% endblock %}
+{% block title %}Home | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -42,48 +42,48 @@
             {% endif %}
 
             <div class="govuk-grid-column-one-third">
-                <h1 class="govuk-heading-xl">{{ amp_page_name }}</h1>
+                <h1 class="govuk-heading-xl">{{ sitemap.current_platform_page.get_name }}</h1>
             </div>
-            <div class="govuk-grid-column-two-thirds">
-                <a
-                    href="{% url 'cases:case-create' %}"
-                    role="button"
-                    draggable="false"
-                    class="govuk-button float-right amp-margin-left-10"
-                    data-module="govuk-button"
-                >
-                    Create case
-                </a>
+            <div class="govuk-grid-column-two-thirds govuk-button-group amp-flex-end">
+                {% if show_all_cases %}
+                    <a
+                        href="{% url 'dashboard:home' %}?view=View your cases"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        View your cases
+                    </a>
+                {% else %}
+                    <a
+                        href="{% url 'dashboard:home' %}?view=View all cases"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        View all cases
+                    </a>
+                {% endif %}
                 <a
                     href="{% url 'cases:case-list' %}?status=unassigned-case"
                     role="button"
                     draggable="false"
-                    class="govuk-button govuk-button--secondary float-right amp-margin-left-10"
+                    class="govuk-button govuk-button--secondary"
                     data-module="govuk-button"
                 >
                     View unassigned cases
                 </a>
-                {% if show_all_cases %}
-                    <form method="get" action="{% url 'dashboard:home' %}">
-                        <input
-                            type="submit"
-                            value="View your cases"
-                            name="view"
-                            class="govuk-button govuk-button--secondary float-right"
-                            data-module="govuk-button"
-                        />
-                    </form>
-                {% else %}
-                    <form method="get" action="{% url 'dashboard:home' %}">
-                        <input
-                            type="submit"
-                            value="View all cases"
-                            name="view"
-                            class="govuk-button govuk-button--secondary float-right"
-                            data-module="govuk-button"
-                        />
-                    </form>
-                {% endif %}
+                <a
+                    href="{% url 'cases:case-create' %}"
+                    role="button"
+                    draggable="false"
+                    class="govuk-button amp-margin-right-0"
+                    data-module="govuk-button"
+                >
+                    Create case
+                </a>
             </div>
         </div>
         <div class="govuk-grid-row insert-margin">

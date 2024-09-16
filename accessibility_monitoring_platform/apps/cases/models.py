@@ -383,7 +383,7 @@ class Case(VersionModel):
     accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
     final_statement_complete_date = models.DateField(null=True, blank=True)
 
-    # Enforcement recommendation
+    # Recommendation
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     compliance_decision_sent_to_email = models.CharField(
         max_length=200, default="", blank=True
@@ -667,6 +667,18 @@ class Case(VersionModel):
             return self.audit_case
         except ObjectDoesNotExist:
             return None
+
+    @property
+    def not_archived(self):
+        return self.archive == ""
+
+    @property
+    def show_start_test(self):
+        return self.not_archived and self.audit is None
+
+    @property
+    def not_archived_has_audit(self):
+        return self.not_archived and self.audit is not None
 
     @property
     def report(self):

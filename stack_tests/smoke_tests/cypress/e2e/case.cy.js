@@ -18,8 +18,8 @@ describe('View case', () => {
     cy.title().should('eq', `${organisationName} | Case metadata`)
     cy.contains(/^Case$/).click()
 
-    cy.get('[id="edit-test-results"]').click()
-    cy.title().should('eq', `${organisationName} | Testing details`)
+    cy.get('[id="edit-audit-metadata"]').click()
+    cy.title().should('eq', `${organisationName} | Initial test metadata`)
     cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-qa-comments"]').click()
@@ -48,7 +48,7 @@ describe('View case', () => {
     cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-enforcement-recommendation"]').click()
-    cy.title().should('eq', `${organisationName} | Enforcement recommendation`)
+    cy.title().should('eq', `${organisationName} | Recommendation`)
     cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-case-close"]').click()

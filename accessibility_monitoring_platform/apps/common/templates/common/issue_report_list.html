@@ -4,7 +4,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ amp_page_name }}{% endblock %}
+{% block title %}{{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -14,10 +14,10 @@
                 <div class="govuk-breadcrumbs">
                     <ol class="govuk-breadcrumbs__list">
                         {% include 'common/breadcrumb_home.html' %}
-                        <li class="govuk-breadcrumbs__list-item">{{ amp_page_name }}</li>
+                        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
                     </ol>
                 </div>
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ amp_page_name }}</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
                 {% include "common/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">

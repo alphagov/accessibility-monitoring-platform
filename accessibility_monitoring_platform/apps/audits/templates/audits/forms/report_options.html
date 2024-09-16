@@ -2,7 +2,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -11,18 +11,14 @@
             {% include 'common/case_banner.html' with case=audit.case %}
         </div>
     </div>
-    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading=amp_page_name %}
+    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading=sitemap.current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name case=audit.case %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-report-options' %}
+                {% include "cases/helpers/case_nav.html" %}
             </div>
             <div class="govuk-grid-column-two-thirds">
+                {% include "cases/helpers/edit_header.html" %}
                 <h2 class="govuk-heading-l">Report text</h2>
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-report-options' audit.id %}">

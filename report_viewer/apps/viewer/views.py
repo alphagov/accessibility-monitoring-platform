@@ -1,11 +1,14 @@
 """Views for report viewer"""
+
 import logging
 from typing import Any, Dict
 
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
-from accessibility_monitoring_platform.apps.common.views import PlatformTemplateView
+from accessibility_monitoring_platform.apps.common.platform_template_view import (
+    PlatformTemplateView,
+)
 from accessibility_monitoring_platform.apps.reports.models import Report
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.s3_read_write.utils import (

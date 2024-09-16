@@ -295,16 +295,20 @@ def test_build_initial_statement_content_subsections():
     )
     empty_queryset: QuerySet[StatementCheck] = audit.failed_statement_check_results
 
-    statement_content_subsections: List[
-        ViewSection
-    ] = build_initial_statement_content_subsections(audit=audit)
+    statement_content_subsections: List[ViewSection] = (
+        build_initial_statement_content_subsections(audit=audit)
+    )
 
     assert len(statement_content_subsections) == 6
 
     statement_content_subsection: ViewSection = statement_content_subsections[0]
 
-    assert statement_content_subsection.name == "Statement information"
-    assert statement_content_subsection.anchor == "statement-information"
+    assert (
+        statement_content_subsection.name == "Initial statement > Statement information"
+    )
+    assert (
+        statement_content_subsection.anchor == "initial-statement-statement-information"
+    )
     assert statement_content_subsection.edit_url == "/audits/1/edit-statement-website/"
     assert statement_content_subsection.edit_url_id == "edit-statement-website"
     assert statement_content_subsection.complete is False
@@ -330,9 +334,9 @@ def test_build_twelve_week_statement_content_subsections():
     )
     empty_queryset: QuerySet[StatementCheck] = audit.failed_statement_check_results
 
-    statement_content_subsections: List[
-        ViewSection
-    ] = build_twelve_week_statement_content_subsections(audit=audit)
+    statement_content_subsections: List[ViewSection] = (
+        build_twelve_week_statement_content_subsections(audit=audit)
+    )
 
     assert len(statement_content_subsections) == 6
 
@@ -448,9 +452,9 @@ def test_create_check_results_for_page():
     }
     for count, check_result in enumerate(check_results):
         formset_data[f"form-{count}-wcag_definition"] = check_result.wcag_definition.id
-        formset_data[
-            f"form-{count}-check_result_state"
-        ] = check_result.check_result_state
+        formset_data[f"form-{count}-check_result_state"] = (
+            check_result.check_result_state
+        )
         formset_data[f"form-{count}-notes"] = check_result.notes
 
     new_form_index: int = len(check_results)
@@ -492,10 +496,10 @@ def test_get_all_possible_check_results_for_page():
     WcagDefinition.objects.create(type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME)
     wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
 
-    all_check_results: List[
-        Dict[str, Union[str, WcagDefinition]]
-    ] = get_all_possible_check_results_for_page(
-        page=page_home, wcag_definitions=wcag_definitions
+    all_check_results: List[Dict[str, Union[str, WcagDefinition]]] = (
+        get_all_possible_check_results_for_page(
+            page=page_home, wcag_definitions=wcag_definitions
+        )
     )
 
     assert len(all_check_results) == 3
@@ -650,9 +654,9 @@ def test_other_page_failed_check_results():
             type=wcag_definition_manual.type,
             check_result_state=CheckResult.Result.ERROR,
         )
-    failed_check_results: Dict[
-        WcagDefinition, List[CheckResult]
-    ] = other_page_failed_check_results(page=extra_page)
+    failed_check_results: Dict[WcagDefinition, List[CheckResult]] = (
+        other_page_failed_check_results(page=extra_page)
+    )
 
     assert len(home_page.failed_check_results) == 1
     assert wcag_definition_manual in failed_check_results

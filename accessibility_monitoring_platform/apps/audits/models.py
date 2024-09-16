@@ -367,8 +367,11 @@ class Audit(VersionModel):
     # Statement decision
     audit_statement_decision_complete_date = models.DateField(null=True, blank=True)
 
-    # Summary
-    audit_summary_complete_date = models.DateField(null=True, blank=True)
+    # WCAG Summary
+    audit_wcag_summary_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement Summary
+    audit_statement_summary_complete_date = models.DateField(null=True, blank=True)
 
     # Report options
     archive_accessibility_statement_state = models.CharField(
@@ -859,6 +862,10 @@ class Audit(VersionModel):
     @property
     def uses_statement_checks(self) -> bool:
         return self.statement_check_results.count() > 0
+
+    @property
+    def uses_pre_2023_statement_checks(self) -> bool:
+        return not self.uses_statement_checks
 
     @property
     def overview_statement_check_results(self):

@@ -431,14 +431,6 @@ img, .amp-max-width-100 {
     margin-left: 10px;
 }
 
-.amp-open-link-control-disabled {
-    pointer-events: none;
-    text-decoration: none !important;
-    cursor: default;
-    color: black !important;
-    display: block;
-}
-
 // For use in navbar
 
 .top-nav-menu {
@@ -848,7 +840,6 @@ svg {
 .amp-nav-details[disabled] * {
     color: govuk-colour("mid-grey");
     pointer-events: none;
-    padding-left: 30px;
 }
 
 .amp-nav-details__summary {
@@ -889,4 +880,10 @@ svg {
 .amp-session-warning {
     color: govuk-colour("red");
     font-weight: bold;
+}
+
+.amp-advanced-search {
+    select {
+        min-width: auto
+    }
 }

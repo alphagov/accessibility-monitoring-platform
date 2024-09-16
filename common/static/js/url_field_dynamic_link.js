@@ -4,12 +4,13 @@ Allow user to open link entered in URL field using dynamic link
 
 function updateOpenLinkControl(openLinkControlId, value) {
   const openLinkControlElement = document.getElementById(openLinkControlId)
+  const placeholderElement = openLinkControlElement.nextElementSibling
   if (value.includes('https://') === false && value.includes('http://') === false) {
-    openLinkControlElement.classList.add('amp-open-link-control-disabled')
-    openLinkControlElement.setAttribute('href', 'javascript:;')
-    openLinkControlElement.setAttribute('target', '')
+    openLinkControlElement.style.display = "none"
+    placeholderElement.style.display = "block"
   } else {
-    openLinkControlElement.classList.remove('amp-open-link-control-disabled')
+    openLinkControlElement.style.display = "block"
+    placeholderElement.style.display = "none"
     openLinkControlElement.setAttribute('href', value)
     openLinkControlElement.setAttribute('target', '_blank')
   }

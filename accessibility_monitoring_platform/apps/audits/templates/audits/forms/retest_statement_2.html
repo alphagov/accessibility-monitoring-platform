@@ -4,7 +4,7 @@
 
 {% load static %}
 
-{% block title %}{{ audit.case.organisation_name }} | {{ amp_page_name }}{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -13,11 +13,11 @@
             {% include 'common/case_banner.html' with case=audit.case %}
         </div>
     </div>
-    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading=amp_page_name %}
+    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading=sitemap.current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading=amp_page_name case=audit.case %}
+                {% include "cases/helpers/edit_header.html" %}
             </div>
         </div>
         <div class="govuk-grid-row">
