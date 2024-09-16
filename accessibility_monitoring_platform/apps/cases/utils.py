@@ -440,7 +440,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             display_fields=get_case_rows(form=CaseReviewChangesUpdateForm()),
         ),
         build_view_section(
-            name="Closing the case > Enforcement recommendation",
+            name="Closing the case > Recommendation",
             edit_url=reverse("cases:edit-enforcement-recommendation", kwargs=case_pk),
             edit_url_id="edit-enforcement-recommendation",
             complete_date=case.enforcement_recommendation_complete_date,

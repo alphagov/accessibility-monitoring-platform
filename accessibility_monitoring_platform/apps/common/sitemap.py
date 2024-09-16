@@ -862,7 +862,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 complete_flag_name="review_changes_complete_date",
             ),
             CasePlatformPage(
-                name="Enforcement recommendation",
+                name="Recommendation",
                 url_name="cases:edit-enforcement-recommendation",
                 complete_flag_name="enforcement_recommendation_complete_date",
             ),
