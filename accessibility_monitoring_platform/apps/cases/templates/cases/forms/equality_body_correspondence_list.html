@@ -31,14 +31,6 @@
             Add Zendesk ticket
         </a>
     </div>
-    <div class="govuk-grid-column-full govuk-button-group">
-        <a
-            href="{% url 'cases:edit-retest-overview' case.id %}"
-            class="govuk-link govuk-link--no-visited-state"
-        >
-            View retest overview
-        </a>
-    </div>
     <div class="govuk-grid-column-full">
         <hr class="amp-width-100 amp-margin-bottom-30" />
         {% for equality_body_correspondence in equality_body_correspondences %}
@@ -90,6 +82,20 @@
             </div>
             <hr class="amp-width-100 amp-margin-bottom-30" />
         {% endfor %}
+    </div>
+    <div class="govuk-grid-column-full govuk-button-group">
+        <a
+            href="{% url 'cases:edit-retest-overview' case.id %}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Continue to retest overview
+        </a>
+        <a
+            href="{% url 'cases:case-detail' case.id %}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Return to view case
+        </a>
     </div>
 </div>
 {% endblock %}
