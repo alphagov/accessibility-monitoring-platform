@@ -881,3 +881,9 @@ svg {
     color: govuk-colour("red");
     font-weight: bold;
 }
+
+.amp-advanced-search {
+    select {
+        min-width: auto
+    }
+}
