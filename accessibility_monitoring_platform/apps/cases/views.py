@@ -72,6 +72,7 @@ from .forms import (
     CaseReportDetailsUpdateForm,
     CaseReportFourWeekFollowupUpdateForm,
     CaseReportOneWeekFollowupUpdateForm,
+    CaseReportReadyForQAUpdateForm,
     CaseReportSentOnUpdateForm,
     CaseRequestContactDetailsUpdateForm,
     CaseReviewChangesUpdateForm,
@@ -393,14 +394,24 @@ class CaseTestResultsUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseReportDetailsUpdateView(CaseUpdateView):
+class CaseCreateReportUpdateView(DetailView):
+    """
+    View to create the report for this case
+    """
+
+    model: Type[Case] = Case
+    form_class: Type[CaseReportDetailsUpdateForm] = CaseReportDetailsUpdateForm
+    template_name: str = "cases/forms/report_create.html"
+
+
+class CaseReportReadyForQAUpdateView(CaseUpdateView):
     """
     View to update case report details
     """
 
     model: Type[Case] = Case
-    form_class: Type[CaseReportDetailsUpdateForm] = CaseReportDetailsUpdateForm
-    template_name: str = "cases/forms/report_details.html"
+    form_class: Type[CaseReportReadyForQAUpdateForm] = CaseReportReadyForQAUpdateForm
+    template_name: str = "cases/forms/report_ready_for_qa.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""

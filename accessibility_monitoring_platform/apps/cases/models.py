@@ -688,6 +688,14 @@ class Case(VersionModel):
             return None
 
     @property
+    def show_create_report(self):
+        return self.not_archived and self.report is None
+
+    @property
+    def not_archived_has_report(self):
+        return self.not_archived and self.report is not None
+
+    @property
     def published_report_url(self):
         if self.report and self.report.latest_s3_report:
             return f"{settings.AMP_PROTOCOL}{settings.AMP_VIEWER_DOMAIN}/reports/{self.report.latest_s3_report.guid}"

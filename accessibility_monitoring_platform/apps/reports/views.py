@@ -49,7 +49,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
         event_type=CaseEvent.EventType.CREATE_REPORT,
         message="Created report",
     )
-    return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))
+    return redirect(reverse("cases:edit-report-ready-for-qa", kwargs={"pk": report.id}))
 
 
 class ReportUpdateView(UpdateView):

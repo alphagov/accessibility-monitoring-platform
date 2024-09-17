@@ -1,62 +1,30 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+{% load static %}
 
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
-        </div>
+{% block postform %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h2 id="qa-discussion" class="govuk-heading-m">QA discussion</h2>
+        <details class="govuk-details" data-module="govuk-details" open>
+            <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">
+                    Show QA discussion ({{ case.qa_comments.count }} comment{% if case.qa_comments.count != 1 %}s{% endif %})
+                </span>
+            </summary>
+            <div class="govuk-details__text">
+                {% for comment in case.qa_comments %}
+                    {% include "comments/helpers/comment.html" %}
+                    {% if request.user == comment.user  %}
+                        <p class="govuk-body-m">
+                            <a href="{% url 'comments:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Edit or delete comment</a>
+                        </p>
+                    {% endif %}
+                    <hr class="amp-width-100" />
+                {% endfor %}
+            </div>
+        </details>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        {% include 'cases/helpers/compliant_website_notification.html' %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/case_nav.html" %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" %}
-                {% include 'common/error_summary.html' %}
-                {% include 'cases/helpers/qa_links.html' %}
-                <form method="post" action="{% url 'cases:edit-qa-comments' case.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'cases/helpers/save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-full">
-                        <h2 id="qa-discussion" class="govuk-heading-m">QA discussion</h2>
-                        <details class="govuk-details" data-module="govuk-details" open>
-                            <summary class="govuk-details__summary">
-                                <span class="govuk-details__summary-text">
-                                    Show QA discussion ({{ case.qa_comments.count }} comment{% if case.qa_comments.count != 1 %}s{% endif %})
-                                </span>
-                            </summary>
-                            <div class="govuk-details__text">
-                                {% for comment in case.qa_comments %}
-                                    {% include "comments/helpers/comment.html" %}
-                                    {% if request.user == comment.user  %}
-                                        <p class="govuk-body-m">
-                                            <a href="{% url 'comments:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
-                                                Edit or delete comment</a>
-                                        </p>
-                                    {% endif %}
-                                    <hr class="amp-width-100" />
-                                {% endfor %}
-                            </div>
-                        </details>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
 </div>
 {% endblock %}

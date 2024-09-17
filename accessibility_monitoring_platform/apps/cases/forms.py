@@ -264,6 +264,23 @@ class CaseReportDetailsUpdateForm(VersionForm):
 
     report_draft_url = AMPURLField(label="Link to report draft")
     report_notes = AMPTextField(label="Report details notes")
+    reporting_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "report_draft_url",
+            "report_notes",
+            "reporting_details_complete_date",
+        ]
+
+
+class CaseReportReadyForQAUpdateForm(VersionForm):
+    """
+    Form for updating report details
+    """
+
     report_review_status = AMPChoiceRadioField(
         label="Report ready for QA process?",
         choices=Boolean.choices,
@@ -275,8 +292,6 @@ class CaseReportDetailsUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
-            "report_draft_url",
-            "report_notes",
             "report_review_status",
             "reporting_details_complete_date",
         ]

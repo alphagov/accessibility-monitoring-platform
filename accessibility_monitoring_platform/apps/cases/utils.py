@@ -36,9 +36,9 @@ from .forms import (
     CaseOneWeekFollowupFinalUpdateForm,
     CaseReportAcknowledgedUpdateForm,
     CaseReportApprovedUpdateForm,
-    CaseReportDetailsUpdateForm,
     CaseReportFourWeekFollowupUpdateForm,
     CaseReportOneWeekFollowupUpdateForm,
+    CaseReportReadyForQAUpdateForm,
     CaseReportSentOnUpdateForm,
     CaseRequestContactDetailsUpdateForm,
     CaseReviewChangesUpdateForm,
@@ -233,14 +233,14 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         + initial_test_sections
         + [
             build_view_section(
-                name="Report details",
-                edit_url=reverse("cases:edit-report-details", kwargs=case_pk),
-                edit_url_id="edit-report-details",
+                name="Report ready for QA",
+                edit_url=reverse("cases:edit-report-ready-for-qa", kwargs=case_pk),
+                edit_url_id="edit-report-ready-for-qa",
                 complete_date=case.reporting_details_complete_date,
                 placeholder="A report does not exist for this case.",
                 display_fields=(
                     report_details_fields
-                    + get_case_rows(form=CaseReportDetailsUpdateForm())
+                    + get_case_rows(form=CaseReportReadyForQAUpdateForm())
                     if case.report is not None
                     else None
                 ),

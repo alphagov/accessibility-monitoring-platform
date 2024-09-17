@@ -234,6 +234,13 @@ class CaseContactsPlatformPage(CasePlatformPage):
                 self.subpages = subpage_instances
 
 
+class CaseCommentsPlatformPage(CasePlatformPage):
+    def get_name(self) -> str:
+        if self.object is None:
+            return self.name
+        return f"{self.name} ({self.object.qa_comments.count()})"
+
+
 class AuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -582,40 +589,30 @@ SITE_MAP: List[PlatformPageGroup] = [
         ],
     ),
     CasePlatformPageGroup(
-        name="",
-        type=PlatformPageGroup.Type.PREVIOUS_CASE_NAV,
-        show_flag_name="not_archived",
+        name="Create report",
+        show_flag_name="show_create_report",
         pages=[
             CasePlatformPage(
-                name="Report details",
-                url_name="cases:edit-report-details",
-                complete_flag_name="reporting_details_complete_date",
-                subpages=[
-                    ReportPlatformPage(
-                        name="Report publisher",
-                        url_name="reports:report-publisher",
-                        object_class=Report,
-                    ),
-                    ReportPlatformPage(
-                        name="Report notes",
-                        url_name="reports:edit-report-notes",
-                        object_class=Report,
-                    ),
-                    ReportPlatformPage(
-                        name="Publish report",
-                        url_name="reports:report-confirm-publish",
-                        object_class=Report,
-                    ),
-                    ReportPlatformPage(
-                        name="Report visit logs",
-                        url_name="reports:report-metrics-view",
-                        object_class=Report,
-                    ),
-                ],
+                name="Create report",
+                url_name="cases:edit-create-report",
             ),
-            CasePlatformPage(name="QA comments", url_name="cases:edit-qa-comments"),
+        ],
+    ),
+    CasePlatformPageGroup(
+        name="Report QA",
+        type=PlatformPageGroup.Type.CASE_NAV,
+        show_flag_name="not_archived_has_report",
+        pages=[
             CasePlatformPage(
-                name="Report approved",
+                name="Report ready for QA",
+                url_name="cases:edit-report-ready-for-qa",
+                complete_flag_name="reporting_details_complete_date",
+            ),
+            CaseCommentsPlatformPage(
+                name="Comments", url_name="cases:edit-qa-comments"
+            ),
+            CasePlatformPage(
+                name="QA approval",
                 url_name="cases:edit-report-approved",
                 complete_flag_name="qa_auditor_complete_date",
             ),
@@ -623,6 +620,32 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Publish report",
                 url_name="cases:edit-publish-report",
                 complete_flag_name="publish_report_complete_date",
+            ),
+        ],
+    ),
+    # Reports
+    PlatformPageGroup(
+        name="",
+        pages=[
+            ReportPlatformPage(
+                name="Report publisher",
+                url_name="reports:report-publisher",
+                object_class=Report,
+            ),
+            ReportPlatformPage(
+                name="Report notes",
+                url_name="reports:edit-report-notes",
+                object_class=Report,
+            ),
+            ReportPlatformPage(
+                name="Publish report",
+                url_name="reports:report-confirm-publish",
+                object_class=Report,
+            ),
+            ReportPlatformPage(
+                name="Report visit logs",
+                url_name="reports:report-metrics-view",
+                object_class=Report,
             ),
         ],
     ),
