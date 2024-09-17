@@ -3147,7 +3147,7 @@ def test_update_statement_check_works(admin_client):
 
 
 def test_summary_page_view(admin_client):
-    """Test that summary page view renders"""
+    """Test that summary page view renders with results grouped by page"""
     audit: Audit = create_audit()
     audit_pk: Dict[str, int] = {"pk": audit.id}
     Page.objects.create(audit=audit, is_deleted=True)
@@ -3158,6 +3158,20 @@ def test_summary_page_view(admin_client):
 
     assert response.status_code == 200
     assertContains(response, "Test summary | Page view", html=True)
+
+
+def test_summary_wcag_view(admin_client):
+    """Test that summary page view renders with results grouped by WCAG issue"""
+    audit: Audit = create_audit()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    Page.objects.create(audit=audit, is_deleted=True)
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('audits:edit-audit-wcag-summary', kwargs=audit_pk)}?view=WCAG+view",
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Test summary | WCAG view", html=True)
 
 
 def test_audit_statement_comparison(admin_client):
