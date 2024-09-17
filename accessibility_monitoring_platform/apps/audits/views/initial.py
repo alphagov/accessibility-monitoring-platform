@@ -385,16 +385,16 @@ class AuditSummaryUpdateView(AuditUpdateView):
         audit: Audit = self.object
 
         view_url_param: Union[str, None] = self.request.GET.get("view")
-        show_failures_by_wcag: bool = view_url_param == "Test view"
-        context["show_failures_by_page"] = not show_failures_by_wcag
+        show_failures_by_page: bool = view_url_param == "Page view"
+        context["show_failures_by_page"] = show_failures_by_page
 
-        if show_failures_by_wcag:
-            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-                items=audit.failed_check_results, group_by_attr="wcag_definition"
-            )
-        else:
+        if show_failures_by_page:
             context["audit_failures_by_page"] = list_to_dictionary_of_lists(
                 items=audit.failed_check_results, group_by_attr="page"
+            )
+        else:
+            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+                items=audit.failed_check_results, group_by_attr="wcag_definition"
             )
 
         get_audit_rows: Callable = partial(
