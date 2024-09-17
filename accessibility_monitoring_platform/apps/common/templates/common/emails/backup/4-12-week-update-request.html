@@ -46,6 +46,11 @@ You do not need to provide information from your own audit.
     {% for issues_table in issues_tables %}
     {% if issues_table.rows %}
     <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
+    <br>
+    <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
+    {{ issues_table.page.location }}
+    <br>
+    <br>
     <table id="email-issues-table-{{ forloop.counter }}">
     <thead>
     <tr>
@@ -75,6 +80,11 @@ You do not need to provide information from your own audit.
 <br>
 <h2>Accessibility statement comments</h2>
 <br>
+{% if case.audit.latest_statement_link %}
+    <a href="{{ case.audit.latest_statement_link }}">{{ case.audit.latest_statement_link }}</a>
+    <br>
+    <br>
+{% endif %}
 {% if case.audit.uses_statement_checks %}
     {% if case.audit.failed_statement_check_results %}
     An accessibility statement for the website was found
@@ -128,7 +138,7 @@ You do not need to provide information from your own audit.
 Please provide the update within 7 days.
 <br>
 <br>
-We will retest parts of your website to check that they meet the
+We will retest these pages to check that they meet the
 accessibility regulations.
 <br>
 <br>

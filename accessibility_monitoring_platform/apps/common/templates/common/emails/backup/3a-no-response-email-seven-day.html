@@ -1,15 +1,14 @@
 Dear {{ case.organisation_name }},
 <br>
 <br>
-We recently sent you an email on <span class="amp-email-placeholder">(date of previous email)</span> about meeting website accessibility regulations.
+We recently sent you an email on
+{% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date of previous email)</span>{% endif %}
+about meeting website accessibility regulations.
 <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>
 <br>
 <br>
 We are following up as we have not received any response from you about the monitoring report.
 <br>
 <br>
-Please respond within the next 7 days to acknowledge receipt of the report.
-<br>
-<br>
-We look forward to receiving your response soon.
+Please acknowledge receipt of the report.
 <br>

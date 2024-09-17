@@ -5,11 +5,15 @@ We recently sent you an email about meeting website accessibility regulations.
 <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>
 <br>
 <br>
-We tried to contact you on <span class="amp-email-placeholder">(provide date of initial contact email)</span>. We then attempted to contact you again on <span class="amp-email-placeholder">(provide date of 7 day no contact email)</span>. On both occasions we got no response.
+We tried to contact you on
+{% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(provide date of initial contact email)</span>{% endif %}.
+We then attempted to contact you again on
+{% if case.report_followup_week_1_sent_date %}{{ case.report_followup_week_1_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(provide date of 7 day no contact email)</span>{% endif %}.
+On both occasions we got no response.
 <br>
 <br>
-Please respond within the next 7 days.
+Please acknowledge receipt of the report.
 <br>
 <br>
-We look forward to receiving your response soon.
+This is our final attempt to contact you.
 <br>

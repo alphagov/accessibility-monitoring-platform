@@ -1,7 +1,9 @@
 Dear {{ case.organisation_name }},
 <br>
 <br>
-We emailed you on <span class="amp-email-placeholder">(date of previous email)</span> asking for an update on progress made since our initial report on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date report was sent)</span>{% endif %}.
+We emailed you on
+{% if case.twelve_week_update_requested_date %}{{ case.twelve_week_update_requested_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date of previous email)</span>{% endif %}
+asking for an update on progress made since our initial report on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date report was sent)</span>{% endif %}.
 <br>
 <br>
 We have had no response to the request.
