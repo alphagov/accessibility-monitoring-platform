@@ -676,7 +676,7 @@ class Audit(VersionModel):
         return str(f"{self.case}" f" (Test {amp_format_date(self.date_of_test)})")
 
     def get_absolute_url(self) -> str:
-        return reverse("audits:audit-detail", kwargs={"pk": self.pk})
+        return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -91,11 +91,6 @@ urlpatterns: List[URLPattern] = [
         name="audit-create",
     ),
     path(
-        "<int:pk>/detail/",
-        login_required(AuditDetailView.as_view()),
-        name="audit-detail",
-    ),
-    path(
         "<int:pk>/edit-audit-metadata/",
         login_required(AuditMetadataUpdateView.as_view()),
         name="edit-audit-metadata",

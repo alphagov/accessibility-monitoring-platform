@@ -158,98 +158,6 @@ def create_equality_body_retest() -> Retest:
     return retest
 
 
-def test_audit_detail_shows_number_of_errors(admin_client):
-    """Test that audit detail view shows the number of errors"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.PDF, url="https://example.com"
-    )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "PDF test (2)")
-
-
-def test_audit_detail_shows_sections(admin_client):
-    """
-    Test that audit detail view shows all the sections
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Initial test metadata")
-    assertContains(response, "Add or remove pages")
-    assertContains(response, "Website compliance decision")
-    assertContains(response, "Statement links")
-    assertContains(response, "Initial disproportionate burden claim")
-    assertContains(response, "Initial statement compliance decision")
-    assertContains(response, "Test summary")
-
-
-def test_audit_detail_shows_statement_1(admin_client):
-    """
-    Test that audit detail view shows Accessibility statement Pt. 1 when
-    statement content checks not used.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Accessibility statement Pt. 1")
-    assertNotContains(response, "Statement overview")
-
-
-def test_audit_detail_shows_statement_overview(admin_client):
-    """
-    Test that audit detail view shows Statement overview when
-    statement content checks are used.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertNotContains(response, "Accessibility statement Pt. 1")
-    assertContains(response, "Statement overview")
-
-
 def test_audit_retest_detail_shows_number_of_errors(admin_client):
     """Test that audit 12-week retest view shows the number of errors"""
     audit: Audit = create_audit_and_wcag()
@@ -443,7 +351,6 @@ def test_create_audit_creates_case_event(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
-        ("audits:audit-detail", "View test"),
         ("audits:edit-audit-metadata", "Initial test metadata"),
         ("audits:edit-audit-pages", "Add or remove pages"),
         ("audits:edit-website-decision", "Website compliance decision"),
@@ -2997,7 +2904,6 @@ def test_update_audit_checks_case_version(url_name, admin_client):
 @pytest.mark.parametrize(
     "url_name",
     [
-        "audits:audit-detail",
         "audits:edit-audit-metadata",
         "audits:audit-retest-detail",
         "audits:edit-audit-retest-statement-2",
