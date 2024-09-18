@@ -51,7 +51,7 @@ from ..views import (
     FOUR_WEEKS_IN_DAYS,
     ONE_WEEK_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
-    CaseReportApprovedUpdateView,
+    CaseQAApprovalUpdateView,
     calculate_no_contact_chaser_dates,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
@@ -789,22 +789,6 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             "<li><b>Testing details</b></li>",
         ),
         (
-            "cases:edit-report-details",
-            '<p class="govuk-body-s amp-margin-bottom-10">Report details</p>',
-        ),
-        (
-            "cases:edit-qa-comments",
-            '<p class="govuk-body-s amp-margin-bottom-10">QA comments</p>',
-        ),
-        (
-            "cases:edit-qa-approval",
-            '<p class="govuk-body-s amp-margin-bottom-10">QA approval</p>',
-        ),
-        (
-            "cases:edit-publish-report",
-            '<p class="govuk-body-s amp-margin-bottom-10">Publish report</p>',
-        ),
-        (
             "cases:zendesk-tickets",
             '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
         ),
@@ -834,6 +818,41 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
 def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the case-specific view page loads"""
     case: Case = Case.objects.create(enable_correspondence_process=True)
+
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, expected_content, html=True)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        (
+            "cases:edit-report-ready-for-qa",
+            "<b>Report ready for QA</b>",
+        ),
+        (
+            "cases:edit-qa-comments",
+            "<b>Comments (0)</b>",
+        ),
+        (
+            "cases:edit-qa-approval",
+            "<b>QA approval</b>",
+        ),
+        (
+            "cases:edit-publish-report",
+            "<b>Publish report</b>",
+        ),
+    ],
+)
+def test_report_specific_page_loads(path_name, expected_content, admin_client):
+    """Test that the report-specific view page loads"""
+    case: Case = Case.objects.create(enable_correspondence_process=True)
+    Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
         reverse(path_name, kwargs={"pk": case.id})
@@ -1171,13 +1190,6 @@ def test_updating_case_creates_case_event(admin_client):
         ("cases:edit-case-metadata", "save", "cases:edit-case-metadata"),
         ("cases:edit-case-metadata", "save_continue", "cases:edit-test-results"),
         ("cases:edit-test-results", "save", "cases:edit-test-results"),
-        ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
-        ("cases:edit-report-details", "save", "cases:edit-report-details"),
-        (
-            "cases:edit-report-details",
-            "save_continue",
-            "cases:edit-qa-comments",
-        ),
         ("cases:edit-qa-comments", "save", "cases:edit-qa-comments"),
         ("cases:edit-qa-comments", "save_continue", "cases:edit-qa-approval"),
         ("cases:edit-qa-approval", "save", "cases:edit-qa-approval"),
@@ -1910,7 +1922,6 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "edit-case-metadata",
         ),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
-        ("reporting_details_complete_date", "Report details", "edit-report-details"),
         ("qa_auditor_complete_date", "QA approval", "edit-qa-approval"),
         (
             "manage_contact_details_complete_date",
@@ -2063,7 +2074,6 @@ def test_no_anchor_section_complete_check_displayed(
     [
         "cases:edit-case-metadata",
         "cases:edit-test-results",
-        "cases:edit-report-details",
         "cases:edit-qa-comments",
         "cases:edit-qa-approval",
         "cases:edit-publish-report",
@@ -2204,11 +2214,6 @@ def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        (
-            "cases:edit-report-details",
-            "reporting_details_complete_date",
-            "Report details",
-        ),
         ("cases:edit-qa-approval", "qa_auditor_complete_date", "QA approval"),
         ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
         (
@@ -2607,7 +2612,6 @@ def test_format_due_date_help_text(due_date, expected_help_text):
     [
         "edit-case-metadata",
         "edit-test-results",
-        "edit-report-details",
         "edit-qa-approval",
         "edit-publish-report",
         "edit-qa-comments",
@@ -2685,7 +2689,7 @@ def test_report_approved_notifies_auditor(rf):
     )
     request.user = request_user
 
-    response: HttpResponse = CaseReportApprovedUpdateView.as_view()(request, pk=case.id)
+    response: HttpResponse = CaseQAApprovalUpdateView.as_view()(request, pk=case.id)
 
     assert response.status_code == 302
 
@@ -2803,7 +2807,6 @@ def test_publish_report_already_published(admin_client):
         ("zendesk_url", "edit-case-metadata"),
         ("trello_url", "manage-contact-details"),
         ("zendesk_url", "edit-test-results"),
-        ("trello_url", "edit-report-details"),
         ("zendesk_url", "edit-review-changes"),
         ("zendesk_url", "edit-case-close"),
     ],
@@ -2892,10 +2895,10 @@ def test_updating_case_create_event(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "version": case.version,
-            "reporting_details_complete_date": "on",
+            "case_details_complete_date": "on",
             "save": "Button value",
         },
     )
@@ -2912,7 +2915,7 @@ def test_update_case_checks_version(admin_client):
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "version": case.version - 1,
             "save": "Button value",
@@ -2939,7 +2942,6 @@ def test_update_case_checks_version(admin_client):
         "case-detail",
         "edit-case-metadata",
         "edit-test-results",
-        "edit-report-details",
         "edit-qa-approval",
         "edit-publish-report",
         "edit-qa-comments",
@@ -3146,22 +3148,6 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "cases:edit-test-results",
             "Testing details",
         ),
-        (
-            "cases:edit-report-details",
-            "Report details",
-        ),
-        (
-            "cases:edit-qa-approval",
-            "QA approval",
-        ),
-        (
-            "cases:edit-publish-report",
-            "Publish report",
-        ),
-        (
-            "cases:edit-qa-comments",
-            "QA comments",
-        ),
         ("cases:manage-contact-details", "Manage contact details"),
         (
             "cases:edit-request-contact-details",
@@ -3219,6 +3205,51 @@ def test_navigation_links_shown(
     Test case steps' navigation links are shown
     """
     case: Case = Case.objects.create(enable_correspondence_process=True)
+    nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "nav_link_name,nav_link_label",
+    [
+        (
+            "cases:edit-report-ready-for-qa",
+            "Report ready for QA",
+        ),
+        (
+            "cases:edit-qa-comments",
+            "Comments (0)",
+        ),
+        (
+            "cases:edit-qa-approval",
+            "QA approval",
+        ),
+        (
+            "cases:edit-publish-report",
+            "Publish report",
+        ),
+    ],
+)
+def test_navigation_links_shown_for_report_pages(
+    nav_link_name,
+    nav_link_label,
+    admin_client,
+):
+    """
+    Test case steps' navigation links are shown for report-related pages
+    """
+    case: Case = Case.objects.create(enable_correspondence_process=True)
+    Report.objects.create(case=case)
     nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
