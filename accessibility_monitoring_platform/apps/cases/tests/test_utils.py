@@ -15,8 +15,10 @@ from django.http.request import QueryDict
 
 from ...audits.models import Audit
 from ...common.models import Boolean, Sector, SubCategory
+from ...common.view_section_utils import ViewSection
 from ..models import Case, CaseCompliance, CaseEvent
 from ..utils import (
+    add_content_ids_for_accordion,
     build_edit_link_html,
     create_case_and_compliance,
     filter_cases,
@@ -403,3 +405,104 @@ def test_create_case_and_compliance():
 
     assert case.organisation_name == ORGANISATION_NAME
     assert case.compliance.website_compliance_state_12_week == "compliant"
+
+
+def test_add_content_ids_for_accordion():
+    """
+    Test content ids are added to the ViewSections to provide
+    expected ids for aria-controls in GDS Design System accordion.
+    """
+    assert add_content_ids_for_accordion([]) == []
+
+    view_sections: List[ViewSection] = [
+        ViewSection(
+            name="Name 1",
+            anchor="name-1",
+        ),
+        ViewSection(
+            name="Name 2",
+            anchor="name-2",
+        ),
+    ]
+
+    assert [
+        view_section.content_id
+        for view_section in add_content_ids_for_accordion(view_sections)
+    ] == [1, 2]
+
+
+def test_add_content_ids_for_accordion_subsections():
+    """
+    Test content ids are added to the ViewSections to provide
+    expected ids for aria-controls in GDS Design System accordion.
+    Subsections which get their own accordion section elements in the
+    UI need incremented ids.
+    """
+    view_sections: List[ViewSection] = [
+        ViewSection(
+            name="Name 1",
+            anchor="name-1",
+            subsections=[
+                ViewSection(
+                    name="Name 1a",
+                    anchor="name-1a",
+                )
+            ],
+        ),
+        ViewSection(
+            name="Name 2",
+            anchor="name-2",
+        ),
+    ]
+
+    view_sections_with_content_ids: List[ViewSection] = add_content_ids_for_accordion(
+        view_sections
+    )
+    content_ids: List[int] = []
+    for view_section in view_sections_with_content_ids:
+        content_ids.append(view_section.content_id)
+        if view_section.subsections is not None:
+            for subsection in view_section.subsections:
+                content_ids.append(subsection.content_id)
+
+    assert content_ids == [1, 2, 3]
+
+
+def test_add_content_ids_for_accordion_audit_results():
+    """
+    Test content ids are added to the ViewSections to provide
+    expected ids for aria-controls in GDS Design System accordion.
+    Test result subsections do not get their own accordion section
+    elements in the UI should not have incremented ids.
+    These ids are not used and incrementing them makes subsequent
+    ids wrong.
+    """
+    view_sections: List[ViewSection] = [
+        ViewSection(
+            name="Name 1",
+            anchor="name-1",
+            type=ViewSection.Type.AUDIT_RESULTS_ON_VIEW_CASE,
+            subsections=[
+                ViewSection(
+                    name="Name 1a",
+                    anchor="name-1a",
+                )
+            ],
+        ),
+        ViewSection(
+            name="Name 2",
+            anchor="name-2",
+        ),
+    ]
+
+    view_sections_with_content_ids: List[ViewSection] = add_content_ids_for_accordion(
+        view_sections
+    )
+    content_ids: List[int] = []
+    for view_section in view_sections_with_content_ids:
+        content_ids.append(view_section.content_id)
+        if view_section.subsections is not None:
+            for subsection in view_section.subsections:
+                content_ids.append(subsection.content_id)
+
+    assert content_ids == [1, 1, 2]

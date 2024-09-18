@@ -10,7 +10,7 @@
             </span>
         </h2>
     </div>
-    <div id="accordion-content-{{ view_section.name|slugify }}" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-{{ view_section.name|slugify }}">
+    <div id="accordion-content-{{ view_section.content_id }}" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-{{ view_section.name|slugify }}">
         {% include 'common/view_accordion/section_edit.html' %}
         {% if view_section.has_content %}
             {% if view_section.type == 'audit-results-on-view-case' %}

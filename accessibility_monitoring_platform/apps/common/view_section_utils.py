@@ -31,6 +31,7 @@ class ViewSection:
         FORM_TYPE: str = "form"
 
     name: str
+    content_id: int = 1
     anchor: str = ""
     edit_url: str = ""
     edit_url_id: str = ""

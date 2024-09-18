@@ -59,6 +59,23 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
 ]
 
 
+def add_content_ids_for_accordion(
+    view_sections: List[ViewSection],
+) -> List[ViewSection]:
+    content_id: int = 1
+    for view_section in view_sections:
+        if view_section.anchor:
+            view_section.content_id = content_id
+            content_id += 1
+            if view_section.type != ViewSection.Type.AUDIT_RESULTS_ON_VIEW_CASE:
+                if view_section.subsections is not None:
+                    for subsection in view_section.subsections:
+                        if subsection.anchor:
+                            subsection.content_id = content_id
+                            content_id += 1
+    return view_sections
+
+
 def get_case_view_sections(case: Case) -> List[ViewSection]:
     """Get sections for case view"""
     get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
@@ -159,7 +176,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         ),
     ]
     if case.archive:
-        return post_case_subsections + [
+        view_sections: List[ViewSection] = post_case_subsections + [
             build_view_section(
                 name="Legacy end of case data",
                 edit_url=reverse("cases:legacy-end-of-case", kwargs=case_pk),
@@ -167,6 +184,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 display_fields=get_case_rows(form=PostCaseUpdateForm()),
             )
         ]
+        return add_content_ids_for_accordion(view_sections=view_sections)
     if case.audit is None:
         initial_test_sections: List[ViewSection] = [
             build_view_section(
@@ -456,12 +474,13 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             display_fields=get_case_rows(form=CaseCloseUpdateForm()),
         ),
     ]
-    return (
+    view_sections: List[ViewSection] = (
         before_correspondence_process
         + correspondence_process
         + after_correspondence_process
         + post_case_subsections
     )
+    return add_content_ids_for_accordion(view_sections=view_sections)
 
 
 def get_sent_date(
