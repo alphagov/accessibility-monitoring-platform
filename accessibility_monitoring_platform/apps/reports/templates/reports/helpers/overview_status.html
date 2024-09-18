@@ -8,8 +8,8 @@
 {% elif report.case.status.status == 'unassigned-qa-case' %}
     <p class="govuk-body amp-margin-bottom-10">The report is waiting to be reviewed</p>
     <p class="govuk-body">
-        <a href="{% url 'cases:edit-report-approved' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
-            Go to Report approved</a>
+        <a href="{% url 'cases:edit-qa-approval' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
+            Go to QA approval</a>
     </p>
 {% elif report.case.status.status == 'qa-in-progress' %}
     <p class="govuk-body amp-margin-bottom-10">The report is waiting to be reviewed</p>

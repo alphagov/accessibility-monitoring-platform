@@ -43,10 +43,10 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'reports:report-publisher' report.id %}"
+                                href="{% url 'cases:edit-publish-report' report.case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
-                                Cancel and return to report publisher
+                                Cancel and return to publish report
                             </a>
                         </div>
                     </div>

@@ -191,8 +191,8 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                     type=FieldLabelAndValue.URL_TYPE,
                     external_url=False,
                     label="Preview report",
-                    value=reverse("reports:report-publisher", kwargs=report_pk),
-                    extra_label="Report publisher",
+                    value=reverse("reports:report-preview", kwargs=report_pk),
+                    extra_label="Report preview",
                 ),
                 FieldLabelAndValue(
                     type=FieldLabelAndValue.URL_TYPE,
@@ -259,9 +259,9 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 ],
             ),
             build_view_section(
-                name="Report approved",
-                edit_url=reverse("cases:edit-report-approved", kwargs=case_pk),
-                edit_url_id="edit-report-approved",
+                name="QA approval",
+                edit_url=reverse("cases:edit-qa-approval", kwargs=case_pk),
+                edit_url_id="edit-qa-approval",
                 complete_date=case.qa_auditor_complete_date,
                 display_fields=get_case_rows(form=CaseQAApprovalUpdateForm()),
             ),
@@ -624,7 +624,7 @@ def record_case_event(
             case=old_case,
             done_by=user,
             event_type=CaseEvent.EventType.APPROVE_REPORT,
-            message=f"Report approved changed from '{old_status}' to '{new_status}'",
+            message=f"QA approval changed from '{old_status}' to '{new_status}'",
         )
     if old_case.is_ready_for_final_decision != new_case.is_ready_for_final_decision:
         old_status: str = old_case.get_is_ready_for_final_decision_display()

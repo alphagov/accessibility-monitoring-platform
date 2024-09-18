@@ -1,6 +1,7 @@
 """
 URLS for dashboard
 """
+
 from typing import List
 
 from django.contrib.auth.decorators import login_required
@@ -8,9 +9,9 @@ from django.urls import path
 from django.urls.resolvers import URLPattern
 
 from .views import (
-    ReportConfirmPublishTemplateView,
     ReportNotesUpdateView,
-    ReportPublisherTemplateView,
+    ReportPreviewTemplateView,
+    ReportRepublishTemplateView,
     ReportVisitsMetricsView,
     ReportWrapperUpdateView,
     create_report,
@@ -25,9 +26,9 @@ urlpatterns: List[URLPattern] = [
         name="report-create",
     ),
     path(
-        "<int:pk>/report-publisher/",
-        login_required(ReportPublisherTemplateView.as_view()),
-        name="report-publisher",
+        "<int:pk>/report-preview/",
+        login_required(ReportPreviewTemplateView.as_view()),
+        name="report-preview",
     ),
     path(
         "<int:pk>/edit-report-notes/",
@@ -35,14 +36,14 @@ urlpatterns: List[URLPattern] = [
         name="edit-report-notes",
     ),
     path(
-        "<int:pk>/report-confirm-publish/",
-        login_required(ReportConfirmPublishTemplateView.as_view()),
-        name="report-confirm-publish",
+        "<int:pk>/report-republish/",
+        login_required(ReportRepublishTemplateView.as_view()),
+        name="report-republish",
     ),
     path(
-        "<int:pk>/report-publish/",
+        "<int:pk>/publish-report/",
         login_required(publish_report),
-        name="report-publish",
+        name="publish-report",
     ),
     path(
         "edit-report-wrapper/",

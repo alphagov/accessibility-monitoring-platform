@@ -797,8 +797,8 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             '<p class="govuk-body-s amp-margin-bottom-10">QA comments</p>',
         ),
         (
-            "cases:edit-report-approved",
-            '<p class="govuk-body-s amp-margin-bottom-10">Report approved</p>',
+            "cases:edit-qa-approval",
+            '<p class="govuk-body-s amp-margin-bottom-10">QA approval</p>',
         ),
         (
             "cases:edit-publish-report",
@@ -1179,9 +1179,9 @@ def test_updating_case_creates_case_event(admin_client):
             "cases:edit-qa-comments",
         ),
         ("cases:edit-qa-comments", "save", "cases:edit-qa-comments"),
-        ("cases:edit-qa-comments", "save_continue", "cases:edit-report-approved"),
-        ("cases:edit-report-approved", "save", "cases:edit-report-approved"),
-        ("cases:edit-report-approved", "save_continue", "cases:edit-publish-report"),
+        ("cases:edit-qa-comments", "save_continue", "cases:edit-qa-approval"),
+        ("cases:edit-qa-approval", "save", "cases:edit-qa-approval"),
+        ("cases:edit-qa-approval", "save_continue", "cases:edit-publish-report"),
         ("cases:edit-publish-report", "save", "cases:edit-publish-report"),
         (
             "cases:edit-publish-report",
@@ -1911,7 +1911,7 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
         ),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
-        ("qa_auditor_complete_date", "Report approved", "edit-report-approved"),
+        ("qa_auditor_complete_date", "QA approval", "edit-qa-approval"),
         (
             "manage_contact_details_complete_date",
             "Contact details > Manage contact details",
@@ -2065,7 +2065,7 @@ def test_no_anchor_section_complete_check_displayed(
         "cases:edit-test-results",
         "cases:edit-report-details",
         "cases:edit-qa-comments",
-        "cases:edit-report-approved",
+        "cases:edit-qa-approval",
         "cases:edit-publish-report",
         "cases:manage-contact-details",
         "cases:edit-contact-create",
@@ -2209,7 +2209,7 @@ def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
             "reporting_details_complete_date",
             "Report details",
         ),
-        ("cases:edit-report-approved", "qa_auditor_complete_date", "Report approved"),
+        ("cases:edit-qa-approval", "qa_auditor_complete_date", "QA approval"),
         ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
         (
             "cases:edit-twelve-week-retest",
@@ -2608,7 +2608,7 @@ def test_format_due_date_help_text(due_date, expected_help_text):
         "edit-case-metadata",
         "edit-test-results",
         "edit-report-details",
-        "edit-report-approved",
+        "edit-qa-approval",
         "edit-publish-report",
         "edit-qa-comments",
         "manage-contact-details",
@@ -2666,7 +2666,7 @@ def test_status_change_message_shown(admin_client):
 @pytest.mark.django_db
 def test_report_approved_notifies_auditor(rf):
     """
-    Test approving the report on the Report approved page notifies the auditor
+    Test approving the report on the QA approval page notifies the auditor
     when the report is approved.
     """
     user: User = User.objects.create()
@@ -2676,7 +2676,7 @@ def test_report_approved_notifies_auditor(rf):
         username="johnsmith", first_name="John", last_name="Smith"
     )
     request = rf.post(
-        reverse("cases:edit-report-approved", kwargs={"pk": case.id}),
+        reverse("cases:edit-qa-approval", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "report_approved_status": Case.ReportApprovedStatus.APPROVED,
@@ -2940,7 +2940,7 @@ def test_update_case_checks_version(admin_client):
         "edit-case-metadata",
         "edit-test-results",
         "edit-report-details",
-        "edit-report-approved",
+        "edit-qa-approval",
         "edit-publish-report",
         "edit-qa-comments",
         "manage-contact-details",
@@ -3151,8 +3151,8 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
             "Report details",
         ),
         (
-            "cases:edit-report-approved",
-            "Report approved",
+            "cases:edit-qa-approval",
+            "QA approval",
         ),
         (
             "cases:edit-publish-report",

@@ -146,7 +146,9 @@ class PlatformPage:
                 self.subpages = subpage_instances
 
     def populate_from_case(self, case: Case):
-        self.populate_subpage_objects()
+        if self.subpages is not None:
+            for subpage in self.subpages:
+                subpage.populate_from_case(case=case)
 
     def populate_from_url(self, url: str):
         """Set page object from url"""
@@ -604,6 +606,15 @@ SITE_MAP: List[PlatformPageGroup] = [
             CasePlatformPage(
                 name="Comments ({object.qa_comments_count})",
                 url_name="cases:edit-qa-comments",
+                subpages=[
+                    PlatformPage(
+                        name="Edit or delete comment",
+                        url_name="comments:edit-qa-comment",
+                        object_class=Comment,
+                        object_required_for_url=True,
+                        visible_only_when_current=True,
+                    ),
+                ],
             ),
             CasePlatformPage(
                 name="QA approval",
@@ -614,6 +625,14 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Publish report",
                 url_name="cases:edit-publish-report",
                 complete_flag_name="publish_report_complete_date",
+                subpages=[
+                    ReportPlatformPage(
+                        name="Republish report",
+                        url_name="reports:report-republish",
+                        object_class=Report,
+                        visible_only_when_current=True,
+                    ),
+                ],
             ),
         ],
     ),
@@ -622,18 +641,13 @@ SITE_MAP: List[PlatformPageGroup] = [
         name="",
         pages=[
             ReportPlatformPage(
-                name="Report publisher",
-                url_name="reports:report-publisher",
+                name="Report preview",
+                url_name="reports:report-preview",
                 object_class=Report,
             ),
             ReportPlatformPage(
                 name="Report notes",
                 url_name="reports:edit-report-notes",
-                object_class=Report,
-            ),
-            ReportPlatformPage(
-                name="Publish report",
-                url_name="reports:report-confirm-publish",
                 object_class=Report,
             ),
             ReportPlatformPage(
@@ -1057,12 +1071,6 @@ SITE_MAP: List[PlatformPageGroup] = [
             ),
             CasePlatformPage(
                 name="PSB Zendesk tickets", url_name="cases:zendesk-tickets"
-            ),
-            PlatformPage(
-                name="Edit or delete comment",
-                url_name="comments:edit-qa-comment",
-                object_class=Comment,
-                object_required_for_url=True,
             ),
         ],
     ),

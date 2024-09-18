@@ -145,7 +145,7 @@ EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         required=True,
         data_type="url",
         edit_url_class=Report,
-        edit_url_name="reports:report-publisher",
+        edit_url_name="reports:report-preview",
     ),
     EqualityBodyCSVColumn(
         column_header="Enforcement recommendation",

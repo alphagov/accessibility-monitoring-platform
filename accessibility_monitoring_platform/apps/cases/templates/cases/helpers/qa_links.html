@@ -1,7 +1,7 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full govuk-button-group">
         {% if case.report %}
-            <a href="{% url 'reports:report-publisher' case.report.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">Open report preview in new tab</a>
+            <a href="{% url 'reports:report-preview' case.report.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">Open report preview in new tab</a>
         {% else %}
             <a href="{% url 'cases:edit-create-report' case.id %}" class="govuk-link govuk-link--no-visited-state">Create report</a>
         {% endif %}

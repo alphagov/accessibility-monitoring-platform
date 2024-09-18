@@ -75,7 +75,7 @@ def test_options_report_approved():
         Option(
             label="Go to Report approved",
             url=reverse(
-                "cases:edit-report-approved",
+                "cases:edit-qa-approval",
                 kwargs={"pk": case.id},
             ),
         ),

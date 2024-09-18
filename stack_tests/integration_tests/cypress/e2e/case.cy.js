@@ -64,7 +64,7 @@ describe('View case', () => {
   })
 
   it('can edit Report approved', () => {
-    cy.get('#edit-report-approved').click()
+    cy.get('#edit-qa-approval').click()
     cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="qa_auditor_complete_date"]').click()
     cy.contains('Save').click()

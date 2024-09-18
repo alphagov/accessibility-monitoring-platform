@@ -15,7 +15,7 @@
             {% endif %}
             {% include './nav_step.html' with edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
-            {% include './nav_step.html' with edit_name='cases:edit-report-approved' name='Report approved' complete=case.qa_auditor_complete_date %}
+            {% include './nav_step.html' with edit_name='cases:edit-qa-approval' name='QA approval' complete=case.qa_auditor_complete_date %}
             {% include './nav_step.html' with edit_name='cases:edit-publish-report' name='Publish report' complete=case.publish_report_complete_date %}
         </ul>
         {% include "cases/helpers/case_nav.html" with case_nav_sections=correspondence_nav_sections %}

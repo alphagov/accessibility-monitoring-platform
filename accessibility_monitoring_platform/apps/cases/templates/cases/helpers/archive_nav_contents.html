@@ -11,7 +11,7 @@
                 {% include './archive_nav_content.html' with anchor='test-results' id='test-results' edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
                 {% include './archive_nav_content.html' with anchor='report-details' id='report-details' edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
                 {% include './archive_nav_content.html' with anchor='qa-comments' id='qa-comments' edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
-                {% include './archive_nav_content.html' with anchor='report-approved' id='report-approved' edit_name='cases:edit-report-approved' name='Report approved' complete=case.qa_auditor_complete_date %}
+                {% include './archive_nav_content.html' with anchor='report-approved' id='report-approved' edit_name='cases:edit-qa-approval' name='QA approval' complete=case.qa_auditor_complete_date %}
                 {% include './archive_nav_content.html' with id='publish-report' edit_name='cases:edit-publish-report' name='Publish report' complete=case.publish_report_complete_date %}
                 {% include './archive_nav_content.html' with anchor='zendesk-tickets' id='zendesk-tickets' edit_name='cases:zendesk-tickets' name='PSB Zendesk tickets' %}
                 <li>

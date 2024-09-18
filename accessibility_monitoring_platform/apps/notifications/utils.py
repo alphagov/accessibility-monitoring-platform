@@ -56,7 +56,7 @@ def add_task(
     if type == Task.Type.QA_COMMENT:
         path: str = reverse("cases:edit-qa-comments", kwargs={"pk": case.id})
     else:
-        path: str = reverse("cases:edit-report-approved", kwargs={"pk": case.id})
+        path: str = reverse("cases:edit-qa-approval", kwargs={"pk": case.id})
 
     if email_settings.email_notifications_enabled:
         context: EmailContextType = {

@@ -55,7 +55,7 @@ class Task(models.Model):
                 Option(
                     label="Go to Report approved",
                     url=reverse(
-                        "cases:edit-report-approved",
+                        "cases:edit-qa-approval",
                         kwargs={"pk": self.case.id},
                     ),
                 ),
