@@ -16,7 +16,12 @@ from ..common.form_extract_utils import (
     extract_form_labels_and_values,
 )
 from ..common.utils import record_model_create_event, record_model_update_event
-from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
+from ..common.view_section_utils import (
+    ViewSection,
+    ViewSubTable,
+    add_content_ids_for_accordion,
+    build_view_section,
+)
 from .forms import (
     ArchiveAuditReportOptionsUpdateForm,
     ArchiveAuditStatement1UpdateForm,
@@ -656,11 +661,12 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
             ),
         ),
     ]
-    return (
+    view_sections: List[ViewSection] = (
         pre_statement_check_sections
         + statement_content_sections
         + post_statement_check_sections
     )
+    return add_content_ids_for_accordion(view_sections=view_sections)
 
 
 def create_or_update_check_results_for_page(

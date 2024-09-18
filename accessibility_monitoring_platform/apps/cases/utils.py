@@ -24,7 +24,12 @@ from ..common.form_extract_utils import (
 )
 from ..common.templatetags.common_tags import amp_date, amp_datetime
 from ..common.utils import build_filters
-from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
+from ..common.view_section_utils import (
+    ViewSection,
+    ViewSubTable,
+    add_content_ids_for_accordion,
+    build_view_section,
+)
 from .forms import (
     CaseCloseUpdateForm,
     CaseEnforcementRecommendationUpdateForm,
@@ -57,23 +62,6 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
-
-
-def add_content_ids_for_accordion(
-    view_sections: List[ViewSection],
-) -> List[ViewSection]:
-    content_id: int = 1
-    for view_section in view_sections:
-        if view_section.anchor:
-            view_section.content_id = content_id
-            content_id += 1
-            if view_section.type != ViewSection.Type.AUDIT_RESULTS_ON_VIEW_CASE:
-                if view_section.subsections is not None:
-                    for subsection in view_section.subsections:
-                        if subsection.anchor:
-                            subsection.content_id = content_id
-                            content_id += 1
-    return view_sections
 
 
 def get_case_view_sections(case: Case) -> List[ViewSection]:
