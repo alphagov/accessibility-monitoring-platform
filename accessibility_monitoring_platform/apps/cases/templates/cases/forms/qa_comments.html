@@ -1,6 +1,8 @@
 {% extends 'common/case_form.html' %}
 
-{% load static %}
+{% block preform %}
+    {% include 'cases/helpers/qa_links.html' %}
+{% endblock %}
 
 {% block postform %}
 <div class="govuk-grid-row">

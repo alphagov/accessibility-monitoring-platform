@@ -34,8 +34,8 @@ from .forms import (
     CaseNoPSBContactUpdateForm,
     CaseOneWeekContactDetailsUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
+    CaseQAApprovalUpdateForm,
     CaseReportAcknowledgedUpdateForm,
-    CaseReportApprovedUpdateForm,
     CaseReportFourWeekFollowupUpdateForm,
     CaseReportOneWeekFollowupUpdateForm,
     CaseReportReadyForQAUpdateForm,
@@ -263,7 +263,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 edit_url=reverse("cases:edit-report-approved", kwargs=case_pk),
                 edit_url_id="edit-report-approved",
                 complete_date=case.qa_auditor_complete_date,
-                display_fields=get_case_rows(form=CaseReportApprovedUpdateForm()),
+                display_fields=get_case_rows(form=CaseQAApprovalUpdateForm()),
             ),
             build_view_section(
                 name="Publish report",

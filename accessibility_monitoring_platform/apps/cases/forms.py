@@ -315,7 +315,7 @@ class CaseQACommentsUpdateForm(VersionForm):
         ]
 
 
-class CaseReportApprovedUpdateForm(VersionForm):
+class CaseQAApprovalUpdateForm(VersionForm):
     """
     Form for updating QA auditor and report approval
     """

@@ -66,9 +66,9 @@ from .forms import (
     CaseOneWeekContactDetailsUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CasePublishReportUpdateForm,
+    CaseQAApprovalUpdateForm,
     CaseQACommentsUpdateForm,
     CaseReportAcknowledgedUpdateForm,
-    CaseReportApprovedUpdateForm,
     CaseReportDetailsUpdateForm,
     CaseReportFourWeekFollowupUpdateForm,
     CaseReportOneWeekFollowupUpdateForm,
@@ -458,13 +458,13 @@ class CaseQACommentsUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseReportApprovedUpdateView(CaseUpdateView):
+class CaseQAApprovalUpdateView(CaseUpdateView):
     """
-    View to update QA auditor
+    View to record QA auditor and approval
     """
 
-    form_class: Type[CaseReportApprovedUpdateForm] = CaseReportApprovedUpdateForm
-    template_name: str = "cases/forms/report_approved.html"
+    form_class: Type[CaseQAApprovalUpdateForm] = CaseQAApprovalUpdateForm
+    template_name: str = "cases/forms/qa_approval.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Notify auditor if case has been QA approved."""

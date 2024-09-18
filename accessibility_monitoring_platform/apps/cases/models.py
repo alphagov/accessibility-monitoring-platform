@@ -552,6 +552,10 @@ class Case(VersionModel):
     def qa_comments(self):
         return self.comment_case.filter(hidden=False).order_by("-created_date")
 
+    @property
+    def qa_comments_count(self):
+        return self.qa_comments.count()
+
     def calulate_qa_status(self) -> str:
         if (
             self.reviewer is None

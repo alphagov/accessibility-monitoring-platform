@@ -234,13 +234,6 @@ class CaseContactsPlatformPage(CasePlatformPage):
                 self.subpages = subpage_instances
 
 
-class CaseCommentsPlatformPage(CasePlatformPage):
-    def get_name(self) -> str:
-        if self.object is None:
-            return self.name
-        return f"{self.name} ({self.object.qa_comments.count()})"
-
-
 class AuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -608,12 +601,13 @@ SITE_MAP: List[PlatformPageGroup] = [
                 url_name="cases:edit-report-ready-for-qa",
                 complete_flag_name="reporting_details_complete_date",
             ),
-            CaseCommentsPlatformPage(
-                name="Comments", url_name="cases:edit-qa-comments"
+            CasePlatformPage(
+                name="Comments ({object.qa_comments_count})",
+                url_name="cases:edit-qa-comments",
             ),
             CasePlatformPage(
                 name="QA approval",
-                url_name="cases:edit-report-approved",
+                url_name="cases:edit-qa-approval",
                 complete_flag_name="qa_auditor_complete_date",
             ),
             CasePlatformPage(
