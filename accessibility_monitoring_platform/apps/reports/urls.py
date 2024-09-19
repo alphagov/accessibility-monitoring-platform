@@ -9,7 +9,6 @@ from django.urls import path
 from django.urls.resolvers import URLPattern
 
 from .views import (
-    ReportNotesUpdateView,
     ReportPreviewTemplateView,
     ReportRepublishTemplateView,
     ReportVisitsMetricsView,
@@ -29,11 +28,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/report-preview/",
         login_required(ReportPreviewTemplateView.as_view()),
         name="report-preview",
-    ),
-    path(
-        "<int:pk>/edit-report-notes/",
-        login_required(ReportNotesUpdateView.as_view()),
-        name="edit-report-notes",
     ),
     path(
         "<int:pk>/report-republish/",

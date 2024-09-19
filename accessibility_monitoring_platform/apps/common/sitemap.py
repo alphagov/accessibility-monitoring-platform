@@ -654,11 +654,6 @@ SITE_MAP: List[PlatformPageGroup] = [
                 object_class=Report,
             ),
             ReportPlatformPage(
-                name="Report notes",
-                url_name="reports:edit-report-notes",
-                object_class=Report,
-            ),
-            ReportPlatformPage(
                 name="Report visit logs",
                 url_name="reports:report-metrics-view",
                 object_class=Report,

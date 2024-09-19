@@ -85,7 +85,6 @@ const loggedInUrls = [
   '/notifications/cases/1/reminder-task-create/',
   '/notifications/task-list/',
   '/reports/edit-report-wrapper/',
-  '/reports/1/edit-report-notes/',
   '/reports/1/report-metrics-view/',
   '/user/1/edit-user/'
 ]

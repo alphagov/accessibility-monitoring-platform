@@ -16,7 +16,7 @@ from django.views.generic.edit import UpdateView
 
 from ..cases.models import Case, CaseEvent
 from ..common.utils import record_model_create_event, record_model_update_event
-from .forms import ReportNotesUpdateForm, ReportWrapperUpdateForm
+from .forms import ReportWrapperUpdateForm
 from .models import Report, ReportVisitsMetrics, ReportWrapper
 from .utils import build_report_context, get_report_visits_metrics, publish_report_util
 
@@ -73,22 +73,6 @@ class ReportUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Remain on current page on save"""
         return self.request.path
-
-
-class ReportNotesUpdateView(ReportUpdateView):
-    """
-    View to update report notes
-    """
-
-    form_class: Type[ReportNotesUpdateForm] = ReportNotesUpdateForm
-    template_name: str = "reports/forms/metadata.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.case.id}
-            return reverse("cases:edit-report-ready-for-qa", kwargs=case_pk)
-        return super().get_success_url()
 
 
 class ReportTemplateView(TemplateView):

@@ -10,7 +10,6 @@ from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
 from ...cases.models import Contact
@@ -66,7 +65,6 @@ from ..models import (
 from ..utils import (
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
-    get_initial_test_view_sections,
     get_next_page_url,
     other_page_failed_check_results,
     report_data_updated,
@@ -109,25 +107,6 @@ def clear_published_report_data_updated_time(
         reverse("cases:case-detail", kwargs={"pk": audit.case.id}),
     )
     return redirect(redirect_destination)
-
-
-class AuditDetailView(DetailView):
-    """
-    View of details of a single audit
-    """
-
-    model: Type[Audit] = Audit
-    context_object_name: str = "audit"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add table rows to context for each section of page"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
-
-        return {
-            **{"view_sections": get_initial_test_view_sections(audit=audit)},
-            **context,
-        }
 
 
 class AuditMetadataUpdateView(AuditUpdateView):

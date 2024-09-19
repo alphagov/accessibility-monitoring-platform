@@ -1,27 +1,13 @@
 """
 Forms - reports
 """
+
 from typing import List
 
 from django import forms
 
 from ..common.forms import AMPCharFieldWide, AMPTextField, VersionForm
 from .models import Report, ReportWrapper
-
-
-class ReportNotesUpdateForm(VersionForm):
-    """
-    Form for editing report notes
-    """
-
-    notes = AMPTextField(label="Notes")
-
-    class Meta:
-        model = Report
-        fields: List[str] = [
-            "version",
-            "notes",
-        ]
 
 
 class ReportWrapperUpdateForm(forms.ModelForm):

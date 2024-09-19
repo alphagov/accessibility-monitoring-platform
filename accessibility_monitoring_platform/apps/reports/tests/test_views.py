@@ -200,7 +200,6 @@ def test_report_includes_page_location(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_header",
     [
-        ("reports:edit-report-notes", ">Report notes</h1>"),
         (
             "reports:report-preview",
             "<li>which parts of your website we looked at</li>",
@@ -219,26 +218,6 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assert response.status_code == 200
 
     assertContains(response, expected_header)
-
-
-def test_report_edit_notes_save_stays_on_page(admin_client):
-    """
-    Test that pressing the save button on report edit notes stays on the same page
-    """
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    url: str = reverse("reports:edit-report-notes", kwargs=report_pk_kwargs)
-
-    response: HttpResponse = admin_client.post(
-        url,
-        {
-            "version": report.version,
-            "save": "Button value",
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == url
 
 
 def test_edit_report_wrapper_page_loads(admin_client):

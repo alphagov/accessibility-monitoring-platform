@@ -40,7 +40,6 @@ from .views.equality_body import (
 from .views.initial import (
     AuditCaseComplianceStatementInitialUpdateView,
     AuditCaseComplianceWebsiteInitialUpdateView,
-    AuditDetailView,
     AuditMetadataUpdateView,
     AuditPageChecksFormView,
     AuditPagesUpdateView,
