@@ -124,8 +124,6 @@ class PlatformPage:
     def show(self):
         if self.object is not None and self.show_flag_name is not None:
             return getattr(self.object, self.show_flag_name)
-        if self.object_class is not None and self.object is None:
-            return False
         return True
 
     @property

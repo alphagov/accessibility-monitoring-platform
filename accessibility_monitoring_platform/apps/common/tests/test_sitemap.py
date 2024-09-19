@@ -118,7 +118,7 @@ def test_platform_page_url_missing_object():
 def test_platform_page_show():
     """Test PlatformPage.show"""
     assert PlatformPage(name=PLATFORM_PAGE_NAME).show is True
-    assert PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case).show is False
+    assert PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case).show is True
 
     case: Case = Case(organisation_name="Show flag")
 
