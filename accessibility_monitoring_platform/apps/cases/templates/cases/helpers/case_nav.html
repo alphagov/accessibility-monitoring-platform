@@ -3,9 +3,6 @@
         {% if platform_page_group.name == '' %}
             {% for platform_page in platform_page_group.pages %}
                 {% if platform_page.show %}
-                    {% if platform_page.url_name == 'cases:edit-statement-enforcement' %}
-                        <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
-                    {% endif %}
                     <p class="govuk-body-s amp-margin-bottom-10">
                         {% if platform_page.url == sitemap.current_platform_page.url %}
                             {{ platform_page.name }}

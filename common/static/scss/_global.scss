@@ -855,7 +855,7 @@ svg {
 
 .amp-nav-details__text {
     border-left: 1px solid govuk-colour("mid-grey");
-    padding-left: 1rem;
+    padding-left: 12px;
     padding-top: 4px;
     margin-bottom: 10px;
     ul {
@@ -863,11 +863,19 @@ svg {
 
         .amp-nav-list-subpages {
             list-style-type: disc;
+            margin-left: -11px;
+            li:first-of-type {
+                margin-top: 12px;
+            }
         }
     }
 
     li {
         padding-bottom: 4px;
+
+        a {
+            padding-bottom: 4px;
+        }
     }
 
     a[disabled] {
@@ -886,4 +894,17 @@ svg {
     select {
         min-width: auto
     }
+}
+
+
+.amp-padding-left-0 {
+    padding: 0 0 0 15px;
+}
+
+.amp-padding-vertical-30 {
+    padding: 0 30px;
+}
+
+.amp-nav-seperator {
+    margin: 25px 0px;
 }

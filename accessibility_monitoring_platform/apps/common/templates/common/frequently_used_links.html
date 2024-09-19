@@ -1,79 +1,61 @@
-<h3 class="govuk-heading-s amp-margin-bottom-5">Frequently used links</h3>
+<hr class="amp-nav-seperator">
 <div class="amp-nav-steps">
-<ul class="govuk-list temp_nav_bar">
-    <li>
-        {% if case.audit %}
-            <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">
-                View test
+    <ul class="govuk-list temp_nav_bar">
+        <li>
+            <a href="{% url 'cases:outstanding-issues' case.id %}?view=Page view" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                View outstanding issues
             </a>
-        {% else %}
-            No test
+        </li>
+        <li>
+            <a href="{% url 'cases:email-template-list' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                Email templates
+            </a>
+        </li>
+        {% if in_testing_ui %}
+            <li>
+                <a href="{{ case.get_absolute_url }}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                    Link to case view
+                </a>
+            </li>
         {% endif %}
-    </li>
-    <li>
-        {% if case.audit %}
-            <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
-                12-week retest
+        <li>
+            <a href="{% url 'cases:zendesk-tickets' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                PSB Zendesk tickets
             </a>
-        {% else %}
-            No 12-week retest
+        </li>
+        {% if case.trello_url %}
+            <li>
+                <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Trello
+                </a>
+            </li>
         {% endif %}
-    </li>
-    <li>
-        <a href="{% url 'cases:outstanding-issues' case.id %}?view=Page view" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
-            View outstanding issues
-        </a>
-    </li>
-    <li>
-        <a href="{% url 'cases:email-template-list' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
-            Email templates
-        </a>
-    </li>
-    {% if in_testing_ui %}
         <li>
-            <a href="{{ case.get_absolute_url }}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
-                Link to case view
-            </a>
+            {% if case.audit.latest_statement_link %}
+                <a href="{{ case.audit.latest_statement_link }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    View latest accessibility statement
+                </a>
+            {% else %}
+                No accessibility statement URL
+            {% endif %}
         </li>
-    {% endif %}
-    <li>
-        <a href="{% url 'cases:zendesk-tickets' case.id %}" class="govuk-link govuk-link--no-visited-state">
-            PSB Zendesk tickets
-        </a>
-    </li>
-    {% if case.trello_url %}
-        <li>
-            <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Trello
-            </a>
-        </li>
-    {% endif %}
-    <li>
-        {% if case.audit.latest_statement_link %}
-            <a href="{{ case.audit.latest_statement_link }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View latest accessibility statement
-            </a>
-        {% else %}
-            No accessibility statement URL found
+        {% if in_testing_ui %}
+            <li>
+                <a href="{% url 'common:markdown-cheatsheet' %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                    Markdown cheatsheet
+                </a>
+            </li>
         {% endif %}
-    </li>
-    {% if in_testing_ui %}
-        <li>
-            <a href="{% url 'common:markdown-cheatsheet' %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                Markdown cheatsheet
-            </a>
-        </li>
-    {% endif %}
-    {% for custom_frequently_used_link in custom_frequently_used_links %}
-        <li>
-            <a href="{{ custom_frequently_used_link.url }}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                {% if custom_frequently_used_link.label %}
-                    {{ custom_frequently_used_link.label }}
-                {% else %}
-                    {{ custom_frequently_used_link.url }}
-                {% endif %}
-            </a>
-        </li>
-    {% endfor %}
-</ul>
+        {% for custom_frequently_used_link in custom_frequently_used_links %}
+            <li>
+                <a href="{{ custom_frequently_used_link.url }}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                    {% if custom_frequently_used_link.label %}
+                        {{ custom_frequently_used_link.label }}
+                    {% else %}
+                        {{ custom_frequently_used_link.url }}
+                    {% endif %}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
 </div>
