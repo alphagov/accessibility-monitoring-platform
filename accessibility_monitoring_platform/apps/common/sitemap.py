@@ -386,7 +386,9 @@ class PlatformPageGroup:
                 [
                     page
                     for page in self.pages
-                    if page.show and not page.visible_only_when_current
+                    if page.show
+                    and not page.visible_only_when_current
+                    and page.complete_flag_name is not None
                 ]
             )
             for page in self.pages:
@@ -395,7 +397,9 @@ class PlatformPageGroup:
                         [
                             page
                             for page in page.subpages
-                            if page.show and not page.visible_only_when_current
+                            if page.show
+                            and not page.visible_only_when_current
+                            and page.complete_flag_name is not None
                         ]
                     )
             return count
@@ -405,7 +409,11 @@ class PlatformPageGroup:
         if self.pages is not None:
             count: int = 0
             for page in self.pages:
-                if not page.show or page.visible_only_when_current:
+                if (
+                    not page.show
+                    or page.visible_only_when_current
+                    or page.complete_flag_name is None
+                ):
                     continue
                 if page.complete:
                     count += 1

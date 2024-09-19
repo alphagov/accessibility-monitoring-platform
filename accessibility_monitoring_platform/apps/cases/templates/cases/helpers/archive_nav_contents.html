@@ -9,7 +9,7 @@
             {% else %}
                 {% include './archive_nav_content.html' with anchor='case-metadata' id='case-metadata' edit_name='cases:edit-case-metadata' name='Case metadata' complete=case.case_details_complete_date %}
                 {% include './archive_nav_content.html' with anchor='test-results' id='test-results' edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
-                {% include './archive_nav_content.html' with anchor='report-details' id='report-details' edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
+                {% include './archive_nav_content.html' with anchor='report-ready-for-qa' id='report-ready-for-qa' edit_name='cases:edit-report-ready-for-qa' name='Report ready for QA' complete=case.reporting_details_complete_date %}
                 {% include './archive_nav_content.html' with anchor='qa-comments' id='qa-comments' edit_name='cases:edit-qa-comments' name='QA comments' complete=case.None %}
                 {% include './archive_nav_content.html' with anchor='report-approved' id='report-approved' edit_name='cases:edit-qa-approval' name='QA approval' complete=case.qa_auditor_complete_date %}
                 {% include './archive_nav_content.html' with id='publish-report' edit_name='cases:edit-publish-report' name='Publish report' complete=case.publish_report_complete_date %}

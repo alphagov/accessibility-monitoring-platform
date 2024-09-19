@@ -389,8 +389,11 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-report-details", kwargs=case_pk)
+            case: Case = self.object
+            case_pk: Dict[str, int] = {"pk": case.id}
+            if case.report is None:
+                return reverse("cases:edit-create-report", kwargs=case_pk)
+            return reverse("cases:edit-report-ready-for-qa", kwargs=case_pk)
         return super().get_success_url()
 
 

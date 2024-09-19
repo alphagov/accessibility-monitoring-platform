@@ -11,8 +11,8 @@
                 Go to testing details
             </a>
         {% elif case.status.status == 'report-in-progress' %}
-            <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                Go to report details
+            <a href="{% url 'cases:edit-report-ready-for-qa' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to report ready for QA
             </a>
         {% elif case.status.status == 'unassigned-qa-case' or case.status.status == 'qa-in-progress' %}
             <a href="{% url 'cases:edit-qa-approval' case.id %}" class="govuk-link govuk-link--no-visited-state">

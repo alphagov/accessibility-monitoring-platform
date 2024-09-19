@@ -478,7 +478,7 @@ def test_audit_statement_check_specific_page_loads(
         (
             "audits:edit-audit-statement-summary",
             "save_continue",
-            "cases:edit-report-details",
+            "cases:edit-create-report",
         ),
         (
             "audits:edit-audit-retest-metadata",

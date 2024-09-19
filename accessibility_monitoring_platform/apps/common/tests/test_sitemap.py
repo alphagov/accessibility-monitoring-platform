@@ -186,9 +186,9 @@ def test_platform_page_populate_from_case():
         object=case,
         object_class=Case,
         subpages=[
-            PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case),
-            PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case),
-            PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Audit),
+            CasePlatformPage(name=PLATFORM_PAGE_NAME),
+            CasePlatformPage(name=PLATFORM_PAGE_NAME),
+            AuditPlatformPage(name=PLATFORM_PAGE_NAME),
         ],
     )
 
@@ -793,7 +793,6 @@ def test_get_platform_page_name_by_url():
         ("/cases/1/edit-case-metadata/", "Case metadata"),
         ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
         ("/audits/pages/1/edit-audit-page-checks/", "Pagename page test"),
-        ("/reports/1/report-publisher/", "Report publisher"),
         (
             "/cases/contacts/1/edit-contact-update/",
             "Edit contact Contact Name a.b@example.com",

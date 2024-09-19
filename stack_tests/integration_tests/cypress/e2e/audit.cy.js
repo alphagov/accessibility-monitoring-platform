@@ -10,7 +10,7 @@ const reportOptionsNote = 'Report options note'
 describe('View test', () => {
   beforeEach(() => {
     cy.session('login', cy.login, { cacheAcrossSpecs: true })
-    cy.visit('/audits/1/detail')
+    cy.visit('/cases/1/view')
   })
 
   it('can edit test metadata', () => {
@@ -21,7 +21,7 @@ describe('View test', () => {
     cy.get('[name="exemptions_notes"]').clear().type(exemptionsNote)
     cy.get('[name="audit_metadata_complete_date"]').click()
     cy.contains('Save').click()
-    cy.visit('/audits/1/detail')
+    cy.visit('/cases/1/view')
     cy.contains(exemptionsNote)
   })
 
@@ -39,7 +39,7 @@ describe('View test', () => {
     cy.get('[name="form-0-notes"]').clear().type(errorText)
     cy.get('[name="complete_date"]').click()
     cy.contains('Save').click()
-    cy.visit('/audits/1/detail')
+    cy.visit('/cases/1/view')
     cy.contains(errorText)
   })
 
@@ -49,7 +49,7 @@ describe('View test', () => {
     cy.get('[name="case-compliance-website_compliance_notes_initial"]').clear().type(websiteComplianceNote)
     cy.get('[name="audit_website_decision_complete_date"]').click()
     cy.contains('Save').click()
-    cy.visit('/audits/1/detail')
+    cy.visit('/cases/1/view')
     cy.contains(websiteComplianceNote)
   })
 
@@ -69,7 +69,7 @@ describe('View test', () => {
     cy.get('[name="case-compliance-statement_compliance_notes_initial"]').clear().type(accessibilityStatementComplianceNote)
     cy.get('[name="audit_statement_decision_complete_date"]').click()
     cy.contains('Save').click()
-    cy.visit('/audits/1/detail')
+    cy.visit('/cases/1/view')
     cy.contains(accessibilityStatementComplianceNote)
   })
 
@@ -81,7 +81,7 @@ describe('View test', () => {
     cy.get('[name="archive_report_options_notes"]').clear().type(reportOptionsNote)
     cy.get('[name="archive_audit_report_options_complete_date"]').click()
     cy.contains('Save').click()
-    cy.visit('/audits/1/detail')
+    cy.visit('/cases/1/view')
     cy.contains(reportOptionsNote)
   })
 

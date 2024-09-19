@@ -18,8 +18,8 @@
                     </ul>
                     <p class="govuk-body">
                         Go to
-                        <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-publish' case.report.id %}">
-                            Case > Report > Publish HTML report</a></p>
+                        <a class="govuk-notification-banner__link" href="{% url 'cases:edit-publish-report' case.id %}">
+                            Case > Report QA > Publish report</a></p>
                     <p class="govuk-body">
                         <a class="govuk-notification-banner__link" href="{% url 'audits:clear-outdated-published-report-warning' case.audit.id %}?redirect_destination={{ request.path }}">
                             Dismiss this banner</a></p>

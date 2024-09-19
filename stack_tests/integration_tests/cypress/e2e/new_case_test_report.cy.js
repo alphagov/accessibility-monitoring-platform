@@ -95,30 +95,27 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report details`)
+    cy.title().should('eq', `${newOrganisationName} | Create report`)
     cy.contains('This case currently does not have a report.')
-    cy.contains('Create report').click()
+    cy.contains('.govuk-button', 'Create report').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report publisher`)
-    cy.contains('Mark the report as ready to review')
-    cy.contains('Go to Report details').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report details`)
+    cy.title().should('eq', `${newOrganisationName} | Report ready for QA`)
     cy.get('[name="report_review_status"]').check('yes')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA comments`)
+    cy.title().should('eq', `${newOrganisationName} | Comments (0)`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report approved`)
+    cy.title().should('eq', `${newOrganisationName} | QA approval`)
     cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="report_approved_status"]').check('yes')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Publish report`)
-    cy.contains('Create HTML report').click()
+    cy.contains('.govuk-button', 'Publish report').click()
 
     cy.title().should('eq', `${newOrganisationName} | Publish report`)
+    cy.contains('HTML report successfully created!')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Manage contact details`)

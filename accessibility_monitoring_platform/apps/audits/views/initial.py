@@ -778,5 +778,7 @@ class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             case_pk: Dict[str, int] = {"pk": audit.case.id}
-            return reverse("cases:edit-report-details", kwargs=case_pk)
+            if audit.case.report is None:
+                return reverse("cases:edit-create-report", kwargs=case_pk)
+            return reverse("cases:edit-report-ready-for-qa", kwargs=case_pk)
         return super().get_success_url()

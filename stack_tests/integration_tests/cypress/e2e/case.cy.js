@@ -49,12 +49,6 @@ describe('View case', () => {
     cy.contains('Save').click()
   })
 
-  it('can edit report details', () => {
-    cy.get('#edit-report-details').click()
-    cy.get('[name="reporting_details_complete_date"]').click()
-    cy.contains('Save').click()
-  })
-
   it('can edit QA comments', () => {
     cy.get('#edit-qa-comments').click()
     cy.get('[name="body"]').clear().type(qaComment)

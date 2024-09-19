@@ -101,7 +101,7 @@ def test_create_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-publisher", kwargs={"pk": 1})
+    assert response.url == reverse("cases:edit-report-ready-for-qa", kwargs={"pk": 1})
 
 
 def test_create_report_does_not_create_duplicate(admin_client):
@@ -138,60 +138,6 @@ def test_create_report_creates_case_event(admin_client):
     assert case_event.message == "Created report"
 
 
-def test_report_publish_links_to_correct_testing_ui(admin_client):
-    """
-    Test that older reports link to Report options page whereas reports using
-    statement content checks link to Statement overview.
-    """
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Edit test &gt; Report options")
-    assertNotContains(response, "Edit test &gt; Statement overview")
-
-    case: Case = report.case
-    StatementCheckResult.objects.create(audit=case.audit)
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs),
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, "Edit test &gt; Report options")
-    assertContains(response, "Edit test &gt; Statement overview")
-
-
-@mock_aws
-def test_publish_report_redirects(admin_client):
-    """
-    Test that report publish redirects to report details
-    """
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    number_of_s3_reports: int = S3Report.objects.filter(case=report.case).count()
-    assert number_of_s3_reports == 0
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publish", kwargs=report_pk_kwargs),
-    )
-
-    assert response.status_code == 302
-
-    assert response.url == reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    assert S3Report.objects.filter(case=report.case).count() == 1
-    assert (
-        S3Report.objects.filter(case=report.case).filter(latest_published=True).count()
-        == 1
-    )
-
-
 @mock_aws
 def test_old_published_report_includes_errors(admin_client):
     """
@@ -220,17 +166,15 @@ def test_old_published_report_includes_errors(admin_client):
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
-        reverse("reports:report-publish", kwargs=report_pk_kwargs),
+        reverse("reports:report-preview", kwargs=report_pk_kwargs),
     )
 
-    assert response.status_code == 302
+    assert response.status_code == 200
 
-    s3_report: S3Report = S3Report.objects.get(case=report.case)
-
-    assert HOME_PAGE_URL in s3_report.html
-    assert WCAG_TYPE_AXE_NAME in s3_report.html
-    assert CHECK_RESULTS_NOTES in s3_report.html
-    assert EXTRA_STATEMENT_WORDING in s3_report.html
+    assertContains(response, HOME_PAGE_URL)
+    assertContains(response, WCAG_TYPE_AXE_NAME)
+    assertContains(response, CHECK_RESULTS_NOTES)
+    assertContains(response, EXTRA_STATEMENT_WORDING)
 
 
 def test_report_includes_page_location(admin_client):
@@ -246,30 +190,11 @@ def test_report_includes_page_location(admin_client):
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs),
+        reverse("reports:report-preview", kwargs=report_pk_kwargs),
     )
 
     assert response.status_code == 200
     assertContains(response, PAGE_LOCATION)
-
-
-@mock_aws
-def test_report_published_message_shown(admin_client):
-    """Test publishing the report causes a message to be shown on the next page"""
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publish", kwargs=report_pk_kwargs),
-        follow=True,
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """HTML report successfully created!""",
-    )
 
 
 @pytest.mark.parametrize(
@@ -277,12 +202,8 @@ def test_report_published_message_shown(admin_client):
     [
         ("reports:edit-report-notes", ">Report notes</h1>"),
         (
-            "reports:report-publisher",
+            "reports:report-preview",
             "<li>which parts of your website we looked at</li>",
-        ),
-        (
-            "reports:report-confirm-publish",
-            "Unable to publish report without QA approval",
         ),
     ],
 )
@@ -298,235 +219,6 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assert response.status_code == 200
 
     assertContains(response, expected_header)
-
-
-def test_button_to_published_report_shown(admin_client):
-    """
-    Test button link to published report shown if published report exists
-    """
-    case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-    S3Report.objects.create(case=case, version=0, latest_published=True)
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "View published HTML report")
-    assertContains(response, "Republish HTML report")
-    assertNotContains(response, "Publish HTML report")
-
-
-def test_button_to_published_report_not_shown(admin_client):
-    """
-    Test button link to published report not shown if report not published
-    """
-    case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, "View published HTML report")
-    assertNotContains(response, "Republish HTML report")
-    assertContains(response, "Publish HTML report")
-
-
-def test_report_next_step_for_not_started(admin_client):
-    """
-    Test report next step for report review not started
-    """
-    case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Mark the report as ready to review")
-    assertContains(response, "Go to Report details")
-
-
-def test_report_next_step_for_case_unassigned_qa(admin_client):
-    """
-    Test report next step for unassigned qa case
-    """
-    user: User = User.objects.create()
-    case: Case = create_case_and_compliance(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-        auditor=user,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        report_review_status=Boolean.YES,
-    )
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "The report is waiting to be reviewed")
-    assertContains(response, "Go to QA comments")
-
-
-def test_report_next_step_for_case_qa_in_progress(admin_client):
-    """
-    Test report next step for case in qa in progress
-    """
-    user: User = User.objects.create()
-    case: Case = create_case_and_compliance(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-        auditor=user,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        report_review_status=Boolean.YES,
-    )
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "The report is waiting to be reviewed")
-    assertContains(response, "Go to QA comments")
-
-
-def test_report_next_step_for_case_report_approved(admin_client):
-    """
-    Test report next step for case report approved status is 'yes'
-    """
-    case: Case = Case.objects.create(
-        report_review_status=Boolean.YES,
-        report_approved_status=Case.ReportApprovedStatus.APPROVED,
-    )
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response, "The report has been approved and is ready to be published"
-    )
-    assertContains(response, "Publish HTML report")
-
-
-def test_report_next_step_for_published_report_out_of_date(admin_client):
-    """
-    Test report next step for published report is out of date
-    """
-    case: Case = Case.objects.create(
-        report_review_status=Boolean.YES,
-        report_approved_status=Case.ReportApprovedStatus.APPROVED,
-    )
-    audit: Audit = Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-    S3Report.objects.create(case=case, version=0, latest_published=True)
-    report_data_updated(audit=audit)
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        "The platform has identified changes to the test since publishing the report.",
-    )
-    assertContains(response, "Republish the report")
-
-
-def test_report_next_step_for_published_report(admin_client):
-    """
-    Test report next step for published report
-    """
-    case: Case = Case.objects.create(
-        report_review_status=Boolean.YES,
-        report_approved_status=Case.ReportApprovedStatus.APPROVED,
-    )
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-    S3Report.objects.create(case=case, version=0, latest_published=True)
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "The report has been published.")
-    assertContains(response, "Return to Case &gt; Report details")
-
-
-def test_report_next_step_default(admin_client):
-    """
-    Test report next stepdefault
-    """
-    case: Case = Case.objects.create(
-        report_review_status=Boolean.YES,
-        report_approved_status="in-progress",
-    )
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "The report is not yet ready")
-    assertContains(response, "Go to Testing details")
-
-
-def test_report_publisher_page_shows_ready_to_review(admin_client):
-    """
-    Test that the report details page shows report is ready to review
-    """
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        "Mark the report as ready to review",
-    )
 
 
 def test_report_edit_notes_save_stays_on_page(admin_client):
@@ -547,63 +239,6 @@ def test_report_edit_notes_save_stays_on_page(admin_client):
 
     assert response.status_code == 302
     assert response.url == url
-
-
-def test_report_edit_notes_redirects_to_publisher(admin_client):
-    """Test that report edit notes redirects to report publisher on save"""
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    url: str = reverse("reports:edit-report-notes", kwargs=report_pk_kwargs)
-
-    response: HttpResponse = admin_client.post(
-        url,
-        {
-            "version": report.version,
-            "save_exit": "Button value",
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-
-
-def test_unapproved_report_confirm_publish_asks_for_approval(admin_client):
-    """
-    Test that the confirm publish page asks for report to be QA approved
-    when it has not been.
-    """
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-confirm-publish", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Unable to publish report without QA approval")
-    assertContains(response, "Have the report approved by another auditor")
-    assertNotContains(response, "Create HTML report")
-
-
-def test_approved_report_confirm_publish_does_not_ask_for_approval(admin_client):
-    """
-    Test that the confirm publish page does not ask for report to be QA approved
-    if it is already approved
-    """
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    case: Case = report.case
-    case.report_approved_status = Case.ReportApprovedStatus.APPROVED
-    case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-confirm-publish", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Are you sure you want to create a HTML report?")
-    assertNotContains(response, "Have the report approved by another auditor")
-    assertContains(response, "Create HTML report")
 
 
 def test_edit_report_wrapper_page_loads(admin_client):
@@ -662,8 +297,8 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     Test that the report details page tells user to review report
     """
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     case: Case = report.case
+    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
     user = User.objects.create()
     case.home_page_url = "https://www.website.com"
     case.organisation_name = "org name"
@@ -679,14 +314,14 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+        reverse("cases:edit-publish-report", kwargs=case_pk_kwargs)
     )
 
     assert response.status_code == 200
 
     assertContains(
         response,
-        "The report is waiting to be reviewed",
+        "To publish this report, you need to:",
     )
 
 

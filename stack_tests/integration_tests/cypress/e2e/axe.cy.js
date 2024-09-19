@@ -5,7 +5,6 @@ const loggedInUrls = [
   '/accounts/password_reset/',
   '/accounts/password_reset/done/',
   '/audits/1/audit-retest-detail/',
-  '/audits/1/detail/',
   '/audits/1/edit-audit-metadata/',
   '/audits/1/edit-audit-report-options/',
   '/audits/1/edit-audit-retest-metadata/',
@@ -47,7 +46,6 @@ const loggedInUrls = [
   '/cases/1/edit-qa-comments/',
   '/cases/1/edit-qa-approval/',
   '/cases/1/edit-publish-report/',
-  '/cases/1/edit-report-details/',
   '/cases/1/edit-review-changes/',
   '/cases/1/edit-test-results/',
   '/cases/1/manage-contact-details/',
@@ -87,7 +85,6 @@ const loggedInUrls = [
   '/notifications/cases/1/reminder-task-create/',
   '/notifications/task-list/',
   '/reports/edit-report-wrapper/',
-  '/reports/1/report-publisher/',
   '/reports/1/edit-report-notes/',
   '/reports/1/report-metrics-view/',
   '/user/1/edit-user/'

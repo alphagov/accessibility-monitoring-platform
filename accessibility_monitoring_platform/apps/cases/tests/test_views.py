@@ -2214,8 +2214,6 @@ def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-qa-approval", "qa_auditor_complete_date", "QA approval"),
-        ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
         (
             "cases:edit-twelve-week-retest",
             "twelve_week_retest_complete_date",
@@ -2330,6 +2328,73 @@ def test_section_complete_check_displayed_in_nav_details(
         response,
         f"""<li><b>{step_name}</b>
                 <span class="govuk-visually-hidden">complete</span> &check;
+        </li>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "step_url, flag_name, step_name",
+    [
+        ("cases:edit-qa-approval", "qa_auditor_complete_date", "QA approval"),
+    ],
+)
+def test_report_section_complete_check_displayed_in_nav_details(
+    step_url, flag_name, step_name, admin_client
+):
+    """
+    Test that the report-related section complete tick is displayed in list of steps
+    when step is complete
+    """
+    case: Case = Case.objects.create(enable_correspondence_process=True)
+    setattr(case, flag_name, TODAY)
+    case.save()
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li><b>{step_name}</b>
+                <span class="govuk-visually-hidden">complete</span> &check;
+        </li>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "step_url, flag_name, step_name",
+    [
+        ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
+    ],
+)
+def test_report_with_hidden_subpages_section_complete_check_displayed_in_nav_details(
+    step_url, flag_name, step_name, admin_client
+):
+    """
+    Test that the report-related section complete tick is displayed in list of steps
+    when step is complete
+    """
+    case: Case = Case.objects.create(enable_correspondence_process=True)
+    setattr(case, flag_name, TODAY)
+    case.save()
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li><b>{step_name}</b>
+                <span class="govuk-visually-hidden">complete</span> &check;
+                <ul class="amp-nav-list-subpages"> </ul>
         </li>""",
         html=True,
     )
@@ -2713,13 +2778,15 @@ def test_publish_report_no_report(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "To publish this report, you need to:")
-    assertContains(response, "Set the report status to Ready to Review in")
+    assertContains(response, "Set the report status to <b>Ready to Review</b> in")
 
-    assertNotContains(response, "The report is approved and ready for publication.")
-    assertNotContains(response, "Create HTML report")
+    assertNotContains(
+        response, "The report is <b>approved</b> and <b>ready for publication</b>."
+    )
+    assertNotContains(response, 'value="Publish report"')
 
-    assertNotContains(response, "The report is now published and available for viewing")
-    assertNotContains(response, "Save and continue")
+    assertNotContains(response, "The report is now published and available")
+    assertNotContains(response, 'value="Save and continue"')
 
 
 @pytest.mark.django_db
@@ -2740,13 +2807,15 @@ def test_publish_report_first_time(admin_client):
     assert response.status_code == 200
 
     assertNotContains(response, "To publish this report, you need to:")
-    assertNotContains(response, "Set the report status to Ready to Review in")
+    assertNotContains(response, "Set the report status to <b>Ready to Review</b> in")
 
-    assertContains(response, "The report is approved and ready for publication.")
-    assertContains(response, "Create HTML report")
+    assertContains(
+        response, "The report is <b>approved</b> and <b>ready for publication</b>."
+    )
+    assertContains(response, 'value="Publish report"')
 
-    assertNotContains(response, "The report is now published and available for viewing")
-    assertNotContains(response, "Save and continue")
+    assertNotContains(response, "The report is now published and available")
+    assertNotContains(response, 'value="Save and continue"')
 
 
 @mock_aws
@@ -2769,7 +2838,7 @@ def test_publish_report(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "The report is now published and available for viewing")
+    assertContains(response, "The report is now published and available")
 
 
 @pytest.mark.django_db
@@ -2792,13 +2861,15 @@ def test_publish_report_already_published(admin_client):
     assert response.status_code == 200
 
     assertNotContains(response, "To publish this report, you need to:")
-    assertNotContains(response, "Set the report status to Ready to Review in")
+    assertNotContains(response, "Set the report status to <b>Ready to Review</b> in")
 
-    assertNotContains(response, "The report is approved and ready for publication.")
-    assertNotContains(response, "Create HTML report")
+    assertNotContains(
+        response, "The report is <b>approved</b> and <b>ready for publication</b>."
+    )
+    assertNotContains(response, 'value="Publish report"')
 
-    assertContains(response, "The report is now published and available for viewing")
-    assertContains(response, "Save and continue")
+    assertContains(response, "The report is now published and available")
+    assertContains(response, 'value="Save and continue"')
 
 
 @pytest.mark.parametrize(
@@ -2895,10 +2966,11 @@ def test_updating_case_create_event(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
         {
             "version": case.version,
-            "case_details_complete_date": "on",
+            "case_completed": "no-decision",
+            "case_close_complete_date": "on",
             "save": "Button value",
         },
     )
@@ -2915,7 +2987,7 @@ def test_update_case_checks_version(admin_client):
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+        reverse("cases:deactivate-case", kwargs={"pk": case.id}),
         {
             "version": case.version - 1,
             "save": "Button value",
