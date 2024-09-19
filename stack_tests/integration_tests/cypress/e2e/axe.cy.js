@@ -5,7 +5,6 @@ const loggedInUrls = [
   '/accounts/password_reset/',
   '/accounts/password_reset/done/',
   '/audits/1/audit-retest-detail/',
-  '/audits/1/detail/',
   '/audits/1/edit-audit-metadata/',
   '/audits/1/edit-audit-report-options/',
   '/audits/1/edit-audit-retest-metadata/',
