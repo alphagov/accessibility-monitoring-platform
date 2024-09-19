@@ -24,7 +24,12 @@ from ..common.form_extract_utils import (
 )
 from ..common.templatetags.common_tags import amp_date, amp_datetime
 from ..common.utils import build_filters
-from ..common.view_section_utils import ViewSection, ViewSubTable, build_view_section
+from ..common.view_section_utils import (
+    ViewSection,
+    ViewSubTable,
+    add_content_ids_for_accordion,
+    build_view_section,
+)
 from .forms import (
     CaseCloseUpdateForm,
     CaseEnforcementRecommendationUpdateForm,
@@ -159,7 +164,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         ),
     ]
     if case.archive:
-        return post_case_subsections + [
+        view_sections: List[ViewSection] = post_case_subsections + [
             build_view_section(
                 name="Legacy end of case data",
                 edit_url=reverse("cases:legacy-end-of-case", kwargs=case_pk),
@@ -167,6 +172,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 display_fields=get_case_rows(form=PostCaseUpdateForm()),
             )
         ]
+        return add_content_ids_for_accordion(view_sections=view_sections)
     if case.audit is None:
         initial_test_sections: List[ViewSection] = [
             build_view_section(
@@ -456,12 +462,13 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
             display_fields=get_case_rows(form=CaseCloseUpdateForm()),
         ),
     ]
-    return (
+    view_sections: List[ViewSection] = (
         before_correspondence_process
         + correspondence_process
         + after_correspondence_process
         + post_case_subsections
     )
+    return add_content_ids_for_accordion(view_sections=view_sections)
 
 
 def get_sent_date(
