@@ -1,50 +1,39 @@
-{% extends 'base.html' %}
+{% extends 'common/case_no_nav.html' %}
 
 {% load static %}
-
 {% load l10n %}
 
-{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+{% block breadcrumbs %}
+<div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        {% include 'cases/helpers/breadcrumb_case.html' %}
+        <li class="govuk-breadcrumbs__list-item">
+            <a class="govuk-breadcrumbs__link" href="{% url 'cases:email-template-list' case.id %}">Email templates</a>
+        </li>
+        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+    </ol>
+</div>
+{% endblock %}
 
-{% block content %}
-<div class="govuk-width-container">
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include 'common/case_banner.html' %}
-            </div>
+{% block controls %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
+            Copy email template
+        </button>
+        {% include "common/amp_control_go_back.html" %}
+    </div>
+</div>
+{% endblock %}
+
+{% block subcontent %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div id="email-text" class="amp-report-wrapper">
+            {{ email_template_render }}
         </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <div class="govuk-breadcrumbs">
-                    <ol class="govuk-breadcrumbs__list">
-                        {% include 'common/breadcrumb_home.html' %}
-                        {% include 'cases/helpers/breadcrumb_case.html' %}
-                        <li class="govuk-breadcrumbs__list-item">
-                            <a class="govuk-breadcrumbs__link" href="{% url 'cases:email-template-list' case.id %}">Email templates</a>
-                        </li>
-                        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
-                    </ol>
-                </div>
-                {% include "cases/helpers/edit_header.html" %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full govuk-button-group">
-                <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
-                    Copy email template
-                </button>
-                {% include "common/amp_control_go_back.html" %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <div id="email-text" class="amp-report-wrapper">
-                    {{ email_template_render }}
-                </div>
-            </div>
-        </div>
-    </main>
+    </div>
 </div>
 {% endblock %}
 

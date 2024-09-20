@@ -1,6 +1,6 @@
-{% extends 'common/case_form.html' %}
+{% extends 'common/case_no_nav.html' %}
 
-{% block preform %}
+{% block subcontent %}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <p class="govuk-body">Report was first published on {{report.created}}</p>
@@ -53,5 +53,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block form %}{% endblock %}
