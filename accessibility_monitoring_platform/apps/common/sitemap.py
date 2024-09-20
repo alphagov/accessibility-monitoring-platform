@@ -234,6 +234,23 @@ class CaseContactsPlatformPage(CasePlatformPage):
                 self.subpages = subpage_instances
 
 
+class CaseCommentsPlatformPage(CasePlatformPage):
+    def populate_from_case(self, case: Case):
+        if case is not None:
+            self.object = case
+            self.subpages = get_subpages_by_url_name(url_name=self.url_name)
+            if self.subpages is not None:
+                subpage_instances: List[PlatformPage] = []
+                for comment in case.qa_comments:
+                    for subpage in self.subpages:
+                        if subpage.object_class == Comment:
+                            subpage_instance: PlatformPage = copy.copy(subpage)
+                            subpage_instance.object = comment
+                            subpage_instance.populate_subpage_objects()
+                            subpage_instances.append(subpage_instance)
+                self.subpages = subpage_instances
+
+
 class AuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -609,7 +626,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 url_name="cases:edit-report-ready-for-qa",
                 complete_flag_name="reporting_details_complete_date",
             ),
-            CasePlatformPage(
+            CaseCommentsPlatformPage(
                 name="Comments ({object.qa_comments_count})",
                 url_name="cases:edit-qa-comments",
                 subpages=[

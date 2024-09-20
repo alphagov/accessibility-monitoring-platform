@@ -24,6 +24,7 @@ from ..sitemap import (
     AuditPagesPlatformPage,
     AuditPlatformPage,
     AuditRetestPagesPlatformPage,
+    CaseCommentsPlatformPage,
     CaseContactsPlatformPage,
     CasePlatformPage,
     EqualityBodyRetestPagesPlatformPage,
@@ -325,6 +326,35 @@ def test_case_platform_page():
     case_platform_page.populate_from_case(case=case)
 
     assert case_platform_page.object == case
+
+
+@pytest.mark.django_db
+def test_case_comments_platform_page():
+    """Test CaseCommentsPlatformPage"""
+    case_comments_platform_page: CaseCommentsPlatformPage = CaseCommentsPlatformPage(
+        name="Comments",
+        url_name="cases:edit-qa-comments",
+    )
+
+    assert case_comments_platform_page.object_required_for_url is True
+    assert case_comments_platform_page.object_class == Case
+    assert case_comments_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case.objects.create()
+    user: User = User.objects.create()
+    Comment.objects.create(case=case, user=user, body="Comment One")
+    Comment.objects.create(case=case, user=user, body="Comment Two")
+
+    case_comments_platform_page.populate_from_case(case=case)
+
+    assert case_comments_platform_page.object == case
+    assert len(case_comments_platform_page.subpages) == 2
+    assert (
+        case_comments_platform_page.subpages[0].get_name() == "Edit or delete comment"
+    )
+    assert (
+        case_comments_platform_page.subpages[1].get_name() == "Edit or delete comment"
+    )
 
 
 @pytest.mark.django_db
