@@ -34,7 +34,7 @@ describe('Report publisher', () => {
 
   it('can edit how accessible the website is', () => {
     cy.contains('Edit test > Website compliance decision').click()
-    cy.title().should('eq', 'ExampleCorp | Website compliance decision')
+    cy.title().should('eq', 'ExampleCorp | Compliance decision')
     cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
     cy.contains('Save').click()
     cy.visit('/reports/1/report-publisher')
