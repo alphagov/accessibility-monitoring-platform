@@ -937,6 +937,20 @@ SITE_MAP: List[PlatformPageGroup] = [
             CasePlatformPage(
                 name="Equality body correspondence",
                 url_name="cases:list-equality-body-correspondence",
+                subpages=[
+                    CasePlatformPage(
+                        name="Add Zendesk ticket",
+                        url_name="cases:create-equality-body-correspondence",
+                        url_kwarg_key="case_id",
+                        visible_only_when_current=True,
+                    ),
+                    PlatformPage(
+                        name="Edit Zendesk ticket",
+                        url_name="cases:edit-equality-body-correspondence",
+                        object_class=EqualityBodyCorrespondence,
+                        visible_only_when_current=True,
+                    ),
+                ],
             ),
             RetestOverviewPlatformPage(
                 name="Retest overview",
@@ -1049,22 +1063,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 url_name="notifications:reminder-create",
                 url_kwarg_key="case_id",
             ),
-            CasePlatformPage(
-                name="Add Zendesk ticket",
-                url_name="cases:create-equality-body-correspondence",
-                url_kwarg_key="case_id",
-            ),
-            CasePlatformPage(
-                name="Add PSB Zendesk ticket",
-                url_name="cases:create-zendesk-ticket",
-                url_kwarg_key="case_id",
-            ),
             CasePlatformPage(name="Deactivate case", url_name="cases:deactivate-case"),
-            PlatformPage(
-                name="Edit Zendesk ticket",
-                url_name="cases:edit-equality-body-correspondence",
-                object_class=EqualityBodyCorrespondence,
-            ),
             CasePlatformPage(name="Post case summary", url_name="cases:edit-post-case"),
             CasePlatformPage(
                 name="Email templates", url_name="cases:email-template-list"
@@ -1081,13 +1080,23 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Cannot start new retest", url_name="cases:retest-create-error"
             ),
             CasePlatformPage(name="Status workflow", url_name="cases:status-workflow"),
-            PlatformPage(
-                name="Edit PSB Zendesk ticket",
-                url_name="cases:update-zendesk-ticket",
-                object_class=ZendeskTicket,
-            ),
             CasePlatformPage(
-                name="PSB Zendesk tickets", url_name="cases:zendesk-tickets"
+                name="PSB Zendesk tickets",
+                url_name="cases:zendesk-tickets",
+                subpages=[
+                    CasePlatformPage(
+                        name="Add PSB Zendesk ticket",
+                        url_name="cases:create-zendesk-ticket",
+                        url_kwarg_key="case_id",
+                        visible_only_when_current=True,
+                    ),
+                    PlatformPage(
+                        name="Edit PSB Zendesk ticket",
+                        url_name="cases:update-zendesk-ticket",
+                        object_class=ZendeskTicket,
+                        visible_only_when_current=True,
+                    ),
+                ],
             ),
         ],
     ),
