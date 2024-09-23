@@ -386,16 +386,6 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}
-            if case.report is None:
-                return reverse("cases:edit-create-report", kwargs=case_pk)
-            return reverse("cases:edit-report-ready-for-qa", kwargs=case_pk)
-        return super().get_success_url()
-
 
 class CaseCreateReportUpdateView(DetailView):
     """

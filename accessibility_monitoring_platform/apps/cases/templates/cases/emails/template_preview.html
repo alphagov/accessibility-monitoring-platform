@@ -4,37 +4,37 @@
 {% load l10n %}
 
 {% block breadcrumbs %}
-<div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-        {% include 'common/breadcrumb_home.html' %}
-        {% include 'cases/helpers/breadcrumb_case.html' %}
-        <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="{% url 'cases:email-template-list' case.id %}">Email templates</a>
-        </li>
-        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
-    </ol>
-</div>
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            {% include 'cases/helpers/breadcrumb_case.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:email-template-list' case.id %}">Email templates</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+        </ol>
+    </div>
 {% endblock %}
 
 {% block controls %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full govuk-button-group">
-        <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
-            Copy email template
-        </button>
-        {% include "common/amp_control_go_back.html" %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full govuk-button-group">
+            <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
+                Copy email template
+            </button>
+            {% include "common/amp_control_go_back.html" %}
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block subcontent %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-        <div id="email-text" class="amp-report-wrapper">
-            {{ email_template_render }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div id="email-text" class="amp-report-wrapper">
+                {{ email_template_render }}
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block extrascript %}

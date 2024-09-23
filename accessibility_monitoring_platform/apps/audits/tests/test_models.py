@@ -224,6 +224,15 @@ def create_audit_and_check_results() -> Audit:
 
 
 @pytest.mark.django_db
+def test_audit_absolute_url():
+    """Test Audit.get_absolute_url()"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.get_absolute_url() == "/audits/1/edit-audit-metadata/"
+
+
+@pytest.mark.django_db
 def test_audit_every_pages_returns_all_pages():
     """
     Deleted and pages which were not found are also excluded.

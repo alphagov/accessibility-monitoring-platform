@@ -1,38 +1,38 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-        {% include 'cases/helpers/qa_links.html' %}
-        <p class="govuk-body">When a report is republished, it will:</p>
-        <ul class="govuk-list govuk-list--bullet">
-            <li>Create a new publicly accessible version of the report</li>
-            <li>Store a permanent copy of the report</li>
-            <li>Will show a link to the new report in outdated reports</li>
-        </ul>
-        <p class="govuk-body">Do you wish to continue?</p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'cases/helpers/qa_links.html' %}
+            <p class="govuk-body">When a report is republished, it will:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>Create a new publicly accessible version of the report</li>
+                <li>Store a permanent copy of the report</li>
+                <li>Will show a link to the new report in outdated reports</li>
+            </ul>
+            <p class="govuk-body">Do you wish to continue?</p>
+        </div>
     </div>
-</div>
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full govuk-button-group">
-        {% if report.case.report_approved_status == 'yes' %}
-            <a href="{% url 'reports:publish-report' report.id %}"
-                role="button"
-                draggable="false"
-                class="govuk-button"
-                data-module="govuk-button"
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full govuk-button-group">
+            {% if report.case.report_approved_status == 'yes' %}
+                <a href="{% url 'reports:publish-report' report.id %}"
+                    role="button"
+                    draggable="false"
+                    class="govuk-button"
+                    data-module="govuk-button"
+                >
+                    Republish report
+                </a>
+            {% endif %}
+            <a
+                href="{% url 'cases:edit-publish-report' report.case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
             >
-                Republish report
+                Return to publish report
             </a>
-        {% endif %}
-        <a
-            href="{% url 'cases:edit-publish-report' report.case.id %}"
-            class="govuk-link govuk-link--no-visited-state"
-        >
-            Return to publish report
-        </a>
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block form %}

@@ -1190,9 +1190,12 @@ def test_updating_case_creates_case_event(admin_client):
         ("cases:edit-case-metadata", "save", "cases:edit-case-metadata"),
         ("cases:edit-case-metadata", "save_continue", "cases:edit-test-results"),
         ("cases:edit-test-results", "save", "cases:edit-test-results"),
+        ("cases:edit-report-ready-for-qa", "save", "cases:edit-report-ready-for-qa"),
+        ("cases:edit-report-ready-for-qa", "save_continue", "cases:edit-qa-comments"),
         ("cases:edit-qa-comments", "save", "cases:edit-qa-comments"),
         ("cases:edit-qa-comments", "save_continue", "cases:edit-qa-approval"),
         ("cases:edit-qa-approval", "save", "cases:edit-qa-approval"),
+        ("cases:edit-qa-approval", "save_continue", "cases:edit-publish-report"),
         ("cases:edit-qa-approval", "save_continue", "cases:edit-publish-report"),
         ("cases:edit-publish-report", "save", "cases:edit-publish-report"),
         (

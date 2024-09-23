@@ -17,6 +17,7 @@ from accessibility_monitoring_platform.apps.common.models import Boolean
 
 from ...cases.models import Case, CaseCompliance, CaseEvent, Contact
 from ...common.models import Event
+from ...reports.models import Report
 from ..models import (
     Audit,
     CheckResult,
@@ -678,6 +679,31 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed_no_stateme
     assert response.status_code == 302
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == expected_path
+
+
+def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
+    """
+    Test that audit statement summary page redirects to Report ready for QA
+    when a report exists
+    """
+    case: Case = Case.objects.create()
+    case_pk: Dict[str, int] = {"pk": case.id}
+    audit: Audit = Audit.objects.create(case=case)
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-statement-summary", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse("cases:edit-report-ready-for-qa", kwargs=case_pk)
     assert response.url == expected_path
 
 
