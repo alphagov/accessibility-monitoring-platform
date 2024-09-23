@@ -3772,6 +3772,13 @@ def test_12_week_retest_page_complete_check_displayed(admin_client):
     page: Page = Page.objects.all().first()
     page.url = "https://example.com"
     page.save()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
@@ -3783,7 +3790,7 @@ def test_12_week_retest_page_complete_check_displayed(admin_client):
         response,
         """<li>
             <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
-                12-week retest Home (0)</a>
+                12-week retest Home (1)</a>
             |
             <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
                 Edit</a>
@@ -3804,7 +3811,7 @@ def test_12_week_retest_page_complete_check_displayed(admin_client):
         response,
         """<li>
             <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
-                12-week retest Home (0)<span class="govuk-visually-hidden">complete</span></a>
+                12-week retest Home (1)<span class="govuk-visually-hidden">complete</span></a>
             |
             <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden">complete</span></a>
