@@ -281,6 +281,47 @@ def test_audit_retest_detail_shows_number_of_errors(admin_client):
     assertContains(response, "PDF (2)")
 
 
+def test_audit_retest_detail_only_shows_pages_with_errors(admin_client):
+    """Test that audit 12-week retest view shows only pages with errors"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    page_with_error: Page = Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.PDF,
+        url="https://example.com",
+        name="Page with error",
+    )
+    page_without_error: Page = Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.PDF,
+        url="https://example.com",
+        name="Page without error",
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page_with_error,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page_without_error,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.NO_ERROR,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-retest-detail", kwargs=audit_pk)
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Page with error")
+    assertNotContains(response, "Page without error")
+
+
 def test_audit_retest_detail_shows_sections(admin_client):
     """
     Test that audit 12-week retest view shows all the sections
