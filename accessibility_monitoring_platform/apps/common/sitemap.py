@@ -482,7 +482,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 ],
             ),
             AuditPlatformPage(
-                name="Website compliance decision",
+                name="Compliance decision",
                 url_name="audits:edit-website-decision",
                 complete_flag_name="audit_website_decision_complete_date",
             ),
@@ -565,12 +565,12 @@ SITE_MAP: List[PlatformPageGroup] = [
                 ],
             ),
             AuditPlatformPage(
-                name="Initial disproportionate burden claim",
+                name="Disproportionate burden",
                 url_name="audits:edit-initial-disproportionate-burden",
                 complete_flag_name="initial_disproportionate_burden_complete_date",
             ),
             AuditPlatformPage(
-                name="Initial statement compliance decision",
+                name="Statement compliance",
                 url_name="audits:edit-statement-decision",
                 complete_flag_name="audit_statement_decision_complete_date",
             ),
