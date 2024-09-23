@@ -53,7 +53,7 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Accessibility statement page test`)
     cy.contains('Save and next page').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Website compliance decision`)
+    cy.title().should('eq', `${newOrganisationName} | Compliance decision`)
     cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
     cy.contains('Save and continue').click()
 
@@ -86,10 +86,10 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Custom statement issues`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Initial disproportionate burden claim`)
+    cy.title().should('eq', `${newOrganisationName} | Disproportionate burden`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Initial statement compliance decision`)
+    cy.title().should('eq', `${newOrganisationName} | Statement compliance`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Test summary`)

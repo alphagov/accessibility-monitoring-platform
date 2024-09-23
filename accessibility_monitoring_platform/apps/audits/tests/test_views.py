@@ -353,7 +353,7 @@ def test_create_audit_creates_case_event(admin_client):
     [
         ("audits:edit-audit-metadata", "Initial test metadata"),
         ("audits:edit-audit-pages", "Add or remove pages"),
-        ("audits:edit-website-decision", "Website compliance decision"),
+        ("audits:edit-website-decision", "Compliance decision"),
         ("audits:edit-audit-statement-1", "Accessibility statement Pt. 1"),
         ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
         (
@@ -2921,7 +2921,6 @@ def test_frequently_used_links_displayed(url_name, admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
     assertContains(response, "Email templates")
     assertContains(response, "View website")
