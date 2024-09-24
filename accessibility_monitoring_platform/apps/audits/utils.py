@@ -421,6 +421,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
                     page=page,
                 )
                 for page in audit.testable_pages
+                if page.failed_check_results
             ],
         ),
         build_view_section(

@@ -281,6 +281,47 @@ def test_audit_retest_detail_shows_number_of_errors(admin_client):
     assertContains(response, "PDF (2)")
 
 
+def test_audit_retest_detail_only_shows_pages_with_errors(admin_client):
+    """Test that audit 12-week retest view shows only pages with errors"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    page_with_error: Page = Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.PDF,
+        url="https://example.com",
+        name="Page with error",
+    )
+    page_without_error: Page = Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.PDF,
+        url="https://example.com",
+        name="Page without error",
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page_with_error,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page_without_error,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.NO_ERROR,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-retest-detail", kwargs=audit_pk)
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Page with error")
+    assertNotContains(response, "Page without error")
+
+
 def test_audit_retest_detail_shows_sections(admin_client):
     """
     Test that audit 12-week retest view shows all the sections
@@ -446,7 +487,7 @@ def test_create_audit_creates_case_event(admin_client):
         ("audits:audit-detail", "View test"),
         ("audits:edit-audit-metadata", "Initial test metadata"),
         ("audits:edit-audit-pages", "Add or remove pages"),
-        ("audits:edit-website-decision", "Website compliance decision"),
+        ("audits:edit-website-decision", "Compliance decision"),
         ("audits:edit-audit-statement-1", "Accessibility statement Pt. 1"),
         ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
         (
@@ -3015,7 +3056,6 @@ def test_frequently_used_links_displayed(url_name, admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
     assertContains(response, "Email templates")
     assertContains(response, "View website")
@@ -3732,6 +3772,13 @@ def test_12_week_retest_page_complete_check_displayed(admin_client):
     page: Page = Page.objects.all().first()
     page.url = "https://example.com"
     page.save()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
@@ -3743,7 +3790,7 @@ def test_12_week_retest_page_complete_check_displayed(admin_client):
         response,
         """<li>
             <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
-                12-week retest Home (0)</a>
+                12-week retest Home (1)</a>
             |
             <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
                 Edit</a>
@@ -3764,7 +3811,7 @@ def test_12_week_retest_page_complete_check_displayed(admin_client):
         response,
         """<li>
             <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
-                12-week retest Home (0)<span class="govuk-visually-hidden">complete</span></a>
+                12-week retest Home (1)<span class="govuk-visually-hidden">complete</span></a>
             |
             <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden">complete</span></a>

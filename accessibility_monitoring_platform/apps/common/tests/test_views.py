@@ -1176,7 +1176,7 @@ def test_latest_statement_frequently_used_link(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "No accessibility statement URL found")
+    assertContains(response, "No accessibility statement URL")
     assertNotContains(response, "View latest accessibility statement")
 
     audit: Audit = Audit.objects.create(case=case)
@@ -1188,7 +1188,7 @@ def test_latest_statement_frequently_used_link(admin_client):
 
     assert response.status_code == 200
 
-    assertNotContains(response, "No accessibility statement URL found")
+    assertNotContains(response, "No accessibility statement URL")
     assertContains(response, "View latest accessibility statement")
 
 
