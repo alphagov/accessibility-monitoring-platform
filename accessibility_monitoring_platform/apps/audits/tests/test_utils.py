@@ -39,6 +39,7 @@ from ..utils import (
     get_next_equality_body_retest_page_url,
     get_next_page_url,
     get_next_retest_page_url,
+    get_other_pages_with_retest_notes,
     other_page_failed_check_results,
     report_data_updated,
 )
@@ -886,3 +887,33 @@ def test_get_next_equality_body_retest_page_url_with_pages():
     assert get_next_equality_body_retest_page_url(
         retest, current_page=last_retest_page
     ) == reverse("audits:retest-comparison-update", kwargs={"pk": retest.id})
+
+
+@pytest.mark.django_db
+def test_get_other_pages_with_retest_notes():
+    """Test get_other_pages_with_retest_notes returns only other pages with retest notes"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.HOME,
+        url="https://example.com",
+        retest_notes="Primary",
+    )
+    other_page_with_retest_notes: Page = Page.objects.create(
+        audit=audit,
+        page_type=Page.Type.HOME,
+        url="https://example.com",
+        retest_notes="Other",
+    )
+    Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+
+    other_pages_with_retest_notes: List[Page] = get_other_pages_with_retest_notes(
+        page=page
+    )
+
+    assert len(other_pages_with_retest_notes) == 1
+
+    assert other_pages_with_retest_notes[0] == other_page_with_retest_notes
