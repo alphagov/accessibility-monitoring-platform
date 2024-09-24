@@ -31,6 +31,7 @@ class ViewSection:
         FORM_TYPE: str = "form"
 
     name: str
+    content_id: int = 1
     anchor: str = ""
     edit_url: str = ""
     edit_url_id: str = ""
@@ -104,3 +105,20 @@ def build_view_section(
         page=page,
         statement_check_results=statement_check_results,
     )
+
+
+def add_content_ids_for_accordion(
+    view_sections: List[ViewSection],
+) -> List[ViewSection]:
+    content_id: int = 1
+    for view_section in view_sections:
+        if view_section.anchor:
+            view_section.content_id = content_id
+            content_id += 1
+        if view_section.type != ViewSection.Type.AUDIT_RESULTS_ON_VIEW_CASE:
+            if view_section.subsections is not None:
+                for subsection in view_section.subsections:
+                    if subsection.anchor:
+                        subsection.content_id = content_id
+                        content_id += 1
+    return view_sections
