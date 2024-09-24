@@ -3,7 +3,7 @@
         {% if case.report %}
             <a href="{% url 'reports:report-preview' case.report.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">Open report preview in new tab</a>
         {% else %}
-            <a href="{% url 'cases:edit-create-report' case.id %}" class="govuk-link govuk-link--no-visited-state">Create report</a>
+            <a href="{% url 'cases:edit-create-report' case.id %}" class="govuk-link govuk-link--no-visited-state">Start report</a>
         {% endif %}
         {% if case.audit %}
             <a href="{% url 'audits:edit-audit-wcag-summary' case.audit.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">Open test summary in new tab</a>

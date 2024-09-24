@@ -8,25 +8,16 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h2 id="qa-discussion" class="govuk-heading-m">QA discussion</h2>
-            <details class="govuk-details" data-module="govuk-details" open>
-                <summary class="govuk-details__summary">
-                    <span class="govuk-details__summary-text">
-                        Show QA discussion ({{ case.qa_comments.count }} comment{% if case.qa_comments.count != 1 %}s{% endif %})
-                    </span>
-                </summary>
-                <div class="govuk-details__text">
-                    {% for comment in case.qa_comments %}
-                        {% include "comments/helpers/comment.html" %}
-                        {% if request.user == comment.user  %}
-                            <p class="govuk-body-m">
-                                <a href="{% url 'comments:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
-                                    Edit or delete comment</a>
-                            </p>
-                        {% endif %}
-                        <hr class="amp-width-100" />
-                    {% endfor %}
-                </div>
-            </details>
+            {% for comment in case.qa_comments %}
+                {% include "comments/helpers/comment.html" %}
+                {% if request.user == comment.user  %}
+                    <p class="govuk-body-m">
+                        <a href="{% url 'comments:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
+                            Edit or delete comment</a>
+                    </p>
+                {% endif %}
+                <hr class="amp-width-100" />
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

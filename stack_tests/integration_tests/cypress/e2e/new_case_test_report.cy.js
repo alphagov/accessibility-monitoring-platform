@@ -95,9 +95,9 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Create report`)
+    cy.title().should('eq', `${newOrganisationName} | Start report`)
     cy.contains('This case currently does not have a report.')
-    cy.contains('.govuk-button', 'Create report').click()
+    cy.contains('.govuk-button', 'Start report').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report ready for QA`)
     cy.get('[name="report_review_status"]').check('yes')

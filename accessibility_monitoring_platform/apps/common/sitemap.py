@@ -607,11 +607,11 @@ SITE_MAP: List[PlatformPageGroup] = [
         ],
     ),
     CasePlatformPageGroup(
-        name="Create report",
+        name="Start report",
         show_flag_name="show_create_report",
         pages=[
             CasePlatformPage(
-                name="Create report",
+                name="Start report",
                 url_name="cases:edit-create-report",
             ),
         ],
