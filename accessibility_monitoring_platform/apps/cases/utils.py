@@ -225,21 +225,20 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                     .count(),
                 ),
             ]
-    before_correspondence_process: List[ViewSection] = (
-        [
+    if case.report is None:
+        report_qa_sections: List[ViewSection] = [
             build_view_section(
-                name="Case details > Case metadata",
-                edit_url=reverse("cases:edit-case-metadata", kwargs=case_pk),
-                edit_url_id="edit-case-metadata",
-                complete_date=case.case_details_complete_date,
-                display_fields=case_details_prefix
-                + get_case_rows(form=CaseMetadataUpdateForm()),
-            ),
+                name="Start report > Start report",
+                edit_url=reverse("cases:edit-create-report", kwargs=case_pk),
+                edit_url_id="edit-create-report",
+                complete_date=None,
+                placeholder="A report does not exist for this case",
+            )
         ]
-        + initial_test_sections
-        + [
+    else:
+        report_qa_sections: List[ViewSection] = [
             build_view_section(
-                name="Report ready for QA",
+                name="Report QA > Report ready for QA",
                 edit_url=reverse("cases:edit-report-ready-for-qa", kwargs=case_pk),
                 edit_url_id="edit-report-ready-for-qa",
                 complete_date=case.reporting_details_complete_date,
@@ -252,7 +251,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 ),
             ),
             build_view_section(
-                name="QA comments",
+                name="Report QA > QA comments",
                 edit_url=reverse("cases:edit-qa-comments", kwargs=case_pk),
                 edit_url_id="edit-qa-comments",
                 display_fields=[
@@ -265,19 +264,34 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 ],
             ),
             build_view_section(
-                name="QA approval",
+                name="Report QA > QA approval",
                 edit_url=reverse("cases:edit-qa-approval", kwargs=case_pk),
                 edit_url_id="edit-qa-approval",
                 complete_date=case.qa_auditor_complete_date,
                 display_fields=get_case_rows(form=CaseQAApprovalUpdateForm()),
             ),
             build_view_section(
-                name="Publish report",
+                name="Report QA > Publish report",
                 edit_url=reverse("cases:edit-publish-report", kwargs=case_pk),
                 edit_url_id="edit-publish-report",
                 anchor="",
                 complete_date=case.publish_report_complete_date,
             ),
+        ]
+    before_correspondence_process: List[ViewSection] = (
+        [
+            build_view_section(
+                name="Case details > Case metadata",
+                edit_url=reverse("cases:edit-case-metadata", kwargs=case_pk),
+                edit_url_id="edit-case-metadata",
+                complete_date=case.case_details_complete_date,
+                display_fields=case_details_prefix
+                + get_case_rows(form=CaseMetadataUpdateForm()),
+            ),
+        ]
+        + initial_test_sections
+        + report_qa_sections
+        + [
             build_view_section(
                 name="Contact details > Manage contact details",
                 edit_url=reverse("cases:manage-contact-details", kwargs=case_pk),

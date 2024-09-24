@@ -1925,7 +1925,7 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "edit-case-metadata",
         ),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
-        ("qa_auditor_complete_date", "QA approval", "edit-qa-approval"),
+        ("qa_auditor_complete_date", "Report QA > QA approval", "edit-qa-approval"),
         (
             "manage_contact_details_complete_date",
             "Contact details > Manage contact details",
@@ -2013,6 +2013,7 @@ def test_section_complete_check_displayed(
     setattr(case, flag_name, TODAY)
     case.save()
     edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
+    Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
@@ -2038,7 +2039,11 @@ def test_section_complete_check_displayed(
 @pytest.mark.parametrize(
     "flag_name, section_name, edit_url_name",
     [
-        ("publish_report_complete_date", "Publish report", "edit-publish-report"),
+        (
+            "publish_report_complete_date",
+            "Report QA > Publish report",
+            "edit-publish-report",
+        ),
     ],
 )
 def test_no_anchor_section_complete_check_displayed(
@@ -2051,6 +2056,7 @@ def test_no_anchor_section_complete_check_displayed(
     setattr(case, flag_name, TODAY)
     case.save()
     edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
+    Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
@@ -2697,6 +2703,7 @@ def test_case_details_shows_edit_links(
     Test case details show edit links when testing methodology is platform.
     """
     case: Case = Case.objects.create()
+    Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
