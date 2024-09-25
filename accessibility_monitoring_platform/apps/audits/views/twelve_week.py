@@ -47,7 +47,11 @@ from ..models import (
     StatementCheckResult,
     StatementPage,
 )
-from ..utils import get_next_retest_page_url, get_twelve_week_test_view_sections
+from ..utils import (
+    get_next_retest_page_url,
+    get_other_pages_with_retest_notes,
+    get_twelve_week_test_view_sections,
+)
 from .base import (
     AuditCaseComplianceUpdateView,
     AuditUpdateView,
@@ -196,6 +200,9 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
 
         context["check_results_formset"] = check_results_formset
         context["check_results_and_forms"] = check_results_and_forms
+        context["other_pages_with_retest_notes"] = get_other_pages_with_retest_notes(
+            page=self.page
+        )
 
         return context
 
