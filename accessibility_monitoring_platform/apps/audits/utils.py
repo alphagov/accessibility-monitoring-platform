@@ -421,6 +421,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
                     page=page,
                 )
                 for page in audit.testable_pages
+                if page.failed_check_results
             ],
         ),
         build_view_section(
@@ -930,3 +931,13 @@ def get_next_equality_body_retest_page_url(
     current_page_position: int = retest_pages.index(current_page)
     next_page_pk: Dict[str, int] = {"pk": retest_pages[current_page_position + 1].id}
     return reverse("audits:edit-retest-page-checks", kwargs=next_page_pk)
+
+
+def get_other_pages_with_retest_notes(page: Page) -> List[Page]:
+    """Check other pages of this case for retest notes and return them"""
+    audit: Audit = page.audit
+    return [
+        other_page
+        for other_page in audit.testable_pages
+        if other_page.retest_notes and other_page != page
+    ]

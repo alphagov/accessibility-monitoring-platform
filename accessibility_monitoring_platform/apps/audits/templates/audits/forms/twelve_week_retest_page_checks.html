@@ -46,6 +46,31 @@
                                     <span class="govuk-details__summary-text">Additional issues found on page</span>
                                 </summary>
                                 <div class="govuk-details__text">
+                                    {% if other_pages_with_retest_notes %}
+                                        <details class="govuk-details" data-module="govuk-details">
+                                            <summary class="govuk-details__summary">
+                                                <span class="govuk-details__summary-text">
+                                                    Other additional issues
+                                                </span>
+                                            </summary>
+                                            <div class="govuk-details__text">
+                                                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                                                {% for other_page in other_pages_with_retest_notes %}
+                                                    <li>
+                                                        <b>{{ other_page }}</b>
+                                                        <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ other_page.retest_notes }}</textarea>
+                                                        <span tabIndex="0"
+                                                            class="amp-control amp-copy-error"
+                                                            sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
+                                                            targetId="{{ form.retest_notes.auto_id }}">
+                                                            Click to populate additional issues</span>
+                                                        {{ other_page.retest_notes|markdown_to_html }}
+                                                    </li>
+                                                {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </details>
+                                    {% endif %}
                                     {% include 'common/amp_field.html' with field=form.retest_notes %}
                                 </div>
                             </details>
