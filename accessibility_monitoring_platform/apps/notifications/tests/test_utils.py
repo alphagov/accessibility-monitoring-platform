@@ -729,9 +729,7 @@ def test_build_overdue_task_options_12_week_deadline():
     case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
     option: Link = Link(
         label="12-week update due",
-        url=reverse(
-            "cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
-        ),
+        url=reverse("cases:edit-12-week-update-requested", kwargs={"pk": case.id}),
     )
 
     assert build_overdue_task_options(case=case) == [option]
