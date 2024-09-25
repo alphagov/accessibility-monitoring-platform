@@ -15,8 +15,8 @@ from ...cases.views import (
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
 )
-from ...common.models import Boolean
-from ..models import NotificationSetting, Option, Task
+from ...common.models import Boolean, Link
+from ..models import NotificationSetting, Task
 from ..utils import (
     add_task,
     build_overdue_task_options,
@@ -215,7 +215,7 @@ def test_get_post_case_tasks():
     assert post_case_task.description == "Unresolved correspondence"
     assert len(post_case_task.options) == 1
 
-    option: Option = post_case_task.options[0]
+    option: Link = post_case_task.options[0]
 
     assert (
         option.url
@@ -241,7 +241,7 @@ def test_get_post_case_tasks():
     assert post_case_task.case == case
     assert post_case_task.description == "Incomplete retest"
 
-    option: Option = post_case_task.options[0]
+    option: Link = post_case_task.options[0]
 
     assert option.url == retest.get_absolute_url()
     assert option.label == "View retest"
@@ -392,7 +392,9 @@ def test_in_report_correspondence_week_1_overdue():
 
     assert len(Case.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
-    assert case.in_report_correspondence_progress == "1-week follow-up to report due"
+    assert (
+        case.in_report_correspondence_progress.label == "1-week follow-up to report due"
+    )
 
 
 @pytest.mark.django_db
@@ -409,7 +411,9 @@ def test_in_report_correspondence_week_4_overdue():
 
     assert len(Case.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
-    assert case.in_report_correspondence_progress == "4-week follow-up to report due"
+    assert (
+        case.in_report_correspondence_progress.label == "4-week follow-up to report due"
+    )
 
 
 @pytest.mark.django_db
@@ -428,7 +432,7 @@ def test_in_report_correspondence_psb_overdue_after_four_week_reminder():
     assert len(Case.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
     assert (
-        case.in_report_correspondence_progress
+        case.in_report_correspondence_progress.label
         == "4-week follow-up to report sent, case needs to progress"
     )
 
@@ -470,7 +474,7 @@ def test_in_12_week_correspondence_1_week_followup_overdue():
 
     assert len(Case.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
-    assert case.twelve_week_correspondence_progress == "1-week follow-up due"
+    assert case.twelve_week_correspondence_progress.label == "1-week follow-up due"
 
 
 @pytest.mark.django_db
@@ -496,7 +500,7 @@ def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
     assert len(Case.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
     assert (
-        case.twelve_week_correspondence_progress
+        case.twelve_week_correspondence_progress.label
         == "1-week follow-up sent, case needs to progress"
     )
 
@@ -697,7 +701,7 @@ def test_build_overdue_task_options_report_ready():
     """Test build_overdue_task_options with report ready to send"""
     case: Case = Case.objects.create()
     case.status.status = CaseStatus.Status.REPORT_READY_TO_SEND
-    option: Option = Option(
+    option: Link = Link(
         label="No contact details response overdue",
         url=reverse("cases:edit-request-contact-details", kwargs={"pk": case.id}),
     )
@@ -710,8 +714,8 @@ def test_build_overdue_task_options_report_cores():
     """Test build_overdue_task_options with in report correspondence"""
     case: Case = Case.objects.create()
     case.status.status = CaseStatus.Status.IN_REPORT_CORES
-    option: Option = Option(
-        label=case.in_report_correspondence_progress,
+    option: Link = Link(
+        label=case.in_report_correspondence_progress.label,
         url=reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
@@ -723,7 +727,7 @@ def test_build_overdue_task_options_12_week_deadline():
     """Test build_overdue_task_options with awaiting 12-week deadline"""
     case: Case = Case.objects.create()
     case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
-    option: Option = Option(
+    option: Link = Link(
         label="12-week update due",
         url=reverse(
             "cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
@@ -738,8 +742,8 @@ def test_build_overdue_task_options_12_week_cores():
     """Test build_overdue_task_options with 12-week correspondence"""
     case: Case = Case.objects.create()
     case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
-    option: Option = Option(
-        label=case.twelve_week_correspondence_progress,
+    option: Link = Link(
+        label=case.twelve_week_correspondence_progress.label,
         url=reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
     )
 
