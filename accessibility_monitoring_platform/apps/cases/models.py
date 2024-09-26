@@ -589,7 +589,9 @@ class Case(VersionModel):
         ):
             return Link(
                 label="1-week follow-up to report coming up",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse(
+                    "cases:edit-report-one-week-followup", kwargs={"pk": self.id}
+                ),
             )
         elif (
             self.report_followup_week_1_due_date
@@ -598,7 +600,9 @@ class Case(VersionModel):
         ):
             return Link(
                 label="1-week follow-up to report due",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse(
+                    "cases:edit-report-one-week-followup", kwargs={"pk": self.id}
+                ),
             )
         elif (
             self.report_followup_week_1_sent_date
@@ -608,7 +612,9 @@ class Case(VersionModel):
         ):
             return Link(
                 label="4-week follow-up to report coming up",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse(
+                    "cases:edit-report-four-week-followup", kwargs={"pk": self.id}
+                ),
             )
         elif (
             self.report_followup_week_1_sent_date
@@ -618,7 +624,9 @@ class Case(VersionModel):
         ):
             return Link(
                 label="4-week follow-up to report due",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse(
+                    "cases:edit-report-four-week-followup", kwargs={"pk": self.id}
+                ),
             )
         elif (
             self.report_followup_week_4_sent_date is not None
@@ -626,7 +634,7 @@ class Case(VersionModel):
         ):
             return Link(
                 label="4-week follow-up to report sent, waiting seven days for response",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse("cases:edit-report-acknowledged", kwargs={"pk": self.id}),
             )
         elif (
             self.report_followup_week_4_sent_date is not None
@@ -634,7 +642,7 @@ class Case(VersionModel):
         ):
             return Link(
                 label="4-week follow-up to report sent, case needs to progress",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse("cases:edit-report-acknowledged", kwargs={"pk": self.id}),
             )
         return Link(
             label="Unknown",
@@ -652,7 +660,9 @@ class Case(VersionModel):
         ):
             return Link(
                 label="1-week follow-up coming up",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse(
+                    "cases:edit-12-week-one-week-followup-final", kwargs={"pk": self.id}
+                ),
             )
         elif (
             self.twelve_week_update_requested_date
@@ -661,7 +671,9 @@ class Case(VersionModel):
         ):
             return Link(
                 label="1-week follow-up due",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse(
+                    "cases:edit-12-week-one-week-followup-final", kwargs={"pk": self.id}
+                ),
             )
         elif (
             self.twelve_week_1_week_chaser_sent_date is not None
@@ -669,7 +681,9 @@ class Case(VersionModel):
         ):
             return Link(
                 label="1-week follow-up sent, waiting seven days for response",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse(
+                    "cases:edit-12-week-update-request-ack", kwargs={"pk": self.id}
+                ),
             )
         elif (
             self.twelve_week_1_week_chaser_sent_date is not None
@@ -677,7 +691,9 @@ class Case(VersionModel):
         ):
             return Link(
                 label="1-week follow-up sent, case needs to progress",
-                url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+                url=reverse(
+                    "cases:edit-12-week-update-request-ack", kwargs={"pk": self.id}
+                ),
             )
         return Link(
             label="Unknown",

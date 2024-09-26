@@ -395,6 +395,9 @@ def test_in_report_correspondence_week_1_overdue():
     assert (
         case.in_report_correspondence_progress.label == "1-week follow-up to report due"
     )
+    assert case.in_report_correspondence_progress.url == reverse(
+        "cases:edit-report-one-week-followup", kwargs={"pk": case.id}
+    )
 
 
 @pytest.mark.django_db
@@ -413,6 +416,9 @@ def test_in_report_correspondence_week_4_overdue():
     assert len(get_overdue_cases(user)) == 1
     assert (
         case.in_report_correspondence_progress.label == "4-week follow-up to report due"
+    )
+    assert case.in_report_correspondence_progress.url == reverse(
+        "cases:edit-report-four-week-followup", kwargs={"pk": case.id}
     )
 
 
@@ -434,6 +440,9 @@ def test_in_report_correspondence_psb_overdue_after_four_week_reminder():
     assert (
         case.in_report_correspondence_progress.label
         == "4-week follow-up to report sent, case needs to progress"
+    )
+    assert case.in_report_correspondence_progress.url == reverse(
+        "cases:edit-report-acknowledged", kwargs={"pk": case.id}
     )
 
 
@@ -475,6 +484,9 @@ def test_in_12_week_correspondence_1_week_followup_overdue():
     assert len(Case.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
     assert case.twelve_week_correspondence_progress.label == "1-week follow-up due"
+    assert case.twelve_week_correspondence_progress.url == reverse(
+        "cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
+    )
 
 
 @pytest.mark.django_db
@@ -502,6 +514,9 @@ def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
     assert (
         case.twelve_week_correspondence_progress.label
         == "1-week follow-up sent, case needs to progress"
+    )
+    assert case.twelve_week_correspondence_progress.url == reverse(
+        "cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}
     )
 
 
