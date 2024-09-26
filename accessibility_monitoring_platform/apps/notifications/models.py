@@ -1,6 +1,5 @@
 """Models for notifications app"""
 
-from dataclasses import dataclass
 from typing import List
 
 from django.contrib.auth.models import User
@@ -8,12 +7,7 @@ from django.db import models
 from django.urls import reverse
 
 from ..cases.models import Case
-
-
-@dataclass
-class Option:
-    label: str
-    url: str
+from ..common.models import Link
 
 
 class Task(models.Model):
@@ -38,11 +32,11 @@ class Task(models.Model):
     class Meta:
         ordering: List[str] = ["-id"]
 
-    def options(self) -> List[Option]:
-        options: List[Option] = []
+    def options(self) -> List[Link]:
+        options: List[Link] = []
         if self.type == Task.Type.QA_COMMENT:
             options.append(
-                Option(
+                Link(
                     label="Go to QA comment",
                     url=reverse(
                         "cases:edit-qa-comments",
@@ -52,7 +46,7 @@ class Task(models.Model):
             )
         elif self.type == Task.Type.REPORT_APPROVED:
             options.append(
-                Option(
+                Link(
                     label="Go to Report approved",
                     url=reverse(
                         "cases:edit-report-approved",
@@ -62,7 +56,7 @@ class Task(models.Model):
             )
         elif self.type == Task.Type.REMINDER:
             options.append(
-                Option(
+                Link(
                     label="Edit",
                     url=reverse(
                         "notifications:edit-reminder-task",
@@ -71,7 +65,7 @@ class Task(models.Model):
                 )
             )
             options.append(
-                Option(
+                Link(
                     label="Delete reminder",
                     url=reverse(
                         "notifications:mark-task-read",
@@ -81,7 +75,7 @@ class Task(models.Model):
             )
         if self.type in [Task.Type.QA_COMMENT, Task.Type.REPORT_APPROVED]:
             options.append(
-                Option(
+                Link(
                     label="Mark as seen",
                     url=reverse(
                         "notifications:mark-task-read",
@@ -90,7 +84,7 @@ class Task(models.Model):
                 )
             )
             options.append(
-                Option(
+                Link(
                     label="Mark case tasks as seen",
                     url=reverse(
                         "notifications:mark-case-comments-read",
