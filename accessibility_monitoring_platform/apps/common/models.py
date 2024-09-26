@@ -2,6 +2,7 @@
 Models for common data used across project
 """
 
+from dataclasses import dataclass
 from datetime import date
 
 from django.contrib.auth.models import User
@@ -25,6 +26,12 @@ More information about monitoring placeholder"""
 class Boolean(models.TextChoices):
     YES = "yes"
     NO = "no"
+
+
+@dataclass
+class Link:
+    label: str
+    url: str
 
 
 class StartEndDateManager(models.Manager):
