@@ -2,7 +2,7 @@
 Tests for automated statuses
 """
 
-from datetime import datetime
+from datetime import date
 
 import pytest
 from django.contrib.auth.models import User
@@ -130,12 +130,14 @@ def test_case_status_in_report_correspondence(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
+        report_sent_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.IN_REPORT_CORES
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to One week follow-up"
+        admin_client,
+        case=case,
+        expected_link_label=case.in_report_correspondence_progress.label,
     )
 
 
@@ -170,8 +172,8 @@ def test_case_status_in_probation_period(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
+        report_sent_date=date.today(),
+        report_acknowledged_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
 
@@ -191,14 +193,16 @@ def test_case_status_in_12_week_correspondence(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
+        report_sent_date=date.today(),
+        report_acknowledged_date=date.today(),
+        twelve_week_update_requested_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.IN_12_WEEK_CORES
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to 12-week update requested"
+        admin_client,
+        case=case,
+        expected_link_label=case.twelve_week_correspondence_progress.label,
     )
 
 
@@ -213,9 +217,9 @@ def test_case_status_skips_to_reviewing_changes_when_psb_respond_early(admin_cli
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        report_sent_date=date.today(),
+        report_acknowledged_date=date.today(),
+        twelve_week_correspondence_acknowledged_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.REVIEWING_CHANGES
 
@@ -235,10 +239,10 @@ def test_case_status_reviewing_changes(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        report_sent_date=date.today(),
+        report_acknowledged_date=date.today(),
+        twelve_week_update_requested_date=date.today(),
+        twelve_week_correspondence_acknowledged_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.REVIEWING_CHANGES
 
@@ -258,10 +262,10 @@ def test_case_status_final_decision_due(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        report_sent_date=date.today(),
+        report_acknowledged_date=date.today(),
+        twelve_week_update_requested_date=date.today(),
+        twelve_week_correspondence_acknowledged_date=date.today(),
         is_ready_for_final_decision=Boolean.YES,
     )
     assert case.status.status == CaseStatus.Status.FINAL_DECISION_DUE
@@ -282,10 +286,10 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        report_sent_date=date.today(),
+        report_acknowledged_date=date.today(),
+        twelve_week_update_requested_date=date.today(),
+        twelve_week_correspondence_acknowledged_date=date.today(),
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
     )
     assert case.status.status == CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
@@ -306,12 +310,12 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        report_sent_date=date.today(),
+        report_acknowledged_date=date.today(),
+        twelve_week_update_requested_date=date.today(),
+        twelve_week_correspondence_acknowledged_date=date.today(),
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
-        sent_to_enforcement_body_sent_date=datetime.now(),
+        sent_to_enforcement_body_sent_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
 
@@ -331,12 +335,12 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        report_sent_date=date.today(),
+        report_acknowledged_date=date.today(),
+        twelve_week_update_requested_date=date.today(),
+        twelve_week_correspondence_acknowledged_date=date.today(),
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
-        sent_to_enforcement_body_sent_date=datetime.now(),
+        sent_to_enforcement_body_sent_date=date.today(),
         enforcement_body_pursuing=Case.EnforcementBodyPursuing.YES_IN_PROGRESS,
     )
     assert case.status.status == CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
@@ -357,12 +361,12 @@ def test_case_status_equality_bodies_complete(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        report_sent_date=date.today(),
+        report_acknowledged_date=date.today(),
+        twelve_week_update_requested_date=date.today(),
+        twelve_week_correspondence_acknowledged_date=date.today(),
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
-        sent_to_enforcement_body_sent_date=datetime.now(),
+        sent_to_enforcement_body_sent_date=date.today(),
         enforcement_body_pursuing=Case.EnforcementBodyPursuing.YES_COMPLETED,
     )
     assert case.status.status == CaseStatus.Status.COMPLETE
