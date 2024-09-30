@@ -51,7 +51,7 @@ class CheckResultAdmin(admin.ModelAdmin):
         "page__name",
         "page__page_type",
     ]
-    list_display = ["wcag_definition", "audit", "page"]
+    list_display = ["__str__", "audit", "page"]
 
 
 class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):

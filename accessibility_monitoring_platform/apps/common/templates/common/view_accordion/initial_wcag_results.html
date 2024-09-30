@@ -3,7 +3,7 @@
         <tbody class="govuk-table__body">
             {% for check_result in view_section.page.failed_check_results %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">{{ check_result.wcag_definition }}</th>
+                    <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">{{ check_result.wcag_definition }} | {{ check_result.unique_id_within_case }}</th>
                     <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes|markdown_to_html }}</td>
                 </tr>
             {% endfor %}

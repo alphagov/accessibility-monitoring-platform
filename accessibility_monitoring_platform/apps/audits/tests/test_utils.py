@@ -510,6 +510,7 @@ def test_get_all_possible_check_results_for_page():
             "wcag_definition": WcagDefinition.objects.get(type=WcagDefinition.Type.PDF),
             "check_result_state": "not-tested",
             "notes": "",
+            "id_within_case": None,
         },
         {
             "wcag_definition": WcagDefinition.objects.get(
@@ -517,11 +518,13 @@ def test_get_all_possible_check_results_for_page():
             ),
             "check_result_state": "not-tested",
             "notes": "",
+            "id_within_case": 1,
         },
         {
             "wcag_definition": WcagDefinition.objects.get(type=WcagDefinition.Type.AXE),
             "check_result_state": "not-tested",
             "notes": "",
+            "id_within_case": None,
         },
     ]
 
