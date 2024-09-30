@@ -16,7 +16,7 @@ from ..common.models import VersionModel
 from ..common.utils import amp_format_datetime
 from ..s3_read_write.models import S3Report
 
-REPORT_VERSION_DEFAULT: str = "v1_3_0__20240710"
+REPORT_VERSION_DEFAULT: str = "v1_4_0__20241005"
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",
     "sent_by",
