@@ -297,6 +297,26 @@ class CaseReportReadyForQAUpdateForm(VersionForm):
         ]
 
 
+class CaseQAAuditorUpdateForm(VersionForm):
+    """
+    Form for updating QA auditor
+    """
+
+    reviewer = AMPAuditorModelChoiceField(
+        label="QA Auditor",
+        help_text="This field affects the case status",
+    )
+    qa_auditor_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "reviewer",
+            "qa_auditor_complete_date",
+        ]
+
+
 class CaseQACommentsUpdateForm(VersionForm):
     """
     Form for updating QA comments page
@@ -325,19 +345,14 @@ class CaseQAApprovalUpdateForm(VersionForm):
         choices=Case.ReportApprovedStatus.choices,
         help_text="This field affects the case status",
     )
-    reviewer = AMPAuditorModelChoiceField(
-        label="QA Auditor",
-        help_text="This field affects the case status",
-    )
-    qa_auditor_complete_date = AMPDatePageCompleteField()
+    qa_approval_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
             "report_approved_status",
-            "reviewer",
-            "qa_auditor_complete_date",
+            "qa_approval_complete_date",
         ]
 
 

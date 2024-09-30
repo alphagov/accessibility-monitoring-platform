@@ -626,6 +626,11 @@ SITE_MAP: List[PlatformPageGroup] = [
                 url_name="cases:edit-report-ready-for-qa",
                 complete_flag_name="reporting_details_complete_date",
             ),
+            CasePlatformPage(
+                name="QA auditor",
+                url_name="cases:edit-qa-auditor",
+                complete_flag_name="qa_auditor_complete_date",
+            ),
             CaseCommentsPlatformPage(
                 name="Comments ({object.qa_comments_count})",
                 url_name="cases:edit-qa-comments",
@@ -642,7 +647,7 @@ SITE_MAP: List[PlatformPageGroup] = [
             CasePlatformPage(
                 name="QA approval",
                 url_name="cases:edit-qa-approval",
-                complete_flag_name="qa_auditor_complete_date",
+                complete_flag_name="qa_approval_complete_date",
             ),
             CasePlatformPage(
                 name="Publish report",

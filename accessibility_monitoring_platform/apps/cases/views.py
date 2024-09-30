@@ -67,6 +67,7 @@ from .forms import (
     CaseOneWeekFollowupFinalUpdateForm,
     CasePublishReportUpdateForm,
     CaseQAApprovalUpdateForm,
+    CaseQAAuditorUpdateForm,
     CaseQACommentsUpdateForm,
     CaseReportAcknowledgedUpdateForm,
     CaseReportDetailsUpdateForm,
@@ -418,7 +419,24 @@ class CaseReportReadyForQAUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-qa-comments", kwargs=case_pk)
+            return reverse("cases:edit-qa-auditor", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseQAAuditorUpdateView(CaseUpdateView):
+    """
+    View to record QA auditor
+    """
+
+    form_class: Type[CaseQAAuditorUpdateForm] = CaseQAAuditorUpdateForm
+    template_name: str = "cases/forms/qa_auditor.html"
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse("cases:edit-qa-comments", kwargs={"pk": self.object.id})
         return super().get_success_url()
 
 
@@ -453,7 +471,7 @@ class CaseQACommentsUpdateView(CaseUpdateView):
 
 class CaseQAApprovalUpdateView(CaseUpdateView):
     """
-    View to record QA auditor and approval
+    View to record QA approval
     """
 
     form_class: Type[CaseQAApprovalUpdateForm] = CaseQAApprovalUpdateForm

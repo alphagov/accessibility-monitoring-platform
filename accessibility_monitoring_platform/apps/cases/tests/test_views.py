@@ -836,6 +836,10 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
             "<b>Report ready for QA</b>",
         ),
         (
+            "cases:edit-qa-auditor",
+            "<b>QA auditor</b>",
+        ),
+        (
             "cases:edit-qa-comments",
             "<b>Comments (0)</b>",
         ),
@@ -1191,7 +1195,9 @@ def test_updating_case_creates_case_event(admin_client):
         ("cases:edit-case-metadata", "save_continue", "cases:edit-test-results"),
         ("cases:edit-test-results", "save", "cases:edit-test-results"),
         ("cases:edit-report-ready-for-qa", "save", "cases:edit-report-ready-for-qa"),
-        ("cases:edit-report-ready-for-qa", "save_continue", "cases:edit-qa-comments"),
+        ("cases:edit-report-ready-for-qa", "save_continue", "cases:edit-qa-auditor"),
+        ("cases:edit-qa-auditor", "save", "cases:edit-qa-auditor"),
+        ("cases:edit-qa-auditor", "save_continue", "cases:edit-qa-comments"),
         ("cases:edit-qa-comments", "save", "cases:edit-qa-comments"),
         ("cases:edit-qa-comments", "save_continue", "cases:edit-qa-approval"),
         ("cases:edit-qa-approval", "save", "cases:edit-qa-approval"),
@@ -2345,7 +2351,8 @@ def test_section_complete_check_displayed_in_nav_details(
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-qa-approval", "qa_auditor_complete_date", "QA approval"),
+        ("cases:edit-qa-auditor", "qa_auditor_complete_date", "QA auditor"),
+        ("cases:edit-qa-approval", "qa_approval_complete_date", "QA approval"),
     ],
 )
 def test_report_section_complete_check_displayed_in_nav_details(
@@ -3307,6 +3314,10 @@ def test_navigation_links_shown(
         (
             "cases:edit-report-ready-for-qa",
             "Report ready for QA",
+        ),
+        (
+            "cases:edit-qa-auditor",
+            "QA auditor",
         ),
         (
             "cases:edit-qa-comments",

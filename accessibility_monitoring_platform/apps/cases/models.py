@@ -204,7 +204,7 @@ class Case(VersionModel):
     test_results_url = models.TextField(default="", blank=True)
     testing_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Report details page
+    # Report ready for QA page
     report_draft_url = models.TextField(default="", blank=True)
     report_notes = models.TextField(default="", blank=True)
     report_review_status = models.CharField(
@@ -220,7 +220,7 @@ class Case(VersionModel):
     report_final_odt_url = models.TextField(default="", blank=True)
     qa_process_complete_date = models.DateField(null=True, blank=True)
 
-    # Report approved
+    # QA auditor
     reviewer = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -228,12 +228,15 @@ class Case(VersionModel):
         blank=True,
         null=True,
     )
+    qa_auditor_complete_date = models.DateField(null=True, blank=True)
+
+    # QA approval
     report_approved_status = models.CharField(
         max_length=200,
         choices=ReportApprovedStatus.choices,
         default=ReportApprovedStatus.NOT_STARTED,
     )
-    qa_auditor_complete_date = models.DateField(null=True, blank=True)
+    qa_approval_complete_date = models.DateField(null=True, blank=True)
 
     # Publish report
     publish_report_complete_date = models.DateField(null=True, blank=True)

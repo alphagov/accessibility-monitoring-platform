@@ -103,11 +103,14 @@ describe('Create case, tests and report', () => {
     cy.get('[name="report_review_status"]').check('yes')
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | QA auditor`)
+    cy.get('#id_reviewer').select('QA Auditor')
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | Comments (0)`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | QA approval`)
-    cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="report_approved_status"]').check('yes')
     cy.contains('Save and continue').click()
 

@@ -40,6 +40,7 @@ from .forms import (
     CaseOneWeekContactDetailsUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CaseQAApprovalUpdateForm,
+    CaseQAAuditorUpdateForm,
     CaseReportAcknowledgedUpdateForm,
     CaseReportFourWeekFollowupUpdateForm,
     CaseReportOneWeekFollowupUpdateForm,
@@ -251,6 +252,13 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 ),
             ),
             build_view_section(
+                name="Report QA > QA auditor",
+                edit_url=reverse("cases:edit-qa-auditor", kwargs=case_pk),
+                edit_url_id="edit-qa-auditor",
+                complete_date=case.qa_auditor_complete_date,
+                display_fields=get_case_rows(form=CaseQAAuditorUpdateForm()),
+            ),
+            build_view_section(
                 name="Report QA > QA comments",
                 edit_url=reverse("cases:edit-qa-comments", kwargs=case_pk),
                 edit_url_id="edit-qa-comments",
@@ -267,7 +275,7 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
                 name="Report QA > QA approval",
                 edit_url=reverse("cases:edit-qa-approval", kwargs=case_pk),
                 edit_url_id="edit-qa-approval",
-                complete_date=case.qa_auditor_complete_date,
+                complete_date=case.qa_approval_complete_date,
                 display_fields=get_case_rows(form=CaseQAApprovalUpdateForm()),
             ),
             build_view_section(

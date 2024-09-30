@@ -29,6 +29,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseOutstandingIssuesDetailView,
     CasePublishReportUpdateView,
     CaseQAApprovalUpdateView,
+    CaseQAAuditorUpdateView,
     CaseQACommentsUpdateView,
     CaseReactivateUpdateView,
     CaseReportAcknowledgedUpdateView,
@@ -93,6 +94,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-report-ready-for-qa/",
         login_required(CaseReportReadyForQAUpdateView.as_view()),
         name="edit-report-ready-for-qa",
+    ),
+    path(
+        "<int:pk>/edit-qa-auditor/",
+        login_required(CaseQAAuditorUpdateView.as_view()),
+        name="edit-qa-auditor",
     ),
     path(
         "<int:pk>/edit-qa-comments/",
