@@ -1,14 +1,16 @@
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full govuk-button-group">
-        {% if case.report %}
-            <a href="{% url 'reports:report-preview' case.report.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">Open report preview in new tab</a>
-        {% else %}
-            <a href="{% url 'cases:edit-create-report' case.id %}" class="govuk-link govuk-link--no-visited-state">Start report</a>
-        {% endif %}
-        {% if case.audit %}
-            <a href="{% url 'audits:edit-audit-wcag-summary' case.audit.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">Open test summary in new tab</a>
-        {% else %}
-            <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Start test</a>
-        {% endif %}
+{% if case.report or case.audit %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full govuk-button-group">
+            <span class="govuk-body amp-padding-right-15">Open in new tab:</span>
+            {% if case.report %}
+                <a href="{% url 'reports:report-preview' case.report.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">Report preview</a>
+            {% endif %}
+            {% if case.audit %}
+                <a href="{% url 'audits:edit-audit-wcag-summary' case.audit.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">Test summary</a>
+            {% endif %}
+            {% if case.audit and case.audit.accessibility_statement_page %}
+                <a href="{{ case.audit.accessibility_statement_page.url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">Accessibility statement</a>
+            {% endif %}
+        </div>
     </div>
-</div>
+{% endif %}
