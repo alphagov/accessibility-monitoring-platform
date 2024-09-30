@@ -1931,7 +1931,8 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "edit-case-metadata",
         ),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
-        ("qa_auditor_complete_date", "Report QA > QA approval", "edit-qa-approval"),
+        ("qa_auditor_complete_date", "Report QA > QA auditor", "edit-qa-auditor"),
+        ("qa_approval_complete_date", "Report QA > QA approval", "edit-qa-approval"),
         (
             "manage_contact_details_complete_date",
             "Contact details > Manage contact details",
