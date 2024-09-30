@@ -1904,6 +1904,89 @@ def test_check_result_matching_wcag_with_retest_notes_check_results():
     )
 
 
+@pytest.mark.django_db
+def test_retest_check_result_matching_wcag_retest_check_results():
+    """
+    Test RetestCheckResult.matching_wcag_retest_check_results returns
+    retest check results on the other pages with the same WCAG definition
+    and with retest notes
+    """
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    contact_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.CONTACT)
+    coronavirus_page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.CORONAVIRUS
+    )
+    first_check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=home_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    second_check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=contact_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+        retest_notes="Sample note",
+    )
+    third_check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=coronavirus_page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+        retest_notes="Another note",
+    )
+    retest: Retest = Retest.objects.create(case=case)
+    retest_home_page: RetestPage = RetestPage.objects.create(
+        retest=retest, page=home_page
+    )
+    retest_contact_page: RetestPage = RetestPage.objects.create(
+        retest=retest, page=contact_page
+    )
+    retest_coronavirus_page: RetestPage = RetestPage.objects.create(
+        retest=retest, page=coronavirus_page
+    )
+    first_retest_check_result: RetestCheckResult = RetestCheckResult.objects.create(
+        retest=retest,
+        retest_page=retest_home_page,
+        check_result=first_check_result,
+        retest_notes="Retest retest note one",
+    )
+    second_retest_check_result: RetestCheckResult = RetestCheckResult.objects.create(
+        retest=retest,
+        retest_page=retest_contact_page,
+        check_result=second_check_result,
+        retest_notes="Retest retest note two",
+    )
+    third_retest_check_result: RetestCheckResult = RetestCheckResult.objects.create(
+        retest=retest,
+        retest_page=retest_coronavirus_page,
+        check_result=third_check_result,
+        retest_notes="Retest retest note three",
+    )
+
+    assert first_retest_check_result.matching_wcag_retest_check_results.count() == 2
+    assert (
+        first_retest_check_result.matching_wcag_retest_check_results.first()
+        == second_retest_check_result
+    )
+    assert (
+        first_retest_check_result.matching_wcag_retest_check_results.last()
+        == third_retest_check_result
+    )
+
+
 def test_statement_check_result_display_value():
     """Test StatementCheckResult.display_value"""
     statement_check_result: StatementCheckResult = StatementCheckResult()
