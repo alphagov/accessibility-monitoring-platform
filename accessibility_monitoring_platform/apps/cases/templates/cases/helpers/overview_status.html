@@ -23,12 +23,16 @@
                 Go to Report sent on
             </a>
         {% elif case.status.status == 'in-report-correspondence' %}
-            <a href="{% url 'cases:edit-report-one-week-followup' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                Go to One week follow-up
+            <a href="{{ case.in_report_correspondence_progress.url }}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.in_report_correspondence_progress.label }}
             </a>
-        {% elif case.status.status == 'in-probation-period' or case.status.status == 'in-12-week-correspondence' %}
+        {% elif case.status.status == 'in-probation-period' %}
             <a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">
                 Go to 12-week update requested
+            </a>
+        {% elif case.status.status == 'in-12-week-correspondence' %}
+            <a href="{{ case.twelve_week_correspondence_progress.url }}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.twelve_week_correspondence_progress.url }}
             </a>
         {% elif case.status.status == 'reviewing-changes' %}
             <a href="{% url 'cases:edit-review-changes' case.id %}" class="govuk-link govuk-link--no-visited-state">

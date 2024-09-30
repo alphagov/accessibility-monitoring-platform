@@ -7,7 +7,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from ...cases.models import Case
-from ..models import NotificationSetting, Option, Task
+from ...common.models import Link
+from ..models import NotificationSetting, Task
 
 
 @pytest.mark.django_db
@@ -35,21 +36,21 @@ def test_options_qa_comment():
     )
 
     assert task.options() == [
-        Option(
+        Link(
             label="Go to QA comment",
             url=reverse(
                 "cases:edit-qa-comments",
                 kwargs={"pk": case.id},
             ),
         ),
-        Option(
+        Link(
             label="Mark as seen",
             url=reverse(
                 "notifications:mark-task-read",
                 kwargs={"pk": task.id},
             ),
         ),
-        Option(
+        Link(
             label="Mark case tasks as seen",
             url=reverse(
                 "notifications:mark-case-comments-read",
@@ -72,21 +73,21 @@ def test_options_report_approved():
     )
 
     assert task.options() == [
-        Option(
+        Link(
             label="Go to Report approved",
             url=reverse(
                 "cases:edit-qa-approval",
                 kwargs={"pk": case.id},
             ),
         ),
-        Option(
+        Link(
             label="Mark as seen",
             url=reverse(
                 "notifications:mark-task-read",
                 kwargs={"pk": task.id},
             ),
         ),
-        Option(
+        Link(
             label="Mark case tasks as seen",
             url=reverse(
                 "notifications:mark-case-comments-read",
@@ -109,14 +110,14 @@ def test_options_reminder():
     )
 
     assert task.options() == [
-        Option(
+        Link(
             label="Edit",
             url=reverse(
                 "notifications:edit-reminder-task",
                 kwargs={"pk": task.id},
             ),
         ),
-        Option(
+        Link(
             label="Delete reminder",
             url=reverse(
                 "notifications:mark-task-read",

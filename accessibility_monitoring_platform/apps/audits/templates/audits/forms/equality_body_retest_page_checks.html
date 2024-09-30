@@ -105,7 +105,7 @@
                                 <div class="govuk-grid-column-full">
                                     <hr class="amp-width-100 amp-margin-bottom-15">
                                     <label class="govuk-label amp-margin-bottom-15"><b>{{ form.instance.check_result.wcag_definition }}</b></label>
-                                    <details class="govuk-details" data-module="govuk-details">
+                                    <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
                                         <summary class="govuk-details__summary">
                                             <span class="govuk-details__summary-text">Previous test notes</span>
                                         </summary>
@@ -124,6 +124,25 @@
                                             {% endfor %}
                                         </div>
                                     </details>
+                                    {% if form.instance.matching_wcag_retest_check_results %}
+                                        <details class="govuk-details" data-module="govuk-details">
+                                            <summary class="govuk-details__summary">
+                                                <span class="govuk-details__summary-text">Matching errors ({{ form.instance.matching_wcag_retest_check_results.count }})</span>
+                                            </summary>
+                                            <div class="govuk-details__text">
+                                                {% for retest_check_result in form.instance.matching_wcag_retest_check_results %}
+                                                    <label class="govuk-label"><b>{{ retest_check_result.retest_page.page }}</b></label>
+                                                    <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ retest_check_result.retest_notes }}</textarea>
+                                                    <span tabIndex="0"
+                                                        class="amp-control amp-copy-error"
+                                                        sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
+                                                        targetId="{{ form.retest_notes.auto_id }}">
+                                                        Click to populate additional issues</span>
+                                                    {{ retest_check_result.retest_notes|markdown_to_html }}
+                                                {% endfor %}
+                                            </div>
+                                        </details>
+                                    {% endif %}
                                     <div class="govuk-hint">
                                     </div>
                                     {% include 'common/amp_form_snippet.html' %}
@@ -164,6 +183,9 @@
             </div>
         </div>
     </main>
-    <script src="{% static 'js/audits_check_filter.js' %}"></script>
 </div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/audits_copy_error.js' %}"></script>
 {% endblock %}

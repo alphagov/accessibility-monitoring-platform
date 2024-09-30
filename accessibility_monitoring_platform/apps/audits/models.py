@@ -1613,6 +1613,17 @@ class RetestCheckResult(models.Model):
     retest_notes = models.TextField(default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
 
+    @property
+    def matching_wcag_retest_check_results(self) -> Dict[str, str]:
+        """Other retest check results with retest notes for same WCAGDefinition"""
+        return (
+            self.retest.check_results.filter(
+                check_result__wcag_definition=self.check_result.wcag_definition
+            )
+            .exclude(retest_page=self.retest_page)
+            .exclude(retest_notes="")
+        )
+
     class Meta:
         ordering = ["id"]
 

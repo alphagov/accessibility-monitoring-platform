@@ -14,7 +14,7 @@ from django.urls import reverse
 
 from ..audits.models import Retest
 from ..cases.models import Case, CaseStatus, EqualityBodyCorrespondence
-from .models import NotificationSetting, Option, Task
+from .models import Link, NotificationSetting, Task
 
 TASK_LIST_PARAMS: List[str] = ["type", "read", "deleted", "future"]
 TASK_LIST_READ_TIMEDELTA: timedelta = timedelta(days=7)
@@ -189,12 +189,12 @@ def get_overdue_cases(user_request: User) -> List[Case]:
     return sorted_overdue_cases
 
 
-def build_overdue_task_options(case: Case) -> List[Option]:
+def build_overdue_task_options(case: Case) -> List[Link]:
     """Build list of options for overdue case task"""
     kwargs_case_pk: Dict[str, int] = {"pk": case.id}
     if case.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
         return [
-            Option(
+            Link(
                 label="No contact details response overdue",
                 url=reverse(
                     "cases:edit-request-contact-details", kwargs=kwargs_case_pk
@@ -202,28 +202,18 @@ def build_overdue_task_options(case: Case) -> List[Option]:
             )
         ]
     if case.status.status == CaseStatus.Status.IN_REPORT_CORES:
-        return [
-            Option(
-                label=case.in_report_correspondence_progress,
-                url=reverse("cases:manage-contact-details", kwargs=kwargs_case_pk),
-            )
-        ]
+        return [case.in_report_correspondence_progress]
     if case.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
         return [
-            Option(
+            Link(
                 label="12-week update due",
                 url=reverse(
-                    "cases:edit-12-week-one-week-followup-final", kwargs=kwargs_case_pk
+                    "cases:edit-12-week-update-requested", kwargs=kwargs_case_pk
                 ),
             )
         ]
     if case.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
-        return [
-            Option(
-                label=case.twelve_week_correspondence_progress,
-                url=reverse("cases:manage-contact-details", kwargs=kwargs_case_pk),
-            )
-        ]
+        return [case.twelve_week_correspondence_progress]
     return []
 
 
@@ -260,7 +250,7 @@ def get_post_case_tasks(user: User) -> List[Task]:
                 action="View correspondence",
             )
             task.options = [
-                Option(
+                Link(
                     label="View correspondence",
                     url=f"{equality_body_correspondence.get_absolute_url()}?view=unresolved",
                 )
@@ -289,7 +279,7 @@ def get_post_case_tasks(user: User) -> List[Task]:
                 action="View retest",
             )
             task.options = [
-                Option(
+                Link(
                     label="View retest",
                     url=retest.get_absolute_url(),
                 )
