@@ -272,7 +272,7 @@ def test_replace_search_key_with_case_search(
             {"report_approved_status": Case.ReportApprovedStatus.APPROVED},
             {},
             CaseEvent.EventType.APPROVE_REPORT,
-            "Report approved changed from 'Not started' to 'Yes'",
+            "QA approval changed from 'Not started' to 'Yes'",
         ),
         (
             {"is_ready_for_final_decision": Boolean.YES},

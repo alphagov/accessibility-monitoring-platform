@@ -26,7 +26,7 @@
                         {% if show_all_cases %}
                             <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" class="govuk-link"> {{ case.auditor.get_full_name }} </a>
                         {% else %}
-                            <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link">Report details</a>
+                            <a href="{% url 'cases:edit-report-ready-for-qa' case.id %}" class="govuk-link">Report ready for QA</a>
                         {% endif %}
                     </td>
                 </tr>

@@ -24,6 +24,7 @@ from ..sitemap import (
     AuditPagesPlatformPage,
     AuditPlatformPage,
     AuditRetestPagesPlatformPage,
+    CaseCommentsPlatformPage,
     CaseContactsPlatformPage,
     CasePlatformPage,
     EqualityBodyRetestPagesPlatformPage,
@@ -118,7 +119,7 @@ def test_platform_page_url_missing_object():
 def test_platform_page_show():
     """Test PlatformPage.show"""
     assert PlatformPage(name=PLATFORM_PAGE_NAME).show is True
-    assert PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case).show is False
+    assert PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case).show is True
 
     case: Case = Case(organisation_name="Show flag")
 
@@ -186,9 +187,9 @@ def test_platform_page_populate_from_case():
         object=case,
         object_class=Case,
         subpages=[
-            PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case),
-            PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case),
-            PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Audit),
+            CasePlatformPage(name=PLATFORM_PAGE_NAME),
+            CasePlatformPage(name=PLATFORM_PAGE_NAME),
+            AuditPlatformPage(name=PLATFORM_PAGE_NAME),
         ],
     )
 
@@ -325,6 +326,35 @@ def test_case_platform_page():
     case_platform_page.populate_from_case(case=case)
 
     assert case_platform_page.object == case
+
+
+@pytest.mark.django_db
+def test_case_comments_platform_page():
+    """Test CaseCommentsPlatformPage"""
+    case_comments_platform_page: CaseCommentsPlatformPage = CaseCommentsPlatformPage(
+        name="Comments",
+        url_name="cases:edit-qa-comments",
+    )
+
+    assert case_comments_platform_page.object_required_for_url is True
+    assert case_comments_platform_page.object_class == Case
+    assert case_comments_platform_page.url_kwarg_key == "pk"
+
+    case: Case = Case.objects.create()
+    user: User = User.objects.create()
+    Comment.objects.create(case=case, user=user, body="Comment One")
+    Comment.objects.create(case=case, user=user, body="Comment Two")
+
+    case_comments_platform_page.populate_from_case(case=case)
+
+    assert case_comments_platform_page.object == case
+    assert len(case_comments_platform_page.subpages) == 2
+    assert (
+        case_comments_platform_page.subpages[0].get_name() == "Edit or delete comment"
+    )
+    assert (
+        case_comments_platform_page.subpages[1].get_name() == "Edit or delete comment"
+    )
 
 
 @pytest.mark.django_db
@@ -793,7 +823,6 @@ def test_get_platform_page_name_by_url():
         ("/cases/1/edit-case-metadata/", "Case metadata"),
         ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
         ("/audits/pages/1/edit-audit-page-checks/", "Pagename page test"),
-        ("/reports/1/report-publisher/", "Report publisher"),
         (
             "/cases/contacts/1/edit-contact-update/",
             "Edit contact Contact Name a.b@example.com",

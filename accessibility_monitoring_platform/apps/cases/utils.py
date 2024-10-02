@@ -42,11 +42,12 @@ from .forms import (
     CaseNoPSBContactUpdateForm,
     CaseOneWeekContactDetailsUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
+    CaseQAApprovalUpdateForm,
+    CaseQAAuditorUpdateForm,
     CaseReportAcknowledgedUpdateForm,
-    CaseReportApprovedUpdateForm,
-    CaseReportDetailsUpdateForm,
     CaseReportFourWeekFollowupUpdateForm,
     CaseReportOneWeekFollowupUpdateForm,
+    CaseReportReadyForQAUpdateForm,
     CaseReportSentOnUpdateForm,
     CaseRequestContactDetailsUpdateForm,
     CaseReviewChangesUpdateForm,
@@ -241,8 +242,8 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> List[CaseDetailSec
                     type=FieldLabelAndValue.URL_TYPE,
                     external_url=False,
                     label="Preview report",
-                    value=reverse("reports:report-publisher", kwargs=report_pk),
-                    extra_label="Report publisher",
+                    value=reverse("reports:report-preview", kwargs=report_pk),
+                    extra_label="Report preview",
                 ),
                 FieldLabelAndValue(
                     type=FieldLabelAndValue.URL_TYPE,
@@ -269,34 +270,40 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> List[CaseDetailSec
                     .count(),
                 ),
             ]
-    before_correspondence_process: List[ViewSection] = (
-        [
+    if case.report is None:
+        report_qa_sections: List[ViewSection] = [
             build_view_section(
-                name="Case details > Case metadata",
-                edit_url=reverse("cases:edit-case-metadata", kwargs=case_pk),
-                edit_url_id="edit-case-metadata",
-                complete_date=case.case_details_complete_date,
-                display_fields=case_details_prefix
-                + get_case_rows(form=CaseMetadataUpdateForm()),
-            ),
+                name="Start report > Start report",
+                edit_url=reverse("cases:edit-create-report", kwargs=case_pk),
+                edit_url_id="edit-create-report",
+                complete_date=None,
+                placeholder="A report does not exist for this case",
+            )
         ]
-        + initial_test_sections
-        + [
+    else:
+        report_qa_sections: List[ViewSection] = [
             build_view_section(
-                name="Report details",
-                edit_url=reverse("cases:edit-report-details", kwargs=case_pk),
-                edit_url_id="edit-report-details",
+                name="Report QA > Report ready for QA",
+                edit_url=reverse("cases:edit-report-ready-for-qa", kwargs=case_pk),
+                edit_url_id="edit-report-ready-for-qa",
                 complete_date=case.reporting_details_complete_date,
                 placeholder="A report does not exist for this case.",
                 display_fields=(
                     report_details_fields
-                    + get_case_rows(form=CaseReportDetailsUpdateForm())
+                    + get_case_rows(form=CaseReportReadyForQAUpdateForm())
                     if case.report is not None
                     else None
                 ),
             ),
             build_view_section(
-                name="QA comments",
+                name="Report QA > QA auditor",
+                edit_url=reverse("cases:edit-qa-auditor", kwargs=case_pk),
+                edit_url_id="edit-qa-auditor",
+                complete_date=case.qa_auditor_complete_date,
+                display_fields=get_case_rows(form=CaseQAAuditorUpdateForm()),
+            ),
+            build_view_section(
+                name="Report QA > QA comments",
                 edit_url=reverse("cases:edit-qa-comments", kwargs=case_pk),
                 edit_url_id="edit-qa-comments",
                 display_fields=[
@@ -309,19 +316,34 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> List[CaseDetailSec
                 ],
             ),
             build_view_section(
-                name="Report approved",
-                edit_url=reverse("cases:edit-report-approved", kwargs=case_pk),
-                edit_url_id="edit-report-approved",
-                complete_date=case.qa_auditor_complete_date,
-                display_fields=get_case_rows(form=CaseReportApprovedUpdateForm()),
+                name="Report QA > QA approval",
+                edit_url=reverse("cases:edit-qa-approval", kwargs=case_pk),
+                edit_url_id="edit-qa-approval",
+                complete_date=case.qa_approval_complete_date,
+                display_fields=get_case_rows(form=CaseQAApprovalUpdateForm()),
             ),
             build_view_section(
-                name="Publish report",
+                name="Report QA > Publish report",
                 edit_url=reverse("cases:edit-publish-report", kwargs=case_pk),
                 edit_url_id="edit-publish-report",
                 anchor="",
                 complete_date=case.publish_report_complete_date,
             ),
+        ]
+    before_correspondence_process: List[ViewSection] = (
+        [
+            build_view_section(
+                name="Case details > Case metadata",
+                edit_url=reverse("cases:edit-case-metadata", kwargs=case_pk),
+                edit_url_id="edit-case-metadata",
+                complete_date=case.case_details_complete_date,
+                display_fields=case_details_prefix
+                + get_case_rows(form=CaseMetadataUpdateForm()),
+            ),
+        ]
+        + initial_test_sections
+        + report_qa_sections
+        + [
             build_view_section(
                 name="Contact details > Manage contact details",
                 edit_url=reverse("cases:manage-contact-details", kwargs=case_pk),
@@ -675,7 +697,7 @@ def record_case_event(
             case=old_case,
             done_by=user,
             event_type=CaseEvent.EventType.APPROVE_REPORT,
-            message=f"Report approved changed from '{old_status}' to '{new_status}'",
+            message=f"QA approval changed from '{old_status}' to '{new_status}'",
         )
     if old_case.is_ready_for_final_decision != new_case.is_ready_for_final_decision:
         old_status: str = old_case.get_is_ready_for_final_decision_display()

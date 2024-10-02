@@ -30,7 +30,7 @@
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-report-approved' case.id %}" class="govuk-link"> {{case.get_report_approved_status_display}} </a>
+                            <a href="{% url 'cases:edit-qa-approval' case.id %}" class="govuk-link"> {{case.get_report_approved_status_display}} </a>
                         {% endif %}
                     </td>
                 </tr>

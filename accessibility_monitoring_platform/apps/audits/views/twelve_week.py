@@ -3,7 +3,7 @@ Views for audits app (called tests by users)
 """
 
 from datetime import date
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, Dict, List, Tuple, Type
 
 from django.db.models import QuerySet
 from django.forms.models import ModelForm

@@ -40,8 +40,8 @@
 <h2 class="govuk-heading-s amp-margin-bottom-0">Report in progress</h2>
 <ul class="govuk-list">
     <li>
-        <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
-            Report ready to be reviewed needs to be Yes
+        <a href="{% url 'cases:edit-report-ready-for-qa' case.id %}" class="govuk-link govuk-link--no-visited-state">
+            Report ready for QA process needs to be Yes
         </a>
         {% if case.report_review_status == 'yes' %}&check;{% endif %}
     </li>
@@ -50,7 +50,7 @@
 <h2 class="govuk-heading-s amp-margin-bottom-0">QA in progress</h2>
 <ul class="govuk-list">
     <li>
-        <a href="{% url 'cases:edit-report-approved' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        <a href="{% url 'cases:edit-qa-approval' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Report approved needs to be Yes
         </a>
         {% if case.report_approved_status == 'yes' %}&check;{% endif %}

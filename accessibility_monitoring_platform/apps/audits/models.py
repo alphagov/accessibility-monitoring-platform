@@ -676,7 +676,7 @@ class Audit(VersionModel):
         return str(f"{self.case}" f" (Test {amp_format_date(self.date_of_test)})")
 
     def get_absolute_url(self) -> str:
-        return reverse("audits:audit-detail", kwargs={"pk": self.pk})
+        return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1220,6 +1220,7 @@ class CheckResult(models.Model):
     page = models.ForeignKey(
         Page, on_delete=models.PROTECT, related_name="checkresult_page"
     )
+    id_within_case = models.IntegerField(default=0, blank=True)
     is_deleted = models.BooleanField(default=False)
     type = models.CharField(
         max_length=20,
@@ -1258,10 +1259,14 @@ class CheckResult(models.Model):
         ordering = ["id"]
 
     def __str__(self) -> str:
-        return str(f"{self.page} | {self.wcag_definition}")
+        return str(
+            f"{self.page} | {self.wcag_definition} | {self.unique_id_within_case}"
+        )
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
+        if not self.id:
+            self.id_within_case = self.audit.checkresult_audit.all().count() + 1
         super().save(*args, **kwargs)
 
     @property
@@ -1272,6 +1277,11 @@ class CheckResult(models.Model):
             .exclude(page=self.page)
             .exclude(retest_notes="")
         )
+
+    @property
+    def unique_id_within_case(self) -> str:
+        """Unique identifies of check result within case to aid QA audit communication"""
+        return f"#E{self.id_within_case}"
 
 
 class StatementCheck(models.Model):

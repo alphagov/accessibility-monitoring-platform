@@ -78,7 +78,7 @@ def test_case_status_report_in_progress(admin_client):
     assert case.status.status == CaseStatus.Status.REPORT_IN_PROGRESS
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to report details"
+        admin_client, case=case, expected_link_label="Go to report ready for QA"
     )
 
 
@@ -96,7 +96,7 @@ def test_case_status_qa_in_progress(admin_client):
     assert case.status.status == CaseStatus.Status.QA_IN_PROGRESS
 
     check_for_status_specific_link(
-        admin_client, case=case, expected_link_label="Go to Report approved"
+        admin_client, case=case, expected_link_label="Go to QA approval"
     )
 
 
