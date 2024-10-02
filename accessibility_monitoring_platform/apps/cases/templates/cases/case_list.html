@@ -191,7 +191,7 @@
                                                 {% endif %}
                                                 {% if case.report %}
                                                     <a
-                                                        href="{% url 'reports:report-publisher' case.report.id %}"
+                                                        href="{% url 'cases:edit-publish-report' case.id %}"
                                                         class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
                                                     >
                                                         Report publisher

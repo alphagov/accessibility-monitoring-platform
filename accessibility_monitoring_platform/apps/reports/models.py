@@ -86,7 +86,7 @@ class Report(VersionModel):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
-        return reverse("reports:report-publisher", kwargs={"pk": self.pk})
+        return reverse("reports:report-preview", kwargs={"pk": self.pk})
 
     @property
     def template_path(self) -> str:

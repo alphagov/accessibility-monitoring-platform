@@ -32,7 +32,7 @@
                         <tbody class="govuk-table__body">
                             {% for failure in failures %}
                                 <tr class="govuk-table__row ">
-                                    <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.wcag_definition.name }}</th>
+                                    <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.wcag_definition.name }} | {{ failure.unique_id_within_case }}</th>
                                     <td class="govuk-table__cell amp-width-one-half amp-notes">{{ failure.notes|markdown_to_html }}</td>
                                 </tr>
                             {% endfor %}
@@ -52,7 +52,7 @@
                         <tbody class="govuk-table__body">
                             {% for failure in failures %}
                                 <tr class="govuk-table__row ">
-                                    <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.page }}</th>
+                                    <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.page }} | {{ failure.unique_id_within_case }}</th>
                                     <td class="govuk-table__cell amp-width-one-half amp-notes">{{ failure.notes|markdown_to_html }}</td>
                                 </tr>
                             {% endfor %}

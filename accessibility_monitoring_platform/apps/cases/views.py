@@ -66,12 +66,14 @@ from .forms import (
     CaseOneWeekContactDetailsUpdateForm,
     CaseOneWeekFollowupFinalUpdateForm,
     CasePublishReportUpdateForm,
+    CaseQAApprovalUpdateForm,
+    CaseQAAuditorUpdateForm,
     CaseQACommentsUpdateForm,
     CaseReportAcknowledgedUpdateForm,
-    CaseReportApprovedUpdateForm,
     CaseReportDetailsUpdateForm,
     CaseReportFourWeekFollowupUpdateForm,
     CaseReportOneWeekFollowupUpdateForm,
+    CaseReportReadyForQAUpdateForm,
     CaseReportSentOnUpdateForm,
     CaseRequestContactDetailsUpdateForm,
     CaseReviewChangesUpdateForm,
@@ -385,22 +387,25 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-report-details", kwargs=case_pk)
-        return super().get_success_url()
+
+class CaseCreateReportUpdateView(DetailView):
+    """
+    View to create the report for this case
+    """
+
+    model: Type[Case] = Case
+    form_class: Type[CaseReportDetailsUpdateForm] = CaseReportDetailsUpdateForm
+    template_name: str = "cases/forms/report_create.html"
 
 
-class CaseReportDetailsUpdateView(CaseUpdateView):
+class CaseReportReadyForQAUpdateView(CaseUpdateView):
     """
     View to update case report details
     """
 
     model: Type[Case] = Case
-    form_class: Type[CaseReportDetailsUpdateForm] = CaseReportDetailsUpdateForm
-    template_name: str = "cases/forms/report_details.html"
+    form_class: Type[CaseReportReadyForQAUpdateForm] = CaseReportReadyForQAUpdateForm
+    template_name: str = "cases/forms/report_ready_for_qa.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
@@ -414,7 +419,24 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:edit-qa-comments", kwargs=case_pk)
+            return reverse("cases:edit-qa-auditor", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseQAAuditorUpdateView(CaseUpdateView):
+    """
+    View to record QA auditor
+    """
+
+    form_class: Type[CaseQAAuditorUpdateForm] = CaseQAAuditorUpdateForm
+    template_name: str = "cases/forms/qa_auditor.html"
+
+    def get_success_url(self) -> str:
+        """
+        Detect the submit button used and act accordingly.
+        """
+        if "save_continue" in self.request.POST:
+            return reverse("cases:edit-qa-comments", kwargs={"pk": self.object.id})
         return super().get_success_url()
 
 
@@ -443,17 +465,17 @@ class CaseQACommentsUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
-            return reverse("cases:edit-report-approved", kwargs={"pk": self.object.id})
+            return reverse("cases:edit-qa-approval", kwargs={"pk": self.object.id})
         return super().get_success_url()
 
 
-class CaseReportApprovedUpdateView(CaseUpdateView):
+class CaseQAApprovalUpdateView(CaseUpdateView):
     """
-    View to update QA auditor
+    View to record QA approval
     """
 
-    form_class: Type[CaseReportApprovedUpdateForm] = CaseReportApprovedUpdateForm
-    template_name: str = "cases/forms/report_approved.html"
+    form_class: Type[CaseQAApprovalUpdateForm] = CaseQAApprovalUpdateForm
+    template_name: str = "cases/forms/qa_approval.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Notify auditor if case has been QA approved."""

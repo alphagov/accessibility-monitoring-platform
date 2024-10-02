@@ -1,61 +1,35 @@
-{% extends 'base.html' %}
+{% extends 'common/case_no_nav.html' %}
 
-{% load static %}
-
-{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
-        </div>
-    </div>
-    {% include 'cases/helpers/breadcrumbs.html' %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" %}
-                <p class="govuk-body-m">
-                    {% include "common/amp_control_go_back.html" %}
-                </p>
-                <table class="govuk-table">
-                    <thead class="govuk-table__head">
-                        <tr class="govuk-table__row">
-                            <th scope="col" class="govuk-table__header amp-width-one-third">Name</th>
-                            <th scope="col" class="govuk-table__header amp-width-one-third">Last edited</th>
-                            <th scope="col" class="govuk-table__header amp-width-one-third">View</th>
-                        </tr>
-                    </thead>
-                    <tbody class="govuk-table__body">
-                        {% for email_template in email_templates %}
-                            <tr class="govuk-table__row ">
-                                <td class="govuk-table__cell amp-width-one-third">
-                                    {{ email_template.name }}
-                                </td>
-                                <td class="govuk-table__cell amp-width-one-third">
-                                    {{ email_template.updated|amp_date }}
-                                    by
-                                    {{ email_template.updated_by.get_full_name }}
-                                </td>
-                                <td class="govuk-table__cell amp-width-one-third">
-                                    <a
-                                        href="{% url 'cases:email-template-preview' case.id email_template.id %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
-                                        View email template
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-</div>
-{% endblock %}
-
-{% block extrascript %}
-    <script src="{% static 'js/go_back.js' %}"></script>
+{% block subcontent %}
+    <table class="govuk-table">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header amp-width-one-third">Name</th>
+                <th scope="col" class="govuk-table__header amp-width-one-third">Last edited</th>
+                <th scope="col" class="govuk-table__header amp-width-one-third">View</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for email_template in email_templates %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-one-third">
+                        {{ email_template.name }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-third">
+                        {{ email_template.updated|amp_date }}
+                        by
+                        {{ email_template.updated_by.get_full_name }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-third">
+                        <a
+                            href="{% url 'cases:email-template-preview' case.id email_template.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            View email template
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

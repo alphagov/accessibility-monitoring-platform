@@ -224,6 +224,15 @@ def create_audit_and_check_results() -> Audit:
 
 
 @pytest.mark.django_db
+def test_audit_absolute_url():
+    """Test Audit.get_absolute_url()"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.get_absolute_url() == "/audits/1/edit-audit-metadata/"
+
+
+@pytest.mark.django_db
 def test_audit_every_pages_returns_all_pages():
     """
     Deleted and pages which were not found are also excluded.
@@ -2000,3 +2009,49 @@ def test_statement_check_result_display_value():
         statement_check_result.display_value
         == f"No<br><br>Auditor's comment: {REPORT_COMMENT}"
     )
+
+
+@pytest.mark.django_db
+def test_check_result_unique_id_within_case():
+    """Test check result gets unique id withn Case"""
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    case_1: Case = Case.objects.create()
+    audit_1: Audit = Audit.objects.create(case=case_1)
+    page_1: Page = Page.objects.create(audit=audit_1, page_type=Page.Type.HOME)
+    check_result_1a: CheckResult = CheckResult.objects.create(
+        audit=audit_1,
+        page=page_1,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert check_result_1a.unique_id_within_case == "#E1"
+
+    check_result_1b: CheckResult = CheckResult.objects.create(
+        audit=audit_1,
+        page=page_1,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert check_result_1b.unique_id_within_case == "#E2"
+
+    case_2: Case = Case.objects.create()
+    audit_2: Audit = Audit.objects.create(case=case_2)
+    page_2: Page = Page.objects.create(audit=audit_2, page_type=Page.Type.HOME)
+    check_result_2a: CheckResult = CheckResult.objects.create(
+        audit=audit_2,
+        page=page_2,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert check_result_2a.unique_id_within_case == "#E1"

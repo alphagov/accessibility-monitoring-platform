@@ -735,14 +735,17 @@ def get_all_possible_check_results_for_page(
             ]
             check_result_state: str = check_result.check_result_state
             notes: str = check_result.notes
+            id_within_case: Optional[int] = check_result.id_within_case
         else:
             check_result_state: str = CheckResult.Result.NOT_TESTED
             notes: str = ""
+            id_within_case: Optional[int] = None
         check_results.append(
             {
                 "wcag_definition": wcag_definition,
                 "check_result_state": check_result_state,
                 "notes": notes,
+                "id_within_case": id_within_case,
             }
         )
     return check_results
