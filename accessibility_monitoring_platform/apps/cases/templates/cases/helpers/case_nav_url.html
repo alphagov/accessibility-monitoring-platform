@@ -1,6 +1,6 @@
 {% if case_nav_toc %}
     {% if platform_page.case_details_template_name %}
-        <a href="#{{ platform_page.url_name|slugify }}" class="govuk-link govuk-link--no-visited-state">{{ platform_page.get_name }}</a>
+        <a href="#{{ platform_page.url|slugify }}" class="govuk-link govuk-link--no-visited-state">{{ platform_page.get_name }}</a>
     {% else %}
         {{ platform_page.get_name }}
     {% endif %}
