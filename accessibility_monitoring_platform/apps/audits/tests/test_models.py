@@ -2029,7 +2029,7 @@ def test_check_result_unique_id_within_case():
         wcag_definition=wcag_definition,
     )
 
-    assert check_result_1a.unique_id_within_case == "#I1"
+    assert check_result_1a.unique_id_within_case == "#E1"
 
     check_result_1b: CheckResult = CheckResult.objects.create(
         audit=audit_1,
@@ -2040,7 +2040,7 @@ def test_check_result_unique_id_within_case():
         wcag_definition=wcag_definition,
     )
 
-    assert check_result_1b.unique_id_within_case == "#I2"
+    assert check_result_1b.unique_id_within_case == "#E2"
 
     case_2: Case = Case.objects.create()
     audit_2: Audit = Audit.objects.create(case=case_2)
@@ -2054,4 +2054,4 @@ def test_check_result_unique_id_within_case():
         wcag_definition=wcag_definition,
     )
 
-    assert check_result_2a.unique_id_within_case == "#I1"
+    assert check_result_2a.unique_id_within_case == "#E1"

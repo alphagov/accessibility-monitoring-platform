@@ -1277,7 +1277,7 @@ class CheckResult(models.Model):
     @property
     def unique_id_within_case(self) -> str:
         """Unique identifies of check result within case to aid QA audit communication"""
-        return f"#I{self.id_within_case}"
+        return f"#E{self.id_within_case}"
 
 
 class StatementCheck(models.Model):
