@@ -86,11 +86,15 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> List[CaseDetailSec
             for page in page_group.pages:
                 if page.show:
                     display_fields: List[FieldLabelAndValue] = []
-                    if page.form_class:
-                        if page.object_class == Case:
-                            display_fields = get_case_rows(form=page.form_class())
-                        if page.object_class == Audit:
-                            display_fields = get_audit_rows(form=page.form_class())
+                    if page.case_details_form_class:
+                        if page.case_details_form_class._meta.model == Case:
+                            display_fields = get_case_rows(
+                                form=page.case_details_form_class()
+                            )
+                        if page.case_details_form_class._meta.model == Audit:
+                            display_fields = get_audit_rows(
+                                form=page.case_details_form_class()
+                            )
                     if page.case_details_template_name:
                         view_sections.append(
                             CaseDetailSection(

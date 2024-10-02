@@ -37,7 +37,7 @@ class PlatformPage:
     show_flag_name: Optional[str] = None
     visible_only_when_current: bool = False
     subpages: Optional[List["PlatformPage"]] = None
-    form_class: Optional[Type[forms.ModelForm]] = None
+    case_details_form_class: Optional[Type[forms.ModelForm]] = None
     case_details_template_name: str = ""
 
     def __init__(
@@ -53,7 +53,7 @@ class PlatformPage:
         show_flag_name: Optional[str] = None,
         visible_only_when_current: bool = False,
         subpages: Optional[List["PlatformPage"]] = None,
-        form_class: Optional[Type[forms.ModelForm]] = None,
+        case_details_form_class: Optional[Type[forms.ModelForm]] = None,
         case_details_template_name: str = "",
     ):
         self.name = name
@@ -70,7 +70,7 @@ class PlatformPage:
         self.show_flag_name = show_flag_name
         self.visible_only_when_current = visible_only_when_current
         self.subpages = subpages
-        self.form_class = form_class
+        self.case_details_form_class = case_details_form_class
         self.case_details_template_name = case_details_template_name
 
     def __repr__(self):
@@ -423,7 +423,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Case metadata",
                 url_name="cases:edit-case-metadata",
                 complete_flag_name="case_details_complete_date",
-                form_class=CaseMetadataUpdateForm,
+                case_details_form_class=CaseMetadataUpdateForm,
                 case_details_template_name="cases/details/details_case_metadata.html",
             )
         ],
@@ -446,7 +446,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Initial test metadata",
                 url_name="audits:edit-audit-metadata",
                 complete_flag_name="audit_metadata_complete_date",
-                form_class=AuditMetadataUpdateForm,
+                case_details_form_class=AuditMetadataUpdateForm,
                 case_details_template_name="cases/details/details.html",
             ),
             AuditPagesPlatformPage(
@@ -469,6 +469,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Compliance decision",
                 url_name="audits:edit-website-decision",
                 complete_flag_name="audit_website_decision_complete_date",
+                case_details_template_name="cases/details/details_initial_website_compliance.html",
             ),
             AuditPlatformPage(
                 name="Test summary",

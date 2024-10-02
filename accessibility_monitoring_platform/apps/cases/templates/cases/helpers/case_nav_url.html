@@ -1,9 +1,12 @@
 {% if case_nav_toc %}
-    <a href="#{{ platform_page.url_name|slugify }}" class="govuk-link govuk-link--no-visited-state">{{ platform_page.get_name }}</a>
+    {% if platform_page.case_details_template_name %}
+        <a href="#{{ platform_page.url_name|slugify }}" class="govuk-link govuk-link--no-visited-state">{{ platform_page.get_name }}</a>
+    {% else %}
+        {{ platform_page.get_name }}
+    {% endif %}
     |
     <a href="{{ platform_page.url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
     {% if platform_page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
-
 {% else %}
     {% if platform_page.url == sitemap.current_platform_page.url %}
         <b>{{ platform_page.get_name }}</b>
