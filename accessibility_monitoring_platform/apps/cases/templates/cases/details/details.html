@@ -1,0 +1,42 @@
+<details id={{ case_detail_section.page.url_name|slugify }} class="govuk-details amp-margin-bottom-5">
+    <summary class="govuk-details__summary">
+        {{ case_detail_section.page.get_name }}
+        {% if case_detail_section.page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+    </summary>
+    <div class="govuk-details__text">
+        <p class="govuk-body">
+            <b>{{ case_detail_section.page.get_name }}</b>
+            |
+            <a href="{{ case_detail_section.page.url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
+            {% if case_detail_section.page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+        </p>
+        {% block table %}
+        <table class="govuk-table" data-search-target-page-name="{{ view_section.page.name }}" data-search-target-label="Edit" data-search-target-url="{{ view_section.page.url }}">
+            <tbody class="govuk-table__body">
+                {% block prefixrows %}{% endblock %}
+                {% for display_field in case_detail_section.display_fields %}
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ display_field.label }}</th>
+                        <td class="govuk-table__cell amp-width-one-half{% if display_field.type == 'notes' %} amp-notes{% endif %}">
+                            {% if display_field.type == 'url' %}
+                                {% if display_field.value %}
+                                    <a href="{{ display_field.value }}"
+                                        rel="noreferrer noopener" {% if display_field.external_url %}target="_blank"{% endif %} class="govuk-link {% if not display_field.external_url %}govuk-link--no-visited-state{% endif %}">
+                                        {% if display_field.extra_label %}{{ display_field.extra_label }}{% else %}{{ display_field.value }}{% endif %}
+                                    </a>
+                                {% else %}
+                                    None
+                                {% endif %}
+                            {% elif display_field.type == 'notes' %}
+                                {% if display_field.value %}{{ display_field.value|markdown_to_html }}{% endif %}
+                            {% else %}
+                                {% if display_field.display_value %}{{ display_field.display_value }}{% else %}{{ display_field.value }}{% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endblock %}
+    </div>
+</details>

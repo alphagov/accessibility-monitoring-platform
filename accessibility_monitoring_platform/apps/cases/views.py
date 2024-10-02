@@ -26,6 +26,7 @@ from ..audits.utils import report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.models import Boolean, EmailTemplate
+from ..common.sitemap import Sitemap
 from ..common.utils import (
     amp_format_date,
     check_dict_for_truthy_values,
@@ -98,7 +99,7 @@ from .models import (
 )
 from .utils import (
     filter_cases,
-    get_case_view_sections,
+    get_case_detail_sections,
     record_case_event,
     replace_search_key_with_case_search,
 )
@@ -205,13 +206,19 @@ class CaseDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+
         case: Case = self.object
+        sitemap: Sitemap = Sitemap(request=self.request)
 
         if not case.report:
             context.update(get_report_visits_metrics(case))
 
         return {
-            **{"view_sections": get_case_view_sections(case=case)},
+            **{
+                "case_detail_sections": get_case_detail_sections(
+                    case=case, sitemap=sitemap
+                )
+            },
             **context,
         }
 

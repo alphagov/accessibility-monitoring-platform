@@ -1,6 +1,14 @@
-{% if platform_page.url == sitemap.current_platform_page.url %}
-    <b>{{ platform_page.get_name }}</b>
+{% if case_nav_toc %}
+    <a href="#{{ platform_page.url_name|slugify }}" class="govuk-link govuk-link--no-visited-state">{{ platform_page.get_name }}</a>
+    |
+    <a href="{{ platform_page.url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
+    {% if platform_page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+
 {% else %}
-    <a href="{{ platform_page.url }}" class="govuk-link govuk-link--no-visited-state" {% if platform_page.disabled %}disabled{% endif %}>{{ platform_page.get_name }}</a>
+    {% if platform_page.url == sitemap.current_platform_page.url %}
+        <b>{{ platform_page.get_name }}</b>
+    {% else %}
+        <a href="{{ platform_page.url }}" class="govuk-link govuk-link--no-visited-state" {% if platform_page.disabled %}disabled{% endif %}>{{ platform_page.get_name }}</a>
+    {% endif %}
+    {% if platform_page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
 {% endif %}
-{% if platform_page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}

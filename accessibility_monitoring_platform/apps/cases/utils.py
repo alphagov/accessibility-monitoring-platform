@@ -3,6 +3,7 @@ Utility functions for cases app
 """
 
 import copy
+from dataclasses import dataclass
 from datetime import date
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
@@ -14,6 +15,7 @@ from django.db.models import Q, QuerySet, When
 from django.http.request import QueryDict
 from django.urls import reverse
 
+from ..audits.models import Audit
 from ..audits.utils import (
     get_initial_test_view_sections,
     get_twelve_week_test_view_sections,
@@ -22,6 +24,7 @@ from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
 )
+from ..common.sitemap import PlatformPage, Sitemap
 from ..common.templatetags.common_tags import amp_date, amp_datetime
 from ..common.utils import build_filters
 from ..common.view_section_utils import (
@@ -64,10 +67,47 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
 ]
 
 
-def get_case_view_sections(case: Case) -> List[ViewSection]:
+@dataclass
+class CaseDetailSection:
+    page: PlatformPage
+    display_fields: List[FieldLabelAndValue] = None
+
+
+def get_case_detail_sections(case: Case, sitemap: Sitemap) -> List[CaseDetailSection]:
     """Get sections for case view"""
     get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
+    get_audit_rows: Callable = partial(
+        extract_form_labels_and_values, instance=case.audit
+    )
     case_pk: Dict[str, int] = {"pk": case.id}
+    view_sections: List[ViewSection] = []
+    for page_group in sitemap.platform_page_groups:
+        if page_group.show:
+            for page in page_group.pages:
+                if page.show:
+                    display_fields: List[FieldLabelAndValue] = []
+                    if page.form_class:
+                        if page.object_class == Case:
+                            display_fields = get_case_rows(form=page.form_class())
+                        if page.object_class == Audit:
+                            display_fields = get_audit_rows(form=page.form_class())
+                    if page.case_details_template_name:
+                        view_sections.append(
+                            CaseDetailSection(
+                                page=page,
+                                display_fields=display_fields,
+                            )
+                        )
+                    if page.subpages is not None:
+                        for subpage in page.subpages:
+                            if subpage.case_details_template_name:
+                                view_sections.append(
+                                    CaseDetailSection(
+                                        page=subpage,
+                                    )
+                                )
+
+    return view_sections
     case_details_prefix: List[FieldLabelAndValue] = [
         FieldLabelAndValue(
             label="Date created",

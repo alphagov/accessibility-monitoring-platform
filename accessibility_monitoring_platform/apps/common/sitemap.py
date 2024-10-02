@@ -6,11 +6,15 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import Dict, List, Optional, Type, Union
 
+from django import forms
 from django.contrib.auth.models import User
+from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, URLResolver, resolve, reverse
 
+from ..audits.forms import AuditMetadataUpdateForm
 from ..audits.models import Audit, Page, Retest, RetestPage
+from ..cases.forms import CaseMetadataUpdateForm
 from ..cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
 from ..comments.models import Comment
 from ..exports.models import Export
@@ -26,29 +30,15 @@ class PlatformPage:
     platform_page_group_name: str = ""
     url_name: Optional[str] = None
     url_kwarg_key: Optional[str] = None
-    object_class: Optional[
-        Union[
-            Type[Audit],
-            Type[Case],
-            Type[Comment],
-            Type[Contact],
-            Type[EmailTemplate],
-            Type[EqualityBodyCorrespondence],
-            Type[Export],
-            Type[Page],
-            Type[Report],
-            Type[RetestPage],
-            Type[Task],
-            Type[User],
-            Type[ZendeskTicket],
-        ]
-    ] = None
+    object_class: Optional[Type[models.Model]] = None
     object: Optional[Union[Audit, Case]] = None
     object_required_for_url: bool = False
     complete_flag_name: Optional[str] = None
     show_flag_name: Optional[str] = None
     visible_only_when_current: bool = False
     subpages: Optional[List["PlatformPage"]] = None
+    form_class: Optional[Type[forms.ModelForm]] = None
+    case_details_template_name: str = ""
 
     def __init__(
         self,
@@ -56,29 +46,15 @@ class PlatformPage:
         platform_page_group_name: str = "",
         url_name: Optional[str] = None,
         url_kwarg_key: Optional[str] = None,
-        object_class: Optional[
-            Union[
-                Type[Audit],
-                Type[Case],
-                Type[Comment],
-                Type[Contact],
-                Type[EmailTemplate],
-                Type[EqualityBodyCorrespondence],
-                Type[Export],
-                Type[Page],
-                Type[Report],
-                Type[RetestPage],
-                Type[Task],
-                Type[User],
-                Type[ZendeskTicket],
-            ]
-        ] = None,
+        object_class: Optional[Type[models.Model]] = None,
         object: Optional[Union[Audit, Case, Page]] = None,
         object_required_for_url: bool = False,
         complete_flag_name: Optional[str] = None,
         show_flag_name: Optional[str] = None,
         visible_only_when_current: bool = False,
         subpages: Optional[List["PlatformPage"]] = None,
+        form_class: Optional[Type[forms.ModelForm]] = None,
+        case_details_template_name: str = "",
     ):
         self.name = name
         self.platform_page_group_name = platform_page_group_name
@@ -94,6 +70,8 @@ class PlatformPage:
         self.show_flag_name = show_flag_name
         self.visible_only_when_current = visible_only_when_current
         self.subpages = subpages
+        self.form_class = form_class
+        self.case_details_template_name = case_details_template_name
 
     def __repr__(self):
         repr: str = f'PlatformPage(name="{self.name}", url_name="{self.url_name}"'
@@ -445,6 +423,8 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Case metadata",
                 url_name="cases:edit-case-metadata",
                 complete_flag_name="case_details_complete_date",
+                form_class=CaseMetadataUpdateForm,
+                case_details_template_name="cases/details/details_case_metadata.html",
             )
         ],
     ),
@@ -466,6 +446,8 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Initial test metadata",
                 url_name="audits:edit-audit-metadata",
                 complete_flag_name="audit_metadata_complete_date",
+                form_class=AuditMetadataUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             AuditPagesPlatformPage(
                 name="Add or remove pages",
@@ -473,13 +455,15 @@ SITE_MAP: List[PlatformPageGroup] = [
                 complete_flag_name="audit_pages_complete_date",
                 subpages=[
                     PlatformPage(
-                        name="{object.page_title} test",
+                        name="{object.page_title} test ({object.count_failed_check_results})",
                         url_name="audits:edit-audit-page-checks",
                         url_kwarg_key="pk",
                         object_class=Page,
                         complete_flag_name="complete_date",
+                        case_details_template_name="cases/details/details_initial_page_wcag_results.html",
                     )
                 ],
+                case_details_template_name="cases/details/details_initial_pages.html",
             ),
             AuditPlatformPage(
                 name="Compliance decision",
