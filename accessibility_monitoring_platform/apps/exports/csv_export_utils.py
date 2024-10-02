@@ -145,7 +145,7 @@ EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         required=True,
         data_type="url",
         edit_url_class=Report,
-        edit_url_name="reports:report-publisher",
+        edit_url_name="reports:report-preview",
     ),
     EqualityBodyCSVColumn(
         column_header="Enforcement recommendation",
@@ -252,7 +252,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="total_website_issues",
         edit_url_class=Audit,
-        edit_url_name="audits:audit-detail",
+        edit_url_name="cases:case-detail",
         edit_url_label="Go to view test",
     ),
     EqualityBodyCSVColumn(

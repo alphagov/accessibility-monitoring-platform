@@ -465,6 +465,17 @@ def test_qa_comments():
     assert comments[1].id == comment1.id
 
 
+@pytest.mark.django_db
+def test_qa_comments_count():
+    """Test the QA comments count"""
+    case: Case = Case.objects.create()
+    Comment.objects.create(case=case, hidden=True)
+    Comment.objects.create(case=case)
+    Comment.objects.create(case=case)
+
+    assert case.qa_comments_count == 2
+
+
 @pytest.mark.parametrize(
     "previous_case_url, previous_case_number",
     [
@@ -1374,3 +1385,35 @@ def test_case_not_archived_has_audit():
     case.archive = "archive"
 
     assert case.not_archived_has_audit is False
+
+
+def test_case_show_create_report_true():
+    """Test that Case.show_create_report is true if Case has no report"""
+    case: Case = Case()
+
+    assert case.show_create_report is True
+
+
+@pytest.mark.django_db
+def test_case_show_create_report_false():
+    """Test that Case.show_create_report is false if Case has a report"""
+    case: Case = Case.objects.create()
+    Report.objects.create(case=case)
+
+    assert case.show_create_report is False
+
+
+def test_case_not_archived_has_report_true():
+    """Test that Case.not_archived_has_report is false if Case has no report"""
+    case: Case = Case()
+
+    assert case.not_archived_has_report is False
+
+
+@pytest.mark.django_db
+def test_case_not_archived_has_report_false():
+    """Test that Case.not_archived_has_report is true if Case has a report"""
+    case: Case = Case.objects.create()
+    Report.objects.create(case=case)
+
+    assert case.not_archived_has_report is True

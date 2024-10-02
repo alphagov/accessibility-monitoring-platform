@@ -40,7 +40,6 @@ from .views.equality_body import (
 from .views.initial import (
     AuditCaseComplianceStatementInitialUpdateView,
     AuditCaseComplianceWebsiteInitialUpdateView,
-    AuditDetailView,
     AuditMetadataUpdateView,
     AuditPageChecksFormView,
     AuditPagesUpdateView,
@@ -89,11 +88,6 @@ urlpatterns: List[URLPattern] = [
         "create-for-case/<int:case_id>/",
         login_required(create_audit),
         name="audit-create",
-    ),
-    path(
-        "<int:pk>/detail/",
-        login_required(AuditDetailView.as_view()),
-        name="audit-detail",
     ),
     path(
         "<int:pk>/edit-audit-metadata/",

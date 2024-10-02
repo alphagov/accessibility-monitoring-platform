@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block content %}
+    <div class="govuk-width-container">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include 'common/case_banner.html' %}
+            </div>
+        </div>
+        {% block breadcrumbs %}
+        {% include 'cases/helpers/breadcrumbs.html' %}
+        {% endblock %}
+        <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+            {% include 'cases/helpers/compliant_website_notification.html' %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include "cases/helpers/edit_header.html" %}
+                </div>
+            </div>
+            {% block controls %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <p class="govuk-body-m">
+                        {% include "common/amp_control_go_back.html" %}
+                    </p>
+                </div>
+            </div>
+            {% endblock %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% block subcontent %}{% endblock %}
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'js/go_back.js' %}"></script>
+{% endblock %}

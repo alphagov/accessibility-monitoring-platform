@@ -34,7 +34,7 @@
           <p class="govuk-body-m">
               {% if case.report %}
                   {{ case.report.visits_metrics.number_of_unique_visitors|intcomma }}
-                  (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+                  (<a href="{% url 'reports:report-metrics-view' case.report.id %}?showing=unique-visitors" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
               {% else %}
                   None
               {% endif %}

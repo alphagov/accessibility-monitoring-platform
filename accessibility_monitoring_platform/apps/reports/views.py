@@ -11,11 +11,12 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template import Template, loader
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 
 from ..cases.models import Case, CaseEvent
 from ..common.utils import record_model_create_event, record_model_update_event
-from .forms import ReportNotesUpdateForm, ReportWrapperUpdateForm
+from .forms import ReportWrapperUpdateForm
 from .models import Report, ReportVisitsMetrics, ReportWrapper
 from .utils import build_report_context, get_report_visits_metrics, publish_report_util
 
@@ -34,7 +35,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     case: Case = get_object_or_404(Case, id=case_id)
     if case.report:
         return redirect(
-            reverse("reports:report-publisher", kwargs={"pk": case.report.id})
+            reverse("cases:edit-report-ready-for-qa", kwargs={"pk": case.id})
         )
     if case.audit is not None and not case.audit.uses_statement_checks:
         report: Report = Report.objects.create(
@@ -49,7 +50,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
         event_type=CaseEvent.EventType.CREATE_REPORT,
         message="Created report",
     )
-    return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))
+    return redirect(reverse("cases:edit-report-ready-for-qa", kwargs={"pk": case.id}))
 
 
 class ReportUpdateView(UpdateView):
@@ -74,22 +75,6 @@ class ReportUpdateView(UpdateView):
         return self.request.path
 
 
-class ReportNotesUpdateView(ReportUpdateView):
-    """
-    View to update report notes
-    """
-
-    form_class: Type[ReportNotesUpdateForm] = ReportNotesUpdateForm
-    template_name: str = "reports/forms/metadata.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            report_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("reports:report-publisher", kwargs=report_pk)
-        return super().get_success_url()
-
-
 class ReportTemplateView(TemplateView):
     """
     View to for template with report in context
@@ -101,12 +86,12 @@ class ReportTemplateView(TemplateView):
         return context
 
 
-class ReportPublisherTemplateView(ReportTemplateView):
+class ReportPreviewTemplateView(ReportTemplateView):
     """
     View to preview the report
     """
 
-    template_name: str = "reports/report_publisher.html"
+    template_name: str = "reports/report_preview.html"
 
     def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
         context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
@@ -121,12 +106,14 @@ class ReportPublisherTemplateView(ReportTemplateView):
         return context
 
 
-class ReportConfirmPublishTemplateView(ReportTemplateView):
+class ReportRepublishTemplateView(DetailView):
     """
-    View to confirm publishing the report
+    View to republish the report
     """
 
-    template_name: str = "reports/report_confirm_publish.html"
+    model: Type[Report] = Report
+    context_object_name: str = "report"
+    template_name: str = "reports/report_republish.html"
 
 
 def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
@@ -142,7 +129,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     """
     report: Report = get_object_or_404(Report, id=pk)
     publish_report_util(report=report, request=request)
-    return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))
+    return redirect(reverse("cases:edit-publish-report", kwargs={"pk": report.case.id}))
 
 
 class ReportWrapperUpdateView(UpdateView):

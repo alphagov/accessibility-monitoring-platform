@@ -211,7 +211,7 @@ class Case(VersionModel):
     test_results_url = models.TextField(default="", blank=True)
     testing_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Report details page
+    # Report ready for QA page
     report_draft_url = models.TextField(default="", blank=True)
     report_notes = models.TextField(default="", blank=True)
     report_review_status = models.CharField(
@@ -227,7 +227,7 @@ class Case(VersionModel):
     report_final_odt_url = models.TextField(default="", blank=True)
     qa_process_complete_date = models.DateField(null=True, blank=True)
 
-    # Report approved
+    # QA auditor
     reviewer = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -235,12 +235,15 @@ class Case(VersionModel):
         blank=True,
         null=True,
     )
+    qa_auditor_complete_date = models.DateField(null=True, blank=True)
+
+    # QA approval
     report_approved_status = models.CharField(
         max_length=200,
         choices=ReportApprovedStatus.choices,
         default=ReportApprovedStatus.NOT_STARTED,
     )
-    qa_auditor_complete_date = models.DateField(null=True, blank=True)
+    qa_approval_complete_date = models.DateField(null=True, blank=True)
 
     # Publish report
     publish_report_complete_date = models.DateField(null=True, blank=True)
@@ -559,6 +562,10 @@ class Case(VersionModel):
     def qa_comments(self):
         return self.comment_case.filter(hidden=False).order_by("-created_date")
 
+    @property
+    def qa_comments_count(self):
+        return self.qa_comments.count()
+
     def calulate_qa_status(self) -> str:
         if (
             self.reviewer is None
@@ -745,6 +752,14 @@ class Case(VersionModel):
             return self.report_case
         except ObjectDoesNotExist:
             return None
+
+    @property
+    def show_create_report(self):
+        return self.not_archived and self.report is None
+
+    @property
+    def not_archived_has_report(self):
+        return self.not_archived and self.report is not None
 
     @property
     def published_report_url(self):
