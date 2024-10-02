@@ -486,6 +486,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Initial statement links",
                 url_name="audits:edit-statement-pages",
                 complete_flag_name="audit_statement_pages_complete_date",
+                case_details_template_name="cases/details/details_statement_links.html",
             ),
             AuditPlatformPage(
                 name="Accessibility statement Pt. 1",
@@ -516,6 +517,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                         url_name="audits:edit-statement-website",
                         complete_flag_name="audit_statement_website_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_website.html",
                     ),
                     AuditPlatformPage(
                         name="Compliance status",
@@ -548,6 +550,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                 ],
+                case_details_template_name="cases/details/details_initial_statement_checks_overview.html",
             ),
             AuditPlatformPage(
                 name="Disproportionate burden",

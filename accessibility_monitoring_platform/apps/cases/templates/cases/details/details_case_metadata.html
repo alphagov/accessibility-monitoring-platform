@@ -3,7 +3,7 @@
 {% block prefixrows %}
     <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Date created</th>
-        <td class="govuk-table__cell amp-width-one-half">{{ case.created|amp_date }}</td>
+        <td class="govuk-table__cell amp-width-one-half">{{ case.created|amp_datetime }}</td>
     </tr>
     <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Status</th>
