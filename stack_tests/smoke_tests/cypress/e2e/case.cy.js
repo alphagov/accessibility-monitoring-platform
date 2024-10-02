@@ -23,7 +23,7 @@ describe('View case', () => {
     cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-qa-comments"]').click()
-    cy.title().should('eq', `${organisationName} | QA comments`)
+    cy.title().should('eq', `${organisationName} | Comments (2)`)
     cy.contains(/^Case$/).click()
 
     cy.get('[id="edit-qa-approval"]').click()
