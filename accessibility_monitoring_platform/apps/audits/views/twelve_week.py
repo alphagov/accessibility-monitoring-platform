@@ -86,7 +86,7 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditRetestMetadataUpdateForm] = AuditRetestMetadataUpdateForm
-    template_name: str = "audits/forms/twelve_week_retest_metadata.html"
+    template_name: str = "common/case_form.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

@@ -1299,16 +1299,6 @@ def test_updating_case_creates_case_event(admin_client):
             "save_continue",
             "cases:edit-12-week-update-request-ack",
         ),
-        (
-            "cases:edit-12-week-update-request-ack",
-            "save",
-            "cases:edit-12-week-update-request-ack",
-        ),
-        (
-            "cases:edit-12-week-update-request-ack",
-            "save_continue",
-            "cases:edit-twelve-week-retest",
-        ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
             "cases:edit-twelve-week-retest",
@@ -1369,6 +1359,51 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     Test that a successful case update redirects based on the button pressed
     """
     case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse(case_edit_path, kwargs={"pk": case.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
+            "case_completed": "no-decision",
+            "version": case.version,
+            button_name: "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
+
+
+@pytest.mark.parametrize(
+    "case_edit_path, button_name, expected_redirect_path",
+    [
+        (
+            "cases:edit-12-week-update-request-ack",
+            "save",
+            "cases:edit-12-week-update-request-ack",
+        ),
+        (
+            "cases:edit-12-week-update-request-ack",
+            "save_continue",
+            "audits:edit-audit-retest-metadata",
+        ),
+    ],
+)
+def test_platform_case_with_audit_edit_redirects_based_on_button_pressed(
+    case_edit_path,
+    button_name,
+    expected_redirect_path,
+    admin_client,
+):
+    """
+    Test that a successful case with audit update redirects based on the button pressed
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case, retest_date=TODAY)
 
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),

@@ -789,16 +789,22 @@ SITE_MAP: List[PlatformPageGroup] = [
         ],
     ),
     CasePlatformPageGroup(
+        name="12-week WCAG test",
+        show_flag_name="show_12_week_retest",
+        pages=[
+            AuditPlatformPage(
+                name="12-week retest metadata",
+                url_name="audits:edit-audit-retest-metadata",
+                complete_flag_name="audit_retest_metadata_complete_date",
+            ),
+        ],
+    ),
+    CasePlatformPageGroup(
         name="12-week-retest",
         show_flag_name="show_12_week_retest",
         pages=[
             AuditPlatformPage(
                 name="View 12-week retest", url_name="audits:audit-retest-detail"
-            ),
-            AuditPlatformPage(
-                name="12-week retest metadata",
-                url_name="audits:edit-audit-retest-metadata",
-                complete_flag_name="audit_retest_metadata_complete_date",
             ),
             AuditRetestPagesPlatformPage(
                 name="Pages",
