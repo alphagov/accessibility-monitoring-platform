@@ -1,0 +1,38 @@
+{% extends 'cases/details/details.html' %}
+
+{% block table %}
+    {% if case.equalitybodycorrespondence_set.all %}
+        {% for equality_body_correspondence in case.equalitybodycorrespondence_set.all %}
+            <p class="govuk-body-m"><b>Zendesk correspondence #{{ forloop.counter }} ({{ equality_body_correspondence.get_status_display }})</b></p>
+            <table class="govuk-table" data-search-target-page-name="{{ view_section.page.name }}" data-search-target-label="Edit" data-search-target-url="{{ view_section.page.url }}">
+                <tbody class="govuk-table__body">
+                    <tr class="govuk-table__row ">
+                        <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Time added to platform</th>
+                        <td class="govuk-table__cell amp-width-one-half">{{ equality_body_correspondence.created|amp_datetime }}</td>
+                    </tr>
+                    <tr class="govuk-table__row ">
+                        <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Type</th>
+                        <td class="govuk-table__cell amp-width-one-half">{{ equality_body_correspondence.get_type_display }}</td>
+                    </tr>
+                    <tr class="govuk-table__row ">
+                        <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Zendesk message</th>
+                        <td class="govuk-table__cell amp-width-one-half amp-notes">{{ equality_body_correspondence.message|markdown_to_html }}</td>
+                    </tr>
+                    <tr class="govuk-table__row ">
+                        <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Auditor notes</th>
+                        <td class="govuk-table__cell amp-width-one-half amp-notes">{{ equality_body_correspondence.notes|markdown_to_html }}</td>
+                    </tr>
+                    <tr class="govuk-table__row ">
+                        <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Link to Zendesk ticket</th>
+                        <td class="govuk-table__cell amp-width-one-half">
+                            <a href="{{ equality_body_correspondence.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                {{ equality_body_correspondence.zendesk_url }}</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endfor %}
+    {% else %}
+        <p class="govuk-body-m">No Zendesk correspondence entered</p>
+    {% endif %}
+{% endblock %}

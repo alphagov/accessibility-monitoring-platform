@@ -923,8 +923,12 @@ class Case(VersionModel):
         return self.retest_set.filter(is_deleted=False)
 
     @property
+    def actual_retests(self):
+        return self.retests.filter(id_within_case__gt=0)
+
+    @property
     def number_retests(self):
-        return self.retest_set.filter(is_deleted=False, id_within_case__gt=0).count()
+        return self.actual_retests.count()
 
     @property
     def incomplete_retests(self):
