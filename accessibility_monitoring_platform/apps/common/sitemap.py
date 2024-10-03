@@ -779,21 +779,18 @@ SITE_MAP: List[PlatformPageGroup] = [
         ],
     ),
     CasePlatformPageGroup(
-        name="",
-        type=PlatformPageGroup.Type.PREVIOUS_CASE_NAV,
-        show_flag_name="not_archived",
+        name="Start 12-week retest",
+        show_flag_name="show_start_12_week_retest",
         pages=[
             CasePlatformPage(
-                name="12-week retest",
+                name="Start 12-week retest",
                 url_name="cases:edit-twelve-week-retest",
-                complete_flag_name="twelve_week_retest_complete_date",
             ),
         ],
     ),
     CasePlatformPageGroup(
         name="12-week-retest",
-        type=PlatformPageGroup.Type.FUTURE_CASE_NAV,
-        show_flag_name="not_archived",
+        show_flag_name="show_12_week_retest",
         pages=[
             AuditPlatformPage(
                 name="View 12-week retest", url_name="audits:audit-retest-detail"
