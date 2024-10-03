@@ -2230,39 +2230,6 @@ def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        (
-            "cases:edit-twelve-week-retest",
-            "twelve_week_retest_complete_date",
-            "12-week retest",
-        ),
-    ],
-)
-def test_section_complete_check_displayed_in_steps_platform_methodology(
-    step_url, flag_name, step_name, admin_client
-):
-    """
-    Test that the section complete tick is displayed in list of steps
-    """
-    case: Case = Case.objects.create()
-    setattr(case, flag_name, TODAY)
-    case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse(step_url, kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;',
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "step_url, flag_name, step_name",
-    [
         ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
         (
             "cases:edit-request-contact-details",
@@ -3275,10 +3242,6 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         (
             "cases:edit-12-week-update-request-ack",
             "12-week update request acknowledged",
-        ),
-        (
-            "cases:edit-twelve-week-retest",
-            "12-week retest",
         ),
         (
             "cases:edit-review-changes",
