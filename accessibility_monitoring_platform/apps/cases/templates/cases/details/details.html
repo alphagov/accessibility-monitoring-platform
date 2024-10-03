@@ -10,6 +10,7 @@
             <a href="{{ case_detail_section.page.url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
             {% if case_detail_section.page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
         </p>
+        {% block prefixtable %}{% endblock %}
         {% block table %}
         <table class="govuk-table" data-search-target-page-name="{{ view_section.page.name }}" data-search-target-label="Edit" data-search-target-url="{{ view_section.page.url }}">
             <tbody class="govuk-table__body">

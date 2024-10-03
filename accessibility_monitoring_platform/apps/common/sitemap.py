@@ -18,10 +18,15 @@ from ..audits.forms import (
 )
 from ..audits.models import Audit, Page, Retest, RetestPage
 from ..cases.forms import (
+    CaseFourWeekContactDetailsUpdateForm,
     CaseMetadataUpdateForm,
+    CaseNoPSBContactUpdateForm,
+    CaseOneWeekContactDetailsUpdateForm,
     CaseQAApprovalUpdateForm,
     CaseQAAuditorUpdateForm,
     CaseReportReadyForQAUpdateForm,
+    CaseRequestContactDetailsUpdateForm,
+    ManageContactDetailsUpdateForm,
 )
 from ..cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
 from ..comments.models import Comment
@@ -715,30 +720,40 @@ SITE_MAP: List[PlatformPageGroup] = [
                         object_class=Contact,
                     ),
                 ],
+                case_details_form_class=ManageContactDetailsUpdateForm,
+                case_details_template_name="cases/details/details_manage_contact_details.html",
             ),
             CasePlatformPage(
                 name="Request contact details",
                 url_name="cases:edit-request-contact-details",
                 complete_flag_name="request_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
+                case_details_form_class=CaseRequestContactDetailsUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="One-week follow-up",
                 url_name="cases:edit-one-week-contact-details",
                 complete_flag_name="one_week_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
+                case_details_form_class=CaseOneWeekContactDetailsUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Four-week follow-up",
                 url_name="cases:edit-four-week-contact-details",
                 complete_flag_name="four_week_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
+                case_details_form_class=CaseFourWeekContactDetailsUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Unresponsive PSB",
                 url_name="cases:edit-no-psb-response",
                 complete_flag_name="no_psb_contact_complete_date",
                 show_flag_name="enable_correspondence_process",
+                case_details_form_class=CaseNoPSBContactUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
         ],
     ),
