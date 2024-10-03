@@ -1,20 +1,28 @@
 {% extends 'cases/details/details.html' %}
 
-{% block prefixrows %}
-    {% for statement_check_result in statement_check_results %}
-        <tr class="govuk-table__row ">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                {{ statement_check_result.label }}
-            </th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                <p>{{ statement_check_result.get_check_result_state_display }}</p>
-                {% if statement_check_result.check_result_state == 'no' %}
-                    {{ statement_check_result.report_text|markdown_to_html }}
-                {% endif %}
-                {% if statement_check_result.report_comment  %}
-                    {{ statement_check_result.report_comment|markdown_to_html }}
-                {% endif %}
-            </td>
-        </tr>
-    {% endfor %}
+{% block table %}
+    {% if statement_check_results %}
+        <table class="govuk-table" data-search-target-page-name="{{ view_section.page.name }}" data-search-target-label="Edit" data-search-target-url="{{ view_section.page.url }}">
+            <tbody class="govuk-table__body">
+                {% for statement_check_result in statement_check_results %}
+                    <tr class="govuk-table__row ">
+                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                            {{ statement_check_result.label }}
+                        </th>
+                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                            <p>{{ statement_check_result.get_check_result_state_display }}</p>
+                            {% if statement_check_result.check_result_state == 'no' %}
+                                {{ statement_check_result.statement_check.report_text|markdown_to_html }}
+                            {% endif %}
+                            {% if statement_check_result.report_comment  %}
+                                {{ statement_check_result.report_comment|markdown_to_html }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="govuk-body-m">No statement issues have been entered</p>
+    {% endif %}
 {% endblock %}

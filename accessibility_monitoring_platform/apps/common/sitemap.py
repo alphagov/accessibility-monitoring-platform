@@ -12,7 +12,10 @@ from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, URLResolver, resolve, reverse
 
-from ..audits.forms import AuditMetadataUpdateForm
+from ..audits.forms import (
+    AuditMetadataUpdateForm,
+    InitialDisproportionateBurdenUpdateForm,
+)
 from ..audits.models import Audit, Page, Retest, RetestPage
 from ..cases.forms import CaseMetadataUpdateForm
 from ..cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
@@ -549,30 +552,35 @@ SITE_MAP: List[PlatformPageGroup] = [
                         url_name="audits:edit-statement-compliance",
                         complete_flag_name="audit_statement_compliance_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_compliance.html",
                     ),
                     AuditPlatformPage(
                         name="Non-accessible content",
                         url_name="audits:edit-statement-non-accessible",
                         complete_flag_name="audit_statement_non_accessible_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_non_accessible.html",
                     ),
                     AuditPlatformPage(
                         name="Statement preparation",
                         url_name="audits:edit-statement-preparation",
                         complete_flag_name="audit_statement_preparation_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_preparation.html",
                     ),
                     AuditPlatformPage(
                         name="Feedback and enforcement procedure",
                         url_name="audits:edit-statement-feedback",
                         complete_flag_name="audit_statement_feedback_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_feedback.html",
                     ),
                     AuditPlatformPage(
                         name="Custom statement issues",
                         url_name="audits:edit-statement-custom",
                         complete_flag_name="audit_statement_custom_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_custom.html",
                     ),
                 ],
                 case_details_template_name="cases/details/details_initial_statement_checks_overview.html",
@@ -581,11 +589,14 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Disproportionate burden",
                 url_name="audits:edit-initial-disproportionate-burden",
                 complete_flag_name="initial_disproportionate_burden_complete_date",
+                case_details_form_class=InitialDisproportionateBurdenUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             AuditPlatformPage(
                 name="Statement compliance",
                 url_name="audits:edit-statement-decision",
                 complete_flag_name="audit_statement_decision_complete_date",
+                case_details_template_name="cases/details/details_initial_statement_compliance.html",
             ),
             AuditPlatformPage(
                 name="Test summary",
