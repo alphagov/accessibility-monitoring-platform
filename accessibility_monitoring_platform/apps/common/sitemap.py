@@ -17,7 +17,12 @@ from ..audits.forms import (
     InitialDisproportionateBurdenUpdateForm,
 )
 from ..audits.models import Audit, Page, Retest, RetestPage
-from ..cases.forms import CaseMetadataUpdateForm
+from ..cases.forms import (
+    CaseMetadataUpdateForm,
+    CaseQAApprovalUpdateForm,
+    CaseQAAuditorUpdateForm,
+    CaseReportReadyForQAUpdateForm,
+)
 from ..cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
 from ..comments.models import Comment
 from ..exports.models import Export
@@ -624,11 +629,15 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Report ready for QA",
                 url_name="cases:edit-report-ready-for-qa",
                 complete_flag_name="reporting_details_complete_date",
+                case_details_form_class=CaseReportReadyForQAUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="QA auditor",
                 url_name="cases:edit-qa-auditor",
                 complete_flag_name="qa_auditor_complete_date",
+                case_details_form_class=CaseQAAuditorUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CaseCommentsPlatformPage(
                 name="Comments ({object.qa_comments_count})",
@@ -642,11 +651,14 @@ SITE_MAP: List[PlatformPageGroup] = [
                         visible_only_when_current=True,
                     ),
                 ],
+                case_details_template_name="cases/details/details_qa_comments.html",
             ),
             CasePlatformPage(
                 name="QA approval",
                 url_name="cases:edit-qa-approval",
                 complete_flag_name="qa_approval_complete_date",
+                case_details_form_class=CaseQAApprovalUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Publish report",
