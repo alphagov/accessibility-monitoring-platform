@@ -164,11 +164,8 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week retest metadata`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Retesting Home page`)
+    cy.title().should('eq', `${newOrganisationName} | Home page retest`)
     cy.contains('Save and next page').click()
-
-    cy.title().should('eq', `${newOrganisationName} | 12-week pages comparison`)
-    cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week website compliance decision`)
     cy.contains('Save and continue').click()

@@ -1,185 +1,159 @@
-{% extends 'base.html' %}
-
-{% load l10n %}
+{% extends 'common/case_form.html' %}
 
 {% load static %}
 
-{% block title %}{{ page.audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+{% block preform %}
+    {% include 'audits/helpers/page_check_filters.html' with page='retest' %}
+{% endblock %}
 
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=page.audit.case %}
+{% block form %}
+    <form method="post" action="{% url 'audits:edit-audit-retest-page-checks' page.id %}">
+        <div class="govuk-grid-row">
+            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+            <div class="govuk-grid-column-one-half">
+                {% include 'common/amp_field.html' with field=form.retest_complete_date %}
+            </div>
+            <div class="govuk-grid-column-one-half">
+                {% include 'common/amp_field.html' with field=form.retest_page_missing_date %}
+            </div>
         </div>
-    </div>
-    {% include 'audits/helpers/breadcrumb_audit_retest.html' with audit=page.audit page_heading=sitemap.current_platform_page.get_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
-                {% include "cases/helpers/case_title.html" with case=page.audit.case %}
-                {% include "cases/helpers/messages.html" %}
+                <details class="govuk-details" data-module="govuk-details" {% if form.retest_notes.value %}open{% endif %}>
+                    <summary class="govuk-details__summary">
+                        <span class="govuk-details__summary-text">Additional issues found on page</span>
+                    </summary>
+                    <div class="govuk-details__text">
+                        {% if other_pages_with_retest_notes %}
+                            <details class="govuk-details" data-module="govuk-details">
+                                <summary class="govuk-details__summary">
+                                    <span class="govuk-details__summary-text">
+                                        Other additional issues
+                                    </span>
+                                </summary>
+                                <div class="govuk-details__text">
+                                    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                                    {% for other_page in other_pages_with_retest_notes %}
+                                        <li>
+                                            <b>{{ other_page }}</b>
+                                            <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ other_page.retest_notes }}</textarea>
+                                            <span tabIndex="0"
+                                                class="amp-control amp-copy-error"
+                                                sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
+                                                targetId="{{ form.retest_notes.auto_id }}">
+                                                Click to populate additional issues</span>
+                                            {{ other_page.retest_notes|markdown_to_html }}
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                            </details>
+                        {% endif %}
+                        {% include 'common/amp_field.html' with field=form.retest_notes %}
+                    </div>
+                </details>
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-page-checks' page_id=page.id audit=page.audit %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include 'audits/helpers/page_check_filters.html' with page='retest' %}
-                </fieldset>
-                <form method="post" action="{% url 'audits:edit-audit-retest-page-checks' page.id %}">
-                    <div class="govuk-grid-row">
-                        {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                        <div class="govuk-grid-column-one-half">
-                            {% include 'common/amp_field.html' with field=form.retest_complete_date %}
-                        </div>
-                        <div class="govuk-grid-column-one-half">
-                            {% include 'common/amp_field.html' with field=form.retest_page_missing_date %}
-                        </div>
-                    </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <details class="govuk-details" data-module="govuk-details" {% if form.retest_notes.value %}open{% endif %}>
-                                <summary class="govuk-details__summary">
-                                    <span class="govuk-details__summary-text">Additional issues found on page</span>
-                                </summary>
-                                <div class="govuk-details__text">
-                                    {% if other_pages_with_retest_notes %}
-                                        <details class="govuk-details" data-module="govuk-details">
-                                            <summary class="govuk-details__summary">
-                                                <span class="govuk-details__summary-text">
-                                                    Other additional issues
-                                                </span>
-                                            </summary>
-                                            <div class="govuk-details__text">
-                                                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                                                {% for other_page in other_pages_with_retest_notes %}
-                                                    <li>
-                                                        <b>{{ other_page }}</b>
-                                                        <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ other_page.retest_notes }}</textarea>
-                                                        <span tabIndex="0"
-                                                            class="amp-control amp-copy-error"
-                                                            sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
-                                                            targetId="{{ form.retest_notes.auto_id }}">
-                                                            Click to populate additional issues</span>
-                                                        {{ other_page.retest_notes|markdown_to_html }}
-                                                    </li>
-                                                {% endfor %}
-                                                </ul>
-                                            </div>
-                                        </details>
-                                    {% endif %}
-                                    {% include 'common/amp_field.html' with field=form.retest_notes %}
-                                </div>
-                            </details>
-                        </div>
-                    </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and next page"
-                                name="save_continue"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            {% if page %}
-                                <a href="{{ page.url }}" class="govuk-link" target="_blank">
-                                    Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
-                                </a>
-                            {% endif %}
-                            {% if page.location %}
-                                <p class="govuk-body">{{ page.location }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% include 'common/error_summary.html' with formset=check_results_formset %}
-                    {% csrf_token %}
-                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {{ check_results_formset.management_form }}
-                    {% for check_result, form in check_results_and_forms %}
-                        <div class="govuk-grid-row"
-                            data-check-type="{{ check_result.wcag_definition.type }}"
-                            data-filter-string="{{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }}"
-                        >
-                            <div class="govuk-grid-column-full">
-                                <hr class="amp-width-100 amp-margin-bottom-30">
-                                <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
-                                <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
-                                {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                                {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.retest_state %}
-                                {% if check_result.matching_wcag_with_retest_notes_check_results %}
-                                    <details class="govuk-details" data-module="govuk-details">
-                                        <summary class="govuk-details__summary">
-                                            <span class="govuk-details__summary-text">
-                                                Matching errors
-                                            </span>
-                                        </summary>
-                                        <div class="govuk-details__text">
-                                            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                                            {% for other_check_result in check_result.matching_wcag_with_retest_notes_check_results %}
-                                                <li>
-                                                    <b>{{ other_check_result.page }}</b>
-                                                    <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ other_check_result.retest_notes }}</textarea>
-                                                    <span tabIndex="0"
-                                                        class="amp-control amp-copy-error"
-                                                        sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
-                                                        targetId="{{ form.retest_notes.auto_id }}">
-                                                        Click to populate error details</span>
-                                                    {{ other_check_result.retest_notes|markdown_to_html }}
-                                                </li>
-                                            {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </details>
-                                {% endif %}
-                                {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.retest_notes %}
-                                {% include 'common/preview_markdown.html' with field_id=form.retest_notes.auto_id %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <hr class="amp-width-100 amp-margin-bottom-30">
-                        </div>
-                    </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and next page"
-                                name="save_continue"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                        </div>
-                    </div>
-                </form>
+            <div class="govuk-grid-column-full govuk-button-group">
+                <input
+                    type="submit"
+                    value="Save"
+                    name="save"
+                    class="govuk-button"
+                    data-module="govuk-button"
+                />
+                <input
+                    type="submit"
+                    value="Save and next page"
+                    name="save_continue"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button"
+                />
+                {% if page %}
+                    <a href="{{ page.url }}" class="govuk-link" target="_blank">
+                        Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
+                    </a>
+                {% endif %}
+                {% if page.location %}
+                    <p class="govuk-body">{{ page.location }}</p>
+                {% endif %}
             </div>
         </div>
-    </main>
-</div>
+        {% include 'common/error_summary.html' with formset=check_results_formset %}
+        {% csrf_token %}
+        {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+        {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+        {{ check_results_formset.management_form }}
+        {% for check_result, form in check_results_and_forms %}
+            <div class="govuk-grid-row"
+                data-check-type="{{ check_result.wcag_definition.type }}"
+                data-filter-string="{{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }}"
+            >
+                <div class="govuk-grid-column-full">
+                    <hr class="amp-width-100 amp-margin-bottom-30">
+                    <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
+                    <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                    {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.retest_state %}
+                    {% if check_result.matching_wcag_with_retest_notes_check_results %}
+                        <details class="govuk-details" data-module="govuk-details">
+                            <summary class="govuk-details__summary">
+                                <span class="govuk-details__summary-text">
+                                    Matching errors
+                                </span>
+                            </summary>
+                            <div class="govuk-details__text">
+                                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                                {% for other_check_result in check_result.matching_wcag_with_retest_notes_check_results %}
+                                    <li>
+                                        <b>{{ other_check_result.page }}</b>
+                                        <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ other_check_result.retest_notes }}</textarea>
+                                        <span tabIndex="0"
+                                            class="amp-control amp-copy-error"
+                                            sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
+                                            targetId="{{ form.retest_notes.auto_id }}">
+                                            Click to populate error details</span>
+                                        {{ other_check_result.retest_notes|markdown_to_html }}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                        </details>
+                    {% endif %}
+                    {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.retest_notes %}
+                    {% include 'common/preview_markdown.html' with field_id=form.retest_notes.auto_id %}
+                </div>
+            </div>
+        {% endfor %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <hr class="amp-width-100 amp-margin-bottom-30">
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <input
+                    type="submit"
+                    value="Save"
+                    name="save"
+                    class="govuk-button"
+                    data-module="govuk-button"
+                />
+                <input
+                    type="submit"
+                    value="Save and next page"
+                    name="save_continue"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button"
+                />
+            </div>
+        </div>
+    </form>
 {% endblock %}
 
 {% block extrascript %}
-<script src="{% static 'js/audits_check_filter.js' %}"></script>
-<script src="{% static 'js/audits_copy_error.js' %}"></script>
-<script src="{% static 'js/markdown_preview.js' %}"></script>
+    <script src="{% static 'js/audits_check_filter.js' %}"></script>
+    <script src="{% static 'js/audits_copy_error.js' %}"></script>
+    <script src="{% static 'js/markdown_preview.js' %}"></script>
 {% endblock %}

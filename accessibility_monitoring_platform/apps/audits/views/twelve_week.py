@@ -99,25 +99,11 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditRetestPagesComparisonView(AuditUpdateView):
-    """View to show issues grouped by page"""
+class AuditRetestPagesView(AuditUpdateView):
+    """View to retest pages"""
 
     form_class: Type[AuditRetestPagesUpdateForm] = AuditRetestPagesUpdateForm
-    template_name: str = "audits/forms/twelve_week_pages_comparison_by_page.html"
-
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """Populate context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
-
-        hide_fixed = "hide-fixed" in self.request.GET
-        context["hide_fixed"] = hide_fixed
-
-        context["missing_pages"] = Page.objects.filter(audit=audit).exclude(
-            retest_page_missing_date=None
-        )
-
-        return context
+    template_name: str = "audits/forms/twelve_week_pages.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -125,30 +111,6 @@ class AuditRetestPagesComparisonView(AuditUpdateView):
             audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
         return super().get_success_url()
-
-
-class AuditRetestPagesComparisonByWcagView(AuditRetestPagesComparisonView):
-    """View to show issues grouped by WCAG"""
-
-    form_class: Type[AuditRetestPagesUpdateForm] = AuditRetestPagesUpdateForm
-    template_name: str = "audits/forms/twelve_week_pages_comparison_by_wcag.html"
-
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """Populate context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
-
-        hide_fixed = context.get("hide_fixed", False)
-
-        check_results: QuerySet[CheckResult] = (
-            audit.unfixed_check_results if hide_fixed else audit.failed_check_results
-        )
-
-        context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-            items=check_results, group_by_attr="wcag_definition"
-        )
-
-        return context
 
 
 class AuditRetestPageChecksFormView(AuditPageChecksFormView):

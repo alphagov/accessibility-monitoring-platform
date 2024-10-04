@@ -797,21 +797,13 @@ SITE_MAP: List[PlatformPageGroup] = [
                 url_name="audits:edit-audit-retest-metadata",
                 complete_flag_name="audit_retest_metadata_complete_date",
             ),
-        ],
-    ),
-    CasePlatformPageGroup(
-        name="12-week-retest",
-        show_flag_name="show_12_week_retest",
-        pages=[
-            AuditPlatformPage(
-                name="View 12-week retest", url_name="audits:audit-retest-detail"
-            ),
             AuditRetestPagesPlatformPage(
-                name="Pages",
-                url_name="audits:audit-retest-pages",
+                name="Retest pages",
+                url_name="audits:edit-audit-retest-pages",
+                complete_flag_name="audit_retest_pages_complete_date",
                 subpages=[
                     PlatformPage(
-                        name="Retesting {object.page_title}",
+                        name="{object.page_title} retest",
                         url_name="audits:edit-audit-retest-page-checks",
                         url_kwarg_key="pk",
                         object_class=Page,
@@ -819,15 +811,14 @@ SITE_MAP: List[PlatformPageGroup] = [
                     )
                 ],
             ),
+        ],
+    ),
+    CasePlatformPageGroup(
+        name="12-week WCAG test OLD",
+        show_flag_name="show_12_week_retest",
+        pages=[
             AuditPlatformPage(
-                name="12-week pages comparison",
-                url_name="audits:edit-audit-retest-pages-comparison",
-                complete_flag_name="audit_retest_pages_complete_date",
-            ),
-            AuditPlatformPage(
-                name="12-week pages comparison",
-                url_name="audits:edit-audit-retest-pages-comparison-by-wcag",
-                complete_flag_name="audit_retest_pages_complete_date",
+                name="View 12-week retest", url_name="audits:audit-retest-detail"
             ),
             AuditPlatformPage(
                 name="12-week website compliance decision",

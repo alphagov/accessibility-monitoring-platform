@@ -5,7 +5,7 @@
         {% if audit.case.psb_response %}
             {% if audit.testable_pages %}
                 <li>
-                    Pages:
+                    {% include './nav_step.html' with edit_name='audits:edit-audit-retest-pages' name='Retest pages' complete=audit.audit_retest_pages_complete_date %}
                     <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                         {% for page in audit.testable_pages %}
                             {% if page.failed_check_results %}
@@ -15,7 +15,6 @@
                     </ul>
                 </li>
             {% endif %}
-            {% include './nav_step.html' with edit_name='audits:edit-audit-retest-pages-comparison' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
             {% include './nav_step.html' with edit_name='audits:edit-audit-retest-website-decision' name='12-week website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
         {% endif %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-pages' name='12-week statement links' complete=audit.audit_retest_statement_pages_complete_date %}
