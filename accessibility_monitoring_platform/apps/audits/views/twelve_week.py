@@ -282,7 +282,9 @@ class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
-            return reverse("audits:edit-statement-pages", kwargs={"pk": audit.id})
+            return reverse(
+                "audits:edit-audit-retest-statement-pages", kwargs={"pk": audit.id}
+            )
         return super().get_success_url()
 
 
@@ -366,6 +368,8 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
     View to do statement checks as part of an audit retest
     """
 
+    template_name: str = "audits/statement_checks/retest_statement_formset_form.html"
+
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
@@ -423,7 +427,6 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
     form_class: Type[AuditRetestStatementOverviewUpdateForm] = (
         AuditRetestStatementOverviewUpdateForm
     )
-    template_name: str = "audits/statement_checks/retest_statement_overview.html"
     statement_check_type: str = StatementCheck.Type.OVERVIEW
 
     def get_success_url(self) -> str:
@@ -447,7 +450,6 @@ class AuditRetestStatementWebsiteFormView(AuditRetestStatementCheckingView):
     form_class: Type[AuditRetestStatementWebsiteUpdateForm] = (
         AuditRetestStatementWebsiteUpdateForm
     )
-    template_name: str = "audits/statement_checks/retest_statement_website.html"
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
     def get_success_url(self) -> str:
@@ -467,7 +469,6 @@ class AuditRetestStatementComplianceFormView(AuditRetestStatementCheckingView):
     form_class: Type[AuditRetestStatementComplianceUpdateForm] = (
         AuditRetestStatementComplianceUpdateForm
     )
-    template_name: str = "audits/statement_checks/retest_statement_compliance.html"
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
     def get_success_url(self) -> str:
@@ -489,7 +490,6 @@ class AuditRetestStatementNonAccessibleFormView(AuditRetestStatementCheckingView
     form_class: Type[AuditRetestStatementNonAccessibleUpdateForm] = (
         AuditRetestStatementNonAccessibleUpdateForm
     )
-    template_name: str = "audits/statement_checks/retest_statement_non_accessible.html"
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
     def get_success_url(self) -> str:
@@ -509,7 +509,6 @@ class AuditRetestStatementPreparationFormView(AuditRetestStatementCheckingView):
     form_class: Type[AuditRetestStatementPreparationUpdateForm] = (
         AuditRetestStatementPreparationUpdateForm
     )
-    template_name: str = "audits/statement_checks/retest_statement_preparation.html"
     statement_check_type: str = StatementCheck.Type.PREPARATION
 
     def get_success_url(self) -> str:
@@ -529,7 +528,6 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
     form_class: Type[AuditRetestStatementFeedbackUpdateForm] = (
         AuditRetestStatementFeedbackUpdateForm
     )
-    template_name: str = "audits/statement_checks/retest_statement_feedback.html"
     statement_check_type: str = StatementCheck.Type.FEEDBACK
 
     def get_success_url(self) -> str:

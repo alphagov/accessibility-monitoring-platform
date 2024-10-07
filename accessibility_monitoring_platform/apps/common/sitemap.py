@@ -523,7 +523,7 @@ SITE_MAP: List[PlatformPageGroup] = [
         show_flag_name="not_archived_has_audit",
         pages=[
             AuditPlatformPage(
-                name="Initial statement links",
+                name="Statement links",
                 url_name="audits:edit-statement-pages",
                 complete_flag_name="audit_statement_pages_complete_date",
             ),
@@ -828,60 +828,60 @@ SITE_MAP: List[PlatformPageGroup] = [
         show_flag_name="show_12_week_retest",
         pages=[
             AuditPlatformPage(
-                name="12-week statement links",
+                name="Statement links",
                 url_name="audits:edit-audit-retest-statement-pages",
                 complete_flag_name="audit_retest_statement_pages_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week accessibility statement Pt. 1",
+                name="Accessibility statement Pt. 1",
                 url_name="audits:edit-audit-retest-statement-1",
                 show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_retest_statement_1_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week accessibility statement Pt. 2",
+                name="Accessibility statement Pt. 2",
                 url_name="audits:edit-audit-retest-statement-2",
                 show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_retest_statement_2_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week statement overview",
+                name="Statement overview",
                 url_name="audits:edit-retest-statement-overview",
                 show_flag_name="uses_statement_checks",
                 complete_flag_name="audit_retest_statement_overview_complete_date",
                 subpages=[
                     AuditPlatformPage(
-                        name="12-week statement information",
+                        name="Statement information",
                         url_name="audits:edit-retest-statement-website",
                         complete_flag_name="audit_retest_statement_website_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week compliance status",
+                        name="Compliance status",
                         url_name="audits:edit-retest-statement-compliance",
                         complete_flag_name="audit_retest_statement_compliance_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week non-accessible content",
+                        name="Non-accessible content",
                         url_name="audits:edit-retest-statement-non-accessible",
                         complete_flag_name="audit_retest_statement_non_accessible_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week statement preparation",
+                        name="Statement preparation",
                         url_name="audits:edit-retest-statement-preparation",
                         complete_flag_name="audit_retest_statement_preparation_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week feedback and enforcement procedure",
+                        name="Feedback and enforcement procedure",
                         url_name="audits:edit-retest-statement-feedback",
                         complete_flag_name="audit_retest_statement_feedback_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week custom statement issues",
+                        name="Custom statement issues",
                         url_name="audits:edit-retest-statement-custom",
                         complete_flag_name="audit_retest_statement_custom_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
