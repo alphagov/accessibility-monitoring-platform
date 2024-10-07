@@ -76,6 +76,7 @@ from .views.twelve_week import (
     AuditRetestStatementOverviewFormView,
     AuditRetestStatementPreparationFormView,
     AuditRetestStatementWebsiteFormView,
+    AuditRetestWcagSummaryUpdateView,
     TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementPageFormsetUpdateView,
     start_retest,
@@ -222,6 +223,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-retest-website-decision/",
         login_required(AuditRetestCaseComplianceWebsite12WeekUpdateView.as_view()),
         name="edit-audit-retest-website-decision",
+    ),
+    path(
+        "<int:pk>/edit-retest-wcag-summary/",
+        login_required(AuditRetestWcagSummaryUpdateView.as_view()),
+        name="edit-audit-retest-wcag-summary",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-1/",

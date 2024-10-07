@@ -811,6 +811,16 @@ SITE_MAP: List[PlatformPageGroup] = [
                     )
                 ],
             ),
+            AuditPlatformPage(
+                name="Compliance decision",
+                url_name="audits:edit-audit-retest-website-decision",
+                complete_flag_name="audit_retest_website_decision_complete_date",
+            ),
+            AuditPlatformPage(
+                name="Test summary",
+                url_name="audits:edit-audit-retest-wcag-summary",
+                complete_flag_name="audit_retest_wcag_summary_complete_date",
+            ),
         ],
     ),
     CasePlatformPageGroup(
@@ -819,11 +829,6 @@ SITE_MAP: List[PlatformPageGroup] = [
         pages=[
             AuditPlatformPage(
                 name="View 12-week retest", url_name="audits:audit-retest-detail"
-            ),
-            AuditPlatformPage(
-                name="12-week website compliance decision",
-                url_name="audits:edit-audit-retest-website-decision",
-                complete_flag_name="audit_retest_website_decision_complete_date",
             ),
             AuditPlatformPage(
                 name="12-week statement links",

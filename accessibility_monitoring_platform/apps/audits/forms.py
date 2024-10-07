@@ -1059,6 +1059,36 @@ class CaseComplianceWebsite12WeekUpdateForm(VersionForm):
         ]
 
 
+class AuditRetestWcagSummaryUpdateForm(VersionForm):
+    """
+    Form for editing 12-week WCAG test audit summary
+    """
+
+    audit_retest_wcag_summary_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_wcag_summary_complete_date",
+        ]
+
+
+class AuditRetestStatementSummaryUpdateForm(VersionForm):
+    """
+    Form for editing 12-week statement audit summary
+    """
+
+    audit_retest_statement_summary_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_summary_complete_date",
+        ]
+
+
 class ArchiveAuditRetestStatement1UpdateForm(VersionForm):
     """
     Form for retesting accessibility statement 1 checks

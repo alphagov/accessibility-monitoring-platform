@@ -3,9 +3,9 @@ Views for audits app (called tests by users)
 """
 
 from datetime import date
-from typing import Any, Dict, List, Tuple, Type
+from functools import partial
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
-from django.db.models import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.views.generic.detail import DetailView
 
 from ...cases.models import CaseEvent
+from ...common.form_extract_utils import extract_form_labels_and_values
 from ...common.utils import list_to_dictionary_of_lists, record_model_update_event
 from ..forms import (
     ArchiveAuditRetestStatement1UpdateForm,
@@ -32,7 +33,9 @@ from ..forms import (
     AuditRetestStatementNonAccessibleUpdateForm,
     AuditRetestStatementOverviewUpdateForm,
     AuditRetestStatementPreparationUpdateForm,
+    AuditRetestStatementSummaryUpdateForm,
     AuditRetestStatementWebsiteUpdateForm,
+    AuditRetestWcagSummaryUpdateForm,
     AuditRetestWebsiteDecisionUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
@@ -228,7 +231,58 @@ class AuditRetestCaseComplianceWebsite12WeekUpdateView(AuditCaseComplianceUpdate
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse("audits:edit-audit-retest-statement-pages", kwargs=audit_pk)
+            return reverse("audits:edit-audit-retest-wcag-summary", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditRetestSummaryUpdateView(AuditUpdateView):
+    """
+    View to update audit 12-week retest summary page
+    """
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        audit: Audit = self.object
+
+        view_url_param: Union[str, None] = self.request.GET.get("view")
+        show_failures_by_page: bool = view_url_param == "Page view"
+        context["show_failures_by_page"] = show_failures_by_page
+
+        if show_failures_by_page:
+            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+                items=audit.failed_check_results, group_by_attr="page"
+            )
+        else:
+            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+                items=audit.failed_check_results, group_by_attr="wcag_definition"
+            )
+
+        get_audit_rows: Callable = partial(
+            extract_form_labels_and_values, instance=audit
+        )
+        context["audit_statement_rows"] = get_audit_rows(
+            form=ArchiveAuditRetestStatement1UpdateForm()
+        ) + get_audit_rows(form=ArchiveAuditRetestStatement2UpdateForm())
+
+        return context
+
+
+class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
+    """
+    View to update audit summary for 12-week WCAG test
+    """
+
+    form_class: Type[AuditRetestWcagSummaryUpdateForm] = (
+        AuditRetestWcagSummaryUpdateForm
+    )
+    template_name: str = "audits/forms/retest_test_summary.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit: Audit = self.object
+            return reverse("audits:edit-statement-pages", kwargs={"pk": audit.id})
         return super().get_success_url()
 
 
