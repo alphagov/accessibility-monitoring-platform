@@ -824,12 +824,9 @@ SITE_MAP: List[PlatformPageGroup] = [
         ],
     ),
     CasePlatformPageGroup(
-        name="12-week WCAG test OLD",
+        name="12-week statement",
         show_flag_name="show_12_week_retest",
         pages=[
-            AuditPlatformPage(
-                name="View 12-week retest", url_name="audits:audit-retest-detail"
-            ),
             AuditPlatformPage(
                 name="12-week statement links",
                 url_name="audits:edit-audit-retest-statement-pages",
@@ -838,16 +835,19 @@ SITE_MAP: List[PlatformPageGroup] = [
             AuditPlatformPage(
                 name="12-week accessibility statement Pt. 1",
                 url_name="audits:edit-audit-retest-statement-1",
+                show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_retest_statement_1_complete_date",
             ),
             AuditPlatformPage(
                 name="12-week accessibility statement Pt. 2",
                 url_name="audits:edit-audit-retest-statement-2",
+                show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_retest_statement_2_complete_date",
             ),
             AuditPlatformPage(
                 name="12-week statement overview",
                 url_name="audits:edit-retest-statement-overview",
+                show_flag_name="uses_statement_checks",
                 complete_flag_name="audit_retest_statement_overview_complete_date",
                 subpages=[
                     AuditPlatformPage(
