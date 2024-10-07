@@ -1026,9 +1026,9 @@ class ZendeskTicketCreateUpdateForm(forms.ModelForm):
     Form for updating a zendesk ticket
     """
 
-    url = AMPURLField(label="Link to Zendesk ticket")
     summary = AMPTextField(label="Summary")
+    url = AMPURLField(label="Link to Zendesk ticket")
 
     class Meta:
         model = ZendeskTicket
-        fields = ["url", "summary"]
+        fields = ["summary", "url"]
