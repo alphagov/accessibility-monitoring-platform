@@ -1,0 +1,102 @@
+Dear {{ case.organisation_name }},
+<br>
+<br>
+We have completed the retest and some issues are still outstanding.
+Please review the issues listed below and provide an update.
+<br>
+<br>
+<span class="amp-email-placeholder">Ask auditors for text used to ask PSB for a Disproportionate Burden claim.</span>
+<br>
+<br>
+{% if case.audit.unfixed_check_results %}
+    {% for page in case.audit.testable_pages %}
+    {% if page.unfixed_check_results or page.retest_notes %}
+    <h2>{{ page }}{% if page.page_type != 'pdf' %} page{% endif %} issues</h2>
+    <br>
+    <a href="{{ page.url }}">{{ page.url }}</a>
+    {{ page.location }}
+    <br>
+    <br>
+    {% endif %}
+    {% if page.unfixed_check_results %}
+    <table id="email-issues-table-{{ forloop.counter }}">
+    <thead>
+    <tr>
+    <th width=1%>#</th>
+    <th id="issue-{{ forloop.counter }}" width=33%>Issue and description</th>
+    <th id="retest-notes-{{ forloop.counter }}" width=33%>Retest notes</th>
+    <th id="12-week-update-{{ forloop.counter }}" width=33%>Organisation update</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for check_result in page.unfixed_check_results %}
+    <tr valign="top">
+    <td width=1%>{{ forloop.counter }}</td>
+    <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
+        <p><a href="{{ check_result.wcag_definition.url }}">{{ check_result.wcag_definition.name }}</a></p>
+        {{ check_result.notes|markdown_to_html }}
+    </td>
+    <td headers="retest-notes-{{ forloop.parentloop.counter }}" width=33%>{{ check_result.retest_notes|markdown_to_html }}</td>
+    <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    {% endif %}
+    {% if page.retest_notes %}
+        <b>Additional issues found on page</b>
+        <br>
+        <br>
+        {{ page.retest_notes|markdown_to_html}}
+    {% endif %}
+    {% endfor %}
+{% else %}
+    We found no major issues.
+{% endif %}
+<br>
+<br>
+<h2>Your statement</h2>
+<br>
+{% if case.audit.uses_statement_checks %}
+    {% if case.audit.outstanding_statement_check_results %}
+    <table id="email-statement-issues-table">
+    <thead>
+    <tr>
+    <th width=1%>#</th>
+    <th id="statement-issue" width=33%>Issue</th>
+    <th id="statement-notes" width=33%>Notes</th>
+    <th id="statement-12-week-update" width=33%>Organisation update</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for statement_check_result in case.audit.outstanding_statement_check_results %}
+    <tr valign="top">
+    <td width=1%>{{ forloop.counter }}</td>
+    <td headers="statement-issue" width=33%>
+    <p>{{ statement_check_result.statement_check.report_text }}</p>
+    </td>
+    <td headers="statement-issue" width=33%>
+    {{ statement_check_result.report_comment|markdown_to_html }}
+    </td>
+    <td headers="statement-12-week-update" width=33%>
+    {{ statement_check_result.retest_comment|markdown_to_html }}
+    </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    {% else %}
+    We found no major issues.
+    {% endif %}
+{% else %}
+    {{ case.audit.get_archive_accessibility_statement_state_display }}
+    {% if case.audit.archive_accessibility_statement_state == 'found-but' %}
+    <ul>
+    {% for issue in case.audit.report_accessibility_issues %}
+    <li>{{ issue }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+{% endif %}
+<br>
+<br>
