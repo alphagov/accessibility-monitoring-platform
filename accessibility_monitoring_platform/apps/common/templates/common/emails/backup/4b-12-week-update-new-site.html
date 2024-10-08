@@ -1,4 +1,4 @@
-Dear <span class="amp-email-placeholder">(named contact)</span>,
+Dear {{ case.organisation_name }},
 <br>
 <br>
 We emailed you an accessibility report on {{ case.report_sent_date|amp_date }} with a deadline of {{ case.report_followup_week_12_due_date }}. to review the accessibility of {{ case.domain }} and fix any issues.
@@ -15,5 +15,3 @@ We will check your accessibility statement to check that it meets the accessibil
 <br>
 All information will be passed to the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}) for further action and a list of websites without correct accessibility statements will be published by the Cabinet Office.
 <br>
-<br>
-Many thanks,
