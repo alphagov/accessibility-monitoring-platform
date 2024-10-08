@@ -2,6 +2,7 @@
 
 {% block preform %}
     {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
+    {% include 'common/error_summary.html' with form=case_compliance_form %}
 {% endblock %}
 
 {% block formfields %}

@@ -25,7 +25,6 @@ from ..forms import (
     AuditRetestPageChecksForm,
     AuditRetestPagesUpdateForm,
     AuditRetestStatementCheckResultFormset,
-    AuditRetestStatementComparisonUpdateForm,
     AuditRetestStatementComplianceUpdateForm,
     AuditRetestStatementCustomUpdateForm,
     AuditRetestStatementDecisionUpdateForm,
@@ -95,10 +94,12 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
+            audit_pk: Dict[str, int] = {"pk": audit.id}
             if not audit.case.psb_response:
-                audit_pk: Dict[str, int] = {"pk": self.object.id}
-                return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
-            return get_next_retest_page_url(audit=audit)
+                return reverse(
+                    "audits:edit-audit-retest-statement-pages", kwargs=audit_pk
+                )
+            return reverse("audits:edit-audit-pages", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -358,7 +359,7 @@ class AuditRetestStatement2UpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse(
-                "audits:edit-audit-retest-statement-comparison", kwargs=audit_pk
+                "audits:edit-twelve-week-disproportionate-burden", kwargs=audit_pk
             )
         return super().get_success_url()
 
@@ -600,30 +601,26 @@ class AuditRetestCaseComplianceStatement12WeekUpdateView(AuditCaseComplianceUpda
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse(
-                "audits:edit-audit-retest-statement-comparison", kwargs=audit_pk
+                "audits:edit-audit-retest-statement-summary", kwargs=audit_pk
             )
         return super().get_success_url()
 
 
-class AuditRetestStatementComparisonUpdateView(AuditUpdateView):
+class AuditRetestStatementSummaryUpdateView(AuditRetestSummaryUpdateView):
     """
-    View to retest statement comparison
+    View to update audit summary for 12-week WCAG test
     """
 
-    form_class: Type[AuditRetestStatementComparisonUpdateForm] = (
-        AuditRetestStatementComparisonUpdateForm
+    form_class: Type[AuditRetestStatementSummaryUpdateForm] = (
+        AuditRetestStatementSummaryUpdateForm
     )
-    template_name: str = "audits/forms/retest_statement_comparison.html"
+    template_name: str = "audits/forms/retest_test_summary.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        audit_pk: Dict[str, int] = {"pk": self.object.id}
         if "save_continue" in self.request.POST:
-            return reverse(
-                "audits:edit-audit-retest-statement-decision", kwargs=audit_pk
-            )
-        elif "save_exit" in self.request.POST:
-            return reverse("audits:audit-retest-detail", kwargs=audit_pk)
+            audit: Audit = self.object
+            return reverse("cases:edit-review-changes", kwargs={"pk": audit.case.id})
         return super().get_success_url()
 
 

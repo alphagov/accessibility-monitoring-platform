@@ -1340,21 +1340,6 @@ class AuditRetestStatementCustomUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestStatementComparisonUpdateForm(VersionForm):
-    """
-    Form for retesting statement comparison
-    """
-
-    audit_retest_statement_comparison_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: List[str] = [
-            "version",
-            "audit_retest_statement_comparison_complete_date",
-        ]
-
-
 class AuditRetestStatementDecisionUpdateForm(VersionForm):
     """
     Form for retesting statement decision

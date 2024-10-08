@@ -1,70 +1,33 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% load l10n %}
-
-{% load static %}
-
-{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=audit.case %}
-        </div>
-    </div>
-    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading=sitemap.current_platform_page.get_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-2' %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include 'audits/helpers/statement_pages_twelve_week.html' %}
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:edit-audit-retest-statement-2' audit.id %}">
-                    {% csrf_token %}
-                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% if audit.statement_pages %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Non-accessible Content - disproportionate burden' example='audits/archive_statement_examples/disproportionate_burden_state.html' decision=audit.get_archive_disproportionate_burden_state_display notes=audit.archive_disproportionate_burden_notes %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_disproportionate_burden_state %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_disproportionate_burden_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Non-accessible Content - the content is not within the scope of the applicable legislation' example='audits/archive_statement_examples/content_not_in_scope_state.html' decision=audit.get_archive_content_not_in_scope_state_display notes=audit.archive_content_not_in_scope_notes %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_content_not_in_scope_state %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_content_not_in_scope_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Preparation Date' example='audits/archive_statement_examples/preparation_date_state.html' decision=audit.get_archive_preparation_date_state_display notes=audit.archive_preparation_date_notes %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_preparation_date_state %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_preparation_date_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Review' example='audits/archive_statement_examples/review_state.html' decision=audit.get_archive_review_state_display notes=audit.archive_review_notes %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_review_state %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_review_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Method' example='audits/archive_statement_examples/method_state.html' decision=audit.get_archive_method_state_display notes=audit.archive_method_notes %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_method_state %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_method_notes %}
-                                {% include 'audits/helpers/retest_statement_field_info.html' with name='Access Requirements' example='audits/archive_statement_examples/access_requirements_state.html' decision=audit.get_archive_access_requirements_state_display notes=audit.archive_access_requirements_notes %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_access_requirements_state %}
-                                {% include 'common/amp_field.html' with field=form.archive_audit_retest_access_requirements_notes %}
-                            {% endif %}
-                            {% include 'common/amp_field.html' with field=form.archive_audit_retest_statement_2_complete_date %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'audits/helpers/retest_save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
+{% block preform %}
+    {% include 'audits/helpers/statement_pages.html' %}
 {% endblock %}
 
-{% block extrascript %}
+{% block formfields %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% if audit.statement_pages %}
+                {% include 'audits/helpers/retest_statement_field_info.html' with name='Non-accessible Content - disproportionate burden' example='audits/archive_statement_examples/disproportionate_burden_state.html' decision=audit.get_archive_disproportionate_burden_state_display notes=audit.archive_disproportionate_burden_notes %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_disproportionate_burden_state %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_disproportionate_burden_notes %}
+                {% include 'audits/helpers/retest_statement_field_info.html' with name='Non-accessible Content - the content is not within the scope of the applicable legislation' example='audits/archive_statement_examples/content_not_in_scope_state.html' decision=audit.get_archive_content_not_in_scope_state_display notes=audit.archive_content_not_in_scope_notes %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_content_not_in_scope_state %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_content_not_in_scope_notes %}
+                {% include 'audits/helpers/retest_statement_field_info.html' with name='Preparation Date' example='audits/archive_statement_examples/preparation_date_state.html' decision=audit.get_archive_preparation_date_state_display notes=audit.archive_preparation_date_notes %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_preparation_date_state %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_preparation_date_notes %}
+                {% include 'audits/helpers/retest_statement_field_info.html' with name='Review' example='audits/archive_statement_examples/review_state.html' decision=audit.get_archive_review_state_display notes=audit.archive_review_notes %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_review_state %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_review_notes %}
+                {% include 'audits/helpers/retest_statement_field_info.html' with name='Method' example='audits/archive_statement_examples/method_state.html' decision=audit.get_archive_method_state_display notes=audit.archive_method_notes %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_method_state %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_method_notes %}
+                {% include 'audits/helpers/retest_statement_field_info.html' with name='Access Requirements' example='audits/archive_statement_examples/access_requirements_state.html' decision=audit.get_archive_access_requirements_state_display notes=audit.archive_access_requirements_notes %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_access_requirements_state %}
+                {% include 'common/amp_field.html' with field=form.archive_audit_retest_access_requirements_notes %}
+            {% endif %}
+            {% include 'common/amp_field.html' with field=form.archive_audit_retest_statement_2_complete_date %}
+        </div>
+    </div>
 {% endblock %}

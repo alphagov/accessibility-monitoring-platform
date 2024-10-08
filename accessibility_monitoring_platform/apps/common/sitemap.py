@@ -881,7 +881,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="Custom statement issues",
+                        name="Custom issues",
                         url_name="audits:edit-retest-statement-custom",
                         complete_flag_name="audit_retest_statement_custom_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
@@ -889,19 +889,19 @@ SITE_MAP: List[PlatformPageGroup] = [
                 ],
             ),
             AuditPlatformPage(
-                name="12-week disproportionate burden claim",
+                name="Disproportionate burden",
                 url_name="audits:edit-twelve-week-disproportionate-burden",
                 complete_flag_name="twelve_week_disproportionate_burden_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week statement compliance decision",
+                name="Compliance decision",
                 url_name="audits:edit-audit-retest-statement-decision",
                 complete_flag_name="audit_retest_statement_decision_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week accessibility statement comparison",
-                url_name="audits:edit-audit-retest-statement-comparison",
-                complete_flag_name="audit_retest_statement_comparison_complete_date",
+                name="Test summary",
+                url_name="audits:edit-audit-retest-statement-summary",
+                complete_flag_name="audit_retest_statement_summary_complete_date",
             ),
         ],
     ),
@@ -1054,6 +1054,15 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Legacy end of case data",
                 url_name="cases:legacy-end-of-case",
                 show_flag_name="archive",
+            ),
+        ],
+    ),
+    # To be removed
+    PlatformPageGroup(
+        name="",
+        pages=[
+            AuditPlatformPage(
+                name="View 12-week retest", url_name="audits:audit-retest-detail"
             ),
         ],
     ),
