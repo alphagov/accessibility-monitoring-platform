@@ -7,6 +7,7 @@
 {% block formfields %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
+            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
             {% if audit.statement_pages %}
                 {% include 'audits/helpers/retest_statement_field_info.html' with name='Non-accessible Content - disproportionate burden' example='audits/archive_statement_examples/disproportionate_burden_state.html' decision=audit.get_archive_disproportionate_burden_state_display notes=audit.archive_disproportionate_burden_notes %}
                 {% include 'common/amp_field.html' with field=form.archive_audit_retest_disproportionate_burden_state %}

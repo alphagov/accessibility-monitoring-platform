@@ -32,6 +32,7 @@
                 {% block form %}
                 <form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">
                     {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% block formfields %}
