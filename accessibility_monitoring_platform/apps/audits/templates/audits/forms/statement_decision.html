@@ -1,41 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% load l10n %}
+{% block preform %}
+    {% include 'audits/helpers/statement_pages.html' %}
+    {% include 'common/error_summary.html' with form=case_compliance_form %}
+{% endblock %}
 
-{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=audit.case %}
-        </div>
-    </div>
-    {% include 'audits/helpers/breadcrumb_audit.html' with nav_section_name='Initial statement' page_heading=sitemap.current_platform_page.get_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/case_nav.html" %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" %}
-                {% include 'audits/helpers/statement_pages.html' %}
-                {% include 'common/error_summary.html' with form=case_compliance_form %}
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:edit-statement-decision' audit.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' with form=case_compliance_form %}
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'audits/helpers/save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
+{% block formfields %}
+{% include 'common/amp_form_snippet.html' with form=case_compliance_form %}
+{% include 'common/amp_form_snippet.html' %}
 {% endblock %}

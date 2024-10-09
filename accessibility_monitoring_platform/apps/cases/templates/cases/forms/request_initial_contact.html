@@ -7,7 +7,6 @@
 {% endblock %}
 
 {% block formfields %}
-{% include 'common/form_errors.html' with errors=form.non_field_errors %}
 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 {% include 'common/amp_field.html' with field=form.seven_day_no_contact_email_sent_date %}
 {% include 'cases/helpers/amp_email_field.html' with field=form.seven_day_no_contact_request_sent_to %}

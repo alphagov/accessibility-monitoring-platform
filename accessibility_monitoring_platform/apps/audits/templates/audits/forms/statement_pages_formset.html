@@ -1,76 +1,56 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=audit.case %}
+{% block form %}
+    {% include "cases/helpers/messages.html" %}
+    {% include 'common/error_summary.html' with formset=statement_pages_formset %}
+    <form method="post" action="{% url 'audits:edit-statement-pages' audit.id %}">
+        {% csrf_token %}
+        {{ statement_pages_formset.management_form }}
+        {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+        <table class="govuk-table">
+            <tbody class="govuk-table__body">
+            {% if statement_pages_formset.forms %}
+                {% for statement_page_form in statement_pages_formset %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <h2 id="statement-page-{{ statement_page_form.instance.id }}" class="govuk-heading-m">Link {{ forloop.counter }}</h2>
+                                    {% include 'common/form_errors.html' with errors=statement_page_form.non_field_errors %}
+                                    {% include 'common/form_hidden_fields.html' with hidden_fields=statement_page_form.hidden_fields %}
+                                    {% for field in statement_page_form.visible_fields %}
+                                        {% include 'common/amp_field.html' %}
+                                    {% endfor %}
+                                </div>
+                                {% if statement_page_form.instance.id %}
+                                    <div class="govuk-grid-column-full">
+                                        <input
+                                            type="submit"
+                                            value="Remove statement link"
+                                            name="remove_statement_page_{{ statement_page_form.instance.id }}"
+                                            class="govuk-button govuk-button--secondary"
+                                            data-module="govuk-button" />
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <p class="govuk-body-l">No statement links have been entered</p>
+            {% endif %}
+            </tbody>
+        </table>
+        <input
+            type="submit"
+            value={% if statement_pages_formset.forms %}"Save and add link to statement"{% else %}"Create statement link"{% endif %}
+            name="add_statement_page"
+            class="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+        />
+        {% include 'common/amp_field.html' with field=form.audit_statement_pages_complete_date %}
+        <div class="govuk-button-group">
+            {% include 'audits/helpers/save_continue_cancel.html' %}
         </div>
-    </div>
-    {% include 'audits/helpers/breadcrumb_audit.html' with nav_section_name='Initial statement' page_heading=sitemap.current_platform_page.get_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/case_nav.html" %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
-                {% include "cases/helpers/messages.html" %}
-                {% include 'common/error_summary.html' with formset=statement_pages_formset %}
-                <form method="post" action="{% url 'audits:edit-statement-pages' audit.id %}">
-                    {% csrf_token %}
-                    {{ statement_pages_formset.management_form }}
-                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    <table class="govuk-table">
-                        <tbody class="govuk-table__body">
-                        {% if statement_pages_formset.forms %}
-                            {% for statement_page_form in statement_pages_formset %}
-                                <tr class="govuk-table__row">
-                                    <td class="govuk-table__cell">
-                                        <div class="govuk-grid-row">
-                                            <div class="govuk-grid-column-full">
-                                                <h2 id="statement-page-{{ statement_page_form.instance.id }}" class="govuk-heading-m">Link {{ forloop.counter }}</h2>
-                                                {% include 'common/form_errors.html' with errors=statement_page_form.non_field_errors %}
-                                                {% include 'common/form_hidden_fields.html' with hidden_fields=statement_page_form.hidden_fields %}
-                                                {% for field in statement_page_form.visible_fields %}
-                                                    {% include 'common/amp_field.html' %}
-                                                {% endfor %}
-                                            </div>
-                                            {% if statement_page_form.instance.id %}
-                                                <div class="govuk-grid-column-full">
-                                                    <input
-                                                        type="submit"
-                                                        value="Remove statement link"
-                                                        name="remove_statement_page_{{ statement_page_form.instance.id }}"
-                                                        class="govuk-button govuk-button--secondary"
-                                                        data-module="govuk-button" />
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <p class="govuk-body-l">No statement links have been entered</p>
-                        {% endif %}
-                        </tbody>
-                    </table>
-                    <input
-                        type="submit"
-                        value={% if statement_pages_formset.forms %}"Save and add link to statement"{% else %}"Create statement link"{% endif %}
-                        name="add_statement_page"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    />
-                    {% include 'common/amp_field.html' with field=form.audit_statement_pages_complete_date %}
-                    <div class="govuk-button-group">
-                        {% include 'audits/helpers/save_continue_cancel.html' %}
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
+    </form>
 {% endblock %}
