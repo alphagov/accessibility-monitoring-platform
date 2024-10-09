@@ -188,9 +188,20 @@ def get_case_view_sections(case: Case) -> List[ViewSection]:
         initial_test_sections: List[ViewSection] = get_initial_test_view_sections(
             audit=case.audit
         )
-        twelve_week_test_sections: List[ViewSection] = (
-            get_twelve_week_test_view_sections(audit=case.audit)
-        )
+        if case.audit and case.audit.retest_date:
+            twelve_week_test_sections: List[ViewSection] = (
+                get_twelve_week_test_view_sections(audit=case.audit)
+            )
+        else:
+            twelve_week_test_sections: List[ViewSection] = [
+                build_view_section(
+                    name="12-week retest",
+                    edit_url=reverse("cases:edit-twelve-week-retest", kwargs=case_pk),
+                    edit_url_id="edit-twelve-week-retest",
+                    complete_date=case.twelve_week_retest_complete_date,
+                    placeholder="Start 12-week retest",
+                )
+            ]
         if case.report is not None:
             report_pk: Dict[str, int] = {"pk": case.report.id}
             report_details_fields: List[FieldLabelAndValue] = [

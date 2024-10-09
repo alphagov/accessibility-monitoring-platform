@@ -540,12 +540,6 @@ SITE_MAP: List[PlatformPageGroup] = [
                 complete_flag_name="archive_audit_statement_2_complete_date",
             ),
             AuditPlatformPage(
-                name="Report options",
-                url_name="audits:edit-audit-report-options",
-                show_flag_name="uses_pre_2023_statement_checks",
-                complete_flag_name="archive_audit_report_options_complete_date",
-            ),
-            AuditPlatformPage(
                 name="Statement overview",
                 url_name="audits:edit-statement-overview",
                 show_flag_name="uses_statement_checks",
@@ -598,6 +592,12 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Statement compliance",
                 url_name="audits:edit-statement-decision",
                 complete_flag_name="audit_statement_decision_complete_date",
+            ),
+            AuditPlatformPage(
+                name="Report options",
+                url_name="audits:edit-audit-report-options",
+                show_flag_name="uses_pre_2023_statement_checks",
+                complete_flag_name="archive_audit_report_options_complete_date",
             ),
             AuditPlatformPage(
                 name="Test summary",

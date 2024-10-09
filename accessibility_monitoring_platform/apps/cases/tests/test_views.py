@@ -354,7 +354,7 @@ def test_view_case_includes_tests(admin_client):
     Test that the View case displays test and 12-week retest.
     """
     case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
+    Audit.objects.create(case=case, retest_date=TODAY)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
