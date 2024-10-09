@@ -13,11 +13,11 @@ attrs==24.2.0
     # via
     #   outcome
     #   trio
-boto3==1.35.12
+boto3==1.35.36
     # via
     #   -r requirements.in
     #   moto
-botocore==1.35.12
+botocore==1.35.36
     # via
     #   boto3
     #   moto
@@ -28,11 +28,11 @@ certifi==2024.8.30
     #   selenium
 cffi==1.17.1
     # via cryptography
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 cryptography==43.0.1
     # via moto
-django==5.1.1
+django==5.1.2
     # via
     #   -r requirements.in
     #   django-axes
@@ -42,7 +42,7 @@ django==5.1.1
     #   django-otp
     #   django-phonenumber-field
     #   django-two-factor-auth
-django-axes==6.5.1
+django-axes==7.0.0
     # via -r requirements.in
 django-browser-reload==1.15.0
     # via -r requirements.in
@@ -50,7 +50,7 @@ django-csp==3.8
     # via -r requirements.in
 django-formtools==2.5.1
     # via django-two-factor-auth
-django-otp==1.5.3
+django-otp==1.5.4
     # via django-two-factor-auth
 django-phonenumber-field==8.0.0
     # via django-two-factor-auth
@@ -60,7 +60,7 @@ docopt==0.6.2
     # via notifications-python-client
 h11==0.14.0
     # via wsproto
-idna==3.8
+idna==3.10
     # via
     #   requests
     #   trio
@@ -74,11 +74,11 @@ jmespath==1.0.1
     #   botocore
 markdown==3.7
     # via -r requirements.in
-markupsafe==2.1.5
+markupsafe==3.0.1
     # via
     #   jinja2
     #   werkzeug
-moto==5.0.13
+moto==5.0.16
     # via -r requirements.in
 notifications-python-client==10.0.0
     # via -r requirements.in
@@ -88,7 +88,7 @@ packaging==24.1
     # via
     #   pytest
     #   webdriver-manager
-phonenumbers==8.13.44
+phonenumbers==8.13.47
     # via -r requirements.in
 pluggy==1.5.0
     # via pytest
@@ -102,7 +102,7 @@ pypng==0.20220715.0
     # via qrcode
 pysocks==1.7.1
     # via urllib3
-pytest==8.3.2
+pytest==8.3.3
     # via pytest-django
 pytest-django==4.9.0
     # via -r requirements.in
@@ -126,9 +126,9 @@ requests==2.32.3
     #   webdriver-manager
 responses==0.25.3
     # via moto
-s3transfer==0.10.2
+s3transfer==0.10.3
     # via boto3
-selenium==4.24.0
+selenium==4.25.0
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
@@ -148,7 +148,7 @@ typing-extensions==4.12.2
     # via
     #   qrcode
     #   selenium
-urllib3[socks]==2.2.2
+urllib3[socks]==2.2.3
     # via
     #   botocore
     #   requests
@@ -166,7 +166,7 @@ whitenoise==6.7.0
     # via -r requirements.in
 wsproto==1.2.0
     # via trio-websocket
-xmltodict==0.13.0
+xmltodict==0.14.0
     # via
     #   -r requirements.in
     #   moto
