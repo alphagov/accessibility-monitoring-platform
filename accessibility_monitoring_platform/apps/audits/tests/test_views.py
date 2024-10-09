@@ -295,6 +295,9 @@ def test_create_audit_creates_case_event(admin_client):
         ),
         ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-wcag-summary", "Test summary"),
+        ("audits:edit-audit-statement-summary", "Test summary"),
+        ("audits:edit-audit-retest-wcag-summary", "Test summary"),
+        ("audits:edit-audit-retest-statement-summary", "Test summary"),
         ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
         (
             "audits:edit-audit-retest-website-decision",
@@ -445,6 +448,26 @@ def test_audit_statement_check_specific_page_loads(
             "audits:edit-audit-retest-statement-2",
             "save_continue",
             "audits:edit-twelve-week-disproportionate-burden",
+        ),
+        (
+            "audits:edit-audit-retest-wcag-summary",
+            "save",
+            "audits:edit-audit-retest-wcag-summary",
+        ),
+        (
+            "audits:edit-audit-retest-wcag-summary",
+            "save_continue",
+            "audits:edit-audit-retest-statement-pages",
+        ),
+        (
+            "audits:edit-audit-retest-statement-summary",
+            "save",
+            "audits:edit-audit-retest-statement-summary",
+        ),
+        (
+            "audits:edit-audit-retest-statement-summary",
+            "save_continue",
+            "cases:edit-review-changes",
         ),
     ],
 )

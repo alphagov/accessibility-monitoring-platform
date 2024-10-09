@@ -749,12 +749,18 @@ class Case(VersionModel):
     @property
     def show_start_12_week_retest(self):
         return (
-            self.not_archived and self.audit is not None and not self.audit.retest_date
+            self.not_archived
+            and self.audit is not None
+            and self.audit.retest_date is None
         )
 
     @property
     def show_12_week_retest(self):
-        return self.not_archived and self.audit is not None and self.audit.retest_date
+        return (
+            self.not_archived
+            and self.audit is not None
+            and self.audit.retest_date is not None
+        )
 
     @property
     def report(self):

@@ -1423,6 +1423,49 @@ def test_platform_case_with_audit_edit_redirects_based_on_button_pressed(
     assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
 
 
+def test_update_request_ack_redirects_when_no_audit(admin_client):
+    """
+    Test that 12-week update request acknowledged redirects to review changes
+    on save and continue when the case has no audit
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("cases:edit-review-changes", kwargs={"pk": case.id})}'
+    )
+
+
+def test_update_request_ack_redirects_when_audit_but_no_retest_date(admin_client):
+    """
+    Test that 12-week update request acknowledged redirects to review changes
+    on save and continue when the case has an audit but retest date is not set
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id})}'
+    )
+
+
 @pytest.mark.parametrize(
     "case_edit_path, expected_redirect_path",
     [
