@@ -159,37 +159,6 @@ def create_equality_body_retest() -> Retest:
     return retest
 
 
-def test_audit_retest_detail_shows_number_of_errors(admin_client):
-    """Test that audit 12-week retest view shows the number of errors"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.PDF, url="https://example.com"
-    )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "PDF (2)")
-
-
 def test_audit_retest_detail_only_shows_pages_with_errors(admin_client):
     """Test that audit 12-week retest view shows only pages with errors"""
     audit: Audit = create_audit_and_wcag()
@@ -229,84 +198,6 @@ def test_audit_retest_detail_only_shows_pages_with_errors(admin_client):
     assert response.status_code == 200
     assertContains(response, "Page with error")
     assertNotContains(response, "Page without error")
-
-
-def test_audit_retest_detail_shows_sections(admin_client):
-    """
-    Test that audit 12-week retest view shows all the sections
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "12-week retest metadata")
-    assertContains(response, "Pages")
-    assertContains(response, "12-week website compliance decision")
-    assertContains(response, "12-week statement links")
-    assertContains(response, "12-week disproportionate burden claim")
-    assertContains(response, "12-week statement compliance decision")
-
-
-def test_audit_retest_detail_shows_statement_1(admin_client):
-    """
-    Test that audit 12-week retest view shows Accessibility statement
-    Pt. 1 when statement content checks not used.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "12-week accessibility statement Pt. 1")
-    assertNotContains(response, "12-week statement overview")
-
-
-def test_audit_retest_detail_shows_statement_overview(admin_client):
-    """
-    Test that audit 12-week retest view shows Statement overview when
-    statement content checks are used.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertNotContains(response, "12-week accessibility statement Pt. 1")
-    assertContains(response, "12-week statement overview")
-
-
-def test_audit_12_week_retest_detail_shows_12_week_statement(admin_client):
-    """Test that audit 12-week retest detail view shows the 12-week statement"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    StatementPage.objects.create(
-        audit=audit,
-        added_stage=StatementPage.AddedStage.TWELVE_WEEK,
-        url=ACCESSIBILITY_STATEMENT_12_WEEK_URL,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, ACCESSIBILITY_STATEMENT_12_WEEK_URL)
 
 
 def test_restore_page_view(admin_client):
@@ -3490,63 +3381,6 @@ def test_retest_comparison_page_shows_location(admin_client):
     assert response.status_code == 200
 
     assertContains(response, PAGE_LOCATION)
-
-
-def test_12_week_retest_page_complete_check_displayed(admin_client):
-    """
-    Test that the page complete tick is displayed in contents
-    """
-    audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.all().first()
-    page.url = "https://example.com"
-    page.save()
-    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<li>
-            <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
-                12-week retest Home (1)</a>
-            |
-            <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                Edit</a>
-        </li>""",
-        html=True,
-    )
-
-    page.retest_complete_date = TODAY
-    page.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<li>
-            <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
-                12-week retest Home (1)<span class="govuk-visually-hidden">complete</span></a>
-            |
-            <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                Edit<span class="govuk-visually-hidden">complete</span></a>
-            ✓
-        </li>""",
-        html=True,
-    )
 
 
 def test_nav_details_page_renders(admin_client):

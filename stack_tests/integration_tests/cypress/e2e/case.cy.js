@@ -96,12 +96,6 @@ describe('View case', () => {
     cy.contains(contactEmail)
   })
 
-  it('can edit 12-week retest', () => {
-    cy.get('#edit-twelve-week-retest').click()
-    cy.get('[name="twelve_week_retest_complete_date"]').click()
-    cy.contains('Save').click()
-  })
-
   it('can edit reviewing changes', () => {
     cy.get('#edit-review-changes').click()
     cy.contains('Populate with today\'s date').click()

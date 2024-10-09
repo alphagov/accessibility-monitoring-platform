@@ -2024,11 +2024,6 @@ def test_report_shows_expected_rows(admin_client, audit_table_row):
             "edit-12-week-update-request-ack",
         ),
         (
-            "twelve_week_retest_complete_date",
-            "12-week retest",
-            "edit-twelve-week-retest",
-        ),
-        (
             "review_changes_complete_date",
             "Closing the case > Reviewing changes",
             "edit-review-changes",
@@ -2700,7 +2695,6 @@ def test_format_due_date_help_text(due_date, expected_help_text):
         "edit-publish-report",
         "edit-qa-comments",
         "manage-contact-details",
-        "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
     ],
