@@ -111,9 +111,9 @@ class Audit(VersionModel):
     """
 
     class ScreenSize(models.TextChoices):
-        SIZE_15 = "15in", "15 inch"
-        SIZE_14 = "14in", "14 inch"
         SIZE_13 = "13in", "13 inch"
+        SIZE_14 = "14in", "14 inch"
+        SIZE_15 = "15in", "15 inch"
 
     class Exemptions(models.TextChoices):
         YES = "yes", "Yes"
@@ -249,7 +249,7 @@ class Audit(VersionModel):
     screen_size = models.CharField(
         max_length=20,
         choices=ScreenSize.choices,
-        default=ScreenSize.SIZE_15,
+        default=ScreenSize.SIZE_13,
     )
     exemptions_state = models.CharField(
         max_length=20,
