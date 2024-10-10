@@ -1145,6 +1145,10 @@ class Page(models.Model):
         )
 
     @property
+    def count_failed_check_results(self):
+        return self.failed_check_results.count()
+
+    @property
     def unfixed_check_results(self):
         return self.failed_check_results.exclude(
             retest_state=CheckResult.RetestResult.FIXED

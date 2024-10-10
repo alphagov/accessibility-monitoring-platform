@@ -37,12 +37,6 @@
             {% endif %}
         </ul>
         <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
-        <ul class="govuk-list">
-            {% for view_section in view_sections %}
-                <li>
-                    {% include 'common/view_accordion/toc_link.html' with section=view_section %}
-                </li>
-            {% endfor %}
-        </ul>
+        {% include 'cases/helpers/case_nav.html' with case_nav_toc=True %}
     </div>
 </nav>

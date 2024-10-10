@@ -62,9 +62,8 @@
                 {% if case.archive %}
                     {% include 'cases/helpers/archive_nav_contents.html' %}
                 {% else %}
-                    {% include 'common/view_accordion/toc.html' %}
+                    {% include 'cases/helpers/case_nav.html' with case_nav_toc=True %}
                 {% endif %}
-                {% include 'common/frequently_used_links.html' %}
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="amp-margin-bottom-30">
@@ -74,20 +73,17 @@
         </div>
         {% include 'cases/details/search_in_case.html' %}
         <div id="search-scope" data-search-target-page-name="{{ sitemap.current_platform_page.get_name }}" data-search-target-label="{{ sitemap.current_platform_page.get_name }}" data-search-target-url="{{ case.get_absolute_url }}">
-            <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
-                {% if case.archive %}
-                    {% include 'cases/details/archive.html' %}
-                {% endif %}
-                {% for view_section in view_sections %}
-                    {% if view_section.anchor %}
-                        {% include 'common/view_accordion/section.html' %}
-                    {% endif %}
-                    {% if view_section.subsections and not view_section.type == 'audit-results-on-view-case' %}
-                        {% for subsection in view_section.subsections %}
-                            {% include 'common/view_accordion/section.html' with view_section=subsection %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <hr class="amp-width-100 amp-margin-bottom-30" />
+                    {% if case.archive %}
+                        {% include 'cases/details/archive.html' %}
+                    {% else %}
+                        {% for case_detail_section in case_detail_sections %}
+                            {% include case_detail_section.page.case_details_template_name %}
                         {% endfor %}
                     {% endif %}
-                {% endfor %}
+                </div>
             </div>
         </div>
     </main>

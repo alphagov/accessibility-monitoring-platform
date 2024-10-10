@@ -583,7 +583,7 @@ class InitialDisproportionateBurdenUpdateForm(VersionForm):
     initial_disproportionate_burden_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Case
+        model = Audit
         fields: List[str] = [
             "version",
             "initial_disproportionate_burden_claim",
