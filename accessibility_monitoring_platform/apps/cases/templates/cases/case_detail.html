@@ -72,16 +72,19 @@
                 </div>
             </div>
         </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <hr class="amp-width-100 amp-margin-bottom-30" />
-                {% if case.archive %}
-                    {% include 'cases/details/archive.html' %}
-                {% else %}
-                    {% for case_detail_section in case_detail_sections %}
-                        {% include case_detail_section.page.case_details_template_name %}
-                    {% endfor %}
-                {% endif %}
+        {% include 'cases/details/search_in_case.html' %}
+        <div id="search-scope" data-search-target-page-name="{{ sitemap.current_platform_page.get_name }}" data-search-target-label="{{ sitemap.current_platform_page.get_name }}" data-search-target-url="{{ case.get_absolute_url }}">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <hr class="amp-width-100 amp-margin-bottom-30" />
+                    {% if case.archive %}
+                        {% include 'cases/details/archive.html' %}
+                    {% else %}
+                        {% for case_detail_section in case_detail_sections %}
+                            {% include case_detail_section.page.case_details_template_name %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
             </div>
         </div>
     </main>

@@ -2,7 +2,7 @@
 
 {% block table %}
     {% if case_detail_section.page.object.failed_check_results %}
-        <table class="govuk-table" data-search-target-page-name="{{ view_section.page.name }}" data-search-target-label="Edit" data-search-target-url="{{ view_section.page.url }}">
+        <table class="govuk-table" data-search-target-page-name="{% if case_detail_section.page.platform_page_group_name %}{{ case_detail_section.page.platform_page_group_name }} | {% endif %}{{ case_detail_section.page.get_name }}" data-search-target-label="Edit" data-search-target-url="{{ case_detail_section.page.url }}">
             <tbody class="govuk-table__body">
                 {% for check_result in case_detail_section.page.object.failed_check_results %}
                     <tr class="govuk-table__row ">
