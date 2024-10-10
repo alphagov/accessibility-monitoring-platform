@@ -145,6 +145,8 @@ class ReminderTaskUpdateView(UpdateView):
             self.object: Task = form.save(commit=False)
             if "delete" in self.request.POST:
                 self.object.read = True
+            case: Case = self.object.case
+            self.object.user = case.auditor if case.auditor else self.request.user
             record_model_update_event(user=self.request.user, model_object=self.object)
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
