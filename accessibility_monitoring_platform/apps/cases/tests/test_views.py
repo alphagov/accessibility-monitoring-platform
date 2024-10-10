@@ -1902,7 +1902,7 @@ def test_no_anchor_section_complete_check_displayed(
         response,
         f"""<li>
             {section_name} |
-            <a href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+            <a id="edit-{slugify(edit_url)}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
                 Edit
             </a>
             <span class="govuk-visually-hidden">complete</span>
