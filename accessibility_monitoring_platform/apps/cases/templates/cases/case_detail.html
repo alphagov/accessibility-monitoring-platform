@@ -61,7 +61,6 @@
             <div class="govuk-grid-column-one-half">
                 {% if case.archive %}
                     {% include 'cases/helpers/archive_nav_contents.html' %}
-                    {% include 'common/frequently_used_links.html' %}
                 {% else %}
                     {% include 'cases/helpers/case_nav.html' with case_nav_toc=True %}
                 {% endif %}
