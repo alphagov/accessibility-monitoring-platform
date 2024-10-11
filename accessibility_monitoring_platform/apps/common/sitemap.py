@@ -986,7 +986,7 @@ SITE_MAP: List[PlatformPageGroup] = [
         ],
     ),
     CasePlatformPageGroup(
-        name="",
+        name="Post case",
         type=PlatformPageGroup.Type.PREVIOUS_CASE_NAV,
         pages=[
             CasePlatformPage(
