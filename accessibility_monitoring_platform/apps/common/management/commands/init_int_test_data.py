@@ -22,6 +22,7 @@ from ....audits.models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementCheck,
     StatementCheckResult,
     StatementPage,
     WcagDefinition,
@@ -95,6 +96,7 @@ class Command(BaseCommand):
                 CheckResult,
                 Page,
                 Audit,
+                StatementCheck,
                 WcagDefinition,
                 UserCacheUniqueHash,
                 CaseCompliance,
@@ -130,6 +132,7 @@ class Command(BaseCommand):
         delete_from_models([AllowedEmail])
 
         load_fixture("wcag_definition")
+        load_fixture("statementcheck")
         load_fixture("report_wrapper")  # Report UI text
         load_fixture("sector")
         load_fixture("allowed_email")
@@ -140,5 +143,6 @@ class Command(BaseCommand):
         load_fixture("case")
         load_fixture("contact")
         load_fixture("audits")  # Test results
+        load_fixture("statementcheckresult")
         load_fixture("reports")  # Reports
         load_fixture("s3_report")  # Published report
