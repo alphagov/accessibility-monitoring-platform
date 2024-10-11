@@ -279,6 +279,42 @@ def test_reminder_task_update_redirects_to_case(rf):
 
 
 @pytest.mark.django_db
+def test_reminder_task_update_updates_user(rf):
+    """
+    Test updating a reminder task sets user to match current Case auditor
+    """
+    user_1: User = User.objects.create(username="user1", email="email1@example.com")
+    user_2: User = User.objects.create(username="user2", email="email2@example.com")
+    case: Case = Case.objects.create(auditor=user_2)
+    task: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user_1,
+        case=case,
+    )
+
+    request: HttpRequest = rf.post(
+        reverse("notifications:edit-reminder-task", kwargs={"pk": task.id}),
+        {
+            "date_0": TODAY.day,
+            "date_1": TODAY.month,
+            "date_2": TODAY.year,
+            "description": DESCRIPTION,
+            "save": "Save",
+        },
+    )
+    request.user = user_2
+
+    response: HttpResponse = ReminderTaskUpdateView.as_view()(request, pk=task.id)
+
+    assert response.status_code == 302
+
+    task_from_db: Task = Task.objects.get(id=task.id)
+
+    assert task_from_db.user == user_2
+
+
+@pytest.mark.django_db
 def test_task_mark_as_read(rf):
     """Test marking task as read"""
     user: User = User.objects.create(
