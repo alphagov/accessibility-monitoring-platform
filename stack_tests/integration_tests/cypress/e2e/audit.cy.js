@@ -3,6 +3,7 @@
 const exemptionsNote = 'Test exemptions note'
 const accessibilityStatementURL = 'https://example.com/accessibility-statement'
 const errorText = 'Error detail text'
+const statementCheckResultComment = "Statement check result comment"
 const websiteComplianceNote = 'Website compliance note'
 const accessibilityStatementComplianceNote = 'Accessibility statement compliance note'
 const reportOptionsNote = 'Report options note'
@@ -22,7 +23,7 @@ describe('View test', () => {
     cy.get('[name="exemptions_notes"]').clear().type(exemptionsNote)
     cy.get('[name="audit_metadata_complete_date"]').click()
     cy.contains('Save').click()
-    cy.visit('/cases/1/view')
+    cy.contains(/^Case$/).click()
     cy.contains(exemptionsNote)
   })
 
@@ -42,7 +43,7 @@ describe('View test', () => {
     cy.get('[name="form-0-notes"]').clear().type(errorText)
     cy.get('[name="complete_date"]').click()
     cy.contains('Save').click()
-    cy.visit('/cases/1/view')
+    cy.contains(/^Case$/).click()
     cy.contains(errorText)
   })
 
@@ -53,7 +54,7 @@ describe('View test', () => {
     cy.get('[name="case-compliance-website_compliance_notes_initial"]').clear().type(websiteComplianceNote)
     cy.get('[name="audit_website_decision_complete_date"]').click()
     cy.contains('Save').click()
-    cy.visit('/cases/1/view')
+    cy.contains(/^Case$/).click()
     cy.contains(websiteComplianceNote)
   })
 
@@ -64,15 +65,19 @@ describe('View test', () => {
     cy.contains('Save').click()
   })
 
-  it('can edit accessibility statement', () => {
+  it('can edit accessibility statement check results', () => {
     cy.contains('Initial statement').click()
-    cy.get('#edit-audits1edit-audit-statement-one').click()
-    cy.get('[name="archive_scope_state"]').check('incomplete')
-    cy.get('[name="archive_audit_statement_1_complete_date"]').click()
+    cy.get('#edit-audits1edit-statement-overview').click()
+    cy.get('[name="form-0-check_result_state"]').check('yes')
+    cy.get('[name="form-0-report_comment"]').clear().type(statementCheckResultComment)
+    cy.get('[name="form-1-check_result_state"]').check('yes')
+    cy.get('[name="audit_statement_overview_complete_date"]').click()
     cy.contains('Save and continue').click()
-    cy.get('[name="archive_disproportionate_burden_state"]').check('assessment')
-    cy.get('[name="archive_audit_statement_2_complete_date"]').click()
+    cy.get('[name="form-0-check_result_state"]').check('yes')
+    cy.get('[name="audit_statement_website_complete_date"]').click()
     cy.contains('Save').click()
+    cy.contains(/^Case$/).click()
+    cy.contains(statementCheckResultComment)
   })
 
   it('can edit accessibility statement compliance decision', () => {
@@ -82,7 +87,7 @@ describe('View test', () => {
     cy.get('[name="case-compliance-statement_compliance_notes_initial"]').clear().type(accessibilityStatementComplianceNote)
     cy.get('[name="audit_statement_decision_complete_date"]').click()
     cy.contains('Save').click()
-    cy.visit('/cases/1/view')
+    cy.contains(/^Case$/).click()
     cy.contains(accessibilityStatementComplianceNote)
   })
 

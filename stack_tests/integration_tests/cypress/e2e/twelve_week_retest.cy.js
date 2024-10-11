@@ -3,8 +3,7 @@
 const retestMetadataNote = '12-week retest metadata note'
 const retestErrorText = 'Retest error note'
 const websiteComplianceNote = 'Website compliance note'
-const scopeNote = 'Accessibility statement scope note'
-const disproportionateNote = 'Disproportionate burden note'
+const statementCheckResultRetestComment = 'Statement check result retest comment'
 const statementComplianceNote = 'Accessibility statement compliance note'
 
 describe('View test', () => {
@@ -50,17 +49,17 @@ describe('View test', () => {
     cy.contains(websiteComplianceNote)
   })
 
-  it('can edit 12-week accessibility statement', () => {
-    cy.get('#edit-audit-retest-statement-1').click()
-    cy.get('[name="archive_audit_retest_scope_state"]').check('present')
-    cy.get('[name="archive_audit_retest_scope_notes"]').clear().type(scopeNote)
-    cy.get('[name="archive_audit_retest_statement_1_complete_date"]').click()
+  it('can edit 12-week accessibility statement check results', () => {
+    cy.get('#edit-retest-statement-overview').click()
+    cy.get('[name="form-0-retest_state"]').check('yes')
+    cy.get('[name="form-0-retest_comment"]').clear().type(statementCheckResultRetestComment)
+    cy.get('[name="form-1-retest_state"]').check('yes')
+    cy.get('[name="audit_retest_statement_overview_complete_date"]').click()
     cy.contains('Save and continue').click()
-    cy.get('[name="archive_audit_retest_disproportionate_burden_state"]').check('no-claim')
-    cy.get('[name="archive_audit_retest_disproportionate_burden_notes"]').clear().type(disproportionateNote)
-    cy.get('[name="archive_audit_retest_statement_2_complete_date"]').click()
+    cy.get('[name="audit_retest_statement_website_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('12-week test').click()
+    cy.contains(statementCheckResultRetestComment)
   })
 
   it('can edit 12-week accessibility statement compliance decision', () => {
