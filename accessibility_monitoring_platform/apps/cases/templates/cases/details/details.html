@@ -8,7 +8,7 @@
 <p class="govuk-body">
     <a href="{{ case_detail_section.page.url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
 </p>
-{% block prefixtable %}{% endblock %}
+{% block pretable %}{% endblock %}
 {% block table %}
 <table class="govuk-table" data-search-target-page-name="{% if case_detail_section.page.platform_page_group_name %}{{ case_detail_section.page.platform_page_group_name }} | {% endif %}{{ case_detail_section.page.get_name }}" data-search-target-label="Edit" data-search-target-url="{{ case_detail_section.page.url }}">
     <tbody class="govuk-table__body">
@@ -37,3 +37,4 @@
     </tbody>
 </table>
 {% endblock %}
+{% block posttable %}{% endblock %}

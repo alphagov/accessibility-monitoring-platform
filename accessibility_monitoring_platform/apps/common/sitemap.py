@@ -639,7 +639,6 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="Report QA",
-        type=PlatformPageGroup.Type.CASE_NAV,
         show_flag_name="not_archived_has_report",
         pages=[
             CasePlatformPage(
