@@ -159,47 +159,6 @@ def create_equality_body_retest() -> Retest:
     return retest
 
 
-def test_audit_retest_detail_only_shows_pages_with_errors(admin_client):
-    """Test that audit 12-week retest view shows only pages with errors"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page_with_error: Page = Page.objects.create(
-        audit=audit,
-        page_type=Page.Type.PDF,
-        url="https://example.com",
-        name="Page with error",
-    )
-    page_without_error: Page = Page.objects.create(
-        audit=audit,
-        page_type=Page.Type.PDF,
-        url="https://example.com",
-        name="Page without error",
-    )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page_with_error,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page_without_error,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.NO_ERROR,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Page with error")
-    assertNotContains(response, "Page without error")
-
-
 def test_restore_page_view(admin_client):
     """Test that restore page view restores audit"""
     audit: Audit = create_audit()
@@ -2201,28 +2160,6 @@ def test_start_retest_creates_case_event(admin_client):
     assert case_event.message == "Started retest"
 
 
-def test_retest_details_renders_when_no_psb_response(admin_client):
-    """
-    Test save and continue button causes user to skip to statement 1 page
-    when no response was received from public sector body.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    case: Case = audit.case
-    case.no_psb_contact = Boolean.YES
-    case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response, "Only 12-week accessibility statement comparison is available"
-    )
-
-
 def test_retest_page_checks_edit_page_loads(admin_client):
     """Test retest page checks edit view page loads and contains errors"""
     audit: Audit = create_audit_and_wcag()
@@ -2733,7 +2670,6 @@ def test_update_audit_checks_case_version(url_name, admin_client):
     "url_name",
     [
         "audits:edit-audit-metadata",
-        "audits:audit-retest-detail",
         "audits:edit-audit-retest-statement-2",
     ],
 )

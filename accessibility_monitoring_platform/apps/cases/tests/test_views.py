@@ -2406,36 +2406,6 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     )
 
 
-def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
-    admin_client,
-):
-    """
-    Test that the twelve week retest page shows view retest button when a
-    test with a retest exists.
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case, retest_date=date.today())
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    view_retest_url: str = reverse(
-        "audits:audit-retest-detail", kwargs={"pk": audit.id}
-    )
-    assertContains(
-        response,
-        f"""<a href="{view_retest_url}"
-            role="button" draggable="false" class="govuk-button govuk-button--secondary"
-            data-module="govuk-button">
-            View retest
-        </a>""",
-        html=True,
-    )
-
-
 def test_twelve_week_retest_page_shows_if_statement_exists(
     admin_client,
 ):

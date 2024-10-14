@@ -15,7 +15,7 @@
             {% elif case.audit.retest_date %}
                 <div class="govuk-button-group">
                     <a
-                        href="{% url 'audits:audit-retest-detail' case.audit.id %}"
+                        href="{% url 'audits:edit-audit-retest-metadata' case.audit.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button govuk-button--secondary"

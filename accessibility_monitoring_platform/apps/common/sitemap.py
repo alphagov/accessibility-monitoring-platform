@@ -1136,15 +1136,6 @@ SITE_MAP: List[PlatformPageGroup] = [
             ),
         ],
     ),
-    # To be removed
-    PlatformPageGroup(
-        name="",
-        pages=[
-            AuditPlatformPage(
-                name="View 12-week retest", url_name="audits:audit-retest-detail"
-            ),
-        ],
-    ),
     # Misc Case
     PlatformPageGroup(
         name="",

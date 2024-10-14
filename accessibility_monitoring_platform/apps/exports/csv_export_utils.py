@@ -260,7 +260,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="total_website_issues_fixed",
         edit_url_class=Audit,
-        edit_url_name="audits:audit-retest-detail",
+        edit_url_name="audits:edit-audit-retest-metadata",
         edit_url_label="Go to view 12-week test",
     ),
     EqualityBodyCSVColumn(
@@ -268,7 +268,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="total_website_issues_unfixed",
         edit_url_class=Audit,
-        edit_url_name="audits:audit-retest-detail",
+        edit_url_name="audits:edit-audit-retest-metadata",
         edit_url_label="Go to view 12-week test",
     ),
     EqualityBodyCSVColumn(

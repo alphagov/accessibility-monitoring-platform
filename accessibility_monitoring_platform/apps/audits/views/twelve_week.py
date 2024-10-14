@@ -10,7 +10,6 @@ from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic.detail import DetailView
 
 from ...cases.models import CaseEvent
 from ...common.form_extract_utils import extract_form_labels_and_values
@@ -49,37 +48,13 @@ from ..models import (
     StatementCheckResult,
     StatementPage,
 )
-from ..utils import (
-    get_next_retest_page_url,
-    get_other_pages_with_retest_notes,
-    get_twelve_week_test_view_sections,
-)
+from ..utils import get_next_retest_page_url, get_other_pages_with_retest_notes
 from .base import (
     AuditCaseComplianceUpdateView,
     AuditUpdateView,
     StatementPageFormsetUpdateView,
 )
 from .initial import AuditPageChecksFormView
-
-
-class AuditRetestDetailView(DetailView):
-    """
-    View of details of a single audit retest
-    """
-
-    model: Type[Audit] = Audit
-    context_object_name: str = "audit"
-    template_name: str = "audits/audit_retest_detail.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add table rows to context for each section of page"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
-
-        return {
-            **{"view_sections": get_twelve_week_test_view_sections(audit=audit)},
-            **context,
-        }
 
 
 class AuditRetestMetadataUpdateView(AuditUpdateView):

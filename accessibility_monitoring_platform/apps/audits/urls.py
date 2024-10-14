@@ -62,7 +62,6 @@ from .views.initial import (
 from .views.twelve_week import (
     AuditRetestCaseComplianceStatement12WeekUpdateView,
     AuditRetestCaseComplianceWebsite12WeekUpdateView,
-    AuditRetestDetailView,
     AuditRetestMetadataUpdateView,
     AuditRetestPageChecksFormView,
     AuditRetestPagesView,
@@ -193,11 +192,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/audit-retest-start/",
         login_required(start_retest),
         name="audit-retest-start",
-    ),
-    path(
-        "<int:pk>/audit-retest-detail/",
-        login_required(AuditRetestDetailView.as_view()),
-        name="audit-retest-detail",
     ),
     path(
         "<int:pk>/delete-retest/",

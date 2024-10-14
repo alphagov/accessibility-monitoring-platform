@@ -9,11 +9,9 @@ import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.urls import reverse
-from pytest_django.asserts import assertQuerySetEqual
 
 from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
-from ...common.view_section_utils import ViewSection
 from ..forms import CheckResultFormset
 from ..models import (
     Audit,
@@ -28,14 +26,11 @@ from ..models import (
     WcagDefinition,
 )
 from ..utils import (
-    build_initial_statement_content_subsections,
-    build_twelve_week_statement_content_subsections,
     create_checkresults_for_retest,
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
     create_statement_checks_for_new_audit,
     get_all_possible_check_results_for_page,
-    get_audit_report_options_rows,
     get_next_equality_body_retest_page_url,
     get_next_page_url,
     get_next_retest_page_url,
@@ -285,87 +280,6 @@ def create_audit_and_check_results() -> Audit:
 
 
 @pytest.mark.django_db
-def test_build_initial_statement_content_subsections():
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-    )
-    empty_queryset: QuerySet[StatementCheck] = audit.failed_statement_check_results
-
-    statement_content_subsections: List[ViewSection] = (
-        build_initial_statement_content_subsections(audit=audit)
-    )
-
-    assert len(statement_content_subsections) == 6
-
-    statement_content_subsection: ViewSection = statement_content_subsections[0]
-
-    assert (
-        statement_content_subsection.name == "Initial statement > Statement information"
-    )
-    assert (
-        statement_content_subsection.anchor == "initial-statement-statement-information"
-    )
-    assert statement_content_subsection.edit_url == "/audits/1/edit-statement-website/"
-    assert statement_content_subsection.edit_url_id == "edit-statement-website"
-    assert statement_content_subsection.complete is False
-    assert statement_content_subsection.display_fields is None
-    assert statement_content_subsection.subtables is None
-    assert statement_content_subsection.subsections is None
-    assert statement_content_subsection.type == "initial-statement-results"
-    assert statement_content_subsection.page is None
-    assertQuerySetEqual(
-        statement_content_subsection.statement_check_results, empty_queryset
-    )
-
-
-@pytest.mark.django_db
-def test_build_twelve_week_statement_content_subsections():
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-    )
-    empty_queryset: QuerySet[StatementCheck] = audit.failed_statement_check_results
-
-    statement_content_subsections: List[ViewSection] = (
-        build_twelve_week_statement_content_subsections(audit=audit)
-    )
-
-    assert len(statement_content_subsections) == 6
-
-    statement_content_subsection: ViewSection = statement_content_subsections[0]
-
-    assert (
-        statement_content_subsection.name == "12-week statement > Statement information"
-    )
-    assert (
-        statement_content_subsection.anchor == "12-week-statement-statement-information"
-    )
-    assert (
-        statement_content_subsection.edit_url
-        == "/audits/1/edit-retest-statement-website/"
-    )
-    assert statement_content_subsection.edit_url_id == "edit-retest-statement-website"
-    assert statement_content_subsection.complete is False
-    assert statement_content_subsection.display_fields is None
-    assert statement_content_subsection.subtables is None
-    assert statement_content_subsection.subsections is None
-    assert statement_content_subsection.type == "12-week-statement-results"
-    assert statement_content_subsection.page is None
-    assertQuerySetEqual(
-        statement_content_subsection.statement_check_results, empty_queryset
-    )
-
-
-@pytest.mark.django_db
 def test_create_mandatory_pages_for_new_audit():
     """Test that the mandatory pages are created for a new audit"""
     case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
@@ -377,16 +291,6 @@ def test_create_mandatory_pages_for_new_audit():
     home_page: Page = audit.page_audit.filter(page_type=Page.Type.HOME).first()
 
     assert home_page.url == HOME_PAGE_URL
-
-
-@pytest.mark.django_db
-def test_get_audit_report_options_rows():
-    """Test audit report options rows returned for display on View test page"""
-    audit: Audit = create_audit_and_wcag()
-
-    assert (
-        get_audit_report_options_rows(audit=audit) == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
-    )
 
 
 @pytest.mark.django_db
