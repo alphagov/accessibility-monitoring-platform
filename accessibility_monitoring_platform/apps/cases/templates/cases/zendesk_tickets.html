@@ -1,81 +1,62 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% load static %}
-
-{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
-        </div>
+{% block preform %}
+    <div class="govuk-button-group">
+        <a
+            id="create-zendesk-ticket"
+            href="{% url 'cases:create-zendesk-ticket' case.id %}"
+            role="button"
+            draggable="false"
+            class="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+        >
+            Add PSB Zendesk ticket
+        </a>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/case_nav.html" %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" %}
-                <div class="govuk-button-group">
-                    <a
-                        id="create-zendesk-ticket"
-                        href="{% url 'cases:create-zendesk-ticket' case.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    >
-                        Add PSB Zendesk ticket
-                    </a>
-                </div>
-                <hr class="amp-width-100 amp-margin-bottom-10" />
-                {% if case.zendesk_tickets %}
-                    <table class="govuk-table">
-                        <tbody class="govuk-table__body">
-                        {% for zendesk_ticket in case.zendesk_tickets %}
-                            <tr class="govuk-table__row">
-                                <td class="govuk-table__cell">
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-full">
-                                            <p class="govuk-body-m amp-margin-bottom-5"><b>PSB Zendesk ticket #{{ zendesk_ticket.id_within_case }}</b></p>
-                                            <p class="govuk-body-m">
-                                                <a href="{% url 'cases:update-zendesk-ticket' zendesk_ticket.id %}"
-                                                    class="govuk-link govuk-link--no-visited-state">
-                                                    Edit ticket</a>
-                                            </p>
-                                            <p class="govuk-body-m amp-margin-bottom-5"><b>Summary</b></p>
-                                            <p class="govuk-body-m">{{ zendesk_ticket.summary }}</p>
-                                            <p class="govuk-body-m amp-margin-bottom-5"><b>Link to Zendesk ticket</b></p>
-                                            <p class="govuk-body-m">
-                                                <a href="{{ zendesk_ticket.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                                    {{ zendesk_ticket.url }}</a>
-                                            </p>
-                                            <p class="govuk-body-m amp-margin-bottom-5"><b>Time added to platform</b></p>
-                                            <p class="govuk-body-m">{{ zendesk_ticket.created|amp_datetime }}</p>
-                                            <div class="govuk-button-group">
-                                                <a
-                                                    href="{% url 'cases:delete-zendesk-ticket' zendesk_ticket.id %}"
-                                                    role="button"
-                                                    draggable="false"
-                                                    class="govuk-button govuk-button--secondary"
-                                                    data-module="govuk-button"
-                                                >
-                                                    Remove Zendesk ticket
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-            </div>
-        </div>
-    </main>
-</div>
+    <hr class="amp-width-100 amp-margin-bottom-10" />
+    {% if case.zendesk_tickets %}
+        <table class="govuk-table">
+            <tbody class="govuk-table__body">
+            {% for zendesk_ticket in case.zendesk_tickets %}
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>PSB Zendesk ticket #{{ zendesk_ticket.id_within_case }}</b></p>
+                                <p class="govuk-body-m">
+                                    <a href="{% url 'cases:update-zendesk-ticket' zendesk_ticket.id %}"
+                                        class="govuk-link govuk-link--no-visited-state">
+                                        Edit ticket</a>
+                                </p>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Summary</b></p>
+                                <p class="govuk-body-m">{{ zendesk_ticket.summary }}</p>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Link to Zendesk ticket</b></p>
+                                <p class="govuk-body-m">
+                                    <a href="{{ zendesk_ticket.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                        {{ zendesk_ticket.url }}</a>
+                                </p>
+                                <p class="govuk-body-m amp-margin-bottom-5"><b>Time added to platform</b></p>
+                                <p class="govuk-body-m">{{ zendesk_ticket.created|amp_datetime }}</p>
+                                <div class="govuk-button-group">
+                                    <a
+                                        href="{% url 'cases:delete-zendesk-ticket' zendesk_ticket.id %}"
+                                        role="button"
+                                        draggable="false"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    >
+                                        Remove Zendesk ticket
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
+
+{% block form %}
 {% endblock %}

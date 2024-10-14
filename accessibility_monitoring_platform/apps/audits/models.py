@@ -510,6 +510,14 @@ class Audit(VersionModel):
         null=True, blank=True
     )
 
+    # Retest WCAG Summary
+    audit_retest_wcag_summary_complete_date = models.DateField(null=True, blank=True)
+
+    # Retest Statement Summary
+    audit_retest_statement_summary_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
     # 12-week accessibility statement (no initial statement)
     twelve_week_accessibility_statement_url = models.TextField(default="", blank=True)
 

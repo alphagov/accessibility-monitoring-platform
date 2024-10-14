@@ -165,7 +165,7 @@ def build_twelve_week_statement_content_subsections(audit: Audit) -> List[ViewSe
     """
     return [
         build_view_section(
-            name=f"12-week {statement_content_subsection.name.lower()}",
+            name=f"12-week statement > {statement_content_subsection.name}",
             edit_url=reverse(
                 f"audits:edit-retest-statement-{statement_content_subsection.url_suffix}",
                 kwargs={"pk": audit.id},
@@ -379,7 +379,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
 
     pre_statement_check_sections: List[ViewSection] = [
         build_view_section(
-            name="12-week retest metadata",
+            name="12-week WCAG test > 12-week retest metadata",
             edit_url=reverse("audits:edit-audit-retest-metadata", kwargs=audit_pk),
             edit_url_id="edit-audit-retest-metadata",
             complete_date=audit.audit_retest_metadata_complete_date,
@@ -405,12 +405,12 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
             ],
         ),
         build_view_section(
-            name="Pages",
+            name="12-week WCAG test > Retest pages",
             anchor="",
             complete_date=audit.audit_pages_complete_date,
             subsections=[
                 build_view_section(
-                    name=f"12-week retest {str(page)} ({page.failed_check_results.count()})",
+                    name=f"12-week WCAG test > {str(page)} retest ({page.failed_check_results.count()})",
                     edit_url=reverse(
                         "audits:edit-audit-retest-page-checks", kwargs={"pk": page.id}
                     ),
@@ -425,15 +425,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
             ],
         ),
         build_view_section(
-            name="Pages comparison",
-            edit_url=reverse(
-                "audits:edit-audit-retest-pages-comparison", kwargs=audit_pk
-            ),
-            edit_url_id="edit-audit-retest-pages-comparison",
-            anchor="",
-        ),
-        build_view_section(
-            name="12-week website compliance decision",
+            name="12-week WCAG test > Compliance decision",
             edit_url=reverse(
                 "audits:edit-audit-retest-website-decision", kwargs=audit_pk
             ),
@@ -444,7 +436,14 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
             ),
         ),
         build_view_section(
-            name="12-week statement links",
+            name="12-week WCAG test > Test summary",
+            edit_url=reverse("audits:edit-audit-retest-wcag-summary", kwargs=audit_pk),
+            edit_url_id="edit-audit-retest-wcag-summary",
+            complete_date=audit.audit_retest_wcag_summary_complete_date,
+            anchor="",
+        ),
+        build_view_section(
+            name="12-week statement > Statement links",
             edit_url=reverse(
                 "audits:edit-audit-retest-statement-pages", kwargs=audit_pk
             ),
@@ -487,7 +486,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
         )
         statement_content_sections: List[ViewSection] = [
             build_view_section(
-                name="12-week statement overview",
+                name="12-week statement > Statement overview",
                 edit_url=reverse(
                     "audits:edit-retest-statement-overview", kwargs=audit_pk
                 ),
@@ -501,7 +500,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
     else:
         statement_content_sections: List[ViewSection] = [
             build_view_section(
-                name="12-week accessibility statement Pt. 1",
+                name="12-week statement > Accessibility statement Pt. 1",
                 edit_url=reverse(
                     "audits:edit-audit-retest-statement-1", kwargs=audit_pk
                 ),
@@ -574,7 +573,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
                 ],
             ),
             build_view_section(
-                name="12-week accessibility statement Pt. 2",
+                name="12-week statement > Accessibility statement Pt. 2",
                 edit_url=reverse(
                     "audits:edit-audit-retest-statement-2", kwargs=audit_pk
                 ),
@@ -640,7 +639,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
         ]
     post_statement_check_sections: List[ViewSection] = [
         build_view_section(
-            name="12-week disproportionate burden claim",
+            name="12-week statement > Disproportionate burden",
             edit_url=reverse(
                 "audits:edit-twelve-week-disproportionate-burden", kwargs=audit_pk
             ),
@@ -651,7 +650,7 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
             ),
         ),
         build_view_section(
-            name="12-week statement compliance decision",
+            name="12-week statement > Compliance decision",
             edit_url=reverse(
                 "audits:edit-audit-retest-statement-decision", kwargs=audit_pk
             ),
@@ -660,6 +659,15 @@ def get_twelve_week_test_view_sections(audit: Audit) -> List[ViewSection]:
             display_fields=get_compliance_rows(
                 form=CaseComplianceStatement12WeekUpdateForm()
             ),
+        ),
+        build_view_section(
+            name="12-week statement > Test summary",
+            edit_url=reverse(
+                "audits:edit-audit-retest-statement-summary", kwargs=audit_pk
+            ),
+            edit_url_id="edit-audit-retest-statement-summary",
+            complete_date=audit.audit_retest_statement_summary_complete_date,
+            anchor="",
         ),
     ]
     view_sections: List[ViewSection] = (
@@ -812,14 +820,14 @@ def get_next_retest_page_url(
         page for page in audit.testable_pages if page.failed_check_results
     ]
     if not testable_pages_with_errors:
-        return reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
+        return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
 
     if current_page is None:
         next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[0].id}
         return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
 
     if testable_pages_with_errors[-1] == current_page:
-        return reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
+        return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
 
     current_page_position: int = testable_pages_with_errors.index(current_page)
     next_page_pk: Dict[str, int] = {

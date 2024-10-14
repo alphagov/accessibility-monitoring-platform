@@ -1,48 +1,21 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
+{% block formbuttons %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
+        <div class="govuk-grid-column-full govuk-button-group">
+            <input
+                type="submit"
+                value="Save"
+                name="save"
+                class="govuk-button"
+                data-module="govuk-button"
+            />
+            <a
+                href="{{ case.get_absolute_url }}"
+                class="govuk-link govuk-link--no-visited-state"
+            >
+                Cancel and return to case view
+            </a>
         </div>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/case_nav.html" %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" %}
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'cases:legacy-end-of-case' case.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{{ case.get_absolute_url }}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel and return to case view
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
 {% endblock %}

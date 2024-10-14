@@ -523,7 +523,7 @@ SITE_MAP: List[PlatformPageGroup] = [
         show_flag_name="not_archived_has_audit",
         pages=[
             AuditPlatformPage(
-                name="Initial statement links",
+                name="Statement links",
                 url_name="audits:edit-statement-pages",
                 complete_flag_name="audit_statement_pages_complete_date",
             ),
@@ -538,12 +538,6 @@ SITE_MAP: List[PlatformPageGroup] = [
                 url_name="audits:edit-audit-statement-2",
                 show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_statement_2_complete_date",
-            ),
-            AuditPlatformPage(
-                name="Report options",
-                url_name="audits:edit-audit-report-options",
-                show_flag_name="uses_pre_2023_statement_checks",
-                complete_flag_name="archive_audit_report_options_complete_date",
             ),
             AuditPlatformPage(
                 name="Statement overview",
@@ -598,6 +592,12 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Statement compliance",
                 url_name="audits:edit-statement-decision",
                 complete_flag_name="audit_statement_decision_complete_date",
+            ),
+            AuditPlatformPage(
+                name="Report options",
+                url_name="audits:edit-audit-report-options",
+                show_flag_name="uses_pre_2023_statement_checks",
+                complete_flag_name="archive_audit_report_options_complete_date",
             ),
             AuditPlatformPage(
                 name="Test summary",
@@ -779,36 +779,31 @@ SITE_MAP: List[PlatformPageGroup] = [
         ],
     ),
     CasePlatformPageGroup(
-        name="",
-        type=PlatformPageGroup.Type.PREVIOUS_CASE_NAV,
-        show_flag_name="not_archived",
+        name="Start 12-week retest",
+        show_flag_name="show_start_12_week_retest",
         pages=[
             CasePlatformPage(
-                name="12-week retest",
+                name="Start 12-week retest",
                 url_name="cases:edit-twelve-week-retest",
-                complete_flag_name="twelve_week_retest_complete_date",
             ),
         ],
     ),
     CasePlatformPageGroup(
-        name="12-week-retest",
-        type=PlatformPageGroup.Type.FUTURE_CASE_NAV,
-        show_flag_name="not_archived",
+        name="12-week WCAG test",
+        show_flag_name="show_12_week_retest",
         pages=[
-            AuditPlatformPage(
-                name="View 12-week retest", url_name="audits:audit-retest-detail"
-            ),
             AuditPlatformPage(
                 name="12-week retest metadata",
                 url_name="audits:edit-audit-retest-metadata",
                 complete_flag_name="audit_retest_metadata_complete_date",
             ),
             AuditRetestPagesPlatformPage(
-                name="Pages",
-                url_name="audits:audit-retest-pages",
+                name="Retest pages",
+                url_name="audits:edit-audit-retest-pages",
+                complete_flag_name="audit_retest_pages_complete_date",
                 subpages=[
                     PlatformPage(
-                        name="Retesting {object.page_title}",
+                        name="{object.page_title} retest",
                         url_name="audits:edit-audit-retest-page-checks",
                         url_kwarg_key="pk",
                         object_class=Page,
@@ -817,72 +812,76 @@ SITE_MAP: List[PlatformPageGroup] = [
                 ],
             ),
             AuditPlatformPage(
-                name="12-week pages comparison",
-                url_name="audits:edit-audit-retest-pages-comparison",
-                complete_flag_name="audit_retest_pages_complete_date",
-            ),
-            AuditPlatformPage(
-                name="12-week pages comparison",
-                url_name="audits:edit-audit-retest-pages-comparison-by-wcag",
-                complete_flag_name="audit_retest_pages_complete_date",
-            ),
-            AuditPlatformPage(
-                name="12-week website compliance decision",
+                name="Compliance decision",
                 url_name="audits:edit-audit-retest-website-decision",
                 complete_flag_name="audit_retest_website_decision_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week statement links",
+                name="Test summary",
+                url_name="audits:edit-audit-retest-wcag-summary",
+                complete_flag_name="audit_retest_wcag_summary_complete_date",
+            ),
+        ],
+    ),
+    CasePlatformPageGroup(
+        name="12-week statement",
+        show_flag_name="show_12_week_retest",
+        pages=[
+            AuditPlatformPage(
+                name="Statement links",
                 url_name="audits:edit-audit-retest-statement-pages",
                 complete_flag_name="audit_retest_statement_pages_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week accessibility statement Pt. 1",
+                name="Accessibility statement Pt. 1",
                 url_name="audits:edit-audit-retest-statement-1",
+                show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_retest_statement_1_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week accessibility statement Pt. 2",
+                name="Accessibility statement Pt. 2",
                 url_name="audits:edit-audit-retest-statement-2",
+                show_flag_name="uses_pre_2023_statement_checks",
                 complete_flag_name="archive_audit_retest_statement_2_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week statement overview",
+                name="Statement overview",
                 url_name="audits:edit-retest-statement-overview",
+                show_flag_name="uses_statement_checks",
                 complete_flag_name="audit_retest_statement_overview_complete_date",
                 subpages=[
                     AuditPlatformPage(
-                        name="12-week statement information",
+                        name="Statement information",
                         url_name="audits:edit-retest-statement-website",
                         complete_flag_name="audit_retest_statement_website_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week compliance status",
+                        name="Compliance status",
                         url_name="audits:edit-retest-statement-compliance",
                         complete_flag_name="audit_retest_statement_compliance_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week non-accessible content",
+                        name="Non-accessible content",
                         url_name="audits:edit-retest-statement-non-accessible",
                         complete_flag_name="audit_retest_statement_non_accessible_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week statement preparation",
+                        name="Statement preparation",
                         url_name="audits:edit-retest-statement-preparation",
                         complete_flag_name="audit_retest_statement_preparation_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week feedback and enforcement procedure",
+                        name="Feedback and enforcement procedure",
                         url_name="audits:edit-retest-statement-feedback",
                         complete_flag_name="audit_retest_statement_feedback_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                     ),
                     AuditPlatformPage(
-                        name="12-week custom statement issues",
+                        name="Custom issues",
                         url_name="audits:edit-retest-statement-custom",
                         complete_flag_name="audit_retest_statement_custom_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
@@ -890,19 +889,19 @@ SITE_MAP: List[PlatformPageGroup] = [
                 ],
             ),
             AuditPlatformPage(
-                name="12-week disproportionate burden claim",
+                name="Disproportionate burden",
                 url_name="audits:edit-twelve-week-disproportionate-burden",
                 complete_flag_name="twelve_week_disproportionate_burden_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week statement compliance decision",
+                name="Compliance decision",
                 url_name="audits:edit-audit-retest-statement-decision",
                 complete_flag_name="audit_retest_statement_decision_complete_date",
             ),
             AuditPlatformPage(
-                name="12-week accessibility statement comparison",
-                url_name="audits:edit-audit-retest-statement-comparison",
-                complete_flag_name="audit_retest_statement_comparison_complete_date",
+                name="Test summary",
+                url_name="audits:edit-audit-retest-statement-summary",
+                complete_flag_name="audit_retest_statement_summary_complete_date",
             ),
         ],
     ),
@@ -1055,6 +1054,15 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Legacy end of case data",
                 url_name="cases:legacy-end-of-case",
                 show_flag_name="archive",
+            ),
+        ],
+    ),
+    # To be removed
+    PlatformPageGroup(
+        name="",
+        pages=[
+            AuditPlatformPage(
+                name="View 12-week retest", url_name="audits:audit-retest-detail"
             ),
         ],
     ),
