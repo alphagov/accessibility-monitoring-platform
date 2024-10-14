@@ -15,7 +15,6 @@ from ..utils import (
     build_issue_table_rows,
     build_issues_tables,
     build_report_context,
-    get_report_visits_metrics,
 )
 
 NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES: int = 9
@@ -192,17 +191,3 @@ def test_build_report_context():
         "issues_tables": [],
         "report": report,
     }
-
-
-@pytest.mark.django_db
-def test_report_visits_metrics():
-    """Test report visits metrics calculated"""
-    case: Case = Case.objects.create()
-    res = get_report_visits_metrics(case)
-    assert res["number_of_visits"] == 0
-    assert res["number_of_unique_visitors"] == 0
-    ReportVisitsMetrics.objects.create(case=case, fingerprint_hash=1234)
-    ReportVisitsMetrics.objects.create(case=case, fingerprint_hash=1234)
-    res_2 = get_report_visits_metrics(case)
-    assert res_2["number_of_visits"] == 2
-    assert res_2["number_of_unique_visitors"] == 1

@@ -232,11 +232,11 @@ def test_archived_case_view_case_includes_sections(admin_client):
 
     assertContains(
         response,
-        """<span class="govuk-accordion__section-button" id="accordion-heading-archived-section-one">
+        """<h2 id="archived-section-one" class="govuk-heading-m">
             Archived section one
             <span class="govuk-visually-hidden">complete</span>
             ✓
-        </span>""",
+        </h2>""",
         html=True,
     )
     assertContains(
@@ -246,9 +246,9 @@ def test_archived_case_view_case_includes_sections(admin_client):
     )
     assertContains(
         response,
-        """<span class="govuk-accordion__section-button" id="accordion-heading-archived-section-two">
+        """<h2 id="archived-section-two" class="govuk-heading-m">
             Archived section two
-        </span>""",
+        </h2>""",
         html=True,
     )
 
@@ -365,8 +365,8 @@ def test_view_case_includes_tests(admin_client):
     assertContains(response, "Date of test")
     assertContains(response, "Initial statement compliance decision")
 
-    # TODO: assertContains(response, "12-week retest metadata")
-    # TODO: assertContains(response, "Date of retest")
+    assertContains(response, "12-week retest metadata")
+    assertContains(response, "Date of retest")
 
 
 def test_view_case_includes_zendesk_tickets(admin_client):
@@ -386,8 +386,8 @@ def test_view_case_includes_zendesk_tickets(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "PSB Zendesk tickets")
-    # TODO: assertContains(response, ZENDESK_URL)
-    # TODO: assertContains(response, ZENDESK_SUMMARY)
+    assertContains(response, ZENDESK_URL)
+    assertContains(response, ZENDESK_SUMMARY)
 
 
 def test_case_detail_view_leaves_out_deleted_contact(admin_client):

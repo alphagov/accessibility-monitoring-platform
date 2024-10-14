@@ -50,11 +50,7 @@ from ..exports.csv_export_utils import (
 )
 from ..notifications.models import Task
 from ..notifications.utils import add_task
-from ..reports.utils import (
-    build_issues_tables,
-    get_report_visits_metrics,
-    publish_report_util,
-)
+from ..reports.utils import build_issues_tables, publish_report_util
 from .forms import (
     CaseCloseUpdateForm,
     CaseCreateForm,
@@ -206,14 +202,11 @@ class CaseDetailView(DetailView):
     context_object_name: str = "case"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add undeleted contacts to context"""
+        """Add case detail sxections to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
         case: Case = self.object
         sitemap: Sitemap = Sitemap(request=self.request)
-
-        if not case.report:
-            context.update(get_report_visits_metrics(case))
 
         return {
             **{
@@ -413,14 +406,6 @@ class CaseReportReadyForQAUpdateView(CaseUpdateView):
     model: Type[Case] = Case
     form_class: Type[CaseReportReadyForQAUpdateForm] = CaseReportReadyForQAUpdateForm
     template_name: str = "cases/forms/report_ready_for_qa.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add undeleted contacts to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = self.object
-        if case.report:
-            context.update(get_report_visits_metrics(case=case))
-        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

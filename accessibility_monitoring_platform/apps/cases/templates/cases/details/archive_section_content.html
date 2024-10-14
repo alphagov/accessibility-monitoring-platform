@@ -1,7 +1,7 @@
 {% if not top_section %}
 <p id="{{ section.name|slugify }}" class="govuk-body-m"><b>{{ section.name }}</b></p>
 {% endif %}
-<table class="govuk-table{% if top_section %} amp-accordion-table{% endif %}">
+<table class="govuk-table">
     <tbody class="govuk-table__body">
         {% for archived_field in section.fields %}
             <tr class="govuk-table__row">
