@@ -16,6 +16,11 @@
         {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-quarter amp-padding-left-0">
+                {% if case.archive %}
+                    <p class="govuk-body-s amp-margin-bottom-10">
+                        <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">Archived case</a>
+                    </p>
+                {% endif %}
                 {% include "cases/helpers/case_nav.html" %}
             </div>
             <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
@@ -27,6 +32,7 @@
                 {% block form %}
                 <form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">
                     {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% block formfields %}

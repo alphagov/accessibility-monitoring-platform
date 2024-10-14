@@ -865,8 +865,19 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
+            if self.object.audit:
+                if self.object.show_start_12_week_retest:
+                    return reverse(
+                        "cases:edit-twelve-week-retest",
+                        kwargs={"pk": self.object.id},
+                    )
+                return reverse(
+                    "audits:edit-audit-retest-metadata",
+                    kwargs={"pk": self.object.audit.id},
+                )
             return reverse(
-                "cases:edit-twelve-week-retest", kwargs={"pk": self.object.id}
+                "cases:edit-review-changes",
+                kwargs={"pk": self.object.id},
             )
         return super().get_success_url()
 

@@ -354,7 +354,7 @@ def test_view_case_includes_tests(admin_client):
     Test that the View case displays test and 12-week retest.
     """
     case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
+    Audit.objects.create(case=case, retest_date=TODAY)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
@@ -1299,16 +1299,6 @@ def test_updating_case_creates_case_event(admin_client):
             "save_continue",
             "cases:edit-12-week-update-request-ack",
         ),
-        (
-            "cases:edit-12-week-update-request-ack",
-            "save",
-            "cases:edit-12-week-update-request-ack",
-        ),
-        (
-            "cases:edit-12-week-update-request-ack",
-            "save_continue",
-            "cases:edit-twelve-week-retest",
-        ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
             "cases:edit-twelve-week-retest",
@@ -1386,6 +1376,94 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     )
     assert response.status_code == 302
     assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
+
+
+@pytest.mark.parametrize(
+    "case_edit_path, button_name, expected_redirect_path",
+    [
+        (
+            "cases:edit-12-week-update-request-ack",
+            "save",
+            "cases:edit-12-week-update-request-ack",
+        ),
+        (
+            "cases:edit-12-week-update-request-ack",
+            "save_continue",
+            "audits:edit-audit-retest-metadata",
+        ),
+    ],
+)
+def test_platform_case_with_audit_edit_redirects_based_on_button_pressed(
+    case_edit_path,
+    button_name,
+    expected_redirect_path,
+    admin_client,
+):
+    """
+    Test that a successful case with audit update redirects based on the button pressed
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case, retest_date=TODAY)
+
+    response: HttpResponse = admin_client.post(
+        reverse(case_edit_path, kwargs={"pk": case.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
+            "case_completed": "no-decision",
+            "version": case.version,
+            button_name: "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
+
+
+def test_update_request_ack_redirects_when_no_audit(admin_client):
+    """
+    Test that 12-week update request acknowledged redirects to review changes
+    on save and continue when the case has no audit
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("cases:edit-review-changes", kwargs={"pk": case.id})}'
+    )
+
+
+def test_update_request_ack_redirects_when_audit_but_no_retest_date(admin_client):
+    """
+    Test that 12-week update request acknowledged redirects to review changes
+    on save and continue when the case has an audit but retest date is not set
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id})}'
+    )
 
 
 @pytest.mark.parametrize(
@@ -2058,39 +2136,6 @@ def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        (
-            "cases:edit-twelve-week-retest",
-            "twelve_week_retest_complete_date",
-            "12-week retest",
-        ),
-    ],
-)
-def test_section_complete_check_displayed_in_steps_platform_methodology(
-    step_url, flag_name, step_name, admin_client
-):
-    """
-    Test that the section complete tick is displayed in list of steps
-    """
-    case: Case = Case.objects.create()
-    setattr(case, flag_name, TODAY)
-    case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse(step_url, kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;',
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "step_url, flag_name, step_name",
-    [
         ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
         (
             "cases:edit-request-contact-details",
@@ -2526,7 +2571,6 @@ def test_format_due_date_help_text(due_date, expected_help_text):
         "edit-publish-report",
         "edit-qa-comments",
         "manage-contact-details",
-        "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
     ],
@@ -3103,10 +3147,6 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         (
             "cases:edit-12-week-update-request-ack",
             "12-week update request acknowledged",
-        ),
-        (
-            "cases:edit-twelve-week-retest",
-            "12-week retest",
         ),
         (
             "cases:edit-review-changes",

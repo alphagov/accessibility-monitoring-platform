@@ -1,68 +1,30 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% load l10n %}
-
-{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
+{% block preform %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=audit.case %}
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Original date test</b></label>
+                <div class="govuk-hint">{{ audit.date_of_test|amp_date }}</div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Original screen size</b></label>
+                <div class="govuk-hint">{{ audit.get_screen_size_display }}</div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Original exemptions</b></label>
+                <div class="govuk-hint">{{ audit.get_exemptions_state_display }}</div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Original notes</b></label>
+                <div class="govuk-hint amp-notes">
+                    {% if audit.exemptions_notes %}
+                        {{ audit.exemptions_notes|markdown_to_html }}
+                    {% else %}
+                        None
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
-    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading=sitemap.current_platform_page.get_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-metadata' %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:edit-audit-retest-metadata' audit.id %}">
-                    {% csrf_token %}
-                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.retest_date %}
-                            {% include 'common/amp_field.html' with field=form.audit_retest_metadata_notes %}
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Original date test</b></label>
-                                <div class="govuk-hint">{{ audit.date_of_test|amp_date }}</div>
-                            </div>
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Original screen size</b></label>
-                                <div class="govuk-hint">{{ audit.get_screen_size_display }}</div>
-                            </div>
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Original exemptions</b></label>
-                                <div class="govuk-hint">{{ audit.get_exemptions_state_display }}</div>
-                            </div>
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Original notes</b></label>
-                                <div class="govuk-hint amp-notes">
-                                    {% if audit.exemptions_notes %}
-                                        {{ audit.exemptions_notes|markdown_to_html }}
-                                    {% else %}
-                                        None
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% include 'common/amp_field.html' with field=form.audit_retest_metadata_complete_date %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'audits/helpers/retest_save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
 {% endblock %}

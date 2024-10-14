@@ -89,9 +89,52 @@ describe('View case', () => {
     cy.contains(contactEmail)
   })
 
-  it('can edit 12-week retest', () => {
-    cy.get('#edit-cases1edit-twelve-week-retest').click()
-    cy.get('[name="twelve_week_retest_complete_date"]').click()
+  it('can edit 12-week retest metadata', () => {
+    cy.contains('12-week WCAG test').click()
+    cy.get('#edit-audits1edit-audit-retest-metadata').click()
+    cy.get('[name="audit_retest_metadata_complete_date"]').click()
+    cy.contains('Save').click()
+  })
+
+  it('can edit 12-week retest WCAG test summary', () => {
+    cy.contains('12-week WCAG test').click()
+    cy.get('#edit-audits1edit-retest-wcag-summary').click()
+    cy.get('[name="audit_retest_wcag_summary_complete_date"]').click()
+    cy.contains('Save').click()
+  })
+
+  it('can edit 12-week retest statement links', () => {
+    cy.contains('12-week statement').click()
+    cy.get('#edit-audits1edit-audit-retest-statement-pages').click()
+    cy.get('[name="audit_retest_statement_pages_complete_date"]').click()
+    cy.contains('Save').click()
+  })
+
+  it('can edit 12-week retest statement overview', () => {
+    cy.contains('12-week statement').click()
+    cy.get('#edit-audits1edit-retest-statement-overview').click()
+    cy.get('[name="audit_retest_statement_overview_complete_date"]').click()
+    cy.contains('Save').click()
+  })
+
+  it('can edit 12-week retest statement information', () => {
+    cy.contains('12-week statement').click()
+    cy.get('#edit-audits1edit-retest-statement-website').click()
+    cy.get('[name="audit_retest_statement_website_complete_date"]').click()
+    cy.contains('Save').click()
+  })
+
+  it('can edit 12-week retest disproportionate burden', () => {
+    cy.contains('12-week statement').click()
+    cy.get('#edit-audits1edit-twelve-week-disproportionate-burden').click()
+    cy.get('[name="twelve_week_disproportionate_burden_complete_date"]').click()
+    cy.contains('Save').click()
+  })
+
+  it('can edit 12-week retest statement test summary', () => {
+    cy.contains('12-week statement').click()
+    cy.get('#edit-audits1edit-retest-statement-summary').click()
+    cy.get('[name="audit_retest_statement_summary_complete_date"]').click()
     cy.contains('Save').click()
   })
 

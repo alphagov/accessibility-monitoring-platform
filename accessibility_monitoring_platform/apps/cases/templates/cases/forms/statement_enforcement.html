@@ -1,7 +1,6 @@
 {% extends 'common/case_form.html' %}
 
 {% block formfields %}
-{% include 'common/form_errors.html' with errors=form.non_field_errors %}
 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 <div class="govuk-form-group">
     <label class="govuk-label"><b>Statement issues</b></label>

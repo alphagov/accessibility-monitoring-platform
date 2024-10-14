@@ -59,6 +59,7 @@ DATETIME_S3REPORT_UPDATED: datetime = datetime(2021, 9, 29, tzinfo=timezone.utc)
 NO_CONTACT_DATE: date = date(2020, 4, 1)
 NO_CONTACT_ONE_WEEK: date = NO_CONTACT_DATE + timedelta(days=7)
 NO_CONTACT_FOUR_WEEKS: date = NO_CONTACT_DATE + timedelta(days=28)
+TODAY: date = date.today()
 
 
 @pytest.fixture
@@ -422,9 +423,9 @@ def test_next_action_due_date_not_set(status):
 @pytest.mark.parametrize(
     "report_followup_week_12_due_date, expected_tense",
     [
-        (date.today() - timedelta(days=1), "past"),
-        (date.today(), "present"),
-        (date.today() + timedelta(days=1), "future"),
+        (TODAY - timedelta(days=1), "past"),
+        (TODAY, "present"),
+        (TODAY + timedelta(days=1), "future"),
     ],
 )
 @pytest.mark.django_db
@@ -1417,3 +1418,41 @@ def test_case_not_archived_has_report_false():
     Report.objects.create(case=case)
 
     assert case.not_archived_has_report is True
+
+
+@pytest.mark.django_db
+def test_show_start_12_week_retest():
+    """
+    Test Case.show_start_12_week_retest true when Case is not achived,
+    has an audit and the retest_date is not set.
+    """
+    case: Case = Case.objects.create()
+
+    assert case.show_start_12_week_retest is False
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.show_start_12_week_retest is True
+
+    audit.retest_date = TODAY
+
+    assert case.show_start_12_week_retest is False
+
+
+@pytest.mark.django_db
+def test_show_12_week_retest():
+    """
+    Test Case.show_12_week_retest true when Case is not achived,
+    has an audit and the retest_date is set.
+    """
+    case: Case = Case.objects.create()
+
+    assert case.show_12_week_retest is False
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.show_12_week_retest is False
+
+    audit.retest_date = TODAY
+
+    assert case.show_12_week_retest is True

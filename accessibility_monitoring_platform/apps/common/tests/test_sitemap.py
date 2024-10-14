@@ -453,7 +453,7 @@ def test_audit_retest_pages_platform_page():
     audit_retest_pages_platform_page: AuditRetestPagesPlatformPage = (
         AuditRetestPagesPlatformPage(
             name="Pages",
-            url_name="audits:audit-retest-pages",
+            url_name="audits:edit-audit-retest-pages",
         )
     )
 
@@ -472,11 +472,11 @@ def test_audit_retest_pages_platform_page():
     assert len(audit_retest_pages_platform_page.subpages) == 2
     assert (
         audit_retest_pages_platform_page.subpages[0].get_name()
-        == "Retesting Page one page"
+        == "Page one page retest"
     )
     assert (
         audit_retest_pages_platform_page.subpages[1].get_name()
-        == "Retesting Page two page"
+        == "Page two page retest"
     )
 
 
