@@ -528,7 +528,6 @@ def get_12_week_wcag_test_subsections(
                     "name": "CheckResult",
                     "data_type": "markdown",
                     "label": f"{wcag_definitions[check_result.wcag_definition_id].name}: {wcag_definitions[check_result.wcag_definition_id].description} ({wcag_definitions[check_result.wcag_definition_id].get_type_display()})",
-                    "value": f"{check_result.get_retest_state_display}: {check_result.retest_notes}",
                     "display_value": None,
                 }
                 for check_result in error_check_results[page.id]
@@ -763,7 +762,7 @@ def get_12_week_statement_test_subsections(
 
 
 def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
-    if settings.UNDER_TEST:
+    if settings.UNDER_TEST or settings.INTEGRATION_TEST:
         # Migration is incompatible with unit test environment
         return
     User = apps.get_model("auth", "User")
