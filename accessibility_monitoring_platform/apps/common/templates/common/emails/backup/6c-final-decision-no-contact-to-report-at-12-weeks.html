@@ -1,17 +1,17 @@
 Dear {{ case.organisation_name }},
 <br>
 <br>
-It is a requirement of <a href="https://gov.uk/accessibility-regulations">The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018</a> that public sector websites are accessible to everyone. This became law on 23 September 2018.
+It is a requirement of <a href="https://gov.uk/accessibility-regulations">The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018</a> that public sector websites are accessible to everyone.
 <br>
 <br>
 <span class="amp-email-placeholder">[If no response at all:]</span>
 <br>
-We contacted you on <span class="amp-email-placeholder">[add date]</span> to tell you that your website had been chosen from a sample to be monitored. A report of issues found was attached to the email which you needed to respond to and take action.
+We contacted you on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">[add date]</span>{% endif %} to tell you that your website had been chosen from a sample to be monitored. A report of issues found was attached to the email which you needed to respond to and take action.
 <br>
 <br>
 <span class="amp-email-placeholder">[If they acknowledged the report but had no response at the 12 week stage:]</span>
 <br>
-We contacted you on <span class="amp-email-placeholder">[add date]</span> to get an update on the progress made to improve the accessibility of your website.
+We contacted you on {% if case.twelve_week_update_requested_date %}{{ case.twelve_week_update_requested_date|amp_date }}{% else %}<span class="amp-email-placeholder">[add date]</span>{% endif %} to get an update on the progress made to improve the accessibility of your website.
 <br>
 <br>
 We have had no response to the request.
@@ -22,7 +22,10 @@ We will now give our findings to the {{ case.get_enforcement_body_display }} ({{
 <br>
 <span class="amp-email-placeholder">[Optional section to include if accessibility statement is also non-compliant:]</span>
 <br>
-On behalf of the Minister for the Cabinet Office, we make a decision on the compliance of accessibility statements. They must conform to <a href="https://www.gov.uk/government/publications/sample-accessibility-statement">the model accessibility statement</a> and include known accessibility issues.
+<b>Accessibility statement compliance</b>
+<br>
+<br>
+On behalf of the Minister for the Cabinet Office, we make a decision on the compliance of accessibility statements. They must conform to <a href="https://www.gov.uk/guidance/model-accessibility-statement">the model accessibility statement</a> and include known accessibility issues.
 <br>
 <br>
 <span class="amp-email-placeholder">[If the statement isn’t compliant  - REMEMBER TO SAVE A COPY OF THE STATEMENT AGAIN:]</span>
