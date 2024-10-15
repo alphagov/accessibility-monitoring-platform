@@ -1,5 +1,10 @@
 {% if not top_section %}
-<p id="{{ section.name|slugify }}" class="govuk-body-m"><b>{{ section.name }}</b></p>
+<p id="{{ section.name|slugify }}" class="govuk-body-m">
+    <b>{{ section.name }}</b>
+    {% if section.complete %}
+        <span class="govuk-visually-hidden">complete</span> &check;
+    {% endif %}
+</p>
 {% endif %}
 <table class="govuk-table">
     <tbody class="govuk-table__body">
