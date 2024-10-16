@@ -980,10 +980,7 @@ class CaseCloseUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}
-            if case.variant == Case.Variant.CLOSE_CASE:
-                return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
-            else:
-                return reverse("cases:edit-equality-body-metadata", kwargs=case_pk)
+            return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
         return super().get_success_url()
 
 

@@ -1466,37 +1466,6 @@ def test_update_request_ack_redirects_when_audit_but_no_retest_date(admin_client
     )
 
 
-@pytest.mark.parametrize(
-    "case_edit_path, expected_redirect_path",
-    [
-        ("cases:edit-case-close", "cases:edit-equality-body-metadata"),
-        (
-            "cases:edit-equality-body-metadata",
-            "cases:list-equality-body-correspondence",
-        ),
-    ],
-)
-def test_platform_update_redirects_based_on_case_variant(
-    case_edit_path, expected_redirect_path, admin_client
-):
-    """
-    Test that a case save and continue redirects as expected when case is not of the
-    equality body close case variant.
-    """
-    case: Case = Case.objects.create(variant=Case.Variant.ARCHIVED)
-
-    response: HttpResponse = admin_client.post(
-        reverse(case_edit_path, kwargs={"pk": case.id}),
-        {
-            "case_completed": "no-decision",
-            "version": case.version,
-            "save_continue": "Button value",
-        },
-    )
-    assert response.status_code == 302
-    assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
-
-
 def test_qa_comments_creates_comment(admin_client, admin_user):
     """Test adding a comment using QA comments page"""
     case: Case = Case.objects.create()
