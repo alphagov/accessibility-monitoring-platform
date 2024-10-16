@@ -1398,6 +1398,10 @@ class CaseEmailTemplateListView(ListView):
         context["case"] = self.case
         return context
 
+    def get_queryset(self) -> QuerySet[Case]:
+        """Add filters to queryset"""
+        return EmailTemplate.objects.filter(is_deleted=False)
+
 
 class CaseEmailTemplatePreviewDetailView(DetailView):
     """

@@ -3950,6 +3950,36 @@ def test_case_email_template_list_view(admin_client):
     assertContains(response, ">Email templates</h1>")
 
 
+def test_case_email_template_list_view_hides_deleted(admin_client):
+    """
+    Test case email template list page does not include deleted email
+    templates
+    """
+    case: Case = Case.objects.create()
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        pk=EXAMPLE_EMAIL_TEMPLATE_ID
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:email-template-list", kwargs={"case_id": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, email_template.name)
+
+    email_template.is_deleted = True
+    email_template.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:email-template-list", kwargs={"case_id": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, email_template.name)
+
+
 def test_case_email_template_preview_view(admin_client):
     """Test case email template list page is rendered"""
     case: Case = Case.objects.create()
