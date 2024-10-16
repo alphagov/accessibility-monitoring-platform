@@ -4,7 +4,6 @@ Tests for cases views
 
 import json
 from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -96,7 +95,7 @@ ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
 QA_COMMENT_BODY: str = "QA comment body"
-CASE_ARCHIVE: List[Dict] = {
+CASE_ARCHIVE: list[dict] = {
     "sections": [
         {
             "name": "Archived section one",
@@ -179,7 +178,7 @@ RETEST_NOTES: str = "Retest notes"
 HOME_PAGE_ERROR_NOTES: str = "Home page error note"
 STATEMENT_PAGE_ERROR_NOTES: str = "Statement page error note"
 OUTSTANDING_ISSUE_NOTES: str = "Outstanding error found."
-CORRESPONDENCE_PROCESS_PAGES: List[Tuple[str, str]] = [
+CORRESPONDENCE_PROCESS_PAGES: list[tuple[str, str]] = [
     ("edit-request-contact-details", "Request contact details"),
     ("edit-one-week-contact-details", "One-week follow-up"),
     ("edit-four-week-contact-details", "Four-week follow-up"),
@@ -721,7 +720,7 @@ def test_case_export_list_view_respects_filters(admin_client):
 def test_deactivate_case_view(admin_client):
     """Test that deactivate case view deactivates the case"""
     case: Case = Case.objects.create()
-    case_pk: Dict[str, int] = {"pk": case.id}
+    case_pk: dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("cases:deactivate-case", kwargs=case_pk),
@@ -744,7 +743,7 @@ def test_deactivate_case_view(admin_client):
 def test_reactivate_case_view(admin_client):
     """Test that reactivate case view reactivates the case"""
     case: Case = Case.objects.create()
-    case_pk: Dict[str, int] = {"pk": case.id}
+    case_pk: dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("cases:reactivate-case", kwargs=case_pk),
@@ -1906,7 +1905,7 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
     )
     domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
 
-    duplicate_cases: List[Case] = list(find_duplicate_cases(url, domain))
+    duplicate_cases: list[Case] = list(find_duplicate_cases(url, domain))
 
     assert len(duplicate_cases) == expected_number_of_duplicates
 
@@ -2587,7 +2586,7 @@ def test_report_approved_notifies_auditor(rf):
 
     assert response.status_code == 302
 
-    task: Optional[Task] = Task.objects.filter(user=user).first()
+    task: Task | None = Task.objects.filter(user=user).first()
 
     assert task is not None
     assert task.description == f"{request_user.get_full_name()} QA approved Case {case}"
@@ -2885,7 +2884,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     when an auditor is assigned.
     """
     case: Case = Case.objects.create()
-    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    case_pk_kwargs: dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("cases:status-workflow", kwargs=case_pk_kwargs),
@@ -2950,7 +2949,7 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
     only when the linked action's value has been set.
     """
     case: Case = Case.objects.create()
-    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    case_pk_kwargs: dict[str, int] = {"pk": case.id}
     link_url: str = reverse(path_name, kwargs=case_pk_kwargs)
 
     response: HttpResponse = admin_client.get(
@@ -2993,9 +2992,9 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     statement checks have been entered.
     """
     case: Case = Case.objects.create()
-    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    case_pk_kwargs: dict[str, int] = {"pk": case.id}
     audit: Audit = Audit.objects.create(case=case)
-    audit_pk_kwargs: Dict[str, int] = {"pk": audit.id}
+    audit_pk_kwargs: dict[str, int] = {"pk": audit.id}
 
     for statement_check in StatementCheck.objects.all():
         StatementCheckResult.objects.create(

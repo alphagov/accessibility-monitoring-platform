@@ -3,10 +3,11 @@ Utility functions for cases app
 """
 
 import copy
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from django import forms
 from django.contrib.auth.models import User
@@ -24,7 +25,7 @@ from ..common.sitemap import PlatformPage, Sitemap
 from ..common.utils import build_filters
 from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, Complaint, Sort
 
-CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
+CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
     ("reviewer", "reviewer_id"),
     ("status", "status"),
@@ -36,21 +37,21 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
 @dataclass
 class CaseDetailSection:
     page: PlatformPage
-    display_fields: List[FieldLabelAndValue] = None
+    display_fields: list[FieldLabelAndValue] = None
 
 
-def get_case_detail_sections(case: Case, sitemap: Sitemap) -> List[CaseDetailSection]:
+def get_case_detail_sections(case: Case, sitemap: Sitemap) -> list[CaseDetailSection]:
     """Get sections for case view"""
     get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
     get_audit_rows: Callable = partial(
         extract_form_labels_and_values, instance=case.audit
     )
-    view_sections: List[CaseDetailSection] = []
+    view_sections: list[CaseDetailSection] = []
     for page_group in sitemap.platform_page_groups:
         if page_group.show:
             for page in page_group.pages:
                 if page.show:
-                    display_fields: List[FieldLabelAndValue] = []
+                    display_fields: list[FieldLabelAndValue] = []
                     if page.case_details_form_class:
                         if page.case_details_form_class._meta.model == Case:
                             display_fields = get_case_rows(
@@ -81,14 +82,14 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> List[CaseDetailSec
 
 def get_sent_date(
     form: forms.ModelForm, case_from_db: Case, sent_date_name: str
-) -> Union[date, None]:
+) -> date | None:
     """
     Work out what value to save in a sent date field on the case.
     If there is a new value in the form, don't replace an existing date on the database.
     If there is a new value in the form and no date on the database then use the date from the form.
     If there is no value in the form (i.e. the checkbox is unchecked), set the date on the database to None.
     """
-    date_on_form: Optional[date] = form.cleaned_data.get(sent_date_name)
+    date_on_form: date | None = form.cleaned_data.get(sent_date_name)
     if date_on_form is None:
         return None
     date_on_db: date = getattr(case_from_db, sent_date_name)
@@ -97,19 +98,19 @@ def get_sent_date(
 
 def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
-    filters: Dict = {}
+    filters: dict = {}
     search_query = Q()
     sort_by: str = Sort.NEWEST
 
     if hasattr(form, "cleaned_data"):
-        field_and_filter_names: List[Tuple[str, str]] = copy.copy(
+        field_and_filter_names: list[tuple[str, str]] = copy.copy(
             CASE_FIELD_AND_FILTER_NAMES
         )
         if "date_type" in form.cleaned_data:
             date_range_field: str = form.cleaned_data["date_type"]
             field_and_filter_names.append(("date_start", f"{date_range_field}__gte"))
             field_and_filter_names.append(("date_end", f"{date_range_field}__lte"))
-        filters: Dict[str, Any] = build_filters(
+        filters: dict[str, Any] = build_filters(
             cleaned_data=form.cleaned_data,
             field_and_filter_names=field_and_filter_names,
         )
@@ -169,17 +170,15 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
     )
 
 
-def replace_search_key_with_case_search(request_get: QueryDict) -> Dict[str, str]:
+def replace_search_key_with_case_search(request_get: QueryDict) -> dict[str, str]:
     """Convert QueryDict to dictionary and replace key 'search' with 'case_search'."""
-    search_args: Dict[str, str] = {key: value for key, value in request_get.items()}
+    search_args: dict[str, str] = {key: value for key, value in request_get.items()}
     if "search" in search_args:
         search_args["case_search"] = search_args.pop("search")
     return search_args
 
 
-def record_case_event(
-    user: User, new_case: Case, old_case: Optional[Case] = None
-) -> None:
+def record_case_event(user: User, new_case: Case, old_case: Case | None = None) -> None:
     """Create a case event based on the changes between the old and new cases"""
     if old_case is None:
         CaseEvent.objects.create(
@@ -263,7 +262,7 @@ def record_case_event(
 
 def build_edit_link_html(case: Case, url_name: str) -> str:
     """Return html of edit link for case"""
-    case_pk: Dict[str, int] = {"pk": case.id}
+    case_pk: dict[str, int] = {"pk": case.id}
     edit_url: str = reverse(url_name, kwargs=case_pk)
     return (
         f"<a href='{edit_url}' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
@@ -272,10 +271,10 @@ def build_edit_link_html(case: Case, url_name: str) -> str:
 
 def create_case_and_compliance(**kwargs):
     """Create case and populate compliance fields from arbitrary arguments"""
-    compliance_kwargs: Dict[str, Any] = {
+    compliance_kwargs: dict[str, Any] = {
         key: value for key, value in kwargs.items() if key in COMPLIANCE_FIELDS
     }
-    non_compliance_args: Dict[str, Any] = {
+    non_compliance_args: dict[str, Any] = {
         key: value for key, value in kwargs.items() if key not in COMPLIANCE_FIELDS
     }
     case: Case = Case.objects.create(**non_compliance_args)

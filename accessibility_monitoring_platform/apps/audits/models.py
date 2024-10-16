@@ -3,7 +3,6 @@ Models - audits (called tests by the users)
 """
 
 from datetime import date
-from typing import Dict, List, Optional
 
 from django.db import models
 from django.db.models import Case as DjangoCase
@@ -17,7 +16,7 @@ from ..cases.models import Case, CaseCompliance
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date, calculate_percentage
 
-ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
+ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT: dict[str, str] = {
     "archive_accessibility_statement_not_correct_format": "it was not in the correct format",
     "archive_accessibility_statement_not_specific_enough": "it was not specific enough",
     "archive_accessibility_statement_missing_accessibility_issues": "accessibility issues were found during the test that"
@@ -44,7 +43,7 @@ ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
     " or made available on every web page, for example in a static header or footer, as per the legislative"
     " requirement.",
 }
-ARCHIVE_REPORT_NEXT_ISSUE_TEXT: Dict[str, str] = {
+ARCHIVE_REPORT_NEXT_ISSUE_TEXT: dict[str, str] = {
     "archive_report_next_change_statement": "They have an acceptable statement but need to change it because of the"
     " errors we found",
     "archive_report_next_no_statement": "They don’t have a statement, or it is in the wrong format",
@@ -216,7 +215,7 @@ class Audit(VersionModel):
         ERRORS = "errors", "Errors were found"
         NO_ERRORS = "no-errors", "No serious errors were found"
 
-    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
+    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: dict[str, str] = {
         "scope": [Scope.PRESENT],
         "feedback": [Feedback.PRESENT],
         "contact_information": [ContactInformation.PRESENT],
@@ -713,8 +712,8 @@ class Audit(VersionModel):
         super().save(*args, **kwargs)
 
     @property
-    def report_accessibility_issues(self) -> List[str]:
-        issues: List[str] = []
+    def report_accessibility_issues(self) -> list[str]:
+        issues: list[str] = []
         for key, value in ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
             if getattr(self, key) == Boolean.YES:
                 if key == "archive_accessibility_statement_deadline_not_complete":
@@ -823,7 +822,7 @@ class Audit(VersionModel):
     @property
     def accessibility_statement_checks(
         self,
-    ) -> List[ArchiveAccessibilityStatementCheck]:
+    ) -> list[ArchiveAccessibilityStatementCheck]:
         return [
             ArchiveAccessibilityStatementCheck(
                 field_name_prefix=field_name_prefix, audit=self
@@ -1044,7 +1043,7 @@ class Audit(VersionModel):
         return self.statementpage_set.filter(is_deleted=False)
 
     @property
-    def latest_statement_link(self) -> Optional[str]:
+    def latest_statement_link(self) -> str | None:
         for statement_page in self.statement_pages:
             if statement_page.url:
                 return statement_page.url
@@ -1086,7 +1085,7 @@ class Page(models.Model):
         PDF = "pdf", "PDF"
         FORM = "form", "Form"
 
-    MANDATORY_PAGE_TYPES: List[str] = [
+    MANDATORY_PAGE_TYPES: list[str] = [
         Type.HOME,
         Type.CONTACT,
         Type.STATEMENT,
@@ -1256,7 +1255,7 @@ class CheckResult(models.Model):
     updated = models.DateTimeField(null=True, blank=True)
 
     @property
-    def dict_for_retest(self) -> Dict[str, str]:
+    def dict_for_retest(self) -> dict[str, str]:
         return {
             "id": self.id,
             "retest_state": self.retest_state,
@@ -1278,7 +1277,7 @@ class CheckResult(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def matching_wcag_with_retest_notes_check_results(self) -> Dict[str, str]:
+    def matching_wcag_with_retest_notes_check_results(self) -> dict[str, str]:
         """Other check results with retest notes for matching WCAGDefinition"""
         return (
             self.audit.failed_check_results.filter(wcag_definition=self.wcag_definition)
@@ -1636,7 +1635,7 @@ class RetestCheckResult(models.Model):
     updated = models.DateTimeField(null=True, blank=True)
 
     @property
-    def matching_wcag_retest_check_results(self) -> Dict[str, str]:
+    def matching_wcag_retest_check_results(self) -> dict[str, str]:
         """Other retest check results with retest notes for same WCAGDefinition"""
         return (
             self.retest.check_results.filter(

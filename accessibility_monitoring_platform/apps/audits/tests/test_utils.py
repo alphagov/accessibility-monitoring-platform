@@ -3,7 +3,6 @@ Test - common utility functions
 """
 
 from datetime import date, timedelta
-from typing import Dict, List, Tuple, Union
 
 import pytest
 from django.contrib.auth.models import User
@@ -42,7 +41,7 @@ from ..utils import (
 HOME_PAGE_URL: str = "https://example.com/home"
 USER_FIRST_NAME = "John"
 USER_LAST_NAME = "Smith"
-TYPES_OF_OF_PAGES_CREATED_WITH_NEW_AUDIT: List[str] = [
+TYPES_OF_OF_PAGES_CREATED_WITH_NEW_AUDIT: list[str] = [
     Page.Type.HOME,
     Page.Type.CONTACT,
     Page.Type.STATEMENT,
@@ -59,7 +58,7 @@ NUMBER_OF_WCAG_PER_TYPE_OF_PAGE: int = 1
 NUMBER_OF_HTML_PAGES: int = 4
 UPDATED_NOTE: str = "Updated note"
 NEW_CHECK_NOTE: str = "New note"
-EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
+EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: list[FieldLabelAndValue] = [
     FieldLabelAndValue(
         value="An accessibility statement for the website was not found.",
         label="Accessibility statement",
@@ -235,7 +234,7 @@ def create_audit_and_wcag() -> Audit:
     return audit
 
 
-def create_audit_and_user() -> Tuple[Audit, User]:
+def create_audit_and_user() -> tuple[Audit, User]:
     """Create an audit and pages"""
     audit: Audit = create_audit_and_wcag()
     user: User = User.objects.create(
@@ -302,7 +301,7 @@ def test_update_check_results_for_page():
     check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
 
     number_of_forms: int = len(check_results) + 1
-    formset_data: Dict[str, Union[int, str]] = {
+    formset_data: dict[str, int | str] = {
         "form-TOTAL_FORMS": number_of_forms,
         "form-INITIAL_FORMS": number_of_forms,
         "form-MIN_NUM_FORMS": 0,
@@ -353,7 +352,7 @@ def test_create_check_results_for_page():
     check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
 
     number_of_forms: int = len(check_results) + 1
-    formset_data: Dict[str, Union[int, str]] = {
+    formset_data: dict[str, int | str] = {
         "form-TOTAL_FORMS": number_of_forms,
         "form-INITIAL_FORMS": number_of_forms,
         "form-MIN_NUM_FORMS": 0,
@@ -403,9 +402,9 @@ def test_get_all_possible_check_results_for_page():
     audit: Audit = create_audit_and_check_results()
     page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     WcagDefinition.objects.create(type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME)
-    wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
+    wcag_definitions: list[WcagDefinition] = list(WcagDefinition.objects.all())
 
-    all_check_results: List[Dict[str, Union[str, WcagDefinition]]] = (
+    all_check_results: list[dict[str, str | WcagDefinition]] = (
         get_all_possible_check_results_for_page(
             page=page_home, wcag_definitions=wcag_definitions
         )
@@ -444,7 +443,7 @@ def test_get_next_page_url_audit_with_no_pages():
     when audit has no testable pages.
     """
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     assert get_next_page_url(audit=audit) == reverse(
         "audits:edit-website-decision", kwargs=audit_pk
     )
@@ -456,17 +455,17 @@ def test_get_next_page_url_audit_with_pages():
     Test get_next_page_url returns urls for each testable page in audit in in turn.
     """
     audit: Audit = create_audit_and_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     next_page: Page = audit.testable_pages[0]
-    next_page_pk: Dict[str, int] = {"pk": next_page.id}
+    next_page_pk: dict[str, int] = {"pk": next_page.id}
     assert get_next_page_url(audit=audit) == reverse(
         "audits:edit-audit-page-checks", kwargs=next_page_pk
     )
 
     current_page: Page = audit.testable_pages[0]
     next_page: Page = audit.testable_pages[1]
-    next_page_pk: Dict[str, int] = {"pk": next_page.id}
+    next_page_pk: dict[str, int] = {"pk": next_page.id}
     assert get_next_page_url(audit=audit, current_page=current_page) == reverse(
         "audits:edit-audit-page-checks", kwargs=next_page_pk
     )
@@ -484,21 +483,21 @@ def test_get_next_retest_page_url_audit_with_pages():
     errors) in audit in in turn.
     """
     audit: Audit = create_audit_and_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     for page in audit.testable_pages:
         for check_result in page.all_check_results:
             check_result.check_result_state = CheckResult.Result.ERROR
             check_result.save()
 
     next_page: Page = audit.testable_pages[0]
-    next_page_pk: Dict[str, int] = {"pk": next_page.id}
+    next_page_pk: dict[str, int] = {"pk": next_page.id}
     assert get_next_retest_page_url(audit=audit) == reverse(
         "audits:edit-audit-retest-page-checks", kwargs=next_page_pk
     )
 
     current_page: Page = audit.testable_pages[0]
     next_page: Page = audit.testable_pages[1]
-    next_page_pk: Dict[str, int] = {"pk": next_page.id}
+    next_page_pk: dict[str, int] = {"pk": next_page.id}
     assert get_next_retest_page_url(audit=audit, current_page=current_page) == reverse(
         "audits:edit-audit-retest-page-checks", kwargs=next_page_pk
     )
@@ -516,7 +515,7 @@ def test_get_next_retest_page_url_audit_with_no_errors():
     when audit has no pages with errors.
     """
     audit: Audit = create_audit_and_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     assert get_next_retest_page_url(audit=audit) == reverse(
         "audits:edit-audit-retest-website-decision", kwargs=audit_pk
     )
@@ -553,7 +552,7 @@ def test_other_page_failed_check_results():
             type=wcag_definition_manual.type,
             check_result_state=CheckResult.Result.ERROR,
         )
-    failed_check_results: Dict[WcagDefinition, List[CheckResult]] = (
+    failed_check_results: dict[WcagDefinition, list[CheckResult]] = (
         other_page_failed_check_results(page=extra_page)
     )
 
@@ -808,7 +807,7 @@ def test_get_other_pages_with_retest_notes():
         audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
 
-    other_pages_with_retest_notes: List[Page] = get_other_pages_with_retest_notes(
+    other_pages_with_retest_notes: list[Page] = get_other_pages_with_retest_notes(
         page=page
     )
 

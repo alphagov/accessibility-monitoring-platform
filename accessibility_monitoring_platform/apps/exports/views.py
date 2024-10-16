@@ -3,7 +3,7 @@ Views for export app
 """
 
 from datetime import date
-from typing import Any, Dict, Type
+from typing import Any, Dict
 
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
@@ -46,7 +46,7 @@ class ExportListView(EnforcementBodyMixin, ListView):
     View to list exports
     """
 
-    model: Type[Export] = Export
+    model: type[Export] = Export
     context_object_name: str = "exports"
     template_name: str = "exports/export_list.html"
 
@@ -61,8 +61,8 @@ class ExportCreateView(EnforcementBodyMixin, CreateView):
     View to create an export
     """
 
-    model: Type[Export] = Export
-    form_class: Type[ExportCreateForm] = ExportCreateForm
+    model: type[Export] = Export
+    form_class: type[ExportCreateForm] = ExportCreateForm
     context_object_name: str = "export"
     template_name: str = "exports/export_create.html"
 
@@ -94,7 +94,7 @@ class ExportDetailView(DetailView):
     View of details of a single export
     """
 
-    model: Type[Export] = Export
+    model: type[Export] = Export
     context_object_name: str = "export"
 
 
@@ -104,8 +104,8 @@ class ConfirmExportUpdateView(UpdateView):
     Redirect to export ready cases.
     """
 
-    model: Type[Export] = Export
-    form_class: Type[ExportConfirmForm] = ExportConfirmForm
+    model: type[Export] = Export
+    form_class: type[ExportConfirmForm] = ExportConfirmForm
     context_object_name: str = "export"
     template_name: str = "exports/export_confirm_export.html"
 
@@ -132,8 +132,8 @@ class ExportConfirmDeleteUpdateView(UpdateView):
     View to confirm deletion of export
     """
 
-    model: Type[Export] = Export
-    form_class: Type[ExportDeleteForm] = ExportDeleteForm
+    model: type[Export] = Export
+    form_class: type[ExportDeleteForm] = ExportDeleteForm
     context_object_name: str = "export"
     template_name: str = "exports/export_confirm_delete.html"
 
