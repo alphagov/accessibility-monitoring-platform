@@ -28,10 +28,13 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
 </ul>
 <br>
 {% if retest.retest_notes %}
+        <br>
 	<h2 class="amp-margin-bottom-20">Retest notes</h2>
+        <br>
 	{{ retest.retest_notes|markdown_to_html }}
         <br>
 {% endif %}
+<br>
 <h2 class="amp-margin-bottom-0">Pages we retested</h2>
 <table id="pages-table">
     <thead>
@@ -51,6 +54,7 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
     {% endfor %}
     </tbody>
 </table>
+<br>
 <br>
 <h2 class="amp-margin-bottom-0">Correspondence</h2>
 <br>

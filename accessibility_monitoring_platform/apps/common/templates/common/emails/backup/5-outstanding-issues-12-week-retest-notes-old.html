@@ -1,4 +1,4 @@
-Dear <span class="amp-email-placeholder">[NAMED CONTACT]</span>,
+Dear {{ case.organisation_name }},
 <br>
 <br>
 We have completed the retest and some issues are still outstanding.
@@ -6,18 +6,22 @@ Please review the issues listed below and provide an update.
 <br>
 <br>
 {% if case.audit.unfixed_check_results %}
-    {% for issues_table in issues_tables %}
-    {% if issues_table.rows %}
+    {% for issues_table in retest_issues_tables %}
+    {% if issues_table.rows or issues_table.page.retest_notes %}
     <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
+    <br>
     <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
+    {{ issues_table.page.location }}
     <br>
     <br>
+    {% endif %}
+    {% if issues_table.rows %}
     <table id="email-issues-table-{{ forloop.counter }}">
     <thead>
     <tr>
     <th width=1%>#</th>
     <th id="issue-{{ forloop.counter }}" width=33%>Issue and description</th>
-    <th id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</th>
+    <th id="retest-notes-{{ forloop.counter }}" width=33%>12-week retest notes</th>
     <th id="12-week-update-{{ forloop.counter }}" width=33%>Organisation 12-week update</th>
     </tr>
     </thead>
@@ -26,18 +30,27 @@ Please review the issues listed below and provide an update.
     <tr valign="top">
     <td width=1%>{{ forloop.counter }}</td>
     <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
-    <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
+    <td headers="retest-notes-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
     <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
     </tr>
     {% endfor %}
     </tbody>
     </table>
     {% endif %}
+    {% if issues_table.page.retest_notes %}
+        <b>Additional issues found on page</b>
+        <br>
+        <br>
+        {{ issues_table.page.retest_notes|markdown_to_html}}
+    {% endif %}
     {% endfor %}
 {% else %}
     We found no major issues.
 {% endif %}
+<br>
+<br>
 <h2>Your statement</h2>
+<br>
 {% if case.audit.uses_statement_checks %}
     {% if case.audit.outstanding_statement_check_results %}
     <table id="email-statement-issues-table">
