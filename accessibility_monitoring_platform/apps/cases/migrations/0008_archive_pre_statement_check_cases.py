@@ -1,68 +1,8 @@
 """
 Archive Cases by recreating the structure of the UI as JSON.
 
-The unarchived Cases with ids lower than 1170 are those without statement
-content check (yes/no) results. Case #1168 is the canonical example:
-
-* Case details
-    * Case metadata
-* Initial WCAG test
-    * Initial test metadata
-    * Pages
-        * Home page test (6)
-        * Contact page test (4)
-        * News and update page test (4)
-        * About us page test (4)
-        * Facility time reporting 1st April 2022 – 31st March 2023 test (0)
-        * Accessibility statement page test (4)
-    * Compliance decision
-* Initial statement
-    * Statement links
-    * Accessibility statement Pt. 1
-    * Accessibility statement Pt. 2
-    * Disproportionate burden
-    * Statement compliance
-    * Report options
-* Report QA
-    * Report ready for QA
-    * QA auditor
-    * Comments
-    * QA approval
-    * Publish report
-* Contact details
-    * Manage contact details
-    * Request contact details
-    * One-week follow-up
-    * Four-week follow-up
-    * Unresponsive PSB
-* Report correspondence
-    * Report sent on
-    * One week follow-up
-    * Four week follow-up
-    * Report acknowledged
-* 12-week correspondence
-    * 12-week update requested
-    * One week follow-up for final update
-    * 12-week update request acknowledged
-* 12-week WCAG test
-    * 12-week retest metadata
-    * Retest pages
-        * Home page retest
-        * Contact page retest
-        * News and update page retest
-        * About us page retest
-        * Facility time reporting 1st April 2022 – 31st March 2023 retest
-        * Accessibility statement page retest
-    * Compliance decision
-* 12-week statement
-    * Accessibility statement Pt. 1
-    * Accessibility statement Pt. 2
-    * Disproportionate burden
-    * Compliance decision
-* Closing the case
-    * Reviewing changes
-    * Recommendation
-    * Closing the case
+The unarchived Cases with ids lower than #1170 are those without statement
+content check (yes/no) results. Case #1168 is the canonical example.
 """
 
 import json
@@ -115,7 +55,12 @@ def get_initial_wcag_test_subsections(
                 build_field(audit, field_name="date_of_test", label="Date of test"),
                 build_field(audit, field_name="screen_size", label="Screen size"),
                 build_field(audit, field_name="exemptions_state", label="Exemptions?"),
-                build_field(audit, field_name="exemptions_notes", label="Notes"),
+                build_field(
+                    audit,
+                    field_name="exemptions_notes",
+                    label="Notes",
+                    data_type="markdown",
+                ),
             ],
         ),
         build_section(
@@ -203,14 +148,22 @@ def get_initial_statement_test_subsections(
                 build_field(
                     audit, field_name="archive_feedback_state", label="Feedback"
                 ),
-                build_field(audit, field_name="archive_feedback_notes", label="Notes"),
+                build_field(
+                    audit,
+                    field_name="archive_feedback_notes",
+                    label="Notes",
+                    data_type="markdown",
+                ),
                 build_field(
                     audit,
                     field_name="archive_contact_information_state",
                     label="Contact Information",
                 ),
                 build_field(
-                    audit, field_name="archive_contact_information_notes", label="Notes"
+                    audit,
+                    field_name="archive_contact_information_notes",
+                    label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -221,12 +174,16 @@ def get_initial_statement_test_subsections(
                     audit,
                     field_name="archive_enforcement_procedure_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit, field_name="archive_declaration_state", label="Declaration"
                 ),
                 build_field(
-                    audit, field_name="archive_declaration_notes", label="Notes"
+                    audit,
+                    field_name="archive_declaration_notes",
+                    label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -234,7 +191,10 @@ def get_initial_statement_test_subsections(
                     label="Compliance Status",
                 ),
                 build_field(
-                    audit, field_name="archive_compliance_notes", label="Notes"
+                    audit,
+                    field_name="archive_compliance_notes",
+                    label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -242,7 +202,10 @@ def get_initial_statement_test_subsections(
                     label="Non-accessible Content - non compliance with regulations",
                 ),
                 build_field(
-                    audit, field_name="archive_non_regulation_notes", label="Notes"
+                    audit,
+                    field_name="archive_non_regulation_notes",
+                    label="Notes",
+                    data_type="markdown",
                 ),
             ],
         ),
@@ -265,6 +228,7 @@ def get_initial_statement_test_subsections(
                     audit,
                     field_name="archive_disproportionate_burden_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -275,6 +239,7 @@ def get_initial_statement_test_subsections(
                     audit,
                     field_name="archive_content_not_in_scope_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -282,19 +247,35 @@ def get_initial_statement_test_subsections(
                     label="Preparation Date",
                 ),
                 build_field(
-                    audit, field_name="archive_preparation_date_notes", label="Notes"
+                    audit,
+                    field_name="archive_preparation_date_notes",
+                    label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(audit, field_name="archive_review_state", label="Review"),
-                build_field(audit, field_name="archive_review_notes", label="Notes"),
+                build_field(
+                    audit,
+                    field_name="archive_review_notes",
+                    label="Notes",
+                    data_type="markdown",
+                ),
                 build_field(audit, field_name="archive_method_state", label="Method"),
-                build_field(audit, field_name="archive_method_notes", label="Notes"),
+                build_field(
+                    audit,
+                    field_name="archive_method_notes",
+                    label="Notes",
+                    data_type="markdown",
+                ),
                 build_field(
                     audit,
                     field_name="archive_access_requirements_state",
                     label="Access Requirements",
                 ),
                 build_field(
-                    audit, field_name="archive_access_requirements_notes", label="Notes"
+                    audit,
+                    field_name="archive_access_requirements_notes",
+                    label="Notes",
+                    data_type="markdown",
                 ),
             ],
         ),
@@ -365,6 +346,7 @@ def get_initial_statement_test_subsections(
                     audit,
                     field_name="archive_accessibility_statement_missing_mandatory_wording_notes",
                     label="Additional text for mandatory wording",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -457,7 +439,10 @@ def get_initial_statement_test_subsections(
                     label="Disproportionate burden",
                 ),
                 build_field(
-                    audit, field_name="archive_report_options_notes", label="Notes"
+                    audit,
+                    field_name="archive_report_options_notes",
+                    label="Notes",
+                    data_type="markdown",
                 ),
             ],
         ),
@@ -602,6 +587,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_feedback_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -612,6 +598,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_contact_information_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -622,6 +609,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_enforcement_procedure_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -632,6 +620,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_declaration_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -642,6 +631,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_compliance_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -652,6 +642,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_non_regulation_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
             ],
         ),
@@ -668,6 +659,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_disproportionate_burden_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -678,6 +670,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_content_not_in_scope_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -688,6 +681,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_preparation_date_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -695,7 +689,10 @@ def get_12_week_statement_test_subsections(
                     label="Review",
                 ),
                 build_field(
-                    audit, field_name="archive_audit_retest_review_notes", label="Notes"
+                    audit,
+                    field_name="archive_audit_retest_review_notes",
+                    label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -703,7 +700,10 @@ def get_12_week_statement_test_subsections(
                     label="Method",
                 ),
                 build_field(
-                    audit, field_name="archive_audit_retest_method_notes", label="Notes"
+                    audit,
+                    field_name="archive_audit_retest_method_notes",
+                    label="Notes",
+                    data_type="markdown",
                 ),
                 build_field(
                     audit,
@@ -714,6 +714,7 @@ def get_12_week_statement_test_subsections(
                     audit,
                     field_name="archive_audit_retest_access_requirements_notes",
                     label="Notes",
+                    data_type="markdown",
                 ),
             ],
         ),
@@ -1183,7 +1184,7 @@ def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
                             ],
                         ),
                         build_section(
-                            name="Closing the case",
+                            name="Closing the case page",
                             complete_date=case.case_close_complete_date,
                             fields=[
                                 build_field(
