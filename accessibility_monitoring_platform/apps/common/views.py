@@ -4,7 +4,7 @@ Common views
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -82,7 +82,7 @@ class ContactAdminView(FormView):
         self.send_mail(form.cleaned_data)
         return super().form_valid(form)
 
-    def send_mail(self, cleaned_data: Dict[str, str]) -> None:
+    def send_mail(self, cleaned_data: dict[str, str]) -> None:
         subject: str = cleaned_data.get("subject", "")
         message: str = cleaned_data.get("message", "")
         if subject or message:
@@ -100,7 +100,7 @@ class IssueReportView(FormView):
     Save user feedback
     """
 
-    form_class: Type[AMPIssueReportForm] = AMPIssueReportForm
+    form_class: type[AMPIssueReportForm] = AMPIssueReportForm
     template_name: str = "common/issue_report.html"
     success_url: str = reverse_lazy("dashboard:home")
 
@@ -119,9 +119,9 @@ class IssueReportView(FormView):
         self.form.is_valid()
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         context["form"] = self.form
         return context
 
@@ -152,9 +152,9 @@ class ActiveQAAuditorUpdateView(UpdateView):
     Update active QA auditor
     """
 
-    model: Type[Platform] = Platform
+    model: type[Platform] = Platform
     context_object_name: str = "platform"
-    form_class: Type[ActiveQAAuditorUpdateForm] = ActiveQAAuditorUpdateForm
+    form_class: type[ActiveQAAuditorUpdateForm] = ActiveQAAuditorUpdateForm
     template_name: str = "common/settings/active_qa_auditor.html"
 
     def get_object(self) -> Platform:
@@ -171,7 +171,7 @@ class ChangeToPlatformListView(ListView):
     View of list of platform changes
     """
 
-    model: Type[ChangeToPlatform] = ChangeToPlatform
+    model: type[ChangeToPlatform] = ChangeToPlatform
     template_name: str = "common/settings/platform_history.html"
     context_object_name: str = "changes_to_platform"
     paginate_by: int = 10
@@ -200,10 +200,10 @@ class MetricsCaseTemplateView(TemplateView):
 
     template_name: str = "common/metrics/case.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add number of cases to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        extra_context: Dict[str, Any] = {
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        extra_context: dict[str, Any] = {
             "progress_metrics": get_case_progress_metrics(),
             "yearly_metrics": get_case_yearly_metrics(),
         }
@@ -217,10 +217,10 @@ class MetricsPolicyTemplateView(TemplateView):
 
     template_name: str = "common/metrics/policy.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add number of cases to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        extra_context: Dict[str, Any] = {
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        extra_context: dict[str, Any] = {
             "total_metrics": get_policy_total_metrics(),
             "progress_metrics": get_policy_progress_metrics(),
             "equality_body_cases_metric": get_equality_body_cases_metric(),
@@ -236,10 +236,10 @@ class MetricsReportTemplateView(TemplateView):
 
     template_name: str = "common/metrics/report.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add number of cases to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        extra_context: Dict[str, Any] = {
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        extra_context: dict[str, Any] = {
             "progress_metrics": get_report_progress_metrics(),
             "yearly_metrics": get_report_yearly_metrics(),
         }
@@ -253,9 +253,9 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
 
     template_name: str = "common/settings/edit_frequently_used_links.html"
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
             links_formset = FrequentlyUsedLinkFormset(self.request.POST)
         else:
@@ -270,13 +270,13 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
         return context
 
     def post(
-        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
-    ) -> Union[HttpResponseRedirect, HttpResponse]:
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect | HttpResponse:
         """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
+        context: dict[str, Any] = self.get_context_data()
         links_formset = context["links_formset"]
         if links_formset.is_valid():
-            links: List[FrequentlyUsedLink] = links_formset.save(commit=False)
+            links: list[FrequentlyUsedLink] = links_formset.save(commit=False)
             for link in links:
                 if not link.id:
                     link.save()
@@ -310,9 +310,9 @@ class FooterLinkFormsetTemplateView(TemplateView):
 
     template_name: str = "common/settings/edit_footer_links.html"
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
             links_formset = FooterLinkFormset(self.request.POST)
         else:
@@ -325,13 +325,13 @@ class FooterLinkFormsetTemplateView(TemplateView):
         return context
 
     def post(
-        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
-    ) -> Union[HttpResponseRedirect, HttpResponse]:
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect | HttpResponse:
         """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
+        context: dict[str, Any] = self.get_context_data()
         links_formset = context["links_formset"]
         if links_formset.is_valid():
-            links: List[FooterLink] = links_formset.save(commit=False)
+            links: list[FooterLink] = links_formset.save(commit=False)
             for link in links:
                 if not link.id:
                     link.save()
@@ -372,9 +372,9 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
         """Only staff users have access to this view"""
         return self.request.user.is_staff
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         number_of_old_events: int = Event.objects.filter(
             created__lte=get_one_year_ago()
         ).count()
@@ -411,7 +411,7 @@ class IssueReportListView(ListView):
     View of list of issue reports.
     """
 
-    model: Type[IssueReport] = IssueReport
+    model: type[IssueReport] = IssueReport
     template_name: str = "common/issue_report_list.html"
     context_object_name: str = "issue_reports"
     paginate_by: int = 10
@@ -427,14 +427,14 @@ class BulkURLSearchView(FormView):
     success_url: str = reverse_lazy("common:bulk-url-search")
 
     def post(
-        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
     ) -> HttpResponseRedirect:
         """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
+        context: dict[str, Any] = self.get_context_data()
         form = context["form"]
         if form.is_valid():
-            urls: List[str] = form.cleaned_data["urls"].splitlines()
-            bulk_search_results: List[Dict] = []
+            urls: list[str] = form.cleaned_data["urls"].splitlines()
+            bulk_search_results: list[dict] = []
             for url in urls:
                 domain: str = extract_domain_from_url(url)
                 sanitised_domain: str = sanitise_domain(domain)
@@ -468,7 +468,7 @@ class EmailTemplateListView(ListView):
     View of list of email templates.
     """
 
-    model: Type[EmailTemplate] = EmailTemplate
+    model: type[EmailTemplate] = EmailTemplate
     template_name: str = "common/emails/template_list.html"
     context_object_name: str = "email_templates"
     paginate_by: int = 10
@@ -484,13 +484,13 @@ class EmailTemplatePreviewDetailView(DetailView):
     View preview of email template
     """
 
-    model: Type[EmailTemplate] = EmailTemplate
+    model: type[EmailTemplate] = EmailTemplate
     template_name: str = "common/emails/template_preview.html"
     context_object_name: str = "email_template"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add case and email template to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = Case.objects.filter(pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID).first()
         context["case"] = case
         if case is not None:
@@ -504,8 +504,8 @@ class EmailTemplateCreateView(CreateView):
     View to create email template
     """
 
-    model: Type[EmailTemplate] = EmailTemplate
-    form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
+    model: type[EmailTemplate] = EmailTemplate
+    form_class: type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
     template_name: str = "common/emails/template_create.html"
 
     def form_valid(self, form: ModelForm):
@@ -531,9 +531,9 @@ class EmailTemplateUpdateView(UpdateView):
     View to update email template
     """
 
-    model: Type[EmailTemplate] = EmailTemplate
+    model: type[EmailTemplate] = EmailTemplate
     context_object_name: str = "email_template"
-    form_class: Type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
+    form_class: type[EmailTemplateCreateUpdateForm] = EmailTemplateCreateUpdateForm
     template_name: str = "common/emails/template_update.html"
 
     def form_valid(self, form: ModelForm):

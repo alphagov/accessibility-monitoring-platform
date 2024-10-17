@@ -3,8 +3,8 @@ Views for dashboard.
 
 Home should be the only view for dashboard.
 """
+
 from datetime import date
-from typing import Dict, List, Union
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -27,26 +27,26 @@ class DashboardView(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         user: User = get_object_or_404(User, id=self.request.user.id)  # type: ignore
-        all_cases: List[Case] = list(
+        all_cases: list[Case] = list(
             Case.objects.all().select_related("auditor", "reviewer").all()
         )
 
-        view_url_param: Union[str, None] = self.request.GET.get("view")
+        view_url_param: str | None = self.request.GET.get("view")
         show_all_cases = view_url_param == "View all cases"
 
         if show_all_cases:
-            cases: List[Case] = all_cases
+            cases: list[Case] = all_cases
         else:
-            cases: List[Case] = [case for case in all_cases if case.auditor == user]
+            cases: list[Case] = [case for case in all_cases if case.auditor == user]
 
-        cases_by_status: Dict[str, List[Case]] = group_cases_by_status(cases=cases)
+        cases_by_status: dict[str, list[Case]] = group_cases_by_status(cases=cases)
 
         cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
             cases=all_cases,
             user=user,
         )
 
-        incomplete_cases: List[Case] = [
+        incomplete_cases: list[Case] = [
             case
             for case in all_cases
             if (
@@ -56,7 +56,7 @@ class DashboardView(TemplateView):
                 and case.status.status != "deactivated"
             )
         ]
-        unassigned_cases: List[Case] = sorted(
+        unassigned_cases: list[Case] = sorted(
             [case for case in all_cases if case.status.status == "unassigned-case"],
             key=lambda case: (case.created),  # type: ignore
         )

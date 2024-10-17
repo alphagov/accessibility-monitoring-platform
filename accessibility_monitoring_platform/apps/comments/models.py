@@ -1,5 +1,4 @@
 """Models for comment and comment history"""
-from typing import List
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -31,7 +30,7 @@ class Comment(models.Model):
     updated = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering: List[str] = ["created_date"]
+        ordering: list[str] = ["created_date"]
 
     def __str__(self) -> str:
         return f"Comment {self.body} by {self.user}"

@@ -4,7 +4,7 @@ Common templatetags
 
 from datetime import date, datetime
 from html import escape
-from typing import Any, List
+from typing import Any
 
 import markdown
 from django import template
@@ -22,7 +22,7 @@ register = template.Library()
 
 
 @register.filter
-def list_item_by_index(items: List[Any], index: int) -> Any:
+def list_item_by_index(items: list[Any], index: int) -> Any:
     """Given a list of items and an index, return the indexed item"""
     try:
         return items[index]

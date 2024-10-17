@@ -33,7 +33,7 @@
             </div>
             <div class="govuk-form-group">
                 <label class="govuk-label"><b>Final accessibility statement decision (found in
-                    <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                    <a href="{% url 'audits:edit-retest-statement-compliance' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
                 <div class="govuk-hint">{{ case.compliance.get_statement_compliance_state_12_week_display }}</div>
             </div>
             <div class="govuk-form-group">
@@ -48,7 +48,7 @@
             </div>
             <div class="govuk-form-group">
                 <label class="govuk-label"><b>Final accessibility statement notes (found in
-                    <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                    <a href="{% url 'audits:edit-retest-statement-compliance' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
                 <div class="govuk-hint">
                     {% if case.compliance.statement_compliance_notes_12_week %}{{ case.compliance.statement_compliance_notes_12_week|markdown_to_html }}{% else %}None{% endif %}
                 </div>
@@ -71,12 +71,12 @@
             </div>
             <div class="govuk-form-group">
                 <label class="govuk-label"><b>Final compliance decision (found in
-                    <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                    <a href="{% url 'audits:edit-audit-retest-website-decision' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
                 <div class="govuk-hint">{{ case.compliance.get_website_compliance_state_12_week_display }}</div>
             </div>
             <div class="govuk-form-group">
                 <label class="govuk-label"><b>Final compliance notes (found in
-                    <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                    <a href="{% url 'audits:edit-audit-retest-website-decision' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
                 <div class="govuk-hint">
                     {% if case.compliance.website_compliance_notes_12_week %}{{ case.compliance.website_compliance_notes_12_week|markdown_to_html }}{% else %}None{% endif %}
                 </div>

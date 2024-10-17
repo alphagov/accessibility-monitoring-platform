@@ -2,7 +2,7 @@
 
 import subprocess
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 import boto3
 
@@ -11,7 +11,7 @@ LOCAL_DIR_PATH: Path = Path("data", "s3_files")
 
 if __name__ == "__main__":
     s3_client = boto3.client("s3")
-    db_backups: List[Any] = []
+    db_backups: list[Any] = []
     for key in s3_client.list_objects(Bucket=S3_BUCKET)["Contents"]:
         if "aws_aurora_backup/" in key["Key"] and "prodenv" in key["Key"]:
             db_backups.append(key)

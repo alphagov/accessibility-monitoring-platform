@@ -1,7 +1,6 @@
 """Reset integration test data in the database"""
 
 import logging
-from typing import List, Type
 
 from django.contrib.auth.models import Group, User
 from django.core.management import call_command
@@ -22,6 +21,7 @@ from ....audits.models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementCheck,
     StatementCheckResult,
     StatementPage,
     WcagDefinition,
@@ -53,14 +53,14 @@ def load_fixture(fixture: str) -> None:
     call_command("loaddata", fixture_path)
 
 
-def delete_from_models(model_classes: List[Type[models.Model]]) -> None:
+def delete_from_models(model_classes: list[type[models.Model]]) -> None:
     """Delete all data from models"""
     for model_class in model_classes:
         logging.info("Deleting data from model %s", model_class)
         model_class.objects.all().delete()
 
 
-def delete_from_tables(table_names: List[str]) -> None:
+def delete_from_tables(table_names: list[str]) -> None:
     """Delete data from tables"""
     with connection.cursor() as cursor:
         for table_name in table_names:
@@ -95,6 +95,7 @@ class Command(BaseCommand):
                 CheckResult,
                 Page,
                 Audit,
+                StatementCheck,
                 WcagDefinition,
                 UserCacheUniqueHash,
                 CaseCompliance,
@@ -130,6 +131,7 @@ class Command(BaseCommand):
         delete_from_models([AllowedEmail])
 
         load_fixture("wcag_definition")
+        load_fixture("statementcheck")
         load_fixture("report_wrapper")  # Report UI text
         load_fixture("sector")
         load_fixture("allowed_email")
@@ -140,5 +142,6 @@ class Command(BaseCommand):
         load_fixture("case")
         load_fixture("contact")
         load_fixture("audits")  # Test results
+        load_fixture("statementcheckresult")
         load_fixture("reports")  # Reports
         load_fixture("s3_report")  # Published report

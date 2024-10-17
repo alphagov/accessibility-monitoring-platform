@@ -2,7 +2,6 @@
 """
 Utilities for reports app
 """
-from typing import Dict, List, Optional, Set, Union
 
 from django.contrib import messages
 from django.db.models.query import QuerySet
@@ -48,7 +47,7 @@ class Section:
         position: int,
         editable_url_name: str,
         editable_url_label: str,
-        editable_id: Optional[int] = None,
+        editable_id: int | None = None,
         new_page: bool = False,
     ):
         self.name = name
@@ -86,7 +85,7 @@ class IssueTable:
     Class for issue table in
     """
 
-    def __init__(self, page: Page, rows: List[TableRow]):
+    def __init__(self, page: Page, rows: list[TableRow]):
         self.page = page
         self.rows = rows
 
@@ -96,15 +95,15 @@ class IssueTable:
 
 
 def build_issues_tables(
-    pages: List[Page],
+    pages: list[Page],
     check_results_attr: str = "failed_check_results",
     use_retest_notes: bool = False,
-) -> List[IssueTable]:
+) -> list[IssueTable]:
     """
     Generate content of issues tables for report.
     """
-    issues_tables: List[IssueTable] = []
-    used_wcag_definitions: Set[WcagDefinition] = set()
+    issues_tables: list[IssueTable] = []
+    used_wcag_definitions: set[WcagDefinition] = set()
     for page in pages:
         issues_tables.append(
             IssueTable(
@@ -120,12 +119,12 @@ def build_issues_tables(
 
 
 def build_issue_table_rows(
-    check_results: List[CheckResult],
-    used_wcag_definitions: Set[WcagDefinition],
+    check_results: list[CheckResult],
+    used_wcag_definitions: set[WcagDefinition],
     use_retest_notes: bool = False,
-) -> List[TableRow]:
+) -> list[TableRow]:
     """Build issue table row data for each failed check for a page in the report"""
-    table_rows: List[TableRow] = []
+    table_rows: list[TableRow] = []
     for row_number, check_result in enumerate(check_results, start=1):
         first_use_of_wcag_definition: bool = (
             check_result.wcag_definition not in used_wcag_definitions
@@ -161,9 +160,9 @@ def build_issue_table_rows(
 
 def build_report_context(
     report: Report,
-) -> Dict[str, Union[Report, List[IssueTable], Audit]]:
+) -> dict[str, Report | list[IssueTable] | Audit]:
     """Return context used to render report"""
-    issues_tables: List[IssueTable] = (
+    issues_tables: list[IssueTable] = (
         build_issues_tables(pages=report.case.audit.testable_pages)
         if report.case.audit is not None
         else []
@@ -175,7 +174,7 @@ def build_report_context(
     }
 
 
-def get_report_visits_metrics(case: Case) -> Dict[str, str]:
+def get_report_visits_metrics(case: Case) -> dict[str, str]:
     """Returns the visit metrics for reports"""
     return {
         "number_of_visits": case.reportvisitsmetrics_set.all().count(),

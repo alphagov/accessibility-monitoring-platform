@@ -2,8 +2,6 @@
 Test context processor of common app
 """
 
-from typing import Dict, List, Union
-
 import pytest
 from django.contrib.auth.models import User
 from django.http.response import HttpResponse
@@ -80,7 +78,7 @@ def test_platform_page_template_context():
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
         user=user,
     )
-    platform_page_context: Dict[str, Union[AMPTopMenuForm, str, Platform, int]] = (
+    platform_page_context: dict[str, AMPTopMenuForm | str | Platform | int] = (
         platform_page(mock_request)
     )
 
@@ -88,14 +86,14 @@ def test_platform_page_template_context():
     assert platform_page_context["number_of_tasks"] == 0
 
     assert len(platform_page_context["custom_frequently_used_links"]) == 1
-    custom_frequently_used_links: List[FrequentlyUsedLink] = platform_page_context[
+    custom_frequently_used_links: list[FrequentlyUsedLink] = platform_page_context[
         "custom_frequently_used_links"
     ][0]
     assert custom_frequently_used_links.label == LINK_LABEL
     assert custom_frequently_used_links.url == LINK_URL
 
     assert len(platform_page_context["custom_footer_links"]) == 1
-    custom_footer_links: List[FooterLink] = platform_page_context[
+    custom_footer_links: list[FooterLink] = platform_page_context[
         "custom_footer_links"
     ][0]
     assert custom_footer_links.label == LINK_LABEL
@@ -114,7 +112,7 @@ def test_platform_page_case_sitemap_template_context():
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
         user=user,
     )
-    platform_page_context: Dict[str, Union[AMPTopMenuForm, str, Platform, int]] = (
+    platform_page_context: dict[str, AMPTopMenuForm | str | Platform | int] = (
         platform_page(mock_request)
     )
 
@@ -142,7 +140,7 @@ def test_platform_page_non_case_sitemap_template_context():
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
         user=user,
     )
-    platform_page_context: Dict[str, Union[AMPTopMenuForm, str, Platform, int]] = (
+    platform_page_context: dict[str, AMPTopMenuForm | str | Platform | int] = (
         platform_page(mock_request)
     )
 

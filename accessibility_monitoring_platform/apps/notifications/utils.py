@@ -1,7 +1,7 @@
 """Add notification function for notification app"""
 
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, TypedDict
 
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
@@ -16,7 +16,7 @@ from ..audits.models import Retest
 from ..cases.models import Case, CaseStatus, EqualityBodyCorrespondence
 from .models import Link, NotificationSetting, Task
 
-TASK_LIST_PARAMS: List[str] = ["type", "read", "deleted", "future"]
+TASK_LIST_PARAMS: list[str] = ["type", "read", "deleted", "future"]
 TASK_LIST_READ_TIMEDELTA: timedelta = timedelta(days=7)
 
 
@@ -89,10 +89,10 @@ def mark_tasks_as_read(user: User, case: Case, type: Task.Type) -> None:
         task.save()
 
 
-def exclude_cases_with_pending_reminders(cases: QuerySet[Case]) -> List[Case]:
+def exclude_cases_with_pending_reminders(cases: QuerySet[Case]) -> list[Case]:
     """Return only cases without pending reminders"""
     today: date = date.today()
-    cases_without_pending_reminders: List[Case] = []
+    cases_without_pending_reminders: list[Case] = []
     for case in cases:
         if (
             Task.objects.filter(
@@ -104,7 +104,7 @@ def exclude_cases_with_pending_reminders(cases: QuerySet[Case]) -> List[Case]:
     return cases_without_pending_reminders
 
 
-def get_overdue_cases(user_request: User) -> List[Case]:
+def get_overdue_cases(user_request: User) -> list[Case]:
     """Return cases with overdue correspondence actions"""
     user: User = get_object_or_404(User, id=user_request.id)
     user_cases: QuerySet[Case] = Case.objects.filter(auditor=user)
@@ -178,20 +178,20 @@ def get_overdue_cases(user_request: User) -> List[Case]:
         | in_12_week_correspondence
     )
 
-    overdue_cases: List[Case] = exclude_cases_with_pending_reminders(
+    overdue_cases: list[Case] = exclude_cases_with_pending_reminders(
         cases=in_correspondence
     )
 
-    sorted_overdue_cases: List[Case] = sorted(
+    sorted_overdue_cases: list[Case] = sorted(
         overdue_cases, key=lambda t: t.next_action_due_date  # type: ignore
     )
 
     return sorted_overdue_cases
 
 
-def build_overdue_task_options(case: Case) -> List[Link]:
+def build_overdue_task_options(case: Case) -> list[Link]:
     """Build list of options for overdue case task"""
-    kwargs_case_pk: Dict[str, int] = {"pk": case.id}
+    kwargs_case_pk: dict[str, int] = {"pk": case.id}
     if case.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
         return [
             Link(
@@ -217,12 +217,12 @@ def build_overdue_task_options(case: Case) -> List[Link]:
     return []
 
 
-def get_post_case_tasks(user: User) -> List[Task]:
+def get_post_case_tasks(user: User) -> list[Task]:
     """
     Return list of tasks for unresolved equality body correspondence
     entries and incomplete equality body retests for a user.
     """
-    tasks: List[Task] = []
+    tasks: list[Task] = []
 
     equality_body_correspondences: QuerySet[EqualityBodyCorrespondence] = (
         EqualityBodyCorrespondence.objects.filter(
@@ -289,14 +289,14 @@ def get_post_case_tasks(user: User) -> List[Task]:
     return tasks
 
 
-def build_task_list(user: User, **kwargs: Dict[str, str]) -> List[Task]:
+def build_task_list(user: User, **kwargs: dict[str, str]) -> list[Task]:
     """Build list of tasks from database and items derived dynamically from Cases"""
-    task_filter: Dict[str, Any] = {
+    task_filter: dict[str, Any] = {
         "user": user,
         "read": False,
     }
 
-    type: Optional[str] = kwargs.get("type")
+    type: str | None = kwargs.get("type")
 
     read: bool = kwargs.get("read") is not None
     if type is not None:
@@ -307,7 +307,7 @@ def build_task_list(user: User, **kwargs: Dict[str, str]) -> List[Task]:
     elif kwargs.get("future") is None:
         task_filter["date__lte"] = date.today()
 
-    tasks: List[Task] = list(Task.objects.filter(**task_filter))
+    tasks: list[Task] = list(Task.objects.filter(**task_filter))
 
     if type is None or type == Task.Type.OVERDUE:
         overdue_cases: QuerySet[Case] = get_overdue_cases(user_request=user)
@@ -325,7 +325,7 @@ def build_task_list(user: User, **kwargs: Dict[str, str]) -> List[Task]:
     if type is None or type == Task.Type.POSTCASE:
         tasks += get_post_case_tasks(user=user)
 
-    sorted_tasks: List[Task] = sorted(
+    sorted_tasks: list[Task] = sorted(
         tasks,
         key=lambda task: (task.date),
         reverse=read,
@@ -341,12 +341,12 @@ def get_number_of_tasks(user: User) -> int:
     return 0
 
 
-def get_tasks_by_type_count(tasks: List[Task], type: Task.Type) -> int:
+def get_tasks_by_type_count(tasks: list[Task], type: Task.Type) -> int:
     """Return the number of tasks of a specific type"""
     return len([task for task in tasks if task.type == type])
 
 
-def get_task_type_counts(tasks: List[Task]) -> Dict[str, int]:
+def get_task_type_counts(tasks: list[Task]) -> dict[str, int]:
     """Return the number of tasks of each type"""
     return {
         "qa_comment": get_tasks_by_type_count(tasks=tasks, type=Task.Type.QA_COMMENT),

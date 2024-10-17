@@ -92,14 +92,17 @@ class EmailTemplateAdmin(admin.ModelAdmin):
         "updated",
         "created_by",
         "created",
+        "is_deleted",
     ]
     list_filter = [
         "type",
+        "is_deleted",
     ]
     readonly_fields = [
         "created",
         "updated",
     ]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):

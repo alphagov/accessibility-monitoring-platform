@@ -1,8 +1,8 @@
 """
 Test - common utility functions
 """
+
 from datetime import date, datetime, timezone
-from typing import Dict, List
 from unittest.mock import patch
 
 import pytest
@@ -46,7 +46,7 @@ from ..metrics import (
 METRIC_LABEL: str = "Metric label"
 FIRST_COLUMN_NAME: str = "Column one"
 SECOND_COLUMN_NAME: str = "Column two"
-COLUMN_NAMES: List[str] = [FIRST_COLUMN_HEADER] + [
+COLUMN_NAMES: list[str] = [FIRST_COLUMN_HEADER] + [
     FIRST_COLUMN_NAME,
     SECOND_COLUMN_NAME,
 ]
@@ -107,7 +107,7 @@ def test_thirty_day_metric_progress_percentage(
     ],
 )
 def test_count_statement_issues_old_style(
-    audit_params: Dict[str, str], expected_fixed: int, expected_total: int
+    audit_params: dict[str, str], expected_fixed: int, expected_total: int
 ):
     """
     Test counting issues and fixed issues for accessibility statements
@@ -134,7 +134,7 @@ def test_count_statement_issues_old_style(
     ],
 )
 def test_count_statement_issues(
-    statement_check_result_params: Dict[str, str],
+    statement_check_result_params: dict[str, str],
     expected_fixed: int,
     expected_total: int,
 ):
@@ -274,7 +274,7 @@ def test_group_timeseries_data_by_month():
     ],
 )
 def test_build_html_table(
-    columns: List[Timeseries],
+    columns: list[Timeseries],
     expected_result: TimeseriesHtmlTable,
 ):
     """Test merging multiple data series into a single HTML table context"""
@@ -368,7 +368,7 @@ def test_get_case_progress_metrics(mock_date):
         completed_date=datetime(2021, 12, 16, tzinfo=timezone.utc),
     )
 
-    case_progress_metrics: List[ThirtyDayMetric] = get_case_progress_metrics()
+    case_progress_metrics: list[ThirtyDayMetric] = get_case_progress_metrics()
 
     assert len(case_progress_metrics) == 4
     assert case_progress_metrics == [
@@ -418,7 +418,7 @@ def test_get_case_yearly_metrics(mock_datetime):
         completed_date=datetime(2021, 12, 16, tzinfo=timezone.utc),
     )
 
-    case_yearly_metrics: List[YearlyMetric] = get_case_yearly_metrics()
+    case_yearly_metrics: list[YearlyMetric] = get_case_yearly_metrics()
 
     assert len(case_yearly_metrics) == 4
     assert case_yearly_metrics[0].label == "Cases created over the last year"
@@ -725,7 +725,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
         case=case, retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc)
     )
 
-    policy_yearly_metrics: List[YearlyMetric] = get_policy_yearly_metrics()
+    policy_yearly_metrics: list[YearlyMetric] = get_policy_yearly_metrics()
 
     assert len(policy_yearly_metrics) == 2
     assert (
@@ -843,7 +843,7 @@ def test_get_report_yearly_metrics(mock_datetime):
         created=datetime(2022, 1, 5, tzinfo=timezone.utc)
     )
 
-    report_yearly_metrics: List[YearlyMetric] = get_report_yearly_metrics()
+    report_yearly_metrics: list[YearlyMetric] = get_report_yearly_metrics()
 
     assert len(report_yearly_metrics) == 2
     assert report_yearly_metrics[0].label == "Reports published over the last year"

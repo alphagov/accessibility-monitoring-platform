@@ -6,7 +6,6 @@ import json
 import re
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
-from typing import List, Optional
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -35,7 +34,7 @@ ONE_WEEK_IN_DAYS: int = 7
 MAX_LENGTH_OF_FORMATTED_URL: int = 25
 PSB_APPEAL_WINDOW_IN_DAYS: int = 28
 
-COMPLIANCE_FIELDS: List[str] = [
+COMPLIANCE_FIELDS: list[str] = [
     "website_compliance_state_initial",
     "website_compliance_notes_initial",
     "statement_compliance_state_initial",
@@ -503,7 +502,7 @@ class Case(VersionModel):
         return mark_safe(title)
 
     @property
-    def next_action_due_date(self) -> Optional[date]:
+    def next_action_due_date(self) -> date | None:
         if self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
             if (
                 self.no_contact_one_week_chaser_due_date
@@ -716,7 +715,7 @@ class Case(VersionModel):
         return self.contacts.exists()
 
     @property
-    def psb_appeal_deadline(self) -> Optional[date]:
+    def psb_appeal_deadline(self) -> date | None:
         if self.compliance_email_sent_date is None:
             return None
         return self.compliance_email_sent_date + timedelta(
@@ -794,7 +793,7 @@ class Case(VersionModel):
     @property
     def last_edited(self):
         """Return when case or related data was last changed"""
-        updated_times: List[Optional[datetime]] = [self.created, self.updated]
+        updated_times: list[datetime | None] = [self.created, self.updated]
 
         for contact in self.contact_set.all():
             updated_times.append(contact.created)
@@ -939,8 +938,12 @@ class Case(VersionModel):
         return self.retest_set.filter(is_deleted=False)
 
     @property
+    def actual_retests(self):
+        return self.retests.filter(id_within_case__gt=0)
+
+    @property
     def number_retests(self):
-        return self.retest_set.filter(is_deleted=False, id_within_case__gt=0).count()
+        return self.actual_retests.count()
 
     @property
     def incomplete_retests(self):
@@ -1059,7 +1062,7 @@ class CaseStatus(models.Model):
         COMPLETE = "complete", "Complete"
         DEACTIVATED = "deactivated", "Deactivated"
 
-    CLOSED_CASE_STATUSES: List[str] = [
+    CLOSED_CASE_STATUSES: list[str] = [
         Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
         Status.COMPLETE,
         Status.CASE_CLOSED_WAITING_TO_SEND,

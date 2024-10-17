@@ -3,7 +3,6 @@ Forms - cases
 """
 
 import re
-from typing import List, Tuple
 
 import requests
 from django import forms
@@ -45,7 +44,7 @@ from .models import (
 )
 
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + Case.EnforcementBody.choices
-STATUS_CHOICES: List[Tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices
+STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices
 
 
 class DateType(models.TextChoices):
@@ -54,9 +53,9 @@ class DateType(models.TextChoices):
     UPDATED = "case_updated_date", "Case updated"
 
 
-def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[str, str]]:
+def get_search_user_choices(user_query: QuerySet[User]) -> list[tuple[str, str]]:
     """Return a list of user ids and names, with an additional none option, for use in search"""
-    user_choices_with_none: List[Tuple[str, str]] = [
+    user_choices_with_none: list[tuple[str, str]] = [
         ("", "-----"),
         ("none", "Unassigned"),
     ]
@@ -90,7 +89,7 @@ class CaseSearchForm(AMPDateRangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        auditor_choices: List[Tuple[str, str]] = get_search_user_choices(
+        auditor_choices: list[tuple[str, str]] = get_search_user_choices(
             User.objects.filter(groups__name="Historic auditor")
         )
         self.fields["auditor"].choices = auditor_choices
@@ -881,10 +880,10 @@ class CaseCloseUpdateForm(VersionForm):
         case_completed: str = self.cleaned_data["case_completed"]
         if case_completed == Case.CaseCompleted.COMPLETE_SEND:
             case: Case = self.instance
-            equality_body_columns: List[EqualityBodyCSVColumn] = (
+            equality_body_columns: list[EqualityBodyCSVColumn] = (
                 populate_equality_body_columns(case=case)
             )
-            required_data_missing_columns: List[EqualityBodyCSVColumn] = [
+            required_data_missing_columns: list[EqualityBodyCSVColumn] = [
                 column
                 for column in equality_body_columns
                 if column.required_data_missing

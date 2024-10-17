@@ -2,8 +2,6 @@
 URLS for cases
 """
 
-from typing import List
-
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
@@ -63,7 +61,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
 )
 
 app_name: str = "cases"
-urlpatterns: List[URLPattern] = [
+urlpatterns: list[URLPattern] = [
     path("", login_required(CaseListView.as_view()), name="case-list"),
     path(
         "export-feedback-survey-cases-csv/",

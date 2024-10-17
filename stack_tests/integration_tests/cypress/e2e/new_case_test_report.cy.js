@@ -45,12 +45,12 @@ describe('Create case, tests and report', () => {
     cy.get('[name="standard-4-url').type(newAccessibilityStatementURL)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Home page test`)
+    cy.title().should('eq', `${newOrganisationName} | Home page test (0)`)
     cy.get('[name="form-0-check_result_state"]').check('error')
     cy.get('[name="form-0-notes').type('Hi, I am an error')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Accessibility statement page test`)
+    cy.title().should('eq', `${newOrganisationName} | Accessibility statement page test (0)`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Compliance decision`)

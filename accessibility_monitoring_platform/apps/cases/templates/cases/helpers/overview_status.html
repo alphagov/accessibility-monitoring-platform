@@ -2,7 +2,9 @@
 <ul class="govuk-list amp-margin-bottom-10">
     <li>{{ case.status.get_status_display }}</li>
     <li>
-        {% if case.status.status == 'unassigned-case' %}
+        {% if case.archive %}
+            Archived
+        {% elif case.status.status == 'unassigned-case' %}
             <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
                 Go to case metadata
             </a>

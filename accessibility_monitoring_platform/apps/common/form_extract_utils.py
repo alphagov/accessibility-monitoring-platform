@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import date
-from typing import Any, ClassVar, List, Optional, Type, Union
+from typing import Any, ClassVar
 
 from django import forms
 from django.contrib.auth.models import User
@@ -63,8 +63,8 @@ EXTRA_LABELS = {
 class FieldLabelAndValue:
     """Data to use in html table row of view details pages"""
 
-    value: Union[str, date, None]
-    label: Union[str, None]
+    value: str | date | None
+    label: str | None
     type: str = "text"
     extra_label: str = ""
     external_url: bool = True
@@ -76,11 +76,11 @@ class FieldLabelAndValue:
 
 def extract_form_labels_and_values(  # noqa: C901
     instance: models.Model,
-    form: Type[forms.Form],
-    excluded_fields: Optional[List[str]] = None,
-) -> List[FieldLabelAndValue]:
+    form: type[forms.Form],
+    excluded_fields: list[str] | None = None,
+) -> list[FieldLabelAndValue]:
     """Extract field labels from form and values from case for use in html rows"""
-    display_rows: List[FieldLabelAndValue] = []
+    display_rows: list[FieldLabelAndValue] = []
     if excluded_fields is None:
         excluded_fields = []
     for field_name, field in form.fields.items():

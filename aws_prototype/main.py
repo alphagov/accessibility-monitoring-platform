@@ -1,13 +1,13 @@
 """main - main function for deploy feature to AWS Copilot"""
+
 import argparse
 import copy
 import os
 import shutil
 import subprocess
-from typing import List
-import yaml
 
 import boto3
+import yaml
 from django.core.management.utils import get_random_secret_key
 from utils import (
     create_burner_account,
@@ -57,7 +57,7 @@ def switch_cp_apps():
 
 
 def does_copilot_env_already_exist(env_name: str) -> bool:
-    copilot_command: List[str] = "copilot env ls".split(" ")
+    copilot_command: list[str] = "copilot env ls".split(" ")
     output = subprocess.check_output(copilot_command).decode("utf-8")
     if env_name in output:
         return True
@@ -137,7 +137,9 @@ def prep_yaml() -> str:
     with open(YAML_DIR_AMP, encoding="UTF-8") as f:
         doc = yaml.load(f, Loader=yaml.Loader)
     backup_yaml = copy.deepcopy(doc)
-    doc["variables"]["ALLOWED_HOSTS"] = f"amp-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk"
+    doc["variables"][
+        "ALLOWED_HOSTS"
+    ] = f"amp-svc.{ENV_NAME}.{APP_NAME}.proto.accessibility-monitoring.service.gov.uk"
     with open(YAML_DIR_AMP, "w", encoding="UTF-8") as f:
         yaml.dump(doc, f)
     return backup_yaml
@@ -201,7 +203,6 @@ def up():
     os.system(
         f"""copilot svc deploy --name viewer-svc --env {ENV_NAME} {get_aws_resource_tags(system='Viewer')}"""
     )
-
 
     if env_exist is False:
         bucket: str = get_copilot_s3_bucket()

@@ -3,7 +3,6 @@ Test forms of cases app
 """
 
 from datetime import date
-from typing import List, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -24,7 +23,7 @@ from ..forms import (
 )
 from ..models import Case
 
-USER_CHOICES: List[Tuple[str, str]] = [("", "-----"), ("none", "Unassigned")]
+USER_CHOICES: list[tuple[str, str]] = [("", "-----"), ("none", "Unassigned")]
 FIRST_NAME: str = "Mock"
 LAST_NAME: str = "User"
 HOME_PAGE_URL: str = "https://example.com"
@@ -47,7 +46,7 @@ def test_case_search_form_user_field_includes_historic_auditors(fieldname):
     group: Group = Group.objects.create(name="Historic auditor")
     user: User = User.objects.create(first_name=FIRST_NAME, last_name=LAST_NAME)
     group.user_set.add(user)
-    expected_choices: List[Tuple[str, str]] = USER_CHOICES + [
+    expected_choices: list[tuple[str, str]] = USER_CHOICES + [
         (user.id, f"{FIRST_NAME} {LAST_NAME}")
     ]
 
@@ -124,14 +123,14 @@ def test_one_week_followup_hidden_when_report_ack():
         instance=case
     )
 
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version"]
 
     case.report_acknowledged_date = TODAY
     form: CaseReportOneWeekFollowupUpdateForm = CaseReportOneWeekFollowupUpdateForm(
         instance=case
     )
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
 
     assert hidden_fields == [
         "version",
@@ -152,14 +151,14 @@ def test_four_week_followup_hidden_when_report_ack():
         instance=case
     )
 
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version"]
 
     case.report_acknowledged_date = TODAY
     form: CaseReportFourWeekFollowupUpdateForm = CaseReportFourWeekFollowupUpdateForm(
         instance=case
     )
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
 
     assert hidden_fields == [
         "version",
@@ -180,14 +179,14 @@ def test_one_week_followup_final_hidden_when_12_week_cores_ack():
         instance=case
     )
 
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version"]
 
     case.twelve_week_correspondence_acknowledged_date = TODAY
     form: CaseOneWeekFollowupFinalUpdateForm = CaseOneWeekFollowupFinalUpdateForm(
         instance=case
     )
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
 
     assert hidden_fields == [
         "version",
@@ -236,21 +235,21 @@ def test_publish_report_form_hides_fields_unless_report_has_been_published():
     case: Case = Case.objects.create()
     form: CasePublishReportUpdateForm = CasePublishReportUpdateForm(instance=case)
 
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version", "publish_report_complete_date"]
 
     Audit.objects.create(case=case)
     Report.objects.create(case=case)
     S3Report.objects.create(case=case, version=0, latest_published=True)
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version", "publish_report_complete_date"]
 
     case.report_review_status = Boolean.YES
     form: CasePublishReportUpdateForm = CasePublishReportUpdateForm(instance=case)
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version", "publish_report_complete_date"]
 
     case.report_approved_status = Case.ReportApprovedStatus.APPROVED
     form: CasePublishReportUpdateForm = CasePublishReportUpdateForm(instance=case)
-    hidden_fields: List[str] = [field.name for field in form.hidden_fields()]
+    hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version"]

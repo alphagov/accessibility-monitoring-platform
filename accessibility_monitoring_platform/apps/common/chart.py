@@ -2,7 +2,6 @@ import math
 from dataclasses import dataclass
 from datetime import datetime
 from datetime import timezone as datetime_timezone
-from typing import List, Union
 
 from django.utils import timezone
 
@@ -31,7 +30,7 @@ class TimeseriesDatapoint:
 
 @dataclass
 class Timeseries:
-    datapoints: List[TimeseriesDatapoint]
+    datapoints: list[TimeseriesDatapoint]
     label: str = ""
 
 
@@ -43,7 +42,7 @@ class PolylineStroke:
     dasharray: str
 
 
-POLYLINE_STROKES: List[PolylineStroke] = [
+POLYLINE_STROKES: list[PolylineStroke] = [
     PolylineStroke(stroke="#1d70b8", dasharray=""),  # govuk-colour("blue")
     PolylineStroke(stroke="#00703c", dasharray="2"),  # govuk-colour("green")
     PolylineStroke(stroke="#4c2c92", dasharray="6"),  # govuk-colour("purple")
@@ -55,14 +54,14 @@ POLYLINE_STROKES: List[PolylineStroke] = [
 class ChartAxisTick:
     """Date to draw lines as ticks on x and y axes"""
 
-    value: Union[int, datetime]
+    value: int | datetime
     label: str
     x_position: int = 0
     y_position: int = 0
     label_line_2: str = ""
 
 
-Y_AXIS_PERCENT: List[ChartAxisTick] = [
+Y_AXIS_PERCENT: list[ChartAxisTick] = [
     ChartAxisTick(value=100, label="100%", y_position=0),
     ChartAxisTick(value=80, label="80%", y_position=50),
     ChartAxisTick(value=60, label="60%", y_position=100),
@@ -80,7 +79,7 @@ class Point:
 
 @dataclass
 class Polyline:
-    points: List[Point]
+    points: list[Point]
     stroke: str
     stroke_dasharray: str = ""
 
@@ -103,10 +102,10 @@ class LegendEntry:
 class LineChart:
     """Context for SVG line of chart"""
 
-    legend: List[LegendEntry]
-    polylines: List[Polyline]
-    x_axis: List[ChartAxisTick]
-    y_axis: List[ChartAxisTick]
+    legend: list[LegendEntry]
+    polylines: list[Polyline]
+    x_axis: list[ChartAxisTick]
+    y_axis: list[ChartAxisTick]
     graph_height: int = GRAPH_HEIGHT
     graph_width: int = GRAPH_WIDTH
     chart_height: int = CHART_HEIGHT
@@ -141,7 +140,7 @@ def calculate_timeseries_point(
     return Point(x_position=x_position, y_position=y_position)
 
 
-def build_13_month_x_axis() -> List[ChartAxisTick]:
+def build_13_month_x_axis() -> list[ChartAxisTick]:
     """Build monthly x-axis for timeseries chart ending on the current month"""
     now: datetime = timezone.now()
     current_month: int = now.month
@@ -149,7 +148,7 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
     tick_datetime: datetime = datetime(
         current_year, current_month, 1, tzinfo=datetime_timezone.utc
     )
-    x_axis: List[ChartAxisTick] = []
+    x_axis: list[ChartAxisTick] = []
     for x_position in range(0, 650, 50):
         x_axis_tick: ChartAxisTick = ChartAxisTick(
             value=tick_datetime,
@@ -171,7 +170,7 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
     return x_axis
 
 
-def build_y_axis(y_tick_size: int, is_percent: bool = False) -> List[ChartAxisTick]:
+def build_y_axis(y_tick_size: int, is_percent: bool = False) -> list[ChartAxisTick]:
     """Return y-axis based on the maximum value in the polyline"""
     if is_percent:
         return Y_AXIS_PERCENT
@@ -214,7 +213,7 @@ def calculate_y_tick_size(max_value: int) -> int:
 
 
 def build_yearly_metric_chart(
-    lines: List[Timeseries],
+    lines: list[Timeseries],
     y_axis_percent: bool = False,
 ) -> LineChart:
     """
@@ -222,14 +221,14 @@ def build_yearly_metric_chart(
     a line chart.
     """
     now: datetime = timezone.now()
-    values: List[int] = []
+    values: list[int] = []
     for timeseries in lines:
         for datapoint in timeseries.datapoints:
             values.append(datapoint.value)
     max_value: int = max(values) if values else 0
     y_tick_size: int = calculate_y_tick_size(max_value)
-    polylines: List[Polyline] = []
-    chart_legend: List[LegendEntry] = []
+    polylines: list[Polyline] = []
+    chart_legend: list[LegendEntry] = []
     for index, timeseries in enumerate(lines):
         polyline_stroke: PolylineStroke = get_polyline_stroke(index)
         if timeseries.label:

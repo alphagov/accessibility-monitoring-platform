@@ -2,8 +2,9 @@
 Views for audits app (called tests by users)
 """
 
+from collections.abc import Callable
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Type, Union
+from typing import Any
 
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -76,7 +77,7 @@ from .base import (
     StatementPageFormsetUpdateView,
 )
 
-STANDARD_PAGE_HEADERS: List[str] = [
+STANDARD_PAGE_HEADERS: list[str] = [
     "Home",
     "Contact",
     "A Form",
@@ -114,13 +115,13 @@ class AuditMetadataUpdateView(AuditUpdateView):
     View to update audit metadata
     """
 
-    form_class: Type[AuditMetadataUpdateForm] = AuditMetadataUpdateForm
+    form_class: type[AuditMetadataUpdateForm] = AuditMetadataUpdateForm
     template_name: str = "common/case_form.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-pages", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -130,12 +131,12 @@ class AuditPagesUpdateView(AuditUpdateView):
     View to update audit pages page
     """
 
-    form_class: Type[AuditPagesUpdateForm] = AuditPagesUpdateForm
+    form_class: type[AuditPagesUpdateForm] = AuditPagesUpdateForm
     template_name: str = "audits/forms/pages.html"
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object
         if self.request.POST:
             standard_pages_formset: AuditStandardPageFormset = AuditStandardPageFormset(
@@ -178,7 +179,7 @@ class AuditPagesUpdateView(AuditUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
+        context: dict[str, Any] = self.get_context_data()
         standard_pages_formset: AuditStandardPageFormset = context[
             "standard_pages_formset"
         ]
@@ -186,7 +187,7 @@ class AuditPagesUpdateView(AuditUpdateView):
         audit: Audit = form.save(commit=False)
 
         if standard_pages_formset.is_valid():
-            pages: List[Page] = standard_pages_formset.save(commit=False)
+            pages: list[Page] = standard_pages_formset.save(commit=False)
             for page in pages:
                 if page.page_type == Page.Type.STATEMENT and page.url:
                     if audit.statement_pages.count() == 0:
@@ -204,7 +205,7 @@ class AuditPagesUpdateView(AuditUpdateView):
             return super().form_invalid(form)
 
         if extra_pages_formset.is_valid():
-            pages: List[Page] = extra_pages_formset.save(commit=False)
+            pages: list[Page] = extra_pages_formset.save(commit=False)
             for page in pages:
                 if not page.audit_id:
                     page.audit = audit
@@ -227,7 +228,7 @@ class AuditPagesUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object
-        audit_pk: Dict[str, int] = {"pk": audit.id}
+        audit_pk: dict[str, int] = {"pk": audit.id}
         url: str = reverse("audits:edit-audit-pages", kwargs=audit_pk)
         if "add_extra" in self.request.POST:
             url: str = f"{url}?add_extra=true#extra-page-1"
@@ -241,7 +242,7 @@ class AuditPageChecksFormView(FormView):
     View to update check results for a page
     """
 
-    form_class: Type[AuditPageChecksForm] = AuditPageChecksForm
+    form_class: type[AuditPageChecksForm] = AuditPageChecksForm
     template_name: str = "audits/forms/page_checks.html"
     page: Page
 
@@ -259,17 +260,17 @@ class AuditPageChecksFormView(FormView):
             form.fields["no_errors_date"].initial = self.page.no_errors_date
         return form
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
-        other_pages_failed_check_results: Dict[WcagDefinition, List[CheckResult]] = (
+        other_pages_failed_check_results: dict[WcagDefinition, list[CheckResult]] = (
             other_page_failed_check_results(page=self.page)
         )
-        wcag_definitions: List[WcagDefinition] = list(
+        wcag_definitions: list[WcagDefinition] = list(
             WcagDefinition.objects.on_date(self.page.audit.date_of_test)
         )
 
@@ -284,8 +285,8 @@ class AuditPageChecksFormView(FormView):
                 )
             )
 
-        definitions_forms_errors: List[
-            Tuple[WcagDefinition, CheckResultForm, List[CheckResult]]
+        definitions_forms_errors: list[
+            tuple[WcagDefinition, CheckResultForm, list[CheckResult]]
         ] = []
         for count, check_results_form in enumerate(check_results_formset.forms):
             wcag_definition: WcagDefinition = wcag_definitions[count]
@@ -310,7 +311,7 @@ class AuditPageChecksFormView(FormView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
+        context: dict[str, Any] = self.get_context_data()
         page: Page = self.page
         if form.changed_data:
             page.complete_date = form.cleaned_data["complete_date"]
@@ -343,8 +344,8 @@ class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView)
     View to update website compliance fields
     """
 
-    form_class: Type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
-    case_compliance_form_class: Type[CaseComplianceWebsiteInitialUpdateForm] = (
+    form_class: type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
+    case_compliance_form_class: type[CaseComplianceWebsiteInitialUpdateForm] = (
         CaseComplianceWebsiteInitialUpdateForm
     )
     template_name: str = "audits/forms/website_decision.html"
@@ -353,7 +354,7 @@ class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView)
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
-            audit_pk: Dict[str, int] = {"pk": audit.id}
+            audit_pk: dict[str, int] = {"pk": audit.id}
             return reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -363,12 +364,12 @@ class AuditSummaryUpdateView(AuditUpdateView):
     View to update audit summary
     """
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object
 
-        view_url_param: Union[str, None] = self.request.GET.get("view")
+        view_url_param: str | None = self.request.GET.get("view")
         show_failures_by_page: bool = view_url_param == "Page view"
         context["show_failures_by_page"] = show_failures_by_page
 
@@ -396,7 +397,7 @@ class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
     View to update audit summary
     """
 
-    form_class: Type[AuditWcagSummaryUpdateForm] = AuditWcagSummaryUpdateForm
+    form_class: type[AuditWcagSummaryUpdateForm] = AuditWcagSummaryUpdateForm
     template_name: str = "audits/forms/test_summary.html"
 
     def get_success_url(self) -> str:
@@ -412,12 +413,12 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
     View to update statement pages in initial test
     """
 
-    form_class: Type[AuditStatementPagesUpdateForm] = AuditStatementPagesUpdateForm
+    form_class: type[AuditStatementPagesUpdateForm] = AuditStatementPagesUpdateForm
     template_name: str = "audits/forms/statement_pages_formset.html"
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         for form in context["statement_pages_formset"]:
             if form.instance.id is None:
                 form.fields["added_stage"].initial = StatementPage.AddedStage.INITIAL
@@ -426,7 +427,7 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object
-        audit_pk: Dict[str, int] = {"pk": audit.id}
+        audit_pk: dict[str, int] = {"pk": audit.id}
         current_url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
         if "save_continue" in self.request.POST:
             if audit.uses_statement_checks:
@@ -443,7 +444,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
     View to update statement overview check results
     """
 
-    form_class: Type[AuditStatementOverviewUpdateForm] = (
+    form_class: type[AuditStatementOverviewUpdateForm] = (
         AuditStatementOverviewUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
@@ -454,7 +455,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
         audit: Audit = self.object
         audit.case.status.calculate_and_save_status()
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": audit.id}
+            audit_pk: dict[str, int] = {"pk": audit.id}
             if audit.all_overview_statement_checks_have_passed:
                 return reverse("audits:edit-statement-website", kwargs=audit_pk)
             return reverse(
@@ -468,14 +469,14 @@ class AuditStatementWebsiteFormView(AuditStatementCheckingView):
     View to update statement information check results
     """
 
-    form_class: Type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
+    form_class: type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-compliance", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -485,7 +486,7 @@ class AuditStatementComplianceFormView(AuditStatementCheckingView):
     View to update statement compliance check results
     """
 
-    form_class: Type[AuditStatementComplianceUpdateForm] = (
+    form_class: type[AuditStatementComplianceUpdateForm] = (
         AuditStatementComplianceUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
@@ -494,7 +495,7 @@ class AuditStatementComplianceFormView(AuditStatementCheckingView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-non-accessible", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -504,7 +505,7 @@ class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
     View to update statement non-accessible check results
     """
 
-    form_class: Type[AuditStatementNonAccessibleUpdateForm] = (
+    form_class: type[AuditStatementNonAccessibleUpdateForm] = (
         AuditStatementNonAccessibleUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
@@ -513,7 +514,7 @@ class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-preparation", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -523,7 +524,7 @@ class AuditStatementPreparationFormView(AuditStatementCheckingView):
     View to update statement preparation check results
     """
 
-    form_class: Type[AuditStatementPreparationUpdateForm] = (
+    form_class: type[AuditStatementPreparationUpdateForm] = (
         AuditStatementPreparationUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
@@ -532,7 +533,7 @@ class AuditStatementPreparationFormView(AuditStatementCheckingView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-feedback", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -542,7 +543,7 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     View to update statement feedback check results
     """
 
-    form_class: Type[AuditStatementFeedbackUpdateForm] = (
+    form_class: type[AuditStatementFeedbackUpdateForm] = (
         AuditStatementFeedbackUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
@@ -551,7 +552,7 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-custom", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -561,13 +562,13 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
     View to add/update custom statement issues check results
     """
 
-    form_class: Type[AuditStatementCustomUpdateForm] = AuditStatementCustomUpdateForm
+    form_class: type[AuditStatementCustomUpdateForm] = AuditStatementCustomUpdateForm
     template_name: str = "audits/statement_checks/statement_custom.html"
     statement_check_type: str = StatementCheck.Type.CUSTOM
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
             custom_formset = CustomStatementCheckResultFormset(self.request.POST)
         else:
@@ -587,11 +588,11 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
+        context: dict[str, Any] = self.get_context_data()
         custom_formset = context["custom_formset"]
         audit: Audit = form.save(commit=False)
         if custom_formset.is_valid():
-            custom_statement_check_results: List[StatementCheckResult] = (
+            custom_statement_check_results: list[StatementCheckResult] = (
                 custom_formset.save(commit=False)
             )
             for custom_statement_check_result in custom_statement_check_results:
@@ -622,7 +623,7 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        audit_pk: Dict[str, int] = {"pk": self.object.id}
+        audit_pk: dict[str, int] = {"pk": self.object.id}
         if "save" in self.request.POST:
             return super().get_success_url()
         if "save_continue" in self.request.POST:
@@ -639,7 +640,7 @@ class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
     View to update initial disproportionate burden fields
     """
 
-    form_class: Type[InitialDisproportionateBurdenUpdateForm] = (
+    form_class: type[InitialDisproportionateBurdenUpdateForm] = (
         InitialDisproportionateBurdenUpdateForm
     )
     template_name: str = "audits/forms/statement_form.html"
@@ -648,7 +649,7 @@ class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
-            audit_pk: Dict[str, int] = {"pk": audit.id}
+            audit_pk: dict[str, int] = {"pk": audit.id}
             return reverse("audits:edit-statement-decision", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -658,10 +659,10 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
     View to update statement decision fields
     """
 
-    form_class: Type[AuditStatementDecisionUpdateForm] = (
+    form_class: type[AuditStatementDecisionUpdateForm] = (
         AuditStatementDecisionUpdateForm
     )
-    case_compliance_form_class: Type[CaseComplianceStatementInitialUpdateForm] = (
+    case_compliance_form_class: type[CaseComplianceStatementInitialUpdateForm] = (
         CaseComplianceStatementInitialUpdateForm
     )
     template_name: str = "audits/forms/statement_decision.html"
@@ -669,7 +670,7 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-statement-summary", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -679,7 +680,7 @@ class AuditStatement1UpdateView(AuditUpdateView):
     View to update accessibility statement 1 audit fields
     """
 
-    form_class: Type[ArchiveAuditStatement1UpdateForm] = (
+    form_class: type[ArchiveAuditStatement1UpdateForm] = (
         ArchiveAuditStatement1UpdateForm
     )
     template_name: str = "audits/forms/statement_1.html"
@@ -697,7 +698,7 @@ class AuditStatement1UpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-statement-2", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -707,7 +708,7 @@ class AuditStatement2UpdateView(AuditUpdateView):
     View to update accessibility statement 2 audit fields
     """
 
-    form_class: Type[ArchiveAuditStatement2UpdateForm] = (
+    form_class: type[ArchiveAuditStatement2UpdateForm] = (
         ArchiveAuditStatement2UpdateForm
     )
     template_name: str = "audits/forms/statement_2.html"
@@ -715,7 +716,7 @@ class AuditStatement2UpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-decision", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -725,14 +726,14 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
     View to update report options
     """
 
-    form_class: Type[ArchiveAuditReportOptionsUpdateForm] = (
+    form_class: type[ArchiveAuditReportOptionsUpdateForm] = (
         ArchiveAuditReportOptionsUpdateForm
     )
     template_name: str = "audits/forms/report_options.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        changed_report_data: List[str] = [
+        changed_report_data: list[str] = [
             field_name
             for field_name in form.changed_data
             if field_name != "archive_audit_report_options_complete_date"
@@ -744,7 +745,7 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -754,14 +755,14 @@ class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
     View to update audit summary
     """
 
-    form_class: Type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm
+    form_class: type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm
     template_name: str = "audits/forms/test_summary.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
-            case_pk: Dict[str, int] = {"pk": audit.case.id}
+            case_pk: dict[str, int] = {"pk": audit.case.id}
             if audit.case.report is None:
                 return reverse("cases:edit-create-report", kwargs=case_pk)
             return reverse("cases:edit-report-ready-for-qa", kwargs=case_pk)

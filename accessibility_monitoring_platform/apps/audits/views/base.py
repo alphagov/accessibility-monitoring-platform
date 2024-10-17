@@ -2,7 +2,7 @@
 Views for audits app (called tests by users)
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any
 
 from django.db.models.query import Q, QuerySet
 from django.forms import Form
@@ -97,7 +97,7 @@ class AuditUpdateView(UpdateView):
     View to update audit
     """
 
-    model: Type[Audit] = Audit
+    model: type[Audit] = Audit
     context_object_name: str = "audit"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -126,9 +126,9 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
     View to update audit and case compliance fields
     """
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
 
         if "case_compliance_form" not in context:
             if self.request.POST:
@@ -145,8 +145,8 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
         return context
 
     def post(
-        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
-    ) -> Union[HttpResponseRedirect, HttpResponse]:
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect | HttpResponse:
         """Populate two forms from post request"""
         self.object: Audit = self.get_object()
         form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
@@ -172,9 +172,9 @@ class AuditStatementCheckingView(AuditUpdateView):
     View to do statement checks as part of an audit
     """
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
 
         if self.request.POST:
             statement_check_results_formset: StatementCheckResultFormset = (
@@ -195,7 +195,7 @@ class AuditStatementCheckingView(AuditUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
+        context: dict[str, Any] = self.get_context_data()
 
         statement_check_results_formset: StatementCheckResultFormset = context[
             "statement_check_results_formset"
@@ -218,7 +218,7 @@ class WcagDefinitionListView(ListView):
     View of list of WCAG definitions
     """
 
-    model: Type[WcagDefinition] = WcagDefinition
+    model: type[WcagDefinition] = WcagDefinition
     template_name: str = "audits/wcag_definition_list.html"
     context_object_name: str = "wcag_definitions"
     paginate_by: int = 10
@@ -240,10 +240,8 @@ class WcagDefinitionListView(ListView):
             return WcagDefinition.objects.none()
 
         if hasattr(self.wcag_definition_search_form, "cleaned_data"):
-            search_str: Optional[str] = (
-                self.wcag_definition_search_form.cleaned_data.get(
-                    "wcag_definition_search"
-                )
+            search_str: str | None = self.wcag_definition_search_form.cleaned_data.get(
+                "wcag_definition_search"
             )
 
             if search_str:
@@ -260,9 +258,9 @@ class WcagDefinitionListView(ListView):
 
         return WcagDefinition.objects.all()
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         context["wcag_definition_search_form"] = self.wcag_definition_search_form
         context["url_parameters"] = get_url_parameters_for_pagination(
             request=self.request
@@ -275,8 +273,8 @@ class WcagDefinitionCreateView(CreateView):
     View to create a WCAG definition
     """
 
-    model: Type[WcagDefinition] = WcagDefinition
-    form_class: Type[WcagDefinitionCreateUpdateForm] = WcagDefinitionCreateUpdateForm
+    model: type[WcagDefinition] = WcagDefinition
+    form_class: type[WcagDefinitionCreateUpdateForm] = WcagDefinitionCreateUpdateForm
     template_name: str = "audits/forms/wcag_definition_create.html"
     context_object_name: str = "wcag_definition"
 
@@ -291,8 +289,8 @@ class WcagDefinitionUpdateView(UpdateView):
     View to update a WCAG definition
     """
 
-    model: Type[WcagDefinition] = WcagDefinition
-    form_class: Type[WcagDefinitionCreateUpdateForm] = WcagDefinitionCreateUpdateForm
+    model: type[WcagDefinition] = WcagDefinition
+    form_class: type[WcagDefinitionCreateUpdateForm] = WcagDefinitionCreateUpdateForm
     template_name: str = "audits/forms/wcag_definition_update.html"
     context_object_name: str = "wcag_definition"
 
@@ -311,7 +309,7 @@ class StatementCheckListView(ListView):
     View of list of statement checks
     """
 
-    model: Type[StatementCheck] = StatementCheck
+    model: type[StatementCheck] = StatementCheck
     template_name: str = "audits/statement_check_list.html"
     context_object_name: str = "statement_checks"
     paginate_by: int = 10
@@ -333,10 +331,8 @@ class StatementCheckListView(ListView):
             return StatementCheck.objects.none()
 
         if hasattr(self.statement_check_search_form, "cleaned_data"):
-            search_str: Optional[str] = (
-                self.statement_check_search_form.cleaned_data.get(
-                    "statement_check_search"
-                )
+            search_str: str | None = self.statement_check_search_form.cleaned_data.get(
+                "statement_check_search"
             )
 
             if search_str:
@@ -351,9 +347,9 @@ class StatementCheckListView(ListView):
 
         return StatementCheck.objects.all()
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         context["statement_check_search_form"] = self.statement_check_search_form
         context["url_parameters"] = get_url_parameters_for_pagination(
             request=self.request
@@ -366,8 +362,8 @@ class StatementCheckCreateView(CreateView):
     View to create a statement check
     """
 
-    model: Type[StatementCheck] = StatementCheck
-    form_class: Type[StatementCheckCreateUpdateForm] = StatementCheckCreateUpdateForm
+    model: type[StatementCheck] = StatementCheck
+    form_class: type[StatementCheckCreateUpdateForm] = StatementCheckCreateUpdateForm
     template_name: str = "audits/forms/statement_check_create.html"
     context_object_name: str = "statement_check"
 
@@ -382,8 +378,8 @@ class StatementCheckUpdateView(UpdateView):
     View to update a WCAG definition
     """
 
-    model: Type[StatementCheck] = StatementCheck
-    form_class: Type[StatementCheckCreateUpdateForm] = StatementCheckCreateUpdateForm
+    model: type[StatementCheck] = StatementCheck
+    form_class: type[StatementCheckCreateUpdateForm] = StatementCheckCreateUpdateForm
     template_name: str = "audits/forms/statement_check_update.html"
     context_object_name: str = "statement_check"
 
@@ -400,9 +396,9 @@ class StatementPageFormsetUpdateView(AuditUpdateView):
     View to update statement pages
     """
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
             statement_pages_formset = StatementPageFormset(self.request.POST)
         else:
@@ -418,11 +414,11 @@ class StatementPageFormsetUpdateView(AuditUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
+        context: dict[str, Any] = self.get_context_data()
         statement_pages_formset = context["statement_pages_formset"]
         audit: Audit = form.save(commit=False)
         if statement_pages_formset.is_valid():
-            statement_pages: List[StatementPage] = statement_pages_formset.save(
+            statement_pages: list[StatementPage] = statement_pages_formset.save(
                 commit=False
             )
             for statement_page in statement_pages:
