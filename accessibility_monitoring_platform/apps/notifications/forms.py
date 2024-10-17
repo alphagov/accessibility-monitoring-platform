@@ -2,8 +2,6 @@
 Forms - reminders
 """
 
-from typing import List
-
 from django import forms
 
 from ..common.forms import AMPDateField, AMPDateWidget, AMPTextField
@@ -24,7 +22,7 @@ class ReminderForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields: List[str] = [
+        fields: list[str] = [
             "date",
             "description",
         ]

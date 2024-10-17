@@ -4,7 +4,6 @@ import copy
 import logging
 from dataclasses import dataclass
 from enum import StrEnum, auto
-from typing import Dict, List, Optional, Type, Union
 
 from django import forms
 from django.contrib.auth.models import User
@@ -55,32 +54,32 @@ logger = logging.getLogger(__name__)
 class PlatformPage:
     name: str
     platform_page_group_name: str = ""
-    url_name: Optional[str] = None
-    url_kwarg_key: Optional[str] = None
-    object_class: Optional[Type[models.Model]] = None
-    object: Optional[Union[Audit, Case]] = None
+    url_name: str | None = None
+    url_kwarg_key: str | None = None
+    object_class: type[models.Model] | None = None
+    object: Audit | Case | None = None
     object_required_for_url: bool = False
-    complete_flag_name: Optional[str] = None
-    show_flag_name: Optional[str] = None
+    complete_flag_name: str | None = None
+    show_flag_name: str | None = None
     visible_only_when_current: bool = False
-    subpages: Optional[List["PlatformPage"]] = None
-    case_details_form_class: Optional[Type[forms.ModelForm]] = None
+    subpages: list["PlatformPage"] | None = None
+    case_details_form_class: type[forms.ModelForm] | None = None
     case_details_template_name: str = ""
 
     def __init__(
         self,
         name: str,
         platform_page_group_name: str = "",
-        url_name: Optional[str] = None,
-        url_kwarg_key: Optional[str] = None,
-        object_class: Optional[Type[models.Model]] = None,
-        object: Optional[Union[Audit, Case, Page]] = None,
+        url_name: str | None = None,
+        url_kwarg_key: str | None = None,
+        object_class: type[models.Model] | None = None,
+        object: Audit | Case | Page | None = None,
         object_required_for_url: bool = False,
-        complete_flag_name: Optional[str] = None,
-        show_flag_name: Optional[str] = None,
+        complete_flag_name: str | None = None,
+        show_flag_name: str | None = None,
         visible_only_when_current: bool = False,
-        subpages: Optional[List["PlatformPage"]] = None,
-        case_details_form_class: Optional[Type[forms.ModelForm]] = None,
+        subpages: list["PlatformPage"] | None = None,
+        case_details_form_class: type[forms.ModelForm] | None = None,
         case_details_template_name: str = "",
     ):
         self.name = name
@@ -109,7 +108,7 @@ class PlatformPage:
         return repr
 
     @property
-    def url(self) -> Optional[str]:
+    def url(self) -> str | None:
         if self.url_name is None:
             return None
         if self.name.startswith("Page not found for "):
@@ -139,7 +138,7 @@ class PlatformPage:
     def populate_subpage_objects(self):
         if self.object is not None:
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for subpage in self.subpages:
                     subpage_instance: PlatformPage = copy.copy(subpage)
                     if subpage_instance.object_class == self.object_class:
@@ -172,7 +171,7 @@ class PlatformPage:
             return self.name
         return self.name.format(object=self.object)
 
-    def get_case(self) -> Optional[Case]:
+    def get_case(self) -> Case | None:
         if self.object is not None:
             if isinstance(self.object, Case):
                 return self.object
@@ -207,7 +206,7 @@ class CasePlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[Case] = Case
+        self.object_class: type[Case] = Case
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -222,7 +221,7 @@ class CaseContactsPlatformPage(CasePlatformPage):
             self.object = case
             self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for subpage in self.subpages:
                     if subpage.object_class == Case:
                         subpage_instance: PlatformPage = copy.copy(subpage)
@@ -245,7 +244,7 @@ class CaseCommentsPlatformPage(CasePlatformPage):
             self.object = case
             self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for comment in case.qa_comments:
                     for subpage in self.subpages:
                         if subpage.object_class == Comment:
@@ -260,7 +259,7 @@ class AuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[Audit] = Audit
+        self.object_class: type[Audit] = Audit
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -275,7 +274,7 @@ class AuditPagesPlatformPage(AuditPlatformPage):
             self.object = case.audit
             self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for page in case.audit.testable_pages:
                     for subpage in self.subpages:
                         if subpage.object_class == Page:
@@ -290,7 +289,7 @@ class ReportPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[Report] = Report
+        self.object_class: type[Report] = Report
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -300,17 +299,17 @@ class ReportPlatformPage(PlatformPage):
 
 
 class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
-    case: Optional[Case] = None
+    case: Case | None = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[EmailTemplate] = EmailTemplate
+        self.object_class: type[EmailTemplate] = EmailTemplate
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
     @property
-    def url(self) -> Optional[str]:
+    def url(self) -> str | None:
         if self.case is None or self.object is None:
             return ""
         return reverse(
@@ -329,7 +328,7 @@ class AuditRetestPagesPlatformPage(AuditPlatformPage):
             self.object = case.audit
             self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for page in case.audit.testable_pages:
                     for subpage in self.subpages:
                         if subpage.object_class == Page:
@@ -344,7 +343,7 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[Retest] = Retest
+        self.object_class: type[Retest] = Retest
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -354,7 +353,7 @@ class RetestOverviewPlatformPage(CasePlatformPage):
         self.object = case
         self.subpages = get_subpages_by_url_name(url_name=self.url_name)
         if self.subpages is not None:
-            subpage_instances: List[PlatformPage] = []
+            subpage_instances: list[PlatformPage] = []
             for retest in case.retests:
                 if retest.id_within_case > 0:
                     for subpage in self.subpages:
@@ -369,7 +368,7 @@ class RetestOverviewPlatformPage(CasePlatformPage):
 class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
     def populate_subpage_objects(self):
         if self.subpages is not None and self.object is not None:
-            subpage_instances: List[PlatformPage] = []
+            subpage_instances: list[PlatformPage] = []
             for retest_page in self.object.retestpage_set.all():
                 for subpage in self.subpages:
                     if subpage.object_class == RetestPage:
@@ -389,8 +388,8 @@ class PlatformPageGroup:
 
     name: str
     type: Type = Type.DEFAULT
-    show_flag_name: Optional[str] = None
-    pages: Optional[List[PlatformPage]] = None
+    show_flag_name: str | None = None
+    pages: list[PlatformPage] | None = None
 
     @property
     def show(self):
@@ -453,7 +452,7 @@ class CasePlatformPageGroup(PlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
-        self.case: Optional[Case] = None
+        self.case: Case | None = None
 
     @property
     def show(self):
@@ -466,7 +465,7 @@ class CasePlatformPageGroup(PlatformPageGroup):
         super().populate_from_case(case=case)
 
 
-SITE_MAP: List[PlatformPageGroup] = [
+SITE_MAP: list[PlatformPageGroup] = [
     CasePlatformPageGroup(
         name="Case details",
         show_flag_name="not_archived",
@@ -1331,10 +1330,10 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
 ]
 
-SITEMAP_BY_URL_NAME: Dict[str, PlatformPage] = {}
+SITEMAP_BY_URL_NAME: dict[str, PlatformPage] = {}
 
 
-def add_pages(pages: List[PlatformPage], platform_page_group: PlatformPageGroup):
+def add_pages(pages: list[PlatformPage], platform_page_group: PlatformPageGroup):
     """Iterate through pages list adding to sitemap dictionary"""
     for page in pages:
         page.platform_page_group_name: str = platform_page_group.name
@@ -1350,7 +1349,7 @@ def add_pages(pages: List[PlatformPage], platform_page_group: PlatformPageGroup)
 
 
 logger.info("Initialise SITEMAP_BY_URL_NAME")
-site_map: List[PlatformPageGroup] = copy.copy(SITE_MAP)
+site_map: list[PlatformPageGroup] = copy.copy(SITE_MAP)
 for platform_page_group in site_map:
     if platform_page_group.pages is not None:
         add_pages(
@@ -1358,9 +1357,9 @@ for platform_page_group in site_map:
         )
 
 
-def get_subpages_by_url_name(url_name: Optional[str]) -> Optional[List[PlatformPage]]:
+def get_subpages_by_url_name(url_name: str | None) -> list[PlatformPage]:
     if url_name and url_name in SITEMAP_BY_URL_NAME:
-        subpages: Optional[List[PlatformPage]] = copy.deepcopy(
+        subpages: list[PlatformPage] = copy.deepcopy(
             SITEMAP_BY_URL_NAME.get(url_name).subpages
         )
         return subpages
@@ -1379,16 +1378,16 @@ def get_requested_platform_page(request: HttpRequest) -> PlatformPage:
 
 def build_sitemap_for_current_page(
     current_platform_page: PlatformPage,
-) -> List[PlatformPageGroup]:
+) -> list[PlatformPageGroup]:
     """
     Populate the sitemap based on the current page.
     Return the case navigation subset of the sitemap if the current
     page is case-related, otherwise return the entire sitemap.
     """
-    case: Optional[Case] = current_platform_page.get_case()
+    case: Case | None = current_platform_page.get_case()
     if case is not None:
         site_map = copy.deepcopy(SITE_MAP)
-        case_navigation: List[PlatformPageGroup] = [
+        case_navigation: list[PlatformPageGroup] = [
             platform_page_group
             for platform_page_group in site_map
             if platform_page_group.type == PlatformPageGroup.Type.CASE_NAV
@@ -1401,7 +1400,7 @@ def build_sitemap_for_current_page(
 
 
 class Sitemap:
-    platform_page_groups: List[PlatformPageGroup]
+    platform_page_groups: list[PlatformPageGroup]
     current_platform_page: PlatformPage
 
     def __init__(self, request: HttpRequest):

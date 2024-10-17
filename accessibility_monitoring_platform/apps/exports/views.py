@@ -3,7 +3,7 @@ Views for export app
 """
 
 from datetime import date
-from typing import Any, Dict
+from typing import Any
 
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
@@ -34,9 +34,9 @@ class EnforcementBodyMixin:
         )
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         context["enforcement_body"] = self.enforcement_body
         return context
 

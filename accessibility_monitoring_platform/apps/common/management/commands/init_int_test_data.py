@@ -1,7 +1,6 @@
 """Reset integration test data in the database"""
 
 import logging
-from typing import List, Type
 
 from django.contrib.auth.models import Group, User
 from django.core.management import call_command
@@ -54,14 +53,14 @@ def load_fixture(fixture: str) -> None:
     call_command("loaddata", fixture_path)
 
 
-def delete_from_models(model_classes: List[Type[models.Model]]) -> None:
+def delete_from_models(model_classes: list[type[models.Model]]) -> None:
     """Delete all data from models"""
     for model_class in model_classes:
         logging.info("Deleting data from model %s", model_class)
         model_class.objects.all().delete()
 
 
-def delete_from_tables(table_names: List[str]) -> None:
+def delete_from_tables(table_names: list[str]) -> None:
     """Delete data from tables"""
     with connection.cursor() as cursor:
         for table_name in table_names:

@@ -5,7 +5,7 @@ Test utility functions of cases app
 import csv
 import io
 from datetime import date, datetime, timezone
-from typing import Any, List, Tuple
+from typing import Any
 
 import pytest
 from django.http import HttpResponse
@@ -28,7 +28,7 @@ from ..csv_export_utils import (
     populate_equality_body_columns,
 )
 
-CONTACTS: List[Contact] = [
+CONTACTS: list[Contact] = [
     Contact(
         name="Name 1",
         job_title="Job title 1",
@@ -54,25 +54,25 @@ CONTACT_NOTES: str = "Contact notes"
 CONTACT_EMAIL: str = "example@example.com"
 
 
-def decode_csv_response(response: HttpResponse) -> Tuple[List[str], List[List[str]]]:
+def decode_csv_response(response: HttpResponse) -> tuple[list[str], list[list[str]]]:
     """Decode CSV HTTP response and break into column names and data"""
     content: str = response.content.decode("utf-8")
     cvs_reader: Any = csv.reader(io.StringIO(content))
-    csv_body: List[List[str]] = list(cvs_reader)
-    csv_header: List[str] = csv_body.pop(0)
+    csv_body: list[list[str]] = list(cvs_reader)
+    csv_header: list[str] = csv_body.pop(0)
     return csv_header, csv_body
 
 
 def validate_csv_response(
-    csv_header: List[str],
-    csv_body: List[List[str]],
-    expected_header: List[str],
-    expected_first_data_row: List[str],
+    csv_header: list[str],
+    csv_body: list[list[str]],
+    expected_header: list[str],
+    expected_first_data_row: list[str],
 ):
     """Validate csv header and body matches expected data"""
     assert csv_header == expected_header
 
-    first_data_row: List[str] = csv_body[0]
+    first_data_row: list[str] = csv_body[0]
 
     for position in range(len(first_data_row)):
         assert (
@@ -181,7 +181,7 @@ def test_download_feedback_survey_cases():
         compliance_email_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
         contact_notes=CONTACT_NOTES,
     )
-    cases: List[Case] = [case]
+    cases: list[Case] = [case]
 
     response: HttpResponse = download_feedback_survey_cases(
         cases=cases, filename=CSV_EXPORT_FILENAME
@@ -196,10 +196,10 @@ def test_download_feedback_survey_cases():
 
     csv_header, csv_body = decode_csv_response(response)
 
-    expected_header: List[str] = [
+    expected_header: list[str] = [
         column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
     ]
-    expected_first_data_row: List[str] = [
+    expected_first_data_row: list[str] = [
         "1",  # Case no.
         "",  # Organisation name
         "16/12/2022",  # Closing the case date
@@ -222,7 +222,7 @@ def test_download_feedback_survey_cases():
 def test_download_equality_body_cases():
     """Test creation of CSV for equality bodies"""
     case: Case = Case.objects.create()
-    cases: List[Case] = [case]
+    cases: list[Case] = [case]
     Audit.objects.create(
         case=case,
         archive_audit_retest_disproportionate_burden_notes="Audit for CSV export",
@@ -241,11 +241,11 @@ def test_download_equality_body_cases():
 
     csv_header, csv_body = decode_csv_response(response)
 
-    expected_header: List[str] = [
+    expected_header: list[str] = [
         column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT
     ]
 
-    expected_first_data_row: List[str] = [
+    expected_first_data_row: list[str] = [
         "EHRC",
         "Simplified",
         "1",
@@ -297,7 +297,7 @@ def test_download_cases():
         created=datetime(2022, 12, 16, tzinfo=timezone.utc),
         contact_notes="Contact for CSV export",
     )
-    cases: List[Case] = [case]
+    cases: list[Case] = [case]
     Contact.objects.create(case=case, email="test@example.com")
 
     response: HttpResponse = download_cases(cases=cases, filename=CSV_EXPORT_FILENAME)
@@ -311,11 +311,11 @@ def test_download_cases():
 
     csv_header, csv_body = decode_csv_response(response)
 
-    expected_header: List[str] = [
+    expected_header: list[str] = [
         column.column_header for column in CASE_COLUMNS_FOR_EXPORT
     ]
 
-    expected_first_data_row: List[str] = [
+    expected_first_data_row: list[str] = [
         "1",
         "1",
         "",
@@ -422,11 +422,11 @@ def test_populate_equality_body_columns():
     """Test collection of case data for equality body export"""
     case: Case = Case.objects.create()
     Contact.objects.create(case=case, email=CONTACT_EMAIL)
-    row: List[CSVColumn] = populate_equality_body_columns(case=case)
+    row: list[CSVColumn] = populate_equality_body_columns(case=case)
 
     assert len(row) == 34
 
-    contact_details: List[EqualityBodyCSVColumn] = [
+    contact_details: list[EqualityBodyCSVColumn] = [
         cell for cell in row if cell.column_header == "Contact details"
     ]
 
@@ -438,7 +438,7 @@ def test_populate_equality_body_columns():
     assert contact_details_cell.edit_url_name == "cases:manage-contact-details"
     assert contact_details_cell.edit_url == "/cases/1/manage-contact-details/"
 
-    organisation_responded: List[EqualityBodyCSVColumn] = [
+    organisation_responded: list[EqualityBodyCSVColumn] = [
         cell
         for cell in row
         if cell.column_header == "Organisation responded to report?"
@@ -461,13 +461,13 @@ def test_populate_csv_columns():
     """Test collection of case data for CSV export"""
     case: Case = Case.objects.create()
     Contact.objects.create(case=case, email=CONTACT_EMAIL)
-    row: List[CSVColumn] = populate_csv_columns(
+    row: list[CSVColumn] = populate_csv_columns(
         case=case, column_definitions=CASE_COLUMNS_FOR_EXPORT
     )
 
     assert len(row) == 91
 
-    contact_email: List[CSVColumn] = [
+    contact_email: list[CSVColumn] = [
         cell for cell in row if cell.column_header == "Contact email"
     ]
 
@@ -483,7 +483,7 @@ def test_populate_feedback_survey_columns():
     """Test collection of case data for feedback survey export"""
     case: Case = Case.objects.create()
     Contact.objects.create(case=case, email=CONTACT_EMAIL)
-    row: List[CSVColumn] = populate_csv_columns(
+    row: list[CSVColumn] = populate_csv_columns(
         case=case, column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
     )
 

@@ -2,7 +2,7 @@
 Forms - checks (called tests by users)
 """
 
-from typing import Any, List, Tuple
+from typing import Any
 
 from django import forms
 
@@ -37,16 +37,16 @@ from .models import (
     WcagDefinition,
 )
 
-CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = (
+CHECK_RESULT_TYPE_FILTER_CHOICES: list[tuple[str, str]] = (
     WcagDefinition.Type.choices
     + [
         ("", "All"),
     ]
 )
-TEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[Tuple[str, str]] = (
+TEST_CHECK_RESULT_STATE_FILTER_CHOICES: list[tuple[str, str]] = (
     CheckResult.Result.choices + [("", "All")]
 )
-RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[Tuple[str, str]] = (
+RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: list[tuple[str, str]] = (
     CheckResult.RetestResult.choices + [("", "All")]
 )
 
@@ -67,7 +67,7 @@ class AuditMetadataUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "date_of_test",
             "screen_size",
@@ -147,7 +147,7 @@ class AuditPagesUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_pages_complete_date",
         ]
@@ -168,7 +168,7 @@ class AuditPageChecksForm(forms.Form):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "complete_date",
             "no_errors_date",
         ]
@@ -195,7 +195,7 @@ class CheckResultFilterForm(forms.Form):
 
     class Meta:
         model = Page
-        fields: List[str] = [
+        fields: list[str] = [
             "name",
             "type_filter",
             "state_filter",
@@ -238,7 +238,7 @@ class AuditWebsiteDecisionUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_website_decision_complete_date",
         ]
@@ -260,7 +260,7 @@ class CaseComplianceWebsiteInitialUpdateForm(VersionForm):
 
     class Meta:
         model = CaseCompliance
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "website_compliance_state_initial",
             "website_compliance_notes_initial",
@@ -318,7 +318,7 @@ class ArchiveAuditStatement1UpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "accessibility_statement_backup_url",
             "archive_scope_state",
@@ -381,7 +381,7 @@ class ArchiveAuditStatement2UpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "accessibility_statement_backup_url",
             "archive_disproportionate_burden_state",
@@ -409,7 +409,7 @@ class AuditStatementDecisionUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_statement_decision_complete_date",
         ]
@@ -450,7 +450,7 @@ class AuditStatementOverviewUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_extra_report_text",
             "audit_statement_overview_complete_date",
@@ -466,7 +466,7 @@ class AuditStatementWebsiteUpdateForm(VersionForm):
 
     class Meta:
         model = Case
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_statement_website_complete_date",
         ]
@@ -481,7 +481,7 @@ class AuditStatementComplianceUpdateForm(VersionForm):
 
     class Meta:
         model = Case
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_statement_compliance_complete_date",
         ]
@@ -496,7 +496,7 @@ class AuditStatementNonAccessibleUpdateForm(VersionForm):
 
     class Meta:
         model = Case
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_statement_non_accessible_complete_date",
         ]
@@ -511,7 +511,7 @@ class AuditStatementPreparationUpdateForm(VersionForm):
 
     class Meta:
         model = Case
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_statement_preparation_complete_date",
         ]
@@ -526,7 +526,7 @@ class AuditStatementFeedbackUpdateForm(VersionForm):
 
     class Meta:
         model = Case
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_statement_feedback_complete_date",
         ]
@@ -541,7 +541,7 @@ class AuditStatementCustomUpdateForm(VersionForm):
 
     class Meta:
         model = Case
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_statement_custom_complete_date",
         ]
@@ -584,7 +584,7 @@ class InitialDisproportionateBurdenUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "initial_disproportionate_burden_claim",
             "initial_disproportionate_burden_notes",
@@ -608,7 +608,7 @@ class CaseComplianceStatementInitialUpdateForm(VersionForm):
 
     class Meta:
         model = CaseCompliance
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_compliance_state_initial",
             "statement_compliance_notes_initial",
@@ -624,7 +624,7 @@ class AuditWcagSummaryUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_wcag_summary_complete_date",
         ]
@@ -639,7 +639,7 @@ class AuditStatementSummaryUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_statement_summary_complete_date",
         ]
@@ -879,7 +879,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "archive_accessibility_statement_state",
             "archive_accessibility_statement_not_correct_format",
@@ -921,7 +921,7 @@ class AuditRetestMetadataUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "retest_date",
             "audit_retest_metadata_notes",
@@ -938,7 +938,7 @@ class AuditRetestPagesUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_pages_complete_date",
         ]
@@ -960,7 +960,7 @@ class AuditRetestPageChecksForm(forms.Form):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "retest_complete_date",
             "retest_page_missing_date",
             "retest_notes",
@@ -988,7 +988,7 @@ class AuditRetestCheckResultFilterForm(forms.Form):
 
     class Meta:
         model = Page
-        fields: List[str] = [
+        fields: list[str] = [
             "name",
             "type_filter",
             "state_filter",
@@ -1031,7 +1031,7 @@ class AuditRetestWebsiteDecisionUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_website_decision_complete_date",
         ]
@@ -1068,7 +1068,7 @@ class AuditRetestWcagSummaryUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_wcag_summary_complete_date",
         ]
@@ -1083,7 +1083,7 @@ class AuditRetestStatementSummaryUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_statement_summary_complete_date",
         ]
@@ -1133,7 +1133,7 @@ class ArchiveAuditRetestStatement1UpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "archive_audit_retest_scope_state",
             "archive_audit_retest_scope_notes",
@@ -1192,7 +1192,7 @@ class ArchiveAuditRetestStatement2UpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "archive_audit_retest_disproportionate_burden_state",
             "archive_audit_retest_disproportionate_burden_notes",
@@ -1244,7 +1244,7 @@ class AuditRetestStatementOverviewUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_statement_overview_complete_date",
         ]
@@ -1259,7 +1259,7 @@ class AuditRetestStatementWebsiteUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_statement_website_complete_date",
         ]
@@ -1274,7 +1274,7 @@ class AuditRetestStatementComplianceUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_statement_compliance_complete_date",
         ]
@@ -1289,7 +1289,7 @@ class AuditRetestStatementNonAccessibleUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_statement_non_accessible_complete_date",
         ]
@@ -1304,7 +1304,7 @@ class AuditRetestStatementPreparationUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_statement_preparation_complete_date",
         ]
@@ -1319,7 +1319,7 @@ class AuditRetestStatementFeedbackUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_statement_feedback_complete_date",
         ]
@@ -1334,7 +1334,7 @@ class AuditRetestStatementCustomUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_statement_custom_complete_date",
         ]
@@ -1352,7 +1352,7 @@ class AuditRetestStatementDecisionUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_accessibility_statement_backup_url",
             "audit_retest_statement_decision_complete_date",
@@ -1375,7 +1375,7 @@ class TwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "twelve_week_disproportionate_burden_claim",
             "twelve_week_disproportionate_burden_notes",
@@ -1436,7 +1436,7 @@ class WcagDefinitionCreateUpdateForm(forms.ModelForm):
 
     class Meta:
         model = WcagDefinition
-        fields: List[str] = [
+        fields: list[str] = [
             "name",
             "date_start",
             "date_end",
@@ -1479,7 +1479,7 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
 
     class Meta:
         model = StatementCheck
-        fields: List[str] = [
+        fields: list[str] = [
             "label",
             "date_start",
             "date_end",
@@ -1508,7 +1508,7 @@ class RetestUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "date_of_retest",
             "retest_notes",
             "complete_date",
@@ -1531,7 +1531,7 @@ class RetestPageChecksForm(forms.ModelForm):
 
     class Meta:
         model = RetestPage
-        fields: List[str] = [
+        fields: list[str] = [
             "complete_date",
             "missing_date",
             "additional_issues_notes",
@@ -1574,7 +1574,7 @@ class RetestComparisonUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "comparison_complete_date",
         ]
 
@@ -1593,7 +1593,7 @@ class RetestComplianceUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "retest_compliance_state",
             "compliance_notes",
             "compliance_complete_date",
@@ -1633,7 +1633,7 @@ class AuditStatementPagesUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_statement_pages_complete_date",
         ]
@@ -1648,7 +1648,7 @@ class TwelveWeekStatementPagesUpdateForm(VersionForm):
 
     class Meta:
         model = Audit
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "audit_retest_statement_pages_complete_date",
         ]
@@ -1663,7 +1663,7 @@ class RetestStatementPagesUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_pages_complete_date",
         ]
@@ -1703,7 +1703,7 @@ class RetestStatementOverviewUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_overview_complete_date",
         ]
@@ -1718,7 +1718,7 @@ class RetestStatementWebsiteUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_website_complete_date",
         ]
@@ -1733,7 +1733,7 @@ class RetestStatementComplianceUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_compliance_complete_date",
         ]
@@ -1748,7 +1748,7 @@ class RetestStatementNonAccessibleUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_non_accessible_complete_date",
         ]
@@ -1763,7 +1763,7 @@ class RetestStatementPreparationUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_preparation_complete_date",
         ]
@@ -1778,7 +1778,7 @@ class RetestStatementFeedbackUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_feedback_complete_date",
         ]
@@ -1793,7 +1793,7 @@ class RetestStatementCustomUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_custom_complete_date",
         ]
@@ -1830,7 +1830,7 @@ class RetestStatementResultsUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_results_complete_date",
         ]
@@ -1852,7 +1852,7 @@ class RetestDisproportionateBurdenUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "disproportionate_burden_claim",
             "disproportionate_burden_notes",
@@ -1874,7 +1874,7 @@ class RetestStatementDecisionUpdateForm(VersionForm):
 
     class Meta:
         model = Retest
-        fields: List[str] = [
+        fields: list[str] = [
             "version",
             "statement_compliance_state",
             "statement_compliance_notes",

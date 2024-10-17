@@ -3,7 +3,6 @@ Test utility functions of cases app
 """
 
 from datetime import date
-from typing import List
 
 import pytest
 from django.contrib.auth.models import User
@@ -722,7 +721,7 @@ def test_get_subpages_by_url_name():
 
     assert get_subpages_by_url_name("cases:edit-case-metadata") is None
 
-    subpages: List[PlatformPage] = get_subpages_by_url_name(
+    subpages: list[PlatformPage] = get_subpages_by_url_name(
         "audits:edit-statement-overview"
     )
 
@@ -736,7 +735,7 @@ def test_build_sitemap_for_non_case_current_page():
     platform_page: PlatformPage = PlatformPage(
         name="Test", url_name="common:platform-checking"
     )
-    platform_page_groups: List[PlatformPageGroup] = build_sitemap_for_current_page(
+    platform_page_groups: list[PlatformPageGroup] = build_sitemap_for_current_page(
         current_platform_page=platform_page
     )
 
@@ -750,7 +749,7 @@ def test_build_sitemap_for_case_related_current_page():
     platform_page: PlatformPage = PlatformPage(
         name="Test", url_name="cases:case-metadata", object_class=Case, object=case
     )
-    platform_page_groups: List[PlatformPageGroup] = build_sitemap_for_current_page(
+    platform_page_groups: list[PlatformPageGroup] = build_sitemap_for_current_page(
         current_platform_page=platform_page
     )
 

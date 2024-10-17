@@ -4,9 +4,10 @@ import copy
 import json
 import re
 import urllib
+from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
-from typing import Any, Dict, Iterable, List, Match, Optional, Tuple, Union
+from typing import Any, Match
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -42,7 +43,7 @@ def extract_domain_from_url(url: str) -> str:
         url = url[8:]
     elif url.startswith("http://"):
         url = url[7:]
-    domain_match: Union[Match[str], None] = re.search("([A-Za-z_0-9.-]+).*", url)
+    domain_match: Match[str] | None = re.search("([A-Za-z_0-9.-]+).*", url)
     return domain_match.group(1) if domain_match else ""
 
 
@@ -73,17 +74,17 @@ def sanitise_domain(domain: str) -> str:
 
 def get_id_from_button_name(
     button_name_prefix: str, querydict: QueryDict
-) -> Optional[int]:
+) -> int | None:
     """
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
-    key_names: List[str] = [
+    key_names: list[str] = [
         key for key in querydict.keys() if key.startswith(button_name_prefix)
     ]
-    object_id: Optional[int] = None
+    object_id: int | None = None
     if len(key_names) == 1:
         id_string: str = key_names[0].replace(button_name_prefix, "")
-        object_id: Optional[int] = int(id_string) if id_string.isdigit() else None
+        object_id: int | None = int(id_string) if id_string.isdigit() else None
     return object_id
 
 
@@ -93,7 +94,7 @@ def mark_object_as_deleted(
     """
     Check for delete/remove button in request. Mark object as deleted.
     """
-    object_id_to_delete: Optional[int] = get_id_from_button_name(
+    object_id_to_delete: int | None = get_id_from_button_name(
         button_name_prefix=delete_button_prefix,
         querydict=request.POST,
     )
@@ -105,15 +106,15 @@ def mark_object_as_deleted(
 
 
 def build_filters(
-    cleaned_data: Dict, field_and_filter_names: List[Tuple[str, str]]
-) -> Dict[str, Any]:
+    cleaned_data: dict, field_and_filter_names: list[tuple[str, str]]
+) -> dict[str, Any]:
     """
     Given the form cleaned_data, work through a list of field and filter names
     to build up a dictionary of filters to apply in a queryset.
     """
-    filters: Dict[str, Any] = {}
+    filters: dict[str, Any] = {}
     for field_name, filter_name in field_and_filter_names:
-        value: Optional[str] = cleaned_data.get(field_name)
+        value: str | None = cleaned_data.get(field_name)
         if value:
             filters[filter_name] = value
     return filters
@@ -174,8 +175,8 @@ def get_days_ago_timestamp(days: int = 30) -> datetime:
 
 
 def diff_model_fields(
-    old_fields: Dict[str, Any], new_fields: Dict[str, Any]
-) -> Dict[str, Any]:
+    old_fields: dict[str, Any], new_fields: dict[str, Any]
+) -> dict[str, Any]:
     """Return differences between old and new values of fields"""
     if not old_fields:
         return new_fields
@@ -199,7 +200,7 @@ def record_model_update_event(user: User, model_object: models.Model) -> None:
     del old_model_fields["_state"]
     new_model_fields = copy.copy(vars(model_object))
     del new_model_fields["_state"]
-    diff_fields: Dict[str, Any] = diff_model_fields(
+    diff_fields: dict[str, Any] = diff_model_fields(
         old_fields=old_model_fields, new_fields=new_model_fields
     )
     if diff_fields:
@@ -223,14 +224,14 @@ def record_model_create_event(user: User, model_object: models.Model) -> None:
 
 
 def list_to_dictionary_of_lists(
-    items: List[Any], group_by_attr: str
-) -> Dict[Any, List[Any]]:
+    items: list[Any], group_by_attr: str
+) -> dict[Any, list[Any]]:
     """
     Group a list of items by an attribute of those items and return a dictionary
     with that attribute as the key and the value being a list of items matching the attribute.
 
     """
-    dict_of_lists_of_items: Dict[Any, List[Any]] = {}
+    dict_of_lists_of_items: dict[Any, list[Any]] = {}
     for item in items:
         dict_of_lists_of_items.setdefault(getattr(item, group_by_attr), []).append(item)
     return dict_of_lists_of_items
@@ -272,7 +273,7 @@ def checks_if_2fa_is_enabled(user: User) -> bool:
     )
 
 
-def check_dict_for_truthy_values(dictionary: Dict, keys_to_check: List[str]) -> bool:
+def check_dict_for_truthy_values(dictionary: dict, keys_to_check: list[str]) -> bool:
     """Check list of keys in dictionary for at least one truthy value"""
     return len([True for field_name in keys_to_check if dictionary.get(field_name)]) > 0
 
@@ -317,7 +318,7 @@ def format_statement_check_overview(
     return result
 
 
-def get_dict_without_page_items(items: Iterable[Tuple[str, str]]) -> Dict[str, str]:
+def get_dict_without_page_items(items: Iterable[tuple[str, str]]) -> dict[str, str]:
     """Remove tuples beginning with 'page' from iterable"""
     return {key: value for (key, value) in items if key != "page"}
 

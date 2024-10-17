@@ -2,12 +2,10 @@
 Forms - reports
 """
 
-from typing import List
-
 from django import forms
 
-from ..common.forms import AMPCharFieldWide, AMPTextField, VersionForm
-from .models import Report, ReportWrapper
+from ..common.forms import AMPCharFieldWide, AMPTextField
+from .models import ReportWrapper
 
 
 class ReportWrapperUpdateForm(forms.ModelForm):
@@ -22,7 +20,7 @@ class ReportWrapperUpdateForm(forms.ModelForm):
 
     class Meta:
         model = ReportWrapper
-        fields: List[str] = [
+        fields: list[str] = [
             "title",
             "sent_by",
             "contact",

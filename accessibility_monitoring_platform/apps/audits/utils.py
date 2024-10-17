@@ -4,7 +4,6 @@ Utilities for audits app
 
 from collections import namedtuple
 from datetime import date, datetime
-from typing import Dict, List, Optional, Union
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -25,7 +24,7 @@ from .models import (
     WcagDefinition,
 )
 
-MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
+MANUAL_CHECK_SUB_TYPE_LABELS: dict[str, str] = {
     "keyboard": "Keyboard",
     "zoom": "Zoom and Reflow",
     "audio-visual": "Audio and Visual",
@@ -35,7 +34,7 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
 StatementContentSubsection = namedtuple(
     "StatementContentSubsection", "name attr_unique url_suffix"
 )
-STATEMENT_CONTENT_SUBSECTIONS: List[StatementContentSubsection] = [
+STATEMENT_CONTENT_SUBSECTIONS: list[StatementContentSubsection] = [
     StatementContentSubsection("Statement information", "website", "website"),
     StatementContentSubsection("Compliance status", "compliance", "compliance"),
     StatementContentSubsection(
@@ -52,7 +51,7 @@ STATEMENT_CONTENT_SUBSECTIONS: List[StatementContentSubsection] = [
 
 
 def create_or_update_check_results_for_page(
-    user: User, page: Page, check_result_forms: List[CheckResultForm]
+    user: User, page: Page, check_result_forms: list[CheckResultForm]
 ) -> None:
     """
     Create or update check results based on form data:
@@ -97,17 +96,17 @@ def create_or_update_check_results_for_page(
 
 
 def get_all_possible_check_results_for_page(
-    page: Page, wcag_definitions: List[WcagDefinition]
-) -> List[Dict[str, Union[str, WcagDefinition]]]:
+    page: Page, wcag_definitions: list[WcagDefinition]
+) -> list[dict[str, str | WcagDefinition]]:
     """
     Combine existing check result with all the WCAG definitions
     to create a list of dictionaries for use in populating the
     CheckResultFormset with all possible results.
     """
-    check_results_by_wcag_definition: Dict[WcagDefinition, CheckResult] = (
+    check_results_by_wcag_definition: dict[WcagDefinition, CheckResult] = (
         page.check_results_by_wcag_definition
     )
-    check_results: List[Dict[str, Union[str, WcagDefinition]]] = []
+    check_results: list[dict[str, str | WcagDefinition]] = []
 
     for wcag_definition in wcag_definitions:
         if wcag_definition in check_results_by_wcag_definition:
@@ -116,11 +115,11 @@ def get_all_possible_check_results_for_page(
             ]
             check_result_state: str = check_result.check_result_state
             notes: str = check_result.notes
-            id_within_case: Optional[int] = check_result.id_within_case
+            id_within_case: int | None = check_result.id_within_case
         else:
             check_result_state: str = CheckResult.Result.NOT_TESTED
             notes: str = ""
-            id_within_case: Optional[int] = None
+            id_within_case: int | None = None
         check_results.append(
             {
                 "wcag_definition": wcag_definition,
@@ -159,51 +158,49 @@ def create_statement_checks_for_new_audit(audit: Audit) -> None:
         )
 
 
-def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> str:
+def get_next_page_url(audit: Audit, current_page: Page | None = None) -> str:
     """
     Return the path of the page to go to when a save and continue button is
     pressed on the page where pages or pages check results are entered.
     """
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     if not audit.testable_pages:
         return reverse("audits:edit-website-decision", kwargs=audit_pk)
 
     if current_page is None:
-        next_page_pk: Dict[str, int] = {"pk": audit.testable_pages.first().id}
+        next_page_pk: dict[str, int] = {"pk": audit.testable_pages.first().id}
         return reverse("audits:edit-audit-page-checks", kwargs=next_page_pk)
 
-    testable_pages: List[Page] = list(audit.testable_pages)
+    testable_pages: list[Page] = list(audit.testable_pages)
     if testable_pages[-1] == current_page:
         return reverse("audits:edit-website-decision", kwargs=audit_pk)
 
     current_page_position: int = testable_pages.index(current_page)
-    next_page_pk: Dict[str, int] = {"pk": testable_pages[current_page_position + 1].id}
+    next_page_pk: dict[str, int] = {"pk": testable_pages[current_page_position + 1].id}
     return reverse("audits:edit-audit-page-checks", kwargs=next_page_pk)
 
 
-def get_next_retest_page_url(
-    audit: Audit, current_page: Union[Page, None] = None
-) -> str:
+def get_next_retest_page_url(audit: Audit, current_page: Page | None = None) -> str:
     """
     Return the path of the page to go to when a save and continue button is
     pressed on the page where pages or pages check results are retested.
     """
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    testable_pages_with_errors: List[Page] = [
+    audit_pk: dict[str, int] = {"pk": audit.id}
+    testable_pages_with_errors: list[Page] = [
         page for page in audit.testable_pages if page.failed_check_results
     ]
     if not testable_pages_with_errors:
         return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
 
     if current_page is None:
-        next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[0].id}
+        next_page_pk: dict[str, int] = {"pk": testable_pages_with_errors[0].id}
         return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
 
     if testable_pages_with_errors[-1] == current_page:
         return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
 
     current_page_position: int = testable_pages_with_errors.index(current_page)
-    next_page_pk: Dict[str, int] = {
+    next_page_pk: dict[str, int] = {
         "pk": testable_pages_with_errors[current_page_position + 1].id
     }
     return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
@@ -211,7 +208,7 @@ def get_next_retest_page_url(
 
 def other_page_failed_check_results(
     page: Page,
-) -> Dict[WcagDefinition, List[CheckResult]]:
+) -> dict[WcagDefinition, list[CheckResult]]:
     """
     Find all failed check results for other pages.
     Return them in a dictionary keyed by their WcagDefinitions.
@@ -220,9 +217,9 @@ def other_page_failed_check_results(
         page (Page): Page object
 
     Returns:
-        Dict[WcagDefinition, List[CheckResult]]: Dictionary of failed check results
+        dict[WcagDefinition, list[CheckResult]]: Dictionary of failed check results
     """
-    failed_check_results_by_wcag_definition: Dict[WcagDefinition, List[CheckResult]] = (
+    failed_check_results_by_wcag_definition: dict[WcagDefinition, list[CheckResult]] = (
         {}
     )
     for check_result in page.audit.failed_check_results.exclude(page=page):
@@ -294,30 +291,30 @@ def create_checkresults_for_retest(retest: Retest) -> None:
 
 
 def get_next_equality_body_retest_page_url(
-    retest: Retest, current_page: Optional[RetestPage] = None
+    retest: Retest, current_page: RetestPage | None = None
 ) -> str:
     """
     Return the path of the next retest page to go to when a save and continue button is
     pressed.
     """
-    retest_pk: Dict[str, int] = {"pk": retest.id}
-    retest_pages: List[RetestPage] = list(retest.retestpage_set.all())
+    retest_pk: dict[str, int] = {"pk": retest.id}
+    retest_pages: list[RetestPage] = list(retest.retestpage_set.all())
     if not retest_pages:
         return reverse("audits:retest-comparison-update", kwargs=retest_pk)
 
     if current_page is None:
-        next_page_pk: Dict[str, int] = {"pk": retest_pages[0].id}
+        next_page_pk: dict[str, int] = {"pk": retest_pages[0].id}
         return reverse("audits:edit-retest-page-checks", kwargs=next_page_pk)
 
     if retest_pages[-1] == current_page:
         return reverse("audits:retest-comparison-update", kwargs=retest_pk)
 
     current_page_position: int = retest_pages.index(current_page)
-    next_page_pk: Dict[str, int] = {"pk": retest_pages[current_page_position + 1].id}
+    next_page_pk: dict[str, int] = {"pk": retest_pages[current_page_position + 1].id}
     return reverse("audits:edit-retest-page-checks", kwargs=next_page_pk)
 
 
-def get_other_pages_with_retest_notes(page: Page) -> List[Page]:
+def get_other_pages_with_retest_notes(page: Page) -> list[Page]:
     """Check other pages of this case for retest notes and return them"""
     audit: Audit = page.audit
     return [

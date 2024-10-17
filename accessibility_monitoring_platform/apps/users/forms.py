@@ -1,7 +1,8 @@
 """
 Form for users
 """
-from typing import Any, Optional
+
+from typing import Any
 
 from django import forms
 from django.contrib.auth import password_validation
@@ -57,8 +58,8 @@ class UserCreateForm(UserCreationForm):
 
     def clean_email_confirm(self):
         """Ensures the email conforms and is unique"""
-        email: Optional[str] = self.cleaned_data.get("email")
-        email_confirm: Optional[str] = self.cleaned_data.get("email_confirm")
+        email: str | None = self.cleaned_data.get("email")
+        email_confirm: str | None = self.cleaned_data.get("email_confirm")
 
         try:
             AllowedEmail.objects.get(inclusion_email=email)

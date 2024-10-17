@@ -1,15 +1,16 @@
 """Utilities to build JSON serialisable object to store in Case.archive"""
+
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from .templatetags.common_tags import amp_date, amp_datetime
 
 
 def build_section(
     name: str,
-    complete_date: Union[date, datetime, None],
-    fields: List[Dict[str, Union[str, None]]],
-    subsections: Union[List[Dict[str, Union[str, None]]], None] = None,
+    complete_date: date | datetime | None,
+    fields: list[dict[str, str | None]],
+    subsections: list[dict[str, str | None]] | None = None,
 ):
     complete_flag = complete_date.isoformat() if complete_date else None
     return {
@@ -24,8 +25,8 @@ def build_field(
     model: Any,
     field_name: str,
     label: str,
-    data_type: Optional[str] = None,
-    display_value: Optional[str] = None,
+    data_type: str | None = None,
+    display_value: str | None = None,
 ):
     field = getattr(model, field_name)
     if data_type is None:
