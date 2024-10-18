@@ -1697,6 +1697,28 @@ def test_updating_report_sent_date(admin_client):
     )
 
 
+def test_report_sent_on_warning(admin_client):
+    """Test that report sent on page shows warning if case is due to a complaint"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+    assertNotContains(response, "This case originated from a complaint")
+
+    case.is_complaint = Boolean.YES
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "This case originated from a complaint")
+
+
 def test_report_followup_due_dates_changed(admin_client):
     """
     Test that populating the report sent date updates existing report followup due dates
