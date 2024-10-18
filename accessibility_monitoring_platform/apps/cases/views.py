@@ -49,7 +49,7 @@ from ..exports.csv_export_utils import (
     populate_equality_body_columns,
 )
 from ..notifications.models import Task
-from ..notifications.utils import add_task
+from ..notifications.utils import add_task, mark_tasks_as_read
 from ..reports.utils import build_issues_tables, publish_report_util
 from .forms import (
     CaseCloseUpdateForm,
@@ -1443,3 +1443,12 @@ def enable_correspondence_process(
     return redirect(
         reverse("cases:edit-request-contact-details", kwargs={"pk": case.id})
     )
+
+
+def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedirect:
+    """Mark QA comment reminders as read for the current user"""
+    case: Case = Case.objects.get(id=pk)
+    mark_tasks_as_read(user=request.user, case=case, type=Task.Type.QA_COMMENT)
+    mark_tasks_as_read(user=request.user, case=case, type=Task.Type.REPORT_APPROVED)
+    messages.success(request, f"{case} comments marked as read")
+    return redirect(reverse("cases:edit-qa-comments", kwargs={"pk": case.id}))

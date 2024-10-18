@@ -56,6 +56,7 @@ from ..views import (
     calculate_twelve_week_chaser_dates,
     find_duplicate_cases,
     format_due_date_help_text,
+    mark_qa_comments_as_read,
 )
 
 CONTACT_NAME: str = "Contact Name"
@@ -184,6 +185,14 @@ CORRESPONDENCE_PROCESS_PAGES: list[tuple[str, str]] = [
     ("edit-four-week-contact-details", "Four-week follow-up"),
     ("edit-no-psb-response", "Unresponsive PSB"),
 ]
+
+
+class MockMessages:
+    def __init__(self):
+        self.messages = []
+
+    def add(self, level: str, message: str, extra_tags: str) -> None:
+        self.messages.append((level, message, extra_tags))
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -1505,6 +1514,50 @@ def test_qa_comments_does_not_create_comment(admin_client, admin_user):
     assert response.status_code == 302
 
     assert Comment.objects.filter(case=case).count() == 0
+
+
+@pytest.mark.django_db
+def test_mark_qa_comments_as_read(rf):
+    """Test marking QA comments as read"""
+    other_user: User = User.objects.create()
+    case: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME, auditor=other_user
+    )
+    other_user_qa_comment_reminder: Task = Task.objects.create(
+        case=case, user=other_user, type=Task.Type.QA_COMMENT, date=TODAY
+    )
+    other_user_report_approved_reminder: Task = Task.objects.create(
+        case=case, user=other_user, type=Task.Type.REPORT_APPROVED, date=TODAY
+    )
+
+    request_user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    request = rf.get(
+        reverse("cases:mark-qa-comments-as-read", kwargs={"pk": case.id}),
+    )
+    request.user = request_user
+    request._messages = MockMessages()
+
+    qa_comment_reminder: Task = Task.objects.create(
+        case=case, user=request_user, type=Task.Type.QA_COMMENT, date=TODAY
+    )
+    report_approved_reminder: Task = Task.objects.create(
+        case=case, user=request_user, type=Task.Type.REPORT_APPROVED, date=TODAY
+    )
+
+    response: HttpResponse = mark_qa_comments_as_read(request, pk=case.id)
+
+    assert response.status_code == 302
+
+    assert Task.objects.get(id=other_user_qa_comment_reminder.id).read is False
+    assert Task.objects.get(id=other_user_report_approved_reminder.id).read is False
+
+    assert Task.objects.get(id=qa_comment_reminder.id).read is True
+    assert Task.objects.get(id=report_approved_reminder.id).read is True
+
+    assert len(request._messages.messages) == 1
+    assert request._messages.messages[0][1] == f"{case} comments marked as read"
 
 
 def test_no_contact_chaser_dates_set(
