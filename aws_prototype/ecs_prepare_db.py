@@ -2,7 +2,6 @@
 
 import json
 import os
-from typing import Any
 
 import boto3
 
@@ -47,7 +46,7 @@ def create_db() -> None:
 
 def most_recent_db_s3_path(bucket: str):
     s3_client = boto3.client("s3")
-    db_backups: list[Any] = []
+    db_backups: list = []
     for key in s3_client.list_objects(Bucket=bucket)["Contents"]:
         if ".sql" in key["Key"]:
             db_backups.append(key)

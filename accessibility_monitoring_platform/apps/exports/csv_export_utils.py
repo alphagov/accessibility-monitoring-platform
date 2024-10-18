@@ -879,7 +879,7 @@ def download_equality_body_cases(
     filename: str = "enforcement_body_cases.csv",
 ) -> HttpResponse:
     """Given a Case queryset, download the data in csv format for equality body"""
-    response: Any = HttpResponse(content_type="text/csv")
+    response: HttpResponse = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
@@ -924,7 +924,7 @@ def populate_csv_columns(
 
 def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpResponse:
     """Given a Case queryset, download the data in csv format"""
-    response: Any = HttpResponse(content_type="text/csv")
+    response: HttpResponse = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
@@ -946,7 +946,7 @@ def download_feedback_survey_cases(
     cases: QuerySet[Case], filename: str = "feedback_survey_cases.csv"
 ) -> HttpResponse:
     """Given a Case queryset, download the feedback survey data in csv format"""
-    response: Any = HttpResponse(content_type="text/csv")
+    response: HttpResponse = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)

@@ -5,6 +5,7 @@ Home should be the only view for dashboard.
 """
 
 from datetime import date
+from typing import Any
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -24,8 +25,8 @@ class DashboardView(TemplateView):
 
     template_name: str = "dashboard/dashboard.html"
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, *args, **kwargs) -> dict[str, Any]:
+        context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         user: User = get_object_or_404(User, id=self.request.user.id)  # type: ignore
         all_cases: list[Case] = list(
             Case.objects.all().select_related("auditor", "reviewer").all()

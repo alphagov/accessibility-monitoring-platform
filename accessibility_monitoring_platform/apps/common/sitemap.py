@@ -4,6 +4,7 @@ import copy
 import logging
 from dataclasses import dataclass
 from enum import StrEnum, auto
+from typing import ClassVar
 
 from django import forms
 from django.contrib.auth.models import User
@@ -206,7 +207,7 @@ class CasePlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: type[Case] = Case
+        self.object_class: ClassVar[Case] = Case
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -259,7 +260,7 @@ class AuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: type[Audit] = Audit
+        self.object_class: ClassVar[Audit] = Audit
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -289,7 +290,7 @@ class ReportPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: type[Report] = Report
+        self.object_class: ClassVar[Report] = Report
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -304,7 +305,7 @@ class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: type[EmailTemplate] = EmailTemplate
+        self.object_class: ClassVar[EmailTemplate] = EmailTemplate
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -343,7 +344,7 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: type[Retest] = Retest
+        self.object_class: ClassVar[Retest] = Retest
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 

@@ -2,8 +2,6 @@
 Forms - checks (called tests by users)
 """
 
-from typing import Any
-
 from django import forms
 
 from ..cases.models import Boolean, Case, CaseCompliance
@@ -95,13 +93,13 @@ class AuditExtraPageUpdateForm(forms.ModelForm):
         ]
 
 
-AuditExtraPageFormset: Any = forms.modelformset_factory(
+AuditExtraPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
     Page, AuditExtraPageUpdateForm, extra=0
 )
-AuditExtraPageFormsetOneExtra: Any = forms.modelformset_factory(
+AuditExtraPageFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
     Page, AuditExtraPageUpdateForm, extra=1
 )
-AuditExtraPageFormsetTwoExtra: Any = forms.modelformset_factory(
+AuditExtraPageFormsetTwoExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
     Page, AuditExtraPageUpdateForm, extra=2
 )
 
@@ -133,7 +131,7 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
         ]
 
 
-AuditStandardPageFormset: Any = forms.modelformset_factory(
+AuditStandardPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
     Page, AuditStandardPageUpdateForm, extra=0
 )
 
@@ -226,7 +224,9 @@ class CheckResultForm(forms.ModelForm):
         ]
 
 
-CheckResultFormset: Any = forms.formset_factory(CheckResultForm, extra=0)
+CheckResultFormset: forms.formsets.BaseFormSet = forms.formset_factory(
+    CheckResultForm, extra=0
+)
 
 
 class AuditWebsiteDecisionUpdateForm(VersionForm):
@@ -435,7 +435,7 @@ class StatementCheckResultForm(forms.ModelForm):
         ]
 
 
-StatementCheckResultFormset: Any = forms.modelformset_factory(
+StatementCheckResultFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
     StatementCheckResult, StatementCheckResultForm, extra=0
 )
 
@@ -560,11 +560,15 @@ class CustomStatementCheckResultUpdateForm(forms.ModelForm):
         fields = ["report_comment", "auditor_notes"]
 
 
-CustomStatementCheckResultFormset: Any = forms.modelformset_factory(
-    StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=0
+CustomStatementCheckResultFormset: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=0
+    )
 )
-CustomStatementCheckResultFormsetOneExtra: Any = forms.modelformset_factory(
-    StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=1
+CustomStatementCheckResultFormsetOneExtra: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=1
+    )
 )
 
 
@@ -1017,7 +1021,7 @@ class AuditRetestCheckResultForm(forms.ModelForm):
         ]
 
 
-AuditRetestCheckResultFormset: Any = forms.formset_factory(
+AuditRetestCheckResultFormset: forms.formsets.BaseFormSet = forms.formset_factory(
     AuditRetestCheckResultForm, extra=0
 )
 
@@ -1230,8 +1234,10 @@ class AuditRetestStatementCheckResultForm(forms.ModelForm):
         ]
 
 
-AuditRetestStatementCheckResultFormset: Any = forms.modelformset_factory(
-    StatementCheckResult, AuditRetestStatementCheckResultForm, extra=0
+AuditRetestStatementCheckResultFormset: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        StatementCheckResult, AuditRetestStatementCheckResultForm, extra=0
+    )
 )
 
 
@@ -1560,7 +1566,7 @@ class RetestCheckResultForm(forms.ModelForm):
         ]
 
 
-RetestCheckResultFormset: Any = forms.modelformset_factory(
+RetestCheckResultFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
     RetestCheckResult, form=RetestCheckResultForm, extra=0
 )
 
@@ -1616,10 +1622,10 @@ class StatementPageUpdateForm(forms.ModelForm):
         fields = ["url", "backup_url", "added_stage"]
 
 
-StatementPageFormset: Any = forms.modelformset_factory(
+StatementPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
     StatementPage, StatementPageUpdateForm, extra=0
 )
-StatementPageFormsetOneExtra: Any = forms.modelformset_factory(
+StatementPageFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
     StatementPage, StatementPageUpdateForm, extra=1
 )
 
@@ -1689,8 +1695,10 @@ class RetestStatementCheckResultForm(forms.ModelForm):
         ]
 
 
-RetestStatementCheckResultFormset: Any = forms.modelformset_factory(
-    RetestStatementCheckResult, RetestStatementCheckResultForm, extra=0
+RetestStatementCheckResultFormset: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        RetestStatementCheckResult, RetestStatementCheckResultForm, extra=0
+    )
 )
 
 
@@ -1813,11 +1821,15 @@ class RetestStatementCustomCheckResultForm(forms.ModelForm):
         ]
 
 
-RetestStatementCustomCheckResultFormset: Any = forms.modelformset_factory(
-    RetestStatementCheckResult, RetestStatementCustomCheckResultForm, extra=0
+RetestStatementCustomCheckResultFormset: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        RetestStatementCheckResult, RetestStatementCustomCheckResultForm, extra=0
+    )
 )
-RetestStatementCustomCheckResultFormsetOneExtra: Any = forms.modelformset_factory(
-    RetestStatementCheckResult, RetestStatementCustomCheckResultForm, extra=1
+RetestStatementCustomCheckResultFormsetOneExtra: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        RetestStatementCheckResult, RetestStatementCustomCheckResultForm, extra=1
+    )
 )
 
 

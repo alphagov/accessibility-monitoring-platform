@@ -1,5 +1,7 @@
 """Views for notifications app"""
 
+from typing import Any
+
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.forms.models import ModelForm
@@ -27,8 +29,8 @@ class TaskListView(TemplateView):
 
     template_name: str = "notifications/task_list.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         params: dict[str, str] = {
             param: self.request.GET.get(param) for param in TASK_LIST_PARAMS
         }

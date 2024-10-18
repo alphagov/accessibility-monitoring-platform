@@ -1,6 +1,7 @@
 """
 Tests for users forms
 """
+
 from typing import TypedDict
 
 import pytest

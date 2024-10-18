@@ -2,8 +2,6 @@
 Test utility functions of reports app
 """
 
-from typing import Any
-
 import pytest
 
 from ...audits.models import Audit, CheckResult, Page, WcagDefinition
@@ -184,7 +182,9 @@ def test_build_report_context():
     audit: Audit = Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
 
-    report_context: dict[str, Any] = build_report_context(report=report)
+    report_context: dict[str, Report | list[IssueTable] | Audit] = build_report_context(
+        report=report
+    )
 
     assert report_context == {
         "audit": audit,

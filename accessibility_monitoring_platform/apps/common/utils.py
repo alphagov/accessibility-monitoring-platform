@@ -223,15 +223,13 @@ def record_model_create_event(user: User, model_object: models.Model) -> None:
     )
 
 
-def list_to_dictionary_of_lists(
-    items: list[Any], group_by_attr: str
-) -> dict[Any, list[Any]]:
+def list_to_dictionary_of_lists(items: list, group_by_attr: str) -> dict[Any, list]:
     """
     Group a list of items by an attribute of those items and return a dictionary
     with that attribute as the key and the value being a list of items matching the attribute.
 
     """
-    dict_of_lists_of_items: dict[Any, list[Any]] = {}
+    dict_of_lists_of_items: dict[Any, list] = {}
     for item in items:
         dict_of_lists_of_items.setdefault(getattr(item, group_by_attr), []).append(item)
     return dict_of_lists_of_items

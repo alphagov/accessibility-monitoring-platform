@@ -209,7 +209,7 @@ def test_build_filters_from_field_values():
         ("case_number", "id"),
         ("domain", "domain__icontains"),
     ]
-    fields_data: dict[str, Any] = {
+    fields_data: dict[str, str] = {
         "case_number": "42",
         "domain": "domain name",
         "unused_field": "unused value",

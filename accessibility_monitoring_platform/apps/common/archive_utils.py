@@ -1,7 +1,8 @@
 """Utilities to build JSON serialisable object to store in Case.archive"""
 
 from datetime import date, datetime
-from typing import Any
+
+from django.db import models
 
 from .templatetags.common_tags import amp_date, amp_datetime
 
@@ -22,7 +23,7 @@ def build_section(
 
 
 def build_field(
-    model: Any,
+    model: models.Model,
     field_name: str,
     label: str,
     data_type: str | None = None,
