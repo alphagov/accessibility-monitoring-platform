@@ -3,7 +3,6 @@ Test forms of cases app
 """
 
 from datetime import date
-from typing import Tuple
 
 import pytest
 from django.contrib.auth.models import User
@@ -17,7 +16,7 @@ CUTOFF_DATE: date = date(2024, 2, 29)
 COMPLIANCE_EMAIL_SENT_DATE: date = date(2024, 2, 28)
 
 
-def create_cases_and_export() -> Tuple[Export, Case]:
+def create_cases_and_export() -> tuple[Export, Case]:
     """Creates cases and export"""
     case: Case = Case.objects.create(
         organisation_name=ORGANISATION_NAME,

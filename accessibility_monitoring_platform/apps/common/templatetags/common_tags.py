@@ -4,7 +4,7 @@ Common templatetags
 
 from datetime import date, datetime
 from html import escape
-from typing import Any, List
+from typing import TypeVar
 
 import markdown
 from django import template
@@ -19,10 +19,11 @@ from ..utils import (  # pylint: disable=relative-beyond-top-level
 )
 
 register = template.Library()
+T = TypeVar("T")
 
 
 @register.filter
-def list_item_by_index(items: List[Any], index: int) -> Any:
+def list_item_by_index(items: list[T], index: int) -> T:
     """Given a list of items and an index, return the indexed item"""
     try:
         return items[index]

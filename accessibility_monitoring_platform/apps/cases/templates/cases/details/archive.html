@@ -1,47 +1,34 @@
 {% for archived_section in case.archived_sections %}
-    <div class="govuk-accordion__section"">
-        <div class="govuk-accordion__section-header">
-            <h2 id="{{ archived_section.name|slugify }}" class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-heading-{{ archived_section.name|slugify }}">
-                    {{ archived_section.name }}
-                    {% if archived_section.complete %}
-                        <span class="govuk-visually-hidden">complete</span>
-                        &check;
+    <h2 id="{{ archived_section.name|slugify }}" class="govuk-heading-m">
+        {{ archived_section.name }}
+        {% if archived_section.complete %}
+            <span class="govuk-visually-hidden">complete</span>
+            &check;
+        {% endif %}
+    </h2>
+    {% if archived_section.subsections and archived_section.subsections|length > 1 %}
+        <div class="amp-left-border">
+            <ul class="govuk-list amp-margin-bottom-5">
+                {% for subsection in archived_section.subsections %}
+                    {% include './archive_section_link.html' with section=subsection %}
+                    {% if subsection.subsections %}
+                        <li>
+                            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                                {% for subsubsection in subsection.subsections %}
+                                    {% include './archive_section_link.html' with section=subsubsection %}
+                                {% endfor %}
+                            </ul>
+                        </li>
                     {% endif %}
-                </span>
-            </h2>
-        </div>
-        <div id="accordion-content-{{ archived_section.name|slugify }}" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-{{ archived_section.name|slugify }}">
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-full">
-                    <p class="govuk-body-m"><b>{{ archived_section.name }}</b></p>
-                </div>
-            </div>
-            {% if archived_section.subsections %}
-                <div class="amp-left-border">
-                    <ul class="govuk-list amp-margin-bottom-5">
-                        {% for subsection in archived_section.subsections %}
-                            {% include './archive_section_link.html' with section=subsection %}
-                            {% if subsection.subsections %}
-                                <li>
-                                    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                                        {% for subsubsection in subsection.subsections %}
-                                            {% include './archive_section_link.html' with section=subsubsection %}
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% include './archive_section_content.html' with section=archived_section top_section=True %}
-            {% for subsection in archived_section.subsections %}
-                {% include './archive_section_content.html' with section=subsection %}
-                {% for subsubsection in subsection.subsections %}
-                    {% include './archive_section_content.html' with section=subsubsection %}
                 {% endfor %}
-            {% endfor %}
+            </ul>
         </div>
-    </div>
+    {% endif %}
+    {% include './archive_section_content.html' with section=archived_section top_section=True %}
+    {% for subsection in archived_section.subsections %}
+        {% include './archive_section_content.html' with section=subsection %}
+        {% for subsubsection in subsection.subsections %}
+            {% include './archive_section_content.html' with section=subsubsection %}
+        {% endfor %}
+    {% endfor %}
 {% endfor %}

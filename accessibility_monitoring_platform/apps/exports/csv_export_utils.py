@@ -6,7 +6,7 @@ import copy
 import csv
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal
 
 from django.db.models import QuerySet
 from django.http import HttpResponse
@@ -22,7 +22,7 @@ class CSVColumn:
     """Data to use when building export CSV"""
 
     column_header: str
-    source_class: Union[Audit, Case, CaseCompliance]
+    source_class: Audit | Case | CaseCompliance
     source_attr: str
 
 
@@ -35,11 +35,11 @@ class EqualityBodyCSVColumn(CSVColumn):
     formatted_data: str = ""
     default_data: str = ""
     ui_suffix: str = ""
-    edit_url_class: Union[Audit, Case, CaseCompliance, Report] = None
-    edit_url_name: Optional[str] = None
+    edit_url_class: Audit | Case | CaseCompliance | Report | None = None
+    edit_url_name: str | None = None
     edit_url_label: str = "Edit"
     edit_url_anchor: str = ""
-    edit_url: Optional[str] = None
+    edit_url: str | None = None
 
     @property
     def required_data_missing(self):
@@ -51,7 +51,7 @@ class EqualityBodyCSVColumn(CSVColumn):
 CONTACT_DETAILS_COLUMN_HEADER: str = "Contact details"
 ORGANISATION_RESPONDED_COLUMN_HEADER: str = "Organisation responded to report?"
 
-EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
+EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Equality body",
         source_class=Case,
@@ -137,7 +137,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_anchor="id_is_complaint-label",
     ),
 ]
-EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
+EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Published report",
         source_class=Case,
@@ -177,7 +177,7 @@ EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_anchor="id_psb_progress_notes-label",
     ),
 ]
-EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
+EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header=CONTACT_DETAILS_COLUMN_HEADER,
         source_class=Case,
@@ -246,7 +246,7 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_anchor="id_compliance_decision_sent_to_email-label",
     ),
 ]
-EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
+EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Total number of accessibility issues",
         source_class=Case,
@@ -260,7 +260,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="total_website_issues_fixed",
         edit_url_class=Audit,
-        edit_url_name="audits:audit-retest-detail",
+        edit_url_name="audits:edit-audit-retest-metadata",
         edit_url_label="Go to view 12-week test",
     ),
     EqualityBodyCSVColumn(
@@ -268,7 +268,7 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         source_class=Case,
         source_attr="total_website_issues_unfixed",
         edit_url_class=Audit,
-        edit_url_name="audits:audit-retest-detail",
+        edit_url_name="audits:edit-audit-retest-metadata",
         edit_url_label="Go to view 12-week test",
     ),
     EqualityBodyCSVColumn(
@@ -349,14 +349,14 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = [
         edit_url_anchor="id_twelve_week_disproportionate_burden_notes-label",
     ),
 ]
-EQUALITY_BODY_COLUMNS_FOR_EXPORT: List[EqualityBodyCSVColumn] = (
+EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = (
     EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
     + EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
     + EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT
     + EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT
 )
 
-CASE_COLUMNS_FOR_EXPORT: List[CSVColumn] = [
+CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(column_header="Case no.", source_class=Case, source_attr="id"),
     CSVColumn(column_header="Version", source_class=Case, source_attr="version"),
     CSVColumn(column_header="Created by", source_class=Case, source_attr="created_by"),
@@ -748,7 +748,7 @@ CASE_COLUMNS_FOR_EXPORT: List[CSVColumn] = [
     CSVColumn(column_header="Contact email", source_class=Contact, source_attr="email"),
 ]
 
-FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[CSVColumn] = [
+FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(column_header="Case no.", source_class=Case, source_attr="id"),
     CSVColumn(
         column_header="Organisation name",
@@ -801,7 +801,7 @@ def format_contacts(contacts: QuerySet[Contact]) -> str:
 
 
 def format_field_as_yes_no(
-    source_instance: Union[Audit, Case, Contact, None], column: CSVColumn
+    source_instance: Audit | Case | Contact | None, column: CSVColumn
 ) -> str:
     """
     If the field contains a truthy value return Yes otherwise return No.
@@ -815,7 +815,7 @@ def format_field_as_yes_no(
 
 
 def format_model_field(
-    source_instance: Union[Audit, Case, Contact, None], column: CSVColumn
+    source_instance: Audit | Case | Contact | None, column: CSVColumn
 ) -> str:
     """
     For a model field, return the value, suitably formatted.
@@ -835,24 +835,24 @@ def format_model_field(
 
 
 def populate_equality_body_columns(
-    case: Case, column_definitions: List[CSVColumn] = EQUALITY_BODY_COLUMNS_FOR_EXPORT
-) -> List[EqualityBodyCSVColumn]:
+    case: Case, column_definitions: list[CSVColumn] = EQUALITY_BODY_COLUMNS_FOR_EXPORT
+) -> list[EqualityBodyCSVColumn]:
     """
     Collect data for a case to export to the equality body
     """
     contact_details: str = format_contacts(contacts=case.contacts)
-    source_instances: Dict = {
+    source_instances: dict = {
         Case: case,
         Audit: case.audit,
         CaseCompliance: case.compliance,
         Report: case.report,
     }
-    columns: List[EqualityBodyCSVColumn] = copy.deepcopy(column_definitions)
+    columns: list[EqualityBodyCSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
-        source_instance: Union[Audit, Case, CaseCompliance, Report, None] = (
+        source_instance: Audit | Case | CaseCompliance | Report | None = (
             source_instances.get(column.source_class)
         )
-        edit_url_instance: Union[Audit, Case, CaseCompliance, Report, None] = (
+        edit_url_instance: Audit | Case | CaseCompliance | Report | None = (
             source_instances.get(column.edit_url_class)
         )
         if column.column_header == CONTACT_DETAILS_COLUMN_HEADER:
@@ -879,7 +879,7 @@ def download_equality_body_cases(
     filename: str = "enforcement_body_cases.csv",
 ) -> HttpResponse:
     """Given a Case queryset, download the data in csv format for equality body"""
-    response: Any = HttpResponse(content_type="text/csv")
+    response: HttpResponse = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
@@ -887,9 +887,9 @@ def download_equality_body_cases(
         [column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT]
     )
 
-    output: List[List[str]] = []
+    output: list[list[str]] = []
     for case in cases:
-        case_columns: List[EqualityBodyCSVColumn] = populate_equality_body_columns(
+        case_columns: list[EqualityBodyCSVColumn] = populate_equality_body_columns(
             case=case
         )
         row = [column.formatted_data for column in case_columns]
@@ -900,20 +900,20 @@ def download_equality_body_cases(
 
 
 def populate_csv_columns(
-    case: Case, column_definitions: List[CSVColumn]
-) -> List[CSVColumn]:
+    case: Case, column_definitions: list[CSVColumn]
+) -> list[CSVColumn]:
     """
     Collect data for a case to export
     """
-    source_instances: Dict = {
+    source_instances: dict = {
         Case: case,
         CaseCompliance: case.compliance,
         CaseStatus: case.status,
         Contact: case.contact_set.filter(is_deleted=False).first(),
     }
-    columns: List[CSVColumn] = copy.deepcopy(column_definitions)
+    columns: list[CSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
-        source_instance: Union[Case, CaseCompliance, CaseStatus, Contact, None] = (
+        source_instance: Case | CaseCompliance | CaseStatus | Contact | None = (
             source_instances.get(column.source_class)
         )
         column.formatted_data = format_model_field(
@@ -924,15 +924,15 @@ def populate_csv_columns(
 
 def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpResponse:
     """Given a Case queryset, download the data in csv format"""
-    response: Any = HttpResponse(content_type="text/csv")
+    response: HttpResponse = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
     writer.writerow([column.column_header for column in CASE_COLUMNS_FOR_EXPORT])
 
-    output: List[List[str]] = []
+    output: list[list[str]] = []
     for case in cases:
-        case_columns: List[CSVColumn] = populate_csv_columns(
+        case_columns: list[CSVColumn] = populate_csv_columns(
             case=case, column_definitions=CASE_COLUMNS_FOR_EXPORT
         )
         row = [column.formatted_data for column in case_columns]
@@ -946,7 +946,7 @@ def download_feedback_survey_cases(
     cases: QuerySet[Case], filename: str = "feedback_survey_cases.csv"
 ) -> HttpResponse:
     """Given a Case queryset, download the feedback survey data in csv format"""
-    response: Any = HttpResponse(content_type="text/csv")
+    response: HttpResponse = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
@@ -954,9 +954,9 @@ def download_feedback_survey_cases(
         [column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT]
     )
 
-    output: List[List[str]] = []
+    output: list[list[str]] = []
     for case in cases:
-        case_columns: List[CSVColumn] = populate_csv_columns(
+        case_columns: list[CSVColumn] = populate_csv_columns(
             case=case, column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
         )
         row = [column.formatted_data for column in case_columns]

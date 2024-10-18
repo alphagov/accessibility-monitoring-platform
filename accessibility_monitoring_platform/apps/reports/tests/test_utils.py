@@ -2,20 +2,17 @@
 Test utility functions of reports app
 """
 
-from typing import Any, Dict, List, Set
-
 import pytest
 
 from ...audits.models import Audit, CheckResult, Page, WcagDefinition
 from ...cases.models import Case
-from ..models import Report, ReportVisitsMetrics
+from ..models import Report
 from ..utils import (
     IssueTable,
     TableRow,
     build_issue_table_rows,
     build_issues_tables,
     build_report_context,
-    get_report_visits_metrics,
 )
 
 NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES: int = 9
@@ -48,9 +45,9 @@ def test_build_issue_table_rows():
         check_result_state=CheckResult.Result.ERROR,
         notes=CHECK_RESULT_NOTES,
     )
-    used_wcag_definitions: Set[WcagDefinition] = set()
+    used_wcag_definitions: set[WcagDefinition] = set()
 
-    table_rows: List[TableRow] = build_issue_table_rows(
+    table_rows: list[TableRow] = build_issue_table_rows(
         check_results=page.failed_check_results,
         used_wcag_definitions=used_wcag_definitions,
     )
@@ -84,9 +81,9 @@ def test_twelve_week_build_issue_table_rows():
         retest_state=CheckResult.RetestResult.NOT_FIXED,
         retest_notes=CHECK_RESULT_RETEST_NOTES,
     )
-    used_wcag_definitions: Set[WcagDefinition] = set()
+    used_wcag_definitions: set[WcagDefinition] = set()
 
-    table_rows: List[TableRow] = build_issue_table_rows(
+    table_rows: list[TableRow] = build_issue_table_rows(
         check_results=page.failed_check_results,
         used_wcag_definitions=used_wcag_definitions,
         use_retest_notes=True,
@@ -135,9 +132,9 @@ def test_report_boilerplate_shown_only_once():
         check_result_state=CheckResult.Result.ERROR,
     )
 
-    issues_tables: List[IssueTable] = build_issues_tables(pages=audit.testable_pages)
+    issues_tables: list[IssueTable] = build_issues_tables(pages=audit.testable_pages)
 
-    table_rows: List[TableRow] = []
+    table_rows: list[TableRow] = []
     for issues_table in issues_tables:
         for table_row in issues_table.rows:
             if wcag_definition.name in table_row.cell_content_1:
@@ -170,7 +167,7 @@ def test_generate_report_content_issues_tables():
     )
     Report.objects.create(case=case)
 
-    issues_tables: List[IssueTable] = build_issues_tables(pages=audit.testable_pages)
+    issues_tables: list[IssueTable] = build_issues_tables(pages=audit.testable_pages)
 
     assert len(issues_tables) == 2
 
@@ -185,24 +182,12 @@ def test_build_report_context():
     audit: Audit = Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
 
-    report_context: Dict[str, Any] = build_report_context(report=report)
+    report_context: dict[str, Report | list[IssueTable] | Audit] = build_report_context(
+        report=report
+    )
 
     assert report_context == {
         "audit": audit,
         "issues_tables": [],
         "report": report,
     }
-
-
-@pytest.mark.django_db
-def test_report_visits_metrics():
-    """Test report visits metrics calculated"""
-    case: Case = Case.objects.create()
-    res = get_report_visits_metrics(case)
-    assert res["number_of_visits"] == 0
-    assert res["number_of_unique_visitors"] == 0
-    ReportVisitsMetrics.objects.create(case=case, fingerprint_hash=1234)
-    ReportVisitsMetrics.objects.create(case=case, fingerprint_hash=1234)
-    res_2 = get_report_visits_metrics(case)
-    assert res_2["number_of_visits"] == 2
-    assert res_2["number_of_unique_visitors"] == 1

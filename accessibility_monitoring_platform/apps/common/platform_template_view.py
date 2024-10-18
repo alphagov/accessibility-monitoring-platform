@@ -2,7 +2,7 @@
 Platform template view. Used by report viewer.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from django.views.generic import TemplateView
 
@@ -14,8 +14,8 @@ class PlatformTemplateView(TemplateView):
     View of platform-level settings
     """
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         context["platform"] = get_platform_settings()
         return context

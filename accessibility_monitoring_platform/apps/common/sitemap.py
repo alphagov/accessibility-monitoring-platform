@@ -4,13 +4,44 @@ import copy
 import logging
 from dataclasses import dataclass
 from enum import StrEnum, auto
-from typing import Dict, List, Optional, Type, Union
+from typing import ClassVar
 
+from django import forms
 from django.contrib.auth.models import User
+from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, URLResolver, resolve, reverse
 
+from ..audits.forms import (
+    AuditMetadataUpdateForm,
+    AuditRetestMetadataUpdateForm,
+    InitialDisproportionateBurdenUpdateForm,
+    TwelveWeekDisproportionateBurdenUpdateForm,
+)
 from ..audits.models import Audit, Page, Retest, RetestPage
+from ..cases.forms import (
+    CaseCloseUpdateForm,
+    CaseEnforcementRecommendationUpdateForm,
+    CaseEqualityBodyMetadataUpdateForm,
+    CaseFourWeekContactDetailsUpdateForm,
+    CaseMetadataUpdateForm,
+    CaseNoPSBContactUpdateForm,
+    CaseOneWeekContactDetailsUpdateForm,
+    CaseOneWeekFollowupFinalUpdateForm,
+    CaseQAApprovalUpdateForm,
+    CaseQAAuditorUpdateForm,
+    CaseReportAcknowledgedUpdateForm,
+    CaseReportFourWeekFollowupUpdateForm,
+    CaseReportOneWeekFollowupUpdateForm,
+    CaseReportReadyForQAUpdateForm,
+    CaseReportSentOnUpdateForm,
+    CaseRequestContactDetailsUpdateForm,
+    CaseReviewChangesUpdateForm,
+    CaseStatementEnforcementUpdateForm,
+    CaseTwelveWeekUpdateAcknowledgedUpdateForm,
+    CaseTwelveWeekUpdateRequestedUpdateForm,
+    ManageContactDetailsUpdateForm,
+)
 from ..cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
 from ..comments.models import Comment
 from ..exports.models import Export
@@ -24,61 +55,33 @@ logger = logging.getLogger(__name__)
 class PlatformPage:
     name: str
     platform_page_group_name: str = ""
-    url_name: Optional[str] = None
-    url_kwarg_key: Optional[str] = None
-    object_class: Optional[
-        Union[
-            Type[Audit],
-            Type[Case],
-            Type[Comment],
-            Type[Contact],
-            Type[EmailTemplate],
-            Type[EqualityBodyCorrespondence],
-            Type[Export],
-            Type[Page],
-            Type[Report],
-            Type[RetestPage],
-            Type[Task],
-            Type[User],
-            Type[ZendeskTicket],
-        ]
-    ] = None
-    object: Optional[Union[Audit, Case]] = None
+    url_name: str | None = None
+    url_kwarg_key: str | None = None
+    object_class: type[models.Model] | None = None
+    object: Audit | Case | None = None
     object_required_for_url: bool = False
-    complete_flag_name: Optional[str] = None
-    show_flag_name: Optional[str] = None
+    complete_flag_name: str | None = None
+    show_flag_name: str | None = None
     visible_only_when_current: bool = False
-    subpages: Optional[List["PlatformPage"]] = None
+    subpages: list["PlatformPage"] | None = None
+    case_details_form_class: type[forms.ModelForm] | None = None
+    case_details_template_name: str = ""
 
     def __init__(
         self,
         name: str,
         platform_page_group_name: str = "",
-        url_name: Optional[str] = None,
-        url_kwarg_key: Optional[str] = None,
-        object_class: Optional[
-            Union[
-                Type[Audit],
-                Type[Case],
-                Type[Comment],
-                Type[Contact],
-                Type[EmailTemplate],
-                Type[EqualityBodyCorrespondence],
-                Type[Export],
-                Type[Page],
-                Type[Report],
-                Type[RetestPage],
-                Type[Task],
-                Type[User],
-                Type[ZendeskTicket],
-            ]
-        ] = None,
-        object: Optional[Union[Audit, Case, Page]] = None,
+        url_name: str | None = None,
+        url_kwarg_key: str | None = None,
+        object_class: type[models.Model] | None = None,
+        object: Audit | Case | Page | None = None,
         object_required_for_url: bool = False,
-        complete_flag_name: Optional[str] = None,
-        show_flag_name: Optional[str] = None,
+        complete_flag_name: str | None = None,
+        show_flag_name: str | None = None,
         visible_only_when_current: bool = False,
-        subpages: Optional[List["PlatformPage"]] = None,
+        subpages: list["PlatformPage"] | None = None,
+        case_details_form_class: type[forms.ModelForm] | None = None,
+        case_details_template_name: str = "",
     ):
         self.name = name
         self.platform_page_group_name = platform_page_group_name
@@ -94,6 +97,8 @@ class PlatformPage:
         self.show_flag_name = show_flag_name
         self.visible_only_when_current = visible_only_when_current
         self.subpages = subpages
+        self.case_details_form_class = case_details_form_class
+        self.case_details_template_name = case_details_template_name
 
     def __repr__(self):
         repr: str = f'PlatformPage(name="{self.name}", url_name="{self.url_name}"'
@@ -104,7 +109,7 @@ class PlatformPage:
         return repr
 
     @property
-    def url(self) -> Optional[str]:
+    def url(self) -> str | None:
         if self.url_name is None:
             return None
         if self.name.startswith("Page not found for "):
@@ -134,7 +139,7 @@ class PlatformPage:
     def populate_subpage_objects(self):
         if self.object is not None:
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for subpage in self.subpages:
                     subpage_instance: PlatformPage = copy.copy(subpage)
                     if subpage_instance.object_class == self.object_class:
@@ -167,7 +172,7 @@ class PlatformPage:
             return self.name
         return self.name.format(object=self.object)
 
-    def get_case(self) -> Optional[Case]:
+    def get_case(self) -> Case | None:
         if self.object is not None:
             if isinstance(self.object, Case):
                 return self.object
@@ -202,7 +207,7 @@ class CasePlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[Case] = Case
+        self.object_class: ClassVar[Case] = Case
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -217,7 +222,7 @@ class CaseContactsPlatformPage(CasePlatformPage):
             self.object = case
             self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for subpage in self.subpages:
                     if subpage.object_class == Case:
                         subpage_instance: PlatformPage = copy.copy(subpage)
@@ -240,7 +245,7 @@ class CaseCommentsPlatformPage(CasePlatformPage):
             self.object = case
             self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for comment in case.qa_comments:
                     for subpage in self.subpages:
                         if subpage.object_class == Comment:
@@ -255,7 +260,7 @@ class AuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[Audit] = Audit
+        self.object_class: ClassVar[Audit] = Audit
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -270,7 +275,7 @@ class AuditPagesPlatformPage(AuditPlatformPage):
             self.object = case.audit
             self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for page in case.audit.testable_pages:
                     for subpage in self.subpages:
                         if subpage.object_class == Page:
@@ -285,7 +290,7 @@ class ReportPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[Report] = Report
+        self.object_class: ClassVar[Report] = Report
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -295,17 +300,17 @@ class ReportPlatformPage(PlatformPage):
 
 
 class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
-    case: Optional[Case] = None
+    case: Case | None = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[EmailTemplate] = EmailTemplate
+        self.object_class: ClassVar[EmailTemplate] = EmailTemplate
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
     @property
-    def url(self) -> Optional[str]:
+    def url(self) -> str | None:
         if self.case is None or self.object is None:
             return ""
         return reverse(
@@ -324,7 +329,7 @@ class AuditRetestPagesPlatformPage(AuditPlatformPage):
             self.object = case.audit
             self.subpages = get_subpages_by_url_name(url_name=self.url_name)
             if self.subpages is not None:
-                subpage_instances: List[PlatformPage] = []
+                subpage_instances: list[PlatformPage] = []
                 for page in case.audit.testable_pages:
                     for subpage in self.subpages:
                         if subpage.object_class == Page:
@@ -339,7 +344,7 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object_required_for_url = True
-        self.object_class: Type[Retest] = Retest
+        self.object_class: ClassVar[Retest] = Retest
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -349,7 +354,7 @@ class RetestOverviewPlatformPage(CasePlatformPage):
         self.object = case
         self.subpages = get_subpages_by_url_name(url_name=self.url_name)
         if self.subpages is not None:
-            subpage_instances: List[PlatformPage] = []
+            subpage_instances: list[PlatformPage] = []
             for retest in case.retests:
                 if retest.id_within_case > 0:
                     for subpage in self.subpages:
@@ -364,7 +369,7 @@ class RetestOverviewPlatformPage(CasePlatformPage):
 class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
     def populate_subpage_objects(self):
         if self.subpages is not None and self.object is not None:
-            subpage_instances: List[PlatformPage] = []
+            subpage_instances: list[PlatformPage] = []
             for retest_page in self.object.retestpage_set.all():
                 for subpage in self.subpages:
                     if subpage.object_class == RetestPage:
@@ -384,8 +389,8 @@ class PlatformPageGroup:
 
     name: str
     type: Type = Type.DEFAULT
-    show_flag_name: Optional[str] = None
-    pages: Optional[List[PlatformPage]] = None
+    show_flag_name: str | None = None
+    pages: list[PlatformPage] | None = None
 
     @property
     def show(self):
@@ -448,7 +453,7 @@ class CasePlatformPageGroup(PlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
-        self.case: Optional[Case] = None
+        self.case: Case | None = None
 
     @property
     def show(self):
@@ -461,7 +466,7 @@ class CasePlatformPageGroup(PlatformPageGroup):
         super().populate_from_case(case=case)
 
 
-SITE_MAP: List[PlatformPageGroup] = [
+SITE_MAP: list[PlatformPageGroup] = [
     CasePlatformPageGroup(
         name="Case details",
         show_flag_name="not_archived",
@@ -470,6 +475,8 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Case metadata",
                 url_name="cases:edit-case-metadata",
                 complete_flag_name="case_details_complete_date",
+                case_details_form_class=CaseMetadataUpdateForm,
+                case_details_template_name="cases/details/details_case_metadata.html",
             )
         ],
     ),
@@ -491,6 +498,8 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Initial test metadata",
                 url_name="audits:edit-audit-metadata",
                 complete_flag_name="audit_metadata_complete_date",
+                case_details_form_class=AuditMetadataUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             AuditPagesPlatformPage(
                 name="Add or remove pages",
@@ -498,18 +507,21 @@ SITE_MAP: List[PlatformPageGroup] = [
                 complete_flag_name="audit_pages_complete_date",
                 subpages=[
                     PlatformPage(
-                        name="{object.page_title} test",
+                        name="{object.page_title} test ({object.count_failed_check_results})",
                         url_name="audits:edit-audit-page-checks",
                         url_kwarg_key="pk",
                         object_class=Page,
                         complete_flag_name="complete_date",
+                        case_details_template_name="cases/details/details_initial_page_wcag_results.html",
                     )
                 ],
+                case_details_template_name="cases/details/details_initial_pages.html",
             ),
             AuditPlatformPage(
                 name="Compliance decision",
                 url_name="audits:edit-website-decision",
                 complete_flag_name="audit_website_decision_complete_date",
+                case_details_template_name="cases/details/details_initial_website_compliance.html",
             ),
             AuditPlatformPage(
                 name="Test summary",
@@ -526,6 +538,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Statement links",
                 url_name="audits:edit-statement-pages",
                 complete_flag_name="audit_statement_pages_complete_date",
+                case_details_template_name="cases/details/details_statement_links.html",
             ),
             AuditPlatformPage(
                 name="Accessibility statement Pt. 1",
@@ -550,48 +563,58 @@ SITE_MAP: List[PlatformPageGroup] = [
                         url_name="audits:edit-statement-website",
                         complete_flag_name="audit_statement_website_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_website.html",
                     ),
                     AuditPlatformPage(
                         name="Compliance status",
                         url_name="audits:edit-statement-compliance",
                         complete_flag_name="audit_statement_compliance_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_compliance.html",
                     ),
                     AuditPlatformPage(
                         name="Non-accessible content",
                         url_name="audits:edit-statement-non-accessible",
                         complete_flag_name="audit_statement_non_accessible_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_non_accessible.html",
                     ),
                     AuditPlatformPage(
                         name="Statement preparation",
                         url_name="audits:edit-statement-preparation",
                         complete_flag_name="audit_statement_preparation_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_preparation.html",
                     ),
                     AuditPlatformPage(
                         name="Feedback and enforcement procedure",
                         url_name="audits:edit-statement-feedback",
                         complete_flag_name="audit_statement_feedback_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_feedback.html",
                     ),
                     AuditPlatformPage(
                         name="Custom statement issues",
                         url_name="audits:edit-statement-custom",
                         complete_flag_name="audit_statement_custom_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_initial_statement_checks_custom.html",
                     ),
                 ],
+                case_details_template_name="cases/details/details_initial_statement_checks_overview.html",
             ),
             AuditPlatformPage(
                 name="Disproportionate burden",
                 url_name="audits:edit-initial-disproportionate-burden",
                 complete_flag_name="initial_disproportionate_burden_complete_date",
+                case_details_form_class=InitialDisproportionateBurdenUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             AuditPlatformPage(
                 name="Statement compliance",
                 url_name="audits:edit-statement-decision",
                 complete_flag_name="audit_statement_decision_complete_date",
+                case_details_template_name="cases/details/details_initial_statement_compliance.html",
             ),
             AuditPlatformPage(
                 name="Report options",
@@ -618,18 +641,21 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
     CasePlatformPageGroup(
         name="Report QA",
-        type=PlatformPageGroup.Type.CASE_NAV,
         show_flag_name="not_archived_has_report",
         pages=[
             CasePlatformPage(
                 name="Report ready for QA",
                 url_name="cases:edit-report-ready-for-qa",
                 complete_flag_name="reporting_details_complete_date",
+                case_details_form_class=CaseReportReadyForQAUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="QA auditor",
                 url_name="cases:edit-qa-auditor",
                 complete_flag_name="qa_auditor_complete_date",
+                case_details_form_class=CaseQAAuditorUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CaseCommentsPlatformPage(
                 name="Comments ({object.qa_comments_count})",
@@ -643,11 +669,14 @@ SITE_MAP: List[PlatformPageGroup] = [
                         visible_only_when_current=True,
                     ),
                 ],
+                case_details_template_name="cases/details/details_qa_comments.html",
             ),
             CasePlatformPage(
                 name="QA approval",
                 url_name="cases:edit-qa-approval",
                 complete_flag_name="qa_approval_complete_date",
+                case_details_form_class=CaseQAApprovalUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Publish report",
@@ -704,30 +733,40 @@ SITE_MAP: List[PlatformPageGroup] = [
                         object_class=Contact,
                     ),
                 ],
+                case_details_form_class=ManageContactDetailsUpdateForm,
+                case_details_template_name="cases/details/details_manage_contact_details.html",
             ),
             CasePlatformPage(
                 name="Request contact details",
                 url_name="cases:edit-request-contact-details",
                 complete_flag_name="request_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
+                case_details_form_class=CaseRequestContactDetailsUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="One-week follow-up",
                 url_name="cases:edit-one-week-contact-details",
                 complete_flag_name="one_week_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
+                case_details_form_class=CaseOneWeekContactDetailsUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Four-week follow-up",
                 url_name="cases:edit-four-week-contact-details",
                 complete_flag_name="four_week_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
+                case_details_form_class=CaseFourWeekContactDetailsUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Unresponsive PSB",
                 url_name="cases:edit-no-psb-response",
                 complete_flag_name="no_psb_contact_complete_date",
                 show_flag_name="enable_correspondence_process",
+                case_details_form_class=CaseNoPSBContactUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
         ],
     ),
@@ -739,21 +778,29 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Report sent on",
                 url_name="cases:edit-report-sent-on",
                 complete_flag_name="report_sent_on_complete_date",
+                case_details_form_class=CaseReportSentOnUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="One week follow-up",
                 url_name="cases:edit-report-one-week-followup",
                 complete_flag_name="one_week_followup_complete_date",
+                case_details_form_class=CaseReportOneWeekFollowupUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Four week follow-up",
                 url_name="cases:edit-report-four-week-followup",
                 complete_flag_name="four_week_followup_complete_date",
+                case_details_form_class=CaseReportFourWeekFollowupUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Report acknowledged",
                 url_name="cases:edit-report-acknowledged",
                 complete_flag_name="report_acknowledged_complete_date",
+                case_details_form_class=CaseReportAcknowledgedUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
         ],
     ),
@@ -765,16 +812,22 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="12-week update requested",
                 url_name="cases:edit-12-week-update-requested",
                 complete_flag_name="twelve_week_update_requested_complete_date",
+                case_details_form_class=CaseTwelveWeekUpdateRequestedUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="One week follow-up for final update",
                 url_name="cases:edit-12-week-one-week-followup-final",
                 complete_flag_name="one_week_followup_final_complete_date",
+                case_details_form_class=CaseOneWeekFollowupFinalUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="12-week update request acknowledged",
                 url_name="cases:edit-12-week-update-request-ack",
                 complete_flag_name="twelve_week_update_request_ack_complete_date",
+                case_details_form_class=CaseTwelveWeekUpdateAcknowledgedUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
         ],
     ),
@@ -796,6 +849,8 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="12-week retest metadata",
                 url_name="audits:edit-audit-retest-metadata",
                 complete_flag_name="audit_retest_metadata_complete_date",
+                case_details_form_class=AuditRetestMetadataUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             AuditRetestPagesPlatformPage(
                 name="Retest pages",
@@ -808,6 +863,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                         url_kwarg_key="pk",
                         object_class=Page,
                         complete_flag_name="retest_complete_date",
+                        case_details_template_name="cases/details/details_twelve_week_page_wcag_results.html",
                     )
                 ],
             ),
@@ -815,6 +871,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Compliance decision",
                 url_name="audits:edit-audit-retest-website-decision",
                 complete_flag_name="audit_retest_website_decision_complete_date",
+                case_details_template_name="cases/details/details_twelve_week_website_compliance.html",
             ),
             AuditPlatformPage(
                 name="Test summary",
@@ -855,48 +912,58 @@ SITE_MAP: List[PlatformPageGroup] = [
                         url_name="audits:edit-retest-statement-website",
                         complete_flag_name="audit_retest_statement_website_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_twelve_week_statement_checks_website.html",
                     ),
                     AuditPlatformPage(
                         name="Compliance status",
                         url_name="audits:edit-retest-statement-compliance",
                         complete_flag_name="audit_retest_statement_compliance_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_twelve_week_statement_checks_compliance.html",
                     ),
                     AuditPlatformPage(
                         name="Non-accessible content",
                         url_name="audits:edit-retest-statement-non-accessible",
                         complete_flag_name="audit_retest_statement_non_accessible_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_twelve_week_statement_checks_non_accessible.html",
                     ),
                     AuditPlatformPage(
                         name="Statement preparation",
                         url_name="audits:edit-retest-statement-preparation",
                         complete_flag_name="audit_retest_statement_preparation_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_twelve_week_statement_checks_preparation.html",
                     ),
                     AuditPlatformPage(
                         name="Feedback and enforcement procedure",
                         url_name="audits:edit-retest-statement-feedback",
                         complete_flag_name="audit_retest_statement_feedback_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_twelve_week_statement_checks_feedback.html",
                     ),
                     AuditPlatformPage(
                         name="Custom issues",
                         url_name="audits:edit-retest-statement-custom",
                         complete_flag_name="audit_retest_statement_custom_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
+                        case_details_template_name="cases/details/details_twelve_week_statement_checks_custom.html",
                     ),
                 ],
+                case_details_template_name="cases/details/details_twelve_week_statement_checks_overview.html",
             ),
             AuditPlatformPage(
                 name="Disproportionate burden",
                 url_name="audits:edit-twelve-week-disproportionate-burden",
                 complete_flag_name="twelve_week_disproportionate_burden_complete_date",
+                case_details_form_class=TwelveWeekDisproportionateBurdenUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             AuditPlatformPage(
                 name="Compliance decision",
                 url_name="audits:edit-audit-retest-statement-decision",
                 complete_flag_name="audit_retest_statement_decision_complete_date",
+                case_details_template_name="cases/details/details_twelve_week_statement_compliance.html",
             ),
             AuditPlatformPage(
                 name="Test summary",
@@ -913,30 +980,40 @@ SITE_MAP: List[PlatformPageGroup] = [
                 name="Reviewing changes",
                 url_name="cases:edit-review-changes",
                 complete_flag_name="review_changes_complete_date",
+                case_details_form_class=CaseReviewChangesUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Recommendation",
                 url_name="cases:edit-enforcement-recommendation",
                 complete_flag_name="enforcement_recommendation_complete_date",
+                case_details_form_class=CaseEnforcementRecommendationUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Closing the case",
                 url_name="cases:edit-case-close",
                 complete_flag_name="case_close_complete_date",
+                case_details_form_class=CaseCloseUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
         ],
     ),
     CasePlatformPageGroup(
-        name="",
+        name="Post case",
         type=PlatformPageGroup.Type.PREVIOUS_CASE_NAV,
         pages=[
             CasePlatformPage(
                 name="Statement enforcement",
                 url_name="cases:edit-statement-enforcement",
+                case_details_form_class=CaseStatementEnforcementUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Equality body metadata",
                 url_name="cases:edit-equality-body-metadata",
+                case_details_form_class=CaseEqualityBodyMetadataUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
             CasePlatformPage(
                 name="Equality body correspondence",
@@ -955,6 +1032,7 @@ SITE_MAP: List[PlatformPageGroup] = [
                         visible_only_when_current=True,
                     ),
                 ],
+                case_details_template_name="cases/details/details_equality_body_correspondence.html",
             ),
             RetestOverviewPlatformPage(
                 name="Retest overview",
@@ -1049,20 +1127,12 @@ SITE_MAP: List[PlatformPageGroup] = [
                         ],
                     )
                 ],
+                case_details_template_name="cases/details/details_retest_overview.html",
             ),
             CasePlatformPage(
                 name="Legacy end of case data",
                 url_name="cases:legacy-end-of-case",
                 show_flag_name="archive",
-            ),
-        ],
-    ),
-    # To be removed
-    PlatformPageGroup(
-        name="",
-        pages=[
-            AuditPlatformPage(
-                name="View 12-week retest", url_name="audits:audit-retest-detail"
             ),
         ],
     ),
@@ -1261,10 +1331,10 @@ SITE_MAP: List[PlatformPageGroup] = [
     ),
 ]
 
-SITEMAP_BY_URL_NAME: Dict[str, PlatformPage] = {}
+SITEMAP_BY_URL_NAME: dict[str, PlatformPage] = {}
 
 
-def add_pages(pages: List[PlatformPage], platform_page_group: PlatformPageGroup):
+def add_pages(pages: list[PlatformPage], platform_page_group: PlatformPageGroup):
     """Iterate through pages list adding to sitemap dictionary"""
     for page in pages:
         page.platform_page_group_name: str = platform_page_group.name
@@ -1280,7 +1350,7 @@ def add_pages(pages: List[PlatformPage], platform_page_group: PlatformPageGroup)
 
 
 logger.info("Initialise SITEMAP_BY_URL_NAME")
-site_map: List[PlatformPageGroup] = copy.copy(SITE_MAP)
+site_map: list[PlatformPageGroup] = copy.copy(SITE_MAP)
 for platform_page_group in site_map:
     if platform_page_group.pages is not None:
         add_pages(
@@ -1288,9 +1358,9 @@ for platform_page_group in site_map:
         )
 
 
-def get_subpages_by_url_name(url_name: Optional[str]) -> Optional[List[PlatformPage]]:
+def get_subpages_by_url_name(url_name: str | None) -> list[PlatformPage]:
     if url_name and url_name in SITEMAP_BY_URL_NAME:
-        subpages: Optional[List[PlatformPage]] = copy.deepcopy(
+        subpages: list[PlatformPage] = copy.deepcopy(
             SITEMAP_BY_URL_NAME.get(url_name).subpages
         )
         return subpages
@@ -1309,16 +1379,16 @@ def get_requested_platform_page(request: HttpRequest) -> PlatformPage:
 
 def build_sitemap_for_current_page(
     current_platform_page: PlatformPage,
-) -> List[PlatformPageGroup]:
+) -> list[PlatformPageGroup]:
     """
     Populate the sitemap based on the current page.
     Return the case navigation subset of the sitemap if the current
     page is case-related, otherwise return the entire sitemap.
     """
-    case: Optional[Case] = current_platform_page.get_case()
+    case: Case | None = current_platform_page.get_case()
     if case is not None:
         site_map = copy.deepcopy(SITE_MAP)
-        case_navigation: List[PlatformPageGroup] = [
+        case_navigation: list[PlatformPageGroup] = [
             platform_page_group
             for platform_page_group in site_map
             if platform_page_group.type == PlatformPageGroup.Type.CASE_NAV
@@ -1331,7 +1401,7 @@ def build_sitemap_for_current_page(
 
 
 class Sitemap:
-    platform_page_groups: List[PlatformPageGroup]
+    platform_page_groups: list[PlatformPageGroup]
     current_platform_page: PlatformPage
 
     def __init__(self, request: HttpRequest):

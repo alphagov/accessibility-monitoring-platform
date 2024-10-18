@@ -1,7 +1,6 @@
 """
 Views - users
 """
-from typing import Type
 
 from django.contrib import messages
 from django.contrib.auth import login
@@ -35,8 +34,8 @@ class UserCreateView(CreateView):
     View to create/register a user
     """
 
-    model: Type[User] = User
-    form_class: Type[UserCreateForm] = UserCreateForm
+    model: type[User] = User
+    form_class: type[UserCreateForm] = UserCreateForm
     context_object_name: str = "user"
     template_name: str = "users/forms/create.html"
 
@@ -64,8 +63,8 @@ class UserUpdateView(SameUserTestMixin, UpdateView):
     View to update a user
     """
 
-    model: Type[User] = User
-    form_class: Type[UserUpdateForm] = UserUpdateForm
+    model: type[User] = User
+    form_class: type[UserUpdateForm] = UserUpdateForm
     context_object_name: str = "user"
     template_name: str = "users/forms/update.html"
 
@@ -85,9 +84,9 @@ class UserUpdateView(SameUserTestMixin, UpdateView):
         else:
             form.fields["enable_2fa"].initial = Boolean.NO
         notification_setting, _ = NotificationSetting.objects.get_or_create(user=user)
-        form.fields[
-            "email_notifications"
-        ].initial = notification_setting.email_notifications_enabled
+        form.fields["email_notifications"].initial = (
+            notification_setting.email_notifications_enabled
+        )
         return form
 
     def form_valid(self, form: UserUpdateForm):

@@ -1,14 +1,13 @@
 """Export utilities"""
 
 from datetime import date
-from typing import List
 
 from ..cases.models import Case, CaseStatus
 
 
 def get_exportable_cases(
     cutoff_date: date, enforcement_body: Case.EnforcementBody
-) -> List[Case]:
+) -> list[Case]:
     """Return list of Cases to export for enforcement body"""
     return [
         case_status.case

@@ -3,7 +3,6 @@ Tests for cases models
 """
 
 from datetime import date, datetime, timezone
-from typing import List, Optional
 from unittest.mock import Mock, patch
 
 import pytest
@@ -46,7 +45,7 @@ ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID: int = 1
 REPORT_COMMENT: str = "Report comment"
 
 
-def create_retest_and_retest_check_results(case: Optional[Case] = None):
+def create_retest_and_retest_check_results(case: Case | None = None):
     """Create retest and associated data"""
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
@@ -180,7 +179,7 @@ def create_retest_and_statement_check_results() -> Retest:
 
 def create_audit_and_check_results() -> Audit:
     """Create an audit with failed check results"""
-    html_wcag_definitions: List[WcagDefinition] = [
+    html_wcag_definitions: list[WcagDefinition] = [
         WcagDefinition.objects.create(
             type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
         ),

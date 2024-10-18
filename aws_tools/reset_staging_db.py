@@ -1,7 +1,7 @@
 """ Reset staging DB - Wipes postgres DB and uploads a backup of prod db"""
+
 import json
 import os
-from typing import Any, List
 
 import boto3
 from dotenv import load_dotenv
@@ -30,7 +30,7 @@ def download_db_backup() -> str:
     print(">>> Downloading DB backup..")
     s3_bucket: str = "ampapp-stageenv-addonsstack-u-reportstoragebucket-hms911jlrqzu"
     s3_client = boto3.client("s3")
-    db_backups: List[Any] = []
+    db_backups: list = []
     for key in s3_client.list_objects(Bucket=s3_bucket)["Contents"]:
         if "aws_aurora_backup/" in key["Key"] and "prodenv" in key["Key"]:
             db_backups.append(key)

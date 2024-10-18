@@ -3,7 +3,6 @@ Test utility functions of cases app
 """
 
 from datetime import date
-from typing import List
 
 import pytest
 from django.contrib.auth.models import User
@@ -424,8 +423,8 @@ def test_audit_pages_platform_page():
 
     assert audit_pages_platform_page.object == audit
     assert len(audit_pages_platform_page.subpages) == 2
-    assert audit_pages_platform_page.subpages[0].get_name() == "Page one page test"
-    assert audit_pages_platform_page.subpages[1].get_name() == "Page two page test"
+    assert audit_pages_platform_page.subpages[0].get_name() == "Page one page test (0)"
+    assert audit_pages_platform_page.subpages[1].get_name() == "Page two page test (0)"
 
 
 @pytest.mark.django_db
@@ -631,7 +630,7 @@ def test_get_requested_platform_page_for_page(rf):
 
     current_platform_page: PlatformPage = get_requested_platform_page(request)
 
-    assert current_platform_page.get_name() == "Additional page test"
+    assert current_platform_page.get_name() == "Additional page test (0)"
     assert current_platform_page.url_name == "audits:edit-audit-page-checks"
 
 
@@ -722,7 +721,7 @@ def test_get_subpages_by_url_name():
 
     assert get_subpages_by_url_name("cases:edit-case-metadata") is None
 
-    subpages: List[PlatformPage] = get_subpages_by_url_name(
+    subpages: list[PlatformPage] = get_subpages_by_url_name(
         "audits:edit-statement-overview"
     )
 
@@ -736,7 +735,7 @@ def test_build_sitemap_for_non_case_current_page():
     platform_page: PlatformPage = PlatformPage(
         name="Test", url_name="common:platform-checking"
     )
-    platform_page_groups: List[PlatformPageGroup] = build_sitemap_for_current_page(
+    platform_page_groups: list[PlatformPageGroup] = build_sitemap_for_current_page(
         current_platform_page=platform_page
     )
 
@@ -750,7 +749,7 @@ def test_build_sitemap_for_case_related_current_page():
     platform_page: PlatformPage = PlatformPage(
         name="Test", url_name="cases:case-metadata", object_class=Case, object=case
     )
-    platform_page_groups: List[PlatformPageGroup] = build_sitemap_for_current_page(
+    platform_page_groups: list[PlatformPageGroup] = build_sitemap_for_current_page(
         current_platform_page=platform_page
     )
 
@@ -812,7 +811,7 @@ def test_get_platform_page_name_by_url():
         get_platform_page_name_by_url(
             f"/audits/pages/{page.id}/edit-audit-page-checks/"
         )
-        == f"{page.page_title} test"
+        == f"{page.page_title} test (0)"
     )
 
 

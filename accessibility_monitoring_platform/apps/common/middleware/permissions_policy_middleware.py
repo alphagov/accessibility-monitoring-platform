@@ -1,6 +1,6 @@
 """Middleware for permissions policy - taken from django-permissions-policy"""
 
-from typing import Callable
+from collections.abc import Callable
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured

@@ -36,8 +36,8 @@ def test_issue_report_export_as_csv(admin_client):
     assert response.status_code == 200
 
     content = response.content.decode("utf-8")
-    cvs_reader = csv.reader(io.StringIO(content))
-    rows = list(cvs_reader)
+    csv_reader = csv.reader(io.StringIO(content))
+    rows = list(csv_reader)
 
     assert len(rows) == 3
     assert rows[0] == [

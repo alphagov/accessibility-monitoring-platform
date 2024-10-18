@@ -3,8 +3,9 @@ Common widgets and form fields
 """
 
 import logging
+from collections.abc import Iterable, Mapping
 from datetime import date, datetime
-from typing import Any, Dict, Iterable, List, Mapping, Tuple, Union
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from django import forms
@@ -17,7 +18,7 @@ DEFAULT_START_DATE: datetime = datetime(
     year=1900, month=1, day=1, tzinfo=ZoneInfo("UTC")
 )
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=ZoneInfo("UTC"))
-LOG_LEVEL_CHOICES: List[Tuple[int, str]] = [
+LOG_LEVEL_CHOICES: list[tuple[int, str]] = [
     (logging.WARNING, "Warning"),
     (logging.ERROR, "Error"),
     (logging.CRITICAL, "Critical"),
@@ -124,7 +125,7 @@ class AMPDateWidget(forms.MultiWidget):
         ]
         super().__init__(widgets, attrs)
 
-    def decompress(self, value: Union[date, str]) -> List[Union[int, str, None]]:
+    def decompress(self, value: date | str) -> list[int | str | None]:
         """
         Break date or hyphen-delimited string into into day, month and year integer values.
 
@@ -140,7 +141,7 @@ class AMPDateWidget(forms.MultiWidget):
         return [None, None, None]
 
     def value_from_datadict(
-        self, data: Dict[str, Any], files: Mapping[str, Iterable[Any]], name: str
+        self, data: dict[str, Any], files: Mapping[str, Iterable[Any]], name: str
     ) -> str:
         """
         Return day, month and year integer values and return as

@@ -2,8 +2,6 @@
 Views for comment app
 """
 
-from typing import Dict, Type
-
 from django.forms.models import ModelForm
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
@@ -18,8 +16,8 @@ class QACommentUpdateView(UpdateView):
     View to update a comment
     """
 
-    model: Type[Comment] = Comment
-    form_class: Type[CommentUpdateForm] = CommentUpdateForm
+    model: type[Comment] = Comment
+    form_class: type[CommentUpdateForm] = CommentUpdateForm
     context_object_name: str = "comment"
     template_name: str = "comments/qa_update_comment.html"
 
@@ -34,5 +32,5 @@ class QACommentUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        case_pk: Dict[str, int] = {"pk": self.object.case.id}  # type: ignore
+        case_pk: dict[str, int] = {"pk": self.object.case.id}  # type: ignore
         return f"{reverse('cases:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"

@@ -2,8 +2,6 @@
 URLS for comments
 """
 
-from typing import List
-
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
@@ -23,7 +21,7 @@ from .views import (
 )
 
 app_name: str = "exports"
-urlpatterns: List[URLPattern] = [
+urlpatterns: list[URLPattern] = [
     path(
         "export-list/",
         login_required(ExportListView.as_view()),

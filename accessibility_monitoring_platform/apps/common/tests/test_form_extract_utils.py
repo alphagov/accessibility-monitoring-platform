@@ -1,8 +1,8 @@
 """
 Test - common utility function to extract labels and values from forms
 """
+
 from datetime import date
-from typing import List
 
 from django import forms
 from django.contrib.auth.models import User
@@ -72,7 +72,7 @@ def test_extract_form_labels_and_values():
         report_sent_date=date(2020, 4, 1),
     )
 
-    labels_and_values: List[FieldLabelAndValue] = extract_form_labels_and_values(
+    labels_and_values: list[FieldLabelAndValue] = extract_form_labels_and_values(
         instance=case, form=CaseForm()
     )
 
@@ -89,15 +89,15 @@ def test_extract_form_labels_and_values():
     assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
         value=case.home_page_url,
-        type=FieldLabelAndValue.URL_TYPE,
+        type=FieldLabelAndValue.Type.URL,
     )
     assert labels_and_values[4] == FieldLabelAndValue(
-        label=NOTES_LABEL, value=case.notes, type=FieldLabelAndValue.NOTES_TYPE
+        label=NOTES_LABEL, value=case.notes, type=FieldLabelAndValue.Type.NOTES
     )
     assert labels_and_values[5] == FieldLabelAndValue(
         label=REPORT_SENT_ON_LABEL,
         value=case.report_sent_date,
-        type=FieldLabelAndValue.DATE_TYPE,
+        type=FieldLabelAndValue.Type.DATE,
     )
 
 
@@ -108,7 +108,7 @@ def test_extract_form_labels_and_values_with_no_values_set():
     """
     case: Case = Case()
 
-    labels_and_values: List[FieldLabelAndValue] = extract_form_labels_and_values(
+    labels_and_values: list[FieldLabelAndValue] = extract_form_labels_and_values(
         instance=case, form=CaseForm()
     )
 
@@ -123,7 +123,7 @@ def test_extract_form_labels_and_values_with_no_values_set():
     assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
         value="",
-        type=FieldLabelAndValue.URL_TYPE,
+        type=FieldLabelAndValue.Type.URL,
     )
     assert labels_and_values[4] == FieldLabelAndValue(
         label=REPORT_SENT_ON_LABEL,
@@ -138,7 +138,7 @@ def test_extract_form_labels_and_values_can_exclude_fields():
     """
     case: Case = Case()
 
-    labels_and_values: List[FieldLabelAndValue] = extract_form_labels_and_values(
+    labels_and_values: list[FieldLabelAndValue] = extract_form_labels_and_values(
         instance=case,
         form=CaseForm(),
         excluded_fields=["home_page_url", "report_sent_date"],
