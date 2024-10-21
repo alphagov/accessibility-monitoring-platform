@@ -84,7 +84,7 @@ class EventAdmin(admin.ModelAdmin):
 class EmailTemplateAdmin(admin.ModelAdmin):
     """Django admin configuration for EmailTemplate model"""
 
-    search_fields = ["name", "template", "updated_by", "created_by"]
+    search_fields = ["name", "template", "updated_by__username", "created_by__username"]
     list_display = [
         "name",
         "type",

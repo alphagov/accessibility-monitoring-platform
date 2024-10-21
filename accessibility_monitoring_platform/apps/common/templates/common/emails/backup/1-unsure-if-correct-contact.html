@@ -1,23 +1,23 @@
-Dear <span class="amp-email-placeholder">............</span>,
+Dear {{ case.organisation_name }},
 <br>
 <br>
-I am {{ case.auditor.get_full_name }} from the website accessibility monitoring team at the Government Digital Service.
+I am {{ case.auditor.get_full_name }} from the accessibility monitoring team at the Government Digital Service.
 <br>
 <br>
-We have been given the role to monitor the accessibility of public sector websites. Your website was chosen from a random sample to be monitored.
+We have been given the role to monitor the accessibility of public sector websites and mobile apps. Your website
+(<a href="{{ case.home_page_url }}">{{ case.home_page_url }}</a>)
+was chosen from a random sample to be monitored.
 <br>
 <br>
 It is a requirement of <a href="https://gov.uk/accessibility-regulations">The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018</a> that public sector websites are accessible to everyone. This came into force on 23 September 2018.
 <br>
 <br>
 <h2>What we found</h2>
+<br>
 We found some accessibility issues with the website.
 <br>
 <br>
-Please can you email us at
+Please email us at
 <a href="mailto:accessibility-monitoring@digital.cabinet-office.gov.uk">accessibility-monitoring@digital.cabinet-office.gov.uk</a>
 to provide us with the email address of the person or team who are responsible for your website.
-<br>
-<br>
-Many thanks,
 <br>

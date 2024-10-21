@@ -1,7 +1,9 @@
-Dear <span class="amp-email-placeholder">(named contact)</span>,
+Dear {{ case.organisation_name }},
 <br>
 <br>
-We emailed you on <span class="amp-email-placeholder">(date of previous email)</span> asking for an update on progress made since our initial report on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date report was sent)</span>{% endif %}.
+We emailed you on
+{% if case.twelve_week_update_requested_date %}{{ case.twelve_week_update_requested_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date of previous email)</span>{% endif %}
+asking for an update on progress made since our initial report on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date report was sent)</span>{% endif %}.
 <br>
 <br>
 We have had no response to the request.
@@ -11,10 +13,4 @@ This is our final attempt to contact you. Please respond within the next 7 days.
 <br>
 <br>
 Any remaining accessibility issues will be passed to the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}) for further action and a list of websites without correct accessibility statements will be published by the Cabinet Office.
-<br>
-<br>
-Many thanks,
-<br>
-<br>
-{{ case.auditor.get_full_name }}
 <br>
