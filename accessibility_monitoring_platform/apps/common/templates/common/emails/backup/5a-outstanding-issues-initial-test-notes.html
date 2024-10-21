@@ -1,4 +1,4 @@
-Dear <span class="amp-email-placeholder">[NAMED CONTACT]</span>,
+Dear {{ case.organisation_name }},
 <br>
 <br>
 We have completed the retest and some issues are still outstanding.
@@ -6,10 +6,11 @@ Please review the issues listed below and provide an update.
 <br>
 <br>
 {% if case.audit.unfixed_check_results %}
-    {% for issues_table in issues_tables %}
-    {% if issues_table.rows %}
-    <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
-    <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
+    {% for page in case.audit.testable_pages %}
+    {% if page.unfixed_check_results %}
+    <h2>{{ page }}{% if page.page_type != 'pdf' %} page{% endif %} issues</h2>
+    <br>
+    <a href="{{ page.url }}">{{ page.url }}</a>
     <br>
     <br>
     <table id="email-issues-table-{{ forloop.counter }}">
@@ -17,16 +18,18 @@ Please review the issues listed below and provide an update.
     <tr>
     <th width=1%>#</th>
     <th id="issue-{{ forloop.counter }}" width=33%>Issue and description</th>
-    <th id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</th>
-    <th id="12-week-update-{{ forloop.counter }}" width=33%>Organisation 12-week update</th>
+    <th id="where-found-{{ forloop.counter }}" width=33%>Notes</th>
+    <th id="12-week-update-{{ forloop.counter }}" width=33%>Organisation update</th>
     </tr>
     </thead>
     <tbody>
-    {% for row in issues_table.rows %}
+    {% for check_result in page.unfixed_check_results %}
     <tr valign="top">
     <td width=1%>{{ forloop.counter }}</td>
-    <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
-    <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
+    <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
+        <a href="{{ check_result.wcag_definition.url }}">{{ check_result.wcag_definition.name }}</a>
+    </td>
+    <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ check_result.notes|markdown_to_html }}</td>
     <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
     </tr>
     {% endfor %}
@@ -37,7 +40,10 @@ Please review the issues listed below and provide an update.
 {% else %}
     We found no major issues.
 {% endif %}
+<br>
+<br>
 <h2>Your statement</h2>
+<br>
 {% if case.audit.uses_statement_checks %}
     {% if case.audit.outstanding_statement_check_results %}
     <table id="email-statement-issues-table">
@@ -45,7 +51,7 @@ Please review the issues listed below and provide an update.
     <tr>
     <th width=1%>#</th>
     <th id="statement-issue" width=49%>Issue</th>
-    <th id="statement-12-week-update" width=49%>Organisation 12-week update</th>
+    <th id="statement-12-week-update" width=49%>Organisation update</th>
     </tr>
     </thead>
     <tbody>
