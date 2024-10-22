@@ -202,7 +202,7 @@ class CaseDetailView(DetailView):
     context_object_name: str = "case"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add case detail sxections to context"""
+        """Add case detail sections to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
 
         case: Case = self.object
