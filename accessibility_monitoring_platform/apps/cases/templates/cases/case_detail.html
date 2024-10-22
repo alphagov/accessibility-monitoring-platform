@@ -57,6 +57,7 @@
         </div>
         {% include 'cases/helpers/messages.html' %}
         {% include 'cases/details/case_detail_notifications.html' %}
+        {% include 'cases/details/search_in_case.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 {% if case.archive %}
@@ -71,7 +72,6 @@
                 </div>
             </div>
         </div>
-        {% include 'cases/details/search_in_case.html' %}
         <div id="search-scope" data-search-target-page-name="{{ sitemap.current_platform_page.get_name }}" data-search-target-label="{{ sitemap.current_platform_page.get_name }}" data-search-target-url="{{ case.get_absolute_url }}">
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
