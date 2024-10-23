@@ -31,12 +31,21 @@ class TaskListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         params: Dict[str, str] = {
             param: self.request.GET.get(param) for param in TASK_LIST_PARAMS
         }
+
+        if "show_all_users" in self.request.GET:
+            tasks: list[Task] = build_task_list(user=None, **params)
+            context["show_all_users"] = True
+            context["tasks"] = tasks
+            context["task_type_counts"] = get_task_type_counts(tasks=tasks)
+            return context
+
         user: User = self.request.user
 
-        # Check for parameter to list another user's Tasks. Usefult for live support.
+        # Check for parameter to list another user's Tasks. Useful for live support.
         if "user_id" in self.request.GET:
             user_id: str = self.request.GET.get("user_id")
             if user_id.isnumeric():
