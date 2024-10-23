@@ -130,8 +130,16 @@ def test_task_list_type_filter(filtered_type, other_type, rf):
     assert response.status_code == 200
 
     assertContains(response, "Tasks (1)")
-    assertContains(response, f"{filtered_task.get_type_display()}</h2>")
-    assertNotContains(response, f"{other_task.get_type_display()}</h2>")
+    assertContains(
+        response,
+        f"""<h2 class="govuk-heading-m amp-margin-bottom-10">{filtered_task.get_type_display()}</h2>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        f"""<h2 class="govuk-heading-m amp-margin-bottom-10">{other_task.get_type_display()}</h2>""",
+        html=True,
+    )
 
 
 @pytest.mark.parametrize("read_param", ["read", "deleted"])
