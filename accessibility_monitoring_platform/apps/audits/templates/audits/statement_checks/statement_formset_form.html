@@ -1,8 +1,8 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-    {% include 'audits/helpers/statement_pages.html' %}
     {% include 'common/error_summary.html' with formset=statement_check_results_formset %}
+    {% include 'audits/helpers/statement_pages.html' %}
 {% endblock %}
 
 {% block form %}
