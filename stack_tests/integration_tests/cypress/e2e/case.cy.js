@@ -170,4 +170,10 @@ describe('View case', () => {
     cy.contains(/^Case$/).click()
     cy.contains(recommendationNote)
   })
+
+  it('can reach statement enforcement', () => {
+    cy.contains('Post case (0/0)').click()
+    cy.get('#edit-cases1statement-enforcement').click()
+    cy.title().should('eq', `${organisationName} | Statement enforcement`)
+  })
 })
