@@ -3,7 +3,6 @@ Tests for reports views
 """
 
 from datetime import datetime, timezone
-from typing import Dict
 from unittest.mock import Mock, patch
 
 import pytest
@@ -21,11 +20,8 @@ from ...audits.models import (
     StatementCheckResult,
     WcagDefinition,
 )
-from ...audits.utils import report_data_updated
 from ...cases.models import Case, CaseCompliance, CaseEvent
-from ...cases.utils import create_case_and_compliance
 from ...common.models import Boolean
-from ...s3_read_write.models import S3Report
 from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
@@ -55,7 +51,7 @@ def test_create_report_uses_older_template(admin_client):
     statement checks exist
     """
     case: Case = Case.objects.create()
-    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    path_kwargs: dict[str, int] = {"case_id": case.id}
     Audit.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
@@ -75,7 +71,7 @@ def test_create_report_uses_latest_template(admin_client):
     exist
     """
     case: Case = Case.objects.create()
-    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    path_kwargs: dict[str, int] = {"case_id": case.id}
     audit: Audit = Audit.objects.create(case=case)
     StatementCheckResult.objects.create(audit=audit)
 
@@ -93,7 +89,7 @@ def test_create_report_uses_latest_template(admin_client):
 def test_create_report_redirects(admin_client):
     """Test that report create redirects to report publisher"""
     case: Case = Case.objects.create()
-    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    path_kwargs: dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-create", kwargs=path_kwargs),
@@ -107,7 +103,7 @@ def test_create_report_redirects(admin_client):
 def test_create_report_does_not_create_duplicate(admin_client):
     """Test that report create does not create a duplicate report"""
     report: Report = create_report()
-    path_kwargs: Dict[str, int] = {"case_id": report.case.id}
+    path_kwargs: dict[str, int] = {"case_id": report.case.id}
 
     assert Report.objects.filter(case=report.case).count() == 1
 
@@ -122,7 +118,7 @@ def test_create_report_does_not_create_duplicate(admin_client):
 def test_create_report_creates_case_event(admin_client):
     """Test that report create al creates a case event"""
     case: Case = Case.objects.create()
-    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    path_kwargs: dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-create", kwargs=path_kwargs),
@@ -163,7 +159,7 @@ def test_old_published_report_includes_errors(admin_client):
         notes=CHECK_RESULTS_NOTES,
     )
 
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    report_pk_kwargs: dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-preview", kwargs=report_pk_kwargs),
@@ -187,7 +183,7 @@ def test_report_includes_page_location(admin_client):
         audit=audit, page_type=Page.Type.HOME, url=HOME_PAGE_URL, location=PAGE_LOCATION
     )
 
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    report_pk_kwargs: dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-preview", kwargs=report_pk_kwargs),
@@ -209,7 +205,7 @@ def test_report_includes_page_location(admin_client):
 def test_report_specific_page_loads(path_name, expected_header, admin_client):
     """Test that the report-specific page loads"""
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    report_pk_kwargs: dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
         reverse(path_name, kwargs=report_pk_kwargs)
@@ -277,7 +273,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     """
     report: Report = create_report()
     case: Case = report.case
-    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    case_pk_kwargs: dict[str, int] = {"pk": case.id}
     user = User.objects.create()
     case.home_page_url = "https://www.website.com"
     case.organisation_name = "org name"
@@ -306,7 +302,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
 
 def test_report_metrics_displays_in_report_logs(admin_client):
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    report_pk_kwargs: dict[str, int] = {"pk": report.id}
     case: Case = report.case
     case.save()
 
@@ -360,7 +356,7 @@ def test_report_metrics_unique_vists_shows_only_current_report(admin_client):
     that they are not included.
     """
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    report_pk_kwargs: dict[str, int] = {"pk": report.id}
     case: Case = report.case
     case.save()
     other_case: Case = Case.objects.create()

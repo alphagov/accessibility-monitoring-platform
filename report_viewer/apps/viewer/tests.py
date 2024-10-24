@@ -4,7 +4,6 @@ Test report viewer
 
 import logging
 from datetime import date
-from typing import Dict, Optional, Union
 from unittest import mock
 
 import pytest
@@ -100,9 +99,9 @@ def test_view_report(client):
         user=user,
         report_version="v1_202201401",
     )
-    s3report: Optional[S3Report] = S3Report.objects.all().first()
+    s3report: S3Report | None = S3Report.objects.all().first()
 
-    report_guid_kwargs: Dict[str, int] = {"guid": s3report.guid}  # type: ignore
+    report_guid_kwargs: dict[str, int] = {"guid": s3report.guid}  # type: ignore
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)
     )
@@ -125,7 +124,7 @@ def test_view_older_report(client):
     template: Template = loader.get_template(
         f"""reports_common/accessibility_report_{report.report_version}.html"""
     )
-    context: Dict[str, Report] = {"report": report}
+    context: dict[str, Report] = {"report": report}
     html: str = template.render(context)
 
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
@@ -144,8 +143,8 @@ def test_view_older_report(client):
         report_version=report.report_version,
     )
 
-    older_s3report: Optional[S3Report] = S3Report.objects.filter(case=case).first()
-    report_guid_kwargs: Dict[str, int] = {"guid": older_s3report.guid}  # type: ignore
+    older_s3report: S3Report | None = S3Report.objects.filter(case=case).first()
+    report_guid_kwargs: dict[str, int] = {"guid": older_s3report.guid}  # type: ignore
 
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)
@@ -156,8 +155,8 @@ def test_view_older_report(client):
     assertContains(response, "A newer version of this report is available.")
     assertNotContains(response, '<h2 id="contents">Contents</h2>')
 
-    newest_s3report: Optional[S3Report] = S3Report.objects.filter(case=case).last()
-    report_guid_kwargs: Dict[str, int] = {"guid": newest_s3report.guid}  # type: ignore
+    newest_s3report: S3Report | None = S3Report.objects.filter(case=case).last()
+    report_guid_kwargs: dict[str, int] = {"guid": newest_s3report.guid}  # type: ignore
 
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)
@@ -185,13 +184,13 @@ def test_view_report_not_on_s3(client):
         user=user,
         report_version="v1_202201401",
     )
-    s3_report: Optional[S3Report] = S3Report.objects.all().first()
+    s3_report: S3Report | None = S3Report.objects.all().first()
     s3_report.s3_directory = "not-a-valid-dir"  # type: ignore
     s3_report.html = html_on_db  # type: ignore
     s3_report.save()  # type: ignore
     guid: str = s3_report.guid  # type: ignore
 
-    report_guid_kwargs: Dict[str, str] = {"guid": guid}
+    report_guid_kwargs: dict[str, str] = {"guid": guid}
 
     logger = logging.getLogger("report_viewer.apps.viewer.views")
     with mock.patch.object(logger, "warning") as mock_warning:
@@ -241,7 +240,7 @@ def test_extract_guid_from_url_returns_guid():
     guid: str = "5ef13c2e-cead-47b0-853a-3fbad79d6385"
     input_address: str = f"https://website.com/{guid}"
     report_metrics = ReportMetrics(get_response)
-    res: Union[str, None] = report_metrics.extract_guid_from_url(input_address)
+    res: str | None = report_metrics.extract_guid_from_url(input_address)
     assert res == guid
 
 
@@ -249,10 +248,10 @@ def test_extract_guid_from_url_returns_none():
     get_response = mock.MagicMock()
     report_metrics = ReportMetrics(get_response)
 
-    res: Union[str, None] = report_metrics.extract_guid_from_url("https://website.com/")
+    res: str | None = report_metrics.extract_guid_from_url("https://website.com/")
     assert res is None
 
-    res: Union[str, None] = report_metrics.extract_guid_from_url(
+    res: str | None = report_metrics.extract_guid_from_url(
         "https://website.com/5ef13c2e-cead-47b0-853a-3fbad79d638"
     )
     assert res is None
@@ -273,12 +272,12 @@ def test_report_metric_middleware_successful(client):
         user=user,
         report_version="v1_202201401",
     )
-    s3_report: Optional[S3Report] = S3Report.objects.all().first()
+    s3_report: S3Report | None = S3Report.objects.all().first()
     s3_report.s3_directory = "not-a-valid-dir"  # type: ignore
     s3_report.html = html_on_db  # type: ignore
     s3_report.save()  # type: ignore
 
-    report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
+    report_guid_kwargs: dict[str, int] = {"guid": s3_report.guid}  # type: ignore
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
@@ -301,7 +300,7 @@ def test_report_metric_middleware_ignore_user(client, rf):
         user=user,
         report_version="v1_202201401",
     )
-    s3_report: Optional[S3Report] = S3Report.objects.all().first()
+    s3_report: S3Report | None = S3Report.objects.all().first()
     s3_report.s3_directory = "not-a-valid-dir"  # type: ignore
     s3_report.html = html_on_db  # type: ignore
     s3_report.save()  # type: ignore
@@ -318,7 +317,7 @@ def test_report_metric_middleware_ignore_user(client, rf):
     )
     assert UserCacheUniqueHash.objects.all().count() == 1
 
-    report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
+    report_guid_kwargs: dict[str, int] = {"guid": s3_report.guid}  # type: ignore
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))

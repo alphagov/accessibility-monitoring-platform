@@ -1,7 +1,5 @@
 """Models for notifications app"""
 
-from typing import List
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
@@ -30,10 +28,10 @@ class Task(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering: List[str] = ["-id"]
+        ordering: list[str] = ["-id"]
 
-    def options(self) -> List[Link]:
-        options: List[Link] = []
+    def options(self) -> list[Link]:
+        options: list[Link] = []
         if self.type == Task.Type.QA_COMMENT:
             options.append(
                 Link(

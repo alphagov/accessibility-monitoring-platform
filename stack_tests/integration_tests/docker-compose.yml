@@ -48,6 +48,7 @@ services:
             - POSTGRES_PORT=5435
         healthcheck:
             test: curl --fail http://localhost:8001/healthcheck || exit 1
+            retries: 5
         stdin_open: true
         tty: true
 
