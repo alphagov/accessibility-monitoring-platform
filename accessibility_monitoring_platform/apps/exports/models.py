@@ -1,7 +1,5 @@
 """Models for comment and comment history"""
 
-from typing import List
-
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -34,7 +32,7 @@ class Export(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
-        ordering: List[str] = ["-cutoff_date"]
+        ordering: list[str] = ["-cutoff_date"]
 
     def __str__(self) -> str:
         return f"{self.enforcement_body.upper()} CSV export {amp_format_date(self.cutoff_date)}"
@@ -52,7 +50,7 @@ class Export(models.Model):
                 )
 
     @property
-    def all_cases(self) -> List[Case]:
+    def all_cases(self) -> list[Case]:
         return [export_case.case for export_case in self.exportcase_set.all()]
 
     @property
@@ -90,7 +88,7 @@ class ExportCase(models.Model):
     status = models.CharField(max_length=20, choices=Status, default=Status.UNREADY)
 
     class Meta:
-        ordering: List[str] = ["id"]
+        ordering: list[str] = ["id"]
 
     def __str__(self) -> str:
         return f"{self.export}: {self.case}"

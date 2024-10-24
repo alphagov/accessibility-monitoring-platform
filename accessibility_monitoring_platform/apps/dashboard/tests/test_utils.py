@@ -1,7 +1,7 @@
 """Test dashboard utility functions"""
+
 from dataclasses import dataclass, field
 from datetime import date
-from typing import List, Union
 
 from django.contrib.auth.models import User
 
@@ -30,17 +30,17 @@ class MockCase:
     id: int
     status: MockCaseStatus = field(default_factory=MockCaseStatus)
     qa_status: str = "unknown"
-    report_sent_date: Union[date, None] = None
-    report_followup_week_12_due_date: Union[date, None] = None
-    reviewer: Union[User, str, None] = None
-    completed_date: Union[date, None] = None
-    next_action_due_date: Union[date, None] = None
-    twelve_week_correspondence_acknowledged_date: Union[date, None] = None
-    case_close_complete_date: Union[date, None] = None
-    sent_to_enforcement_body_sent_date: Union[date, None] = None
+    report_sent_date: date | None = None
+    report_followup_week_12_due_date: date | None = None
+    reviewer: User | str | None = None
+    completed_date: date | None = None
+    next_action_due_date: date | None = None
+    twelve_week_correspondence_acknowledged_date: date | None = None
+    case_close_complete_date: date | None = None
+    sent_to_enforcement_body_sent_date: date | None = None
 
 
-MOCK_CASES: List[MockCase] = [
+MOCK_CASES: list[MockCase] = [
     MockCase(
         id=33,
         status=MockCaseStatus(status="reviewing-changes"),
@@ -380,7 +380,7 @@ def test_return_cases_requiring_user_review():
         reviewer=user,
         qa_status="in-qa",
     )
-    all_cases: List[Case] = [  # type: ignore
+    all_cases: list[Case] = [  # type: ignore
         mock_case_2,
         MockCase(id=3),
         mock_case_1,

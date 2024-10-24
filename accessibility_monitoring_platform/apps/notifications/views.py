@@ -1,6 +1,6 @@
 """Views for notifications app"""
 
-from typing import Dict, List, Type
+from typing import Any
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -29,10 +29,10 @@ class TaskListView(TemplateView):
 
     template_name: str = "notifications/task_list.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context: dict[str, Any] = super().get_context_data(**kwargs)
 
-        params: Dict[str, str] = {
+        params: dict[str, str] = {
             param: self.request.GET.get(param) for param in TASK_LIST_PARAMS
         }
 
@@ -55,7 +55,7 @@ class TaskListView(TemplateView):
                     pass
 
         context["tasks"] = build_task_list(user=user, **params)
-        all_due_tasks: List[Task] = build_task_list(user=user)
+        all_due_tasks: list[Task] = build_task_list(user=user)
         context["task_type_counts"] = get_task_type_counts(tasks=all_due_tasks)
         return {**context, **params}
 
@@ -111,9 +111,9 @@ class ReminderTaskCreateView(CreateView):
     View to create reminder task
     """
 
-    model: Type[Task] = Task
+    model: type[Task] = Task
     context_object_name: str = "task"
-    form_class: Type[ReminderForm] = ReminderForm
+    form_class: type[ReminderForm] = ReminderForm
     template_name: str = "notifications/reminder_task_create.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -143,9 +143,9 @@ class ReminderTaskUpdateView(UpdateView):
     View to update reminder
     """
 
-    model: Type[Task] = Task
+    model: type[Task] = Task
     context_object_name: str = "task"
-    form_class: Type[ReminderForm] = ReminderForm
+    form_class: type[ReminderForm] = ReminderForm
     template_name: str = "notifications/reminder_task_update.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:

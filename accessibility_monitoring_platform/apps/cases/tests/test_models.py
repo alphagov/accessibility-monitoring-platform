@@ -4,7 +4,6 @@ Tests for cases models
 
 import json
 from datetime import date, datetime, timedelta, timezone
-from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
@@ -204,7 +203,7 @@ def test_most_recently_created_contact_returned_first():
     contact1: Contact = Contact.objects.create(case=case)
     contact2: Contact = Contact.objects.create(case=case)
 
-    contacts: List[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(case.contacts)
 
     assert contacts[0].id == contact2.id
     assert contacts[1].id == contact1.id
@@ -217,14 +216,14 @@ def test_deleted_contacts_not_returned():
     contact1: Contact = Contact.objects.create(case=case)
     contact2: Contact = Contact.objects.create(case=case)
 
-    contacts: List[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(case.contacts)
 
     assert len(contacts) == 2
 
     contact1.is_deleted = True
     contact1.save()
 
-    contacts: List[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(case.contacts)
 
     assert len(contacts) == 1
     assert contacts[0].id == contact2.id
@@ -240,7 +239,7 @@ def test_preferred_contact_returned_first():
     contact1: Contact = Contact.objects.create(case=case)
     contact2: Contact = Contact.objects.create(case=case)
 
-    contacts: List[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(case.contacts)
 
     assert contacts[0].id == preferred_contact.id
     assert contacts[1].id == contact2.id
@@ -459,7 +458,7 @@ def test_qa_comments():
     comment1: Comment = Comment.objects.create(case=case)
     comment2: Comment = Comment.objects.create(case=case)
 
-    comments: List[Contact] = case.qa_comments
+    comments: list[Contact] = case.qa_comments
 
     assert len(comments) == 2
     assert comments[0].id == comment2.id

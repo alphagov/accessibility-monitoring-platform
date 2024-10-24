@@ -2,8 +2,6 @@
 Context processors
 """
 
-from typing import Dict, Union
-
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils import timezone
@@ -17,7 +15,7 @@ from .forms import AMPTopMenuForm
 
 def platform_page(
     request: HttpRequest,
-) -> Dict[str, Union[AMPTopMenuForm, str, Platform, int]]:
+) -> dict[str, AMPTopMenuForm | str | Platform | int]:
     """
     Populate context for template rendering. Include search form for top menu,
     name of prototype, platform settings and number of tasks.

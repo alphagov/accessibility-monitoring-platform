@@ -1,7 +1,6 @@
 """ Tests - test for notifications template tags """
 
 from datetime import date, datetime, timedelta
-from typing import List, Optional
 
 import pytest
 from django.contrib.auth.models import User
@@ -110,7 +109,7 @@ def test_add_task_creates_task_and_sends_email(type, mailoutbox, rf):
         request=request,
     )
 
-    task: Optional[Task] = Task.objects.all().first()
+    task: Task | None = Task.objects.all().first()
 
     assert task is not None
     assert task.description == "this is a notification"
@@ -144,7 +143,7 @@ def test_add_task_creates_task_and_sends_no_email(mailoutbox, rf):
         request=request,
     )
 
-    task: Optional[Task] = Task.objects.all().first()
+    task: Task | None = Task.objects.all().first()
 
     assert task is not None
     assert task.description == "this is a notification"
@@ -176,13 +175,13 @@ def test_add_task_creates_new_email_notification_model_when_null(mailoutbox, rf)
         request=request,
     )
 
-    task: Optional[Task] = Task.objects.all().first()
+    task: Task | None = Task.objects.all().first()
 
     assert task is not None
     assert task.description == "this is a notification"
     assert len(mailoutbox) == 0
 
-    notification_setting: Optional[NotificationSetting] = (
+    notification_setting: NotificationSetting | None = (
         NotificationSetting.objects.all().first()
     )
 
@@ -203,7 +202,7 @@ def test_get_post_case_tasks():
         EqualityBodyCorrespondence.objects.create(case=case)
     )
 
-    post_case_tasks: List[Task] = get_post_case_tasks(user=user)
+    post_case_tasks: list[Task] = get_post_case_tasks(user=user)
 
     assert len(post_case_tasks) == 1
 
@@ -230,7 +229,7 @@ def test_get_post_case_tasks():
 
     retest: Retest = Retest.objects.create(case=case)
 
-    post_case_tasks: List[Task] = get_post_case_tasks(user=user)
+    post_case_tasks: list[Task] = get_post_case_tasks(user=user)
 
     assert len(post_case_tasks) == 1
 
@@ -584,7 +583,7 @@ def test_pending_reminder_removes_overdue():
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.save()
 
-    tasks: List[Task] = build_task_list(user=user)
+    tasks: list[Task] = build_task_list(user=user)
 
     assert len(tasks) == 1
 
@@ -595,7 +594,7 @@ def test_pending_reminder_removes_overdue():
         date=date.today() + timedelta(days=1),
     )
 
-    tasks: List[Task] = build_task_list(user=user)
+    tasks: list[Task] = build_task_list(user=user)
 
     assert len(tasks) == 0
 
@@ -687,7 +686,7 @@ def test_build_task_list_overdue():
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.save()
 
-    tasks: List[Task] = build_task_list(user=user)
+    tasks: list[Task] = build_task_list(user=user)
 
     assert len(tasks) == 1
 
@@ -703,7 +702,7 @@ def test_build_task_list_postcase():
     case: Case = Case.objects.create(auditor=user)
     EqualityBodyCorrespondence.objects.create(case=case)
 
-    tasks: List[Task] = build_task_list(user=user)
+    tasks: list[Task] = build_task_list(user=user)
 
     assert len(tasks) == 1
 
@@ -727,7 +726,7 @@ def test_pending_reminder_removes_postcase():
         id_within_case=1,
     )
 
-    tasks: List[Task] = build_task_list(user=user)
+    tasks: list[Task] = build_task_list(user=user)
 
     assert len(tasks) == 2
 
@@ -738,7 +737,7 @@ def test_pending_reminder_removes_postcase():
         date=date.today() + timedelta(days=1),
     )
 
-    tasks: List[Task] = build_task_list(user=user)
+    tasks: list[Task] = build_task_list(user=user)
 
     assert len(tasks) == 0
 
@@ -820,7 +819,7 @@ def test_build_overdue_task_options_12_week_cores():
 
 def test_get_tasks_by_type_count():
     """Test filtering tasks by type and counting how many there are"""
-    tasks: List[Task] = [
+    tasks: list[Task] = [
         Task(type=Task.Type.QA_COMMENT),
         Task(type=Task.Type.QA_COMMENT),
         Task(type=Task.Type.REMINDER),
@@ -831,7 +830,7 @@ def test_get_tasks_by_type_count():
 
 def test_get_task_type_counts():
     """Test counting the numbers of tasks of each type"""
-    tasks: List[Task] = []
+    tasks: list[Task] = []
 
     assert get_task_type_counts(tasks=tasks) == {
         "qa_comment": 0,
@@ -841,7 +840,7 @@ def test_get_task_type_counts():
         "postcase": 0,
     }
 
-    tasks: List[Task] = [
+    tasks: list[Task] = [
         Task(type=Task.Type.QA_COMMENT),
         Task(type=Task.Type.REPORT_APPROVED),
         Task(type=Task.Type.REPORT_APPROVED),

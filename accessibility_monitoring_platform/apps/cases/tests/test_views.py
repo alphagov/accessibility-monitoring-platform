@@ -4,7 +4,6 @@ Tests for cases views
 
 import json
 from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -57,6 +56,7 @@ from ..views import (
     calculate_twelve_week_chaser_dates,
     find_duplicate_cases,
     format_due_date_help_text,
+    mark_qa_comments_as_read,
 )
 
 CONTACT_NAME: str = "Contact Name"
@@ -96,7 +96,7 @@ ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
 QA_COMMENT_BODY: str = "QA comment body"
-CASE_ARCHIVE: List[Dict] = {
+CASE_ARCHIVE: list[dict] = {
     "sections": [
         {
             "name": "Archived section one",
@@ -179,12 +179,20 @@ RETEST_NOTES: str = "Retest notes"
 HOME_PAGE_ERROR_NOTES: str = "Home page error note"
 STATEMENT_PAGE_ERROR_NOTES: str = "Statement page error note"
 OUTSTANDING_ISSUE_NOTES: str = "Outstanding error found."
-CORRESPONDENCE_PROCESS_PAGES: List[Tuple[str, str]] = [
+CORRESPONDENCE_PROCESS_PAGES: list[tuple[str, str]] = [
     ("edit-request-contact-details", "Request contact details"),
     ("edit-one-week-contact-details", "One-week follow-up"),
     ("edit-four-week-contact-details", "Four-week follow-up"),
     ("edit-no-psb-response", "Unresponsive PSB"),
 ]
+
+
+class MockMessages:
+    def __init__(self):
+        self.messages = []
+
+    def add(self, level: str, message: str, extra_tags: str) -> None:
+        self.messages.append((level, message, extra_tags))
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -232,11 +240,11 @@ def test_archived_case_view_case_includes_sections(admin_client):
 
     assertContains(
         response,
-        """<span class="govuk-accordion__section-button" id="accordion-heading-archived-section-one">
+        """<h2 id="archived-section-one" class="govuk-heading-m">
             Archived section one
             <span class="govuk-visually-hidden">complete</span>
             ✓
-        </span>""",
+        </h2>""",
         html=True,
     )
     assertContains(
@@ -246,9 +254,9 @@ def test_archived_case_view_case_includes_sections(admin_client):
     )
     assertContains(
         response,
-        """<span class="govuk-accordion__section-button" id="accordion-heading-archived-section-two">
+        """<h2 id="archived-section-two" class="govuk-heading-m">
             Archived section two
-        </span>""",
+        </h2>""",
         html=True,
     )
 
@@ -327,7 +335,7 @@ def test_archived_case_view_case_includes_post_case_sections(admin_client):
     assertContains(response, "Statement enforcement")
     assertContains(response, "Equality body metadata")
     assertContains(response, "Equality body correspondence")
-    assertContains(response, "Equality body retest overview")
+    assertContains(response, "Retest overview")
     assertContains(response, "Legacy end of case data")
 
 
@@ -345,7 +353,7 @@ def test_non_archived_case_view_case_has_no_legacy_section(admin_client):
     assertContains(response, "Statement enforcement")
     assertContains(response, "Equality body metadata")
     assertContains(response, "Equality body correspondence")
-    assertContains(response, "Equality body retest overview")
+    assertContains(response, "Retest overview")
     assertNotContains(response, "Legacy end of case data")
 
 
@@ -721,7 +729,7 @@ def test_case_export_list_view_respects_filters(admin_client):
 def test_deactivate_case_view(admin_client):
     """Test that deactivate case view deactivates the case"""
     case: Case = Case.objects.create()
-    case_pk: Dict[str, int] = {"pk": case.id}
+    case_pk: dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("cases:deactivate-case", kwargs=case_pk),
@@ -744,7 +752,7 @@ def test_deactivate_case_view(admin_client):
 def test_reactivate_case_view(admin_client):
     """Test that reactivate case view reactivates the case"""
     case: Case = Case.objects.create()
-    case_pk: Dict[str, int] = {"pk": case.id}
+    case_pk: dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("cases:reactivate-case", kwargs=case_pk),
@@ -1466,37 +1474,6 @@ def test_update_request_ack_redirects_when_audit_but_no_retest_date(admin_client
     )
 
 
-@pytest.mark.parametrize(
-    "case_edit_path, expected_redirect_path",
-    [
-        ("cases:edit-case-close", "cases:edit-equality-body-metadata"),
-        (
-            "cases:edit-equality-body-metadata",
-            "cases:list-equality-body-correspondence",
-        ),
-    ],
-)
-def test_platform_update_redirects_based_on_case_variant(
-    case_edit_path, expected_redirect_path, admin_client
-):
-    """
-    Test that a case save and continue redirects as expected when case is not of the
-    equality body close case variant.
-    """
-    case: Case = Case.objects.create(variant=Case.Variant.ARCHIVED)
-
-    response: HttpResponse = admin_client.post(
-        reverse(case_edit_path, kwargs={"pk": case.id}),
-        {
-            "case_completed": "no-decision",
-            "version": case.version,
-            "save_continue": "Button value",
-        },
-    )
-    assert response.status_code == 302
-    assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
-
-
 def test_qa_comments_creates_comment(admin_client, admin_user):
     """Test adding a comment using QA comments page"""
     case: Case = Case.objects.create()
@@ -1537,6 +1514,50 @@ def test_qa_comments_does_not_create_comment(admin_client, admin_user):
     assert response.status_code == 302
 
     assert Comment.objects.filter(case=case).count() == 0
+
+
+@pytest.mark.django_db
+def test_mark_qa_comments_as_read(rf):
+    """Test marking QA comments as read"""
+    other_user: User = User.objects.create()
+    case: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME, auditor=other_user
+    )
+    other_user_qa_comment_reminder: Task = Task.objects.create(
+        case=case, user=other_user, type=Task.Type.QA_COMMENT, date=TODAY
+    )
+    other_user_report_approved_reminder: Task = Task.objects.create(
+        case=case, user=other_user, type=Task.Type.REPORT_APPROVED, date=TODAY
+    )
+
+    request_user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    request = rf.get(
+        reverse("cases:mark-qa-comments-as-read", kwargs={"pk": case.id}),
+    )
+    request.user = request_user
+    request._messages = MockMessages()
+
+    qa_comment_reminder: Task = Task.objects.create(
+        case=case, user=request_user, type=Task.Type.QA_COMMENT, date=TODAY
+    )
+    report_approved_reminder: Task = Task.objects.create(
+        case=case, user=request_user, type=Task.Type.REPORT_APPROVED, date=TODAY
+    )
+
+    response: HttpResponse = mark_qa_comments_as_read(request, pk=case.id)
+
+    assert response.status_code == 302
+
+    assert Task.objects.get(id=other_user_qa_comment_reminder.id).read is False
+    assert Task.objects.get(id=other_user_report_approved_reminder.id).read is False
+
+    assert Task.objects.get(id=qa_comment_reminder.id).read is True
+    assert Task.objects.get(id=report_approved_reminder.id).read is True
+
+    assert len(request._messages.messages) == 1
+    assert request._messages.messages[0][1] == f"{case} comments marked as read"
 
 
 def test_no_contact_chaser_dates_set(
@@ -1674,6 +1695,28 @@ def test_updating_report_sent_date(admin_client):
     assert (
         case_from_db.report_followup_week_12_due_date == TWELVE_WEEK_FOLLOWUP_DUE_DATE
     )
+
+
+def test_report_sent_on_warning(admin_client):
+    """Test that report sent on page shows warning if case is due to a complaint"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+    assertNotContains(response, "This case originated from a complaint")
+
+    case.is_complaint = Boolean.YES
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "This case originated from a complaint")
 
 
 def test_report_followup_due_dates_changed(admin_client):
@@ -1937,7 +1980,7 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
     )
     domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
 
-    duplicate_cases: List[Case] = list(find_duplicate_cases(url, domain))
+    duplicate_cases: list[Case] = list(find_duplicate_cases(url, domain))
 
     assert len(duplicate_cases) == expected_number_of_duplicates
 
@@ -1948,180 +1991,12 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         assert duplicate_cases[1] == organisation_name_case
 
 
-def test_audit_shows_link_to_create_audit_when_no_audit_exists(
-    admin_client,
-):
-    """
-    Test that audit details shows link to create when no audit exists
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, "A test does not exist for this case")
-
-
-def test_report_details_shows_when_no_report_exists(
-    admin_client,
-):
-    """
-    Test that report details shows when no report exists
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, "A report does not exist for this case")
-
-
-@pytest.mark.parametrize(
-    "audit_table_row",
-    [
-        ("Preview report"),
-        ("Notes"),
-        ("View published HTML report"),
-        ("Report views"),
-        ("Unique visitors to report"),
-    ],
-)
-def test_report_shows_expected_rows(admin_client, audit_table_row):
-    """Test that audit details shows expected rows"""
-    case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
-    Report.objects.create(case=case)
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, audit_table_row)
-
-
-@pytest.mark.parametrize(
-    "flag_name, section_name, edit_url_name",
-    [
-        (
-            "case_details_complete_date",
-            "Case details > Case metadata",
-            "edit-case-metadata",
-        ),
-        ("testing_details_complete_date", "Testing details", "edit-test-results"),
-        ("qa_auditor_complete_date", "Report QA > QA auditor", "edit-qa-auditor"),
-        ("qa_approval_complete_date", "Report QA > QA approval", "edit-qa-approval"),
-        (
-            "manage_contact_details_complete_date",
-            "Contact details > Manage contact details",
-            "manage-contact-details",
-        ),
-        (
-            "request_contact_details_complete_date",
-            "Contact details > Request contact details",
-            "edit-request-contact-details",
-        ),
-        (
-            "one_week_contact_details_complete_date",
-            "Contact details > One-week follow-up",
-            "edit-one-week-contact-details",
-        ),
-        (
-            "four_week_contact_details_complete_date",
-            "Contact details > Four-week follow-up",
-            "edit-four-week-contact-details",
-        ),
-        (
-            "report_sent_on_complete_date",
-            "Report correspondence > Report sent on",
-            "edit-report-sent-on",
-        ),
-        (
-            "one_week_followup_complete_date",
-            "Report correspondence > One week follow-up",
-            "edit-report-one-week-followup",
-        ),
-        (
-            "four_week_followup_complete_date",
-            "Report correspondence > Four week follow-up",
-            "edit-report-four-week-followup",
-        ),
-        (
-            "report_acknowledged_complete_date",
-            "Report correspondence > Report acknowledged",
-            "edit-report-acknowledged",
-        ),
-        (
-            "twelve_week_update_requested_complete_date",
-            "12-week correspondence > 12-week update requested",
-            "edit-12-week-update-requested",
-        ),
-        (
-            "one_week_followup_final_complete_date",
-            "12-week correspondence > One week follow-up for final update",
-            "edit-12-week-one-week-followup-final",
-        ),
-        (
-            "twelve_week_update_request_ack_complete_date",
-            "12-week correspondence > 12-week update request acknowledged",
-            "edit-12-week-update-request-ack",
-        ),
-        (
-            "review_changes_complete_date",
-            "Closing the case > Reviewing changes",
-            "edit-review-changes",
-        ),
-        (
-            "enforcement_recommendation_complete_date",
-            "Closing the case > Recommendation",
-            "edit-enforcement-recommendation",
-        ),
-        (
-            "case_close_complete_date",
-            "Closing the case > Closing the case",
-            "edit-case-close",
-        ),
-    ],
-)
-def test_section_complete_check_displayed(
-    flag_name, section_name, edit_url_name, admin_client
-):
-    """
-    Test that the section complete tick is displayed in contents
-    """
-    case: Case = Case.objects.create(enable_correspondence_process=True)
-    setattr(case, flag_name, TODAY)
-    case.save()
-    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
-    Report.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<li>
-            <a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">
-            {section_name}<span class="govuk-visually-hidden">complete</span></a>
-            |
-            <a id="{edit_url_name}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
-                Edit<span class="govuk-visually-hidden">complete</span>
-            </a>
-            &check;
-        </li>""",
-        html=True,
-    )
-
-
 @pytest.mark.parametrize(
     "flag_name, section_name, edit_url_name",
     [
         (
             "publish_report_complete_date",
-            "Report QA > Publish report",
+            "Publish report",
             "edit-publish-report",
         ),
     ],
@@ -2147,12 +2022,13 @@ def test_no_anchor_section_complete_check_displayed(
     assertContains(
         response,
         f"""<li>
-            {section_name}<span class="govuk-visually-hidden">complete</span>
-            |
-            <a id="{edit_url_name}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
-                Edit<span class="govuk-visually-hidden">complete</span>
+            {section_name} |
+            <a id="edit-{slugify(edit_url)}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+                Edit
             </a>
+            <span class="govuk-visually-hidden">complete</span>
             &check;
+            <ul class="amp-nav-list-subpages"></ul>
         </li>""",
         html=True,
     )
@@ -2573,36 +2449,6 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     )
 
 
-def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
-    admin_client,
-):
-    """
-    Test that the twelve week retest page shows view retest button when a
-    test with a retest exists.
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case, retest_date=date.today())
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    view_retest_url: str = reverse(
-        "audits:audit-retest-detail", kwargs={"pk": audit.id}
-    )
-    assertContains(
-        response,
-        f"""<a href="{view_retest_url}"
-            role="button" draggable="false" class="govuk-button govuk-button--secondary"
-            data-module="govuk-button">
-            View retest
-        </a>""",
-        html=True,
-    )
-
-
 def test_twelve_week_retest_page_shows_if_statement_exists(
     admin_client,
 ):
@@ -2815,7 +2661,7 @@ def test_report_approved_notifies_auditor(rf):
 
     assert response.status_code == 302
 
-    task: Optional[Task] = Task.objects.filter(user=user).first()
+    task: Task | None = Task.objects.filter(user=user).first()
 
     assert task is not None
     assert task.description == f"{request_user.get_full_name()} QA approved Case {case}"
@@ -3113,7 +2959,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     when an auditor is assigned.
     """
     case: Case = Case.objects.create()
-    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    case_pk_kwargs: dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("cases:status-workflow", kwargs=case_pk_kwargs),
@@ -3178,7 +3024,7 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
     only when the linked action's value has been set.
     """
     case: Case = Case.objects.create()
-    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    case_pk_kwargs: dict[str, int] = {"pk": case.id}
     link_url: str = reverse(path_name, kwargs=case_pk_kwargs)
 
     response: HttpResponse = admin_client.get(
@@ -3221,9 +3067,9 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     statement checks have been entered.
     """
     case: Case = Case.objects.create()
-    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    case_pk_kwargs: dict[str, int] = {"pk": case.id}
     audit: Audit = Audit.objects.create(case=case)
-    audit_pk_kwargs: Dict[str, int] = {"pk": audit.id}
+    audit_pk_kwargs: dict[str, int] = {"pk": audit.id}
 
     for statement_check in StatementCheck.objects.all():
         StatementCheckResult.objects.create(
@@ -4176,6 +4022,36 @@ def test_case_email_template_list_view(admin_client):
     assert response.status_code == 200
 
     assertContains(response, ">Email templates</h1>")
+
+
+def test_case_email_template_list_view_hides_deleted(admin_client):
+    """
+    Test case email template list page does not include deleted email
+    templates
+    """
+    case: Case = Case.objects.create()
+    email_template: EmailTemplate = EmailTemplate.objects.get(
+        pk=EXAMPLE_EMAIL_TEMPLATE_ID
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:email-template-list", kwargs={"case_id": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, email_template.name)
+
+    email_template.is_deleted = True
+    email_template.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:email-template-list", kwargs={"case_id": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, email_template.name)
 
 
 def test_case_email_template_preview_view(admin_client):

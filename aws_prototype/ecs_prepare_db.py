@@ -1,7 +1,7 @@
 """ECS Prepare DB - Launches on ECS that prepares the Aurora for the prototype"""
+
 import json
 import os
-from typing import Any, List
 
 import boto3
 
@@ -46,7 +46,7 @@ def create_db() -> None:
 
 def most_recent_db_s3_path(bucket: str):
     s3_client = boto3.client("s3")
-    db_backups: List[Any] = []
+    db_backups: list = []
     for key in s3_client.list_objects(Bucket=bucket)["Contents"]:
         if ".sql" in key["Key"]:
             db_backups.append(key)

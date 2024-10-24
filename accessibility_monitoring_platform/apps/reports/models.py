@@ -3,7 +3,6 @@ Models - reports
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -17,7 +16,7 @@ from ..common.utils import amp_format_datetime
 from ..s3_read_write.models import S3Report
 
 REPORT_VERSION_DEFAULT: str = "v1_4_0__20241005"
-WRAPPER_TEXT_FIELDS: List[str] = [
+WRAPPER_TEXT_FIELDS: list[str] = [
     "title",
     "sent_by",
     "contact",
@@ -93,7 +92,7 @@ class Report(VersionModel):
         return f"reports_common/accessibility_report_{self.report_version}.html"
 
     @property
-    def wrapper(self) -> Dict[str, str]:
+    def wrapper(self) -> dict[str, str]:
         """
         Renders the template values in ReportWrapper to return the text used to
         wrap the report on its HTML page
@@ -101,8 +100,8 @@ class Report(VersionModel):
         Returns:
             wrapper_text: Dictionary of wrapper text names and values
         """
-        report_wrapper: Optional[ReportWrapper] = ReportWrapper.objects.all().first()
-        wrapper_text: Dict[str, str] = {}
+        report_wrapper: ReportWrapper | None = ReportWrapper.objects.all().first()
+        wrapper_text: dict[str, str] = {}
         if report_wrapper is not None:
             context: Context = Context({"report": self})
             for field in WRAPPER_TEXT_FIELDS:
@@ -111,12 +110,12 @@ class Report(VersionModel):
         return wrapper_text
 
     @property
-    def latest_s3_report(self) -> Optional[S3Report]:
+    def latest_s3_report(self) -> S3Report | None:
         """The most recently published report"""
         return self.case.s3report_set.filter(latest_published=True).last()
 
     @property
-    def visits_metrics(self) -> Dict[str, int]:
+    def visits_metrics(self) -> dict[str, int]:
         return {
             "number_of_visits": self.case.reportvisitsmetrics_set.all().count(),
             "number_of_unique_visitors": self.case.reportvisitsmetrics_set.values_list(
