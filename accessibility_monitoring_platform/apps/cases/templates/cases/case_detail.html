@@ -78,11 +78,10 @@
                     <hr class="amp-width-100 amp-margin-bottom-30" />
                     {% if case.archive %}
                         {% include 'cases/details/archive.html' %}
-                    {% else %}
-                        {% for case_detail_section in case_detail_sections %}
-                            {% include case_detail_section.page.case_details_template_name %}
-                        {% endfor %}
                     {% endif %}
+                    {% for case_detail_section in case_detail_sections %}
+                        {% include case_detail_section.page.case_details_template_name %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
