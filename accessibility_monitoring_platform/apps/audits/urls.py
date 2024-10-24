@@ -2,8 +2,6 @@
 URLS for dashboard
 """
 
-from typing import List
-
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
@@ -62,7 +60,6 @@ from .views.initial import (
 from .views.twelve_week import (
     AuditRetestCaseComplianceStatement12WeekUpdateView,
     AuditRetestCaseComplianceWebsite12WeekUpdateView,
-    AuditRetestDetailView,
     AuditRetestMetadataUpdateView,
     AuditRetestPageChecksFormView,
     AuditRetestPagesView,
@@ -83,7 +80,7 @@ from .views.twelve_week import (
 )
 
 app_name: str = "audits"
-urlpatterns: List[URLPattern] = [
+urlpatterns: list[URLPattern] = [
     path(
         "create-for-case/<int:case_id>/",
         login_required(create_audit),
@@ -193,11 +190,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/audit-retest-start/",
         login_required(start_retest),
         name="audit-retest-start",
-    ),
-    path(
-        "<int:pk>/audit-retest-detail/",
-        login_required(AuditRetestDetailView.as_view()),
-        name="audit-retest-detail",
     ),
     path(
         "<int:pk>/delete-retest/",

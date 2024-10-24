@@ -32,7 +32,7 @@
                                     <a href="{% url 'audits:retest-metadata-update' retest.previous_retest.id %}" class="govuk-link govuk-link--no-visited-state">
                                         {{ retest.previous_retest }}</a>.
                                 {% else %}
-                                    <a href="{% url 'audits:audit-retest-detail' retest.case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    <a href="{% url 'audits:edit-audit-retest-metadata' retest.case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
                                         12-week retest</a>.
                                 {% endif %}
                             </p>

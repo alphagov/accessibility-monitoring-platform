@@ -5,7 +5,7 @@ Test - common utility functions
 import json
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
@@ -87,8 +87,8 @@ class MockRequest:
     def __init__(
         self,
         button: str = "Save",
-        user: Optional[User] = None,
-        session: Optional[MockSession] = None,
+        user: User | None = None,
+        session: MockSession | None = None,
     ):
         self.POST = {button: "Remove"}
         self.user = user
@@ -205,16 +205,16 @@ def test_get_no_id_from_button_name_with_wrong_prefix():
 
 def test_build_filters_from_field_values():
     """Tests that filter dictionary is build from field values"""
-    field_and_filter_names: List[Tuple[str, str]] = [
+    field_and_filter_names: list[tuple[str, str]] = [
         ("case_number", "id"),
         ("domain", "domain__icontains"),
     ]
-    fields_data: Dict[str, Any] = {
+    fields_data: dict[str, str] = {
         "case_number": "42",
         "domain": "domain name",
         "unused_field": "unused value",
     }
-    expected_filters: Dict[str, str] = {
+    expected_filters: dict[str, str] = {
         "id": "42",
         "domain__icontains": "domain name",
     }
@@ -302,7 +302,7 @@ def test_record_model_create_event():
 
     assert event.type == Event.Type.CREATE
 
-    value_dict: Dict[str, Any] = json.loads(event.value)
+    value_dict: dict[str, Any] = json.loads(event.value)
 
     assert "last_login" in value_dict
     assert value_dict["last_login"] is None
@@ -332,7 +332,7 @@ def test_list_to_dictionary_of_lists():
     mock_2: MockModel = MockModel(char_field="key1", integer_field=2)
     mock_3: MockModel = MockModel(char_field="key2", integer_field=3)
     mock_4: MockModel = MockModel(char_field="key3", integer_field=4)
-    mocks: List[MockModel] = [mock_1, mock_2, mock_3, mock_4]
+    mocks: list[MockModel] = [mock_1, mock_2, mock_3, mock_4]
 
     assert list_to_dictionary_of_lists(items=mocks, group_by_attr="char_field") == {
         "key1": [mock_1, mock_2],
@@ -422,7 +422,7 @@ def test_checks_if_2fa_is_enabled():
     ],
 )
 def test_check_dict_for_truthy_values(
-    dictionary: Dict[str, bool], keys_to_check: List[str], expected_result: bool
+    dictionary: dict[str, bool], keys_to_check: list[str], expected_result: bool
 ):
     """
     Test dictionary contains at least one truthy values for list of keys to check.

@@ -2,7 +2,7 @@
 Views for reports app
 """
 
-from typing import Any, Dict, List, Type
+from typing import Any
 
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -58,7 +58,7 @@ class ReportUpdateView(UpdateView):
     View to update report
     """
 
-    model: Type[Report] = Report
+    model: type[Report] = Report
     context_object_name: str = "report"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -80,8 +80,8 @@ class ReportTemplateView(TemplateView):
     View to for template with report in context
     """
 
-    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
-        context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, *args, **kwargs) -> dict[str, Any]:
+        context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         context["report"] = get_object_or_404(Report, id=kwargs.get("pk"))
         return context
 
@@ -93,14 +93,14 @@ class ReportPreviewTemplateView(ReportTemplateView):
 
     template_name: str = "reports/report_preview.html"
 
-    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
-        context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, *args, **kwargs) -> dict[str, Any]:
+        context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         report: Report = context["report"]
         template: Template = loader.get_template(report.template_path)
         context.update(get_report_visits_metrics(report.case))
 
         context["s3_report"] = report.latest_s3_report
-        report_context: Dict[str, Any] = build_report_context(report=report)
+        report_context: dict[str, Any] = build_report_context(report=report)
         context.update(report_context)
         context["html_report"] = template.render(report_context, self.request)
         return context
@@ -111,7 +111,7 @@ class ReportRepublishTemplateView(DetailView):
     View to republish the report
     """
 
-    model: Type[Report] = Report
+    model: type[Report] = Report
     context_object_name: str = "report"
     template_name: str = "reports/report_republish.html"
 
@@ -137,7 +137,7 @@ class ReportWrapperUpdateView(UpdateView):
     View to update report wrapper
     """
 
-    form_class: Type[ReportWrapperUpdateForm] = ReportWrapperUpdateForm
+    form_class: type[ReportWrapperUpdateForm] = ReportWrapperUpdateForm
     template_name: str = "reports/forms/wrapper.html"
     context_object_name: str = "report_wrapper"
     success_url: str = reverse_lazy("dashboard:home")
@@ -154,8 +154,8 @@ class ReportVisitsMetricsView(ReportTemplateView):
 
     template_name: str = "reports/report_visits_metrics.html"
 
-    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
-        context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, *args, **kwargs) -> dict[str, Any]:
+        context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         context["showing"] = self.request.GET.get("showing")
         context["userhash"] = self.request.GET.get("userhash")
         case: Case = context["report"].case
@@ -166,7 +166,7 @@ class ReportVisitsMetricsView(ReportTemplateView):
                 fingerprint_codename=context["userhash"],
             )
         elif context["showing"] == "unique-visitors":
-            visit_logs: List[Any] = []
+            visit_logs: list[Any] = []
             disinct_values: QuerySet = (
                 ReportVisitsMetrics.objects.filter(case=case)
                 .values("fingerprint_hash")

@@ -1,5 +1,4 @@
 import json
-from typing import Dict
 from unittest.mock import Mock, patch
 
 import boto3
@@ -17,7 +16,7 @@ from ..ecs_prepare_db import (
     upload_db_backup,
 )
 
-TEST_POSTGRES_CREDENTIALS: Dict[str, str] = {
+TEST_POSTGRES_CREDENTIALS: dict[str, str] = {
     "password": "PASSWORD",
     "dbname": "accessibility_monitoring_app",
     "engine": "postgres",

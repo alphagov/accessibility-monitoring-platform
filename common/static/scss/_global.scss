@@ -38,10 +38,10 @@ pre {
 }
 
 .amp-notes {
-    p:first-child {
+    ul:first-child, p:first-child {
         margin-top: 0;
     }
-    p:last-child {
+    ul:last-child, p:last-child {
         margin-bottom: 0;
     }
 }

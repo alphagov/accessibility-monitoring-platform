@@ -1,5 +1,4 @@
 import json
-from typing import Dict
 from unittest.mock import Mock, patch
 
 import boto3
@@ -9,7 +8,7 @@ from botocore.stub import Stubber
 
 from ..aws_secrets import get_notify_secret
 
-NOTIFY_SECRET: Dict[str, str] = {
+NOTIFY_SECRET: dict[str, str] = {
     "EMAIL_NOTIFY_API_KEY": "test_env__amp-random",
     "EMAIL_NOTIFY_BASIC_TEMPLATE": "blahblah",
 }
