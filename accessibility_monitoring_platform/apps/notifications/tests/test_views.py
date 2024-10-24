@@ -94,6 +94,41 @@ def test_task_list_other_user(rf):
     assertContains(response, "Tasks (1)")
 
 
+@pytest.mark.django_db
+def test_task_list_all_users(rf):
+    """Test task list page can show other user's tasks"""
+    request_user: User = User.objects.create(
+        username="mockuser1", email="mockuser1@mock.com", password="secret1"
+    )
+    other_user: User = User.objects.create(
+        username="mockuser2", email="mockuser2@mock.com", password="secret2"
+    )
+    case: Case = Case.objects.create(auditor=other_user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=request_user,
+        case=case,
+    )
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=other_user,
+        case=case,
+    )
+
+    request: HttpRequest = rf.get(
+        f'{reverse("notifications:task-list")}?show_all_users=true'
+    )
+    request.user = request_user
+
+    response: HttpResponse = TaskListView.as_view()(request)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Tasks (2)")
+
+
 @pytest.mark.parametrize(
     "filtered_type, other_type",
     [
@@ -130,8 +165,16 @@ def test_task_list_type_filter(filtered_type, other_type, rf):
     assert response.status_code == 200
 
     assertContains(response, "Tasks (1)")
-    assertContains(response, f"{filtered_task.get_type_display()}</h2>")
-    assertNotContains(response, f"{other_task.get_type_display()}</h2>")
+    assertContains(
+        response,
+        f"""<h2 class="govuk-heading-m amp-margin-bottom-10">{filtered_task.get_type_display()}</h2>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        f"""<h2 class="govuk-heading-m amp-margin-bottom-10">{other_task.get_type_display()}</h2>""",
+        html=True,
+    )
 
 
 @pytest.mark.parametrize("read_param", ["read", "deleted"])

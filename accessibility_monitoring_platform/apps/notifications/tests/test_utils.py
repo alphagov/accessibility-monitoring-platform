@@ -271,6 +271,29 @@ def test_report_ready_to_send_seven_day_no_contact():
 
 
 @pytest.mark.django_db
+def test_report_ready_to_send_seven_day_no_contact_for_all_users():
+    """
+    Show overdue if report is ready to send and seven day no
+    contact email sent date is more than seven days ago for all users.
+    """
+    user_1: User = User.objects.create(username="user1", email="email1@example.com")
+    case_1: Case = create_case(user_1)
+    user_2: User = User.objects.create(username="user2", email="email2@example.com")
+    case_2: Case = create_case(user_2)
+
+    assert len(get_overdue_cases(None)) == 0
+
+    case_1.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case_1.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case_1.save()
+    case_2.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case_2.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case_2.save()
+
+    assert len(get_overdue_cases(None)) == 2
+
+
+@pytest.mark.django_db
 def test_report_ready_to_send_no_contact_one_week_chaser_due():
     """
     Show overdue if report is ready to send and no contact
@@ -294,6 +317,35 @@ def test_report_ready_to_send_no_contact_one_week_chaser_due():
 
 
 @pytest.mark.django_db
+def test_report_ready_to_send_no_contact_one_week_chaser_due_for_all_users():
+    """
+    Show overdue if report is ready to send and no contact
+    1-week chaser due date has been reached but not sent for all users.
+    """
+    user_1: User = User.objects.create(username="user1", email="email1@example.com")
+    case_1: Case = create_case(user_1)
+    case_1.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case_1.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case_1.no_contact_one_week_chaser_sent_date = TODAY
+    user_2: User = User.objects.create(username="user2", email="email2@example.com")
+    case_2: Case = create_case(user_2)
+    case_2.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case_2.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case_2.no_contact_one_week_chaser_sent_date = TODAY
+
+    assert len(get_overdue_cases(None)) == 0
+
+    case_1.no_contact_one_week_chaser_sent_date = None
+    case_1.no_contact_one_week_chaser_due_date = TODAY
+    case_1.save()
+    case_2.no_contact_one_week_chaser_sent_date = None
+    case_2.no_contact_one_week_chaser_due_date = TODAY
+    case_2.save()
+
+    assert len(get_overdue_cases(None)) == 2
+
+
+@pytest.mark.django_db
 def test_report_ready_to_send_no_contact_four_week_chaser_due():
     """
     Show overdue if report is ready to send and no contact
@@ -308,12 +360,14 @@ def test_report_ready_to_send_no_contact_four_week_chaser_due():
     case.save()
 
     assert len(get_overdue_cases(user)) == 0
+    assert len(get_overdue_cases(None)) == 0
 
     case.no_contact_four_week_chaser_sent_date = None
     case.no_contact_four_week_chaser_due_date = TODAY
     case.save()
 
     assert len(get_overdue_cases(user)) == 1
+    assert len(get_overdue_cases(None)) == 1
 
 
 @pytest.mark.django_db
@@ -373,6 +427,7 @@ def test_returns_no_overdue_cases():
     case.save()
 
     assert list(get_overdue_cases(user)) == []
+    assert list(get_overdue_cases(None)) == []
 
 
 @pytest.mark.django_db
