@@ -2,7 +2,7 @@
 Tests for users views
 """
 
-from typing import Dict, List, TypedDict, Union
+from typing import TypedDict
 
 import pytest
 from django.conf import settings
@@ -152,7 +152,7 @@ def test_edit_user_loads_correctly_with_auth(client):
 @pytest.mark.django_db
 def test_edit_user_returns_403_for_other_users(client):
     """Tests logged user cannot edit other account details"""
-    user: User = create_user()
+    create_user()
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
     other_user: User = User.objects.create()
 
@@ -197,7 +197,7 @@ def test_edit_user_post_saves_correctly(client):
     assert updated_user.first_name == FIRST_NAME
     assert updated_user.last_name == LAST_NAME
 
-    messages: List[str] = [str(x) for x in list(response.context["messages"])]
+    messages: list[str] = [str(x) for x in list(response.context["messages"])]
     assert messages[0] == "Successfully saved details!"
 
     notificiation_setting: NotificationSetting = NotificationSetting.objects.get(
@@ -253,7 +253,7 @@ def test_2fa_not_enabled_on_user_update(client):
     user: User = create_user()
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 
-    data: Dict[str, str] = VALID_USER_UPDATE_FORM_DATA.copy()
+    data: dict[str, str] = VALID_USER_UPDATE_FORM_DATA.copy()
     del data["enable_2fa"]
 
     response: HttpResponse = client.post(
@@ -282,7 +282,7 @@ def test_user_with_2fa_emailed_token_to_login(client, mailoutbox):
     assert response.status_code == 302
     assert response.url == f"/account/login/?next={url}"
 
-    auth_data: Dict[str, str] = {
+    auth_data: dict[str, str] = {
         "auth-username": VALID_USER_EMAIL,
         "auth-password": VALID_PASSWORD,
         "login_view-current_step": "auth",
@@ -300,7 +300,7 @@ def test_user_with_2fa_emailed_token_to_login(client, mailoutbox):
     assert mailoutbox[0].subject == settings.OTP_EMAIL_SUBJECT
     assert len(mailoutbox[0].body) == 7
 
-    token_data: Dict[str, Union[str, int]] = {
+    token_data: dict[str, str | int] = {
         "token-otp_token": mailoutbox[0].body.strip(),
         "login_view-current_step": "token",
     }

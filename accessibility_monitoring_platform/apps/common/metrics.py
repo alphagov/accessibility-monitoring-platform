@@ -4,7 +4,6 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from datetime import timezone as datetime_timezone
-from typing import Dict, List, Optional, Tuple
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
@@ -17,7 +16,7 @@ from ..s3_read_write.models import S3Report
 from .chart import LineChart, Timeseries, TimeseriesDatapoint, build_yearly_metric_chart
 from .utils import get_days_ago_timestamp, get_first_of_this_month_last_year
 
-ARCHIVE_ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: Dict[str, str] = {
+ARCHIVE_ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: dict[str, str] = {
     "declaration_state": "present",
     "scope_state": "present",
     "compliance_state": "present",
@@ -46,7 +45,7 @@ class ThirtyDayMetric:
         return "over"
 
     @property
-    def progress_percentage(self) -> Optional[int]:
+    def progress_percentage(self) -> int | None:
         if self.previous_30_day_count > 0:
             percentage: int = int(
                 (self.last_30_day_count * 100) / self.previous_30_day_count
@@ -59,8 +58,8 @@ class ThirtyDayMetric:
 
 @dataclass
 class TimeseriesHtmlTable:
-    column_names: List[str]
-    rows: List[List[str]]
+    column_names: list[str]
+    rows: list[list[str]]
 
 
 @dataclass
@@ -99,7 +98,7 @@ class EqualityBodyCasesMetric:
     in_progress_count: int
 
 
-def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
+def count_statement_issues(audits: QuerySet[Audit]) -> tuple[int, int]:
     """Count numbers of statement errors and how many were fixed"""
     statement_issues_count: int = 0
     fixed_statement_issues_count: int = 0
@@ -124,7 +123,7 @@ def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
 
 def group_timeseries_data_by_month(
     queryset: QuerySet, date_column_name: str, start_date: datetime
-) -> List[TimeseriesDatapoint]:
+) -> list[TimeseriesDatapoint]:
     """
     Given a queryset containing a timestamp field return the numbers found
     in each month.
@@ -134,7 +133,7 @@ def group_timeseries_data_by_month(
     )
     current_year: int = start_date.year
     current_month: int = start_date.month
-    month_dates: List[datetime] = []
+    month_dates: list[datetime] = []
     for _ in range(13):
         month_dates.append(
             datetime(current_year, current_month, 1, tzinfo=datetime_timezone.utc)
@@ -159,17 +158,17 @@ def group_timeseries_data_by_month(
 
 
 def build_html_table(
-    columns: List[Timeseries],
+    columns: list[Timeseries],
 ) -> TimeseriesHtmlTable:
     """
     Given lists of timeseries data, merge them into a context object for a
     single HTML table
     """
-    column_names: List[str] = [FIRST_COLUMN_HEADER] + [
+    column_names: list[str] = [FIRST_COLUMN_HEADER] + [
         timeseries.label for timeseries in columns
     ]
-    empty_row: List[str] = ["" for _ in range(len(columns))]
-    html_columns: Dict[datetime, List[str]] = {}
+    empty_row: list[str] = ["" for _ in range(len(columns))]
+    html_columns: dict[datetime, list[str]] = {}
     for timeseries in columns:
         for datapoint in timeseries.datapoints:
             html_columns[datapoint.datetime] = [
@@ -192,7 +191,7 @@ def convert_timeseries_pair_to_ratio(
     Given partial and total timeseries return a timeseries where the values
     are the first divided by the second as a percentage
     """
-    datapoints: List[TimeseriesDatapoint] = []
+    datapoints: list[TimeseriesDatapoint] = []
     for partial, total in zip(
         partial_timeseries.datapoints, total_timeseries.datapoints
     ):
@@ -210,7 +209,7 @@ def convert_timeseries_to_cumulative(timeseries: Timeseries) -> Timeseries:
     are the first divided by the second as a percentage
     """
     cumulative_value: int = 0
-    cumulative_datapoints: List[TimeseriesDatapoint] = []
+    cumulative_datapoints: list[TimeseriesDatapoint] = []
     for datapoint in timeseries.datapoints:
         cumulative_value += datapoint.value
         cumulative_datapoints.append(
@@ -220,7 +219,7 @@ def convert_timeseries_to_cumulative(timeseries: Timeseries) -> Timeseries:
     return timeseries
 
 
-def get_case_progress_metrics() -> List[ThirtyDayMetric]:
+def get_case_progress_metrics() -> list[ThirtyDayMetric]:
     """Return case progress metrics"""
     thirty_days_ago: datetime = get_days_ago_timestamp(days=30)
     sixty_days_ago: datetime = get_days_ago_timestamp(days=60)
@@ -268,9 +267,9 @@ def get_case_progress_metrics() -> List[ThirtyDayMetric]:
     ]
 
 
-def get_case_yearly_metrics() -> List[YearlyMetric]:
+def get_case_yearly_metrics() -> list[YearlyMetric]:
     """Return case yearly metrics"""
-    yearly_metrics: List[YearlyMetric] = []
+    yearly_metrics: list[YearlyMetric] = []
     start_date: datetime = get_first_of_this_month_last_year()
     for label, date_column_name in [
         ("Cases created", "created"),
@@ -296,7 +295,7 @@ def get_case_yearly_metrics() -> List[YearlyMetric]:
     return yearly_metrics
 
 
-def get_policy_total_metrics() -> List[TotalMetric]:
+def get_policy_total_metrics() -> list[TotalMetric]:
     """Return policy total metrics"""
     return [
         TotalMetric(
@@ -324,7 +323,7 @@ def get_policy_total_metrics() -> List[TotalMetric]:
     ]
 
 
-def get_policy_progress_metrics() -> List[ProgressMetric]:
+def get_policy_progress_metrics() -> list[ProgressMetric]:
     """Return policy progress metrics"""
     now: datetime = timezone.now()
     start_date: datetime = now - timedelta(days=90)
@@ -399,32 +398,32 @@ def get_equality_body_cases_metric() -> EqualityBodyCasesMetric:
     )
 
 
-def get_policy_yearly_metrics() -> List[YearlyMetric]:
+def get_policy_yearly_metrics() -> list[YearlyMetric]:
     """Return policy yearly metrics"""
     thirteen_month_start_date: datetime = get_first_of_this_month_last_year()
 
     thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
         retest_date__gte=thirteen_month_start_date
     )
-    thirteen_month_website_initial_compliant: QuerySet[
-        Audit
-    ] = thirteen_month_retested_audits.filter(
-        case__compliance__website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT
+    thirteen_month_website_initial_compliant: QuerySet[Audit] = (
+        thirteen_month_retested_audits.filter(
+            case__compliance__website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT
+        )
     )
-    thirteen_month_statement_initial_compliant: QuerySet[
-        Audit
-    ] = thirteen_month_retested_audits.filter(
-        case__compliance__statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT
+    thirteen_month_statement_initial_compliant: QuerySet[Audit] = (
+        thirteen_month_retested_audits.filter(
+            case__compliance__statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT
+        )
     )
-    thirteen_month_final_no_action: QuerySet[
-        Audit
-    ] = thirteen_month_retested_audits.filter(
-        case__recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
+    thirteen_month_final_no_action: QuerySet[Audit] = (
+        thirteen_month_retested_audits.filter(
+            case__recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
+        )
     )
-    thirteen_month_statement_final_compliant: QuerySet[
-        Audit
-    ] = thirteen_month_retested_audits.filter(
-        case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
+    thirteen_month_statement_final_compliant: QuerySet[Audit] = (
+        thirteen_month_retested_audits.filter(
+            case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
+        )
     )
 
     retested_by_month: Timeseries = Timeseries(
@@ -521,7 +520,7 @@ def get_policy_yearly_metrics() -> List[YearlyMetric]:
     ]
 
 
-def get_report_progress_metrics() -> List[ThirtyDayMetric]:
+def get_report_progress_metrics() -> list[ThirtyDayMetric]:
     """Return report progress metrics"""
     thirty_days_ago: datetime = get_days_ago_timestamp(days=30)
     sixty_days_ago: datetime = get_days_ago_timestamp(days=60)
@@ -564,7 +563,7 @@ def get_report_progress_metrics() -> List[ThirtyDayMetric]:
     ]
 
 
-def get_report_yearly_metrics() -> List[YearlyMetric]:
+def get_report_yearly_metrics() -> list[YearlyMetric]:
     """Return report yearly metrics"""
     start_date: datetime = get_first_of_this_month_last_year()
     published_reports_by_month: Timeseries = Timeseries(

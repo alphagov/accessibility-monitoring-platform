@@ -84,7 +84,7 @@ class EventAdmin(admin.ModelAdmin):
 class EmailTemplateAdmin(admin.ModelAdmin):
     """Django admin configuration for EmailTemplate model"""
 
-    search_fields = ["name", "template", "updated_by", "created_by"]
+    search_fields = ["name", "template", "updated_by__username", "created_by__username"]
     list_display = [
         "name",
         "type",
@@ -92,14 +92,17 @@ class EmailTemplateAdmin(admin.ModelAdmin):
         "updated",
         "created_by",
         "created",
+        "is_deleted",
     ]
     list_filter = [
         "type",
+        "is_deleted",
     ]
     readonly_fields = [
         "created",
         "updated",
     ]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):

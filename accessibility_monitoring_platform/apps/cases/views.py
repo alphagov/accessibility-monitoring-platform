@@ -3,7 +3,7 @@ Views for cases app
 """
 
 from datetime import date, timedelta
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -26,6 +26,7 @@ from ..audits.utils import report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.models import Boolean, EmailTemplate
+from ..common.sitemap import Sitemap
 from ..common.utils import (
     amp_format_date,
     check_dict_for_truthy_values,
@@ -48,12 +49,8 @@ from ..exports.csv_export_utils import (
     populate_equality_body_columns,
 )
 from ..notifications.models import Task
-from ..notifications.utils import add_task
-from ..reports.utils import (
-    build_issues_tables,
-    get_report_visits_metrics,
-    publish_report_util,
-)
+from ..notifications.utils import add_task, mark_tasks_as_read
+from ..reports.utils import build_issues_tables, publish_report_util
 from .forms import (
     CaseCloseUpdateForm,
     CaseCreateForm,
@@ -100,14 +97,14 @@ from .models import (
 )
 from .utils import (
     filter_cases,
-    get_case_view_sections,
+    get_case_detail_sections,
     record_case_event,
     replace_search_key_with_case_search,
 )
 
 FOUR_WEEKS_IN_DAYS: int = 4 * ONE_WEEK_IN_DAYS
 TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
-TRUTHY_SEARCH_FIELDS: List[str] = [
+TRUTHY_SEARCH_FIELDS: list[str] = [
     "sort_by",
     "status",
     "auditor",
@@ -189,7 +186,7 @@ def calculate_twelve_week_chaser_dates(
     return case
 
 
-def format_due_date_help_text(due_date: Optional[date]) -> str:
+def format_due_date_help_text(due_date: date | None) -> str:
     """Format date and prefix with 'Due' if present"""
     if due_date is None:
         return "None"
@@ -201,19 +198,22 @@ class CaseDetailView(DetailView):
     View of details of a single case
     """
 
-    model: Type[Case] = Case
+    model: type[Case] = Case
     context_object_name: str = "case"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add undeleted contacts to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = self.object
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add case detail sections to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
 
-        if not case.report:
-            context.update(get_report_visits_metrics(case))
+        case: Case = self.object
+        sitemap: Sitemap = Sitemap(request=self.request)
 
         return {
-            **{"view_sections": get_case_view_sections(case=case)},
+            **{
+                "case_detail_sections": get_case_detail_sections(
+                    case=case, sitemap=sitemap
+                )
+            },
             **context,
         }
 
@@ -223,7 +223,7 @@ class CaseListView(ListView):
     View of list of cases
     """
 
-    model: Type[Case] = Case
+    model: type[Case] = Case
     context_object_name: str = "cases"
     paginate_by: int = 10
 
@@ -245,9 +245,9 @@ class CaseListView(ListView):
 
         return filter_cases(self.form)
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add field values into context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
 
         context["advanced_search_open"] = check_dict_for_truthy_values(
             dictionary=get_dict_without_page_items(self.request.GET.items()),
@@ -265,8 +265,8 @@ class CaseCreateView(CreateView):
     View to create a case
     """
 
-    model: Type[Case] = Case
-    form_class: Type[CaseCreateForm] = CaseCreateForm
+    model: type[Case] = Case
+    form_class: type[CaseCreateForm] = CaseCreateForm
     context_object_name: str = "case"
     template_name: str = "cases/forms/create.html"
 
@@ -277,7 +277,7 @@ class CaseCreateView(CreateView):
             case.created_by = self.request.user
             return super().form_valid(form)
 
-        context: Dict[str, Any] = self.get_context_data()
+        context: dict[str, Any] = self.get_context_data()
         duplicate_cases: QuerySet[Case] = find_duplicate_cases(
             url=form.cleaned_data.get("home_page_url", ""),
             organisation_name=form.cleaned_data.get("organisation_name", ""),
@@ -298,7 +298,7 @@ class CaseCreateView(CreateView):
         user: User = self.request.user
         record_model_create_event(user=user, model_object=case)
         record_case_event(user=user, new_case=case)
-        case_pk: Dict[str, int] = {"pk": self.object.id}
+        case_pk: dict[str, int] = {"pk": self.object.id}
         if "save_continue_case" in self.request.POST:
             url: str = reverse("cases:edit-case-metadata", kwargs=case_pk)
         elif "save_new_case" in self.request.POST:
@@ -315,7 +315,7 @@ class CaseUpdateView(UpdateView):
     View to update case
     """
 
-    model: Type[Case] = Case
+    model: type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "common/case_form.html"
 
@@ -353,7 +353,7 @@ class CaseMetadataUpdateView(CaseUpdateView):
     View to update case metadata
     """
 
-    form_class: Type[CaseMetadataUpdateForm] = CaseMetadataUpdateForm
+    form_class: type[CaseMetadataUpdateForm] = CaseMetadataUpdateForm
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
@@ -384,7 +384,7 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     View to update case test results
     """
 
-    form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
+    form_class: type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
 
 
@@ -393,8 +393,8 @@ class CaseCreateReportUpdateView(DetailView):
     View to create the report for this case
     """
 
-    model: Type[Case] = Case
-    form_class: Type[CaseReportDetailsUpdateForm] = CaseReportDetailsUpdateForm
+    model: type[Case] = Case
+    form_class: type[CaseReportDetailsUpdateForm] = CaseReportDetailsUpdateForm
     template_name: str = "cases/forms/report_create.html"
 
 
@@ -403,22 +403,14 @@ class CaseReportReadyForQAUpdateView(CaseUpdateView):
     View to update case report details
     """
 
-    model: Type[Case] = Case
-    form_class: Type[CaseReportReadyForQAUpdateForm] = CaseReportReadyForQAUpdateForm
+    model: type[Case] = Case
+    form_class: type[CaseReportReadyForQAUpdateForm] = CaseReportReadyForQAUpdateForm
     template_name: str = "cases/forms/report_ready_for_qa.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add undeleted contacts to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = self.object
-        if case.report:
-            context.update(get_report_visits_metrics(case=case))
-        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
+            case_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-qa-auditor", kwargs=case_pk)
         return super().get_success_url()
 
@@ -428,7 +420,7 @@ class CaseQAAuditorUpdateView(CaseUpdateView):
     View to record QA auditor
     """
 
-    form_class: Type[CaseQAAuditorUpdateForm] = CaseQAAuditorUpdateForm
+    form_class: type[CaseQAAuditorUpdateForm] = CaseQAAuditorUpdateForm
     template_name: str = "cases/forms/qa_auditor.html"
 
     def get_success_url(self) -> str:
@@ -445,7 +437,7 @@ class CaseQACommentsUpdateView(CaseUpdateView):
     View to update QA comments page
     """
 
-    form_class: Type[CaseQACommentsUpdateForm] = CaseQACommentsUpdateForm
+    form_class: type[CaseQACommentsUpdateForm] = CaseQACommentsUpdateForm
     template_name: str = "cases/forms/qa_comments.html"
 
     def form_valid(self, form: ModelForm):
@@ -474,7 +466,7 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
     View to record QA approval
     """
 
-    form_class: Type[CaseQAApprovalUpdateForm] = CaseQAApprovalUpdateForm
+    form_class: type[CaseQAApprovalUpdateForm] = CaseQAApprovalUpdateForm
     template_name: str = "cases/forms/qa_approval.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -507,7 +499,7 @@ class CasePublishReportUpdateView(CaseUpdateView):
     View to publish report after QA approval
     """
 
-    form_class: Type[CasePublishReportUpdateForm] = CasePublishReportUpdateForm
+    form_class: type[CasePublishReportUpdateForm] = CasePublishReportUpdateForm
     template_name: str = "cases/forms/publish_report.html"
 
     def form_valid(self, form: ModelForm):
@@ -533,14 +525,14 @@ class ManageContactDetailsUpdateView(CaseUpdateView):
     View to list case contacts
     """
 
-    form_class: Type[ManageContactDetailsUpdateForm] = ManageContactDetailsUpdateForm
+    form_class: type[ManageContactDetailsUpdateForm] = ManageContactDetailsUpdateForm
     template_name: str = "cases/forms/manage_contact_details.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}
+            case_pk: dict[str, int] = {"pk": case.id}
             if case.enable_correspondence_process is True:
                 return reverse("cases:edit-request-contact-details", kwargs=case_pk)
             else:
@@ -553,9 +545,9 @@ class ContactCreateView(CreateView):
     View to create case contact
     """
 
-    model: Type[Contact] = Contact
+    model: type[Contact] = Contact
     context_object_name: str = "contact"
-    form_class: Type[ContactCreateForm] = ContactCreateForm
+    form_class: type[ContactCreateForm] = ContactCreateForm
     template_name: str = "cases/forms/contact_create.html"
 
     def form_valid(self, form: ContactCreateForm):
@@ -568,7 +560,7 @@ class ContactCreateView(CreateView):
     def get_success_url(self) -> str:
         """Return to the list of contact details"""
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        case_pk: Dict[str, int] = {"pk": case.id}
+        case_pk: dict[str, int] = {"pk": case.id}
         return reverse("cases:manage-contact-details", kwargs=case_pk)
 
 
@@ -577,9 +569,9 @@ class ContactUpdateView(UpdateView):
     View to create case contact
     """
 
-    model: Type[Contact] = Contact
+    model: type[Contact] = Contact
     context_object_name: str = "contact"
-    form_class: Type[ContactUpdateForm] = ContactUpdateForm
+    form_class: type[ContactUpdateForm] = ContactUpdateForm
     template_name: str = "cases/forms/contact_update.html"
 
     def form_valid(self, form: ContactUpdateForm):
@@ -592,7 +584,7 @@ class ContactUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Return to the list of contact details"""
-        case_pk: Dict[str, int] = {"pk": self.object.case.id}
+        case_pk: dict[str, int] = {"pk": self.object.case.id}
         return reverse("cases:manage-contact-details", kwargs=case_pk)
 
 
@@ -601,7 +593,7 @@ class CaseRequestContactDetailsUpdateView(CaseUpdateView):
     View to update Request contact details
     """
 
-    form_class: Type[CaseRequestContactDetailsUpdateForm] = (
+    form_class: type[CaseRequestContactDetailsUpdateForm] = (
         CaseRequestContactDetailsUpdateForm
     )
     template_name: str = "cases/forms/request_initial_contact.html"
@@ -637,7 +629,7 @@ class CaseOneWeekContactDetailsUpdateView(CaseUpdateView):
     View to update One week contact details
     """
 
-    form_class: Type[CaseOneWeekContactDetailsUpdateForm] = (
+    form_class: type[CaseOneWeekContactDetailsUpdateForm] = (
         CaseOneWeekContactDetailsUpdateForm
     )
     template_name: str = "cases/forms/one_week_followup_contact.html"
@@ -658,7 +650,7 @@ class CaseFourWeekContactDetailsUpdateView(CaseUpdateView):
     View to update Four week contact details
     """
 
-    form_class: Type[CaseFourWeekContactDetailsUpdateForm] = (
+    form_class: type[CaseFourWeekContactDetailsUpdateForm] = (
         CaseFourWeekContactDetailsUpdateForm
     )
     template_name: str = "cases/forms/four_week_followup_contact.html"
@@ -677,13 +669,13 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
     View to set no psb contact flag
     """
 
-    form_class: Type[CaseNoPSBContactUpdateForm] = CaseNoPSBContactUpdateForm
+    form_class: type[CaseNoPSBContactUpdateForm] = CaseNoPSBContactUpdateForm
     template_name: str = "cases/forms/no_psb_response.html"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         case: Case = self.object
-        case_pk: Dict[str, int] = {"pk": case.id}
+        case_pk: dict[str, int] = {"pk": case.id}
         if "save_continue" in self.request.POST:
             if case.no_psb_contact == Boolean.YES:
                 return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
@@ -696,7 +688,7 @@ class CaseReportSentOnUpdateView(CaseUpdateView):
     View to update Report sent on
     """
 
-    form_class: Type[CaseReportSentOnUpdateForm] = CaseReportSentOnUpdateForm
+    form_class: type[CaseReportSentOnUpdateForm] = CaseReportSentOnUpdateForm
     template_name: str = "cases/forms/report_sent_on.html"
 
     def form_valid(self, form: CaseReportSentOnUpdateForm):
@@ -727,7 +719,7 @@ class CaseReportOneWeekFollowupUpdateView(CaseUpdateView):
     View to update One week followup
     """
 
-    form_class: Type[CaseReportOneWeekFollowupUpdateForm] = (
+    form_class: type[CaseReportOneWeekFollowupUpdateForm] = (
         CaseReportOneWeekFollowupUpdateForm
     )
     template_name: str = "cases/forms/report_one_week_followup.html"
@@ -748,7 +740,7 @@ class CaseReportFourWeekFollowupUpdateView(CaseUpdateView):
     View to update Four week followup
     """
 
-    form_class: Type[CaseReportFourWeekFollowupUpdateForm] = (
+    form_class: type[CaseReportFourWeekFollowupUpdateForm] = (
         CaseReportFourWeekFollowupUpdateForm
     )
     template_name: str = "cases/forms/report_four_week_followup.html"
@@ -769,7 +761,7 @@ class CaseReportAcknowledgedUpdateView(CaseUpdateView):
     View to update Report acknowledged
     """
 
-    form_class: Type[CaseReportAcknowledgedUpdateForm] = (
+    form_class: type[CaseReportAcknowledgedUpdateForm] = (
         CaseReportAcknowledgedUpdateForm
     )
     template_name: str = "cases/forms/report_acknowledged.html"
@@ -790,7 +782,7 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
     View to update 12-week update requested
     """
 
-    form_class: Type[CaseTwelveWeekUpdateRequestedUpdateForm] = (
+    form_class: type[CaseTwelveWeekUpdateRequestedUpdateForm] = (
         CaseTwelveWeekUpdateRequestedUpdateForm
     )
     template_name: str = "cases/forms/12_week_update_requested.html"
@@ -827,7 +819,7 @@ class CaseOneWeekFollowupFinalUpdateView(CaseUpdateView):
     View to update One week followup for final update
     """
 
-    form_class: Type[CaseOneWeekFollowupFinalUpdateForm] = (
+    form_class: type[CaseOneWeekFollowupFinalUpdateForm] = (
         CaseOneWeekFollowupFinalUpdateForm
     )
     template_name: str = "cases/forms/12_week_one_week_followup_final.html"
@@ -848,7 +840,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
     View to update 12-week update request acknowledged
     """
 
-    form_class: Type[CaseTwelveWeekUpdateAcknowledgedUpdateForm] = (
+    form_class: type[CaseTwelveWeekUpdateAcknowledgedUpdateForm] = (
         CaseTwelveWeekUpdateAcknowledgedUpdateForm
     )
     template_name: str = "cases/forms/12_week_update_request_ack.html"
@@ -858,8 +850,19 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
+            if self.object.audit:
+                if self.object.show_start_12_week_retest:
+                    return reverse(
+                        "cases:edit-twelve-week-retest",
+                        kwargs={"pk": self.object.id},
+                    )
+                return reverse(
+                    "audits:edit-audit-retest-metadata",
+                    kwargs={"pk": self.object.audit.id},
+                )
             return reverse(
-                "cases:edit-twelve-week-retest", kwargs={"pk": self.object.id}
+                "cases:edit-review-changes",
+                kwargs={"pk": self.object.id},
             )
         return super().get_success_url()
 
@@ -869,13 +872,13 @@ class CaseTwelveWeekRetestUpdateView(CaseUpdateView):
     View to update case twelve week retest results
     """
 
-    form_class: Type[CaseTwelveWeekRetestUpdateForm] = CaseTwelveWeekRetestUpdateForm
+    form_class: type[CaseTwelveWeekRetestUpdateForm] = CaseTwelveWeekRetestUpdateForm
     template_name: str = "cases/forms/twelve_week_retest.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
+            case_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-review-changes", kwargs=case_pk)
         return super().get_success_url()
 
@@ -885,14 +888,14 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
     View to record review of changes made by PSB
     """
 
-    form_class: Type[CaseReviewChangesUpdateForm] = CaseReviewChangesUpdateForm
+    form_class: type[CaseReviewChangesUpdateForm] = CaseReviewChangesUpdateForm
     template_name: str = "cases/forms/review_changes.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}
+            case_pk: dict[str, int] = {"pk": case.id}
             return reverse("cases:edit-enforcement-recommendation", kwargs=case_pk)
         return super().get_success_url()
 
@@ -902,7 +905,7 @@ class CaseEnforcementRecommendationUpdateView(CaseUpdateView):
     View to record the enforcement recommendation
     """
 
-    form_class: Type[CaseEnforcementRecommendationUpdateForm] = (
+    form_class: type[CaseEnforcementRecommendationUpdateForm] = (
         CaseEnforcementRecommendationUpdateForm
     )
     template_name: str = "cases/forms/enforcement_recommendation.html"
@@ -911,7 +914,7 @@ class CaseEnforcementRecommendationUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}
+            case_pk: dict[str, int] = {"pk": case.id}
             return reverse("cases:edit-case-close", kwargs=case_pk)
         return super().get_success_url()
 
@@ -921,42 +924,42 @@ class CaseCloseUpdateView(CaseUpdateView):
     View to record sending the compliance decision
     """
 
-    form_class: Type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+    form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
     template_name: str = "cases/forms/case_close.html"
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-        equality_body_metadata_columns: List[EqualityBodyCSVColumn] = (
+        equality_body_metadata_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
                 case=case, column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
             )
         )
-        equality_body_report_columns: List[EqualityBodyCSVColumn] = (
+        equality_body_report_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
                 case=case, column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
             )
         )
-        equality_body_correspondence_columns: List[EqualityBodyCSVColumn] = (
+        equality_body_correspondence_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
                 case=case,
                 column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
             )
         )
-        equality_body_test_summary_columns: List[EqualityBodyCSVColumn] = (
+        equality_body_test_summary_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
                 case=case,
                 column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
             )
         )
-        all_equality_body_columns: List[EqualityBodyCSVColumn] = (
+        all_equality_body_columns: list[EqualityBodyCSVColumn] = (
             equality_body_metadata_columns
             + equality_body_report_columns
             + equality_body_correspondence_columns
             + equality_body_test_summary_columns
         )
-        required_data_missing_columns: List[EqualityBodyCSVColumn] = [
+        required_data_missing_columns: list[EqualityBodyCSVColumn] = [
             column
             for column in all_equality_body_columns
             if column.required_data_missing
@@ -976,11 +979,8 @@ class CaseCloseUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}
-            if case.variant == Case.Variant.CLOSE_CASE:
-                return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
-            else:
-                return reverse("cases:edit-equality-body-metadata", kwargs=case_pk)
+            case_pk: dict[str, int] = {"pk": case.id}
+            return reverse("cases:edit-statement-enforcement", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -989,13 +989,13 @@ class PostCaseUpdateView(CaseUpdateView):
     View to record post case notes
     """
 
-    form_class: Type[PostCaseUpdateForm] = PostCaseUpdateForm
+    form_class: type[PostCaseUpdateForm] = PostCaseUpdateForm
     template_name: str = "cases/forms/post_case.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
+            case_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("cases:case-detail", kwargs=case_pk)
         return super().get_success_url()
 
@@ -1005,7 +1005,7 @@ class CaseDeactivateUpdateView(CaseUpdateView):
     View to deactivate case
     """
 
-    form_class: Type[CaseDeactivateForm] = CaseDeactivateForm
+    form_class: type[CaseDeactivateForm] = CaseDeactivateForm
     template_name: str = "cases/forms/deactivate.html"
 
     def form_valid(self, form: ModelForm):
@@ -1023,7 +1023,7 @@ class CaseReactivateUpdateView(CaseUpdateView):
     View to reactivate case
     """
 
-    form_class: Type[CaseDeactivateForm] = CaseDeactivateForm
+    form_class: type[CaseDeactivateForm] = CaseDeactivateForm
     template_name: str = "cases/forms/reactivate.html"
 
     def form_valid(self, form: ModelForm):
@@ -1036,22 +1036,22 @@ class CaseReactivateUpdateView(CaseUpdateView):
 
 
 class CaseStatusWorkflowDetailView(DetailView):
-    model: Type[Case] = Case
+    model: type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/status_workflow.html"
 
 
 class CaseOutstandingIssuesDetailView(DetailView):
-    model: Type[Case] = Case
+    model: type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/outstanding_issues.html"
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
 
-        view_url_param: Union[str, None] = self.request.GET.get("view")
+        view_url_param: str | None = self.request.GET.get("view")
         show_failures_by_page: bool = not view_url_param == "WCAG view"
         context["show_failures_by_page"] = show_failures_by_page
 
@@ -1094,7 +1094,7 @@ class CaseStatementEnforcementUpdateView(CaseUpdateView):
     View of statement enforcement
     """
 
-    form_class: Type[CaseStatementEnforcementUpdateForm] = (
+    form_class: type[CaseStatementEnforcementUpdateForm] = (
         CaseStatementEnforcementUpdateForm
     )
     template_name: str = "cases/forms/statement_enforcement.html"
@@ -1102,7 +1102,7 @@ class CaseStatementEnforcementUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}
+            case_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-equality-body-metadata", kwargs=case_pk)
         return super().get_success_url()
 
@@ -1112,7 +1112,7 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
     View of equality body metadata
     """
 
-    form_class: Type[CaseEqualityBodyMetadataUpdateForm] = (
+    form_class: type[CaseEqualityBodyMetadataUpdateForm] = (
         CaseEqualityBodyMetadataUpdateForm
     )
     template_name: str = "common/case_form.html"
@@ -1121,7 +1121,7 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}
+            case_pk: dict[str, int] = {"pk": case.id}
             return reverse("cases:list-equality-body-correspondence", kwargs=case_pk)
         return super().get_success_url()
 
@@ -1131,16 +1131,16 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
     View of equality body correspondence list
     """
 
-    form_class: Type[ListCaseEqualityBodyCorrespondenceUpdateForm] = (
+    form_class: type[ListCaseEqualityBodyCorrespondenceUpdateForm] = (
         ListCaseEqualityBodyCorrespondenceUpdateForm
     )
     template_name: str = "cases/forms/equality_body_correspondence_list.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add case to context"""
         case: Case = self.object
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        view_url_param: Union[str, None] = self.request.GET.get("view")
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        view_url_param: str | None = self.request.GET.get("view")
         show_unresolved = view_url_param == "unresolved"
         context["show_unresolved"] = show_unresolved
         if show_unresolved:
@@ -1157,11 +1157,9 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        equality_body_correspondence_id_to_toggle: Optional[int] = (
-            get_id_from_button_name(
-                button_name_prefix="toggle_status_",
-                querydict=self.request.POST,
-            )
+        equality_body_correspondence_id_to_toggle: int | None = get_id_from_button_name(
+            button_name_prefix="toggle_status_",
+            querydict=self.request.POST,
         )
         if equality_body_correspondence_id_to_toggle is not None:
             equality_body_correspondence: EqualityBodyCorrespondence = (
@@ -1192,15 +1190,15 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
     View to create an equality body correspondence
     """
 
-    model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
-    form_class: Type[EqualityBodyCorrespondenceCreateForm] = (
+    model: type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
+    form_class: type[EqualityBodyCorrespondenceCreateForm] = (
         EqualityBodyCorrespondenceCreateForm
     )
     template_name: str = "cases/forms/equality_body_correspondence_create.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add case to context as object"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["object"] = case
         return context
@@ -1232,8 +1230,8 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
     View of equality body metadata
     """
 
-    model: Type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
-    form_class: Type[EqualityBodyCorrespondenceCreateForm] = (
+    model: type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
+    form_class: type[EqualityBodyCorrespondenceCreateForm] = (
         EqualityBodyCorrespondenceCreateForm
     )
     context_object_name: str = "equality_body_correspondence"
@@ -1264,9 +1262,9 @@ class CaseRetestOverviewTemplateView(CaseUpdateView):
     template_name: str = "cases/forms/retest_overview.html"
     fields = ["version"]
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
         context["equality_body_retests"] = case.retests.filter(id_within_case__gt=0)
         return context
@@ -1275,9 +1273,9 @@ class CaseRetestOverviewTemplateView(CaseUpdateView):
 class CaseRetestCreateErrorTemplateView(TemplateView):
     template_name: str = "cases/retest_create_error.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add platform settings to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
         return context
@@ -1288,7 +1286,7 @@ class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
     View to note correspondence with enforcement body
     """
 
-    form_class: Type[CaseStatementEnforcementUpdateForm] = (
+    form_class: type[CaseStatementEnforcementUpdateForm] = (
         CaseStatementEnforcementUpdateForm
     )
     template_name: str = "cases/forms/legacy_end_of_case.html"
@@ -1299,7 +1297,7 @@ class CaseZendeskTicketsDetailView(DetailView):
     View of Zendesk tickets for a case
     """
 
-    model: Type[Case] = Case
+    model: type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/zendesk_tickets.html"
 
@@ -1309,13 +1307,13 @@ class ZendeskTicketCreateView(CreateView):
     View to create a Zendesk ticket
     """
 
-    model: Type[Case] = ZendeskTicket
-    form_class: Type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    model: type[Case] = ZendeskTicket
+    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
     template_name: str = "cases/forms/zendesk_ticket_create.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add case to context as object"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["object"] = case
         return context
@@ -1332,7 +1330,7 @@ class ZendeskTicketCreateView(CreateView):
         zendesk_ticket: ZendeskTicket = self.object
         user: User = self.request.user
         record_model_create_event(user=user, model_object=zendesk_ticket)
-        case_pk: Dict[str, int] = {"pk": zendesk_ticket.case.id}
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.case.id}
         return reverse("cases:zendesk-tickets", kwargs=case_pk)
 
 
@@ -1341,8 +1339,8 @@ class ZendeskTicketUpdateView(UpdateView):
     View to update Zendesk ticket
     """
 
-    model: Type[ZendeskTicket] = ZendeskTicket
-    form_class: Type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    model: type[ZendeskTicket] = ZendeskTicket
+    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
     context_object_name: str = "zendesk_ticket"
     template_name: str = "cases/forms/zendesk_ticket_update.html"
 
@@ -1358,7 +1356,7 @@ class ZendeskTicketUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Return to zendesk tickets page on save"""
         zendesk_ticket: ZendeskTicket = self.object
-        case_pk: Dict[str, int] = {"pk": zendesk_ticket.case.id}
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.case.id}
         return reverse("cases:zendesk-tickets", kwargs=case_pk)
 
 
@@ -1387,16 +1385,20 @@ class CaseEmailTemplateListView(ListView):
     View of list of email templates for the case.
     """
 
-    model: Type[EmailTemplate] = EmailTemplate
+    model: type[EmailTemplate] = EmailTemplate
     template_name: str = "cases/emails/template_list.html"
     context_object_name: str = "email_templates"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add current case to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["case"] = self.case
         return context
+
+    def get_queryset(self) -> QuerySet[Case]:
+        """Add filters to queryset"""
+        return EmailTemplate.objects.filter(is_deleted=False)
 
 
 class CaseEmailTemplatePreviewDetailView(DetailView):
@@ -1404,13 +1406,13 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
     View email template populated with case data
     """
 
-    model: Type[EmailTemplate] = EmailTemplate
+    model: type[EmailTemplate] = EmailTemplate
     template_name: str = "cases/emails/template_preview.html"
     context_object_name: str = "email_template"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add case and email template to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         context["12_weeks_from_today"] = date.today() + timedelta(
             days=TWELVE_WEEKS_IN_DAYS
@@ -1441,3 +1443,12 @@ def enable_correspondence_process(
     return redirect(
         reverse("cases:edit-request-contact-details", kwargs={"pk": case.id})
     )
+
+
+def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedirect:
+    """Mark QA comment reminders as read for the current user"""
+    case: Case = Case.objects.get(id=pk)
+    mark_tasks_as_read(user=request.user, case=case, type=Task.Type.QA_COMMENT)
+    mark_tasks_as_read(user=request.user, case=case, type=Task.Type.REPORT_APPROVED)
+    messages.success(request, f"{case} comments marked as read")
+    return redirect(reverse("cases:edit-qa-comments", kwargs={"pk": case.id}))

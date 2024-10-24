@@ -2,8 +2,6 @@
 URLS for dashboard
 """
 
-from typing import List
-
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
@@ -62,28 +60,27 @@ from .views.initial import (
 from .views.twelve_week import (
     AuditRetestCaseComplianceStatement12WeekUpdateView,
     AuditRetestCaseComplianceWebsite12WeekUpdateView,
-    AuditRetestDetailView,
     AuditRetestMetadataUpdateView,
     AuditRetestPageChecksFormView,
-    AuditRetestPagesComparisonByWcagView,
-    AuditRetestPagesComparisonView,
+    AuditRetestPagesView,
     AuditRetestStatement1UpdateView,
     AuditRetestStatement2UpdateView,
-    AuditRetestStatementComparisonUpdateView,
     AuditRetestStatementComplianceFormView,
     AuditRetestStatementCustomFormView,
     AuditRetestStatementFeedbackFormView,
     AuditRetestStatementNonAccessibleFormView,
     AuditRetestStatementOverviewFormView,
     AuditRetestStatementPreparationFormView,
+    AuditRetestStatementSummaryUpdateView,
     AuditRetestStatementWebsiteFormView,
+    AuditRetestWcagSummaryUpdateView,
     TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementPageFormsetUpdateView,
     start_retest,
 )
 
 app_name: str = "audits"
-urlpatterns: List[URLPattern] = [
+urlpatterns: list[URLPattern] = [
     path(
         "create-for-case/<int:case_id>/",
         login_required(create_audit),
@@ -195,11 +192,6 @@ urlpatterns: List[URLPattern] = [
         name="audit-retest-start",
     ),
     path(
-        "<int:pk>/audit-retest-detail/",
-        login_required(AuditRetestDetailView.as_view()),
-        name="audit-retest-detail",
-    ),
-    path(
         "<int:pk>/delete-retest/",
         login_required(mark_retest_as_deleted),
         name="delete-retest",
@@ -210,19 +202,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-retest-metadata",
     ),
     path(
-        "<int:pk>/audit-retest-pages/",
-        login_required(AuditRetestPagesComparisonView.as_view()),
-        name="audit-retest-pages",
-    ),
-    path(
-        "<int:pk>/edit-audit-retest-pages-comparison/",
-        login_required(AuditRetestPagesComparisonView.as_view()),
-        name="edit-audit-retest-pages-comparison",
-    ),
-    path(
-        "<int:pk>/edit-audit-retest-pages-comparison-by-wcag/",
-        login_required(AuditRetestPagesComparisonByWcagView.as_view()),
-        name="edit-audit-retest-pages-comparison-by-wcag",
+        "<int:pk>/edit-audit-retest-pages/",
+        login_required(AuditRetestPagesView.as_view()),
+        name="edit-audit-retest-pages",
     ),
     path(
         "pages/<int:pk>/edit-audit-retest-page-checks/",
@@ -233,6 +215,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-retest-website-decision/",
         login_required(AuditRetestCaseComplianceWebsite12WeekUpdateView.as_view()),
         name="edit-audit-retest-website-decision",
+    ),
+    path(
+        "<int:pk>/edit-retest-wcag-summary/",
+        login_required(AuditRetestWcagSummaryUpdateView.as_view()),
+        name="edit-audit-retest-wcag-summary",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-1/",
@@ -295,9 +282,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-retest-statement-decision",
     ),
     path(
-        "<int:pk>/edit-audit-retest-statement-comparison/",
-        login_required(AuditRetestStatementComparisonUpdateView.as_view()),
-        name="edit-audit-retest-statement-comparison",
+        "<int:pk>/edit-retest-statement-summary/",
+        login_required(AuditRetestStatementSummaryUpdateView.as_view()),
+        name="edit-audit-retest-statement-summary",
     ),
     path(
         "wcag-definition-list/",

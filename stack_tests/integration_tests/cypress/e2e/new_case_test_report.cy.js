@@ -45,13 +45,13 @@ describe('Create case, tests and report', () => {
     cy.get('[name="standard-4-url').type(newAccessibilityStatementURL)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Home page test`)
+    cy.title().should('eq', `${newOrganisationName} | Home page test (0)`)
     cy.get('[name="form-0-check_result_state"]').check('error')
     cy.get('[name="form-0-notes').type('Hi, I am an error')
-    cy.contains('Save and next page').click()
+    cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Accessibility statement page test`)
-    cy.contains('Save and next page').click()
+    cy.title().should('eq', `${newOrganisationName} | Accessibility statement page test (0)`)
+    cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Compliance decision`)
     cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
@@ -60,7 +60,7 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Initial statement links`)
+    cy.title().should('eq', `${newOrganisationName} | Statement links`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Statement overview`)
@@ -157,60 +157,56 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week update request acknowledged`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week retest`)
+    cy.title().should('eq', `${newOrganisationName} | Start 12-week retest`)
     cy.contains('This case does not have a retest. Click Start retest to move to the testing environment.')
     cy.contains('.govuk-button', 'Start retest').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week retest metadata`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Retesting Home page`)
-    cy.contains('Save and next page').click()
-
-    cy.title().should('eq', `${newOrganisationName} | 12-week pages comparison`)
+    cy.title().should('eq', `${newOrganisationName} | Retest pages`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week website compliance decision`)
+    cy.title().should('eq', `${newOrganisationName} | Home page retest`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week statement links`)
+    cy.title().should('eq', `${newOrganisationName} | Compliance decision`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week statement overview`)
+    cy.title().should('eq', `${newOrganisationName} | Test summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week statement information`)
+    cy.title().should('eq', `${newOrganisationName} | Statement links`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week compliance status`)
+    cy.title().should('eq', `${newOrganisationName} | Statement overview`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week non-accessible content`)
+    cy.title().should('eq', `${newOrganisationName} | Statement information`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week statement preparation`)
+    cy.title().should('eq', `${newOrganisationName} | Compliance status`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week feedback and enforcement procedure`)
+    cy.title().should('eq', `${newOrganisationName} | Non-accessible content`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week custom statement issues`)
+    cy.title().should('eq', `${newOrganisationName} | Statement preparation`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week disproportionate burden claim`)
+    cy.title().should('eq', `${newOrganisationName} | Feedback and enforcement procedure`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week statement compliance decision`)
+    cy.title().should('eq', `${newOrganisationName} | Custom issues`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement comparison`)
-    cy.contains('Save and exit').click()
+    cy.title().should('eq', `${newOrganisationName} | Disproportionate burden`)
+    cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | View 12-week retest`)
-    cy.contains('Case').click()
-    cy.get('#edit-twelve-week-retest').click()
+    cy.title().should('eq', `${newOrganisationName} | Compliance decision`)
+    cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week retest`)
+    cy.title().should('eq', `${newOrganisationName} | Test summary`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Reviewing changes`)

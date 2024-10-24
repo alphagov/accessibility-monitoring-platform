@@ -5,7 +5,7 @@ Test utility functions of cases app
 import csv
 import io
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pytest
 from django.contrib.auth.models import User
@@ -45,28 +45,28 @@ class MockCase:
 class MockForm:
     """Mock of form for testing"""
 
-    cleaned_data: Dict[str, str]
+    cleaned_data: dict[str, str]
 
 
-def decode_csv_response(response: HttpResponse) -> Tuple[List[str], List[List[str]]]:
+def decode_csv_response(response: HttpResponse) -> tuple[list[str], list[list[str]]]:
     """Decode CSV HTTP response and break into column names and data"""
     content: str = response.content.decode("utf-8")
-    cvs_reader: Any = csv.reader(io.StringIO(content))
-    csv_body: List[List[str]] = list(cvs_reader)
-    csv_header: List[str] = csv_body.pop(0)
+    csv_reader: Any = csv.reader(io.StringIO(content))
+    csv_body: list[list[str]] = list(csv_reader)
+    csv_header: list[str] = csv_body.pop(0)
     return csv_header, csv_body
 
 
 def validate_csv_response(
-    csv_header: List[str],
-    csv_body: List[List[str]],
-    expected_header: List[str],
-    expected_first_data_row: List[str],
+    csv_header: list[str],
+    csv_body: list[list[str]],
+    expected_header: list[str],
+    expected_first_data_row: list[str],
 ):
     """Validate csv header and body matches expected data"""
     assert csv_header == expected_header
 
-    first_data_row: List[str] = csv_body[0]
+    first_data_row: list[str] = csv_body[0]
 
     for position in range(len(first_data_row)):
         assert (
@@ -102,7 +102,7 @@ def test_case_filtered_by_search_string():
     Case.objects.create(organisation_name=ORGANISATION_NAME)
     form: MockForm = MockForm(cleaned_data={"case_search": ORGANISATION_NAME})
 
-    filtered_cases: List[Case] = list(filter_cases(form))
+    filtered_cases: list[Case] = list(filter_cases(form))
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
@@ -114,7 +114,7 @@ def test_case_filtered_by_case_number_search_string():
     Case.objects.create(case_number=CASE_NUMBER)
     form: MockForm = MockForm(cleaned_data={"case_search": str(CASE_NUMBER)})
 
-    filtered_cases: List[Case] = list(filter_cases(form))
+    filtered_cases: list[Case] = list(filter_cases(form))
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].case_number == CASE_NUMBER
@@ -126,7 +126,7 @@ def test_case_filtered_by_status():
     Case.objects.create(organisation_name=ORGANISATION_NAME)
     form: MockForm = MockForm(cleaned_data={"status": "unassigned-case"})
 
-    filtered_cases: List[Case] = list(filter_cases(form))
+    filtered_cases: list[Case] = list(filter_cases(form))
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
@@ -151,7 +151,7 @@ def test_case_filtered_by_is_complaint(
     )
     form: MockForm = MockForm(cleaned_data={"is_complaint": is_complaint_filter})
 
-    filtered_cases: List[Case] = list(filter_cases(form))
+    filtered_cases: list[Case] = list(filter_cases(form))
 
     assert len(filtered_cases) == expected_number
     assert filtered_cases[0].organisation_name == expected_name
@@ -180,7 +180,7 @@ def test_case_filtered_by_enforcement_body(
         cleaned_data={"enforcement_body": enforcement_body_filter}
     )
 
-    filtered_cases: List[Case] = list(filter_cases(form))  # type: ignore
+    filtered_cases: list[Case] = list(filter_cases(form))  # type: ignore
 
     assert len(filtered_cases) == expected_number
     assert filtered_cases[0].organisation_name == expected_name
@@ -193,7 +193,7 @@ def test_case_filtered_by_sector():
     Case.objects.create(organisation_name=ORGANISATION_NAME, sector=sector)
     form: MockForm = MockForm(cleaned_data={"sector": sector})
 
-    filtered_cases: List[Case] = list(filter_cases(form))
+    filtered_cases: list[Case] = list(filter_cases(form))
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
@@ -206,7 +206,7 @@ def test_case_filtered_by_subcategory():
     Case.objects.create(organisation_name=ORGANISATION_NAME, subcategory=subcategory)
     form: MockForm = MockForm(cleaned_data={"subcategory": subcategory})
 
-    filtered_cases: List[Case] = list(filter_cases(form))
+    filtered_cases: list[Case] = list(filter_cases(form))
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
@@ -223,7 +223,7 @@ def test_cases_ordered_to_put_unassigned_first():
     )
     form: MockForm = MockForm(cleaned_data={})
 
-    filtered_cases: List[Case] = list(filter_cases(form))
+    filtered_cases: list[Case] = list(filter_cases(form))
 
     assert len(filtered_cases) == 2
     assert filtered_cases[0].organisation_name == second_created.organisation_name
@@ -234,7 +234,7 @@ def test_cases_ordered_to_put_unassigned_first():
     second_created.auditor = auditor
     second_created.save()
 
-    filtered_cases: List[Case] = list(filter_cases(form))
+    filtered_cases: list[Case] = list(filter_cases(form))
 
     assert len(filtered_cases) == 2
     assert filtered_cases[0].organisation_name == first_created.organisation_name
@@ -249,7 +249,7 @@ def test_cases_ordered_to_put_unassigned_first():
     ],
 )
 def test_replace_search_key_with_case_search(
-    query_dict: QueryDict, expected_dict: Dict[str, str]
+    query_dict: QueryDict, expected_dict: dict[str, str]
 ):
     """
     Replace key search, if present, with case_search
@@ -290,12 +290,12 @@ def test_replace_search_key_with_case_search(
 )
 @pytest.mark.django_db
 def test_record_case_event(
-    new_case_params: Dict, old_case_params: Dict, event_type: str, message: str
+    new_case_params: dict, old_case_params: dict, event_type: str, message: str
 ):
     """Test case events created"""
     user: User = User.objects.create()
     new_case: Case = Case.objects.create(**new_case_params)
-    old_case: Optional[Case] = (
+    old_case: Case | None = (
         None if old_case_params is None else Case.objects.create(**old_case_params)
     )
 

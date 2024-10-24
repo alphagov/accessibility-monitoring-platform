@@ -1,47 +1,25 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% load l10n %}
+{% block preform %}
+    {% include 'audits/helpers/statement_pages_twelve_week.html' %}
+    {% include 'common/error_summary.html' with formset=retest_statement_check_results_formset %}
+    {% if not retest_statement_check_results_formset.forms %}
+        <p class="govuk-body">No custom statement issues found in initial test.</p>
+    {% endif %}
+{% endblock %}
 
-{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=audit.case %}
-        </div>
-    </div>
-    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading=sitemap.current_platform_page.get_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+{% block form %}
+    <form method="post" action="{% url sitemap.current_platform_page.url_name audit.id %}">
+        {% csrf_token %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" %}
+                {% include 'audits/helpers/retest_statement_check_formset.html' %}
+                <hr class="amp-width-100 amp-margin-bottom-30" />
+                {% include 'common/amp_form_snippet.html' %}
+            </div>
+            <div class="govuk-grid-column-full govuk-button-group">
+                {% include 'cases/helpers/save_continue_cancel.html' %}
             </div>
         </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-retest-statement-custom' %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include 'audits/helpers/statement_pages_twelve_week.html' %}
-                {% include 'common/error_summary.html' with formset=retest_statement_check_results_formset %}
-                <form method="post" action="{% url 'audits:edit-retest-statement-custom' audit.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% if not retest_statement_check_results_formset.forms %}
-                                <p class="govuk-body">No custom statement issues found in initial test.</p>
-                            {% endif %}
-                            {% include 'audits/helpers/retest_statement_check_formset.html' %}
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'audits/helpers/retest_save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
+    </form>
 {% endblock %}

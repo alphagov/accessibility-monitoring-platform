@@ -1,8 +1,8 @@
 """report_views_middleware - logs views of the reports to the database"""
+
 import hashlib
 import logging
 import re
-from typing import List, Union
 from uuid import UUID
 
 from django.http import HttpRequest
@@ -60,8 +60,7 @@ class ReportMetrics:
             int: The four digit hash of the input string
         """
         return (
-            int(hashlib.sha256(string_to_hash.encode("utf-8")).hexdigest(), 16)
-            % 10**4
+            int(hashlib.sha256(string_to_hash.encode("utf-8")).hexdigest(), 16) % 10**4
         )
 
     def fingerprint_codename(self, fingerprint_hash: int) -> str:
@@ -73,7 +72,7 @@ class ReportMetrics:
         Returns:
             str: A string containing multiple animal names
         """
-        digit_to_animal_hash: List[str] = [
+        digit_to_animal_hash: list[str] = [
             "Owl",
             "Dog",
             "Cat",
@@ -90,7 +89,7 @@ class ReportMetrics:
             fingerprint_codename += digit_to_animal_hash[int(num)]
         return fingerprint_codename
 
-    def extract_guid_from_url(self, url: str) -> Union[str, None]:
+    def extract_guid_from_url(self, url: str) -> str | None:
         res = re.findall(
             "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", url
         )
@@ -106,7 +105,7 @@ class ReportMetrics:
                 fingerprint_hash=fingerprint_hash
             ).exists():
                 absolute_uri: str = request.build_absolute_uri()
-                guid: Union[str, None] = self.extract_guid_from_url(absolute_uri)
+                guid: str | None = self.extract_guid_from_url(absolute_uri)
                 if guid:
                     fingerprint_codename = self.fingerprint_codename(fingerprint_hash)
                     ReportVisitsMetrics(

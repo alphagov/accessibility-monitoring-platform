@@ -1,7 +1,7 @@
 """Views for report viewer"""
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
@@ -44,8 +44,8 @@ class ViewReport(TemplateView):
 
     def get_context_data(
         self, *args, **kwargs  # pylint: disable=unused-argument
-    ) -> Dict[str, Any]:
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
+    ) -> dict[str, Any]:
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         guid: str = self.kwargs["guid"]
         s3_report = get_object_or_404(S3Report, guid=guid)
         s3_rw = S3ReadWriteReport()

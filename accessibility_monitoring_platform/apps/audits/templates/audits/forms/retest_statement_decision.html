@@ -1,56 +1,16 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% load l10n %}
-
-{% load static %}
-
-{% block title %}{{ audit.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=audit.case %}
-        </div>
-    </div>
-    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading=sitemap.current_platform_page.get_name %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" %}
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/twelve_week_retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-decision' %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include 'audits/helpers/statement_pages_twelve_week.html' %}
-                {% include 'common/error_summary.html' with form=case_compliance_form %}
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:edit-audit-retest-statement-decision' audit.id %}">
-                    {% csrf_token %}
-                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% if audit.accessibility_statement_initially_found %}
-                                {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
-                            {% else %}
-                                <p class="govuk-body-m">Statement missing during initial test</p>
-                            {% endif %}
-                            {% include 'common/amp_form_snippet.html' with form=case_compliance_form %}
-                            {% include 'common/amp_field.html' with field=form.audit_retest_statement_decision_complete_date %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'audits/helpers/retest_save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
+{% block preform %}
+    {% include 'audits/helpers/statement_pages_twelve_week.html' with small_margin_bottom=True %}
+    {% include 'common/error_summary.html' with form=case_compliance_form %}
+    {% if audit.accessibility_statement_initially_found %}
+        {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
+    {% else %}
+        <p class="govuk-body-m">Statement missing during initial test</p>
+    {% endif %}
 {% endblock %}
 
-{% block extrascript %}
+{% block formfields %}
+{% include 'common/amp_form_snippet.html' with form=case_compliance_form %}
+{% include 'common/amp_form_snippet.html' %}
 {% endblock %}

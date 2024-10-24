@@ -65,6 +65,7 @@ class CaseStatusAdmin(admin.ModelAdmin):
     readonly_fields = ["case"]
     search_fields = ["case__organisation_name", "case__case_number"]
     list_filter = ["status"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class CaseComplianceAdmin(admin.ModelAdmin):

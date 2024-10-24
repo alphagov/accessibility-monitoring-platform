@@ -1,85 +1,50 @@
-<!DOCTYPE html>
+{% extends 'common/case_form.html' %}
 
-{% extends 'base.html' %}
-
-{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
+{% block preform %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
+            {% if not case.audit %}
+                <p class="govuk-body">
+                    This case does not have a test. Start test in
+                    <a
+                        href="{% url 'cases:edit-test-results' case.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
+                        testing details</a>.
+                </p>
+            {% elif case.audit.retest_date %}
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'audits:edit-audit-retest-metadata' case.audit.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        View retest
+                    </a>
+                </div>
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                        {% include 'cases/helpers/twelve_week_retest.html' %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="govuk-body">
+                    This case does not have a retest. Click Start retest to move to the testing environment.
+                </p>
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'audits:audit-retest-start' case.audit.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Start retest
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        {% include 'cases/helpers/compliant_website_notification.html' %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/case_nav.html" %}
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" %}
-                {% include 'common/error_summary.html' %}
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-full">
-                        {% if not case.audit %}
-                            <p class="govuk-body">
-                                This case does not have a test. Start test in
-                                <a
-                                    href="{% url 'cases:edit-test-results' case.id %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    testing details</a>.
-                            </p>
-                        {% elif case.audit.retest_date %}
-                            <div class="govuk-button-group">
-                                <a
-                                    href="{% url 'audits:audit-retest-detail' case.audit.id %}"
-                                    role="button"
-                                    draggable="false"
-                                    class="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button"
-                                >
-                                    View retest
-                                </a>
-                            </div>
-                            <table class="govuk-table">
-                                <tbody class="govuk-table__body">
-                                    {% include 'cases/helpers/twelve_week_retest.html' %}
-                                </tbody>
-                            </table>
-                        {% else %}
-                            <p class="govuk-body">
-                                This case does not have a retest. Click Start retest to move to the testing environment.
-                            </p>
-                            <div class="govuk-button-group">
-                                <a
-                                    href="{% url 'audits:audit-retest-start' case.audit.id %}"
-                                    role="button"
-                                    draggable="false"
-                                    class="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button"
-                                >
-                                    Start retest
-                                </a>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <form method="post" action="{% url 'cases:edit-twelve-week-retest' case.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'cases/helpers/save_continue_cancel.html' %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
 {% endblock %}

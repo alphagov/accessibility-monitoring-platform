@@ -1,7 +1,5 @@
 """ Comments utilities """
 
-from typing import Set
-
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 
@@ -28,7 +26,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     bool
         Returns true if function is successful
     """
-    user_ids: Set[int] = set(
+    user_ids: set[int] = set(
         Comment.objects.filter(case=comment.case, hidden=False).values_list(
             "user", flat=True
         )

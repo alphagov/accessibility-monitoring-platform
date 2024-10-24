@@ -4,7 +4,6 @@ Tests for cases models
 
 import json
 from datetime import date, datetime, timedelta, timezone
-from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
@@ -59,6 +58,7 @@ DATETIME_S3REPORT_UPDATED: datetime = datetime(2021, 9, 29, tzinfo=timezone.utc)
 NO_CONTACT_DATE: date = date(2020, 4, 1)
 NO_CONTACT_ONE_WEEK: date = NO_CONTACT_DATE + timedelta(days=7)
 NO_CONTACT_FOUR_WEEKS: date = NO_CONTACT_DATE + timedelta(days=28)
+TODAY: date = date.today()
 
 
 @pytest.fixture
@@ -203,7 +203,7 @@ def test_most_recently_created_contact_returned_first():
     contact1: Contact = Contact.objects.create(case=case)
     contact2: Contact = Contact.objects.create(case=case)
 
-    contacts: List[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(case.contacts)
 
     assert contacts[0].id == contact2.id
     assert contacts[1].id == contact1.id
@@ -216,14 +216,14 @@ def test_deleted_contacts_not_returned():
     contact1: Contact = Contact.objects.create(case=case)
     contact2: Contact = Contact.objects.create(case=case)
 
-    contacts: List[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(case.contacts)
 
     assert len(contacts) == 2
 
     contact1.is_deleted = True
     contact1.save()
 
-    contacts: List[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(case.contacts)
 
     assert len(contacts) == 1
     assert contacts[0].id == contact2.id
@@ -239,7 +239,7 @@ def test_preferred_contact_returned_first():
     contact1: Contact = Contact.objects.create(case=case)
     contact2: Contact = Contact.objects.create(case=case)
 
-    contacts: List[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(case.contacts)
 
     assert contacts[0].id == preferred_contact.id
     assert contacts[1].id == contact2.id
@@ -422,9 +422,9 @@ def test_next_action_due_date_not_set(status):
 @pytest.mark.parametrize(
     "report_followup_week_12_due_date, expected_tense",
     [
-        (date.today() - timedelta(days=1), "past"),
-        (date.today(), "present"),
-        (date.today() + timedelta(days=1), "future"),
+        (TODAY - timedelta(days=1), "past"),
+        (TODAY, "present"),
+        (TODAY + timedelta(days=1), "future"),
     ],
 )
 @pytest.mark.django_db
@@ -458,7 +458,7 @@ def test_qa_comments():
     comment1: Comment = Comment.objects.create(case=case)
     comment2: Comment = Comment.objects.create(case=case)
 
-    comments: List[Contact] = case.qa_comments
+    comments: list[Contact] = case.qa_comments
 
     assert len(comments) == 2
     assert comments[0].id == comment2.id
@@ -1417,3 +1417,41 @@ def test_case_not_archived_has_report_false():
     Report.objects.create(case=case)
 
     assert case.not_archived_has_report is True
+
+
+@pytest.mark.django_db
+def test_show_start_12_week_retest():
+    """
+    Test Case.show_start_12_week_retest true when Case is not achived,
+    has an audit and the retest_date is not set.
+    """
+    case: Case = Case.objects.create()
+
+    assert case.show_start_12_week_retest is False
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.show_start_12_week_retest is True
+
+    audit.retest_date = TODAY
+
+    assert case.show_start_12_week_retest is False
+
+
+@pytest.mark.django_db
+def test_show_12_week_retest():
+    """
+    Test Case.show_12_week_retest true when Case is not achived,
+    has an audit and the retest_date is set.
+    """
+    case: Case = Case.objects.create()
+
+    assert case.show_12_week_retest is False
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.show_12_week_retest is False
+
+    audit.retest_date = TODAY
+
+    assert case.show_12_week_retest is True

@@ -1,11 +1,11 @@
 """
 Utilities for aws prototype
 """
+
 import json
 import os
 import random
 import string
-from typing import Dict, List, Tuple
 
 AWS_RESOURCE_TAGS = {
     "Product": "Accessibility-Monitoring-Platform",
@@ -18,9 +18,9 @@ AWS_RESOURCE_TAGS = {
 
 def get_aws_resource_tags(system: str = "Platform") -> str:
     """Return comma-delimited string of tag names and value pairs"""
-    resource_tags: Dict[str, str] = AWS_RESOURCE_TAGS.copy()
+    resource_tags: dict[str, str] = AWS_RESOURCE_TAGS.copy()
     resource_tags["System"] = system
-    tag_name_value_pairs: List[Tuple[str, str]] = [
+    tag_name_value_pairs: list[tuple[str, str]] = [
         f"{key}={value}" for key, value in resource_tags.items()
     ]
     return f"--resource-tags {','.join(tag_name_value_pairs)}"
@@ -47,7 +47,9 @@ def write_prototype_platform_metadata(git_branch_name: str, prototype_name: str)
 
 def create_burner_account(app_name: str, env_name: str) -> None:
     print(">>> Creating burner account")
-    email: str = f"""{"".join(random.choice(string.ascii_lowercase) for x in range(7))}@email.com"""
+    email: str = (
+        f"""{"".join(random.choice(string.ascii_lowercase) for x in range(7))}@email.com"""
+    )
     password: str = "".join(random.choice(string.ascii_lowercase) for x in range(27))
     command: str = f"python aws_prototype/create_dummy_account.py {email} {password}"
     copilot_exec_cmd = f"""copilot svc exec -a {app_name} -e {env_name} -n amp-svc --command "{command}" """

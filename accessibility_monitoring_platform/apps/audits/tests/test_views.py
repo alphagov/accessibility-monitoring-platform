@@ -3,7 +3,6 @@ Tests for audits views
 """
 
 from datetime import date, timedelta
-from typing import Dict, List, Optional, Union
 
 import pytest
 from django.contrib.auth.models import User
@@ -159,162 +158,12 @@ def create_equality_body_retest() -> Retest:
     return retest
 
 
-def test_audit_retest_detail_shows_number_of_errors(admin_client):
-    """Test that audit 12-week retest view shows the number of errors"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.PDF, url="https://example.com"
-    )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "PDF (2)")
-
-
-def test_audit_retest_detail_only_shows_pages_with_errors(admin_client):
-    """Test that audit 12-week retest view shows only pages with errors"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page_with_error: Page = Page.objects.create(
-        audit=audit,
-        page_type=Page.Type.PDF,
-        url="https://example.com",
-        name="Page with error",
-    )
-    page_without_error: Page = Page.objects.create(
-        audit=audit,
-        page_type=Page.Type.PDF,
-        url="https://example.com",
-        name="Page without error",
-    )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page_with_error,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page_without_error,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.NO_ERROR,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Page with error")
-    assertNotContains(response, "Page without error")
-
-
-def test_audit_retest_detail_shows_sections(admin_client):
-    """
-    Test that audit 12-week retest view shows all the sections
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "12-week retest metadata")
-    assertContains(response, "Pages")
-    assertContains(response, "12-week website compliance decision")
-    assertContains(response, "12-week statement links")
-    assertContains(response, "12-week disproportionate burden claim")
-    assertContains(response, "12-week statement compliance decision")
-
-
-def test_audit_retest_detail_shows_statement_1(admin_client):
-    """
-    Test that audit 12-week retest view shows Accessibility statement
-    Pt. 1 when statement content checks not used.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "12-week accessibility statement Pt. 1")
-    assertNotContains(response, "12-week statement overview")
-
-
-def test_audit_retest_detail_shows_statement_overview(admin_client):
-    """
-    Test that audit 12-week retest view shows Statement overview when
-    statement content checks are used.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertNotContains(response, "12-week accessibility statement Pt. 1")
-    assertContains(response, "12-week statement overview")
-
-
-def test_audit_12_week_retest_detail_shows_12_week_statement(admin_client):
-    """Test that audit 12-week retest detail view shows the 12-week statement"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    StatementPage.objects.create(
-        audit=audit,
-        added_stage=StatementPage.AddedStage.TWELVE_WEEK,
-        url=ACCESSIBILITY_STATEMENT_12_WEEK_URL,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, ACCESSIBILITY_STATEMENT_12_WEEK_URL)
-
-
 def test_restore_page_view(admin_client):
     """Test that restore page view restores audit"""
     audit: Audit = create_audit()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     page: Page = Page.objects.create(audit=audit, is_deleted=True)
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
 
     response: HttpResponse = admin_client.get(
         reverse(
@@ -337,7 +186,7 @@ def test_restore_page_view(admin_client):
 def test_create_audit_redirects(admin_client):
     """Test that audit create redirects to audit metadata"""
     case: Case = Case.objects.create()
-    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    path_kwargs: dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:audit-create", kwargs=path_kwargs),
@@ -354,7 +203,7 @@ def test_create_audit_redirects(admin_client):
 def test_create_audit_does_not_create_a_duplicate(admin_client):
     """Test that audit create does not create a duplicate audit"""
     audit: Audit = create_audit()
-    path_kwargs: Dict[str, int] = {"case_id": audit.case.id}
+    path_kwargs: dict[str, int] = {"case_id": audit.case.id}
 
     assert Audit.objects.filter(case=audit.case).count() == 1
 
@@ -372,7 +221,7 @@ def test_create_audit_does_not_create_a_duplicate(admin_client):
 def test_create_audit_creates_case_event(admin_client):
     """Test that audit create creates a case event"""
     case: Case = Case.objects.create()
-    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    path_kwargs: dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:audit-create", kwargs=path_kwargs),
@@ -404,31 +253,32 @@ def test_create_audit_creates_case_event(admin_client):
         ),
         ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-wcag-summary", "Test summary"),
-        ("audits:audit-retest-detail", "View 12-week retest"),
+        ("audits:edit-audit-statement-summary", "Test summary"),
+        ("audits:edit-audit-retest-wcag-summary", "Test summary"),
+        ("audits:edit-audit-retest-statement-summary", "Test summary"),
         ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
-        ("audits:edit-audit-retest-pages-comparison", "12-week pages comparison"),
         (
             "audits:edit-audit-retest-website-decision",
-            "12-week website compliance decision",
+            "Compliance decision",
         ),
         (
             "audits:edit-audit-retest-statement-1",
-            "12-week accessibility statement Pt. 1",
+            "Accessibility statement Pt. 1",
         ),
         (
             "audits:edit-audit-retest-statement-2",
-            "12-week accessibility statement Pt. 2",
+            "Accessibility statement Pt. 2",
         ),
         (
             "audits:edit-audit-retest-statement-decision",
-            "12-week accessibility statement compliance decision",
+            "Compliance decision",
         ),
     ],
 )
 def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the audit-specific view page loads"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(reverse(path_name, kwargs=audit_pk))
 
@@ -442,31 +292,31 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     [
         (
             "audits:edit-retest-statement-overview",
-            "12-week statement overview",
+            "Statement overview",
         ),
         (
             "audits:edit-retest-statement-website",
-            "12-week statement information",
+            "Statement information",
         ),
         (
             "audits:edit-retest-statement-compliance",
-            "12-week compliance status",
+            "Compliance status",
         ),
         (
             "audits:edit-retest-statement-non-accessible",
-            "12-week non-accessible content",
+            "Non-accessible content",
         ),
         (
             "audits:edit-retest-statement-preparation",
-            "12-week statement preparation",
+            "Statement preparation",
         ),
         (
             "audits:edit-retest-statement-feedback",
-            "12-week feedback and enforcement procedure",
+            "Feedback and enforcement procedure",
         ),
         (
             "audits:edit-retest-statement-custom",
-            "12-week custom statement issues",
+            "Custom issues",
         ),
     ],
 )
@@ -475,7 +325,7 @@ def test_audit_statement_check_specific_page_loads(
 ):
     """Test that the audit with statement checks-specific view page loads"""
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(reverse(path_name, kwargs=audit_pk))
 
@@ -530,12 +380,12 @@ def test_audit_statement_check_specific_page_loads(
         (
             "audits:edit-audit-retest-metadata",
             "save_continue",
-            "audits:edit-audit-retest-pages-comparison",
+            "audits:edit-audit-retest-pages",
         ),
         (
-            "audits:edit-audit-retest-pages-comparison",
+            "audits:edit-audit-retest-pages",
             "save",
-            "audits:edit-audit-retest-pages-comparison",
+            "audits:edit-audit-retest-pages",
         ),
         (
             "audits:edit-audit-retest-statement-1",
@@ -555,17 +405,27 @@ def test_audit_statement_check_specific_page_loads(
         (
             "audits:edit-audit-retest-statement-2",
             "save_continue",
-            "audits:edit-audit-retest-statement-comparison",
+            "audits:edit-twelve-week-disproportionate-burden",
         ),
         (
-            "audits:edit-audit-retest-statement-comparison",
+            "audits:edit-audit-retest-wcag-summary",
             "save",
-            "audits:edit-audit-retest-statement-comparison",
+            "audits:edit-audit-retest-wcag-summary",
         ),
         (
-            "audits:edit-audit-retest-statement-comparison",
+            "audits:edit-audit-retest-wcag-summary",
             "save_continue",
-            "audits:edit-audit-retest-statement-decision",
+            "audits:edit-audit-retest-statement-pages",
+        ),
+        (
+            "audits:edit-audit-retest-statement-summary",
+            "save",
+            "audits:edit-audit-retest-statement-summary",
+        ),
+        (
+            "audits:edit-audit-retest-statement-summary",
+            "save_continue",
+            "cases:edit-review-changes",
         ),
     ],
 )
@@ -579,7 +439,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
     Test that a successful audit update redirects based on the button pressed
     """
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse(path_name, kwargs=audit_pk),
@@ -617,11 +477,6 @@ def test_audit_edit_redirects_based_on_button_pressed(
             "audits:edit-audit-statement-summary",
         ),
         (
-            "audits:edit-audit-retest-pages-comparison",
-            "save_continue",
-            "audits:edit-audit-retest-website-decision",
-        ),
-        (
             "audits:edit-audit-retest-website-decision",
             "save",
             "audits:edit-audit-retest-website-decision",
@@ -629,7 +484,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-audit-retest-statement-pages",
+            "audits:edit-audit-retest-wcag-summary",
         ),
         (
             "audits:edit-audit-retest-statement-decision",
@@ -639,7 +494,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-statement-decision",
             "save_continue",
-            "audits:edit-audit-retest-statement-comparison",
+            "audits:edit-audit-retest-statement-summary",
         ),
     ],
 )
@@ -653,7 +508,7 @@ def test_audit_compliance_edit_redirects_based_on_button_pressed(
     Test that a successful audit update redirects based on the button pressed
     """
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse(path_name, kwargs=audit_pk),
@@ -703,7 +558,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed_no_stateme
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse(path_name, kwargs=audit_pk),
@@ -729,9 +584,9 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
     when a report exists
     """
     case: Case = Case.objects.create()
-    case_pk: Dict[str, int] = {"pk": case.id}
+    case_pk: dict[str, int] = {"pk": case.id}
     audit: Audit = Audit.objects.create(case=case)
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.post(
@@ -756,7 +611,7 @@ def test_audit_statement_pages_default_added_stage(
     for initial and 12-week for 12-week retest pages.
     """
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(
         f'{reverse("audits:edit-statement-pages", kwargs=audit_pk)}?add_extra=true#statement-page-None'
@@ -872,7 +727,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
     on the button pressed (with statement checks)
     """
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse(path_name, kwargs=audit_pk),
@@ -978,7 +833,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-audit-retest-statement-pages",
+            "audits:edit-audit-retest-wcag-summary",
         ),
         (
             "audits:edit-audit-retest-statement-pages",
@@ -1083,7 +938,7 @@ def test_audit_statement_edit_redirects_based_on_button_pressed(
     pressed
     """
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse(path_name, kwargs=audit_pk),
@@ -1112,7 +967,7 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
     statement information if the overiew checks have passed
     """
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     for statement_check_result in StatementCheckResult.objects.filter(
         audit=audit, type=StatementCheck.Type.OVERVIEW
     ):
@@ -1145,7 +1000,7 @@ def test_audit_edit_statement_overview_updates_when_no_statement_exists(
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-statement-overview", kwargs=audit_pk),
@@ -1175,7 +1030,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     status and check results
     """
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     case: Case = audit.case
     case.home_page_url = "https://www.website.com"
@@ -1234,7 +1089,7 @@ def test_audit_retest_statement_overview_updates_when_no_statement_exists(
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-retest-statement-overview", kwargs=audit_pk),
@@ -1264,7 +1119,7 @@ def test_audit_retest_statement_overview_no_statement(
     even if there is no statement page.
     """
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     Page.objects.filter(page_type=Page.Type.STATEMENT).delete()
 
     response: HttpResponse = admin_client.get(
@@ -1288,7 +1143,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     check results
     """
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     StatementPage.objects.create(
         audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
@@ -1342,7 +1197,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     check results when no initial statement was found
     """
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     StatementPage.objects.create(
         audit=audit,
@@ -1393,7 +1248,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
 def test_retest_date_change_creates_case_event(admin_client):
     """Test that changing the retest date creates a case event"""
     audit: Audit = create_audit()
-    path_kwargs: Dict[str, int] = {"pk": audit.id}
+    path_kwargs: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-retest-metadata", kwargs=path_kwargs),
@@ -1422,7 +1277,7 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     when no response was received from public sector body.
     """
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     case: Case = audit.case
     case.no_psb_contact = Boolean.YES
     case.save()
@@ -1439,7 +1294,7 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     assert response.status_code == 302
 
     expected_path: str = reverse(
-        "audits:edit-audit-retest-statement-1", kwargs=audit_pk
+        "audits:edit-audit-retest-statement-pages", kwargs=audit_pk
     )
     assert response.url == expected_path
 
@@ -1456,7 +1311,7 @@ def test_pages_redirects_based_on_button_pressed(
 ):
     """Test that a successful audit update redirects based on the button pressed"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-pages", kwargs=audit_pk),
@@ -1590,7 +1445,7 @@ def test_add_extra_page(admin_client):
     )
     assert response.status_code == 200
 
-    extra_pages: List[Page] = list(
+    extra_pages: list[Page] = list(
         Page.objects.filter(audit=audit, page_type=Page.Type.EXTRA)
     )
 
@@ -1636,7 +1491,7 @@ def test_initial_statement_page_url_creates_statement_page(admin_client):
     is created with that url
     """
     audit: Audit = create_audit_and_pages()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     page: Page = audit.accessibility_statement_page
 
     assert page.url == ""
@@ -1678,7 +1533,7 @@ def test_page_url_changes_do_not_create_statement_page(admin_client):
     create StatementPage rows if one already exists
     """
     audit: Audit = create_audit_and_pages()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     page: Page = audit.accessibility_statement_page
     StatementPage.objects.create(audit=audit)
 
@@ -1719,7 +1574,7 @@ def test_page_checks_edit_page_loads(admin_client):
     """Test page checks edit view page loads and contains all WCAG definitions"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-page-checks", kwargs=page_pk)
@@ -1737,7 +1592,7 @@ def test_page_checks_edit_page_shows_location(admin_client):
     """Test page checks edit view page shows page location"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit, location=PAGE_LOCATION)
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-page-checks", kwargs=page_pk)
@@ -1754,7 +1609,7 @@ def test_page_checks_edit_page_contains_hint_text(admin_client):
     """
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
     wcag_definition: WcagDefinition = WcagDefinition.objects.get(
         type=WcagDefinition.Type.PDF
     )
@@ -1777,7 +1632,7 @@ def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
     future_wcag_definition.date_start = audit.date_of_test + timedelta(days=10)
     future_wcag_definition.save()
     page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-page-checks", kwargs=page_pk)
@@ -1795,7 +1650,7 @@ def test_page_checks_edit_hides_past_wcag_definitions(admin_client):
     past_wcag_definition.date_end = audit.date_of_test - timedelta(days=10)
     past_wcag_definition.save()
     page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-page-checks", kwargs=page_pk)
@@ -1810,7 +1665,7 @@ def test_page_checks_edit_saves_results(admin_client):
     """Test page checks edit view saves the entered results"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
     wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
         type=WcagDefinition.Type.AXE
     )
@@ -1877,7 +1732,7 @@ def test_page_checks_edit_stays_on_page(admin_client):
     """Test that a successful page checks edit stays on the page"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
     url: str = reverse("audits:edit-audit-page-checks", kwargs=page_pk)
 
     response: HttpResponse = admin_client.post(
@@ -1906,7 +1761,7 @@ def test_page_checks_edit_stays_on_page(admin_client):
 def test_website_decision_saved_on_case(admin_client):
     """Test that a website decision is saved on case"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-website-decision", kwargs=audit_pk),
@@ -1953,10 +1808,10 @@ def test_website_decision_field_updates_report_content(
     changes
     """
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     assert audit.published_report_data_updated_time is None
-    context: Dict[str, Union[str, int]] = {
+    context: dict[str, str | int] = {
         "version": audit.version,
         "case-compliance-version": audit.case.compliance.version,
         "case-compliance-website_compliance_state_initial": audit.case.compliance.website_compliance_state_initial,
@@ -1981,7 +1836,7 @@ def test_website_decision_field_updates_report_content(
 def test_statement_update_one_shows_statement_link(admin_client):
     """Test that an accessibility statement links shown if present"""
     audit: Audit = create_audit_and_pages()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
@@ -2023,7 +1878,7 @@ def test_statement_details_hidden_when_no_statement_page(
     such a page is present.
     """
     audit: Audit = create_audit_and_pages()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(
         reverse(url_name, kwargs=audit_pk),
@@ -2047,50 +1902,6 @@ def test_statement_details_hidden_when_no_statement_page(
 
 
 @pytest.mark.parametrize(
-    "url_name, field_label",
-    [
-        (
-            "audits:edit-audit-retest-statement-1",
-            "Non-accessible Content - non compliance with regulations",
-        ),
-        (
-            "audits:edit-audit-retest-statement-2",
-            "Non-accessible Content - disproportionate burden",
-        ),
-    ],
-)
-def test_statement_details_hidden_when_no_statement_page_on_retest(
-    url_name, field_label, admin_client
-):
-    """
-    Test that accessibility statement details and form fields shown only if
-    such a page is present.
-    """
-    audit: Audit = create_audit_and_pages()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, NO_RETEST_ACCESSIBILITY_STATEMENT, html=True)
-    assertNotContains(response, field_label)
-
-    StatementPage.objects.create(audit=audit)
-
-    response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, NO_RETEST_ACCESSIBILITY_STATEMENT, html=True)
-    assertContains(response, field_label)
-
-
-@pytest.mark.parametrize(
     "email, new_contact_expected",
     [
         ("", False),
@@ -2100,7 +1911,7 @@ def test_statement_details_hidden_when_no_statement_page_on_retest(
 def test_statement_update_one_adds_contact(email, new_contact_expected, admin_client):
     """Test that a contact can be added from the statement update one view"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
@@ -2244,7 +2055,7 @@ def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
 def test_statement_decision_saved_on_case(admin_client):
     """Test that a statement decision is saved on case"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-statement-decision", kwargs=audit_pk),
@@ -2284,7 +2095,7 @@ def test_report_options_field_updates_report_content(
 ):
     """Test that a report data updated time changes when expected"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     assert audit.published_report_data_updated_time is None
 
@@ -2315,7 +2126,7 @@ def test_start_retest_redirects(admin_client):
     """Test that starting a retest redirects to audit retest metadata"""
     audit: Audit = create_audit()
     audit_pk: int = audit.id
-    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+    path_kwargs: dict[str, int] = {"pk": audit_pk}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:audit-retest-start", kwargs=path_kwargs),
@@ -2332,7 +2143,7 @@ def test_start_retest_creates_case_event(admin_client):
     """Test that starting a retest creates case event"""
     audit: Audit = create_audit()
     audit_pk: int = audit.id
-    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+    path_kwargs: dict[str, int] = {"pk": audit_pk}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:audit-retest-start", kwargs=path_kwargs),
@@ -2348,35 +2159,13 @@ def test_start_retest_creates_case_event(admin_client):
     assert case_event.message == "Started retest"
 
 
-def test_retest_details_renders_when_no_psb_response(admin_client):
-    """
-    Test save and continue button causes user to skip to statement 1 page
-    when no response was received from public sector body.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    case: Case = audit.case
-    case.no_psb_contact = Boolean.YES
-    case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response, "Only 12-week accessibility statement comparison is available"
-    )
-
-
 def test_retest_page_checks_edit_page_loads(admin_client):
     """Test retest page checks edit view page loads and contains errors"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(
         audit=audit, retest_notes=PAGE_RETEST_NOTES, location=PAGE_LOCATION
     )
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
     wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
         type=WcagDefinition.Type.PDF
     )
@@ -2402,7 +2191,7 @@ def test_retest_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Retesting Additional")
+    assertContains(response, "Additional page retest")
     assertContains(response, PAGE_RETEST_NOTES)
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
@@ -2413,7 +2202,7 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     """Test retest page checks edit view saves the entered results"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
     wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
         type=WcagDefinition.Type.AXE
     )
@@ -2490,77 +2279,10 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     )
 
 
-def test_retest_page_shows_and_hides_fixed_errors(admin_client):
-    """Test retest page conditionally shows and hides fixed errors"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
-    )
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.AXE
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_pdf,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.FIXED,
-        notes=FIXED_ERROR_NOTES,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_axe,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-
-    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-
-    assertContains(response, FIXED_ERROR_NOTES)
-
-    response: HttpResponse = admin_client.get(f"{url}?hide-fixed=true")
-
-    assert response.status_code == 200
-
-    assertNotContains(response, FIXED_ERROR_NOTES)
-
-
-def test_retest_pages_shows_missing_pages(admin_client):
-    """Test that user is shown if page was marked as missing on retest"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-    Page.objects.create(audit=audit, url="https://example.com")
-
-    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-
-    assertNotContains(response, MISSING_PAGE_ON_RETEST)
-
-    Page.objects.create(
-        audit=audit,
-        url="https://example.com",
-        retest_page_missing_date=date(2022, 12, 16),
-    )
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-
-    assertContains(response, MISSING_PAGE_ON_RETEST)
-
-
 def test_retest_pages_shows_location(admin_client):
     """Test page location is shown"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     page: Page = Page.objects.create(
         audit=audit, url="https://example.com", location=PAGE_LOCATION
     )
@@ -2585,7 +2307,7 @@ def test_retest_pages_shows_location(admin_client):
         check_result_state=CheckResult.Result.ERROR,
     )
 
-    url: str = reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
+    url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
 
     response: HttpResponse = admin_client.get(url)
 
@@ -2594,35 +2316,10 @@ def test_retest_pages_shows_location(admin_client):
     assertContains(response, PAGE_LOCATION)
 
 
-def test_retest_pages_comparison_groups_by_page_or_wcag(admin_client):
-    """
-    Test that 12-week pages comparison page groups content by page or
-    WCAG based on URL parameter.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-pages-comparison", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Test summary | Page view")
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-pages-comparison-by-wcag", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Test summary | WCAG view")
-
-
 def test_retest_website_decision_saved_on_case(admin_client):
     """Test that a retest website decision is saved on case"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk),
@@ -2652,7 +2349,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
 def test_retest_statement_decision_saved_on_case(admin_client):
     """Test that a retest statement decision is saved on case"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-retest-statement-decision", kwargs=audit_pk),
@@ -2685,7 +2382,7 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
     was entered.
     """
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     statement_page: StatementPage = StatementPage.objects.create(audit=audit)
 
     response: HttpResponse = admin_client.get(
@@ -2709,7 +2406,7 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
 def test_retest_statement_custom_no_initial(admin_client):
     """Test that a retest statement custom with no initial failure shows placeholder"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-retest-statement-custom", kwargs=audit_pk),
@@ -2722,7 +2419,7 @@ def test_retest_statement_custom_no_initial(admin_client):
 def test_retest_statement_custom_with_initial(admin_client):
     """Test that a retest statement custom with an initial failure shows it"""
     audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     StatementPage.objects.create(audit=audit)
 
@@ -2751,7 +2448,7 @@ def test_all_initial_statement_one_notes_included_on_retest(admin_client):
     StatementPage.objects.create(audit=audit, url=ACCESSIBILITY_STATEMENT_URL)
 
     audit_pk: int = audit.id
-    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+    path_kwargs: dict[str, int] = {"pk": audit_pk}
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-retest-statement-1", kwargs=path_kwargs),
     )
@@ -2782,7 +2479,7 @@ def test_all_initial_statement_two_notes_included_on_retest(admin_client):
     StatementPage.objects.create(audit=audit, url=ACCESSIBILITY_STATEMENT_URL)
 
     audit_pk: int = audit.id
-    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+    path_kwargs: dict[str, int] = {"pk": audit_pk}
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-retest-statement-2", kwargs=path_kwargs),
     )
@@ -2846,7 +2543,7 @@ def test_create_wcag_definition_works(admin_client):
     assert response.status_code == 302
     assert response.url == reverse("audits:wcag-definition-list")
 
-    wcag_definition_from_db: Optional[WcagDefinition] = WcagDefinition.objects.last()
+    wcag_definition_from_db: WcagDefinition | None = WcagDefinition.objects.last()
 
     assert wcag_definition_from_db is not None
     assert wcag_definition_from_db.type == WCAG_DEFINITION_TYPE
@@ -2859,10 +2556,10 @@ def test_update_wcag_definition_works(admin_client):
     Test that a successful WCAG definiton update updates the
     WCAG definition and redirects to list.
     """
-    wcag_definition: Optional[WcagDefinition] = WcagDefinition.objects.first()
+    wcag_definition: WcagDefinition | None = WcagDefinition.objects.first()
 
     wcag_definition_pk: int = wcag_definition.id  # type: ignore
-    path_kwargs: Dict[str, int] = {"pk": wcag_definition_pk}
+    path_kwargs: dict[str, int] = {"pk": wcag_definition_pk}
     update_url: str = reverse("audits:wcag-definition-update", kwargs=path_kwargs)
 
     response: HttpResponse = admin_client.post(
@@ -2877,7 +2574,7 @@ def test_update_wcag_definition_works(admin_client):
     assert response.status_code == 302
     assert response.url == update_url
 
-    wcag_definition_from_db: Optional[WcagDefinition] = WcagDefinition.objects.first()
+    wcag_definition_from_db: WcagDefinition | None = WcagDefinition.objects.first()
 
     assert wcag_definition_from_db is not None
     assert wcag_definition_from_db.type == WCAG_DEFINITION_TYPE
@@ -2890,7 +2587,7 @@ def test_clear_published_report_data_updated_time_view(admin_client):
     audit: Audit = create_audit()
     audit.published_report_data_updated_time = timezone.now()
     audit.save()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
 
     admin_client.get(
         reverse("audits:clear-outdated-published-report-warning", kwargs=audit_pk)
@@ -2972,7 +2669,6 @@ def test_update_audit_checks_case_version(url_name, admin_client):
     "url_name",
     [
         "audits:edit-audit-metadata",
-        "audits:audit-retest-detail",
         "audits:edit-audit-retest-statement-2",
     ],
 )
@@ -3012,7 +2708,7 @@ def test_statement_check_page_loads(path_name, expected_content, admin_client):
 
 def test_statement_check_update_page_loads(admin_client):
     """Test that the statement check update view page loads"""
-    kwargs: Dict[str, int] = {"pk": 1}
+    kwargs: dict[str, int] = {"pk": 1}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:statement-check-update", kwargs=kwargs)
@@ -3083,7 +2779,7 @@ def test_update_statement_check_works(admin_client):
     Test that a successful statement check update updates the statement check
     and redirects to list.
     """
-    statement_check: Optional[StatementCheck] = StatementCheck.objects.first()
+    statement_check: StatementCheck | None = StatementCheck.objects.first()
 
     assert statement_check is not None
     assert statement_check.label != STATEMENT_CHECK_LABEL
@@ -3092,7 +2788,7 @@ def test_update_statement_check_works(admin_client):
     assert statement_check.report_text != STATEMENT_CHECK_REPORT_TEXT
 
     statement_check_id: int = statement_check.id
-    path_kwargs: Dict[str, int] = {"pk": statement_check_id}
+    path_kwargs: dict[str, int] = {"pk": statement_check_id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:statement-check-update", kwargs=path_kwargs),
@@ -3121,7 +2817,7 @@ def test_update_statement_check_works(admin_client):
 def test_summary_page_view(admin_client):
     """Test that summary page view renders with results grouped by page"""
     audit: Audit = create_audit()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     Page.objects.create(audit=audit, is_deleted=True)
 
     response: HttpResponse = admin_client.get(
@@ -3135,7 +2831,7 @@ def test_summary_page_view(admin_client):
 def test_summary_wcag_view(admin_client):
     """Test that summary page view renders with results grouped by WCAG issue"""
     audit: Audit = create_audit()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     Page.objects.create(audit=audit, is_deleted=True)
 
     response: HttpResponse = admin_client.get(
@@ -3146,62 +2842,11 @@ def test_summary_wcag_view(admin_client):
     assertContains(response, "Test summary | WCAG view", html=True)
 
 
-def test_audit_statement_comparison(admin_client):
-    """Test that the audit without statement checks-specific view comparison page loads"""
-    audit: Audit = create_audit()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Save and continue")
-    assertContains(response, "12-week accessibility statement compliance decision")
-
-
-def test_audit_statement_check_statment_comparison(admin_client):
-    """Test that the audit with statement checks-specific view comparison page loads"""
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Save and exit")
-    assertNotContains(response, "12-week accessibility statement compliance decision")
-
-
-def test_audit_statement_check_statment_comparison_includes_fixed(admin_client):
-    """Test that the statement comparison page includes fixed issues"""
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
-
-    statement_check_result: StatementCheckResult = (
-        audit.overview_statement_check_results.first()
-    )
-    statement_check_result.check_result_state = StatementCheckResult.Result.YES
-    statement_check_result.retest_state = StatementCheckResult.Result.YES
-    statement_check_result.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, statement_check_result.statement_check.label)
-
-
 def test_create_equality_body_retest_redirects(admin_client):
     """Test that equality body retest create redirects to retest metadata"""
     case: Case = Case.objects.create()
     Audit.objects.create(case=case)
-    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    path_kwargs: dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:create-equality-body-retest", kwargs=path_kwargs)
@@ -3222,7 +2867,7 @@ def test_create_equality_body_retest_creates_retest_0(admin_client):
     """
     case: Case = Case.objects.create()
     Audit.objects.create(case=case)
-    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    path_kwargs: dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:create-equality-body-retest", kwargs=path_kwargs)
@@ -3417,7 +3062,7 @@ def test_equality_body_retest_edit_redirects_based_on_button_pressed(
     Test that a successful equality body retest update redirects based on the button pressed
     """
     retest: Retest = create_equality_body_retest()
-    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_pk: dict[str, int] = {"pk": retest.id}
 
     response: HttpResponse = admin_client.post(
         reverse(path_name, kwargs=retest_pk),
@@ -3443,7 +3088,7 @@ def test_equality_body_retest_statement_overview_redirects_when_no(admin_client)
     results when one of the overview questions has been answered 'no'.
     """
     retest: Retest = create_equality_body_retest()
-    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_pk: dict[str, int] = {"pk": retest.id}
     statement_check: StatementCheck = StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ).first()
@@ -3481,9 +3126,9 @@ def test_equality_body_retest_metadata_update_redirects_to_retest_page_checks(
     and continue button is pressed.
     """
     retest: Retest = create_equality_body_retest()
-    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_pk: dict[str, int] = {"pk": retest.id}
     retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:retest-metadata-update", kwargs=retest_pk),
@@ -3507,7 +3152,7 @@ def test_equality_body_page_checks_save(
     """Test that a equality body retest page checks saves"""
     retest: Retest = create_equality_body_retest()
     retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
@@ -3532,7 +3177,7 @@ def test_equality_body_page_location_shown(admin_client):
     """Test that a equality body retest page show the location"""
     retest: Retest = create_equality_body_retest()
     retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
     page: Page = retest_page.page
     page.location = PAGE_LOCATION
     page.save()
@@ -3551,9 +3196,9 @@ def test_equality_body_page_checks_save_continue(
 ):
     """Test that a equality body retest page checks redirects on save and continue"""
     retest: Retest = create_equality_body_retest()
-    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_pk: dict[str, int] = {"pk": retest.id}
     retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
@@ -3580,7 +3225,7 @@ def test_equality_body_retest_statement_pages_default_added_stage(
     for equality body-requested retests.
     """
     retest: Retest = create_equality_body_retest()
-    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_pk: dict[str, int] = {"pk": retest.id}
 
     response: HttpResponse = admin_client.get(
         f'{reverse("audits:edit-equality-body-statement-pages", kwargs=retest_pk)}?add_extra=true#statement-page-None'
@@ -3599,8 +3244,8 @@ def test_equality_body_retest_statement_compliance_update_redirects_to_retest_ov
     to retest overview when save and continue button is pressed.
     """
     retest: Retest = create_equality_body_retest()
-    retest_pk: Dict[str, int] = {"pk": retest.id}
-    case_pk: Dict[str, int] = {"pk": retest.case.id}
+    retest_pk: dict[str, int] = {"pk": retest.id}
+    case_pk: dict[str, int] = {"pk": retest.case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-equality-body-statement-decision", kwargs=retest_pk),
@@ -3625,7 +3270,7 @@ def test_equality_body_page_checks_page_missing(
     """
     retest: Retest = create_equality_body_retest()
     retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: Dict[str, int] = {"pk": retest_page.id}
+    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
 
     assert retest_page.missing_date is None
     assert retest_page.page.not_found == "no"
@@ -3656,7 +3301,7 @@ def test_retest_comparison_page_groups_by_page_or_wcag(admin_client):
     WCAG based on URL parameter.
     """
     retest: Retest = create_equality_body_retest()
-    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_pk: dict[str, int] = {"pk": retest.id}
     create_checkresults_for_retest(retest=retest)
 
     url: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
@@ -3679,7 +3324,7 @@ def test_retest_comparison_page_shows_location(admin_client):
     Test that equality body retest comparison page shows page location
     """
     retest: Retest = create_equality_body_retest()
-    retest_pk: Dict[str, int] = {"pk": retest.id}
+    retest_pk: dict[str, int] = {"pk": retest.id}
     create_checkresults_for_retest(retest=retest)
 
     retest_page: RetestPage = retest.retestpage_set.first()
@@ -3696,69 +3341,12 @@ def test_retest_comparison_page_shows_location(admin_client):
     assertContains(response, PAGE_LOCATION)
 
 
-def test_12_week_retest_page_complete_check_displayed(admin_client):
-    """
-    Test that the page complete tick is displayed in contents
-    """
-    audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.all().first()
-    page.url = "https://example.com"
-    page.save()
-    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<li>
-            <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
-                12-week retest Home (1)</a>
-            |
-            <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                Edit</a>
-        </li>""",
-        html=True,
-    )
-
-    page.retest_complete_date = TODAY
-    page.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:audit-retest-detail", kwargs={"pk": audit.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<li>
-            <a href="#twelve-week-page-1" class="govuk-link govuk-link--no-visited-state">
-                12-week retest Home (1)<span class="govuk-visually-hidden">complete</span></a>
-            |
-            <a id="edit-twelve-week-page-1" href="/audits/pages/1/edit-audit-retest-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                Edit<span class="govuk-visually-hidden">complete</span></a>
-            ✓
-        </li>""",
-        html=True,
-    )
-
-
 def test_nav_details_page_renders(admin_client):
     """
     Test that the nav detail with current page renders as expected
     """
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": audit.id}
     Page.objects.create(audit=audit, url="https://example.com")
 
     response: HttpResponse = admin_client.get(
@@ -3801,7 +3389,7 @@ def test_nav_details_page_renders(admin_client):
         """<ul class="amp-nav-list-subpages">
             <li class="amp-nav-list-subpages amp-margin-top-5">
                 <a href="/audits/pages/6/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                    Additional page test</a>
+                    Additional page test (0)</a>
             </li>
         </ul>""",
         html=True,
@@ -3814,7 +3402,7 @@ def test_nav_details_subpage_renders(admin_client):
     """
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    page_pk: Dict[str, int] = {"pk": page.id}
+    page_pk: dict[str, int] = {"pk": page.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-page-checks", kwargs=page_pk)
@@ -3855,7 +3443,7 @@ def test_nav_details_subpage_renders(admin_client):
     assertContains(
         response,
         """<ul class="amp-nav-list-subpages">
-            <li class="amp-nav-list-subpages amp-margin-top-5"><b>Additional page test</b></li>
+            <li class="amp-nav-list-subpages amp-margin-top-5"><b>Additional page test (0)</b></li>
         </ul>""",
         html=True,
     )

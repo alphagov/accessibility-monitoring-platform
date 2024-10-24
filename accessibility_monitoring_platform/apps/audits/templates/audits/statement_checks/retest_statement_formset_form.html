@@ -1,0 +1,22 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    {% include 'audits/helpers/statement_pages_twelve_week.html' %}
+    {% include 'common/error_summary.html' with formset=retest_statement_check_results_formset %}
+{% endblock %}
+
+{% block form %}
+    <form method="post" action="{% url sitemap.current_platform_page.url_name audit.id %}">
+        {% csrf_token %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include 'audits/helpers/retest_statement_check_formset.html' %}
+                <hr class="amp-width-100 amp-margin-bottom-30" />
+                {% include 'common/amp_form_snippet.html' %}
+            </div>
+            <div class="govuk-grid-column-full govuk-button-group">
+                {% include 'cases/helpers/save_continue_cancel.html' %}
+            </div>
+        </div>
+    </form>
+{% endblock %}
