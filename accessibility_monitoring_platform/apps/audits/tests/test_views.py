@@ -2814,32 +2814,84 @@ def test_update_statement_check_works(admin_client):
     assert statement_check_from_db.report_text == STATEMENT_CHECK_REPORT_TEXT
 
 
-def test_summary_page_view(admin_client):
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-audit-wcag-summary",
+        "audits:edit-audit-retest-wcag-summary",
+        "audits:edit-audit-statement-summary",
+        "audits:edit-audit-retest-statement-summary",
+    ],
+)
+def test_summary_page_view(url_name, admin_client):
     """Test that summary page view renders with results grouped by page"""
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
     Page.objects.create(audit=audit, is_deleted=True)
 
     response: HttpResponse = admin_client.get(
-        f"{reverse('audits:edit-audit-wcag-summary', kwargs=audit_pk)}?view=Page+view",
+        f"{reverse(url_name, kwargs=audit_pk)}?page-view=true",
     )
 
     assert response.status_code == 200
     assertContains(response, "Test summary | Page view", html=True)
 
 
-def test_summary_wcag_view(admin_client):
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-audit-wcag-summary",
+        "audits:edit-audit-retest-wcag-summary",
+        "audits:edit-audit-statement-summary",
+        "audits:edit-audit-retest-statement-summary",
+    ],
+)
+def test_summary_wcag_view(url_name, admin_client):
     """Test that summary page view renders with results grouped by WCAG issue"""
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
     Page.objects.create(audit=audit, is_deleted=True)
 
-    response: HttpResponse = admin_client.get(
-        f"{reverse('audits:edit-audit-wcag-summary', kwargs=audit_pk)}?view=WCAG+view",
-    )
+    response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
 
     assert response.status_code == 200
     assertContains(response, "Test summary | WCAG view", html=True)
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-audit-retest-wcag-summary",
+        "audits:edit-audit-retest-statement-summary",
+    ],
+)
+def test_summary_hide_fixed(url_name, admin_client):
+    """Test that summary page can hide the fixed check results"""
+    audit: Audit = create_audit()
+    audit_pk: dict[str, int] = {"pk": audit.id}
+    url: str = reverse(url_name, kwargs=audit_pk)
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
+        type=WcagDefinition.Type.PDF
+    ).first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        notes=FIXED_ERROR_NOTES,
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+    assertContains(response, FIXED_ERROR_NOTES)
+
+    response: HttpResponse = admin_client.get(f"{url}?hide-fixed=true")
+
+    assert response.status_code == 200
+    assertNotContains(response, FIXED_ERROR_NOTES)
 
 
 def test_create_equality_body_retest_redirects(admin_client):

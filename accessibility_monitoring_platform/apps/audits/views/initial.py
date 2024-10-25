@@ -369,8 +369,7 @@ class AuditSummaryUpdateView(AuditUpdateView):
         context: dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object
 
-        view_url_param: str | None = self.request.GET.get("view")
-        show_failures_by_page: bool = view_url_param == "Page view"
+        show_failures_by_page: bool = "page-view" in self.request.GET
         context["show_failures_by_page"] = show_failures_by_page
 
         if show_failures_by_page:
