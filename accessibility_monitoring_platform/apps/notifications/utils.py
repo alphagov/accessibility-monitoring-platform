@@ -104,15 +104,18 @@ def exclude_cases_with_pending_reminders(cases: QuerySet[Case]) -> list[Case]:
     return cases_without_pending_reminders
 
 
-def get_overdue_cases(user_request: User) -> list[Case]:
+def get_overdue_cases(user_request: User | None) -> list[Case]:
     """Return cases with overdue correspondence actions"""
-    user: User = get_object_or_404(User, id=user_request.id)
-    user_cases: QuerySet[Case] = Case.objects.filter(auditor=user)
+    if user_request is not None:
+        user: User = get_object_or_404(User, id=user_request.id)
+        cases: QuerySet[Case] = Case.objects.filter(auditor=user)
+    else:
+        cases: QuerySet[Case] = Case.objects.filter(archive="")
     start_date: datetime = datetime(2020, 1, 1)
     end_date: datetime = datetime.now()
     seven_days_ago = date.today() - timedelta(days=7)
 
-    seven_day_no_contact: QuerySet[Case] = user_cases.filter(
+    seven_day_no_contact: QuerySet[Case] = cases.filter(
         Q(status__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND),
         Q(contact_details_found=Case.ContactDetailsFound.NOT_FOUND),
         Q(
@@ -135,7 +138,7 @@ def get_overdue_cases(user_request: User) -> list[Case]:
         ),
     )
 
-    in_report_correspondence: QuerySet[Case] = user_cases.filter(
+    in_report_correspondence: QuerySet[Case] = cases.filter(
         Q(status__status=CaseStatus.Status.IN_REPORT_CORES),
         Q(
             Q(  # pylint: disable=unsupported-binary-operation
@@ -150,12 +153,12 @@ def get_overdue_cases(user_request: User) -> list[Case]:
         ),
     )
 
-    in_probation_period: QuerySet[Case] = user_cases.filter(
+    in_probation_period: QuerySet[Case] = cases.filter(
         status__status__icontains=CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
         report_followup_week_12_due_date__range=[start_date, end_date],
     )
 
-    in_12_week_correspondence: QuerySet[Case] = user_cases.filter(
+    in_12_week_correspondence: QuerySet[Case] = cases.filter(
         Q(status__status__icontains=CaseStatus.Status.IN_12_WEEK_CORES),
         Q(
             Q(
@@ -289,12 +292,14 @@ def get_post_case_tasks(user: User) -> list[Task]:
     return tasks
 
 
-def build_task_list(user: User, **kwargs: dict[str, str]) -> list[Task]:
+def build_task_list(user: User | None, **kwargs: dict[str, str]) -> list[Task]:
     """Build list of tasks from database and items derived dynamically from Cases"""
     task_filter: dict[str, Any] = {
-        "user": user,
         "read": False,
     }
+
+    if user is not None:
+        task_filter["user"] = user
 
     type: str | None = kwargs.get("type")
 
