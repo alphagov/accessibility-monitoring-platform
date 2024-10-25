@@ -1,27 +1,20 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-    {% if show_failures_by_page %}
-        <form method="get" action="{% url 'audits:edit-audit-retest-wcag-summary' audit.id %}">
-            <input
-                type="submit"
-                value="WCAG view"
-                name="view"
-                class="govuk-button govuk-button--secondary"
-                data-module="govuk-button"
-            />
-        </form>
-    {% else %}
-        <form method="get" action="{% url 'audits:edit-audit-retest-wcag-summary' audit.id %}">
-            <input
-                type="submit"
-                value="Page view"
-                name="view"
-                class="govuk-button govuk-button--secondary"
-                data-module="govuk-button"
-            />
-        </form>
-    {% endif %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full govuk-button-group">
+            {% if show_failures_by_page %}
+                <a href="?wcag-view=true{% if hide_fixed %}&hide-fixed=true{% endif %}" class="govuk-button govuk-button--secondary">WCAG view</a>
+            {% else %}
+                <a href="?page-view=true{% if hide_fixed %}&hide-fixed=true{% endif %}" class="govuk-button govuk-button--secondary">Page view</a>
+            {% endif %}
+            {% if hide_fixed %}
+                <a href="?show-all=true{% if show_failures_by_page %}&page-view=true{% endif %}" class="govuk-button govuk-button--secondary">Show all</a>
+            {% else %}
+                <a href="?hide-fixed=true{% if show_failures_by_page %}&page-view=true{% endif %}" class="govuk-button govuk-button--secondary">Hide fixed</a>
+            {% endif %}
+        </div>
+    </div>
     {% if show_failures_by_page %}
         <h2 class="govuk-heading-l">{{ sitemap.current_platform_page.get_name }} | Page view</h2>
         {% for page, failures in audit_failures_by_page.items %}

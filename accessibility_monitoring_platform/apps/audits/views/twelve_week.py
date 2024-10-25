@@ -7,6 +7,7 @@ from datetime import date
 from functools import partial
 from typing import Any
 
+from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -222,17 +223,23 @@ class AuditRetestSummaryUpdateView(AuditUpdateView):
         context: dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object
 
-        view_url_param: str | None = self.request.GET.get("view")
-        show_failures_by_page: bool = view_url_param == "Page view"
+        show_failures_by_page: bool = "page-view" in self.request.GET
         context["show_failures_by_page"] = show_failures_by_page
+        hide_fixed_check_results: bool = "hide-fixed" in self.request.GET
+        context["hide_fixed"] = hide_fixed_check_results
+
+        if hide_fixed_check_results:
+            check_results: QuerySet[CheckResult] = audit.unfixed_check_results
+        else:
+            check_results: QuerySet[CheckResult] = audit.failed_check_results
 
         if show_failures_by_page:
             context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                items=audit.failed_check_results, group_by_attr="page"
+                items=check_results, group_by_attr="page"
             )
         else:
             context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-                items=audit.failed_check_results, group_by_attr="wcag_definition"
+                items=check_results, group_by_attr="wcag_definition"
             )
 
         get_audit_rows: Callable = partial(
