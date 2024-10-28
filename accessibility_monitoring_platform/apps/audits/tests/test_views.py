@@ -85,6 +85,8 @@ id="id_form-0-added_stage_2" checked="">"""
 STATEMENT_PAGE_URL: str = "https://example.com/statement"
 WCAG_DEFINITION_HINT: str = "WCAG definition hint text"
 PAGE_LOCATION: str = "Press button then click on link"
+STATEMENT_CHECK_INITIAL_COMMENT: str = "Statement check initial comment"
+STATEMENT_CHECK_RETEST_COMMENT: str = "Statement check retest comment"
 
 
 def create_audit() -> Audit:
@@ -2827,7 +2829,6 @@ def test_summary_page_view(url_name, admin_client):
     """Test that summary page view renders with results grouped by page"""
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
-    Page.objects.create(audit=audit, is_deleted=True)
 
     response: HttpResponse = admin_client.get(
         f"{reverse(url_name, kwargs=audit_pk)}?page-view=true",
@@ -2850,12 +2851,73 @@ def test_summary_wcag_view(url_name, admin_client):
     """Test that summary page view renders with results grouped by WCAG issue"""
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
-    Page.objects.create(audit=audit, is_deleted=True)
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
 
     assert response.status_code == 200
     assertContains(response, "Test summary | WCAG view", html=True)
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-audit-wcag-summary",
+        "audits:edit-audit-statement-summary",
+    ],
+)
+def test_initial_summary_page_view(url_name, admin_client):
+    """Test that initial summary page views contain initial results"""
+    audit: Audit = create_audit()
+    audit_pk: dict[str, int] = {"pk": audit.id}
+    StatementPage.objects.create(audit=audit, url="https://example.com")
+    statement_check: StatementCheck = StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ).first()
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+        report_comment=STATEMENT_CHECK_INITIAL_COMMENT,
+        retest_comment=STATEMENT_CHECK_RETEST_COMMENT,
+    )
+
+    response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
+
+    assert response.status_code == 200
+    assertContains(response, STATEMENT_CHECK_INITIAL_COMMENT)
+    assertNotContains(response, STATEMENT_CHECK_RETEST_COMMENT)
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-audit-retest-wcag-summary",
+        "audits:edit-audit-retest-statement-summary",
+    ],
+)
+def test_12_week_summary_page_view(url_name, admin_client):
+    """Test that 12-week summary page views contain 12-week results"""
+    audit: Audit = create_audit()
+    audit_pk: dict[str, int] = {"pk": audit.id}
+    StatementPage.objects.create(audit=audit, url="https://example.com")
+    statement_check: StatementCheck = StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ).first()
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+        report_comment=STATEMENT_CHECK_INITIAL_COMMENT,
+        retest_comment=STATEMENT_CHECK_RETEST_COMMENT,
+    )
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse(url_name, kwargs=audit_pk)}?page-view=true",
+    )
+
+    assert response.status_code == 200
+    assertNotContains(response, STATEMENT_CHECK_INITIAL_COMMENT)
+    assertContains(response, STATEMENT_CHECK_RETEST_COMMENT)
 
 
 @pytest.mark.parametrize(
