@@ -94,8 +94,6 @@ function searchInCase() {
       </p>
       ${resultsString}`
     searchResultsElement.style.display = 'block'
-    const searchScopeElement = document.getElementById('search-scope')
-    searchScopeElement.style.display = 'none'
   }
 }
 
@@ -114,8 +112,6 @@ function clearSearchInCase() {
   const searchResultsElement = document.getElementById('search-results')
   searchResultsElement.innerHTML = ''
   searchResultsElement.style.display = 'none'
-  const searchScopeElement = document.getElementById('search-scope')
-  searchScopeElement.style.display = 'block'
 }
 
 module.exports = {
