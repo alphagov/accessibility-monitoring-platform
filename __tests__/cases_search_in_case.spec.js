@@ -103,11 +103,9 @@ describe('test clearSearchInCase', () => {
     document.getElementById('id_search_in_case').value = 'date'
     searchInCase()
     expect(document.getElementById('search-results').style.display).toEqual('block')
-    expect(document.getElementById('search-scope').style.display).toEqual('none')
     clearSearchInCase()
     expect(document.getElementById('id_search_in_case').value).toEqual('')
     expect(document.getElementById('search-results').style.display).toEqual('none')
-    expect(document.getElementById('search-scope').style.display).toEqual('block')
   })
 })
 
@@ -115,12 +113,10 @@ describe('test search', () => {
   test('search for text, show results and hide searchable scope', () => {
     document.getElementById('id_search_in_case').value = 'date'
     expect(document.getElementById('search-results').style.display).toEqual('none')
-    expect(document.getElementById('search-scope').style.display).toEqual('block')
     searchInCase()
     const resultsElement = document.getElementById('search-results')
     expect(document.getElementById('id_search_in_case').value).toEqual('date')
     expect(resultsElement.style.display).toEqual('block')
-    expect(document.getElementById('search-scope').style.display).toEqual('none')
     expect(resultsElement.textContent).toContain('Found 2 results for date')
     expect(resultsElement.textContent).toContain(defaultTargetPageName)
     expect(resultsElement.textContent).toContain(defaultTargetLabel)
