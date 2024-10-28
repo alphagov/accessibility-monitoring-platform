@@ -57,9 +57,9 @@
         </div>
         {% include 'cases/helpers/messages.html' %}
         {% include 'cases/details/case_detail_notifications.html' %}
-        {% include 'cases/details/search_in_case.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
+                {% include 'cases/details/search_in_case.html' %}
                 {% if case.archive %}
                     {% include 'cases/helpers/archive_nav_contents.html' %}
                 {% else %}
