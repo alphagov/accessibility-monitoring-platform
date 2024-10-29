@@ -8,8 +8,21 @@
     {% include "audits/helpers/numbers_of_issues.html" with audit=case.audit %}
     <h2 class="govuk-heading-s amp-margin-bottom-5">Comments</h2>
     <p class="govuk-body-m amp-margin-bottom-10">
-        <a href="{% url 'cases:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        {% if case.archive %}
             {{ case.qa_comments_count }} comment{% if case.qa_comments_count != 1 %}s{% endif %} on QA
-        </a>
+        {% else %}
+            <a href="{% url 'cases:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.qa_comments_count }} comment{% if case.qa_comments_count != 1 %}s{% endif %} on QA
+            </a>
+        {% endif %}
+    </p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Reminder{% if case.reminder %} on {{ case.reminder.date|amp_date }}{% endif %}</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">
+        {% if case.reminder %}
+            {{ case.reminder.description }}
+            (<a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        {% else %}
+            <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Create</a>
+        {% endif %}
     </p>
 </div>
