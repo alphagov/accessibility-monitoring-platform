@@ -34,4 +34,10 @@
             Not overdue
         {% endif %}
     </p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Post case</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">
+        <a href="{% url 'cases:list-equality-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+            {{ case.equality_body_correspondences_unresolved_count }} unresolved equality body correspondence{% if case.equality_body_correspondences_unresolved_count != 1 %}s{% endif %}
+        </a>
+    </p>
 </div>

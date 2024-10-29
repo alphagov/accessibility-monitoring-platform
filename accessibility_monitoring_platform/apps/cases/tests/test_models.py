@@ -993,6 +993,25 @@ def test_case_equality_body_correspondences_returns_undeleted_equality_body_corr
 
 
 @pytest.mark.django_db
+def test_equality_body_correspondences_unresolved_count():
+    """
+    Test Case.equality_body_correspondences_unresolved_count returns number of
+    unresolved equality_body_correspondences.
+    """
+    case: Case = Case.objects.create()
+    equality_body_correspondence: EqualityBodyCorrespondence = (
+        EqualityBodyCorrespondence.objects.create(case=case)
+    )
+
+    assert case.equality_body_correspondences_unresolved_count == 1
+
+    equality_body_correspondence.status = EqualityBodyCorrespondence.Status.RESOLVED
+    equality_body_correspondence.save()
+
+    assert case.equality_body_correspondences_unresolved_count == 0
+
+
+@pytest.mark.django_db
 def test_case_equality_body_questions_returns_equality_body_questions():
     """Test Case.equality_body_questions returns equality_body_questions"""
     case: Case = Case.objects.create()

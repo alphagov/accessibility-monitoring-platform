@@ -958,6 +958,12 @@ class Case(VersionModel):
         return self.equalitybodycorrespondence_set.filter(is_deleted=False)
 
     @property
+    def equality_body_correspondences_unresolved_count(self):
+        return self.equality_body_correspondences.filter(
+            status=EqualityBodyCorrespondence.Status.UNRESOLVED,
+        ).count()
+
+    @property
     def equality_body_questions(self):
         return self.equality_body_correspondences.filter(
             type=EqualityBodyCorrespondence.Type.QUESTION
