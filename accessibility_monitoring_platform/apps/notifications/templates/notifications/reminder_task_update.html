@@ -1,49 +1,28 @@
-{% extends 'base.html' %}
+{% extends 'common/case_form.html' %}
 
-{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
-
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=task.case %}
-        </div>
-    </div>
-    {% include 'cases/helpers/breadcrumbs.html' %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+{% block form %}
+    <form method="post" action="{% url 'notifications:edit-reminder-task' task.id %}">
+        {% csrf_token %}
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                {% include "cases/helpers/case_nav.html" %}
+            <div class="govuk-grid-column-full">
+                {% include 'common/amp_form_snippet.html' %}
             </div>
-            <div class="govuk-grid-column-two-thirds">
-                {% include "cases/helpers/edit_header.html" %}
-                {% include 'common/error_summary.html' %}
-                    <form method="post" action="{% url 'notifications:edit-reminder-task' task.id %}">
-                    {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Delete reminder"
-                                name="delete"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                        </div>
-                    </div>
-                </form>
+            <div class="govuk-grid-column-full govuk-button-group">
+                <input
+                    type="submit"
+                    value="Save"
+                    name="save"
+                    class="govuk-button"
+                    data-module="govuk-button"
+                />
+                <input
+                    type="submit"
+                    value="Delete reminder"
+                    name="delete"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button"
+                />
             </div>
         </div>
-    </main>
-</div>
+    </form>
 {% endblock %}
