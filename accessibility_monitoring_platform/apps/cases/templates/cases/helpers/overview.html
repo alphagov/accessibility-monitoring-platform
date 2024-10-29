@@ -4,7 +4,6 @@
     <p class="govuk-body-m amp-margin-bottom-10">{{ case.created|amp_date }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Last edited</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{{ case.last_edited|amp_date }}</p>
-    {% include 'cases/helpers/overview_status.html' %}
     {% include "audits/helpers/numbers_of_issues.html" with audit=case.audit %}
     <h2 class="govuk-heading-s amp-margin-bottom-5">Comments</h2>
     <p class="govuk-body-m amp-margin-bottom-10">
@@ -23,6 +22,16 @@
             (<a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
         {% else %}
             <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Create</a>
+        {% endif %}
+    </p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Overdue</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">
+        {% if case.overdue_link %}
+            <a href="{{ case.overdue_link.url }}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.overdue_link.label }}
+            </a>
+        {% else %}
+            Not overdue
         {% endif %}
     </p>
 </div>

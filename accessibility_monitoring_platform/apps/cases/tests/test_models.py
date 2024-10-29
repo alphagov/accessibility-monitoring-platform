@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
+from django.urls import reverse
 from pytest_django.asserts import assertQuerySetEqual
 
 from ...audits.models import (
@@ -28,6 +29,7 @@ from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     CaseCompliance,
+    CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
     ZendeskTicket,
@@ -59,6 +61,35 @@ NO_CONTACT_DATE: date = date(2020, 4, 1)
 NO_CONTACT_ONE_WEEK: date = NO_CONTACT_DATE + timedelta(days=7)
 NO_CONTACT_FOUR_WEEKS: date = NO_CONTACT_DATE + timedelta(days=28)
 TODAY: date = date.today()
+YESTERDAY = TODAY - timedelta(days=1)
+ONE_WEEK_AGO = TODAY - timedelta(days=7)
+TWO_WEEKS_AGO = TODAY - timedelta(days=14)
+THREE_WEEKS_AGO = TODAY - timedelta(days=21)
+FOUR_WEEKS_AGO = TODAY - timedelta(days=28)
+FIVE_WEEKS_AGO = TODAY - timedelta(days=35)
+ELEVEN_WEEKS_AGO = TODAY - timedelta(days=77)
+TWELVE_WEEKS_AGO = TODAY - timedelta(days=84)
+THIRTEEN_WEEKS_AGO = TODAY - timedelta(days=91)
+FOURTEEN_WEEKS_AGO = TODAY - timedelta(days=98)
+
+
+def create_case() -> Case:
+    user: User = User.objects.create()
+    case: Case = create_case_and_compliance(
+        created=datetime.now().tzinfo,
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        report_draft_url="https://www.report-draft.com",
+        report_review_status=Boolean.YES,
+        reviewer=user,
+        report_approved_status=Case.ReportApprovedStatus.APPROVED,
+        report_final_pdf_url="https://www.report-pdf.com",
+        report_final_odt_url="https://www.report-odt.com",
+    )
+    return case
 
 
 @pytest.fixture
@@ -1455,3 +1486,188 @@ def test_show_12_week_retest():
     audit.retest_date = TODAY
 
     assert case.show_12_week_retest is True
+
+
+@pytest.mark.django_db
+def test_overdue_link_seven_day_no_contact():
+    """
+    Check overdue link if report is ready to send and seven day no
+    contact email sent date is more than seven days ago and no
+    chaser emails have been sent.
+    """
+    case: Case = create_case()
+
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.save()
+
+    assert case.overdue_link is not None
+    assert case.overdue_link.label == "No contact details response overdue"
+    assert case.overdue_link.url == reverse(
+        "cases:edit-request-contact-details", kwargs={"pk": case.id}
+    )
+
+
+@pytest.mark.django_db
+def test_overdue_link_no_contact_one_week_chaser():
+    """
+    Check overdue link if report is ready to send and seven day no
+    contact email sent date is more than seven days ago and only the
+    one week chaser email has been sent.
+    """
+    case: Case = create_case()
+
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.seven_day_no_contact_email_sent_date = TWO_WEEKS_AGO
+    case.no_contact_one_week_chaser_due_date = TODAY
+    case.save()
+
+    assert case.overdue_link is not None
+    assert case.overdue_link.label == "No contact details response overdue"
+    assert case.overdue_link.url == reverse(
+        "cases:edit-request-contact-details", kwargs={"pk": case.id}
+    )
+
+
+@pytest.mark.django_db
+def test_overdue_link_no_contact_four_week_chaser():
+    """
+    Check overdue link if report is ready to send and seven day no
+    contact email sent date is more than seven days ago and only the
+    four week chaser email has been sent.
+    """
+    case: Case = create_case()
+
+    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.seven_day_no_contact_email_sent_date = TWO_WEEKS_AGO
+    case.no_contact_four_week_chaser_due_date = TODAY
+    case.save()
+
+    assert case.overdue_link is not None
+    assert case.overdue_link.label == "No contact details response overdue"
+    assert case.overdue_link.url == reverse(
+        "cases:edit-request-contact-details", kwargs={"pk": case.id}
+    )
+
+
+@pytest.mark.django_db
+def test_overdue_link_report_one_week_followup():
+    """
+    Check overdue link if case is in report correspondence,
+    the one week followup is due but not sent.
+    """
+    case: Case = create_case()
+
+    case.report_followup_week_1_due_date = ONE_WEEK_AGO
+    case.save()
+    case.status.status = CaseStatus.Status.IN_REPORT_CORES
+
+    assert case.overdue_link is not None
+    assert case.overdue_link.label == "1-week follow-up to report due"
+    assert case.overdue_link.url == reverse(
+        "cases:edit-report-one-week-followup", kwargs={"pk": case.id}
+    )
+
+
+@pytest.mark.django_db
+def test_overdue_link_report_four_week_followup():
+    """
+    Check overdue link if case is in report correspondence,
+    the four week followup is due but not sent.
+    """
+    case: Case = create_case()
+
+    case.report_followup_week_4_due_date = ONE_WEEK_AGO
+    case.report_followup_week_1_sent_date = ONE_WEEK_AGO
+    case.save()
+    case.status.status = CaseStatus.Status.IN_REPORT_CORES
+
+    assert case.overdue_link is not None
+    assert case.overdue_link.label == "4-week follow-up to report due"
+    assert case.overdue_link.url == reverse(
+        "cases:edit-report-four-week-followup", kwargs={"pk": case.id}
+    )
+
+
+@pytest.mark.django_db
+def test_overdue_link_report_four_week_followup_sent_one_week_ago():
+    """
+    Check overdue link if case is in report correspondence,
+    the four week followup was sent over a week ago.
+    """
+    case: Case = create_case()
+
+    case.report_followup_week_4_due_date = FOUR_WEEKS_AGO
+    case.report_followup_week_1_sent_date = FOUR_WEEKS_AGO
+    case.report_followup_week_4_sent_date = ONE_WEEK_AGO
+    case.save()
+    case.status.status = CaseStatus.Status.IN_REPORT_CORES
+
+    assert case.overdue_link is not None
+    assert (
+        case.overdue_link.label
+        == "4-week follow-up to report sent, case needs to progress"
+    )
+    assert case.overdue_link.url == reverse(
+        "cases:edit-report-acknowledged", kwargs={"pk": case.id}
+    )
+
+
+@pytest.mark.django_db
+def test_overdue_link_12_week_deadline_due():
+    """
+    Check overdue link if case is awaiting 12-week deadline,
+    the 12-week due date has passed.
+    """
+    case: Case = create_case()
+
+    case.report_followup_week_12_due_date = ONE_WEEK_AGO
+    case.save()
+    case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
+
+    assert case.overdue_link is not None
+    assert case.overdue_link.label == "12-week update due"
+    assert case.overdue_link.url == reverse(
+        "cases:edit-12-week-update-requested", kwargs={"pk": case.id}
+    )
+
+
+@pytest.mark.django_db
+def test_overdue_link_12_week_correspondence_1_week_chaser_due():
+    """
+    Check overdue link if case is in 12-week correspondence,
+    the 1-week chaser due date has passed.
+    """
+    case: Case = create_case()
+
+    case.twelve_week_update_requested_date = TWO_WEEKS_AGO
+    case.twelve_week_1_week_chaser_due_date = ONE_WEEK_AGO
+    case.save()
+    case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
+
+    assert case.overdue_link is not None
+    assert case.overdue_link.label == "1-week follow-up due"
+    assert case.overdue_link.url == reverse(
+        "cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
+    )
+
+
+@pytest.mark.django_db
+def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
+    """
+    Check overdue link if case is in 12-week correspondence,
+    the 1-week chaser was sent a week ago.
+    """
+    case: Case = create_case()
+
+    case.twelve_week_update_requested_date = TWO_WEEKS_AGO
+    case.twelve_week_1_week_chaser_due_date = ONE_WEEK_AGO
+    case.twelve_week_1_week_chaser_sent_date = ONE_WEEK_AGO
+    case.save()
+    case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
+
+    assert case.overdue_link is not None
+    assert case.overdue_link.label == "1-week follow-up sent, case needs to progress"
+    assert case.overdue_link.url == reverse(
+        "cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}
+    )
