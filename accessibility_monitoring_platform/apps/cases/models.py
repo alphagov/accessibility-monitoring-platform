@@ -1032,7 +1032,7 @@ class Case(VersionModel):
         return links_count
 
     @property
-    def overdue_link(self) -> Link | None:
+    def overdue_link(self) -> Link:
         """Return link to edit Case if it is overdue"""
         kwargs_case_pk: dict[str, int] = {"pk": self.id}
         start_date: date = date(2020, 1, 1)
@@ -1130,6 +1130,9 @@ class Case(VersionModel):
                 and self.twelve_week_1_week_chaser_sent_date <= seven_days_ago
             ):
                 return self.twelve_week_correspondence_progress
+        return Link(
+            label="Go to case", url=reverse("cases:case-detail", kwargs=kwargs_case_pk)
+        )
 
 
 class CaseStatus(models.Model):
