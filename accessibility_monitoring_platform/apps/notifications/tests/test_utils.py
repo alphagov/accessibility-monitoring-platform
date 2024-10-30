@@ -8,7 +8,7 @@ from django.http import HttpRequest
 from django.urls import reverse
 
 from ...audits.models import Retest
-from ...cases.models import Case, CaseCompliance, CaseStatus, EqualityBodyCorrespondence
+from ...cases.models import Case, CaseCompliance, EqualityBodyCorrespondence
 from ...cases.utils import create_case_and_compliance
 from ...cases.views import (
     calculate_report_followup_dates,
@@ -18,7 +18,6 @@ from ...common.models import Boolean, Link
 from ..models import NotificationSetting, Task
 from ..utils import (
     add_task,
-    build_overdue_task_options,
     build_task_list,
     exclude_cases_with_pending_reminders,
     get_number_of_tasks,
@@ -763,58 +762,6 @@ def test_get_number_of_tasks():
     )
 
     assert get_number_of_tasks(user=user) == 1
-
-
-@pytest.mark.django_db
-def test_build_overdue_task_options_report_ready():
-    """Test build_overdue_task_options with report ready to send"""
-    case: Case = Case.objects.create()
-    case.status.status = CaseStatus.Status.REPORT_READY_TO_SEND
-    option: Link = Link(
-        label="No contact details response overdue",
-        url=reverse("cases:edit-request-contact-details", kwargs={"pk": case.id}),
-    )
-
-    assert build_overdue_task_options(case=case) == [option]
-
-
-@pytest.mark.django_db
-def test_build_overdue_task_options_report_cores():
-    """Test build_overdue_task_options with in report correspondence"""
-    case: Case = Case.objects.create()
-    case.status.status = CaseStatus.Status.IN_REPORT_CORES
-    option: Link = Link(
-        label=case.in_report_correspondence_progress.label,
-        url=reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
-    )
-
-    assert build_overdue_task_options(case=case) == [option]
-
-
-@pytest.mark.django_db
-def test_build_overdue_task_options_12_week_deadline():
-    """Test build_overdue_task_options with awaiting 12-week deadline"""
-    case: Case = Case.objects.create()
-    case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
-    option: Link = Link(
-        label="12-week update due",
-        url=reverse("cases:edit-12-week-update-requested", kwargs={"pk": case.id}),
-    )
-
-    assert build_overdue_task_options(case=case) == [option]
-
-
-@pytest.mark.django_db
-def test_build_overdue_task_options_12_week_cores():
-    """Test build_overdue_task_options with 12-week correspondence"""
-    case: Case = Case.objects.create()
-    case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
-    option: Link = Link(
-        label=case.twelve_week_correspondence_progress.label,
-        url=reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
-    )
-
-    assert build_overdue_task_options(case=case) == [option]
 
 
 def test_get_tasks_by_type_count():

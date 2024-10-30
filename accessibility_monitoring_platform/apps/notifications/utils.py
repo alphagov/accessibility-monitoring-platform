@@ -192,34 +192,6 @@ def get_overdue_cases(user_request: User | None) -> list[Case]:
     return sorted_overdue_cases
 
 
-def build_overdue_task_options(case: Case) -> list[Link]:
-    """Build list of options for overdue case task"""
-    kwargs_case_pk: dict[str, int] = {"pk": case.id}
-    if case.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
-        return [
-            Link(
-                label="No contact details response overdue",
-                url=reverse(
-                    "cases:edit-request-contact-details", kwargs=kwargs_case_pk
-                ),
-            )
-        ]
-    if case.status.status == CaseStatus.Status.IN_REPORT_CORES:
-        return [case.in_report_correspondence_progress]
-    if case.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
-        return [
-            Link(
-                label="12-week update due",
-                url=reverse(
-                    "cases:edit-12-week-update-requested", kwargs=kwargs_case_pk
-                ),
-            )
-        ]
-    if case.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
-        return [case.twelve_week_correspondence_progress]
-    return []
-
-
 def get_post_case_tasks(user: User) -> list[Task]:
     """
     Return list of tasks for unresolved equality body correspondence
@@ -324,7 +296,7 @@ def build_task_list(user: User | None, **kwargs: dict[str, str]) -> list[Task]:
                 description=overdue_case.status.get_status_display(),
                 action="Chase overdue response",
             )
-            task.options = build_overdue_task_options(case=overdue_case)
+            task.options = [overdue_case.overdue_link]
             tasks.append(task)
 
     if type is None or type == Task.Type.POSTCASE:
