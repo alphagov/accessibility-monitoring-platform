@@ -1105,7 +1105,8 @@ class Case(VersionModel):
 
         if self.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
             if (
-                self.report_followup_week_12_due_date > start_date
+                self.report_followup_week_12_due_date != None
+                and self.report_followup_week_12_due_date > start_date
                 and self.report_followup_week_12_due_date <= end_date
             ):
                 return Link(
@@ -1117,13 +1118,15 @@ class Case(VersionModel):
 
         if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
             if (
-                self.twelve_week_1_week_chaser_due_date > start_date
+                self.twelve_week_1_week_chaser_due_date != None
+                and self.twelve_week_1_week_chaser_due_date > start_date
                 and self.twelve_week_1_week_chaser_due_date <= end_date
                 and self.twelve_week_1_week_chaser_sent_date is None
             ):
                 return self.twelve_week_correspondence_progress
             if (
-                self.twelve_week_1_week_chaser_sent_date > start_date
+                self.twelve_week_1_week_chaser_sent_date != None
+                and self.twelve_week_1_week_chaser_sent_date > start_date
                 and self.twelve_week_1_week_chaser_sent_date <= seven_days_ago
             ):
                 return self.twelve_week_correspondence_progress

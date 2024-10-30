@@ -1,5 +1,6 @@
 <h2 class="govuk-heading-m">Overview</h2>
 <div class="amp-left-border">
+    {% include 'cases/helpers/overview_status.html' %}
     <h2 class="govuk-heading-s amp-margin-bottom-5">Date created</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{{ case.created|amp_date }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Last edited</h2>
