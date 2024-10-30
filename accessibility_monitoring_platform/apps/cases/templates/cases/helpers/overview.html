@@ -27,7 +27,7 @@
     </p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Overdue</h2>
     <p class="govuk-body-m amp-margin-bottom-10">
-        {% if case.overdue_link %}
+        {% if case.overdue_link and case.overdue_link.label != "Go to case" %}
             <a href="{{ case.overdue_link.url }}" class="govuk-link govuk-link--no-visited-state">
                 {{ case.overdue_link.label }}
             </a>
