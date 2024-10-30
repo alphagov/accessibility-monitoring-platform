@@ -958,6 +958,12 @@ class Case(VersionModel):
         return self.equalitybodycorrespondence_set.filter(is_deleted=False)
 
     @property
+    def equality_body_correspondences_unresolved_count(self):
+        return self.equality_body_correspondences.filter(
+            status=EqualityBodyCorrespondence.Status.UNRESOLVED,
+        ).count()
+
+    @property
     def equality_body_questions(self):
         return self.equality_body_correspondences.filter(
             type=EqualityBodyCorrespondence.Type.QUESTION
@@ -1024,6 +1030,106 @@ class Case(VersionModel):
             ):
                 links_count += 1
         return links_count
+
+    @property
+    def overdue_link(self) -> Link | None:
+        """Return link to edit Case if it is overdue"""
+        kwargs_case_pk: dict[str, int] = {"pk": self.id}
+        start_date: date = date(2020, 1, 1)
+        end_date: date = date.today()
+        seven_days_ago = date.today() - timedelta(days=7)
+
+        if (
+            self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND
+            and self.contact_details_found == Case.ContactDetailsFound.NOT_FOUND
+        ):
+            if (
+                self.seven_day_no_contact_email_sent_date != None
+                and self.seven_day_no_contact_email_sent_date > start_date
+                and self.seven_day_no_contact_email_sent_date <= seven_days_ago
+                and self.no_contact_one_week_chaser_sent_date is None
+                and self.no_contact_four_week_chaser_sent_date is None
+            ):
+                return Link(
+                    label="No contact details response overdue",
+                    url=reverse(
+                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                    ),
+                )
+            if (
+                self.no_contact_one_week_chaser_due_date != None
+                and self.no_contact_one_week_chaser_due_date > start_date
+                and self.no_contact_one_week_chaser_due_date <= end_date
+                and self.no_contact_one_week_chaser_sent_date is None
+            ):
+                return Link(
+                    label="No contact details response overdue",
+                    url=reverse(
+                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                    ),
+                )
+            if (
+                self.no_contact_four_week_chaser_due_date != None
+                and self.no_contact_four_week_chaser_due_date > start_date
+                and self.no_contact_four_week_chaser_due_date <= end_date
+                and self.no_contact_four_week_chaser_sent_date is None
+            ):
+                return Link(
+                    label="No contact details response overdue",
+                    url=reverse(
+                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                    ),
+                )
+
+        if self.status.status == CaseStatus.Status.IN_REPORT_CORES:
+            if (
+                self.report_followup_week_1_due_date != None
+                and self.report_followup_week_1_due_date > start_date
+                and self.report_followup_week_1_due_date <= end_date
+                and self.report_followup_week_1_sent_date is None
+            ):
+                return self.in_report_correspondence_progress
+            if (
+                self.report_followup_week_4_due_date != None
+                and self.report_followup_week_4_due_date > start_date
+                and self.report_followup_week_4_due_date <= end_date
+                and self.report_followup_week_4_sent_date is None
+            ):
+                return self.in_report_correspondence_progress
+            if (
+                self.report_followup_week_4_sent_date != None
+                and self.report_followup_week_4_sent_date > start_date
+                and self.report_followup_week_4_sent_date <= seven_days_ago
+            ):
+                return self.in_report_correspondence_progress
+
+        if self.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
+            if (
+                self.report_followup_week_12_due_date != None
+                and self.report_followup_week_12_due_date > start_date
+                and self.report_followup_week_12_due_date <= end_date
+            ):
+                return Link(
+                    label="12-week update due",
+                    url=reverse(
+                        "cases:edit-12-week-update-requested", kwargs=kwargs_case_pk
+                    ),
+                )
+
+        if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
+            if (
+                self.twelve_week_1_week_chaser_due_date != None
+                and self.twelve_week_1_week_chaser_due_date > start_date
+                and self.twelve_week_1_week_chaser_due_date <= end_date
+                and self.twelve_week_1_week_chaser_sent_date is None
+            ):
+                return self.twelve_week_correspondence_progress
+            if (
+                self.twelve_week_1_week_chaser_sent_date != None
+                and self.twelve_week_1_week_chaser_sent_date > start_date
+                and self.twelve_week_1_week_chaser_sent_date <= seven_days_ago
+            ):
+                return self.twelve_week_correspondence_progress
 
 
 class CaseStatus(models.Model):
