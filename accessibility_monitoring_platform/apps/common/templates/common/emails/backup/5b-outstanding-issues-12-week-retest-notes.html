@@ -30,7 +30,7 @@ Please review the issues listed below and provide an update.
     <tr valign="top">
     <td width=1%>{{ forloop.counter }}</td>
     <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
-        <p><a href="{{ check_result.wcag_definition.url }}">{{ check_result.wcag_definition.name }}</a></p>
+        <p><a href="{{ check_result.wcag_definition.url_on_w3 }}">{{ check_result.wcag_definition.name }}</a></p>
         {{ check_result.notes|markdown_to_html }}
     </td>
     <td headers="retest-notes-{{ forloop.parentloop.counter }}" width=33%>{{ check_result.retest_notes|markdown_to_html }}</td>
