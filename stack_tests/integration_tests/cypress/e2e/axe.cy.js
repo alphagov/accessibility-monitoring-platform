@@ -64,6 +64,7 @@ const loggedInUrls = [
   '/cases/1/email-template-list/',
   '/cases/1/1/email-template-preview/',
   '/cases/1/view/',
+  '/cases/1/view-and-search/',
   '/cases/contacts/1/edit-contact-update/',
   '/cases/create/',
   '/common/contact/',

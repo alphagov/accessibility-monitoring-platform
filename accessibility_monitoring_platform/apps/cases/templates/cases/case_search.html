@@ -26,7 +26,7 @@
                     {% for case_detail_section in case_detail_sections %}
                         <li>
                             <a href="#page-group-{{ forloop.counter }}-{{ case_detail_section.page_group_name|slugify }}" class="govuk-link govuk-link--no-visited-state">
-                                {{ case_detail_section.page_group_name }}
+                                {{ case_detail_section.page_group_name }}</a>
                         </li>
                     {% endfor %}
                 </ul>

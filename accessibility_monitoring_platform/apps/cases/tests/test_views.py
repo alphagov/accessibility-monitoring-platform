@@ -1992,49 +1992,6 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
 
 
 @pytest.mark.parametrize(
-    "flag_name, section_name, edit_url_name",
-    [
-        (
-            "publish_report_complete_date",
-            "Publish report",
-            "edit-publish-report",
-        ),
-    ],
-)
-def test_no_anchor_section_complete_check_displayed(
-    flag_name, section_name, edit_url_name, admin_client
-):
-    """
-    Test that the section complete tick is displayed in contents where there is no anchor
-    """
-    case: Case = Case.objects.create()
-    setattr(case, flag_name, TODAY)
-    case.save()
-    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
-    Report.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<li>
-            {section_name} |
-            <a id="edit-{slugify(edit_url)}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
-                Edit
-            </a>
-            <span class="govuk-visually-hidden">complete</span>
-            &check;
-            <ul class="amp-nav-list-subpages"></ul>
-        </li>""",
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
     "case_page_url",
     [
         "cases:edit-case-metadata",
