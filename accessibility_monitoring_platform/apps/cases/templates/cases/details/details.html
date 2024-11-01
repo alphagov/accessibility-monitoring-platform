@@ -1,19 +1,16 @@
-<h2 class="govuk-heading-m" id="{{ case_detail_section.page.url|slugify }}">
-    {% if case_detail_section.page.platform_page_group_name %}
-        {{ case_detail_section.page.platform_page_group_name }} |
+<h3 class="govuk-heading-s" id="{{ case_detail_page.page.url|slugify }}">
+    {% if case_detail_page.page.platform_page_group_name %}
+        {{ case_detail_page.page.platform_page_group_name }} |
     {% endif %}
-    {{ case_detail_section.page.get_name }}
-    {% if case_detail_section.page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
-</h2>
-<p class="govuk-body">
-    <a href="{{ case_detail_section.page.url }}" class="govuk-link govuk-link--no-visited-state">Edit</a>
-</p>
+    <a href="{{ case_detail_page.page.url }}" class="govuk-link govuk-link--no-visited-state">{{ case_detail_page.page.get_name }}</a>
+    {% if case_detail_page.page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
+</h3>
 {% block pretable %}{% endblock %}
 {% block table %}
-<table class="govuk-table" data-search-target-page-name="{% if case_detail_section.page.platform_page_group_name %}{{ case_detail_section.page.platform_page_group_name }} | {% endif %}{{ case_detail_section.page.get_name }}" data-search-target-label="Edit" data-search-target-url="{{ case_detail_section.page.url }}">
+<table class="govuk-table" data-search-target-page-name="{% if case_detail_page.page.platform_page_group_name %}{{ case_detail_page.page.platform_page_group_name }} | {% endif %}{{ case_detail_page.page.get_name }}" data-search-target-label="Edit" data-search-target-url="{{ case_detail_page.page.url }}">
     <tbody class="govuk-table__body">
         {% block prefixrows %}{% endblock %}
-        {% for display_field in case_detail_section.display_fields %}
+        {% for display_field in case_detail_page.display_fields %}
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ display_field.label }}</th>
                 <td class="govuk-table__cell amp-width-one-half{% if display_field.type == 'notes' %} amp-notes{% endif %}">

@@ -23,10 +23,11 @@
                             {% include 'cases/details/archive_section_link.html' with section=archived_section %}
                         {% endfor %}
                     {% endif %}
-                    {% for platform_page_group in sitemap.platform_page_groups %}
-                        {% if platform_page_group.show %}
-                            <li>{{ platform_page_group.name }}</li>
-                        {% endif %}
+                    {% for case_detail_section in case_detail_sections %}
+                        <li>
+                            <a href="#page-group-{{ forloop.counter }}-{{ case_detail_section.page_group_name|slugify }}" class="govuk-link govuk-link--no-visited-state">
+                                {{ case_detail_section.page_group_name }}
+                        </li>
                     {% endfor %}
                 </ul>
             </div>
@@ -44,7 +45,12 @@
                     {% include 'cases/details/archive.html' %}
                 {% endif %}
                 {% for case_detail_section in case_detail_sections %}
-                    {% include case_detail_section.page.case_details_template_name %}
+                    <h2 id="page-group-{{ forloop.counter }}-{{ case_detail_section.page_group_name|slugify }}" class="govuk-heading-m">
+                        {{ case_detail_section.page_group_name }}
+                    </h2>
+                    {% for case_detail_page in case_detail_section.pages %}
+                        {% include case_detail_page.page.case_details_template_name %}
+                    {% endfor %}
                 {% endfor %}
             </div>
         </div>

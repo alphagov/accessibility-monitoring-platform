@@ -1,10 +1,10 @@
 {% extends 'cases/details/details.html' %}
 
 {% block table %}
-    {% if case_detail_section.page.object.failed_check_results %}
-        <table class="govuk-table" data-search-target-page-name="{% if case_detail_section.page.platform_page_group_name %}{{ case_detail_section.page.platform_page_group_name }} | {% endif %}{{ case_detail_section.page.get_name }}" data-search-target-label="Edit" data-search-target-url="{{ case_detail_section.page.url }}">
+    {% if case_detail_page.page.object.failed_check_results %}
+        <table class="govuk-table" data-search-target-page-name="{% if case_detail_page.page.platform_page_group_name %}{{ case_detail_page.page.platform_page_group_name }} | {% endif %}{{ case_detail_page.page.get_name }}" data-search-target-label="Edit" data-search-target-url="{{ case_detail_page.page.url }}">
             <tbody class="govuk-table__body">
-                {% for check_result in case_detail_section.page.object.failed_check_results %}
+                {% for check_result in case_detail_page.page.object.failed_check_results %}
                     <tr class="govuk-table__row ">
                         <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">{{ check_result.wcag_definition }}</th>
                         <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes|markdown_to_html }}</td>
