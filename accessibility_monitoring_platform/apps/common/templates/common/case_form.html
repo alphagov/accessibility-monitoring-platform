@@ -16,12 +16,14 @@
         {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-quarter amp-padding-left-0">
-                {% if case.archive %}
-                    <p class="govuk-body-s amp-margin-bottom-10">
-                        <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">Archived case</a>
-                    </p>
-                {% endif %}
-                {% include "cases/helpers/case_nav.html" %}
+                {% block nav %}
+                    {% if case.archive %}
+                        <p class="govuk-body-s amp-margin-bottom-10">
+                            <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">Archived case</a>
+                        </p>
+                    {% endif %}
+                    {% include "cases/helpers/case_nav.html" %}
+                {% endblock %}
             </div>
             <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
                 {% block header %}
