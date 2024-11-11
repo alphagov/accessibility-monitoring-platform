@@ -348,6 +348,10 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
+    @property
+    def show(self):
+        return False
+
 
 class RetestOverviewPlatformPage(CasePlatformPage):
     def populate_from_case(self, case: Case):
@@ -1133,6 +1137,8 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Legacy end of case data",
                 url_name="cases:legacy-end-of-case",
                 show_flag_name="archive",
+                case_details_form_class=CaseStatementEnforcementUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
         ],
     ),
