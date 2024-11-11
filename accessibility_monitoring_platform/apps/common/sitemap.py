@@ -1040,6 +1040,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 subpages=[
                     EqualityBodyRetestPlatformPage(
                         name="Retest #{object.id_within_case}",
+                        url_name="audits:retest-metadata-update",
                         subpages=[
                             EqualityBodyRetestPlatformPage(
                                 name="Retest metadata",
