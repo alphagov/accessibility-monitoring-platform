@@ -348,6 +348,10 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
+    @property
+    def show(self):
+        return False
+
 
 class RetestOverviewPlatformPage(CasePlatformPage):
     def populate_from_case(self, case: Case):
@@ -1040,7 +1044,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 subpages=[
                     EqualityBodyRetestPlatformPage(
                         name="Retest #{object.id_within_case}",
-                        url_name="audits:retest-metadata-update",
                         subpages=[
                             EqualityBodyRetestPlatformPage(
                                 name="Retest metadata",
@@ -1134,6 +1137,8 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Legacy end of case data",
                 url_name="cases:legacy-end-of-case",
                 show_flag_name="archive",
+                case_details_form_class=CaseStatementEnforcementUpdateForm,
+                case_details_template_name="cases/details/details.html",
             ),
         ],
     ),
@@ -1344,7 +1349,8 @@ def add_pages(pages: list[PlatformPage], platform_page_group: PlatformPageGroup)
                 logger.warning(
                     "Duplicate page url_name found %s %s", page.url_name, page
                 )
-            SITEMAP_BY_URL_NAME[page.url_name] = page
+            else:
+                SITEMAP_BY_URL_NAME[page.url_name] = page
         if page.subpages is not None:
             add_pages(pages=page.subpages, platform_page_group=platform_page_group)
 
