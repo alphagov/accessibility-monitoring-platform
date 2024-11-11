@@ -1344,8 +1344,7 @@ def add_pages(pages: list[PlatformPage], platform_page_group: PlatformPageGroup)
                 logger.warning(
                     "Duplicate page url_name found %s %s", page.url_name, page
                 )
-            else:
-                SITEMAP_BY_URL_NAME[page.url_name] = page
+            SITEMAP_BY_URL_NAME[page.url_name] = page
         if page.subpages is not None:
             add_pages(pages=page.subpages, platform_page_group=platform_page_group)
 
