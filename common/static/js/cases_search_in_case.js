@@ -74,11 +74,12 @@ function searchInCase() {
           ${childElement.innerHTML.replaceAll(notInsideHTMLTagRegex, '<b>$&</b>')}
         </div>`
       )
+      const targetPagePrefix = searchable.targetPageName !== '' ? `<b>${searchable.targetPageName}</b> |` : ''
       resultsString += `
         <div class="govuk-grid-row amp-margin-bottom-30">
           <div class="govuk-grid-column-full">
             <p class="govuk-body amp-margin-bottom-5">
-              <b>${searchable.targetPageName}</b> |
+              ${targetPagePrefix}
               <a href="${searchable.targetUrl}" class="govuk-link govuk-link--no-visited-state">
                 ${searchable.targetLabel}
               </a>
@@ -88,10 +89,17 @@ function searchInCase() {
         </div>`
     })
     const resultsLabel = matchingSearchables.length == 1 ? 'result' : 'results'
+    const linkToAllCaseData = searchInputElement.dataset.linkToAllCaseData !== undefined ? `
+      <p class="govuk-body">
+        View complete results in
+        <a href="${searchInputElement.dataset.linkToAllCaseData}?case_search=${searchInputElement.value}" class="govuk-link govuk-link--no-visited-state">
+          all case data</a>
+      </p>` : ''
     searchResultsElement.innerHTML = `
       <p class="govuk-body">
         Found ${matchingSearchables.length} ${resultsLabel} for <b>${searchInputElement.value}</b>
       </p>
+      ${linkToAllCaseData}
       ${resultsString}`
     searchResultsElement.style.display = 'block'
   }
@@ -112,6 +120,14 @@ function clearSearchInCase() {
   const searchResultsElement = document.getElementById('search-results')
   searchResultsElement.innerHTML = ''
   searchResultsElement.style.display = 'none'
+}
+
+if (window.location.search !== undefined) {
+  const queryString = window.location.search
+  const urlParams = new URLSearchParams(queryString)
+  const searchInputElement = document.getElementById('id_search_in_case')
+  searchInputElement.value = urlParams.get('case_search')
+  searchInCase()
 }
 
 module.exports = {

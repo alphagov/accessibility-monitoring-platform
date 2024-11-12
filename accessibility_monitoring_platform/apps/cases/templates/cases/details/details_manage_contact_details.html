@@ -3,7 +3,7 @@
 {% block pretable %}
     {% for contact in case.contacts %}
         <p class="govuk-body-m"><b>Contact {{ forloop.counter }}</b></p>
-        <table class="govuk-table" data-search-target-page-name="{% if case_detail_page.page.platform_page_group_name %}{{ case_detail_page.page.platform_page_group_name }} | {% endif %}{{ case_detail_page.page.get_name }}" data-search-target-label="Edit" data-search-target-url="{{ case_detail_page.page.url }}">
+        <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group_name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
             <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Name</th>
@@ -34,7 +34,7 @@
     {% if case.zendesk_tickets %}
         {% for zendesk_ticket in case.zendesk_tickets %}
             <p class="govuk-body-m"><b>PSB Zendesk ticket #{{ zendesk_ticket.id_within_case }}</b></p>
-            <table class="govuk-table" data-search-target-page-name="PSB Zendesk tickets" data-search-target-label="Edit" data-search-target-url="{% url 'cases:zendesk-tickets' case.id %}">
+            <table class="govuk-table" data-search-target-page-name="" data-search-target-label="PSB Zendesk tickets" data-search-target-url="{% url 'cases:zendesk-tickets' case.id %}">
                 <tbody class="govuk-table__body">
                     <tr class="govuk-table__row">
                         <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Summary</th>

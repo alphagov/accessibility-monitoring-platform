@@ -7,7 +7,8 @@
                 name="search_in_case"
                 placeholder="Search"
                 class="govuk-input"
-                id="id_search_in_case">
+                id="id_search_in_case"
+                data-link-to-all-case-data="{% url 'cases:case-view-and-search' case.id %}">
         </div>
     </div>
 </div>

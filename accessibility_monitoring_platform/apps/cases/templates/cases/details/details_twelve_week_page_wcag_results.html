@@ -2,7 +2,7 @@
 
 {% block table %}
     {% if case_detail_page.page.object.failed_check_results %}
-        <table class="govuk-table" data-search-target-page-name="{% if case_detail_page.page.platform_page_group_name %}{{ case_detail_page.page.platform_page_group_name }} | {% endif %}{{ case_detail_page.page.get_name }}" data-search-target-label="Edit" data-search-target-url="{{ case_detail_page.page.url }}">
+        <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group_name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
             <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header amp-width-one-third">WCAG issue</th>
