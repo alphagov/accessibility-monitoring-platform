@@ -16,7 +16,7 @@ const psbAppealNote = 'PSB appeal note'
 const zenUrl = 'https://zendesk.com/ticket'
 const zenSummary = 'Zendesk ticket summary'
 
-describe('View case', () => {
+describe('Case overview', () => {
   beforeEach(() => {
     cy.session('login', cy.login, { cacheAcrossSpecs: true })
     cy.visit('/cases/1/view')
@@ -39,7 +39,7 @@ describe('View case', () => {
     cy.get('[name="case_details_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains(/^Case$/).click()
-    cy.title().should('eq', `${organisationName} | View case`)
+    cy.title().should('eq', `${organisationName} | Case overview`)
     cy.contains(caseDetailsNote)
   })
 

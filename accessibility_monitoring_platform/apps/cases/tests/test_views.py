@@ -206,7 +206,7 @@ def add_user_to_auditor_groups(user: User) -> None:
 
 def test_archived_case_view_case_includes_contents(admin_client):
     """
-    Test that the View case page for an archived case shows links to sections
+    Test that the Case overview page for an archived case shows links to sections
     """
     case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
 
@@ -230,7 +230,7 @@ def test_archived_case_view_case_includes_contents(admin_client):
 
 def test_archived_case_view_case_includes_sections(admin_client):
     """
-    Test that the View case page for an archived case shows sections and subsections.
+    Test that the Case overview page for an archived case shows sections and subsections.
     """
     case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
 
@@ -263,7 +263,7 @@ def test_archived_case_view_case_includes_sections(admin_client):
 
 def test_archived_case_view_case_includes_fields(admin_client):
     """
-    Test that the View case page for an archived case shows fields
+    Test that the Case overview page for an archived case shows fields
     """
     case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
 
@@ -322,7 +322,7 @@ def test_archived_case_view_case_includes_fields(admin_client):
 
 def test_archived_case_view_case_includes_post_case_sections(admin_client):
     """
-    Test that the View case page for an archived case shows expected post case.
+    Test that the Case overview page for an archived case shows expected post case.
     """
     case: Case = Case.objects.create(
         archive=json.dumps(CASE_ARCHIVE), variant=Case.Variant.ARCHIVED
@@ -341,7 +341,7 @@ def test_archived_case_view_case_includes_post_case_sections(admin_client):
 
 def test_non_archived_case_view_case_has_no_legacy_section(admin_client):
     """
-    Test that the View case page for a non-archived case has no
+    Test that the Case overview page for a non-archived case has no
     legacy section.
     """
     case: Case = Case.objects.create(variant=Case.Variant.CLOSE_CASE)
@@ -359,7 +359,7 @@ def test_non_archived_case_view_case_has_no_legacy_section(admin_client):
 
 def test_view_case_includes_tests(admin_client):
     """
-    Test that the View case displays test and 12-week retest.
+    Test that the Case overview displays test and 12-week retest.
     """
     case: Case = Case.objects.create()
     Audit.objects.create(case=case, retest_date=TODAY)
@@ -379,7 +379,7 @@ def test_view_case_includes_tests(admin_client):
 
 def test_view_case_includes_zendesk_tickets(admin_client):
     """
-    Test that the View case displays Zendesk tickets.
+    Test that the Case overview displays Zendesk tickets.
     """
     case: Case = Case.objects.create()
     ZendeskTicket.objects.create(
@@ -789,7 +789,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     [
         (
             "cases:case-detail",
-            '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>',
+            '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">Case overview</h1>',
         ),
         ("cases:edit-case-metadata", "<b>Case metadata</b>"),
         (

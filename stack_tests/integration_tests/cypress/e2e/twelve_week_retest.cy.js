@@ -20,7 +20,7 @@ describe('12-week retest', () => {
     cy.get('[name="audit_retest_metadata_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains(/^Case$/).click()
-    cy.title().should('eq', 'ExampleCorp | View case')
+    cy.title().should('eq', 'ExampleCorp | Case overview')
     cy.contains(retestMetadataNote)
   })
 
@@ -32,7 +32,7 @@ describe('12-week retest', () => {
     cy.get('[name="form-0-retest_notes"]').clear().type(retestErrorText)
     cy.contains('Save').click()
     cy.contains(/^Case$/).click()
-    cy.title().should('eq', 'ExampleCorp | View case')
+    cy.title().should('eq', 'ExampleCorp | Case overview')
     cy.contains(retestErrorText)
   })
 })
