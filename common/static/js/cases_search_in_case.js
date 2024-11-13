@@ -65,7 +65,11 @@ function searchInCase() {
   } else {
     const textRegex = new RegExp(searchInputElement.value, 'ig')
     const notInsideHTMLTagRegex = new RegExp(`(?<!<[^>]*)${searchInputElement.value}`, 'ig')
-    const matchingSearchables = searchables.filter(searchable => textRegex.test(searchable.text))
+    let matchingSearchables = searchables.filter(searchable => textRegex.test(searchable.text))
+    const numberOfMatches = matchingSearchables.length
+    if (searchInputElement.dataset.linkToAllCaseData !== undefined) {
+      matchingSearchables = matchingSearchables.slice(0, 3)
+    }
     let resultsString = ''
     matchingSearchables.forEach(searchable => {
       let childElementsString = ''
@@ -97,7 +101,7 @@ function searchInCase() {
       </p>` : ''
     searchResultsElement.innerHTML = `
       <p class="govuk-body">
-        Found ${matchingSearchables.length} ${resultsLabel} for <b>${searchInputElement.value}</b>
+        Found ${numberOfMatches} ${resultsLabel} for <b>${searchInputElement.value}</b>
       </p>
       ${linkToAllCaseData}
       ${resultsString}`
