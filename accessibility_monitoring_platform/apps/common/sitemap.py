@@ -331,12 +331,13 @@ class AuditRetestPagesPlatformPage(AuditPlatformPage):
             if self.subpages is not None:
                 subpage_instances: list[PlatformPage] = []
                 for page in case.audit.testable_pages:
-                    for subpage in self.subpages:
-                        if subpage.object_class == Page:
-                            subpage_instance: PlatformPage = copy.copy(subpage)
-                            subpage_instance.object = page
-                            subpage_instance.populate_subpage_objects()
-                            subpage_instances.append(subpage_instance)
+                    if page.failed_check_results.count() > 0:
+                        for subpage in self.subpages:
+                            if subpage.object_class == Page:
+                                subpage_instance: PlatformPage = copy.copy(subpage)
+                                subpage_instance.object = page
+                                subpage_instance.populate_subpage_objects()
+                                subpage_instances.append(subpage_instance)
                 self.subpages = subpage_instances
 
 

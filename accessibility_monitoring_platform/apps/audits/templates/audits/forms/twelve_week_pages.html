@@ -2,18 +2,20 @@
 
 {% block preform %}
 {% for page in case.audit.testable_pages %}
-    <h2 class="govuk-heading-m">{{ page }}</h2>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <div class="govuk-form-group">
-                <label class="govuk-label"><b>URL</b></label>
-                <div class="govuk-hint">{{ page.url }}</div>
-            </div>
-            <div class="govuk-form-group">
-                <label class="govuk-label"><b>Page location description if single page app</b></label>
-                <div class="govuk-hint">{% if page.location %}{{ page.location }}{% else %}None{% endif %}</div>
+    {% if page.failed_check_results.count > 0 %}
+        <h2 class="govuk-heading-m">{{ page }}</h2>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-form-group">
+                    <label class="govuk-label"><b>URL</b></label>
+                    <div class="govuk-hint">{{ page.url }}</div>
+                </div>
+                <div class="govuk-form-group">
+                    <label class="govuk-label"><b>Page location description if single page app</b></label>
+                    <div class="govuk-hint">{% if page.location %}{{ page.location }}{% else %}None{% endif %}</div>
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 {% endfor %}
 {% endblock %}
