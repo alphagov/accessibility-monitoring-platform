@@ -10,7 +10,14 @@ from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ...audits.models import Audit, Page, Retest, RetestPage
+from ...audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    Retest,
+    RetestPage,
+    WcagDefinition,
+)
 from ...cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
 from ...comments.models import Comment
 from ...common.models import EmailTemplate
@@ -462,8 +469,23 @@ def test_audit_retest_pages_platform_page():
 
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    Page.objects.create(audit=audit, name="Page one", url="url")
-    Page.objects.create(audit=audit, name="Page two", url="url")
+    page_1: Page = Page.objects.create(audit=audit, name="Page one", url="url")
+    page_2: Page = Page.objects.create(audit=audit, name="Page two", url="url")
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page_1,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page_2,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
 
     audit_retest_pages_platform_page.populate_from_case(case=case)
 
