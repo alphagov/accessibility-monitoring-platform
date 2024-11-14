@@ -59,6 +59,7 @@ Array.from(searchScopeElements).forEach(function(searchScopeElement) {
 
 function searchInCase() {
   const searchInputElement = document.getElementById('id_search_in_case')
+  const onCaseOverviewPage = searchInputElement.dataset.linkToAllCaseData !== undefined
   const searchResultsElement = document.getElementById('search-results')
   if (searchInputElement.value === '') {
     clearSearchInCase()
@@ -67,7 +68,7 @@ function searchInCase() {
     const notInsideHTMLTagRegex = new RegExp(`(?<!<[^>]*)${searchInputElement.value}`, 'ig')
     let matchingSearchables = searchables.filter(searchable => textRegex.test(searchable.text))
     const numberOfMatches = matchingSearchables.length
-    if (searchInputElement.dataset.linkToAllCaseData !== undefined) {
+    if (onCaseOverviewPage) {
       matchingSearchables = matchingSearchables.slice(0, 3)
     }
     let resultsString = ''
@@ -93,7 +94,7 @@ function searchInCase() {
         </div>`
     })
     const resultsLabel = matchingSearchables.length == 1 ? 'result' : 'results'
-    const linkToAllCaseData = searchInputElement.dataset.linkToAllCaseData !== undefined ? `
+    const linkToAllCaseData = onCaseOverviewPage ? `
       <p class="govuk-body">
         View complete results in
         <a href="${searchInputElement.dataset.linkToAllCaseData}?case_search=${searchInputElement.value}" class="govuk-link govuk-link--no-visited-state">
