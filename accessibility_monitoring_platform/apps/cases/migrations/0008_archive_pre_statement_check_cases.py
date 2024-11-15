@@ -763,6 +763,7 @@ def get_12_week_statement_test_subsections(
 
 
 def archive_old_fields(apps, schema_editor):  # pylint: disable=unused-argument
+    return  # No longer run this archive. It fails in prototypes with empty databases.
     if settings.UNDER_TEST or settings.INTEGRATION_TEST:
         # Migration is incompatible with unit test environment
         return
