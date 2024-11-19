@@ -123,6 +123,10 @@ METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
                 <td class="govuk-table__cell">January 2022</td>
                 <td class="govuk-table__cell govuk-table__cell--numeric">1</td>
             </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">Total</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">4</td>
+            </tr>
     </tbody>
 </table>"""
 POLICY_PROGRESS_METRIC: str = """<p id="{id}" class="govuk-body-m">

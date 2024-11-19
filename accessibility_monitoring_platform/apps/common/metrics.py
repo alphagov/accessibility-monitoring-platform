@@ -169,6 +169,7 @@ def build_html_table(
     ]
     empty_row: list[str] = ["" for _ in range(len(columns))]
     html_columns: dict[datetime, list[str]] = {}
+    totals: list[int] = [0 for column in columns]
     for timeseries in columns:
         for datapoint in timeseries.datapoints:
             html_columns[datapoint.datetime] = [
@@ -177,10 +178,16 @@ def build_html_table(
     for index, timeseries in enumerate(columns, start=1):
         for datapoint in timeseries.datapoints:
             html_columns[datapoint.datetime][index] = intcomma(datapoint.value)
+            totals[index - 1] += datapoint.value
 
+    totals_row: list[str] = [intcomma(total) for total in totals]
+    if len(totals) > 1:
+        totals_row.insert(0, "Totals")
+    else:
+        totals_row.insert(0, "Total")
     return TimeseriesHtmlTable(
         column_names=column_names,
-        rows=list(OrderedDict(sorted(html_columns.items())).values()),
+        rows=list(OrderedDict(sorted(html_columns.items())).values()) + [totals_row],
     )
 
 
