@@ -160,9 +160,7 @@ def up():
         f"""copilot app init {APP_NAME} --domain proto.accessibility-monitoring.service.gov.uk {get_aws_resource_tags()}"""
     )
 
-    env_exist: bool = does_copilot_env_already_exist(env_name=ENV_NAME)
-
-    if env_exist:
+    if does_copilot_env_already_exist(env_name=ENV_NAME):
         print(f">>> {ENV_NAME} already exists")
         restore_prototype_env_file()
 
@@ -204,14 +202,13 @@ def up():
         f"""copilot svc deploy --name viewer-svc --env {ENV_NAME} {get_aws_resource_tags(system='Viewer')}"""
     )
 
-    if env_exist is False:
-        bucket: str = get_copilot_s3_bucket()
-        sync_command = f"aws s3 sync s3://{BACKUP_DB}/ s3://{bucket}/"
-        os.system(sync_command)
-        command = "python aws_prototype/ecs_prepare_db.py"
-        copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
-        os.system(copilot_exec_cmd)
-        create_burner_account(app_name=APP_NAME, env_name=ENV_NAME)
+    bucket: str = get_copilot_s3_bucket()
+    sync_command = f"aws s3 sync s3://{BACKUP_DB}/ s3://{bucket}/"
+    os.system(sync_command)
+    command = "python aws_prototype/ecs_prepare_db.py"
+    copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
+    os.system(copilot_exec_cmd)
+    create_burner_account(app_name=APP_NAME, env_name=ENV_NAME)
 
     restore_copilot_prod_settings()
 
