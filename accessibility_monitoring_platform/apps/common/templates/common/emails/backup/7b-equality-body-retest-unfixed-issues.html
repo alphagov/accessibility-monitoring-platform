@@ -14,29 +14,29 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
 <h2 class="amp-margin-bottom-0">Overview</h2>
 <ul>
     <li>
-    Retest results:
-    <ul>
-    {% for retest_page in retest.retestpage_set.all %}
-    <li>
-    {{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %}
-    {% if retest_page.missing_date %}
-        (removed by the organisation)
-    {% else %}
-        ({{ retest_page.unfixed_check_results.count }} of {{ retest_page.original_check_results.count }}
-        issue{% if retest_page.original_check_results.count != 1 %}s{% endif %} remaining)
-    {% endif %}
-    </li>
-    {% endfor %}
-    </ul>
+        Retest results:
+        <ul>
+            {% for retest_page in retest.retestpage_set.all %}
+                <li>
+                    {{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %}
+                    {% if retest_page.missing_date %}
+                        (removed by the organisation)
+                    {% else %}
+                        ({{ retest_page.unfixed_check_results.count }} of {{ retest_page.original_check_results.count }}
+                        issue{% if retest_page.original_check_results.count != 1 %}s{% endif %} remaining)
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
     </li>
 </ul>
 <br>
 {% if retest.retest_notes %}
-        <br>
-	<h2 class="amp-margin-bottom-20">Retest notes</h2>
-        <br>
-	{{ retest.retest_notes|markdown_to_html }}
-        <br>
+    <br>
+    <h2 class="amp-margin-bottom-20">Retest notes</h2>
+    <br>
+    {{ retest.retest_notes|markdown_to_html }}
+    <br>
 {% endif %}
 <br>
 <br>
@@ -44,20 +44,20 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
 <br>
 <table id="pages-table">
     <thead>
-    <tr>
-    <td id="page-name" width=50%>Page name</td>
-    <td id="page-url" width=50%>URL</td>
-    </tr>
+        <tr>
+            <td id="page-name" width=50%>Page name</td>
+            <td id="page-url" width=50%>URL</td>
+        </tr>
     </thead>
     <tbody>
-    {% for retest_page in retest.retestpage_set.all %}
-    <tr valign="top">
-    <td headers="page-name" width=50%>{{ retest_page.page }}</td>
-    <td headers="page-url" width=50%>
-    <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
-    </td>
-    </tr>
-    {% endfor %}
+        {% for retest_page in retest.retestpage_set.all %}
+            <tr valign="top">
+                <td headers="page-name" width=50%>{{ retest_page.page }}</td>
+                <td headers="page-url" width=50%>
+                    <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
+                </td>
+            </tr>
+        {% endfor %}
     </tbody>
 </table>
 <br>
@@ -102,70 +102,72 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
 <h2 class="amp-margin-bottom-0">Errors found in retest</h2>
 <br>
 {% for retest_page in retest.retestpage_set.all %}
-    <b>{{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %} issues</b>
-    ({{ retest_page.unfixed_check_results.count }} issue{% if retest_page.unfixed_check_results.count != 1 %}s{% endif %} remaining)
-    <br>
-    <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
-    <br>
-    <br>
-    {% if retest_page.missing_date %}
-    This page has been removed by the organisation.
-    <br>
-    <br>
-    {% else %}
-    <table id="email-issues-table-{{ forloop.counter }}">
-    <thead>
-    <tr>
-    <td width=1%>#</td>
-    <td id="issue-{{ forloop.counter }}" width=33%>Issue and description</td>
-    <td id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</td>
-    <td id="retest-update-{{ forloop.counter }}" width=33%>Retest outcome</td>
-    </tr>
-    </thead>
-    <tbody>
-    {% for retest_check_result in retest_page.unfixed_check_results %}
-    <tr valign="top">
-    <td width=1%>{{ forloop.counter }}</td>
-    <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
-    {% if retest_check_result.check_result.wcag_definition.url_on_w3 %}
-    <a href="{{ retest_check_result.check_result.wcag_definition.url_on_w3 }}">
-    {{ retest_check_result.check_result.wcag_definition.name }}</a>
-    {% else %}
-    {{ retest_check_result.check_result.wcag_definition.name }}
-    {% endif %}
-    <br>
-    <br>
-    {{ retest_check_result.check_result.wcag_definition.description|markdown_to_html }}
-    <br>
-    {{ retest_check_result.check_result.wcag_definition.report_boilerplate|markdown_to_html }}
-    </td>
-    <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>
-    {{ retest_check_result.check_result.notes|markdown_to_html }}
-    </td>
-    <td headers="retest-update-{{ forloop.parentloop.counter }}" width=33%>
-    {% if retest_check_result.latest_retest_check_result %}
-    {{ retest_check_result.latest_retest_check_result.get_retest_state_display }}
-    <br>
-    <br>
-    {{ retest_check_result.latest_retest_check_result.retest_notes|markdown_to_html }}
-    {% else %}
-    Fixed in a previous retest
-    {% endif %}
-    </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-    <b>Additional issues found</b>
-    {% if retest_page.additional_issues_notes %}
-    {{ retest_page.additional_issues_notes|markdown_to_html }}
-    {% else %}
-    <br>
-    <br>
-    None
-    <br>
-    <br>
-    {% endif %}
+    {% if retest_page.missing_date or retest_page.unfixed_check_results %}
+        <b>{{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %} issues</b>
+        ({{ retest_page.unfixed_check_results.count }} issue{% if retest_page.unfixed_check_results.count != 1 %}s{% endif %} remaining)
+        <br>
+        <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
+        <br>
+        <br>
+        {% if retest_page.missing_date %}
+            This page has been removed by the organisation.
+            <br>
+            <br>
+        {% else %}
+            <table id="email-issues-table-{{ forloop.counter }}">
+                <thead>
+                    <tr>
+                        <td width=1%>#</td>
+                        <td id="issue-{{ forloop.counter }}" width=33%>Issue and description</td>
+                        <td id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</td>
+                        <td id="retest-update-{{ forloop.counter }}" width=33%>Retest outcome</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for retest_check_result in retest_page.unfixed_check_results %}
+                        <tr valign="top">
+                            <td width=1%>{{ forloop.counter }}</td>
+                            <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
+                                {% if retest_check_result.check_result.wcag_definition.url_on_w3 %}
+                                    <a href="{{ retest_check_result.check_result.wcag_definition.url_on_w3 }}">
+                                    {{ retest_check_result.check_result.wcag_definition.name }}</a>
+                                {% else %}
+                                    {{ retest_check_result.check_result.wcag_definition.name }}
+                                {% endif %}
+                                <br>
+                                <br>
+                                {{ retest_check_result.check_result.wcag_definition.description|markdown_to_html }}
+                                <br>
+                                {{ retest_check_result.check_result.wcag_definition.report_boilerplate|markdown_to_html }}
+                            </td>
+                            <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>
+                                {{ retest_check_result.check_result.notes|markdown_to_html }}
+                            </td>
+                            <td headers="retest-update-{{ forloop.parentloop.counter }}" width=33%>
+                                {% if retest_check_result.latest_retest_check_result %}
+                                    {{ retest_check_result.latest_retest_check_result.get_retest_state_display }}
+                                    <br>
+                                    <br>
+                                    {{ retest_check_result.latest_retest_check_result.retest_notes|markdown_to_html }}
+                                {% else %}
+                                    Fixed in a previous retest
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <b>Additional issues found</b>
+            {% if retest_page.additional_issues_notes %}
+                {{ retest_page.additional_issues_notes|markdown_to_html }}
+            {% else %}
+                <br>
+                <br>
+                None
+                <br>
+                <br>
+            {% endif %}
+        {% endif %}
     {% endif %}
 {% endfor %}
 <h2 class="amp-margin-bottom-0">Statement assessment</h2>
@@ -188,26 +190,26 @@ Disproportionate burden was: {{ retest.get_disproportionate_burden_claim_display
     <b>Issues found with the statement</b>
     <br>
     <table id="email-statement-issues-table">
-    <thead>
-    <tr>
-    <td width=1%>#</td>
-    <td id="statement-issue-{{ forloop.counter }}" width=99%>Issue</td>
-    </tr>
-    </thead>
-    <tbody>
-    {% for failed_statement_check_result in retest.failed_statement_check_results %}
-    <tr valign="top">
-    <td width=1%>{{ forloop.counter }}</td>
-    <td headers="statement-issue-{{ forloop.parentloop.counter }}" width=99%>
-    {{ failed_statement_check_result.statement_check.report_text }}
-    {% if failed_statement_check_result.comment %}
-    <br>
-    <br>
-    {{ failed_statement_check_result.comment|markdown_to_html }}
-    {% endif %}
-    </td>
-    </tr>
-    {% endfor %}
-    </tbody>
+        <thead>
+            <tr>
+                <td width=1%>#</td>
+                <td id="statement-issue-{{ forloop.counter }}" width=99%>Issue</td>
+            </tr>
+        </thead>
+        <tbody>
+        {% for failed_statement_check_result in retest.failed_statement_check_results %}
+            <tr valign="top">
+                <td width=1%>{{ forloop.counter }}</td>
+                <td headers="statement-issue-{{ forloop.parentloop.counter }}" width=99%>
+                    {{ failed_statement_check_result.statement_check.report_text }}
+                    {% if failed_statement_check_result.comment %}
+                        <br>
+                        <br>
+                        {{ failed_statement_check_result.comment|markdown_to_html }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
     </table>
 {% endif %}
