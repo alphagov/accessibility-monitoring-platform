@@ -152,30 +152,7 @@
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full govuk-button-group">
                                 <hr class="amp-width-100 amp-margin-bottom-30">
-                            </div>
-                        </div>
-                        <div class="govuk-grid-row">
-                            <div class="govuk-grid-column-full govuk-button-group">
-                                <input
-                                    type="submit"
-                                    value="Save"
-                                    name="save"
-                                    class="govuk-button"
-                                    data-module="govuk-button"
-                                />
-                                <input
-                                    type="submit"
-                                    value="Save and next page"
-                                    name="save_continue"
-                                    class="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button"
-                                />
-                                <a
-                                    href="{% url 'cases:edit-retest-overview' retest_page.retest.case.id %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Cancel and return to retest overview
-                                </a>
+                                {% include 'common/back_to_top.html' %}
                             </div>
                         </div>
                     {% endif %}
