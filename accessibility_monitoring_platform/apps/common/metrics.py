@@ -161,14 +161,21 @@ def build_html_table(
     columns: list[Timeseries],
 ) -> TimeseriesHtmlTable:
     """
-    Given lists of timeseries data, merge them into a context object for a
-    single HTML table
+    Merge lists of timeseries data into a context object
+    to populate a single HTML table.
     """
     column_names: list[str] = [FIRST_COLUMN_HEADER] + [
         timeseries.label for timeseries in columns
     ]
-    empty_row: list[str] = ["" for _ in range(len(columns))]
+    number_of_columns: int = len(columns)
+
+    totals_row_label: str = "Totals" if number_of_columns > 1 else "Total"
+    totals_row: list[str | int] = [totals_row_label] + [
+        0 for _ in range(number_of_columns)
+    ]
+
     html_columns: dict[datetime, list[str]] = {}
+    empty_row: list[str] = ["" for _ in range(number_of_columns)]
     for timeseries in columns:
         for datapoint in timeseries.datapoints:
             html_columns[datapoint.datetime] = [
@@ -177,10 +184,14 @@ def build_html_table(
     for index, timeseries in enumerate(columns, start=1):
         for datapoint in timeseries.datapoints:
             html_columns[datapoint.datetime][index] = intcomma(datapoint.value)
+            totals_row[index] += datapoint.value
+
+    for index in range(1, len(totals_row)):
+        totals_row[index] = intcomma(totals_row[index])
 
     return TimeseriesHtmlTable(
         column_names=column_names,
-        rows=list(OrderedDict(sorted(html_columns.items())).values()),
+        rows=list(OrderedDict(sorted(html_columns.items())).values()) + [totals_row],
     )
 
 
