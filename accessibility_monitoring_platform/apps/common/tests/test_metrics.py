@@ -235,7 +235,7 @@ def test_group_timeseries_data_by_month():
             ],
             TimeseriesHtmlTable(
                 column_names=COLUMN_NAMES,
-                rows=[["January 2022", "1", "2"]],
+                rows=[["January 2022", "1", "2"], ["Totals", "1", "2"]],
             ),
         ),
         (
@@ -268,6 +268,7 @@ def test_group_timeseries_data_by_month():
                     ["April 2022", "5", "6"],
                     ["July 2022", "7", ""],
                     ["August 2022", "", "8"],
+                    ["Totals", "16", "20"],
                 ],
             ),
         ),
@@ -438,6 +439,7 @@ def test_get_case_yearly_metrics(mock_datetime):
             ["November 2021", "1"],
             ["December 2021", "2"],
             ["January 2022", "1"],
+            ["Total", "4"],
         ],
     )
     assert case_yearly_metrics[1].label == "Tests completed over the last year"
@@ -457,6 +459,7 @@ def test_get_case_yearly_metrics(mock_datetime):
             ["November 2021", "0"],
             ["December 2021", "0"],
             ["January 2022", "4"],
+            ["Total", "4"],
         ],
     )
     assert case_yearly_metrics[2].label == "Reports sent over the last year"
@@ -476,6 +479,7 @@ def test_get_case_yearly_metrics(mock_datetime):
             ["November 2021", "0"],
             ["December 2021", "2"],
             ["January 2022", "2"],
+            ["Total", "4"],
         ],
     )
     assert case_yearly_metrics[3].label == "Cases completed over the last year"
@@ -495,6 +499,7 @@ def test_get_case_yearly_metrics(mock_datetime):
             ["November 2021", "0"],
             ["December 2021", "3"],
             ["January 2022", "1"],
+            ["Total", "4"],
         ],
     )
 
@@ -747,6 +752,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
             ["November 2021", "0", "0", "0"],
             ["December 2021", "0", "0", "0"],
             ["January 2022", "4", "4", "2"],
+            ["Totals", "4", "4", "2"],
         ],
     )
     assert (
@@ -769,6 +775,7 @@ def test_get_policy_yearly_metrics(mock_datetime):
             ["November 2021", "0", "0", "0"],
             ["December 2021", "0", "0", "0"],
             ["January 2022", "4", "1", "1"],
+            ["Totals", "4", "1", "1"],
         ],
     )
 
@@ -863,6 +870,7 @@ def test_get_report_yearly_metrics(mock_datetime):
             ["November 2021", "0"],
             ["December 2021", "1"],
             ["January 2022", "0"],
+            ["Total", "1"],
         ],
     )
     assert report_yearly_metrics[1].label == "Reports views over the last year"
@@ -882,5 +890,6 @@ def test_get_report_yearly_metrics(mock_datetime):
             ["November 2021", "0"],
             ["December 2021", "0"],
             ["January 2022", "1"],
+            ["Total", "1"],
         ],
     )
