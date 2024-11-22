@@ -273,11 +273,7 @@ def test_download_equality_body_cases():
         "0",
         "n/a",
         "unknown",
-        "unknown",
         "Not assessed",
-        "Not assessed",
-        "Not checked",
-        "",
         "Not checked",
         "",
     ]
@@ -424,7 +420,7 @@ def test_populate_equality_body_columns():
     Contact.objects.create(case=case, email=CONTACT_EMAIL)
     row: list[CSVColumn] = populate_equality_body_columns(case=case)
 
-    assert len(row) == 34
+    assert len(row) == 30
 
     contact_details: list[EqualityBodyCSVColumn] = [
         cell for cell in row if cell.column_header == "Contact details"
