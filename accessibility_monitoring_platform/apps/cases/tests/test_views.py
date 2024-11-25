@@ -3793,7 +3793,7 @@ def test_case_close(admin_client):
     # Required data with default value labelled as incomplete
     assertContains(
         response,
-        "Initial Accessibility Statement Decision | Required and incomplete",
+        "Enforcement recommendation | Required and incomplete",
         html=True,
     )
 
@@ -3889,11 +3889,6 @@ def test_case_close_missing_data(admin_client):
             <span class="amp-nowrap">(<a href="/cases/1/edit-enforcement-recommendation/#id_compliance_email_sent_date-label" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden"> Date when compliance decision email sent to public sector body</span></a>)</span>
         </li>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        "<li>Initial Accessibility Statement Decision is missing</li>",
         html=True,
     )
 
