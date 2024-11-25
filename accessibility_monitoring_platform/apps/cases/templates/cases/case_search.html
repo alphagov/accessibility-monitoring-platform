@@ -15,24 +15,21 @@
                     id="id_search_in_case">
             </div>
             <hr class="amp-nav-seperator">
-            <div class="amp-fixed">
-                <h2 class="govuk-heading-m">Contents</h2>
-                <div class="amp-left-border">
-                    <ul class="govuk-list">
-                        {% if case.archive %}
-                            {% for archived_section in case.archived_sections %}
-                                {% include 'cases/details/archive_section_link.html' with section=archived_section %}
-                            {% endfor %}
-                        {% endif %}
-                        {% for case_detail_section in case_detail_sections %}
-                            <li>
-                                <a href="#page-group-{{ forloop.counter }}-{{ case_detail_section.page_group_name|slugify }}" class="govuk-link govuk-link--no-visited-state">
-                                    {{ case_detail_section.page_group_name }}</a>
-                            </li>
+            <h2 class="govuk-heading-m">Contents</h2>
+            <div class="amp-left-border">
+                <ul class="govuk-list">
+                    {% if case.archive %}
+                        {% for archived_section in case.archived_sections %}
+                            {% include 'cases/details/archive_section_link.html' with section=archived_section %}
                         {% endfor %}
-                    </ul>
-                </div>
-                {% include 'common/back_to_top.html' %}
+                    {% endif %}
+                    {% for case_detail_section in case_detail_sections %}
+                        <li>
+                            <a href="#page-group-{{ forloop.counter }}-{{ case_detail_section.page_group_name|slugify }}" class="govuk-link govuk-link--no-visited-state">
+                                {{ case_detail_section.page_group_name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
