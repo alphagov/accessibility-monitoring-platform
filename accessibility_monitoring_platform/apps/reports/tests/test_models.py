@@ -63,7 +63,7 @@ def test_report_template_path_is_correct():
 
     assert (
         report.template_path
-        == "reports_common/accessibility_report_v1_4_0__20241005.html"
+        == "reports_common/accessibility_report_v1_5_0__20241125.html"
     )
 
 
