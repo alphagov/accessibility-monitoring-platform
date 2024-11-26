@@ -20,7 +20,7 @@
                 {% block nav %}
                     {% if case.archive %}
                         <p class="govuk-body-s amp-margin-bottom-10">
-                            <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">Archived case</a>
+                            <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">Return to case overview</a>
                         </p>
                     {% endif %}
                     {% include "cases/helpers/case_nav.html" %}
