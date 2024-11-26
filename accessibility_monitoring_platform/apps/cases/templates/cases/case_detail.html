@@ -29,6 +29,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% if not case.archive %}
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group amp-flex-end">
                     {% if case.is_deactivated %}
@@ -54,6 +55,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
         </div>
         {% include 'cases/helpers/messages.html' %}
         {% include 'cases/details/case_detail_notifications.html' %}

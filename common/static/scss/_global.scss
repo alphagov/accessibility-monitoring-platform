@@ -13,18 +13,7 @@ pre {
     border: 2px solid #d4351c;
 }
 
-.amp-case-banner {
-    font-family: "GDS Transport",arial,sans-serif;
-    font-size: 1rem;
-    background-color: govuk-colour("light-grey");
-    border: 1px solid govuk-colour("mid-grey");
-    padding: 20px;
-
-    p {
-        margin: 0;
-    }
-}
-.amp-case-banner-archive {
+.amp-case-banner-title {
     font-family: "GDS Transport",arial,sans-serif;
     font-size: 1rem;
     color: govuk-colour("white");
@@ -34,6 +23,17 @@ pre {
     h1, p {
         margin: 0;
         font-weight: normal;
+    }
+}
+
+.amp-case-banner {
+    font-family: "GDS Transport",arial,sans-serif;
+    font-size: 1rem;
+    background-color: govuk-colour("light-grey");
+    padding: 20px;
+
+    p {
+        margin: 0;
     }
 }
 
