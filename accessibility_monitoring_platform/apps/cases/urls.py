@@ -76,7 +76,7 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/view/", login_required(CaseDetailView.as_view()), name="case-detail"
     ),
     path(
-        "<int:pk>/view-and-search/",
+        "<int:pk>/case-view-and-search/",
         login_required(CaseSearchView.as_view()),
         name="case-view-and-search",
     ),

@@ -24,6 +24,18 @@ pre {
         margin: 0;
     }
 }
+.amp-case-banner-archive {
+    font-family: "GDS Transport",arial,sans-serif;
+    font-size: 1rem;
+    color: govuk-colour("white");
+    background-color: #1D70B7;
+    padding: 20px;
+
+    h1, p {
+        margin: 0;
+        font-weight: normal;
+    }
+}
 
 .amp-case-banner-row {
     display: flex;

@@ -59,13 +59,11 @@
         {% include 'cases/details/case_detail_notifications.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
-                {% include 'cases/details/search_in_case.html' %}
                 <hr class="amp-width-100 amp-margin-bottom-30" />
-                {% if case.archive %}
-                    {% include 'cases/helpers/archive_nav_contents.html' %}
-                {% else %}
-                    {% include 'cases/helpers/case_nav.html' %}
+                {% if not case.archive %}
+                    {% include 'cases/details/search_in_case.html' %}
                 {% endif %}
+                {% include 'cases/helpers/case_nav.html' %}
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="amp-margin-bottom-30">

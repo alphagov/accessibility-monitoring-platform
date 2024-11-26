@@ -211,7 +211,7 @@ def test_archived_case_view_case_includes_contents(admin_client):
     case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
+        reverse("cases:case-view-and-search", kwargs={"pk": case.id}),
     )
 
     assertContains(
