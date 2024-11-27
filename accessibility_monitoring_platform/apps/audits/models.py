@@ -880,6 +880,14 @@ class Audit(VersionModel):
         return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
 
     @property
+    def statement_found_check(self):
+        return self.overview_statement_check_results.first()
+
+    @property
+    def statement_structure_check(self):
+        return self.overview_statement_check_results.last()
+
+    @property
     def overview_statement_checks_complete(self) -> bool:
         return (
             self.overview_statement_check_results.filter(

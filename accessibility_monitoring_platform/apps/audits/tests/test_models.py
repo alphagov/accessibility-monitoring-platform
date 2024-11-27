@@ -953,6 +953,44 @@ def test_audit_specific_statement_check_results(type, attr):
 
 
 @pytest.mark.django_db
+def test_audit_statement_found_check():
+    """Tests audit statement_found_check property"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_found_check: StatementCheck = StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ).first()
+    statement_found_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_found_check.type,
+            statement_check=statement_found_check,
+        )
+    )
+
+    assert audit.statement_found_check == statement_found_check_result
+
+
+@pytest.mark.django_db
+def test_audit_statement_structure_check():
+    """Tests audit statement_structure_check property"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_structure_check: StatementCheck = StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ).last()
+    statement_structure_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_structure_check.type,
+            statement_check=statement_structure_check,
+        )
+    )
+
+    assert audit.statement_structure_check == statement_structure_check_result
+
+
+@pytest.mark.django_db
 def test_audit_overview_statement_checks_complete():
     """Tests audit overview_statement_checks_complete property"""
     audit: Audit = create_audit_and_statement_check_results()

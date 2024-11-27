@@ -8,7 +8,7 @@
             {% if case.audit %}
                 <a href="{% url 'audits:edit-audit-wcag-summary' case.audit.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">Test summary</a>
             {% endif %}
-            {% if case.audit and case.audit.accessibility_statement_page %}
+            {% if case.audit and case.audit.accessibility_statement_page.url %}
                 <a href="{{ case.audit.accessibility_statement_page.url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">Accessibility statement</a>
             {% endif %}
         </div>
