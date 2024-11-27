@@ -1,4 +1,4 @@
-<div class="amp-case-banner-title">
+<div class="amp-case-banner {% if case.archive %}amp-case-banner-title-archive{% else %}amp-case-banner-title-active{% endif %}">
     <p>#{{ case.case_number }}{% if case.archive %} [ARCHIVED]{% endif %}</p>
     <h1>
         {% if case.website_name %}
@@ -7,7 +7,7 @@
         {{ case.organisation_name }}
     </h1>
 </div>
-<div class="amp-case-banner">
+<div class="amp-case-banner amp-case-banner-body">
     <div class="amp-case-banner-row">
         <p>
             {% if case.auditor %}

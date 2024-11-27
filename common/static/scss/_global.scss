@@ -13,28 +13,27 @@ pre {
     border: 2px solid #d4351c;
 }
 
-.amp-case-banner-title {
+.amp-case-banner {
     font-family: "GDS Transport",arial,sans-serif;
     font-size: 1rem;
-    color: govuk-colour("white");
-    background-color: govuk-colour("blue");
     padding: 20px;
 
     h1, p {
         margin: 0;
-        font-weight: normal;
     }
 }
+.amp-case-banner-title-active {
+    color: govuk-colour("white");
+    background-color: govuk-colour("blue");
+}
 
-.amp-case-banner {
-    font-family: "GDS Transport",arial,sans-serif;
-    font-size: 1rem;
+.amp-case-banner-title-archive {
+    color: govuk-colour("white");
+    background-color: govuk-colour("black");
+}
+
+.amp-case-banner-body {
     background-color: govuk-colour("light-grey");
-    padding: 20px;
-
-    p {
-        margin: 0;
-    }
 }
 
 .amp-case-banner-row {
