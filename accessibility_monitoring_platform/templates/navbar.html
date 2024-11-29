@@ -18,7 +18,7 @@
                 <li>
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
-                        <button type="submit" class="amp-button-as-link amp-margin-left-15 amp-margin-bottom-0 govuk-body-s">Sign out</button>
+                        <button type="submit" class="amp-button-as-link amp-margin-left-15 amp-margin-bottom-0 govuk-body-s" role="link">Sign out</button>
                     </form>
                 </li>
             </ul>
