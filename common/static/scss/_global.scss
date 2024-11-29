@@ -93,6 +93,12 @@ pre {
     height: 38px;
     color: #fff;
     background-color: #000;
+
+    &:focus {
+        box-shadow: inset 0 0 0 2px;
+        outline: 3px solid #fd0;
+        outline-offset: 0;
+    }
 }
 
 div#report-text {
