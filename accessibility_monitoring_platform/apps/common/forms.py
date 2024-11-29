@@ -427,7 +427,6 @@ class AMPTopMenuForm(forms.Form):
             attrs={
                 "class": "govuk-input amp-small-search",
                 "placeholder": "Search",
-                "aria-label": "Search",
             }
         )
     )

@@ -42,7 +42,7 @@ def test_top_menu_form_present(admin_client):
     assertContains(
         response,
         '<input type="text" name="search" class="govuk-input amp-small-search"'
-        ' placeholder="Search" aria-label="Search" maxlength="100" id="id_search">',
+        ' placeholder="Search" maxlength="100" id="id_search">',
     )
 
 
