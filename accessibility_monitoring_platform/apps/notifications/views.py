@@ -120,14 +120,28 @@ class ReminderTaskCreateView(CreateView):
         if form.changed_data:
             case: Case = Case.objects.get(pk=self.kwargs["case_id"])
             user: User = case.auditor if case.auditor else self.request.user
-            self.object: Task = Task.objects.create(
-                date=form.cleaned_data["date"],
-                type=Task.Type.REMINDER,
-                case=case,
-                user=user,
-                description=form.cleaned_data["description"],
-            )
-            record_model_create_event(user=self.request.user, model_object=self.object)
+            try:
+                reminder_task: Task = Task.objects.get(
+                    case=case, type=Task.Type.REMINDER
+                )
+                reminder_task.date = form.cleaned_data["date"]
+                reminder_task.user = user
+                reminder_task.description = form.cleaned_data["description"]
+                record_model_update_event(
+                    user=self.request.user, model_object=reminder_task
+                )
+                reminder_task.save()
+            except Task.DoesNotExist:
+                self.object: Task = Task.objects.create(
+                    date=form.cleaned_data["date"],
+                    type=Task.Type.REMINDER,
+                    case=case,
+                    user=user,
+                    description=form.cleaned_data["description"],
+                )
+                record_model_create_event(
+                    user=self.request.user, model_object=self.object
+                )
         return HttpResponseRedirect(
             reverse_lazy("cases:case-detail", kwargs={"pk": case.id})
         )
