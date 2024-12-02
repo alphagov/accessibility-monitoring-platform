@@ -101,10 +101,10 @@ class CaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
-    home_page_url = AMPURLField(label="Full URL (included in equality body export)")
     organisation_name = AMPCharFieldWide(
         label="Organisation name (included in equality body export)",
     )
+    home_page_url = AMPURLField(label="Full URL (included in equality body export)")
     parental_organisation_name = AMPCharFieldWide(
         label="Parent organisation name (included in equality body export)"
     )
@@ -139,8 +139,8 @@ class CaseCreateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
-            "home_page_url",
             "organisation_name",
+            "home_page_url",
             "parental_organisation_name",
             "website_name",
             "subcategory",
@@ -224,8 +224,8 @@ class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
         fields = [
             "version",
             "auditor",
-            "home_page_url",
             "organisation_name",
+            "home_page_url",
             "parental_organisation_name",
             "website_name",
             "subcategory",
