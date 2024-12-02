@@ -3943,22 +3943,22 @@ def test_case_overview(admin_client):
 
     assertContains(
         response,
-        """<p class="govuk-body-m amp-margin-bottom-10">Initial test: 3</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10">Initial test: 3</p>""",
         html=True,
     )
     assertContains(
         response,
-        """<p class="govuk-body-m amp-margin-bottom-10">Retest: 3 (0% fixed) (1 deleted page)</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10">Retest: 3 (0% fixed) (1 deleted page)</p>""",
         html=True,
     )
     assertContains(
         response,
-        """<p class="govuk-body-m amp-margin-bottom-10">Initial test: 12</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10">Initial test: 12</p>""",
         html=True,
     )
     assertContains(
         response,
-        """<p class="govuk-body-m amp-margin-bottom-10">Retest test: No statement found</p>""",
+        """<p class="govuk-body-m amp-margin-bottom-10 govuk-!-font-size-16">Retest test: No statement found</p>""",
         html=True,
     )
 

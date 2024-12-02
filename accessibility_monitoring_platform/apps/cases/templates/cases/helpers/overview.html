@@ -1,18 +1,18 @@
 {% if not case.archive %}
-    <h2 class="govuk-heading-m">Overview</h2>
+    <h2 class="govuk-heading-s">Overview</h2>
 {% endif %}
 <div class="amp-left-border">
     {% if not case.archive %}
         {% include 'cases/helpers/overview_status.html' %}
     {% endif %}
-    <h2 class="govuk-heading-s amp-margin-bottom-5">Date created</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">{{ case.created|amp_date }}</p>
-    <h2 class="govuk-heading-s amp-margin-bottom-5">Last edited</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">{{ case.last_edited|amp_date }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Date created</h2>
+    <p class="govuk-body-s amp-margin-bottom-10">{{ case.created|amp_date }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Last edited</h2>
+    <p class="govuk-body-s amp-margin-bottom-10">{{ case.last_edited|amp_date }}</p>
     {% include "audits/helpers/numbers_of_issues.html" with audit=case.audit %}
     {% if not case.archive %}
-        <h2 class="govuk-heading-s amp-margin-bottom-5">Comments</h2>
-        <p class="govuk-body-m amp-margin-bottom-10">
+        <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Comments</h2>
+        <p class="govuk-body-s amp-margin-bottom-10">
             {% if case.archive %}
                 {{ case.qa_comments_count }} comment{% if case.qa_comments_count != 1 %}s{% endif %} on QA
             {% else %}
@@ -21,8 +21,8 @@
                 </a>
             {% endif %}
         </p>
-        <h2 class="govuk-heading-s amp-margin-bottom-5">Reminder{% if case.reminder %} on {{ case.reminder.date|amp_date }}{% endif %}</h2>
-        <p class="govuk-body-m amp-margin-bottom-10">
+        <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Reminder{% if case.reminder %} on {{ case.reminder.date|amp_date }}{% endif %}</h2>
+        <p class="govuk-body-s amp-margin-bottom-10">
             {% if case.reminder %}
                 {{ case.reminder.description }}
                 (<a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
@@ -30,8 +30,8 @@
                 <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Create</a>
             {% endif %}
         </p>
-        <h2 class="govuk-heading-s amp-margin-bottom-5">Overdue</h2>
-        <p class="govuk-body-m amp-margin-bottom-10">
+        <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Overdue</h2>
+        <p class="govuk-body-s amp-margin-bottom-10">
             {% if case.overdue_link and case.overdue_link.label != "Go to case" %}
                 <a href="{{ case.overdue_link.url }}" class="govuk-link govuk-link--no-visited-state">
                     {{ case.overdue_link.label }}
@@ -41,8 +41,8 @@
             {% endif %}
         </p>
     {% endif %}
-    <h2 class="govuk-heading-s amp-margin-bottom-5">Post case</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">
+    <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Post case</h2>
+    <p class="govuk-body-s amp-margin-bottom-10">
         <a href="{% url 'cases:list-equality-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
             {{ case.equality_body_correspondences_unresolved_count }} unresolved equality body correspondence{% if case.equality_body_correspondences_unresolved_count != 1 %}s{% endif %}
         </a>

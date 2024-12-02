@@ -1,23 +1,14 @@
-{% extends 'common/case_form.html' %}
+{% extends 'common/case_search.html' %}
 
 {% load static %}
 
 {% block nav %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-s amp-margin-bottom-5">Search inside case</h2>
-            <div class="govuk-form-group">
-                <input
-                    type="text"
-                    name="search_in_case"
-                    placeholder="Search"
-                    class="govuk-input"
-                    id="id_search_in_case">
-            </div>
-            <hr class="amp-nav-seperator">
-            <h2 class="govuk-heading-m">Contents</h2>
-            <div class="amp-left-border">
-                <ul class="govuk-list">
+
+            <div class="amp-sticky-contents">
+                <p class="govuk-heading-s amp-margin-bottom-10">Contents</p>
+                <ul class="govuk-list amp_case_search_contents">
                     {% if case.archive %}
                         {% for archived_section in case.archived_sections %}
                             {% include 'cases/details/archive_section_link.html' with section=archived_section %}
@@ -31,12 +22,24 @@
                     {% endfor %}
                 </ul>
             </div>
+            <br/>
+            <h2 class="govuk-heading-s amp-margin-bottom-5">Search inside case</h2>
+            <div class="govuk-form-group">
+                <input
+                    type="text"
+                    name="search_in_case"
+                    placeholder="Search"
+                    class="govuk-input"
+                    id="id_search_in_case">
+            </div>
+            <div id="search-results"></div>
+            <hr class="amp-nav-seperator">
         </div>
     </div>
 {% endblock %}
 
 {% block preform %}
-    <div id="search-results"></div>
+
     <div id="search-scope" data-search-target-page-name="{{ sitemap.current_platform_page.get_name }}" data-search-target-label="{{ sitemap.current_platform_page.get_name }}" data-search-target-url="{{ case.get_absolute_url }}">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -44,9 +47,12 @@
                     {% include 'cases/details/archive.html' %}
                 {% endif %}
                 {% for case_detail_section in case_detail_sections %}
-                    <h2 id="page-group-{{ forloop.counter }}-{{ case_detail_section.page_group_name|slugify }}" class="govuk-heading-m">
-                        {{ case_detail_section.page_group_name }}
-                    </h2>
+                    <div class="amp_case_search_list_header">
+                        <h2 id="page-group-{{ forloop.counter }}-{{ case_detail_section.page_group_name|slugify }}" class="govuk-heading-m">
+                            {{ case_detail_section.page_group_name }}
+                        </h2>
+                        <a href="#" class="govuk-link">Return to top</a>
+                    </div>
                     {% for case_detail_page in case_detail_section.pages %}
                         {% include case_detail_page.page.case_details_template_name %}
                     {% endfor %}

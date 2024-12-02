@@ -61,9 +61,9 @@
         {% include 'cases/details/case_detail_notifications.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
-                <hr class="amp-width-100 amp-margin-bottom-30" />
                 {% if not case.archive %}
                     {% include 'cases/details/search_in_case.html' %}
+                    <hr class="amp-width-100 amp-margin-bottom-30" />
                 {% endif %}
                 {% include 'cases/helpers/case_nav.html' %}
             </div>

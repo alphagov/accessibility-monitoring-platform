@@ -29,7 +29,7 @@ pre {
 
 .amp-case-banner-title-archive {
     color: govuk-colour("white");
-    background-color: govuk-colour("black");
+    background-color: govuk-colour("dark-grey");
 }
 
 .amp-case-banner-body {
@@ -898,6 +898,21 @@ svg {
         color: govuk-colour("mid-grey");
         text-decoration: none;
     }
+}
+
+.amp_case_search_contents {
+    li {
+        padding-bottom: 4px;
+
+        a {
+            padding-bottom: 4px;
+        }
+    }
+}
+
+.amp_case_search_list_header {
+    display: flex;
+    justify-content: space-between;
 }
 
 .amp-session-warning {
