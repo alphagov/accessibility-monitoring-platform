@@ -52,7 +52,7 @@ class EventAdmin(admin.ModelAdmin):
         "created_by",
         "value",
     ]
-    search_fields = ["value", "created_by__username"]
+    search_fields = ["value", "created_by__username", "object_id"]
     list_display = [
         "content_type",
         "object_id",
