@@ -1,4 +1,4 @@
-{% extends 'common/case_search.html' %}
+{% extends 'cases/case_search_all_data.html' %}
 
 {% load static %}
 
@@ -39,7 +39,6 @@
 {% endblock %}
 
 {% block preform %}
-
     <div id="search-scope" data-search-target-page-name="{{ sitemap.current_platform_page.get_name }}" data-search-target-label="{{ sitemap.current_platform_page.get_name }}" data-search-target-url="{{ case.get_absolute_url }}">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
