@@ -35,9 +35,15 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
 
 
 @dataclass
-class CaseDetailSection:
+class CaseDetailPage:
     page: PlatformPage
     display_fields: list[FieldLabelAndValue] = None
+
+
+@dataclass
+class CaseDetailSection:
+    page_group_name: str
+    pages: list[CaseDetailPage]
 
 
 def get_case_detail_sections(case: Case, sitemap: Sitemap) -> list[CaseDetailSection]:
@@ -49,6 +55,7 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> list[CaseDetailSec
     view_sections: list[CaseDetailSection] = []
     for page_group in sitemap.platform_page_groups:
         if page_group.show:
+            case_detail_pages: list[CaseDetailPage] = []
             for page in page_group.pages:
                 if page.show:
                     display_fields: list[FieldLabelAndValue] = []
@@ -62,8 +69,8 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> list[CaseDetailSec
                                 form=page.case_details_form_class()
                             )
                     if page.case_details_template_name:
-                        view_sections.append(
-                            CaseDetailSection(
+                        case_detail_pages.append(
+                            CaseDetailPage(
                                 page=page,
                                 display_fields=display_fields,
                             )
@@ -71,12 +78,16 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> list[CaseDetailSec
                     if page.subpages is not None:
                         for subpage in page.subpages:
                             if subpage.case_details_template_name:
-                                view_sections.append(
-                                    CaseDetailSection(
+                                case_detail_pages.append(
+                                    CaseDetailPage(
                                         page=subpage,
                                     )
                                 )
-
+            view_sections.append(
+                CaseDetailSection(
+                    page_group_name=page_group.name, pages=case_detail_pages
+                )
+            )
     return view_sections
 
 

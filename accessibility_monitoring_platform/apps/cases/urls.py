@@ -39,6 +39,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseRetestCreateErrorTemplateView,
     CaseRetestOverviewTemplateView,
     CaseReviewChangesUpdateView,
+    CaseSearchView,
     CaseStatementEnforcementUpdateView,
     CaseStatusWorkflowDetailView,
     CaseTestResultsUpdateView,
@@ -73,6 +74,11 @@ urlpatterns: list[URLPattern] = [
     path("create/", login_required(CaseCreateView.as_view()), name="case-create"),
     path(
         "<int:pk>/view/", login_required(CaseDetailView.as_view()), name="case-detail"
+    ),
+    path(
+        "<int:pk>/case-view-and-search/",
+        login_required(CaseSearchView.as_view()),
+        name="case-view-and-search",
     ),
     path(
         "<int:pk>/edit-case-metadata/",

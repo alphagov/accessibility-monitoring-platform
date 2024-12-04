@@ -206,12 +206,12 @@ def add_user_to_auditor_groups(user: User) -> None:
 
 def test_archived_case_view_case_includes_contents(admin_client):
     """
-    Test that the View case page for an archived case shows links to sections
+    Test that the Case overview page for an archived case shows links to sections
     """
     case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
+        reverse("cases:case-view-and-search", kwargs={"pk": case.id}),
     )
 
     assertContains(
@@ -230,7 +230,7 @@ def test_archived_case_view_case_includes_contents(admin_client):
 
 def test_archived_case_view_case_includes_sections(admin_client):
     """
-    Test that the View case page for an archived case shows sections and subsections.
+    Test that the Case overview page for an archived case shows sections and subsections.
     """
     case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
 
@@ -263,7 +263,7 @@ def test_archived_case_view_case_includes_sections(admin_client):
 
 def test_archived_case_view_case_includes_fields(admin_client):
     """
-    Test that the View case page for an archived case shows fields
+    Test that the Case overview page for an archived case shows fields
     """
     case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
 
@@ -322,7 +322,7 @@ def test_archived_case_view_case_includes_fields(admin_client):
 
 def test_archived_case_view_case_includes_post_case_sections(admin_client):
     """
-    Test that the View case page for an archived case shows expected post case.
+    Test that the Case overview page for an archived case shows expected post case.
     """
     case: Case = Case.objects.create(
         archive=json.dumps(CASE_ARCHIVE), variant=Case.Variant.ARCHIVED
@@ -341,7 +341,7 @@ def test_archived_case_view_case_includes_post_case_sections(admin_client):
 
 def test_non_archived_case_view_case_has_no_legacy_section(admin_client):
     """
-    Test that the View case page for a non-archived case has no
+    Test that the Case overview page for a non-archived case has no
     legacy section.
     """
     case: Case = Case.objects.create(variant=Case.Variant.CLOSE_CASE)
@@ -359,7 +359,7 @@ def test_non_archived_case_view_case_has_no_legacy_section(admin_client):
 
 def test_view_case_includes_tests(admin_client):
     """
-    Test that the View case displays test and 12-week retest.
+    Test that the Case overview displays test and 12-week retest.
     """
     case: Case = Case.objects.create()
     Audit.objects.create(case=case, retest_date=TODAY)
@@ -379,7 +379,7 @@ def test_view_case_includes_tests(admin_client):
 
 def test_view_case_includes_zendesk_tickets(admin_client):
     """
-    Test that the View case displays Zendesk tickets.
+    Test that the Case overview displays Zendesk tickets.
     """
     case: Case = Case.objects.create()
     ZendeskTicket.objects.create(
@@ -789,7 +789,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     [
         (
             "cases:case-detail",
-            '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>',
+            '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">Case overview</h1>',
         ),
         ("cases:edit-case-metadata", "<b>Case metadata</b>"),
         (
@@ -1989,49 +1989,6 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
 
     if expected_number_of_duplicates > 1:
         assert duplicate_cases[1] == organisation_name_case
-
-
-@pytest.mark.parametrize(
-    "flag_name, section_name, edit_url_name",
-    [
-        (
-            "publish_report_complete_date",
-            "Publish report",
-            "edit-publish-report",
-        ),
-    ],
-)
-def test_no_anchor_section_complete_check_displayed(
-    flag_name, section_name, edit_url_name, admin_client
-):
-    """
-    Test that the section complete tick is displayed in contents where there is no anchor
-    """
-    case: Case = Case.objects.create()
-    setattr(case, flag_name, TODAY)
-    case.save()
-    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
-    Report.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<li>
-            {section_name} |
-            <a id="edit-{slugify(edit_url)}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
-                Edit
-            </a>
-            <span class="govuk-visually-hidden">complete</span>
-            &check;
-            <ul class="amp-nav-list-subpages"></ul>
-        </li>""",
-        html=True,
-    )
 
 
 @pytest.mark.parametrize(
@@ -3986,22 +3943,22 @@ def test_case_overview(admin_client):
 
     assertContains(
         response,
-        """<p class="govuk-body-m amp-margin-bottom-10">Initial test: 3</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10">Initial test: 3</p>""",
         html=True,
     )
     assertContains(
         response,
-        """<p class="govuk-body-m amp-margin-bottom-10">Retest: 3 (0% fixed) (1 deleted page)</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10">Retest: 3 (0% fixed) (1 deleted page)</p>""",
         html=True,
     )
     assertContains(
         response,
-        """<p class="govuk-body-m amp-margin-bottom-10">Initial test: 12</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10">Initial test: 12</p>""",
         html=True,
     )
     assertContains(
         response,
-        """<p class="govuk-body-m amp-margin-bottom-10">Retest test: No statement found</p>""",
+        """<p class="govuk-body-m amp-margin-bottom-10 govuk-!-font-size-16">Retest test: No statement found</p>""",
         html=True,
     )
 

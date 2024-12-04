@@ -1,24 +1,27 @@
 {% if case.archive %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <div class="govuk-notification-banner" role="region" aria-labelledby="banner-title-compliant-website" data-module="govuk-notification-banner">
-                <div class="govuk-notification-banner__header">
-                    <h2 class="govuk-notification-banner__title" id="banner-title-compliant-website">
-                        Important
-                    </h2>
+            <details class="govuk-details" data-module="govuk-details" open>
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                        Why is this case archived?
+                    </span>
+                </summary>
+                <div class="amp-preview govuk-details__text">
+                    <p class="govuk-body">
+                        This case is using a legacy process that has been phased out, and it is no longer editable.
+                        The archived case data can be viewed in
+                        <a href="{% url 'cases:case-view-and-search' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                            view and search all case data</a>.
+                    </p>
+                    <p class="govuk-body">
+                        If you need to make changes to the case, contact a system administrator.
+                    </p>
+                    <p class="govuk-body">
+                        The post-case equality body process remains accessible.
+                    </p>
                 </div>
-                <div class="govuk-notification-banner__content">
-                    <p class="govuk-body">
-                        This case has been made read only due to the case using a legacy process.
-                    </p>
-                    <p class="govuk-body">
-                        Post case options are still available for editing.
-                    </p>
-                    <p class="govuk-body">
-                        If you require changes to be made, contact a system administrator.
-                    </p>
-                </div>
-            </div>
+            </details>
         </div>
     </div>
 {% endif %}
