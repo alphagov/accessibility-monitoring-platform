@@ -93,5 +93,7 @@
 {% endblock %}
 
 {% block extrascript %}
-<script src="{% static 'js/cases_search_in_case.js' %}"></script>
+{% if not case.archive %}
+    <script src="{% static 'js/cases_search_in_case.js' %}"></script>
+{% endif %}
 {% endblock %}
