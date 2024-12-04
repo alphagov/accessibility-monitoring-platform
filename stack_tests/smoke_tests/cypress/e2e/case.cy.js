@@ -14,7 +14,6 @@ describe('Case overview', () => {
     cy.contains(organisationName).click()
     cy.title().should('eq', `${organisationName} | Case overview`)
 
-    cy.get('details').contains('Post case').click()
     cy.contains(/^Statement enforcement$/).click()
     cy.title().should('eq', `${organisationName} | Statement enforcement`)
   })
