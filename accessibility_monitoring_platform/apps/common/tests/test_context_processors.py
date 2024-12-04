@@ -124,7 +124,7 @@ def test_platform_page_case_sitemap_template_context():
 
     current_platform_page: PlatformPage = sitemap.current_platform_page
 
-    assert current_platform_page.get_name() == "View case"
+    assert current_platform_page.get_name() == "Case overview"
     assert current_platform_page.get_case() is not None
     assert current_platform_page.get_case() == case
 

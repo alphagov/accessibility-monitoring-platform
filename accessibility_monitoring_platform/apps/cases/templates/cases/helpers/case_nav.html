@@ -13,17 +13,21 @@
                     </p>
                 {% endif %}
             {% endfor %}
-        {% elif platform_page_group.name == sitemap.current_platform_page.platform_page_group_name %}
+        {% elif platform_page_group.name == sitemap.current_platform_page.platform_page_group_name or case.archive %}
             <p class="govuk-body-s amp-margin-bottom-5">
                 {{ platform_page_group.name }}
-                ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
+                {% if platform_page_group.number_pages_and_subpages > 0 %}
+                    ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
+                {% endif %}
             </p>
             {% include 'cases/helpers/case_nav_group_pages.html' %}
        {% else %}
             <details class="amp-nav-details"{% if platform_page_group.name == section_name %} open{% endif %}{% if platform_page_group.disabled %} disabled{% endif %}>
                 <summary class="amp-nav-details__summary">
                     {{ platform_page_group.name }}
-                    ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
+                    {% if platform_page_group.number_pages_and_subpages > 0 %}
+                        ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
+                    {% endif %}
                 </summary>
                 {% include 'cases/helpers/case_nav_group_pages.html' %}
             </details>

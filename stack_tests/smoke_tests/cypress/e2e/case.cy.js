@@ -2,7 +2,7 @@
 
 const organisationName = 'Doncaster College'
 
-describe('View case', () => {
+describe('Case overview', () => {
   beforeEach(() => {
     cy.session('login', cy.login, { cacheAcrossSpecs: true })
     cy.visit('/')
@@ -12,10 +12,10 @@ describe('View case', () => {
     cy.visit('/cases/')
     cy.get('[name="case_search"]').clear().type(`${organisationName}{enter}`)
     cy.contains(organisationName).click()
-    cy.title().should('eq', `${organisationName} | View case`)
+    cy.title().should('eq', `${organisationName} | Case overview`)
 
-    cy.contains('Post case (0/0)').click()
-    cy.get('[id="edit-cases996statement-enforcement"]').click()
+    cy.get('details').contains('Post case').click()
+    cy.contains(/^Statement enforcement$/).click()
     cy.title().should('eq', `${organisationName} | Statement enforcement`)
   })
 })

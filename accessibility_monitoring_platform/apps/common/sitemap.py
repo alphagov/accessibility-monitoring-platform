@@ -1147,7 +1147,11 @@ SITE_MAP: list[PlatformPageGroup] = [
     PlatformPageGroup(
         name="",
         pages=[
-            CasePlatformPage(name="View case", url_name="cases:case-detail"),
+            CasePlatformPage(name="Case overview", url_name="cases:case-detail"),
+            CasePlatformPage(
+                name="View and search all case data",
+                url_name="cases:case-view-and-search",
+            ),
             CasePlatformPage(
                 name="Create reminder",
                 url_name="notifications:reminder-create",
