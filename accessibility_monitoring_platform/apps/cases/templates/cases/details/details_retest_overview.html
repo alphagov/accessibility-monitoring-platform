@@ -4,7 +4,7 @@
     {% if case.actual_retests %}
         {% for equality_body_retest in case.actual_retests %}
             <p class="govuk-body-m"><b>Retest #{{ equality_body_retest.id_within_case }}</b></p>
-            <table class="govuk-table" data-search-target-page-name="{% if case_detail_section.page.platform_page_group_name %}{{ case_detail_section.page.platform_page_group_name }} | {% endif %}{{ case_detail_section.page.get_name }}" data-search-target-label="Edit" data-search-target-url="{{ case_detail_section.page.get_url }}">
+            <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group_name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.get_url }}">
                 <tbody class="govuk-table__body">
                     <tr class="govuk-table__row ">
                         <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Date of retest</th>

@@ -16,13 +16,24 @@ pre {
 .amp-case-banner {
     font-family: "GDS Transport",arial,sans-serif;
     font-size: 1rem;
-    background-color: govuk-colour("light-grey");
-    border: 1px solid govuk-colour("mid-grey");
     padding: 20px;
 
-    p {
+    h1, p {
         margin: 0;
     }
+}
+.amp-case-banner-title-active {
+    color: govuk-colour("white");
+    background-color: govuk-colour("blue");
+}
+
+.amp-case-banner-title-archive {
+    color: govuk-colour("white");
+    background-color: govuk-colour("dark-grey");
+}
+
+.amp-case-banner-body {
+    background-color: govuk-colour("light-grey");
 }
 
 .amp-case-banner-row {
@@ -895,6 +906,21 @@ svg {
     }
 }
 
+.amp_case_search_contents {
+    li {
+        padding-bottom: 4px;
+
+        a {
+            padding-bottom: 4px;
+        }
+    }
+}
+
+.amp_case_search_list_header {
+    display: flex;
+    justify-content: space-between;
+}
+
 .amp-session-warning {
     color: govuk-colour("red");
     font-weight: bold;
@@ -917,4 +943,14 @@ svg {
 
 .amp-nav-seperator {
     margin: 25px 0px;
+}
+
+.amp-hide {
+    display: none;
+}
+
+.amp-back-to-top {
+    position: fixed;
+    bottom: 0;
+    left: 5px;
 }

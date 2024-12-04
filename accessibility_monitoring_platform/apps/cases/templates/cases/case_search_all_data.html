@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' %}
+        </div>
+    </div>
+    {% block breadcrumbs %}
+    {% include 'cases/helpers/breadcrumbs.html' %}
+    {% endblock %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        {% include 'cases/helpers/compliant_website_notification.html' %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% block header %}
+                    {% include "cases/helpers/edit_header.html" %}
+                {% endblock %}
+                <br/>
+                {% block nav %}
+                    {% if case.archive %}
+                        <p class="govuk-body-s amp-margin-bottom-10">
+                            <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">Return to case overview</a>
+                        </p>
+                    {% endif %}
+                    {% include "cases/helpers/case_nav.html" %}
+                {% endblock %}
+                {% include 'common/error_summary.html' %}
+                {% block preform %}{% endblock %}
+                {% block postform %}{% endblock %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

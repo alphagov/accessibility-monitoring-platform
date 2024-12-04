@@ -218,6 +218,14 @@ class CaseDetailView(DetailView):
         }
 
 
+class CaseSearchView(CaseDetailView):
+    """
+    View and search details of a single case
+    """
+
+    template_name: str = "cases/case_search.html"
+
+
 class CaseListView(ListView):
     """
     View of list of cases

@@ -1,6 +1,6 @@
-<h2 class="govuk-heading-s amp-margin-bottom-5">WCAG issues</h2>
-<p class="govuk-body-m amp-margin-bottom-10">Initial test: {{ audit.failed_check_results.count }}</p>
-<p class="govuk-body-m amp-margin-bottom-10">
+<h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">WCAG issues</h2>
+<p class="govuk-body-s amp-margin-bottom-10">Initial test: {{ audit.failed_check_results.count }}</p>
+<p class="govuk-body-s amp-margin-bottom-10">
     Retest: {{ audit.unfixed_check_results.count }}
     {% if audit %}
         ({{ audit.percentage_wcag_issues_fixed }}% fixed)
@@ -9,8 +9,8 @@
         ({{ audit.missing_at_retest_pages.count }} deleted page{% if audit.missing_at_retest_pages.count != 1 %}s{% endif %})
     {% endif %}
 </p>
-<h2 class="govuk-heading-s amp-margin-bottom-5">Statement issues</h2>
-<p class="govuk-body-m amp-margin-bottom-10">
+<h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Statement issues</h2>
+<p class="govuk-body-s amp-margin-bottom-10">
     Initial test:
     {% if audit.accessibility_statement_page and audit.accessibility_statement_page.not_found == 'no' %}
         {% if audit.uses_statement_checks %}
@@ -22,7 +22,7 @@
         No statement found
     {% endif %}
 </p>
-<p class="govuk-body-m amp-margin-bottom-10">
+<p class="govuk-body-m amp-margin-bottom-10 govuk-!-font-size-16">
     Retest test:
     {% if audit.accessibility_statement_page and not audit.accessibility_statement_page.retest_page_missing_date %}
         {% if audit.uses_statement_checks %}
