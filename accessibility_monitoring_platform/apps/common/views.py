@@ -21,6 +21,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
+from ..common.email_template_utils import get_email_template_context
 from .forms import (
     ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
@@ -492,10 +493,13 @@ class EmailTemplatePreviewDetailView(DetailView):
         """Add case and email template to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = Case.objects.filter(pk=EMAIL_TEMPLATE_PREVIEW_CASE_ID).first()
-        context["case"] = case
         if case is not None:
-            context["retest"] = case.retests.first()
-        context["email_template_render"] = self.object.render(context=context)
+            email_template_context: dict[str, Any] = get_email_template_context(
+                case=case
+            )
+            context["email_template_render"] = self.object.render(
+                context=email_template_context
+            )
         return context
 
 
