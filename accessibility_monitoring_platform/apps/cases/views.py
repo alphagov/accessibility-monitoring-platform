@@ -25,6 +25,7 @@ from ..audits.forms import (
 from ..audits.utils import report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
+from ..common.email_template_utils import get_email_template_context
 from ..common.models import Boolean, EmailTemplate
 from ..common.sitemap import Sitemap
 from ..common.utils import (
@@ -1422,22 +1423,13 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
         """Add case and email template to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        context["12_weeks_from_today"] = date.today() + timedelta(
-            days=TWELVE_WEEKS_IN_DAYS
-        )
         context["case"] = self.case
-        context["retest"] = self.case.retests.first()
-        if self.case.audit is not None:
-            context["issues_tables"] = build_issues_tables(
-                pages=self.case.audit.testable_pages,
-                check_results_attr="unfixed_check_results",
-            )
-            context["retest_issues_tables"] = build_issues_tables(
-                pages=self.case.audit.retestable_pages,
-                use_retest_notes=True,
-                check_results_attr="unfixed_check_results",
-            )
-        context["email_template_render"] = self.object.render(context=context)
+        email_template_context: dict[str, Any] = get_email_template_context(
+            case=self.case
+        )
+        context["email_template_render"] = self.object.render(
+            context=email_template_context
+        )
         return context
 
 
