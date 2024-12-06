@@ -260,7 +260,7 @@ class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
     form_class: type[AuditRetestWcagSummaryUpdateForm] = (
         AuditRetestWcagSummaryUpdateForm
     )
-    template_name: str = "audits/forms/retest_test_summary.html"
+    template_name: str = "audits/forms/test_summary.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -597,7 +597,7 @@ class AuditRetestStatementSummaryUpdateView(AuditRetestSummaryUpdateView):
     form_class: type[AuditRetestStatementSummaryUpdateForm] = (
         AuditRetestStatementSummaryUpdateForm
     )
-    template_name: str = "audits/forms/retest_test_summary.html"
+    template_name: str = "audits/forms/test_summary.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
