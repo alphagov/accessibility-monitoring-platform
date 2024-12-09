@@ -954,3 +954,8 @@ svg {
     bottom: 0;
     left: 5px;
 }
+
+.amp-disabled {
+    color: govuk-colour("mid-grey");
+    pointer-events: none;
+}

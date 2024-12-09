@@ -781,6 +781,14 @@ class Audit(VersionModel):
         return self.testable_pages.exclude(retest_page_missing_date=None)
 
     @property
+    def missing_at_retest_check_results(self):
+        return self.checkresult_audit.filter(
+            is_deleted=False,
+            check_result_state=CheckResult.Result.ERROR,
+            page__in=self.missing_at_retest_pages,
+        )
+
+    @property
     def failed_check_results(self):
         return (
             self.checkresult_audit.filter(
@@ -1136,6 +1144,7 @@ class Page(models.Model):
         title: str = str(self)
         if self.page_type != Page.Type.PDF:
             title += " page"
+        # title += f" ({self.all_check_results.count()})"
         return title
 
     def save(self, *args, **kwargs) -> None:
