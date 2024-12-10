@@ -2990,13 +2990,18 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
 
     assert response.status_code == 200
 
-    assertContains(
-        response,
-        f"""<li>
-            <a href="{link_url}" class="govuk-link govuk-link--no-visited-state">
-                {label}</a></li>""",
-        html=True,
-    )
+    if label == "No response from PSB":
+        assertContains(
+            response,
+            f"""<li> or <a href="{link_url}" class="govuk-link govuk-link--no-visited-state"> {label} </a></li>""",
+            html=True,
+        )
+    else:
+        assertContains(
+            response,
+            f"""<li><a href="{link_url}" class="govuk-link govuk-link--no-visited-state"> {label}</a></li>""",
+            html=True,
+        )
 
     setattr(case, field_name, field_value)
     case.save()
@@ -3007,14 +3012,18 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
 
     assert response.status_code == 200
 
-    assertContains(
-        response,
-        f"""<li>
-            <a href="{link_url}"
-                class="govuk-link govuk-link--no-visited-state">
-                {label}</a>&check;</li>""",
-        html=True,
-    )
+    if label == "No response from PSB":
+        assertContains(
+            response,
+            f"""<li> or <a href="{link_url}" class="govuk-link govuk-link--no-visited-state">{label}</a>&check;</li>""",
+            html=True,
+        )
+    else:
+        assertContains(
+            response,
+            f"""<li> <a href="{link_url}" class="govuk-link govuk-link--no-visited-state">{label}</a>&check;</li>""",
+            html=True,
+        )
 
 
 def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
