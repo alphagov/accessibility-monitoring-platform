@@ -3561,3 +3561,28 @@ def test_nav_details_subpage_renders(admin_client):
         </ul>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "path_name",
+    [
+        "audits:edit-audit-page-checks",
+        "audits:edit-audit-retest-page-checks",
+    ],
+)
+def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
+    """Test that tall pages include a back to top link"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: dict[str, int] = {"pk": page.id}
+
+    response: HttpResponse = admin_client.get(reverse(path_name, kwargs=page_pk))
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        '<a href="#" class="govuk-link govuk-link--no-visited-state">Back to top</a>',
+        html=True,
+    )
