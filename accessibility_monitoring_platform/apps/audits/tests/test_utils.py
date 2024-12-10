@@ -3,10 +3,12 @@ Test - common utility functions
 """
 
 from datetime import date, timedelta
+from typing import Any
 
 import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
+from django.http import HttpRequest
 from django.urls import reverse
 
 from ...cases.models import Case
@@ -30,6 +32,7 @@ from ..utils import (
     create_or_update_check_results_for_page,
     create_statement_checks_for_new_audit,
     get_all_possible_check_results_for_page,
+    get_audit_summary_context,
     get_next_equality_body_retest_page_url,
     get_next_page_url,
     get_next_retest_page_url,
@@ -38,6 +41,7 @@ from ..utils import (
     report_data_updated,
 )
 
+TODAY: date = date.today()
 HOME_PAGE_URL: str = "https://example.com/home"
 USER_FIRST_NAME = "John"
 USER_LAST_NAME = "Smith"
@@ -814,3 +818,158 @@ def test_get_other_pages_with_retest_notes():
     assert len(other_pages_with_retest_notes) == 1
 
     assert other_pages_with_retest_notes[0] == other_page_with_retest_notes
+
+
+@pytest.mark.django_db
+def test_get_audit_summary_context(rf):
+    """Test get_audit_summary_context returned"""
+    request: HttpRequest = rf.get("/")
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "enable_12_week_ui" in context
+    assert "show_failures_by_page" in context
+    assert "audit_failures_by_page" in context
+    assert "pages_with_retest_notes" in context
+    assert "audit_failures_by_wcag" in context
+
+
+@pytest.mark.django_db
+def test_get_audit_summary_enable_12_week_ui(rf):
+    """Test enable_12_week_ui set as expected"""
+    request: HttpRequest = rf.get("/")
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "enable_12_week_ui" in context
+    assert context["enable_12_week_ui"] is False
+
+    audit.retest_date = TODAY
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "enable_12_week_ui" in context
+    assert context["enable_12_week_ui"] is True
+
+
+@pytest.mark.django_db
+def test_get_audit_summary_show_failures_by_page(rf):
+    """Test show_failures_by_page set as expected"""
+    request: HttpRequest = rf.get("/")
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "show_failures_by_page" in context
+    assert context["show_failures_by_page"] is False
+
+    request.GET = {"page-view": "true"}
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "show_failures_by_page" in context
+    assert context["show_failures_by_page"] is True
+
+
+@pytest.mark.django_db
+def test_get_audit_summary_audit_failures_by_page(rf):
+    """Test audit_failures_by_page set as expected"""
+    request: HttpRequest = rf.get("/")
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "audit_failures_by_page" in context
+    assert context["audit_failures_by_page"] == {}
+
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        check_result_state=CheckResult.Result.ERROR,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "audit_failures_by_page" in context
+
+    audit_failures_by_page: dict[Page, Any] = context["audit_failures_by_page"]
+
+    assert page in audit_failures_by_page
+    assert len(audit_failures_by_page[page]) == 1
+    assert audit_failures_by_page[page][0] == check_result
+
+
+@pytest.mark.django_db
+def test_get_audit_summary_pages_with_retest_notes(rf):
+    """Test pages_with_retest_notes set as expected"""
+    request: HttpRequest = rf.get("/")
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "pages_with_retest_notes" in context
+    assert context["pages_with_retest_notes"].exists() is False
+
+    page.retest_notes = "Note"
+    page.save()
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "pages_with_retest_notes" in context
+    assert context["pages_with_retest_notes"].exists() is True
+    assert context["pages_with_retest_notes"].first() == page
+
+
+@pytest.mark.django_db
+def test_get_audit_summary_audit_failures_by_wcag(rf):
+    """Test audit_failures_by_wcag set as expected"""
+    request: HttpRequest = rf.get("/")
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "audit_failures_by_wcag" in context
+    assert context["audit_failures_by_wcag"] == {}
+
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        check_result_state=CheckResult.Result.ERROR,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
+
+    assert "audit_failures_by_wcag" in context
+
+    audit_failures_by_wcag: dict[Page, Any] = context["audit_failures_by_wcag"]
+
+    assert wcag_definition in audit_failures_by_wcag
+    assert len(audit_failures_by_wcag[wcag_definition]) == 1
+    assert audit_failures_by_wcag[wcag_definition][0] == check_result

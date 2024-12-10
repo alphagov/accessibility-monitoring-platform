@@ -4,12 +4,18 @@ Utilities for audits app
 
 from collections import namedtuple
 from datetime import date, datetime
+from typing import Any
 
 from django.contrib.auth.models import User
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 
-from ..common.utils import record_model_create_event, record_model_update_event
+from ..common.utils import (
+    list_to_dictionary_of_lists,
+    record_model_create_event,
+    record_model_update_event,
+)
 from .forms import CheckResultForm
 from .models import (
     Audit,
@@ -322,3 +328,21 @@ def get_other_pages_with_retest_notes(page: Page) -> list[Page]:
         for other_page in audit.testable_pages
         if other_page.retest_notes and other_page != page
     ]
+
+
+def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, Any]:
+    """Return the context for test summary pages"""
+    context: dict[str, Any] = {}
+    context["enable_12_week_ui"] = audit.retest_date is not None
+    show_failures_by_page: bool = "page-view" in request.GET
+    context["show_failures_by_page"] = show_failures_by_page
+
+    context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+        items=audit.failed_check_results, group_by_attr="page"
+    )
+    context["pages_with_retest_notes"] = audit.testable_pages.exclude(retest_notes="")
+    context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+        items=audit.failed_check_results, group_by_attr="wcag_definition"
+    )
+
+    return context

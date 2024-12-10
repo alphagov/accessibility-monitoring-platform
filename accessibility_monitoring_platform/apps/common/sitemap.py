@@ -512,7 +512,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 complete_flag_name="audit_pages_complete_date",
                 subpages=[
                     PlatformPage(
-                        name="{object.page_title} test ({object.count_failed_check_results})",
+                        name="{object.page_title} test",
                         url_name="audits:edit-audit-page-checks",
                         url_kwarg_key="pk",
                         object_class=Page,
