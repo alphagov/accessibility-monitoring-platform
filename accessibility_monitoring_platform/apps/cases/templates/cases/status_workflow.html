@@ -4,8 +4,73 @@
 {% endblock %}
 
 {% block preform %}
-<h2 class="govuk-heading-s amp-margin-bottom-0">Unassigned case</h2>
-<ul class="govuk-list">
+
+<h2 class="govuk-heading-s amp-margin-bottom-5">Status summary</h2>
+<ul class="govuk-list govuk-list--bullet">
+    <li>
+        Current status: {{ case.status.get_status_display }}
+    </li>
+    <li>
+        Next required action: {% if case.archive %}
+            Archived
+        {% elif case.status.status == 'unassigned-case' %}
+            <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to case metadata
+            </a>
+        {% elif case.status.status == 'test-in-progress' %}
+            <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to testing details
+            </a>
+        {% elif case.status.status == 'report-in-progress' %}
+            <a href="{% url 'cases:edit-report-ready-for-qa' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to report ready for QA
+            </a>
+        {% elif case.status.status == 'unassigned-qa-case' or case.status.status == 'qa-in-progress' %}
+            <a href="{% url 'cases:edit-qa-approval' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to QA approval
+            </a>
+        {% elif case.status.status == 'report-ready-to-send' %}
+            <a href="{% url 'cases:edit-report-sent-on' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to Report sent on
+            </a>
+        {% elif case.status.status == 'in-report-correspondence' %}
+            <a href="{{ case.in_report_correspondence_progress.url }}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.in_report_correspondence_progress.label }}
+            </a>
+        {% elif case.status.status == 'in-probation-period' %}
+            <a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to 12-week update requested
+            </a>
+        {% elif case.status.status == 'in-12-week-correspondence' %}
+            <a href="{{ case.twelve_week_correspondence_progress.url }}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.twelve_week_correspondence_progress.url }}
+            </a>
+        {% elif case.status.status == 'reviewing-changes' %}
+            <a href="{% url 'cases:edit-review-changes' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to reviewing changes
+            </a>
+        {% elif case.status.status == 'final-decision-due' or case.status.status == 'case-closed-waiting-to-be-sent' %}
+            <a href="{% url 'cases:edit-case-close' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to closing the case
+            </a>
+        {% elif case.status.status == 'case-closed-sent-to-equalities-body' or case.status.status == 'in-correspondence-with-equalities-body' %}
+            <a href="{% url 'cases:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to equality body metadata
+            </a>
+        {% elif case.status.status == 'complete' %}
+            <a href="{% url 'cases:edit-post-case' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to post case summary
+            </a>
+        {% else %}
+            <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to case metadata
+            </a>
+        {% endif %}
+    </li>
+</ul>
+
+<h2 class="govuk-heading-s amp-margin-bottom-5">Unassigned case {% if case.auditor %}[COMPLETE]{% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Assign an auditor
@@ -14,8 +79,8 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Test in progress</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Test in progress {% if case.compliance.website_compliance_state_initial != 'not-known' %} [COMPLETE] {% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Initial website compliance decision is not filled in
@@ -37,8 +102,8 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Report in progress</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Report in progress {% if case.report_review_status == 'yes' %} [COMPLETE] {% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-report-ready-for-qa' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Report ready for QA process needs to be Yes
@@ -47,8 +112,8 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">QA in progress</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">QA in progress {% if case.report_approved_status == 'yes' %} [COMPLETE] {% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-qa-approval' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Report approved needs to be Yes
@@ -57,8 +122,8 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Report ready to send</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Report ready to send {% if case.report_sent_date %}[COMPLETE]{% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-report-sent-on' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Report sent on requires a date
@@ -67,25 +132,22 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Report sent</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Report sent {% if case.report_acknowledged_date or case.no_psb_contact == 'yes' %}[COMPLETE]{% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-report-acknowledged' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Report acknowledged requires a date
         </a>
         {% if case.report_acknowledged_date %}&check;{% endif %}
     </li>
-    <li>or</li>
     <li>
-        <a href="{% url 'cases:edit-no-psb-response' case.id %}" class="govuk-link govuk-link--no-visited-state">
-            No response from PSB
-        </a>
+        or <a href="{% url 'cases:edit-no-psb-response' case.id %}" class="govuk-link govuk-link--no-visited-state"> No response from PSB </a>
         {% if case.no_psb_contact == 'yes' %}&check;{% endif %}
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Report acknowledged waiting for 12-week deadline</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Report acknowledged waiting for 12-week deadline {% if case.twelve_week_update_requested_date %}[COMPLETE]{% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">
             12-week update requested requires a date
@@ -94,8 +156,8 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">12-week update request acknowledged</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">12-week update request acknowledged {% if case.twelve_week_correspondence_acknowledged_date or case.no_psb_contact == 'yes' %}[COMPLETE]{% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-12-week-update-request-ack' case.id %}" class="govuk-link govuk-link--no-visited-state">
             12-week update received requires a date or mark the case as having no response
@@ -104,8 +166,8 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Reviewing changes</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Reviewing changes {% if case.is_ready_for_final_decision == 'yes' %}[COMPLETE]{% endif %} </h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-review-changes' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Is this case ready for final decision? needs to be Yes
@@ -114,8 +176,8 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Final decision due</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Final decision due {% if case.case_completed != 'no-decision' %}[COMPLETE]{% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-case-close' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Case completed requires a decision
@@ -124,8 +186,8 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Case closed and waiting to be sent to equalities body</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Case closed and waiting to be sent to equalities body</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Date sent to equality body requires a date
@@ -134,36 +196,36 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Case closed and sent to equalities body</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Case closed and sent to equalities body {% if case.enforcement_body_closed_case != 'no' %}[COMPLETE]{% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Equality body pursuing this case? should either be 'Yes, completed' or 'Yes, in progress'
         </a>
-        {% if case.enforcement_body_pursuing != 'no' %}&check;{% endif %}
+        {% if case.enforcement_body_closed_case != 'no' %}&check;{% endif %}
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">In correspondence with equalities body</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">In correspondence with equalities body {% if case.enforcement_body_closed_case == 'yes' %}[COMPLETE]{% endif %}</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Equality body pursuing this case? should be 'Yes, completed'
         </a>
-        {% if case.enforcement_body_pursuing == 'yes-completed' %}&check;{% endif %}
+        {% if case.enforcement_body_closed_case == 'yes' %}&check;{% endif %}
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-0">Complete</h2>
-<ul class="govuk-list">
+<h2 class="govuk-heading-s amp-margin-bottom-5">Complete</h2>
+<ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-case-close' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Case complete needs to be 'Case should not be sent to the equality body'
         </a>
         {% if case.case_close_complete_date %}&check;{% endif %}
     </li>
-    <li>or</li>
     <li>
+        or
         <a href="{% url 'cases:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Equality body pursuing this case? needs to be 'Yes, completed'
         </a>
