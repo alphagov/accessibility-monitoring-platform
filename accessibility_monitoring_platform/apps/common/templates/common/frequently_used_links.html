@@ -9,7 +9,7 @@
         </li>
         {% if not case.archive %}
             <li>
-                <a href="{% url 'cases:outstanding-issues' case.id %}?view=Page view" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'cases:outstanding-issues' case.id %}?show-unfixed=true" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                     View outstanding issues
                 </a>
             </li>

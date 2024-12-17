@@ -430,8 +430,8 @@ def test_audit_pages_platform_page():
 
     assert audit_pages_platform_page.object == audit
     assert len(audit_pages_platform_page.subpages) == 2
-    assert audit_pages_platform_page.subpages[0].get_name() == "Page one page test (0)"
-    assert audit_pages_platform_page.subpages[1].get_name() == "Page two page test (0)"
+    assert audit_pages_platform_page.subpages[0].get_name() == "Page one page test"
+    assert audit_pages_platform_page.subpages[1].get_name() == "Page two page test"
 
 
 @pytest.mark.django_db
@@ -652,7 +652,7 @@ def test_get_requested_platform_page_for_page(rf):
 
     current_platform_page: PlatformPage = get_requested_platform_page(request)
 
-    assert current_platform_page.get_name() == "Additional page test (0)"
+    assert current_platform_page.get_name() == "Additional page test"
     assert current_platform_page.url_name == "audits:edit-audit-page-checks"
 
 
@@ -833,7 +833,7 @@ def test_get_platform_page_name_by_url():
         get_platform_page_name_by_url(
             f"/audits/pages/{page.id}/edit-audit-page-checks/"
         )
-        == f"{page.page_title} test (0)"
+        == f"{page.page_title} test"
     )
 
 

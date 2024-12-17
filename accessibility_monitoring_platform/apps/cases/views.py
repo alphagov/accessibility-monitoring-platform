@@ -22,7 +22,7 @@ from ..audits.forms import (
     ArchiveAuditStatement1UpdateForm,
     ArchiveAuditStatement2UpdateForm,
 )
-from ..audits.utils import report_data_updated
+from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.email_template_utils import get_email_template_context
@@ -35,7 +35,6 @@ from ..common.utils import (
     get_dict_without_page_items,
     get_id_from_button_name,
     get_url_parameters_for_pagination,
-    list_to_dictionary_of_lists,
     record_model_create_event,
     record_model_update_event,
 )
@@ -51,7 +50,7 @@ from ..exports.csv_export_utils import (
 )
 from ..notifications.models import Task
 from ..notifications.utils import add_task, mark_tasks_as_read
-from ..reports.utils import build_issues_tables, publish_report_util
+from ..reports.utils import publish_report_util
 from .forms import (
     CaseCloseUpdateForm,
     CaseCreateForm,
@@ -1059,24 +1058,11 @@ class CaseOutstandingIssuesDetailView(DetailView):
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = self.object
-
-        view_url_param: str | None = self.request.GET.get("view")
-        show_failures_by_page: bool = not view_url_param == "WCAG view"
-        context["show_failures_by_page"] = show_failures_by_page
-
-        if case.audit and case.audit.unfixed_check_results:
-            if show_failures_by_page:
-                context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                    items=case.audit.unfixed_check_results, group_by_attr="page"
-                )
-            else:
-                context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-                    items=case.audit.unfixed_check_results.order_by(
-                        "wcag_definition__name"
-                    ),
-                    group_by_attr="wcag_definition",
-                )
-
+        if case.audit is not None:
+            return {
+                **context,
+                **get_audit_summary_context(request=self.request, audit=case.audit),
+            }
         return context
 
 

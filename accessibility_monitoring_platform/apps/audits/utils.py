@@ -4,12 +4,19 @@ Utilities for audits app
 
 from collections import namedtuple
 from datetime import date, datetime
+from typing import Any
 
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 
-from ..common.utils import record_model_create_event, record_model_update_event
+from ..common.utils import (
+    list_to_dictionary_of_lists,
+    record_model_create_event,
+    record_model_update_event,
+)
 from .forms import CheckResultForm
 from .models import (
     Audit,
@@ -322,3 +329,43 @@ def get_other_pages_with_retest_notes(page: Page) -> list[Page]:
         for other_page in audit.testable_pages
         if other_page.retest_notes and other_page != page
     ]
+
+
+def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, Any]:
+    """Return the context for test summary pages"""
+    context: dict[str, Any] = {}
+    show_failures_by_page: bool = "page-view" in request.GET
+    show_unfixed: bool = "show-unfixed" in request.GET
+    context["show_failures_by_page"] = show_failures_by_page
+    context["show_unfixed"] = show_unfixed
+    context["enable_12_week_ui"] = audit.retest_date is not None
+
+    check_results: QuerySet[CheckResult] = (
+        audit.unfixed_check_results if show_unfixed else audit.failed_check_results
+    )
+
+    context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+        items=check_results, group_by_attr="page"
+    )
+    context["pages_with_retest_notes"] = audit.testable_pages.exclude(retest_notes="")
+    context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+        items=check_results, group_by_attr="wcag_definition"
+    )
+
+    statement_check_results: QuerySet[StatementCheckResult] = (
+        audit.outstanding_statement_check_results
+        if show_unfixed
+        else audit.statement_check_results
+    )
+    if not audit.all_overview_statement_checks_have_passed:
+        statement_check_results = statement_check_results.filter(
+            type=StatementCheck.Type.OVERVIEW
+        )
+    context["statement_check_results_by_type"] = list_to_dictionary_of_lists(
+        items=statement_check_results, group_by_attr="type"
+    )
+
+    context["number_of_wcag_issues"] = check_results.count()
+    context["number_of_statement_issues"] = statement_check_results.count()
+
+    return context

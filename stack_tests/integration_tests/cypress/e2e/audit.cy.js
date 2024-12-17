@@ -37,7 +37,7 @@ describe('View test', () => {
 
   it('can edit a page', () => {
     cy.contains('Initial WCAG test').click()
-    cy.contains(/^Home page test \(1\)$/).click()
+    cy.contains(/^Home page test$/).click()
     cy.get('[name="form-0-check_result_state"]').check('error')
     cy.get('[name="form-0-notes"]').clear().type(errorText)
     cy.get('[name="complete_date"]').click()

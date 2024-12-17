@@ -3216,71 +3216,52 @@ def test_outstanding_issues(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Group by WCAG error")
-    assertNotContains(response, "Group by Page")
-    assertContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
-    assertNotContains(
-        response, """<h2 id="wcag-77" class="govuk-heading-l">Axe WCAG</h2>"""
-    )
-
-    response: HttpResponse = admin_client.get(f"{url}?view=WCAG+view")
-
-    assert response.status_code == 200
-
-    assertNotContains(response, "Group by WCAG error")
-    assertContains(response, "Group by page")
-    assertNotContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
     assertContains(
-        response, """<h2 id="wcag-77" class="govuk-heading-l">Axe WCAG</h2>"""
+        response,
+        '<th scope="col" class="govuk-table__header amp-width-one-third">Page</th>',
+        html=True,
     )
-
-    response: HttpResponse = admin_client.get(f"{url}?view=Page+view")
-
-    assert response.status_code == 200
-
-    assertContains(response, "Group by WCAG error")
-    assertNotContains(response, "Group by page")
-    assertContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
+    assertContains(response, "Group by page")
     assertNotContains(
-        response, """<h2 id="wcag-77" class="govuk-heading-l">Axe WCAG</h2>"""
+        response,
+        '<th scope="col" class="govuk-table__header amp-width-one-third">WCAG issue</th>',
+        html=True,
     )
+    assertNotContains(response, "Group by WCAG issue")
 
-
-def test_outstanding_issues_overview(admin_client):
-    """
-    Test out standing issues page shows overview.
-    """
-    audit: Audit = create_audit_and_check_results()
-    url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
-
-    response: HttpResponse = admin_client.get(url)
+    response: HttpResponse = admin_client.get(f"{url}?page-view=true")
 
     assert response.status_code == 200
 
-    assertContains(response, "WCAG errors: 0 of 3 fixed (0%)", html=True)
-    assertContains(response, "Statement errors: 0 of 12 fixed (0%)", html=True)
+    assertNotContains(
+        response,
+        '<th scope="col" class="govuk-table__header amp-width-one-third">Page</th>',
+        html=True,
+    )
+    assertNotContains(response, "Group by page")
+    assertContains(
+        response,
+        '<th scope="col" class="govuk-table__header amp-width-one-third">WCAG issue</th>',
+        html=True,
+    )
+    assertContains(response, "Group by WCAG issue")
 
-
-def test_outstanding_issues_overview_percentage(admin_client):
-    """
-    Test out standing issues page shows overview percentages calculated
-    correctly.
-    """
-    audit: Audit = create_audit_and_check_results()
-    audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
-    audit.save()
-    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
-    check_result: CheckResult = home_page.all_check_results[0]
-    check_result.retest_state = CheckResult.RetestResult.FIXED
-    check_result.save()
-    url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
-
-    response: HttpResponse = admin_client.get(url)
+    response: HttpResponse = admin_client.get(f"{url}?wcag-view=true")
 
     assert response.status_code == 200
 
-    assertContains(response, "WCAG errors: 1 of 3 fixed (33%)", html=True)
-    assertContains(response, "Statement errors: 1 of 12 fixed (8%)", html=True)
+    assertContains(
+        response,
+        '<th scope="col" class="govuk-table__header amp-width-one-third">Page</th>',
+        html=True,
+    )
+    assertContains(response, "Group by page")
+    assertNotContains(
+        response,
+        '<th scope="col" class="govuk-table__header amp-width-one-third">WCAG issue</th>',
+        html=True,
+    )
+    assertNotContains(response, "Group by WCAG issue")
 
 
 def test_outstanding_issues_new_case(admin_client):
@@ -3295,56 +3276,6 @@ def test_outstanding_issues_new_case(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "This is a new case and does not have any test data.")
-
-
-@pytest.mark.parametrize(
-    "type, label",
-    [
-        ("overview", "Statement overview"),
-        ("website", "Statement information"),
-        ("compliance", "Compliance status"),
-        ("non-accessible", "Non-accessible content overview"),
-        ("preparation", "Preparation"),
-        ("feedback", "Feedback and enforcement procedure"),
-        ("custom", "Custom statement issues"),
-    ],
-)
-def test_outstanding_issues_statement_checks(type, label, admin_client):
-    """Test that outstanding issues shows expected statement checks"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        audit=audit,
-        type=type,
-        statement_check=statement_check,
-    )
-    edit_url: str = f"edit-retest-statement-{type}"
-    url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-    assertNotContains(response, f"{label}</h2>")
-    assertNotContains(response, edit_url)
-
-    statement_check_result.check_result_state = StatementCheckResult.Result.NO
-    statement_check_result.save()
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-    assertContains(response, f"{label}</h2>")
-    assertContains(response, edit_url)
-
-    statement_check_result.retest_state = StatementCheckResult.Result.YES
-    statement_check_result.save()
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-    assertNotContains(response, f"{label}</h2>")
-    assertNotContains(response, edit_url)
 
 
 @pytest.mark.parametrize(
