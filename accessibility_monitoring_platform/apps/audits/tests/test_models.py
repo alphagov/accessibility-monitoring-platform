@@ -355,6 +355,33 @@ def test_audit_missing_at_retest_pages():
 
 
 @pytest.mark.django_db
+def test_audit_missing_at_retest_check_results():
+    """Test missing at retest check results."""
+    audit: Audit = create_audit_and_pages()
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        check_result_state=CheckResult.Result.ERROR,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert len(audit.missing_at_retest_check_results) == 0
+
+    page.retest_page_missing_date = TODAY
+    page.save()
+
+    assert len(audit.missing_at_retest_check_results) == 1
+    assert audit.missing_at_retest_check_results[0] == check_result
+
+
+@pytest.mark.django_db
 def test_page_string():
     """
     Test Page string is name if present otherwise type
@@ -871,6 +898,37 @@ def test_statement_check_str():
 
     assert (
         statement_check.__str__() == "Label: Success criteria (Custom statement issues)"
+    )
+
+
+def test_statement_check_edit_initial_url_name():
+    """Tests an StatementCheck edit_initial_url_name contains the expected string"""
+    statement_check: StatementCheck = StatementCheck(
+        type=StatementCheck.Type.COMPLIANCE
+    )
+
+    assert statement_check.edit_initial_url_name == "audits:edit-statement-compliance"
+
+    statement_check.type = StatementCheck.Type.OVERVIEW
+
+    assert statement_check.edit_initial_url_name == "audits:edit-statement-overview"
+
+
+def test_statement_check_edit_12_week_url_name():
+    """Tests an StatementCheck edit_12_week_url_name contains the expected string"""
+    statement_check: StatementCheck = StatementCheck(
+        type=StatementCheck.Type.COMPLIANCE
+    )
+
+    assert (
+        statement_check.edit_12_week_url_name
+        == "audits:edit-retest-statement-compliance"
+    )
+
+    statement_check.type = StatementCheck.Type.OVERVIEW
+
+    assert (
+        statement_check.edit_12_week_url_name == "audits:edit-retest-statement-overview"
     )
 
 

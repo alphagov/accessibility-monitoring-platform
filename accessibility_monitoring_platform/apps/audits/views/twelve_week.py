@@ -2,20 +2,16 @@
 Views for audits app (called tests by users)
 """
 
-from collections.abc import Callable
 from datetime import date
-from functools import partial
 from typing import Any
 
-from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
 from ...cases.models import CaseEvent
-from ...common.form_extract_utils import extract_form_labels_and_values
-from ...common.utils import list_to_dictionary_of_lists, record_model_update_event
+from ...common.utils import record_model_update_event
 from ..forms import (
     ArchiveAuditRetestStatement1UpdateForm,
     ArchiveAuditRetestStatement2UpdateForm,
@@ -50,7 +46,11 @@ from ..models import (
     StatementCheckResult,
     StatementPage,
 )
-from ..utils import get_next_retest_page_url, get_other_pages_with_retest_notes
+from ..utils import (
+    get_audit_summary_context,
+    get_next_retest_page_url,
+    get_other_pages_with_retest_notes,
+)
 from .base import (
     AuditCaseComplianceUpdateView,
     AuditUpdateView,
@@ -221,35 +221,10 @@ class AuditRetestSummaryUpdateView(AuditUpdateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
-
-        show_failures_by_page: bool = "page-view" in self.request.GET
-        context["show_failures_by_page"] = show_failures_by_page
-        hide_fixed_check_results: bool = "hide-fixed" in self.request.GET
-        context["hide_fixed"] = hide_fixed_check_results
-
-        if hide_fixed_check_results:
-            check_results: QuerySet[CheckResult] = audit.unfixed_check_results
-        else:
-            check_results: QuerySet[CheckResult] = audit.failed_check_results
-
-        if show_failures_by_page:
-            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                items=check_results, group_by_attr="page"
-            )
-        else:
-            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-                items=check_results, group_by_attr="wcag_definition"
-            )
-
-        get_audit_rows: Callable = partial(
-            extract_form_labels_and_values, instance=audit
-        )
-        context["audit_statement_rows"] = get_audit_rows(
-            form=ArchiveAuditRetestStatement1UpdateForm()
-        ) + get_audit_rows(form=ArchiveAuditRetestStatement2UpdateForm())
-
-        return context
+        return {
+            **context,
+            **get_audit_summary_context(request=self.request, audit=self.object),
+        }
 
 
 class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
@@ -260,7 +235,7 @@ class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
     form_class: type[AuditRetestWcagSummaryUpdateForm] = (
         AuditRetestWcagSummaryUpdateForm
     )
-    template_name: str = "audits/forms/retest_test_summary.html"
+    template_name: str = "audits/forms/test_summary.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -597,7 +572,7 @@ class AuditRetestStatementSummaryUpdateView(AuditRetestSummaryUpdateView):
     form_class: type[AuditRetestStatementSummaryUpdateForm] = (
         AuditRetestStatementSummaryUpdateForm
     )
-    template_name: str = "audits/forms/retest_test_summary.html"
+    template_name: str = "audits/forms/test_summary.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

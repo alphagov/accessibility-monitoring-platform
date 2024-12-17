@@ -48,6 +48,7 @@ WEBSITE_COMPLIANCE_NOTES: str = "Website decision notes"
 STATEMENT_COMPLIANCE_STATE: str = "not-compliant"
 STATEMENT_COMPLIANCE_NOTES: str = "Accessibility statement notes"
 FIXED_ERROR_NOTES: str = "Fixed error notes"
+UNFIXED_ERROR_NOTES: str = "Unfixed error notes"
 WCAG_DEFINITION_TYPE: str = "axe"
 WCAG_DEFINITION_NAME: str = "WCAG definiton name"
 WCAG_DEFINITION_URL: str = "https://example.com"
@@ -2829,13 +2830,28 @@ def test_summary_page_view(url_name, admin_client):
     """Test that summary page view renders with results grouped by page"""
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
+        type=WcagDefinition.Type.PDF
+    ).first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CheckResult.Result.ERROR,
+    )
 
     response: HttpResponse = admin_client.get(
         f"{reverse(url_name, kwargs=audit_pk)}?page-view=true",
     )
 
     assert response.status_code == 200
-    assertContains(response, "Test summary | Page view", html=True)
+    assertContains(
+        response,
+        '<th scope="col" class="govuk-table__header amp-width-one-third">WCAG issue</th>',
+        html=True,
+    )
+    assertContains(response, "Group by WCAG issue")
 
 
 @pytest.mark.parametrize(
@@ -2851,11 +2867,116 @@ def test_summary_wcag_view(url_name, admin_client):
     """Test that summary page view renders with results grouped by WCAG issue"""
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
+        type=WcagDefinition.Type.PDF
+    ).first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CheckResult.Result.ERROR,
+    )
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
 
     assert response.status_code == 200
-    assertContains(response, "Test summary | WCAG view", html=True)
+    assertContains(
+        response,
+        '<th scope="col" class="govuk-table__header amp-width-one-third">Page</th>',
+        html=True,
+    )
+    assertContains(response, "Group by page")
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-audit-wcag-summary",
+        "audits:edit-audit-retest-wcag-summary",
+        "audits:edit-audit-statement-summary",
+        "audits:edit-audit-retest-statement-summary",
+    ],
+)
+def test_summary_page_view_unfixed(url_name, admin_client):
+    """Test that summary page view renders with unfixed results only"""
+    audit: Audit = create_audit()
+    audit_pk: dict[str, int] = {"pk": audit.id}
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
+        type=WcagDefinition.Type.PDF
+    ).first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        retest_notes=FIXED_ERROR_NOTES,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        retest_notes=UNFIXED_ERROR_NOTES,
+    )
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse(url_name, kwargs=audit_pk)}?show-unfixed=true",
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, FIXED_ERROR_NOTES)
+    assertContains(response, UNFIXED_ERROR_NOTES)
+    assertContains(response, "View all issues")
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-audit-wcag-summary",
+        "audits:edit-audit-retest-wcag-summary",
+        "audits:edit-audit-statement-summary",
+        "audits:edit-audit-retest-statement-summary",
+    ],
+)
+def test_summary_page_view_show_all(url_name, admin_client):
+    """Test that summary page view renders with all results"""
+    audit: Audit = create_audit()
+    audit_pk: dict[str, int] = {"pk": audit.id}
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
+        type=WcagDefinition.Type.PDF
+    ).first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.FIXED,
+        retest_notes=FIXED_ERROR_NOTES,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        retest_notes=UNFIXED_ERROR_NOTES,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, FIXED_ERROR_NOTES)
+    assertContains(response, UNFIXED_ERROR_NOTES)
+    assertContains(response, "View only unfixed issues")
 
 
 @pytest.mark.parametrize(
@@ -2863,10 +2984,12 @@ def test_summary_wcag_view(url_name, admin_client):
     [
         "audits:edit-audit-wcag-summary",
         "audits:edit-audit-statement-summary",
+        "audits:edit-audit-retest-wcag-summary",
+        "audits:edit-audit-retest-statement-summary",
     ],
 )
-def test_initial_summary_page_view(url_name, admin_client):
-    """Test that initial summary page views contain initial results"""
+def test_test_summary_page_view(url_name, admin_client):
+    """Test that initial summary page views contain statement results"""
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
     StatementPage.objects.create(audit=audit, url="https://example.com")
@@ -2885,75 +3008,7 @@ def test_initial_summary_page_view(url_name, admin_client):
 
     assert response.status_code == 200
     assertContains(response, STATEMENT_CHECK_INITIAL_COMMENT)
-    assertNotContains(response, STATEMENT_CHECK_RETEST_COMMENT)
-
-
-@pytest.mark.parametrize(
-    "url_name",
-    [
-        "audits:edit-audit-retest-wcag-summary",
-        "audits:edit-audit-retest-statement-summary",
-    ],
-)
-def test_12_week_summary_page_view(url_name, admin_client):
-    """Test that 12-week summary page views contain 12-week results"""
-    audit: Audit = create_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    StatementPage.objects.create(audit=audit, url="https://example.com")
-    statement_check: StatementCheck = StatementCheck.objects.filter(
-        type=StatementCheck.Type.OVERVIEW
-    ).first()
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-        report_comment=STATEMENT_CHECK_INITIAL_COMMENT,
-        retest_comment=STATEMENT_CHECK_RETEST_COMMENT,
-    )
-
-    response: HttpResponse = admin_client.get(
-        f"{reverse(url_name, kwargs=audit_pk)}?page-view=true",
-    )
-
-    assert response.status_code == 200
-    assertNotContains(response, STATEMENT_CHECK_INITIAL_COMMENT)
     assertContains(response, STATEMENT_CHECK_RETEST_COMMENT)
-
-
-@pytest.mark.parametrize(
-    "url_name",
-    [
-        "audits:edit-audit-retest-wcag-summary",
-        "audits:edit-audit-retest-statement-summary",
-    ],
-)
-def test_summary_hide_fixed(url_name, admin_client):
-    """Test that summary page can hide the fixed check results"""
-    audit: Audit = create_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    url: str = reverse(url_name, kwargs=audit_pk)
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
-        type=WcagDefinition.Type.PDF
-    ).first()
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_pdf,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.FIXED,
-        notes=FIXED_ERROR_NOTES,
-    )
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-    assertContains(response, FIXED_ERROR_NOTES)
-
-    response: HttpResponse = admin_client.get(f"{url}?hide-fixed=true")
-
-    assert response.status_code == 200
-    assertNotContains(response, FIXED_ERROR_NOTES)
 
 
 def test_create_equality_body_retest_redirects(admin_client):
@@ -3503,7 +3558,7 @@ def test_nav_details_page_renders(admin_client):
         """<ul class="amp-nav-list-subpages">
             <li class="amp-nav-list-subpages amp-margin-top-5">
                 <a href="/audits/pages/6/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
-                    Additional page test (0)</a>
+                    Additional page test</a>
             </li>
         </ul>""",
         html=True,
@@ -3557,7 +3612,7 @@ def test_nav_details_subpage_renders(admin_client):
     assertContains(
         response,
         """<ul class="amp-nav-list-subpages">
-            <li class="amp-nav-list-subpages amp-margin-top-5"><b>Additional page test (0)</b></li>
+            <li class="amp-nav-list-subpages amp-margin-top-5"><b>Additional page test</b></li>
         </ul>""",
         html=True,
     )
