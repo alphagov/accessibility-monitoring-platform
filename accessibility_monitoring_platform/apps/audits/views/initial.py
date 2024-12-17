@@ -2,8 +2,6 @@
 Views for audits app (called tests by users)
 """
 
-from collections.abc import Callable
-from functools import partial
 from typing import Any
 
 from django.db.models.query import QuerySet
@@ -14,10 +12,8 @@ from django.urls import reverse
 from django.views.generic.edit import FormView
 
 from ...cases.models import Contact
-from ...common.form_extract_utils import extract_form_labels_and_values
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.utils import (
-    list_to_dictionary_of_lists,
     mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
@@ -66,6 +62,7 @@ from ..models import (
 from ..utils import (
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
+    get_audit_summary_context,
     get_next_page_url,
     other_page_failed_check_results,
     report_data_updated,
@@ -367,28 +364,10 @@ class AuditSummaryUpdateView(AuditUpdateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
-
-        show_failures_by_page: bool = "page-view" in self.request.GET
-        context["show_failures_by_page"] = show_failures_by_page
-
-        if show_failures_by_page:
-            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                items=audit.failed_check_results, group_by_attr="page"
-            )
-        else:
-            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-                items=audit.failed_check_results, group_by_attr="wcag_definition"
-            )
-
-        get_audit_rows: Callable = partial(
-            extract_form_labels_and_values, instance=audit
-        )
-        context["audit_statement_rows"] = get_audit_rows(
-            form=ArchiveAuditStatement1UpdateForm()
-        ) + get_audit_rows(form=ArchiveAuditStatement2UpdateForm())
-
-        return context
+        return {
+            **context,
+            **get_audit_summary_context(request=self.request, audit=self.object),
+        }
 
 
 class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):

@@ -781,6 +781,14 @@ class Audit(VersionModel):
         return self.testable_pages.exclude(retest_page_missing_date=None)
 
     @property
+    def missing_at_retest_check_results(self):
+        return self.checkresult_audit.filter(
+            is_deleted=False,
+            check_result_state=CheckResult.Result.ERROR,
+            page__in=self.missing_at_retest_pages,
+        )
+
+    @property
     def failed_check_results(self):
         return (
             self.checkresult_audit.filter(
@@ -1340,6 +1348,14 @@ class StatementCheck(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("audits:statement-check-update", kwargs={"pk": self.pk})
+
+    @property
+    def edit_initial_url_name(self) -> str:
+        return f"audits:edit-statement-{self.type}"
+
+    @property
+    def edit_12_week_url_name(self) -> str:
+        return f"audits:edit-retest-statement-{self.type}"
 
 
 class StatementCheckResult(models.Model):

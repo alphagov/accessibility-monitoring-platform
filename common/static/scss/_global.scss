@@ -954,3 +954,14 @@ svg {
     bottom: 0;
     left: 5px;
 }
+
+.amp-disabled {
+    color: govuk-colour("mid-grey");
+    pointer-events: none;
+}
+
+.amp-border-left {
+    border-left: 1px solid govuk-colour("mid-grey");
+    padding-left: 12px;
+    margin-bottom: 10px;
+}
