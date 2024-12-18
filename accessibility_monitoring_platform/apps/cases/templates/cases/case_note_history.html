@@ -1,0 +1,44 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p class="govuk-body-m">
+                {% include "common/amp_control_go_back.html" %}
+            </p>
+        </div>
+    </div>
+    {% if case.case_note_history %}
+        <h2 class="govuk-heading-m">Contents</h2>
+        <ul class="govuk-list">
+            {% for note_type, case_note_history in case_note_history_by_type.items %}
+                <li>
+                    <a href="#{{ note_type }}" class="govuk-link govuk-link--no-visited-state">
+                        {{ case_note_history.0.get_note_type_display }} ({{ case_note_history|length }})</a>
+                </li>
+            {% endfor %}
+        </ul>
+        {% for note_type, case_note_history in case_note_history_by_type.items %}
+            <h2 id="{{ note_type }}" class="govuk-heading-m">
+                {{ case_note_history.0.get_note_type_display }} ({{ case_note_history|length }})
+            </h2>
+            {% for case_note in case_note_history %}
+                <p class="govuk-body">{{ case_note.note }}</p>
+                <p class="govuk-body">
+                    <i>
+                        {% if case_note.user %}
+                            By {{ case_note.user.get_full_name }} on {{ case_note.created }}
+                        {% else %}
+                            Note entered before history implemented
+                        {% endif %}
+                    </i>
+                </p>
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+        <p class="govuk-body">Case has no internal notes</p>
+    {% endif %}
+{% endblock %}
+
+{% block form %}
+{% endblock %}

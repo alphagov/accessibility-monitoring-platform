@@ -9,6 +9,7 @@ from .models import (
     Case,
     CaseCompliance,
     CaseEvent,
+    CaseNoteHistory,
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
@@ -101,6 +102,21 @@ class CaseEventAdmin(admin.ModelAdmin, ExportCsvMixin):
     actions = ["export_as_csv"]
 
 
+class CaseNoteHistoryAdmin(admin.ModelAdmin, ExportCsvMixin):
+    """Django admin configuration for CaseNoteHistory model"""
+
+    readonly_fields = ["case", "note_type", "note", "created", "user"]
+    search_fields = [
+        "case__organisation_name",
+        "case__case_number",
+        "note",
+        "user__username",
+    ]
+    list_display = ["note", "created", "user", "case", "note_type"]
+    list_filter = ["note_type", ("user", admin.RelatedOnlyFieldListFilter)]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
 class ContactAdmin(admin.ModelAdmin):
     """Django admin configuration for Contact model"""
 
@@ -145,6 +161,7 @@ admin.site.register(Case, CaseAdmin)
 admin.site.register(CaseStatus, CaseStatusAdmin)
 admin.site.register(CaseCompliance, CaseComplianceAdmin)
 admin.site.register(CaseEvent, CaseEventAdmin)
+admin.site.register(CaseNoteHistory, CaseNoteHistoryAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(EqualityBodyCorrespondence, EqualityBodyCorrespondenceAdmin)
 admin.site.register(ZendeskTicket, ZendeskTicketAdmin)

@@ -32,9 +32,11 @@ from ..exports.csv_export_utils import (
     EqualityBodyCSVColumn,
     populate_equality_body_columns,
 )
+from .case_note_history import AMPNoteTextField, CaseNoteHistoryForm
 from .models import (
     Boolean,
     Case,
+    CaseNoteHistory,
     CaseStatus,
     Complaint,
     Contact,
@@ -164,7 +166,7 @@ class CaseCreateForm(forms.ModelForm):
         return enforcement_body
 
 
-class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
+class CaseMetadataUpdateForm(CaseCreateForm, VersionForm, CaseNoteHistoryForm):
     """
     Form for updating case metadata fields
     """
@@ -176,7 +178,10 @@ class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
         label="URL to previous case",
         help_text="If the website has been previously audited, include a link to the case below",
     )
-    notes = AMPTextField(label="Notes")
+    notes = AMPNoteTextField(
+        label="Notes",
+        note_type=CaseNoteHistory.NoteType.METADATA,
+    )
     trello_url = AMPURLField(label="Trello ticket URL")
     is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent?",
@@ -382,12 +387,14 @@ class CasePublishReportUpdateForm(VersionForm):
                 self.fields["publish_report_complete_date"].widget = forms.HiddenInput()
 
 
-class ManageContactDetailsUpdateForm(VersionForm):
+class ManageContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form for updating test results
     """
 
-    contact_notes = AMPTextField(label="Contact detail notes")
+    contact_notes = AMPNoteTextField(
+        label="Contact detail notes", note_type=CaseNoteHistory.NoteType.MANAGE_CONTACTS
+    )
     manage_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -433,7 +440,7 @@ class ContactUpdateForm(VersionForm):
         fields = ["version", "name", "job_title", "email", "preferred"]
 
 
-class CaseRequestContactDetailsUpdateForm(VersionForm):
+class CaseRequestContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update Find contact details
     """
@@ -444,7 +451,10 @@ class CaseRequestContactDetailsUpdateForm(VersionForm):
     seven_day_no_contact_request_sent_to = AMPCharFieldWide(
         label="Initial request sent to"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
+    correspondence_notes = AMPNoteTextField(
+        label="Correspondence notes",
+        note_type=CaseNoteHistory.NoteType.CORRESPONDENCE_NOTES,
+    )
     request_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -458,7 +468,7 @@ class CaseRequestContactDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseOneWeekContactDetailsUpdateForm(VersionForm):
+class CaseOneWeekContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update One week contact details
     """
@@ -470,7 +480,10 @@ class CaseOneWeekContactDetailsUpdateForm(VersionForm):
         label="No contact details 1-week chaser due date"
     )
     no_contact_one_week_chaser_sent_to = AMPCharFieldWide(label="1-week chaser sent to")
-    correspondence_notes = AMPTextField(label="Correspondence notes")
+    correspondence_notes = AMPNoteTextField(
+        label="Correspondence notes",
+        note_type=CaseNoteHistory.NoteType.CORRESPONDENCE_NOTES,
+    )
     one_week_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -485,7 +498,7 @@ class CaseOneWeekContactDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseFourWeekContactDetailsUpdateForm(VersionForm):
+class CaseFourWeekContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update Four week contact details
     """
@@ -499,7 +512,10 @@ class CaseFourWeekContactDetailsUpdateForm(VersionForm):
     no_contact_four_week_chaser_sent_to = AMPCharFieldWide(
         label="4-week chaser sent to"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
+    correspondence_notes = AMPNoteTextField(
+        label="Correspondence notes",
+        note_type=CaseNoteHistory.NoteType.CORRESPONDENCE_NOTES,
+    )
     four_week_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -514,7 +530,7 @@ class CaseFourWeekContactDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseReportSentOnUpdateForm(VersionForm):
+class CaseReportSentOnUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update Report sent on
     """
@@ -524,7 +540,10 @@ class CaseReportSentOnUpdateForm(VersionForm):
         help_text="This field affects the case status",
     )
     report_sent_to_email = AMPCharFieldWide(label="Report sent to (email address)")
-    correspondence_notes = AMPTextField(label="Correspondence notes")
+    correspondence_notes = AMPNoteTextField(
+        label="Correspondence notes",
+        note_type=CaseNoteHistory.NoteType.CORRESPONDENCE_NOTES,
+    )
     report_sent_on_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -538,7 +557,7 @@ class CaseReportSentOnUpdateForm(VersionForm):
         ]
 
 
-class CaseReportOneWeekFollowupUpdateForm(VersionForm):
+class CaseReportOneWeekFollowupUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update One week followup
     """
@@ -552,7 +571,10 @@ class CaseReportOneWeekFollowupUpdateForm(VersionForm):
     one_week_followup_sent_to_email = AMPCharFieldWide(
         label="One week follow-up sent to (email address)"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
+    correspondence_notes = AMPNoteTextField(
+        label="Correspondence notes",
+        note_type=CaseNoteHistory.NoteType.CORRESPONDENCE_NOTES,
+    )
     one_week_followup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -575,7 +597,7 @@ class CaseReportOneWeekFollowupUpdateForm(VersionForm):
             self.fields["one_week_followup_sent_to_email"].widget = forms.HiddenInput()
 
 
-class CaseReportFourWeekFollowupUpdateForm(VersionForm):
+class CaseReportFourWeekFollowupUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update Four week followup
     """
@@ -589,7 +611,10 @@ class CaseReportFourWeekFollowupUpdateForm(VersionForm):
     four_week_followup_sent_to_email = AMPCharFieldWide(
         label="Four week follow-up sent to (email address)"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
+    correspondence_notes = AMPNoteTextField(
+        label="Correspondence notes",
+        note_type=CaseNoteHistory.NoteType.CORRESPONDENCE_NOTES,
+    )
     four_week_followup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -612,7 +637,7 @@ class CaseReportFourWeekFollowupUpdateForm(VersionForm):
             self.fields["four_week_followup_sent_to_email"].widget = forms.HiddenInput()
 
 
-class CaseReportAcknowledgedUpdateForm(VersionForm):
+class CaseReportAcknowledgedUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update Report acknowledged
     """
@@ -624,7 +649,10 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
     report_acknowledged_by_email = AMPCharFieldWide(
         label="Report acknowledged by (email address)"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
+    correspondence_notes = AMPNoteTextField(
+        label="Correspondence notes",
+        note_type=CaseNoteHistory.NoteType.CORRESPONDENCE_NOTES,
+    )
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 
     class Meta:
