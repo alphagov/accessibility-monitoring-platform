@@ -31,6 +31,7 @@ from ..common.utils import (
     get_dict_without_page_items,
     get_id_from_button_name,
     get_url_parameters_for_pagination,
+    list_to_dictionary_of_lists,
     record_model_create_event,
     record_model_update_event,
 )
@@ -48,6 +49,7 @@ from ..exports.csv_export_utils import (
 from ..notifications.models import Task
 from ..notifications.utils import add_task, mark_tasks_as_read
 from ..reports.utils import publish_report_util
+from .case_note_history import add_to_case_note_history
 from .forms import (
     CaseCloseUpdateForm,
     CaseCreateForm,
@@ -88,6 +90,7 @@ from .forms import (
 from .models import (
     ONE_WEEK_IN_DAYS,
     Case,
+    CaseNoteHistory,
     Contact,
     EqualityBodyCorrespondence,
     ZendeskTicket,
@@ -323,8 +326,11 @@ class CaseUpdateView(NextPlatformPageMixin, UpdateView):
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
         if form.changed_data:
-            self.object: Case = form.save(commit=False)
             user: User = self.request.user
+            self.object: Case = form.save(commit=False)
+            add_to_case_note_history(
+                user=user, form=form, note_owning_object=self.object
+            )
             record_model_update_event(user=user, model_object=self.object)
             old_case: Case = Case.objects.get(pk=self.object.id)
             old_status: str = old_case.status
@@ -1244,3 +1250,20 @@ def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedir
     mark_tasks_as_read(user=request.user, case=case, type=Task.Type.REPORT_APPROVED)
     messages.success(request, f"{case} comments marked as read")
     return redirect(reverse("cases:edit-qa-comments", kwargs={"pk": case.id}))
+
+
+class CaseInternalNotesDetailView(DetailView):
+    """View of case notes history"""
+
+    model: type[Case] = Case
+    context_object_name: str = "case"
+    template_name: str = "cases/case_note_history.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add current case to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        context["case_note_history_by_type"] = list_to_dictionary_of_lists(
+            items=case.case_note_history, group_by_attr="note_type"
+        )
+        return context

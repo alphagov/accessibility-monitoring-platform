@@ -1234,6 +1234,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                     ),
                 ],
             ),
+            CasePlatformPage(name="Internal notes", url_name="cases:internal-notes"),
         ],
     ),
     # Exports
