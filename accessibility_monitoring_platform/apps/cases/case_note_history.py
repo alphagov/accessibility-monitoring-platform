@@ -8,17 +8,8 @@ from django.utils import timezone
 from .models import Case, CaseNoteHistory
 
 
-class AMPNoteWidget(forms.TextInput):
-    """Widget for Case notes input field with history"""
-
-    template_name = "cases/case_note_history_field.html"
-
-
 class AMPNoteTextField(forms.CharField):
-    """
-    Textarea input field in the style of GDS design system.
-    Widget shows history of Case notes added using this field.
-    """
+    """Textarea input field for case notes"""
 
     note_type: CaseNoteHistory.NoteType = CaseNoteHistory.NoteType.GENERIC
 
@@ -29,34 +20,13 @@ class AMPNoteTextField(forms.CharField):
         kwargs.setdefault("required", False)
         kwargs.setdefault(
             "widget",
-            AMPNoteWidget(attrs={"class": "govuk-textarea", "rows": "4"}),
+            forms.Textarea(attrs={"class": "govuk-textarea", "rows": "4"}),
         )
         super().__init__(*args, **kwargs)
 
-
-class CaseNoteHistoryForm(forms.ModelForm):
-    """
-    Form which includes Case notes field(s).
-    Adds history of notes entered to widgets.
-    """
-
-    version = forms.IntegerField(widget=forms.HiddenInput)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            if isinstance(field, AMPNoteTextField):
-                if self.instance is not None:
-                    case: Case | None = None
-                    if isinstance(self.instance, Case):
-                        case = self.instance
-                    elif hasattr(self.instance, "case"):
-                        case = self.instance.case
-                if case is not None and case.id:
-                    field.widget.attrs["field_label"] = field.label
-                    field.widget.attrs["case_note_history"] = (
-                        case.case_note_history.filter(note_type=field.note_type)
-                    )
+    @property
+    def case_note_history(self, case: Case):
+        return case.case_note_history.filter(note_type=self.note_type)
 
 
 def add_to_case_note_history(
