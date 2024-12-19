@@ -9,9 +9,11 @@ from typing import TypeVar
 import markdown
 from django import template
 from django.conf import settings
+from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
+from ...cases.models import Case, CaseNoteHistory
 from ..utils import (  # pylint: disable=relative-beyond-top-level
     amp_format_date,
     amp_format_datetime,
@@ -54,3 +56,11 @@ def amp_datetime(datetime_to_format: datetime) -> str:
         return amp_format_datetime(timezone.localtime(datetime_to_format))
     else:
         return ""
+
+
+@register.filter
+def filtered_case_note_history(
+    case: Case, note_type: CaseNoteHistory.NoteType
+) -> QuerySet[CaseNoteHistory]:
+    """Filter case note history by note type"""
+    return case.case_note_history.filter(note_type=note_type)

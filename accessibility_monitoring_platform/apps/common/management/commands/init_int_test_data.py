@@ -30,6 +30,7 @@ from ....cases.models import (
     Case,
     CaseCompliance,
     CaseEvent,
+    CaseNoteHistory,
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
@@ -99,6 +100,7 @@ class Command(BaseCommand):
                 WcagDefinition,
                 UserCacheUniqueHash,
                 CaseCompliance,
+                CaseNoteHistory,
                 CaseStatus,
             ]
         )
