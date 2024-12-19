@@ -9,25 +9,64 @@ CASE_FIELD_NAMES_AND_NOTE_TYPES = [
         "correspondence_notes",
         "correspondence-notes",
     ),  # CaseNoteHistory.NoteType.CORRESPONDENCE_NOTES
+    (
+        "twelve_week_correspondence_notes",
+        "12-week-cores-notes",
+    ),  # CaseNoteHistory.NoteType.TWELVE_WEEK_CORRESPONDENCE_NOTES
+    ("post_case_notes", "post-case-notes"),  # CaseNoteHistory.NoteType.POST_CASE_NOTES
+    (
+        "psb_appeal_notes",
+        "psb-appeal-notes",
+    ),  # CaseNoteHistory.NoteType.PSB_APPEAL_NOTES
+    (
+        "equality_body_notes",
+        "equality-body-notes",
+    ),  # CaseNoteHistory.NoteType.EQUALITY_BODY_NOTES
+]
+AUDIT_FIELD_NAMES_AND_NOTE_TYPES = [
+    (
+        "exemptions_notes",
+        "initial-metadata",
+    ),  # CaseNoteHistory.NoteType.INITIAL_TEST_METADATA
+    (
+        "audit_retest_metadata_notes",
+        "12-week-metadata",
+    ),  # CaseNoteHistory.NoteType.TWELVE_WEEK_TEST_METADATA
 ]
 
 
 def populate_case_note_history(apps, schema_editor):  # pylint: disable=unused-argument
     Case = apps.get_model("cases", "Case")
+    Audit = apps.get_model("audits", "Audit")
     CaseNoteHistory = apps.get_model("cases", "CaseNoteHistory")
-    for case in Case.objects.all():
-        save_case = False
-        for field_name, note_type in CASE_FIELD_NAMES_AND_NOTE_TYPES:
-            if note := getattr(case, field_name):
+
+    def migrate_notes(case, parent, field_names_and_note_types):
+        save_parent = False
+        for field_name, note_type in field_names_and_note_types:
+            if note := getattr(parent, field_name):
                 CaseNoteHistory.objects.create(
                     case=case,
                     note_type=note_type,
                     note=note,
                 )
-                setattr(case, field_name, "")
-                save_case = True
-        if save_case:
-            case.save()
+                setattr(parent, field_name, "")
+                save_parent = True
+        if save_parent:
+            parent.save()
+
+    for case in Case.objects.all():
+        migrate_notes(
+            case=case,
+            parent=case,
+            field_names_and_note_types=CASE_FIELD_NAMES_AND_NOTE_TYPES,
+        )
+
+    for audit in Audit.objects.all():
+        migrate_notes(
+            case=audit.case,
+            parent=audit,
+            field_names_and_note_types=AUDIT_FIELD_NAMES_AND_NOTE_TYPES,
+        )
 
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
