@@ -4,11 +4,7 @@ Forms - checks (called tests by users)
 
 from django import forms
 
-from ..cases.case_note_history import (
-    AMPNoteTextField,
-    CaseNoteHistory,
-    CaseNoteHistoryForm,
-)
+from ..cases.case_note_history import AMPNoteTextField, CaseNoteHistory
 from ..cases.models import Boolean, Case, CaseCompliance
 from ..common.forms import (
     AMPCharFieldWide,
@@ -54,7 +50,7 @@ RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: list[tuple[str, str]] = (
 )
 
 
-class AuditMetadataUpdateForm(VersionForm, CaseNoteHistoryForm):
+class AuditMetadataUpdateForm(VersionForm):
     """
     Form for editing check metadata
     """
@@ -921,7 +917,7 @@ class ArchiveAuditReportOptionsUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestMetadataUpdateForm(VersionForm, CaseNoteHistoryForm):
+class AuditRetestMetadataUpdateForm(VersionForm):
     """
     Form for editing audit retest metadata
     """

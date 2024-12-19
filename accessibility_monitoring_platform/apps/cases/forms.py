@@ -32,7 +32,7 @@ from ..exports.csv_export_utils import (
     EqualityBodyCSVColumn,
     populate_equality_body_columns,
 )
-from .case_note_history import AMPNoteTextField, CaseNoteHistoryForm
+from .case_note_history import AMPNoteTextField
 from .models import (
     Boolean,
     Case,
@@ -166,7 +166,7 @@ class CaseCreateForm(forms.ModelForm):
         return enforcement_body
 
 
-class CaseMetadataUpdateForm(CaseCreateForm, VersionForm, CaseNoteHistoryForm):
+class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
     """
     Form for updating case metadata fields
     """
@@ -387,7 +387,7 @@ class CasePublishReportUpdateForm(VersionForm):
                 self.fields["publish_report_complete_date"].widget = forms.HiddenInput()
 
 
-class ManageContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
+class ManageContactDetailsUpdateForm(VersionForm):
     """
     Form for updating test results
     """
@@ -440,7 +440,7 @@ class ContactUpdateForm(VersionForm):
         fields = ["version", "name", "job_title", "email", "preferred"]
 
 
-class CaseRequestContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseRequestContactDetailsUpdateForm(VersionForm):
     """
     Form to update Find contact details
     """
@@ -468,7 +468,7 @@ class CaseRequestContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
         ]
 
 
-class CaseOneWeekContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseOneWeekContactDetailsUpdateForm(VersionForm):
     """
     Form to update One week contact details
     """
@@ -498,7 +498,7 @@ class CaseOneWeekContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
         ]
 
 
-class CaseFourWeekContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseFourWeekContactDetailsUpdateForm(VersionForm):
     """
     Form to update Four week contact details
     """
@@ -530,7 +530,7 @@ class CaseFourWeekContactDetailsUpdateForm(VersionForm, CaseNoteHistoryForm):
         ]
 
 
-class CaseReportSentOnUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseReportSentOnUpdateForm(VersionForm):
     """
     Form to update Report sent on
     """
@@ -557,7 +557,7 @@ class CaseReportSentOnUpdateForm(VersionForm, CaseNoteHistoryForm):
         ]
 
 
-class CaseReportOneWeekFollowupUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseReportOneWeekFollowupUpdateForm(VersionForm):
     """
     Form to update One week followup
     """
@@ -597,7 +597,7 @@ class CaseReportOneWeekFollowupUpdateForm(VersionForm, CaseNoteHistoryForm):
             self.fields["one_week_followup_sent_to_email"].widget = forms.HiddenInput()
 
 
-class CaseReportFourWeekFollowupUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseReportFourWeekFollowupUpdateForm(VersionForm):
     """
     Form to update Four week followup
     """
@@ -637,7 +637,7 @@ class CaseReportFourWeekFollowupUpdateForm(VersionForm, CaseNoteHistoryForm):
             self.fields["four_week_followup_sent_to_email"].widget = forms.HiddenInput()
 
 
-class CaseReportAcknowledgedUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseReportAcknowledgedUpdateForm(VersionForm):
     """
     Form to update Report acknowledged
     """
@@ -666,7 +666,7 @@ class CaseReportAcknowledgedUpdateForm(VersionForm, CaseNoteHistoryForm):
         ]
 
 
-class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
     """
     Form to update 12-week update requested
     """
@@ -699,7 +699,7 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm, CaseNoteHistoryForm):
         ]
 
 
-class CaseOneWeekFollowupFinalUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
     """
     Form to update One week followup for final update
     """
@@ -745,7 +745,7 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm, CaseNoteHistoryForm):
             )
 
 
-class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
     """
     Form to update 12-week update request acknowledged
     """
@@ -962,7 +962,7 @@ class CaseDeactivateForm(VersionForm):
         ]
 
 
-class CaseStatementEnforcementUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseStatementEnforcementUpdateForm(VersionForm):
     """
     Form to update statement enforcement
     """
@@ -985,7 +985,7 @@ class CaseStatementEnforcementUpdateForm(VersionForm, CaseNoteHistoryForm):
         ]
 
 
-class CaseEqualityBodyMetadataUpdateForm(VersionForm, CaseNoteHistoryForm):
+class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     """
     Form to update equality body metadata
     """

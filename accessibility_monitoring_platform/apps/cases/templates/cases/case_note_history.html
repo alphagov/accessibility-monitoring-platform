@@ -23,11 +23,11 @@
                 {{ case_note_history.0.get_note_type_display }} ({{ case_note_history|length }})
             </h2>
             {% for case_note in case_note_history %}
-                <p class="govuk-body">{{ case_note.note }}</p>
+                <div class="amp-report-wrapper">{{ case_note.note|markdown_to_html }}</div>
                 <p class="govuk-body">
                     <i>
                         {% if case_note.user %}
-                            By {{ case_note.user.get_full_name }} on {{ case_note.created }}
+                            By {{ case_note.user.get_full_name }} on {{ case_note.created|amp_datetime }}
                         {% else %}
                             Note entered before history implemented
                         {% endif %}
