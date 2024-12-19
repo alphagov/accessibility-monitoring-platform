@@ -666,7 +666,7 @@ class CaseReportAcknowledgedUpdateForm(VersionForm, CaseNoteHistoryForm):
         ]
 
 
-class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
+class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update 12-week update requested
     """
@@ -681,8 +681,9 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
     twelve_week_update_request_sent_to_email = AMPCharFieldWide(
         label="12-week request sent to (email address)"
     )
-    twelve_week_correspondence_notes = AMPTextField(
-        label="12-week correspondence notes"
+    twelve_week_correspondence_notes = AMPNoteTextField(
+        label="12-week correspondence notes",
+        note_type=CaseNoteHistory.NoteType.TWELVE_WEEK_CORRESPONDENCE_NOTES,
     )
     twelve_week_update_requested_complete_date = AMPDatePageCompleteField()
 
@@ -698,7 +699,7 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         ]
 
 
-class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
+class CaseOneWeekFollowupFinalUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update One week followup for final update
     """
@@ -712,8 +713,9 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
     twelve_week_1_week_chaser_sent_to_email = AMPCharFieldWide(
         label="One week follow-up for final update sent to (email address)"
     )
-    twelve_week_correspondence_notes = AMPTextField(
-        label="12-week correspondence notes"
+    twelve_week_correspondence_notes = AMPNoteTextField(
+        label="12-week correspondence notes",
+        note_type=CaseNoteHistory.NoteType.TWELVE_WEEK_CORRESPONDENCE_NOTES,
     )
     one_week_followup_final_complete_date = AMPDatePageCompleteField()
 
@@ -743,7 +745,7 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
             )
 
 
-class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
+class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update 12-week update request acknowledged
     """
@@ -759,8 +761,9 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
         help_text="This field affects the case status",
         choices=Case.OrganisationResponse.choices,
     )
-    twelve_week_correspondence_notes = AMPTextField(
-        label="12-week correspondence notes"
+    twelve_week_correspondence_notes = AMPNoteTextField(
+        label="12-week correspondence notes",
+        note_type=CaseNoteHistory.NoteType.TWELVE_WEEK_CORRESPONDENCE_NOTES,
     )
     twelve_week_update_request_ack_complete_date = AMPDatePageCompleteField()
 
@@ -959,13 +962,19 @@ class CaseDeactivateForm(VersionForm):
         ]
 
 
-class CaseStatementEnforcementUpdateForm(VersionForm):
+class CaseStatementEnforcementUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update statement enforcement
     """
 
-    post_case_notes = AMPTextField(label="Summary of events after the case was closed")
-    psb_appeal_notes = AMPTextField(label="Public sector body appeal notes")
+    post_case_notes = AMPNoteTextField(
+        label="Summary of events after the case was closed",
+        note_type=CaseNoteHistory.NoteType.POST_CASE_NOTES,
+    )
+    psb_appeal_notes = AMPNoteTextField(
+        label="Public sector body appeal notes",
+        note_type=CaseNoteHistory.NoteType.PSB_APPEAL_NOTES,
+    )
 
     class Meta:
         model = Case
@@ -976,7 +985,7 @@ class CaseStatementEnforcementUpdateForm(VersionForm):
         ]
 
 
-class CaseEqualityBodyMetadataUpdateForm(VersionForm):
+class CaseEqualityBodyMetadataUpdateForm(VersionForm, CaseNoteHistoryForm):
     """
     Form to update equality body metadata
     """
@@ -997,7 +1006,10 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
     enforcement_body_finished_date = AMPDateField(
         label="Date equality body completed the case",
     )
-    equality_body_notes = AMPTextField(label="Equality body notes")
+    equality_body_notes = AMPNoteTextField(
+        label="Equality body notes",
+        note_type=CaseNoteHistory.NoteType.EQUALITY_BODY_NOTES,
+    )
 
     class Meta:
         model = Case

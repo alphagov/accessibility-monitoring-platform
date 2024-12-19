@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
+from ...cases.case_note_history import add_to_case_note_history
 from ...cases.models import Case, CaseEvent
 from ...common.utils import (
     amp_format_date,
@@ -105,6 +106,9 @@ class AuditUpdateView(NextPlatformPageMixin, UpdateView):
         """Add event on change of audit"""
         if form.changed_data:
             self.object: Audit = form.save(commit=False)
+            add_to_case_note_history(
+                user=self.request.user, form=form, note_owning_object=self.object
+            )
             record_model_update_event(user=self.request.user, model_object=self.object)
             old_audit: Audit = Audit.objects.get(id=self.object.id)
             if old_audit.retest_date != self.object.retest_date:

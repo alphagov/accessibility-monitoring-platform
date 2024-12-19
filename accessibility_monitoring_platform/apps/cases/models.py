@@ -1417,12 +1417,24 @@ class CaseNoteHistory(models.Model):
     class NoteType(models.TextChoices):
         GENERIC = "generic", "Generic"
         METADATA = "case-metadata", "Case metadata"
+        INITIAL_TEST_METADATA = "initial-metadata", "Initial test metadata"
         MANAGE_CONTACTS = "manage-contacts", "Manage contacts"
         CORRESPONDENCE_NOTES = "correspondence-notes", "Correspondence notes"
+        TWELVE_WEEK_CORRESPONDENCE_NOTES = (
+            "12-week-cores-notes",
+            "12-week correspondence notes",
+        )
+        TWELVE_WEEK_TEST_METADATA = "12-week-metadata", "12-week retest metadata"
+        POST_CASE_NOTES = (
+            "post-case-notes",
+            "Summary of events after the case was closed",
+        )
+        PSB_APPEAL_NOTES = "psb-appeal-notes", "Public sector body appeal notes"
+        EQUALITY_BODY_NOTES = "equality-body-notes", "Equality body notes"
 
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     note_type = models.CharField(
-        max_length=20, choices=NoteType.choices, default=NoteType.GENERIC
+        max_length=100, choices=NoteType.choices, default=NoteType.GENERIC
     )
     note = models.TextField(default="", blank=True)
     user = models.ForeignKey(
