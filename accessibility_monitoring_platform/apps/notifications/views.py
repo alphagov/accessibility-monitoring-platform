@@ -122,7 +122,7 @@ class ReminderTaskCreateView(CreateView):
             user: User = case.auditor if case.auditor else self.request.user
             try:
                 reminder_task: Task = Task.objects.get(
-                    case=case, type=Task.Type.REMINDER
+                    case=case, type=Task.Type.REMINDER, read=False
                 )
                 reminder_task.date = form.cleaned_data["date"]
                 reminder_task.user = user

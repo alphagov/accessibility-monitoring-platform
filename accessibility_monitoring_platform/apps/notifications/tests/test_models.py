@@ -125,3 +125,27 @@ def test_options_reminder():
             ),
         ),
     ]
+
+
+@pytest.mark.django_db
+def test_options_read_reminder():
+    """Task options for read reminder"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        case=case,
+        user=user,
+        read=True,
+    )
+
+    assert task.options() == [
+        Link(
+            label="Create new",
+            url=reverse(
+                "notifications:reminder-create",
+                kwargs={"case_id": case.id},
+            ),
+        ),
+    ]
