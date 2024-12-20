@@ -53,24 +53,35 @@ class Task(models.Model):
                 ),
             )
         elif self.type == Task.Type.REMINDER:
-            options.append(
-                Link(
-                    label="Edit",
-                    url=reverse(
-                        "notifications:edit-reminder-task",
-                        kwargs={"pk": self.id},
+            if self.read is True:
+                options.append(
+                    Link(
+                        label="Create new",
+                        url=reverse(
+                            "notifications:reminder-create",
+                            kwargs={"case_id": self.case.id},
+                        ),
+                    )
+                )
+            else:
+                options.append(
+                    Link(
+                        label="Edit",
+                        url=reverse(
+                            "notifications:edit-reminder-task",
+                            kwargs={"pk": self.id},
+                        ),
+                    )
+                )
+                options.append(
+                    Link(
+                        label="Delete reminder",
+                        url=reverse(
+                            "notifications:mark-task-read",
+                            kwargs={"pk": self.id},
+                        ),
                     ),
                 )
-            )
-            options.append(
-                Link(
-                    label="Delete reminder",
-                    url=reverse(
-                        "notifications:mark-task-read",
-                        kwargs={"pk": self.id},
-                    ),
-                ),
-            )
         if self.type in [Task.Type.QA_COMMENT, Task.Type.REPORT_APPROVED]:
             options.append(
                 Link(

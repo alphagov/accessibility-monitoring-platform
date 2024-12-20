@@ -267,7 +267,7 @@ def test_reminder_task_create(admin_client):
 
 @pytest.mark.django_db
 def test_reminder_task_create_does_not_add_duplicate(admin_client):
-    """Test creating a reminder task updates the Case reminder if one exists."""
+    """Test creating a reminder task updates the unread Case reminder if one exists."""
     user: User = User.objects.create()
     case: Case = Case.objects.create(auditor=user)
     Task.objects.create(
@@ -293,6 +293,39 @@ def test_reminder_task_create_does_not_add_duplicate(admin_client):
     assert Task.objects.filter(case=case).count() == 1
 
     reminder_task: Task = Task.objects.get(case=case)
+
+    assert reminder_task.description == DESCRIPTION
+
+
+@pytest.mark.django_db
+def test_reminder_task_create_adds_reminder_if_no_unread(admin_client):
+    """Test creating a reminder task if no unread reminder exists."""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
+        read=True,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("notifications:reminder-create", kwargs={"case_id": case.id}),
+        {
+            "date_0": TODAY.day,
+            "date_1": TODAY.month,
+            "date_2": TODAY.year,
+            "description": DESCRIPTION,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert Task.objects.filter(case=case).count() == 2
+
+    reminder_task: Task = case.reminder
 
     assert reminder_task.description == DESCRIPTION
 
