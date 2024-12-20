@@ -1,0 +1,18 @@
+<details class="govuk-details" data-module="govuk-details"{% if case.reminder_history %} open{% endif %}>
+    <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">Reminder history ({{ case.reminder_history|length }})</span>
+    </summary>
+    <div class="govuk-details__text">
+        {% if case.reminder_history %}
+            {% for reminder in case.reminder_history %}
+                <p>
+                    {{ reminder.description }}
+                    <br>
+                    <i>{{ reminder.date|amp_date }}</i>
+                </p>
+            {% endfor %}
+        {% else %}
+            None
+        {% endif %}
+    </div>
+</details>
