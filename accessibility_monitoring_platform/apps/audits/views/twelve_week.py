@@ -13,8 +13,6 @@ from django.urls import reverse
 from ...cases.models import CaseEvent
 from ...common.utils import record_model_update_event
 from ..forms import (
-    ArchiveAuditRetestStatement1UpdateForm,
-    ArchiveAuditRetestStatement2UpdateForm,
     AuditRetestCheckResultFilterForm,
     AuditRetestCheckResultForm,
     AuditRetestCheckResultFormset,
@@ -275,51 +273,11 @@ class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
             "audits:edit-audit-retest-statement-pages", kwargs=audit_pk
         )
         if "save_continue" in self.request.POST:
-            if audit.uses_statement_checks:
-                return reverse("audits:edit-retest-statement-overview", kwargs=audit_pk)
-            return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
+            return reverse("audits:edit-retest-statement-overview", kwargs=audit_pk)
         elif "add_statement_page" in self.request.POST:
             return f"{current_url}?add_extra=true#statement-page-None"
         else:
             return current_url
-
-
-class AuditRetestStatement1UpdateView(AuditUpdateView):
-    """
-    View to retest accessibility statement part one
-    """
-
-    form_class: type[ArchiveAuditRetestStatement1UpdateForm] = (
-        ArchiveAuditRetestStatement1UpdateForm
-    )
-    template_name: str = "audits/forms/retest_statement_1.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit_pk: dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-audit-retest-statement-2", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class AuditRetestStatement2UpdateView(AuditUpdateView):
-    """
-    View to retest accessibility statement part two
-    """
-
-    form_class: type[ArchiveAuditRetestStatement2UpdateForm] = (
-        ArchiveAuditRetestStatement2UpdateForm
-    )
-    template_name: str = "audits/forms/retest_statement_2.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit_pk: dict[str, int] = {"pk": self.object.id}
-            return reverse(
-                "audits:edit-twelve-week-disproportionate-burden", kwargs=audit_pk
-            )
-        return super().get_success_url()
 
 
 class AuditRetestStatementCheckingView(AuditUpdateView):

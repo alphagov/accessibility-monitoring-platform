@@ -42,8 +42,6 @@ from .views.initial import (
     AuditPageChecksFormView,
     AuditPagesUpdateView,
     AuditReportOptionsUpdateView,
-    AuditStatement1UpdateView,
-    AuditStatement2UpdateView,
     AuditStatementComplianceFormView,
     AuditStatementCustomFormsetView,
     AuditStatementFeedbackFormView,
@@ -63,8 +61,6 @@ from .views.twelve_week import (
     AuditRetestMetadataUpdateView,
     AuditRetestPageChecksFormView,
     AuditRetestPagesView,
-    AuditRetestStatement1UpdateView,
-    AuditRetestStatement2UpdateView,
     AuditRetestStatementComplianceFormView,
     AuditRetestStatementCustomFormView,
     AuditRetestStatementFeedbackFormView,
@@ -110,16 +106,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-website-decision/",
         login_required(AuditCaseComplianceWebsiteInitialUpdateView.as_view()),
         name="edit-website-decision",
-    ),
-    path(
-        "<int:pk>/edit-audit-statement-one/",
-        login_required(AuditStatement1UpdateView.as_view()),
-        name="edit-audit-statement-1",
-    ),
-    path(
-        "<int:pk>/edit-audit-statement-two/",
-        login_required(AuditStatement2UpdateView.as_view()),
-        name="edit-audit-statement-2",
     ),
     path(
         "<int:pk>/edit-statement-pages/",
@@ -220,16 +206,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-retest-wcag-summary/",
         login_required(AuditRetestWcagSummaryUpdateView.as_view()),
         name="edit-audit-retest-wcag-summary",
-    ),
-    path(
-        "<int:pk>/edit-audit-retest-statement-1/",
-        login_required(AuditRetestStatement1UpdateView.as_view()),
-        name="edit-audit-retest-statement-1",
-    ),
-    path(
-        "<int:pk>/edit-audit-retest-statement-2/",
-        login_required(AuditRetestStatement2UpdateView.as_view()),
-        name="edit-audit-retest-statement-2",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-pages/",

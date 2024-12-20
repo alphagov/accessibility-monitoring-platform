@@ -546,18 +546,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 case_details_template_name="cases/details/details_statement_links.html",
             ),
             AuditPlatformPage(
-                name="Accessibility statement Pt. 1",
-                url_name="audits:edit-audit-statement-1",
-                show_flag_name="uses_pre_2023_statement_checks",
-                complete_flag_name="archive_audit_statement_1_complete_date",
-            ),
-            AuditPlatformPage(
-                name="Accessibility statement Pt. 2",
-                url_name="audits:edit-audit-statement-2",
-                show_flag_name="uses_pre_2023_statement_checks",
-                complete_flag_name="archive_audit_statement_2_complete_date",
-            ),
-            AuditPlatformPage(
                 name="Statement overview",
                 url_name="audits:edit-statement-overview",
                 show_flag_name="uses_statement_checks",
@@ -893,18 +881,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Statement links",
                 url_name="audits:edit-audit-retest-statement-pages",
                 complete_flag_name="audit_retest_statement_pages_complete_date",
-            ),
-            AuditPlatformPage(
-                name="Accessibility statement Pt. 1",
-                url_name="audits:edit-audit-retest-statement-1",
-                show_flag_name="uses_pre_2023_statement_checks",
-                complete_flag_name="archive_audit_retest_statement_1_complete_date",
-            ),
-            AuditPlatformPage(
-                name="Accessibility statement Pt. 2",
-                url_name="audits:edit-audit-retest-statement-2",
-                show_flag_name="uses_pre_2023_statement_checks",
-                complete_flag_name="archive_audit_retest_statement_2_complete_date",
             ),
             AuditPlatformPage(
                 name="Statement overview",

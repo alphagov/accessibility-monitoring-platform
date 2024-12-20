@@ -35,8 +35,6 @@ EXCLUDED_FIELDS = [
     "audit_manual_complete_date",
     "audit_axe_complete_date",
     "audit_pdf_complete_date",
-    "archive_audit_statement_1_complete_date",
-    "archive_audit_statement_2_complete_date",
     "audit_wcag_summary_complete_date",
     "audit_statement_summary_complete_date",
     "manual_checks_complete_date",
