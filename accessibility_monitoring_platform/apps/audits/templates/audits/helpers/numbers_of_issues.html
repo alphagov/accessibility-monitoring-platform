@@ -13,11 +13,7 @@
 <p class="govuk-body-s amp-margin-bottom-10">
     Initial test:
     {% if audit.accessibility_statement_page and audit.accessibility_statement_page.not_found == 'no' %}
-        {% if audit.uses_statement_checks %}
-            {{ audit.failed_statement_check_results.count }}
-        {% else %}
-            {{ audit.accessibility_statement_initially_invalid_checks_count }}
-        {% endif %}
+        {{ audit.failed_statement_check_results.count }}
     {% else %}
         No statement found
     {% endif %}
@@ -25,11 +21,7 @@
 <p class="govuk-body-m amp-margin-bottom-10 govuk-!-font-size-16">
     Retest test:
     {% if audit.accessibility_statement_page and not audit.accessibility_statement_page.retest_page_missing_date %}
-        {% if audit.uses_statement_checks %}
-            {{ audit.failed_retest_statement_check_results.count }}
-        {% else %}
-            {{ audit.finally_invalid_accessibility_statement_checks_count }}
-        {% endif %}
+        {{ audit.failed_retest_statement_check_results.count }}
     {% else %}
         No statement found
     {% endif %}

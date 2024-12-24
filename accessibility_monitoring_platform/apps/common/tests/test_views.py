@@ -14,7 +14,15 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import Audit, CheckResult, Page, StatementPage, WcagDefinition
+from ...audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    StatementCheck,
+    StatementCheckResult,
+    StatementPage,
+    WcagDefinition,
+)
 from ...cases.models import Case, CaseCompliance
 from ...cases.utils import create_case_and_compliance
 from ...notifications.models import Task
@@ -537,12 +545,17 @@ def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
     case: Case = Case.objects.create()
-    Audit.objects.create(
+    audit: Audit = Audit.objects.create(
         case=case,
         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
-        archive_audit_retest_declaration_state="present",
-        archive_audit_retest_scope_state="present",
-        archive_audit_retest_access_requirements_state="req-met",
+    )
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+        check_result_state=StatementCheckResult.Result.NO,
+        retest_state=StatementCheckResult.Result.YES,
     )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
@@ -552,9 +565,9 @@ def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
         response,
         POLICY_PROGRESS_METRIC.format(
             id="statement-issues-fixed-in-the-last-90-days",
-            percentage=27,
-            partial_count=3,
-            total_count=11,
+            percentage=100,
+            partial_count=1,
+            total_count=1,
         ),
         html=True,
     )

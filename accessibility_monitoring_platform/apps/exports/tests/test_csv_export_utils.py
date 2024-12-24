@@ -223,10 +223,7 @@ def test_download_equality_body_cases():
     """Test creation of CSV for equality bodies"""
     case: Case = Case.objects.create()
     cases: list[Case] = [case]
-    Audit.objects.create(
-        case=case,
-        archive_audit_retest_disproportionate_burden_notes="Audit for CSV export",
-    )
+    Audit.objects.create(case=case)
 
     response: HttpResponse = download_equality_body_cases(
         cases=cases, filename=CSV_EXPORT_FILENAME
@@ -272,7 +269,7 @@ def test_download_equality_body_cases():
         "0",
         "0",
         "n/a",
-        "unknown",
+        "Yes",
         "Not assessed",
         "Not checked",
         "",

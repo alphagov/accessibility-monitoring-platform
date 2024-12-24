@@ -75,53 +75,40 @@ You do not need to provide information from your own audit.
     We found no major issues.
 {% endif %}
 <h2>Accessibility statement comments</h2>
-{% if case.audit.uses_statement_checks %}
-    {% if case.audit.failed_statement_check_results %}
-    An accessibility statement for the website was found
-    but we found the following issues.
-    <br>
-    <br>
-    <table id="email-statement-issues-table">
-    <thead>
-    <tr>
-    <th width=4%>#</th>
-    <th id="statement-issue" width=48%>Issue and description</th>
-    <th id="statement-12-week-update" width=48%>12-week update</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for statement_check_result in case.audit.failed_statement_check_results %}
-    <tr valign="top">
-    <td width=4%>{{ forloop.counter }}</td>
-    <td headers="statement-issue" width=48%>
-    {{ statement_check_result.statement_check.report_text }}
-    {% if statement_check_result.report_comment %}
-    <br>
-    <br>
-    {{ statement_check_result.report_comment }}
-    {% endif %}
-    </td>
-    <td headers="statement-12-week-update" width=48%></td>
-    </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-    {% elif case.audit.accessibility_statement_found and case.audit.statement_check_result_statement_found %}
-    An accessibility statement for the website was found in the correct format.
-    {% else %}
-    An accessibility statement for the website was not found.
-    {% endif %}
+{% if case.audit.failed_statement_check_results %}
+An accessibility statement for the website was found
+but we found the following issues.
+<br>
+<br>
+<table id="email-statement-issues-table">
+<thead>
+<tr>
+<th width=4%>#</th>
+<th id="statement-issue" width=48%>Issue and description</th>
+<th id="statement-12-week-update" width=48%>12-week update</th>
+</tr>
+</thead>
+<tbody>
+{% for statement_check_result in case.audit.failed_statement_check_results %}
+<tr valign="top">
+<td width=4%>{{ forloop.counter }}</td>
+<td headers="statement-issue" width=48%>
+{{ statement_check_result.statement_check.report_text }}
+{% if statement_check_result.report_comment %}
+<br>
+<br>
+{{ statement_check_result.report_comment }}
+{% endif %}
+</td>
+<td headers="statement-12-week-update" width=48%></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% elif case.audit.accessibility_statement_found and case.audit.statement_check_result_statement_found %}
+An accessibility statement for the website was found in the correct format.
 {% else %}
-    {{ case.audit.get_archive_accessibility_statement_state_display }}
-    <br>
-    <br>
-    {% if case.audit.archive_accessibility_statement_state == 'found-but' %}
-    <ul>
-    {% for issue in case.audit.report_accessibility_issues %}
-    <li>{{ issue }}</li>
-    {% endfor %}
-    </ul>
-    {% endif %}
+An accessibility statement for the website was not found.
 {% endif %}
 <br>
 <br>
@@ -380,43 +367,32 @@ Please review the issues listed below and provide an update.
     We found no major issues.
 {% endif %}
 <h2>Your statement</h2>
-{% if case.audit.uses_statement_checks %}
-    {% if case.audit.outstanding_statement_check_results %}
-    <table id="email-statement-issues-table">
-    <thead>
-    <tr>
-    <th width=1%>#</th>
-    <th id="statement-issue" width=49%>Issue</th>
-    <th id="statement-12-week-update" width=49%>Organisation 12-week update</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for statement_check_result in case.audit.outstanding_statement_check_results %}
-    <tr valign="top">
-    <td width=1%>{{ forloop.counter }}</td>
-    <td headers="statement-issue" width=49%>
-    <p>{{ statement_check_result.statement_check.report_text }}</p>
-    {{ statement_check_result.report_comment|markdown_to_html }}
-    </td>
-    <td headers="statement-12-week-update" width=49%>
-    {{ statement_check_result.retest_comment|markdown_to_html }}
-    </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-    {% else %}
-    We found no major issues.
-    {% endif %}
+{% if case.audit.outstanding_statement_check_results %}
+<table id="email-statement-issues-table">
+<thead>
+<tr>
+<th width=1%>#</th>
+<th id="statement-issue" width=49%>Issue</th>
+<th id="statement-12-week-update" width=49%>Organisation 12-week update</th>
+</tr>
+</thead>
+<tbody>
+{% for statement_check_result in case.audit.outstanding_statement_check_results %}
+<tr valign="top">
+<td width=1%>{{ forloop.counter }}</td>
+<td headers="statement-issue" width=49%>
+<p>{{ statement_check_result.statement_check.report_text }}</p>
+{{ statement_check_result.report_comment|markdown_to_html }}
+</td>
+<td headers="statement-12-week-update" width=49%>
+{{ statement_check_result.retest_comment|markdown_to_html }}
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
 {% else %}
-    {{ case.audit.get_archive_accessibility_statement_state_display }}
-    {% if case.audit.archive_accessibility_statement_state == 'found-but' %}
-    <ul>
-    {% for issue in case.audit.report_accessibility_issues %}
-    <li>{{ issue }}</li>
-    {% endfor %}
-    </ul>
-    {% endif %}
+We found no major issues.
 {% endif %}
 <br>
 <br>"""

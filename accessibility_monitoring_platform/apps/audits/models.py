@@ -16,93 +16,6 @@ from ..cases.models import Case, CaseCompliance
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date, calculate_percentage
 
-ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT: dict[str, str] = {
-    "archive_accessibility_statement_not_correct_format": "it was not in the correct format",
-    "archive_accessibility_statement_not_specific_enough": "it was not specific enough",
-    "archive_accessibility_statement_missing_accessibility_issues": "accessibility issues were found during the test that"
-    " were not included in the statement",
-    "archive_accessibility_statement_missing_mandatory_wording": "mandatory wording is missing",
-    "archive_accessibility_statement_needs_more_re_disproportionate": "we require more information covering the"
-    " disproportionate burden claim",
-    "archive_accessibility_statement_needs_more_re_accessibility": "it required more information detailing the accessibility"
-    " issues",
-    "archive_accessibility_statement_deadline_not_complete": "it includes a deadline of XXX for fixing XXX issues and this"
-    " has not been completed",
-    "archive_accessibility_statement_deadline_not_sufficient": "it includes a deadline of XXX for fixing XXX issues and"
-    " this is not sufficient",
-    "archive_accessibility_statement_out_of_date": "it is out of date and needs to be reviewed",
-    "archive_accessibility_statement_eass_link": "it must link directly to the Equality Advisory and"
-    " Support Service (EASS) website",
-    "archive_accessibility_statement_template_update": "it is a requirement that accessibility statements are accessible."
-    " Some users may experience difficulties using PDF documents. It may be beneficial for users if there was a HTML"
-    " version of your full accessibility statement.",
-    "archive_accessibility_statement_accessible": "in 2020 the GOV.UK sample template was updated to include an extra"
-    " mandatory piece of information to outline the scope of your accessibility statement. This needs to be added to"
-    " your statement.",
-    "archive_accessibility_statement_prominent": "your statement should be prominently placed on the homepage of the website"
-    " or made available on every web page, for example in a static header or footer, as per the legislative"
-    " requirement.",
-}
-ARCHIVE_REPORT_NEXT_ISSUE_TEXT: dict[str, str] = {
-    "archive_report_next_change_statement": "They have an acceptable statement but need to change it because of the"
-    " errors we found",
-    "archive_report_next_no_statement": "They don’t have a statement, or it is in the wrong format",
-    "archive_report_next_statement_not_right": "They have a statement but it is not quite right",
-    "archive_report_next_statement_matches": "Their statement matches",
-    "archive_report_next_disproportionate_burden": "Disproportionate burden",
-}
-
-
-class ArchiveAccessibilityStatementCheck:
-    """Accessibility statement check"""
-
-    field_name_prefix: str
-    valid_value: str
-    label: str
-    initial_state: str
-    initial_state_display: str
-    initial_notes: str
-    final_state: str
-    final_state_display: str
-    final_notes: str
-
-    def __init__(self, field_name_prefix: str, audit: "Audit"):
-        self.field_name_prefix = field_name_prefix
-        self.valid_values = (
-            Audit.ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
-                field_name_prefix, []
-            )
-        )
-        self.label = Audit._meta.get_field(
-            f"archive_{field_name_prefix}_state"
-        ).verbose_name
-        self.initial_state = getattr(audit, f"archive_{field_name_prefix}_state")
-        self.initial_state_display = getattr(
-            audit, f"get_archive_{field_name_prefix}_state_display"
-        )()
-        self.initial_notes = getattr(audit, f"archive_{field_name_prefix}_notes")
-        self.final_state = getattr(
-            audit, f"archive_audit_retest_{field_name_prefix}_state"
-        )
-        self.final_state_display = getattr(
-            audit, f"get_archive_audit_retest_{field_name_prefix}_state_display"
-        )()
-        self.final_notes = getattr(
-            audit, f"archive_audit_retest_{field_name_prefix}_notes"
-        )
-
-    @property
-    def initially_invalid(self):
-        return self.valid_values and self.initial_state not in self.valid_values
-
-    @property
-    def finally_fixed(self):
-        return self.initially_invalid and self.final_state in self.valid_values
-
-    @property
-    def finally_invalid(self):
-        return self.valid_values and self.final_state not in self.valid_values
-
 
 class Audit(VersionModel):
     """
@@ -215,28 +128,6 @@ class Audit(VersionModel):
     class ReportOptionsNext(models.TextChoices):
         ERRORS = "errors", "Errors were found"
         NO_ERRORS = "no-errors", "No serious errors were found"
-
-    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: dict[str, str] = {
-        "scope": [Scope.PRESENT],
-        "feedback": [Feedback.PRESENT],
-        "contact_information": [ContactInformation.PRESENT],
-        "enforcement_procedure": [EnforcementProcedure.PRESENT],
-        "declaration": [Declaration.PRESENT],
-        "compliance": [Compliance.PRESENT],
-        "non_regulation": [NonRegulation.PRESENT],
-        "disproportionate_burden": [
-            DisproportionateBurden.NO_CLAIM,
-            DisproportionateBurden.ASSESSMENT,
-        ],
-        "content_not_in_scope": [ContentNotInScope.PRESENT],
-        "preparation_date": [PreparationDate.PRESENT],
-        "review": [Review.PRESENT],
-        "method": [Method.PRESENT],
-        "access_requirements": [AccessRequirements.MET],
-    }
-    ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES = (
-        ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.keys()
-    )
 
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="audit_case"
@@ -713,23 +604,6 @@ class Audit(VersionModel):
         super().save(*args, **kwargs)
 
     @property
-    def report_accessibility_issues(self) -> list[str]:
-        issues: list[str] = []
-        for key, value in ARCHIVE_REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
-            if getattr(self, key) == Boolean.YES:
-                if key == "archive_accessibility_statement_deadline_not_complete":
-                    issues.append(
-                        self.archive_accessibility_statement_deadline_not_complete_wording
-                    )
-                elif key == "archive_accessibility_statement_deadline_not_sufficient":
-                    issues.append(
-                        self.archive_accessibility_statement_deadline_not_sufficient_wording
-                    )
-                else:
-                    issues.append(value)
-        return issues
-
-    @property
     def deleted_pages(self):
         return self.page_audit.filter(is_deleted=True)
 
@@ -829,59 +703,8 @@ class Audit(VersionModel):
         )
 
     @property
-    def accessibility_statement_checks(
-        self,
-    ) -> list[ArchiveAccessibilityStatementCheck]:
-        return [
-            ArchiveAccessibilityStatementCheck(
-                field_name_prefix=field_name_prefix, audit=self
-            )
-            for field_name_prefix in Audit.ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
-        ]
-
-    @property
-    def accessibility_statement_initially_invalid_checks_count(self):
-        return len(
-            [
-                statement_check
-                for statement_check in self.accessibility_statement_checks
-                if statement_check.initially_invalid
-            ]
-        )
-
-    @property
-    def fixed_accessibility_statement_checks_count(self):
-        return len(
-            [
-                statement_check
-                for statement_check in self.accessibility_statement_checks
-                if statement_check.finally_fixed
-            ]
-        )
-
-    @property
-    def finally_invalid_accessibility_statement_checks(self):
-        return [
-            statement_check
-            for statement_check in self.accessibility_statement_checks
-            if statement_check.finally_invalid
-        ]
-
-    @property
-    def finally_invalid_accessibility_statement_checks_count(self) -> int:
-        return len(self.finally_invalid_accessibility_statement_checks)
-
-    @property
     def statement_check_results(self):
         return self.statementcheckresult_set.filter(is_deleted=False)
-
-    @property
-    def uses_statement_checks(self) -> bool:
-        return self.statement_check_results.count() > 0
-
-    @property
-    def uses_pre_2023_statement_checks(self) -> bool:
-        return not self.uses_statement_checks
 
     @property
     def overview_statement_check_results(self):
