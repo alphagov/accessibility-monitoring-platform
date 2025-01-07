@@ -1,8 +1,0 @@
-<div class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
-    <label id="{{ field.auto_id }}-label" class="govuk-visually-hidden" for="{{ field.auto_id }}">
-        {{ field_label }} {{ forloop.counter }}
-    </label>
-    {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
-    {% include 'common/field_errors.html' with errors=field.errors %}
-    {{ field }}
-</div>

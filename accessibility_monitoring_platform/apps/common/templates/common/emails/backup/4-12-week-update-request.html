@@ -45,34 +45,34 @@ You do not need to provide information from your own audit.
     <br>
     <br>
     {% for issues_table in issues_tables %}
-    {% if issues_table.rows %}
-    <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
-    <br>
-    <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
-    {{ issues_table.page.location }}
-    <br>
-    <br>
-    <table id="email-issues-table-{{ forloop.counter }}">
-    <thead>
-    <tr>
-    <th width=1%>#</th>
-    <th id="issue-{{ forloop.counter }}" width=33%>Issue and description</th>
-    <th id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</th>
-    <th id="12-week-update-{{ forloop.counter }}" width=33%>12-week update</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for row in issues_table.rows %}
-    <tr valign="top">
-    <td width=1%>{{ forloop.counter }}</td>
-    <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
-    <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
-    <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
-    </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-    {% endif %}
+        {% if issues_table.rows %}
+            <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
+            <br>
+            <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
+            {{ issues_table.page.location }}
+            <br>
+            <br>
+            <table id="email-issues-table-{{ forloop.counter }}">
+                <thead>
+                    <tr>
+                        <th width=1%>#</th>
+                        <th id="issue-{{ forloop.counter }}" width=33%>Issue and description</th>
+                        <th id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</th>
+                        <th id="12-week-update-{{ forloop.counter }}" width=33%>12-week update</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in issues_table.rows %}
+                        <tr valign="top">
+                            <td width=1%>{{ forloop.counter }}</td>
+                            <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
+                            <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
+                            <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     {% endfor %}
 {% else %}
     We found no major issues.
@@ -86,53 +86,40 @@ You do not need to provide information from your own audit.
     <br>
     <br>
 {% endif %}
-{% if case.audit.uses_statement_checks %}
-    {% if case.audit.failed_statement_check_results %}
+{% if case.audit.failed_statement_check_results %}
     An accessibility statement for the website was found
     but we found the following issues.
     <br>
     <br>
     <table id="email-statement-issues-table">
-    <thead>
-    <tr>
-    <th width=4%>#</th>
-    <th id="statement-issue" width=48%>Issue and description</th>
-    <th id="statement-12-week-update" width=48%>12-week update</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for statement_check_result in case.audit.failed_statement_check_results %}
-    <tr valign="top">
-    <td width=4%>{{ forloop.counter }}</td>
-    <td headers="statement-issue" width=48%>
-    {{ statement_check_result.statement_check.report_text }}
-    {% if statement_check_result.report_comment %}
-    <br>
-    <br>
-    {{ statement_check_result.report_comment }}
-    {% endif %}
-    </td>
-    <td headers="statement-12-week-update" width=48%></td>
-    </tr>
-    {% endfor %}
-    </tbody>
+        <thead>
+            <tr>
+                <th width=4%>#</th>
+                <th id="statement-issue" width=48%>Issue and description</th>
+                <th id="statement-12-week-update" width=48%>12-week update</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for statement_check_result in case.audit.failed_statement_check_results %}
+                <tr valign="top">
+                    <td width=4%>{{ forloop.counter }}</td>
+                    <td headers="statement-issue" width=48%>
+                        {{ statement_check_result.statement_check.report_text }}
+                        {% if statement_check_result.report_comment %}
+                            <br>
+                            <br>
+                            {{ statement_check_result.report_comment }}
+                        {% endif %}
+                    </td>
+                    <td headers="statement-12-week-update" width=48%></td>
+                </tr>
+            {% endfor %}
+        </tbody>
     </table>
-    {% elif case.audit.accessibility_statement_found and case.audit.statement_check_result_statement_found %}
+{% elif case.audit.accessibility_statement_found and case.audit.statement_check_result_statement_found %}
     An accessibility statement for the website was found in the correct format.
-    {% else %}
-    An accessibility statement for the website was not found.
-    {% endif %}
 {% else %}
-    {{ case.audit.get_archive_accessibility_statement_state_display }}
-    <br>
-    <br>
-    {% if case.audit.archive_accessibility_statement_state == 'found-but' %}
-    <ul>
-    {% for issue in case.audit.report_accessibility_issues %}
-    <li>{{ issue }}</li>
-    {% endfor %}
-    </ul>
-    {% endif %}
+    An accessibility statement for the website was not found.
 {% endif %}
 <br>
 <br>

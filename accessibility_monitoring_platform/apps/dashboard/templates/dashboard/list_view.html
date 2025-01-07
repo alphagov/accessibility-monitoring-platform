@@ -11,7 +11,7 @@
             </h2>
         </div>
         <div id="accordion-qa-cases-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-qa-cases-heading-report-ready-to-qa">
-            {% include "./13_reports_in_qa.html" %}
+            {% include "dashboard/13_reports_in_qa.html" %}
         </div>
     </div>
 </div>
@@ -27,7 +27,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-unknown">
-            {% include "./1_new_cases_table.html" with cases=cases_by_status.unknown %}
+            {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unknown %}
         </div>
     </div>
     {% endif %}
@@ -40,7 +40,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-unassigned-cases">
-            {% include "./1_new_cases_table.html" with cases=cases_by_status.unassigned_cases %}
+            {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unassigned_cases %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -52,7 +52,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-test-in-progress">
-            {% include "./2_tests_in_progress_table.html" with cases=cases_by_status.test_in_progress %}
+            {% include "dashboard/2_tests_in_progress_table.html" with cases=cases_by_status.test_in_progress %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -64,7 +64,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-3" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-reports-in-progress">
-            {% include "./3_reports_in_progress_table.html" with cases=cases_by_status.reports_in_progress %}
+            {% include "dashboard/3_reports_in_progress_table.html" with cases=cases_by_status.reports_in_progress %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -76,7 +76,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-4" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-qa-in-progress">
-            {% include "./4_qa_in_progress_table.html" with cases=cases_by_status.qa_in_progress %}
+            {% include "dashboard/4_qa_in_progress_table.html" with cases=cases_by_status.qa_in_progress %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -88,7 +88,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-5" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-reports-ready-to-send">
-            {% include "./6_report_ready_to_send.html" with cases=cases_by_status.report_ready_to_send %}
+            {% include "dashboard/6_report_ready_to_send.html" with cases=cases_by_status.report_ready_to_send %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -100,7 +100,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-6" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-report-correspondence">
-            {% include "./7_in_report_correspondence.html" with cases=cases_by_status.in_report_correspondence %}
+            {% include "dashboard/7_in_report_correspondence.html" with cases=cases_by_status.in_report_correspondence %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -112,7 +112,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-7" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-probation-period">
-            {% include "./8_in_probation_period.html" with cases=cases_by_status.in_probation_period %}
+            {% include "dashboard/8_in_probation_period.html" with cases=cases_by_status.in_probation_period %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -124,7 +124,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-8" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
-            {% include "./9_in_12_week_correspondence.html" with cases=cases_by_status.in_12_week_correspondence %}
+            {% include "dashboard/9_in_12_week_correspondence.html" with cases=cases_by_status.in_12_week_correspondence %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -136,7 +136,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-9" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
-            {% include "./10_reviewing_changes.html" with cases=cases_by_status.reviewing_changes %}
+            {% include "dashboard/10_reviewing_changes.html" with cases=cases_by_status.reviewing_changes %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -148,7 +148,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-10" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-final-decision-due">
-            {% include "./11_final_decision_due.html" with cases=cases_by_status.final_decision_due %}
+            {% include "dashboard/11_final_decision_due.html" with cases=cases_by_status.final_decision_due %}
         </div>
     </div>
 </div>
@@ -163,7 +163,7 @@
             </h2>
         </div>
         <div id="accordion-post-case-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-content-case-closed-waiting-to-be-sent">
-            {% include "./12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_waiting_to_be_sent %}
+            {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_waiting_to_be_sent %}
         </div>
     </div>
     <div class="govuk-accordion__section">
@@ -195,7 +195,7 @@
             </h2>
         </div>
         <div id="accordion-post-case-content-3" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-equality-body-correspondence">
-            {% include "./12_in_correspondence_with_equality_body.html" with cases=cases_by_status.in_correspondence_with_equalities_body %}
+            {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.in_correspondence_with_equalities_body %}
         </div>
     </div>
     <div class="govuk-accordion__section">

@@ -19,9 +19,6 @@ from ...common.utils import (
     record_model_update_event,
 )
 from ..forms import (
-    ArchiveAuditReportOptionsUpdateForm,
-    ArchiveAuditStatement1UpdateForm,
-    ArchiveAuditStatement2UpdateForm,
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
     AuditExtraPageFormsetTwoExtra,
@@ -65,7 +62,6 @@ from ..utils import (
     get_audit_summary_context,
     get_next_page_url,
     other_page_failed_check_results,
-    report_data_updated,
 )
 from .base import (
     AuditCaseComplianceUpdateView,
@@ -408,9 +404,7 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
         audit_pk: dict[str, int] = {"pk": audit.id}
         current_url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
         if "save_continue" in self.request.POST:
-            if audit.uses_statement_checks:
-                return reverse("audits:edit-statement-overview", kwargs=audit_pk)
-            return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+            return reverse("audits:edit-statement-overview", kwargs=audit_pk)
         elif "add_statement_page" in self.request.POST:
             return f"{current_url}?add_extra=true#statement-page-None"
         else:
@@ -650,81 +644,6 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
         if "save_continue" in self.request.POST:
             audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-statement-summary", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class AuditStatement1UpdateView(AuditUpdateView):
-    """
-    View to update accessibility statement 1 audit fields
-    """
-
-    form_class: type[ArchiveAuditStatement1UpdateForm] = (
-        ArchiveAuditStatement1UpdateForm
-    )
-    template_name: str = "audits/forms/statement_1.html"
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        if "add_contact_email" in form.changed_data:
-            contact: Contact = Contact.objects.create(
-                case=self.object.case,
-                email=form.cleaned_data["add_contact_email"],
-            )
-            record_model_create_event(user=self.request.user, model_object=contact)
-        return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit_pk: dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-audit-statement-2", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class AuditStatement2UpdateView(AuditUpdateView):
-    """
-    View to update accessibility statement 2 audit fields
-    """
-
-    form_class: type[ArchiveAuditStatement2UpdateForm] = (
-        ArchiveAuditStatement2UpdateForm
-    )
-    template_name: str = "audits/forms/statement_2.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit_pk: dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-statement-decision", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class AuditReportOptionsUpdateView(AuditUpdateView):
-    """
-    View to update report options
-    """
-
-    form_class: type[ArchiveAuditReportOptionsUpdateForm] = (
-        ArchiveAuditReportOptionsUpdateForm
-    )
-    template_name: str = "audits/forms/report_options.html"
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        changed_report_data: list[str] = [
-            field_name
-            for field_name in form.changed_data
-            if field_name != "archive_audit_report_options_complete_date"
-        ]
-        if changed_report_data:
-            report_data_updated(audit=self.object)
-        return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit_pk: dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk)
         return super().get_success_url()
 
 
