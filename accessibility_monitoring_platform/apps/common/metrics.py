@@ -16,19 +16,6 @@ from ..s3_read_write.models import S3Report
 from .chart import LineChart, Timeseries, TimeseriesDatapoint, build_yearly_metric_chart
 from .utils import get_days_ago_timestamp, get_first_of_this_month_last_year
 
-ARCHIVE_ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: dict[str, str] = {
-    "declaration_state": "present",
-    "scope_state": "present",
-    "compliance_state": "present",
-    "non_regulation_state": "present",
-    "preparation_date_state": "present",
-    "method_state": "present",
-    "review_state": "present",
-    "feedback_state": "present",
-    "contact_information_state": "present",
-    "enforcement_procedure_state": "present",
-    "access_requirements_state": "req-met",
-}
 FIRST_COLUMN_HEADER: str = "Month"
 
 
@@ -103,21 +90,8 @@ def count_statement_issues(audits: QuerySet[Audit]) -> tuple[int, int]:
     statement_issues_count: int = 0
     fixed_statement_issues_count: int = 0
     for audit in audits:
-        if audit.uses_statement_checks:
-            statement_issues_count += audit.failed_statement_check_results.count()
-            fixed_statement_issues_count += audit.fixed_statement_check_results.count()
-        else:
-            for (
-                fieldname,
-                good_value,
-            ) in ARCHIVE_ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE.items():
-                if getattr(audit, f"archive_{fieldname}") != good_value:
-                    statement_issues_count += 1
-                    if (
-                        getattr(audit, f"archive_audit_retest_{fieldname}")
-                        == good_value
-                    ):
-                        fixed_statement_issues_count += 1
+        statement_issues_count += audit.failed_statement_check_results.count()
+        fixed_statement_issues_count += audit.fixed_statement_check_results.count()
     return (fixed_statement_issues_count, statement_issues_count)
 
 

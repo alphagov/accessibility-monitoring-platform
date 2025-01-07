@@ -1,34 +1,34 @@
 <nav role="navigation" class="amp-nav-steps">
     <h2 class="govuk-heading-m amp-margin-bottom-5">Retest steps</h2>
     <ul class="govuk-list">
-        {% include './nav_step.html' with edit_name='audits:retest-metadata-update' name='Retest metadata' complete=retest.complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:retest-metadata-update' name='Retest metadata' complete=retest.complete_date %}
         <li>
             Pages:
             <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                 {% for page in retest.retestpage_set.all %}
-                    {% include './nav_step.html' with edit_name='audits:edit-retest-page-checks' complete=page.complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-retest-page-checks' complete=page.complete_date %}
                 {% endfor %}
             </ul>
         </li>
-        {% include './nav_step.html' with edit_name='audits:retest-comparison-update' name='Comparison' complete=retest.comparison_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:retest-compliance-update' name='Compliance decision' complete=retest.compliance_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-pages' name='Statement links' complete=retest.statement_pages_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-overview' name='Statement overview' complete=retest.statement_overview_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:retest-comparison-update' name='Comparison' complete=retest.comparison_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:retest-compliance-update' name='Compliance decision' complete=retest.compliance_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-pages' name='Statement links' complete=retest.statement_pages_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-overview' name='Statement overview' complete=retest.statement_overview_complete_date %}
         {% if retest.all_overview_statement_checks_have_passed %}
             <li>
                 <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                    {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-website' name='Statement information' complete=retest.statement_website_complete_date %}
-                    {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-compliance' name='Compliance status' complete=retest.statement_compliance_complete_date %}
-                    {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-non-accessible' name='Non-accessible content' complete=retest.statement_non_accessible_complete_date %}
-                    {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-preparation' name='Statement preparation' complete=retest.statement_preparation_complete_date %}
-                    {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-feedback' name='Feedback and enforcement procedure' complete=retest.statement_feedback_complete_date %}
-                    {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-custom' name='Custom statement issues' complete=retest.statement_custom_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-website' name='Statement information' complete=retest.statement_website_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-compliance' name='Compliance status' complete=retest.statement_compliance_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-non-accessible' name='Non-accessible content' complete=retest.statement_non_accessible_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-preparation' name='Statement preparation' complete=retest.statement_preparation_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-feedback' name='Feedback and enforcement procedure' complete=retest.statement_feedback_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-custom' name='Custom statement issues' complete=retest.statement_custom_complete_date %}
                 </ul>
             </li>
         {% endif %}
-        {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-results' name='Statement results' complete=retest.statement_results_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-equality-body-disproportionate-burden' name='Disproportionate burden claim' complete=retest.disproportionate_burden_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-equality-body-statement-decision' name='Statement decision' complete=retest.statement_decision_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-results' name='Statement results' complete=retest.statement_results_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-disproportionate-burden' name='Disproportionate burden claim' complete=retest.disproportionate_burden_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-decision' name='Statement decision' complete=retest.statement_decision_complete_date %}
     </ul>
     {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=retest.case %}
 </nav>
