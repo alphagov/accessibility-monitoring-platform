@@ -1,10 +1,6 @@
 {% extends 'common/case_form.html' %}
 
-{% block form %}
-{% endblock %}
-
 {% block preform %}
-
 <h2 class="govuk-heading-s amp-margin-bottom-5">Status summary</h2>
 <ul class="govuk-list govuk-list--bullet">
     <li>
@@ -232,4 +228,7 @@
         {% if case.enforcement_correspondence_complete_date %}&check;{% endif %}
     </li>
 </ul>
+{% endblock %}
+
+{% block form %}
 {% endblock %}

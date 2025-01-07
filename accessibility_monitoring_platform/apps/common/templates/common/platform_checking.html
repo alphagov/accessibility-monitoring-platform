@@ -18,6 +18,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+                {% include 'common/error_summary.html' %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -25,9 +26,7 @@
                 <h2 class="govuk-heading-m">Write to log</h2>
                 <form method="post" action="{% url 'common:platform-checking' %}">
                     {% csrf_token %}
-
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 
                     <div class="govuk-grid-row">
