@@ -88,12 +88,12 @@
         {% if case.compliance.website_compliance_state_initial != 'not-known' %}&check;{% endif %}
     </li>
     <li>
-    {% if case.audit.uses_statement_checks %}
-        <a href="{% url 'audits:edit-statement-overview' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
-            Statement overview not filled in
-        </a>
-        {% if not case.statement_checks_still_initial %}&check;{% endif %}
-    {% else %}
+        {% if case.audit %}
+            <a href="{% url 'audits:edit-statement-overview' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                Statement overview not filled in
+            </a>
+            {% if not case.statement_checks_still_initial %}&check;{% endif %}
+        {% else %}
             <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
                 Initial accessibility statement decision is not filled in
             </a>

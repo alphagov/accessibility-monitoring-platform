@@ -44,43 +44,32 @@ Please review the issues listed below and provide an update.
 <br>
 <h2>Your statement</h2>
 <br>
-{% if case.audit.uses_statement_checks %}
-    {% if case.audit.outstanding_statement_check_results %}
-    <table id="email-statement-issues-table">
-    <thead>
-    <tr>
-    <th width=1%>#</th>
-    <th id="statement-issue" width=49%>Issue</th>
-    <th id="statement-12-week-update" width=49%>Organisation update</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for statement_check_result in case.audit.outstanding_statement_check_results %}
-    <tr valign="top">
-    <td width=1%>{{ forloop.counter }}</td>
-    <td headers="statement-issue" width=49%>
-    <p>{{ statement_check_result.statement_check.report_text }}</p>
-    {{ statement_check_result.report_comment|markdown_to_html }}
-    </td>
-    <td headers="statement-12-week-update" width=49%>
-    {{ statement_check_result.retest_comment|markdown_to_html }}
-    </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-    {% else %}
-    We found no major issues.
-    {% endif %}
+{% if case.audit.outstanding_statement_check_results %}
+<table id="email-statement-issues-table">
+<thead>
+<tr>
+<th width=1%>#</th>
+<th id="statement-issue" width=49%>Issue</th>
+<th id="statement-12-week-update" width=49%>Organisation update</th>
+</tr>
+</thead>
+<tbody>
+{% for statement_check_result in case.audit.outstanding_statement_check_results %}
+<tr valign="top">
+<td width=1%>{{ forloop.counter }}</td>
+<td headers="statement-issue" width=49%>
+<p>{{ statement_check_result.statement_check.report_text }}</p>
+{{ statement_check_result.report_comment|markdown_to_html }}
+</td>
+<td headers="statement-12-week-update" width=49%>
+{{ statement_check_result.retest_comment|markdown_to_html }}
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
 {% else %}
-    {{ case.audit.get_archive_accessibility_statement_state_display }}
-    {% if case.audit.archive_accessibility_statement_state == 'found-but' %}
-    <ul>
-    {% for issue in case.audit.report_accessibility_issues %}
-    <li>{{ issue }}</li>
-    {% endfor %}
-    </ul>
-    {% endif %}
+We found no major issues.
 {% endif %}
 <br>
 <br>

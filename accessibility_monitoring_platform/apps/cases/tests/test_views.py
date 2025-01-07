@@ -3848,10 +3848,7 @@ def test_case_close_no_missing_data(admin_client):
         CaseCompliance.StatementCompliance.COMPLIANT
     )
     case.compliance.save()
-    Audit.objects.create(
-        case=case,
-        initial_disproportionate_burden_claim=Audit.DisproportionateBurden.NO_CLAIM,
-    )
+
     Report.objects.create(case=case)
     S3Report.objects.create(case=case, version=0, latest_published=True)
 
@@ -3874,6 +3871,13 @@ def test_case_overview(admin_client):
     accessibility_statement_page.url = "https://example.com"
     accessibility_statement_page.retest_page_missing_date = TODAY
     accessibility_statement_page.save()
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+        check_result_state=StatementCheckResult.Result.NO,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": audit.case.id})
@@ -3893,7 +3897,7 @@ def test_case_overview(admin_client):
     )
     assertContains(
         response,
-        """<p class="govuk-body-s amp-margin-bottom-10">Initial test: 12</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10">Initial test: 1</p>""",
         html=True,
     )
     assertContains(
