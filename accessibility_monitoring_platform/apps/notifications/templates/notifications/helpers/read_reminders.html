@@ -5,10 +5,11 @@
     <div class="govuk-details__text">
         {% if case.reminder_history %}
             {% for reminder in case.reminder_history %}
-                <p>
+                <p class="amp-margin-bottom-0">
                     {{ reminder.description }}
-                    <br>
-                    <i>{{ reminder.date|amp_date }}</i>
+                </p>
+                <p class="govuk-body-s govuk-!-font-size-16">
+                    {{ reminder.date|amp_date }}
                 </p>
             {% endfor %}
         {% else %}
