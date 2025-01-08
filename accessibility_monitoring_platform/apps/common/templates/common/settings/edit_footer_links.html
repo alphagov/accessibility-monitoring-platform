@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 
 {% load l10n %}
@@ -15,7 +14,7 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
-                {% include 'common/error_summary.html' with formset=links_formset %}
+                {% include 'common/formset_error_summary.html' with formset=links_formset %}
                 <form method="post" action="{% url 'common:edit-footer-links' %}">
                     {% csrf_token %}
                     {{ links_formset.management_form }}
