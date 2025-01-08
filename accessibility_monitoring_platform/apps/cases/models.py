@@ -502,45 +502,57 @@ class Case(VersionModel):
         return mark_safe(title)
 
     @property
+    def return_no_contact_due_date(self) -> date:
+        """Returns no contact due date"""
+        if (self.no_contact_one_week_chaser_due_date and self.no_contact_one_week_chaser_sent_date is None):
+            return self.no_contact_one_week_chaser_due_date
+
+        if (self.no_contact_four_week_chaser_due_date and self.no_contact_four_week_chaser_sent_date is None):
+            return self.no_contact_four_week_chaser_due_date
+
+        if self.no_contact_four_week_chaser_sent_date is not None:
+            return self.no_contact_four_week_chaser_sent_date + timedelta(days=ONE_WEEK_IN_DAYS)
+
+        return date(1970, 1, 1)
+
+    @property
+    def return_initial_correspondence_due_date(self) -> date | None:
+        """Returns initial correspondence due date"""
+        if self.report_followup_week_1_sent_date is None:
+            return self.report_followup_week_1_due_date
+
+        if self.report_followup_week_4_sent_date is None:
+            return self.report_followup_week_4_due_date
+
+        if self.report_followup_week_4_sent_date:
+            return self.report_followup_week_4_sent_date + timedelta(
+                days=ONE_WEEK_IN_DAYS
+            )
+        raise Exception(
+            "Case is in-report-correspondence but neither sent date is set"
+        )
+
+    @property
+    def return_12_week_correspondence_due_date(self) -> date | None:
+        if self.twelve_week_1_week_chaser_sent_date is None:
+            return self.twelve_week_1_week_chaser_due_date
+        return self.twelve_week_1_week_chaser_sent_date + timedelta(
+            days=ONE_WEEK_IN_DAYS
+        )
+
+    @property
     def next_action_due_date(self) -> date | None:
         if self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
-            if (
-                self.no_contact_one_week_chaser_due_date
-                and self.no_contact_one_week_chaser_sent_date is None
-            ):
-                return self.no_contact_one_week_chaser_due_date
-            if (
-                self.no_contact_four_week_chaser_due_date
-                and self.no_contact_four_week_chaser_sent_date is None
-            ):
-                return self.no_contact_four_week_chaser_due_date
-            if self.no_contact_four_week_chaser_sent_date is not None:
-                return self.no_contact_four_week_chaser_sent_date + timedelta(
-                    days=ONE_WEEK_IN_DAYS
-                )
+            return self.return_no_contact_due_date
 
         if self.status.status == CaseStatus.Status.IN_REPORT_CORES:
-            if self.report_followup_week_1_sent_date is None:
-                return self.report_followup_week_1_due_date
-            elif self.report_followup_week_4_sent_date is None:
-                return self.report_followup_week_4_due_date
-            elif self.report_followup_week_4_sent_date:
-                return self.report_followup_week_4_sent_date + timedelta(
-                    days=ONE_WEEK_IN_DAYS
-                )
-            raise Exception(
-                "Case is in-report-correspondence but neither sent date is set"
-            )
+            return self.return_initial_correspondence_due_date
 
         if self.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
             return self.report_followup_week_12_due_date
 
         if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
-            if self.twelve_week_1_week_chaser_sent_date is None:
-                return self.twelve_week_1_week_chaser_due_date
-            return self.twelve_week_1_week_chaser_sent_date + timedelta(
-                days=ONE_WEEK_IN_DAYS
-            )
+            return self.return_12_week_correspondence_due_date
 
         return date(1970, 1, 1)
 
@@ -565,23 +577,41 @@ class Case(VersionModel):
     def qa_comments_count(self):
         return self.qa_comments.count()
 
-    def calulate_qa_status(self) -> str:
-        if (
+    @property
+    def calculate_unnassigned_qa_status(self) -> bool:
+        """Calculates unasigned QA status"""
+        return (
             self.reviewer is None
             and self.report_review_status == Boolean.YES
             and self.report_approved_status != Case.ReportApprovedStatus.APPROVED
-        ):
-            return Case.QAStatus.UNASSIGNED
-        elif (
+        )
+
+    @property
+    def calculate_in_qa_status(self) -> bool:
+        """Calculates in QA status"""
+        return (
             self.report_review_status == Boolean.YES
             and self.report_approved_status != Case.ReportApprovedStatus.APPROVED
-        ):
-            return Case.QAStatus.IN_QA
-        elif (
+        )
+
+    @property
+    def calculate_qa_approved_status(self) -> bool:
+        """Calculates QA approved status"""
+        return (
             self.report_review_status == Boolean.YES
             and self.report_approved_status == Case.ReportApprovedStatus.APPROVED
-        ):
+        )
+
+    def calulate_qa_status(self) -> str:
+        if self.calculate_unnassigned_qa_status:
+            return Case.QAStatus.UNASSIGNED
+
+        if self.calculate_in_qa_status:
+            return Case.QAStatus.IN_QA
+
+        if self.calculate_qa_approved_status:
             return Case.QAStatus.APPROVED
+
         return Case.QAStatus.UNKNOWN
 
     @property
@@ -650,9 +680,13 @@ class Case(VersionModel):
                 label="4-week follow-up to report sent, case needs to progress",
                 url=reverse("cases:edit-report-acknowledged", kwargs={"pk": self.id}),
             )
+
         return Link(
             label="Unknown",
-            url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+            url=reverse(
+                "cases:manage-contact-details",
+                kwargs={"pk": self.id}
+            ),
         )
 
     @property
@@ -667,7 +701,8 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up coming up",
                 url=reverse(
-                    "cases:edit-12-week-one-week-followup-final", kwargs={"pk": self.id}
+                    "cases:edit-12-week-one-week-followup-final",
+                    kwargs={"pk": self.id},
                 ),
             )
         elif (
@@ -678,7 +713,8 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up due",
                 url=reverse(
-                    "cases:edit-12-week-one-week-followup-final", kwargs={"pk": self.id}
+                    "cases:edit-12-week-one-week-followup-final",
+                    kwargs={"pk": self.id},
                 ),
             )
         elif (
@@ -688,7 +724,8 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up sent, waiting seven days for response",
                 url=reverse(
-                    "cases:edit-12-week-update-request-ack", kwargs={"pk": self.id}
+                    "cases:edit-12-week-update-request-ack",
+                    kwargs={"pk": self.id},
                 ),
             )
         elif (
@@ -698,7 +735,8 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up sent, case needs to progress",
                 url=reverse(
-                    "cases:edit-12-week-update-request-ack", kwargs={"pk": self.id}
+                    "cases:edit-12-week-update-request-ack",
+                    kwargs={"pk": self.id},
                 ),
             )
         return Link(
@@ -866,7 +904,7 @@ class Case(VersionModel):
         return self.total_website_issues - self.total_website_issues_fixed
 
     @property
-    def percentage_website_issues_fixed(self) -> int:
+    def percentage_website_issues_fixed(self) -> int | str:
         if self.audit is None:
             return "n/a"
         failed_checks_count: int = self.audit.failed_check_results.count()
@@ -876,7 +914,7 @@ class Case(VersionModel):
         return int(fixed_checks_count * 100 / failed_checks_count)
 
     @property
-    def csv_export_statement_initially_found(self) -> int:
+    def csv_export_statement_initially_found(self) -> str:
         if self.audit is None or not self.audit.uses_statement_checks:
             return "unknown"
         if self.audit.statement_initially_found:
@@ -884,7 +922,7 @@ class Case(VersionModel):
         return "No"
 
     @property
-    def csv_export_statement_found_at_12_week_retest(self) -> int:
+    def csv_export_statement_found_at_12_week_retest(self) -> str:
         if self.audit is None or not self.audit.uses_statement_checks:
             return "unknown"
         if self.audit.statement_found_at_12_week_retest:
@@ -1037,101 +1075,42 @@ class Case(VersionModel):
         kwargs_case_pk: dict[str, int] = {"pk": self.id}
         start_date: date = date(2020, 1, 1)
         end_date: date = date.today()
-        seven_days_ago = date.today() - timedelta(days=7)
 
         if (
             self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND
             and self.contact_details_found == Case.ContactDetailsFound.NOT_FOUND
         ):
-            if (
-                self.seven_day_no_contact_email_sent_date != None
-                and self.seven_day_no_contact_email_sent_date > start_date
-                and self.seven_day_no_contact_email_sent_date <= seven_days_ago
-                and self.no_contact_one_week_chaser_sent_date is None
-                and self.no_contact_four_week_chaser_sent_date is None
-            ):
-                return Link(
-                    label="No contact details response overdue",
-                    url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
-                    ),
-                )
-            if (
-                self.no_contact_one_week_chaser_due_date != None
-                and self.no_contact_one_week_chaser_due_date > start_date
-                and self.no_contact_one_week_chaser_due_date <= end_date
-                and self.no_contact_one_week_chaser_sent_date is None
-            ):
-                return Link(
-                    label="No contact details response overdue",
-                    url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
-                    ),
-                )
-            if (
-                self.no_contact_four_week_chaser_due_date != None
-                and self.no_contact_four_week_chaser_due_date > start_date
-                and self.no_contact_four_week_chaser_due_date <= end_date
-                and self.no_contact_four_week_chaser_sent_date is None
-            ):
-                return Link(
-                    label="No contact details response overdue",
-                    url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
-                    ),
-                )
+            return Link(
+                label="No contact details response overdue",
+                url=reverse(
+                    "cases:edit-request-contact-details",
+                    kwargs=kwargs_case_pk,
+                ),
+            )
 
         if self.status.status == CaseStatus.Status.IN_REPORT_CORES:
-            if (
-                self.report_followup_week_1_due_date != None
-                and self.report_followup_week_1_due_date > start_date
-                and self.report_followup_week_1_due_date <= end_date
-                and self.report_followup_week_1_sent_date is None
-            ):
-                return self.in_report_correspondence_progress
-            if (
-                self.report_followup_week_4_due_date != None
-                and self.report_followup_week_4_due_date > start_date
-                and self.report_followup_week_4_due_date <= end_date
-                and self.report_followup_week_4_sent_date is None
-            ):
-                return self.in_report_correspondence_progress
-            if (
-                self.report_followup_week_4_sent_date != None
-                and self.report_followup_week_4_sent_date > start_date
-                and self.report_followup_week_4_sent_date <= seven_days_ago
-            ):
-                return self.in_report_correspondence_progress
+            return self.in_report_correspondence_progress
 
-        if self.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
-            if (
-                self.report_followup_week_12_due_date != None
-                and self.report_followup_week_12_due_date > start_date
-                and self.report_followup_week_12_due_date <= end_date
-            ):
-                return Link(
-                    label="12-week update due",
-                    url=reverse(
-                        "cases:edit-12-week-update-requested", kwargs=kwargs_case_pk
-                    ),
-                )
+        if (
+            self.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
+            and self.report_followup_week_12_due_date is not None
+            and self.report_followup_week_12_due_date > start_date
+            and self.report_followup_week_12_due_date <= end_date
+        ):
+            return Link(
+                label="12-week update due",
+                url=reverse(
+                    "cases:edit-12-week-update-requested",
+                    kwargs=kwargs_case_pk,
+                ),
+            )
 
         if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
-            if (
-                self.twelve_week_1_week_chaser_due_date != None
-                and self.twelve_week_1_week_chaser_due_date > start_date
-                and self.twelve_week_1_week_chaser_due_date <= end_date
-                and self.twelve_week_1_week_chaser_sent_date is None
-            ):
-                return self.twelve_week_correspondence_progress
-            if (
-                self.twelve_week_1_week_chaser_sent_date != None
-                and self.twelve_week_1_week_chaser_sent_date > start_date
-                and self.twelve_week_1_week_chaser_sent_date <= seven_days_ago
-            ):
-                return self.twelve_week_correspondence_progress
+            return self.twelve_week_correspondence_progress
+
         return Link(
-            label="Go to case", url=reverse("cases:case-detail", kwargs=kwargs_case_pk)
+            label="Go to case",
+            url=reverse("cases:case-detail", kwargs=kwargs_case_pk),
         )
 
 
@@ -1141,6 +1120,7 @@ class CaseStatus(models.Model):
     """
 
     class Status(models.TextChoices):
+        """Constants for status"""
         UNKNOWN = "unknown", "Unknown"
         UNASSIGNED = "unassigned-case", "Unassigned case"
         TEST_IN_PROGRESS = "test-in-progress", "Test in progress"
@@ -1194,89 +1174,173 @@ class CaseStatus(models.Model):
     def __str__(self) -> str:
         return self.status
 
+    @property
+    def calculate_case_complete_status(self) -> bool:
+        """Calculates case complete status"""
+        return (
+            self.case.case_completed == Case.CaseCompleted.COMPLETE_NO_SEND
+            or self.case.enforcement_body_pursuing == Case.EnforcementBodyPursuing.YES_COMPLETED
+            or self.case.enforcement_body_closed_case == Case.EnforcementBodyClosedCase.YES
+        )
+
+    @property
+    def calculate_in_correspondence_with_enforcement_body_status(self) -> bool:
+        """Calculates correspondence with enforcement body status"""
+        return (
+            self.case.enforcement_body_pursuing == Case.EnforcementBodyPursuing.YES_IN_PROGRESS
+            or self.case.enforcement_body_closed_case == Case.EnforcementBodyClosedCase.IN_PROGRESS
+        )
+
+    @property
+    def calculate_case_closed_waiting_to_be_sent_status(self) -> bool:
+        """Calculates correspondence with enforcement body status"""
+        return self.case.case_completed == Case.CaseCompleted.COMPLETE_SEND
+
+    @property
+    def calculate_case_closed_sent_to_enforcement_body_status(self) -> bool:
+        """Calculates case closed sent to enforcement body status"""
+        return self.case.sent_to_enforcement_body_sent_date is not None
+
+    @property
+    def calculate_final_decision_due_status(self) -> bool:
+        """Calculates final decision due status"""
+        return (
+            self.case.no_psb_contact == Boolean.YES
+            or (
+                self.case.is_ready_for_final_decision == Boolean.YES
+                and self.case.case_completed == Case.CaseCompleted.NO_DECISION
+            )
+        )
+
+    @property
+    def calculate_unnassigned_case_status(self) -> bool:
+        """Calculates unnassigned case status"""
+        return self.case.auditor is None
+
+    @property
+    def calculate_test_in_progress_status(self) -> bool:
+        """Calculates test in progress status"""
+        try:
+            compliance: CaseCompliance | None = self.case.compliance
+        except CaseCompliance.DoesNotExist:
+            compliance: CaseCompliance | None = None
+
+        return (
+            compliance is None
+            or self.case.compliance.website_compliance_state_initial
+            == CaseCompliance.WebsiteCompliance.UNKNOWN
+            or self.case.statement_checks_still_initial
+        )
+
+    @property
+    def calculate_report_in_progress_status(self) -> bool:
+        """Calculates report in progress status"""
+        return (
+            self.case.compliance.website_compliance_state_initial
+            != CaseCompliance.WebsiteCompliance.UNKNOWN
+            and not self.case.statement_checks_still_initial
+            and self.case.report_review_status != Boolean.YES
+        )
+
+    @property
+    def calculate_qa_in_progress_status(self) -> bool:
+        """Calculates qa in progress status"""
+        return (
+            self.case.report_review_status == Boolean.YES
+            and self.case.report_approved_status != Case.ReportApprovedStatus.APPROVED
+        )
+
+    @property
+    def calculate_report_ready_to_send_status(self) -> bool:
+        """Calculates report ready to send status"""
+        return (
+            self.case.report_approved_status == Case.ReportApprovedStatus.APPROVED
+            and self.case.report_sent_date is None
+        )
+
+    @property
+    def calculate_in_report_correspondence_status(self) -> bool | None:
+        """Calculates in report correspondence status"""
+        return self.case.report_sent_date and self.case.report_acknowledged_date is None
+
+    @property
+    def calculate_awaiting_12_week_deadline_status(self) -> bool | None:
+        """Calculates awaiting 12 week deadline status"""
+        return self.case.report_acknowledged_date and (
+            self.case.twelve_week_update_requested_date is None
+            and self.case.twelve_week_correspondence_acknowledged_date is None
+        )
+
+    @property
+    def calculate_in_12_week_correspondence_status(self) -> bool | None:
+        """Calculates in 12 week correspondence status"""
+        return self.case.twelve_week_update_requested_date and (
+            self.case.twelve_week_correspondence_acknowledged_date is None
+            and self.case.organisation_response
+            == Case.OrganisationResponse.NOT_APPLICABLE
+        )
+
+    @property
+    def calculate_reviewing_changes_status(self) -> bool | None:
+        """Calculates reviewing changes status"""
+        return (
+            self.case.twelve_week_correspondence_acknowledged_date
+            or self.case.organisation_response != Case.OrganisationResponse.NOT_APPLICABLE
+        ) and self.case.is_ready_for_final_decision == Boolean.NO
+
     def calculate_and_save_status(self) -> None:
         self.status = self.calculate_status()
         self.save()
 
     def calculate_status(self) -> str:  # noqa: C901
-        try:
-            compliance: CaseCompliance = self.case.compliance
-        except CaseCompliance.DoesNotExist:
-            compliance = None
-
         if self.case.is_deactivated:
             return CaseStatus.Status.DEACTIVATED
-        elif (
-            self.case.case_completed == Case.CaseCompleted.COMPLETE_NO_SEND
-            or self.case.enforcement_body_pursuing
-            == Case.EnforcementBodyPursuing.YES_COMPLETED
-            or self.case.enforcement_body_closed_case
-            == Case.EnforcementBodyClosedCase.YES
-        ):
+
+        if self.calculate_case_complete_status:
             return CaseStatus.Status.COMPLETE
-        elif (
-            self.case.enforcement_body_pursuing
-            == Case.EnforcementBodyPursuing.YES_IN_PROGRESS
-            or self.case.enforcement_body_closed_case
-            == Case.EnforcementBodyClosedCase.IN_PROGRESS
-        ):
+
+        if self.calculate_in_correspondence_with_enforcement_body_status:
             return CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
-        elif self.case.sent_to_enforcement_body_sent_date is not None:
+
+        if self.calculate_case_closed_sent_to_enforcement_body_status:
             return CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
-        elif self.case.case_completed == Case.CaseCompleted.COMPLETE_SEND:
+
+        if self.calculate_case_closed_waiting_to_be_sent_status:
             return CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
-        elif self.case.no_psb_contact == Boolean.YES:
+
+        if self.calculate_final_decision_due_status:
             return CaseStatus.Status.FINAL_DECISION_DUE
-        elif self.case.auditor is None:
+
+        if self.calculate_unnassigned_case_status:
             return CaseStatus.Status.UNASSIGNED
-        elif (
-            compliance is None
-            or self.case.compliance.website_compliance_state_initial
-            == CaseCompliance.WebsiteCompliance.UNKNOWN
-            or self.case.statement_checks_still_initial
-        ):
+
+        if self.calculate_test_in_progress_status:
             return CaseStatus.Status.TEST_IN_PROGRESS
-        elif (
-            self.case.compliance.website_compliance_state_initial
-            != CaseCompliance.WebsiteCompliance.UNKNOWN
-            and not self.case.statement_checks_still_initial
-            and self.case.report_review_status != Boolean.YES
-        ):
+
+        if self.calculate_report_in_progress_status:
             return CaseStatus.Status.REPORT_IN_PROGRESS
-        elif (
-            self.case.report_review_status == Boolean.YES
-            and self.case.report_approved_status != Case.ReportApprovedStatus.APPROVED
-        ):
+
+        if self.calculate_qa_in_progress_status:
             return CaseStatus.Status.QA_IN_PROGRESS
-        elif (
-            self.case.report_approved_status == Case.ReportApprovedStatus.APPROVED
-            and self.case.report_sent_date is None
-        ):
+
+        if self.calculate_report_ready_to_send_status:
             return CaseStatus.Status.REPORT_READY_TO_SEND
-        elif self.case.report_sent_date and self.case.report_acknowledged_date is None:
+
+        if self.calculate_in_report_correspondence_status:
             return CaseStatus.Status.IN_REPORT_CORES
-        elif self.case.report_acknowledged_date and (
-            self.case.twelve_week_update_requested_date is None
-            and self.case.twelve_week_correspondence_acknowledged_date is None
-        ):
+
+        if self.calculate_awaiting_12_week_deadline_status:
             return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
-        elif self.case.twelve_week_update_requested_date and (
-            self.case.twelve_week_correspondence_acknowledged_date is None
-            and self.case.organisation_response
-            == Case.OrganisationResponse.NOT_APPLICABLE
-        ):
+
+        if self.calculate_in_12_week_correspondence_status:
             return CaseStatus.Status.IN_12_WEEK_CORES
-        elif (
-            self.case.twelve_week_correspondence_acknowledged_date
-            or self.case.organisation_response
-            != Case.OrganisationResponse.NOT_APPLICABLE
-        ) and self.case.is_ready_for_final_decision == Boolean.NO:
+
+        if self.calculate_reviewing_changes_status:
             return CaseStatus.Status.REVIEWING_CHANGES
-        elif (
-            self.case.is_ready_for_final_decision == Boolean.YES
-            and self.case.case_completed == Case.CaseCompleted.NO_DECISION
-        ):
+
+        if self.calculate_final_decision_due_status:
             return CaseStatus.Status.FINAL_DECISION_DUE
+
         return CaseStatus.Status.UNKNOWN
 
 
