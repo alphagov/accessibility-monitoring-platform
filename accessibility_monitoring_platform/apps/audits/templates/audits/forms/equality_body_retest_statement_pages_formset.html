@@ -22,7 +22,8 @@
                 {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-equality-body-statement-pages' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' with formset=statement_pages_formset %}
+                {% include 'common/formset_error_summary.html' with formset=statement_pages_formset %}
+                {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:edit-equality-body-statement-pages' retest.id %}">
                     {% csrf_token %}
                     {{ statement_pages_formset.management_form }}

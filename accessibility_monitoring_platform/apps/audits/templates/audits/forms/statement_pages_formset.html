@@ -2,7 +2,7 @@
 
 {% block form %}
     {% include "cases/helpers/messages.html" %}
-    {% include 'common/error_summary.html' with formset=statement_pages_formset %}
+    {% include 'common/formset_error_summary.html' with formset=statement_pages_formset %}
     <form method="post" action="{% url 'audits:edit-statement-pages' audit.id %}">
         {% csrf_token %}
         {{ statement_pages_formset.management_form }}

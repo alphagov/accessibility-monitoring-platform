@@ -24,7 +24,7 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'audits/helpers/statement_pages_eb_retest.html' with audit=retest.case.audit  %}
-                {% include 'common/error_summary.html' with formset=retest_statement_check_results_formset %}
+                {% include 'common/formset_error_summary.html' with formset=retest_statement_check_results_formset %}
                 <form method="post" action="{% url 'audits:edit-equality-body-statement-preparation' retest.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">

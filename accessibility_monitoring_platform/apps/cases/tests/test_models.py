@@ -1660,3 +1660,44 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
     assert case.overdue_link.url == reverse(
         "cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}
     )
+
+
+@pytest.mark.django_db
+def test_case_reminder():
+    """Test Case.reminder returns the unread reminder"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create()
+    reminder: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        case=case,
+        user=user,
+        date=REMINDER_DUE_DATE,
+    )
+
+    assert case.reminder == reminder
+
+    reminder.read = True
+    reminder.save()
+
+    assert case.reminder is None
+
+
+@pytest.mark.django_db
+def test_case_reminder_history():
+    """Test Case.reminder_history returns the read reminders"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create()
+    reminder: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        case=case,
+        user=user,
+        date=REMINDER_DUE_DATE,
+    )
+
+    assert case.reminder_history.count() == 0
+
+    reminder.read = True
+    reminder.save()
+
+    assert case.reminder_history.count() == 1
+    assert case.reminder_history.first() == reminder

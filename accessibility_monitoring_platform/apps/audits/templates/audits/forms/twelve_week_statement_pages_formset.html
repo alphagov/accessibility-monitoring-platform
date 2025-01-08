@@ -1,7 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block form %}
-    {% include 'common/error_summary.html' with formset=statement_pages_formset %}
+    {% include 'common/formset_error_summary.html' with formset=statement_pages_formset %}
     <form method="post" action="{% url 'audits:edit-audit-retest-statement-pages' audit.id %}">
         {% csrf_token %}
         {{ statement_pages_formset.management_form }}

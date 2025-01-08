@@ -1,8 +1,5 @@
 {% extends 'common/case_form.html' %}
 
-{% block form %}
-{% endblock %}
-
 {% block preform %}
 {% if case.audit %}
     {% include 'audits/helpers/test_summary.html' %}
@@ -19,4 +16,7 @@
         before using this page.
     </p>
 {% endif %}
+{% endblock %}
+
+{% block form %}
 {% endblock %}
