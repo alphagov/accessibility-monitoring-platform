@@ -18,10 +18,6 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from ..audits.forms import (
-    ArchiveAuditStatement1UpdateForm,
-    ArchiveAuditStatement2UpdateForm,
-)
 from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
@@ -121,10 +117,6 @@ TRUTHY_SEARCH_FIELDS: list[str] = [
     "subcategory",
 ]
 REMOVE_CONTACT_BUTTON_PREFIX: str = "remove_contact_"
-statement_fields = {
-    **ArchiveAuditStatement1UpdateForm().fields,
-    **ArchiveAuditStatement2UpdateForm().fields,
-}
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:

@@ -12,7 +12,6 @@ from pytest_django.asserts import assertQuerySetEqual
 from ...cases.models import Case
 from ...common.models import Boolean
 from ..models import (
-    ArchiveAccessibilityStatementCheck,
     Audit,
     CheckResult,
     Page,
@@ -677,110 +676,6 @@ def test_check_result_updated_updated():
     assert check_result.updated == DATETIME_CHECK_RESULT_UPDATED
 
 
-def test_accessibility_statement_check():
-    """
-    Test that an accessibility statement check has the expected attributes.
-    """
-    audit: Audit = Audit(
-        archive_scope_notes=INITIAL_NOTES, archive_audit_retest_scope_notes=FINAL_NOTES
-    )
-
-    accessibility_statement_check: ArchiveAccessibilityStatementCheck = (
-        ArchiveAccessibilityStatementCheck(field_name_prefix="scope", audit=audit)
-    )
-
-    assert accessibility_statement_check.field_name_prefix == "scope"
-    assert accessibility_statement_check.valid_values == ["present"]
-    assert accessibility_statement_check.label == "Scope"
-    assert accessibility_statement_check.initial_state == "not-present"
-    assert accessibility_statement_check.initial_state_display == "Not included"
-    assert accessibility_statement_check.initial_notes == INITIAL_NOTES
-    assert accessibility_statement_check.final_state == "not-present"
-    assert accessibility_statement_check.final_state_display == "Not included"
-    assert accessibility_statement_check.final_notes == FINAL_NOTES
-    assert accessibility_statement_check.initially_invalid is True
-    assert accessibility_statement_check.finally_fixed is False
-    assert accessibility_statement_check.finally_invalid is True
-
-
-@pytest.mark.parametrize(
-    "audit_field_name, audit_field_value, expected_value",
-    [
-        ("archive_scope_state", "present", False),
-        ("archive_scope_state", "not-present", True),
-        ("archive_scope_state", "incomplete", True),
-        ("archive_scope_state", "other", True),
-    ],
-)
-def test_accessibility_statement_check_initially_valid(
-    audit_field_name, audit_field_value, expected_value
-):
-    """
-    Test that an accessibility statement check has the expected value for
-    initially invalid.
-    """
-    audit: Audit = Audit()
-    setattr(audit, audit_field_name, audit_field_value)
-
-    accessibility_statement_check: ArchiveAccessibilityStatementCheck = (
-        ArchiveAccessibilityStatementCheck(field_name_prefix="scope", audit=audit)
-    )
-
-    assert accessibility_statement_check.initially_invalid == expected_value
-
-
-@pytest.mark.parametrize(
-    "audit_field_name, audit_field_value, expected_value",
-    [
-        ("archive_audit_retest_scope_state", "present", True),
-        ("archive_audit_retest_scope_state", "not-present", False),
-        ("archive_audit_retest_scope_state", "incomplete", False),
-        ("archive_audit_retest_scope_state", "other", False),
-    ],
-)
-def test_accessibility_statement_check_finally_fixed(
-    audit_field_name, audit_field_value, expected_value
-):
-    """
-    Test that an accessibility statement check has the expected value for
-    finally fixed.
-    """
-    audit: Audit = Audit()
-    setattr(audit, audit_field_name, audit_field_value)
-
-    accessibility_statement_check: ArchiveAccessibilityStatementCheck = (
-        ArchiveAccessibilityStatementCheck(field_name_prefix="scope", audit=audit)
-    )
-
-    assert accessibility_statement_check.finally_fixed == expected_value
-
-
-@pytest.mark.parametrize(
-    "audit_field_name, audit_field_value, expected_value",
-    [
-        ("archive_audit_retest_scope_state", "present", False),
-        ("archive_audit_retest_scope_state", "not-present", True),
-        ("archive_audit_retest_scope_state", "incomplete", True),
-        ("archive_audit_retest_scope_state", "other", True),
-    ],
-)
-def test_accessibility_statement_check_finally_invalid(
-    audit_field_name, audit_field_value, expected_value
-):
-    """
-    Test that an accessibility statement check has the expected value for
-    finally invalid.
-    """
-    audit: Audit = Audit()
-    setattr(audit, audit_field_name, audit_field_value)
-
-    accessibility_statement_check: ArchiveAccessibilityStatementCheck = (
-        ArchiveAccessibilityStatementCheck(field_name_prefix="scope", audit=audit)
-    )
-
-    assert accessibility_statement_check.finally_invalid == expected_value
-
-
 @pytest.mark.django_db
 def test_audit_fixed_check_results():
     """
@@ -817,75 +712,6 @@ def test_audit_unfixed_check_results():
     updated_audit: Audit = Audit.objects.get(id=audit.id)
 
     assert updated_audit.unfixed_check_results.count() == 2
-
-
-def test_audit_accessibility_statement_checks():
-    """
-    Test that an audit has the expected accessibility statement checks.
-    """
-    audit: Audit = Audit()
-
-    assert len(audit.accessibility_statement_checks) == 13
-
-    for count, field_name_prefix in enumerate(
-        Audit.ARCHIVE_ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
-    ):
-        assert (
-            audit.accessibility_statement_checks[count].field_name_prefix
-            == field_name_prefix
-        )
-
-
-def test_audit_accessibility_statement_initially_invalid_count():
-    """
-    Test that an audit has the expected number of initially invalid
-    accessibility statement checks.
-    """
-    audit: Audit = Audit()
-
-    assert audit.accessibility_statement_initially_invalid_checks_count == 12
-
-    audit.archive_scope_state = Audit.Scope.PRESENT
-
-    assert audit.accessibility_statement_initially_invalid_checks_count == 11
-
-
-def test_audit_accessibility_statement_fixed_count():
-    """
-    Test that an audit has the expected number of fixed accessibility statement
-    checks.
-    """
-    audit: Audit = Audit()
-
-    assert audit.fixed_accessibility_statement_checks_count == 0
-
-    audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
-
-    assert audit.fixed_accessibility_statement_checks_count == 1
-
-
-def test_audit_accessibility_statement_finally_invalid():
-    """
-    Test that an audit has the expected finally invalid accessibility statement
-    checks.
-    """
-    audit: Audit = Audit()
-
-    assert len(audit.finally_invalid_accessibility_statement_checks) == 12
-
-    audit.archive_audit_retest_scope_state = Audit.Scope.PRESENT
-
-    assert len(audit.finally_invalid_accessibility_statement_checks) == 11
-
-
-def test_audit_accessibility_statement_finally_invalid_count():
-    """
-    Test that an audit has the expected finally invalid accessibility statement
-    checks count.
-    """
-    audit: Audit = Audit()
-
-    assert audit.finally_invalid_accessibility_statement_checks_count == 12
 
 
 def test_statement_check_str():
@@ -964,21 +790,6 @@ def test_audit_statement_check_results():
     )
 
     assertQuerySetEqual(audit.statement_check_results, statement_check_results)
-
-
-@pytest.mark.django_db
-def test_audit_uses_pre_2023_statement_checks():
-    """
-    Tests an audit.uses_pre_2023_statement_checks shows if no statement check results exist
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-
-    assert audit.uses_pre_2023_statement_checks is True
-
-    audit: Audit = create_audit_and_statement_check_results()
-
-    assert audit.uses_pre_2023_statement_checks is False
 
 
 @pytest.mark.parametrize(
@@ -1207,27 +1018,6 @@ def test_all_overview_statement_checks_have_passed():
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
 
     assert audit_from_db.all_overview_statement_checks_have_passed is True
-
-
-def test_report_accessibility_issues():
-    """Test the accessibility issues includes user-edited text"""
-    audit: Audit = Audit(
-        archive_accessibility_statement_deadline_not_complete_wording=INCOMPLETE_DEADLINE_TEXT,
-        archive_accessibility_statement_deadline_not_sufficient_wording=INSUFFICIENT_DEADLINE_TEXT,
-    )
-
-    assert audit.report_accessibility_issues == []
-
-    audit.archive_accessibility_statement_deadline_not_complete = Boolean.YES
-
-    assert audit.report_accessibility_issues == [INCOMPLETE_DEADLINE_TEXT]
-
-    audit.archive_accessibility_statement_deadline_not_sufficient = Boolean.YES
-
-    assert audit.report_accessibility_issues == [
-        INCOMPLETE_DEADLINE_TEXT,
-        INSUFFICIENT_DEADLINE_TEXT,
-    ]
 
 
 @pytest.mark.parametrize(

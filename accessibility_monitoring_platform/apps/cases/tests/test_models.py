@@ -828,22 +828,6 @@ def test_overview_issues_website_with_audit():
 
 
 @pytest.mark.django_db
-def test_overview_issues_statement_with_audit():
-    """Test that case with audit returns overview"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-
-    assert case.overview_issues_statement == "0 of 12 fixed (0%)"
-
-    audit.archive_audit_retest_content_not_in_scope_state = (
-        Audit.ContentNotInScope.PRESENT
-    )
-    audit.save()
-
-    assert case.overview_issues_statement == "1 of 12 fixed (8%)"
-
-
-@pytest.mark.django_db
 def test_overview_issues_statement_with_statement_checks():
     """Test that case with audit returns overview"""
     case: Case = Case.objects.create()
@@ -1206,8 +1190,6 @@ def test_csv_export_statement_initially_found():
 
     audit: Audit = Audit.objects.create(case=case)
 
-    assert case.csv_export_statement_initially_found == "unknown"
-
     for statement_check in StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ):
@@ -1237,8 +1219,6 @@ def test_csv_export_statement_found_at_12_week_retest():
     assert case.csv_export_statement_found_at_12_week_retest == "unknown"
 
     audit: Audit = Audit.objects.create(case=case)
-
-    assert case.csv_export_statement_found_at_12_week_retest == "unknown"
 
     for statement_check in StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
@@ -1680,3 +1660,44 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
     assert case.overdue_link.url == reverse(
         "cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}
     )
+
+
+@pytest.mark.django_db
+def test_case_reminder():
+    """Test Case.reminder returns the unread reminder"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create()
+    reminder: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        case=case,
+        user=user,
+        date=REMINDER_DUE_DATE,
+    )
+
+    assert case.reminder == reminder
+
+    reminder.read = True
+    reminder.save()
+
+    assert case.reminder is None
+
+
+@pytest.mark.django_db
+def test_case_reminder_history():
+    """Test Case.reminder_history returns the read reminders"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create()
+    reminder: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        case=case,
+        user=user,
+        date=REMINDER_DUE_DATE,
+    )
+
+    assert case.reminder_history.count() == 0
+
+    reminder.read = True
+    reminder.save()
+
+    assert case.reminder_history.count() == 1
+    assert case.reminder_history.first() == reminder

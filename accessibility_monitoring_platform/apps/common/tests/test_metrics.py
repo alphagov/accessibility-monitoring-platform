@@ -98,31 +98,6 @@ def test_thirty_day_metric_progress_percentage(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "audit_params, expected_fixed, expected_total",
-    [
-        ({"archive_declaration_state": "present"}, 0, 10),
-        ({"archive_declaration_state": "not-present"}, 0, 11),
-        ({"archive_audit_retest_declaration_state": "present"}, 1, 11),
-        ({"archive_audit_retest_declaration_state": "not-present"}, 0, 11),
-    ],
-)
-def test_count_statement_issues_old_style(
-    audit_params: dict[str, str], expected_fixed: int, expected_total: int
-):
-    """
-    Test counting issues and fixed issues for accessibility statements
-    prior to the introduction of statement check results.
-    """
-    case: Case = Case.objects.create()
-    Audit.objects.create(**audit_params, case=case)
-    assert count_statement_issues(audits=Audit.objects.all()) == (
-        expected_fixed,
-        expected_total,
-    )
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize(
     "statement_check_result_params, expected_fixed, expected_total",
     [
         ({}, 0, 0),
@@ -593,6 +568,14 @@ def test_get_policy_progress_metrics(mock_datetime):
         check_result_state=CheckResult.Result.ERROR,
         retest_state=CheckResult.RetestResult.FIXED,
     )
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+        check_result_state=StatementCheckResult.Result.NO,
+        retest_state=StatementCheckResult.Result.YES,
+    )
 
     assert get_policy_progress_metrics() == [
         ProgressMetric(
@@ -612,8 +595,8 @@ def test_get_policy_progress_metrics(mock_datetime):
         ),
         ProgressMetric(
             label="Statement issues fixed in the last 90 days",
-            partial_count=0,
-            total_count=11,
+            partial_count=1,
+            total_count=1,
         ),
     ]
 
@@ -650,6 +633,14 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
         check_result_state=CheckResult.Result.ERROR,
         retest_state=CheckResult.RetestResult.FIXED,
     )
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+        check_result_state=StatementCheckResult.Result.NO,
+        retest_state=StatementCheckResult.Result.YES,
+    )
 
     assert get_policy_progress_metrics() == [
         ProgressMetric(
@@ -669,8 +660,8 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
         ),
         ProgressMetric(
             label="Statement issues fixed in the last 90 days",
-            partial_count=0,
-            total_count=11,
+            partial_count=1,
+            total_count=1,
         ),
     ]
 

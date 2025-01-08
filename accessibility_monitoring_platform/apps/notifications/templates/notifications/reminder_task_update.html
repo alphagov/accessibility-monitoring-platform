@@ -3,9 +3,11 @@
 {% block form %}
     <form method="post" action="{% url 'notifications:edit-reminder-task' task.id %}">
         {% csrf_token %}
+        {% include 'common/form_errors.html' with errors=form.non_field_errors %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'common/amp_form_snippet.html' %}
+                {% include 'notifications/helpers/read_reminders.html' %}
             </div>
             <div class="govuk-grid-column-full govuk-button-group">
                 <input

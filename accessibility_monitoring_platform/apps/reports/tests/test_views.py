@@ -10,29 +10,17 @@ from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
-from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import (
-    Audit,
-    CheckResult,
-    Page,
-    StatementCheckResult,
-    WcagDefinition,
-)
+from ...audits.models import Audit, Page, StatementCheckResult
 from ...cases.models import Case, CaseCompliance, CaseEvent
 from ...common.models import Boolean
 from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
 
-WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
-HOME_PAGE_URL: str = "https://example.com"
-CHECK_RESULTS_NOTES: str = "I am an error note"
-EXTRA_STATEMENT_WORDING: str = "Extra statement wording"
-PAGE_LOCATION: str = "Click on second link"
-
 USER_NAME: str = "user1"
 USER_PASSWORD: str = "bar"
-
+HOME_PAGE_URL: str = "https://example.com"
+PAGE_LOCATION: str = "Click on second link"
 FIRST_CODENAME: str = "FirstCodename"
 SECOND_CODENAME: str = "SecondCodename"
 
@@ -45,31 +33,8 @@ def create_report() -> Report:
     return report
 
 
-def test_create_report_uses_older_template(admin_client):
-    """
-    Test that report create uses last pre-statement check report template if no
-    statement checks exist
-    """
-    case: Case = Case.objects.create()
-    path_kwargs: dict[str, int] = {"case_id": case.id}
-    Audit.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-create", kwargs=path_kwargs),
-    )
-
-    assert response.status_code == 302
-
-    report: Report = Report.objects.get(case=case)
-
-    assert report.report_version == "v1_1_0__20230421"
-
-
 def test_create_report_uses_latest_template(admin_client):
-    """
-    Test that report create uses latest report template if statement checks
-    exist
-    """
+    """Test that report create uses latest report template"""
     case: Case = Case.objects.create()
     path_kwargs: dict[str, int] = {"case_id": case.id}
     audit: Audit = Audit.objects.create(case=case)
@@ -132,45 +97,6 @@ def test_create_report_creates_case_event(admin_client):
     case_event: CaseEvent = case_events[0]
     assert case_event.event_type == CaseEvent.EventType.CREATE_REPORT
     assert case_event.message == "Created report"
-
-
-@mock_aws
-def test_old_published_report_includes_errors(admin_client):
-    """
-    Test that published report contains the test results
-    """
-    report: Report = create_report()
-    report.report_version = "v1_1_0__20230421"
-    report.save()
-    audit: Audit = report.case.audit
-    audit.archive_accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
-    audit.save()
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.STATEMENT, url=HOME_PAGE_URL
-    )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-        notes=CHECK_RESULTS_NOTES,
-    )
-
-    report_pk_kwargs: dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-preview", kwargs=report_pk_kwargs),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, HOME_PAGE_URL)
-    assertContains(response, WCAG_TYPE_AXE_NAME)
-    assertContains(response, CHECK_RESULTS_NOTES)
-    assertContains(response, EXTRA_STATEMENT_WORDING)
 
 
 def test_report_includes_page_location(admin_client):

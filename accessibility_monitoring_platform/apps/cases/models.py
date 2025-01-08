@@ -570,6 +570,10 @@ class Case(VersionModel):
         return self.task_set.filter(type="reminder", read=False).first()
 
     @property
+    def reminder_history(self):
+        return self.task_set.filter(type="reminder", read=True)
+
+    @property
     def qa_comments(self):
         return self.comment_case.filter(hidden=False).order_by("-created_date")
 
@@ -914,16 +918,26 @@ class Case(VersionModel):
         return int(fixed_checks_count * 100 / failed_checks_count)
 
     @property
+<<<<<<< HEAD
     def csv_export_statement_initially_found(self) -> str:
         if self.audit is None or not self.audit.uses_statement_checks:
+=======
+    def csv_export_statement_initially_found(self) -> int:
+        if self.audit is None:
+>>>>>>> dev
             return "unknown"
         if self.audit.statement_initially_found:
             return "Yes"
         return "No"
 
     @property
+<<<<<<< HEAD
     def csv_export_statement_found_at_12_week_retest(self) -> str:
         if self.audit is None or not self.audit.uses_statement_checks:
+=======
+    def csv_export_statement_found_at_12_week_retest(self) -> int:
+        if self.audit is None:
+>>>>>>> dev
             return "unknown"
         if self.audit.statement_found_at_12_week_retest:
             return "Yes"
@@ -942,21 +956,16 @@ class Case(VersionModel):
     def overview_issues_statement(self) -> str:
         if self.audit is None:
             return "No test exists"
-        if self.audit.uses_statement_checks:
-            return format_statement_check_overview(
-                tests_passed=self.audit.passed_statement_check_results.count(),
-                tests_failed=self.audit.failed_statement_check_results.count(),
-                retests_passed=self.audit.passed_retest_statement_check_results.count(),
-                retests_failed=self.audit.failed_retest_statement_check_results.count(),
-            )
-        return format_outstanding_issues(
-            failed_checks_count=self.audit.accessibility_statement_initially_invalid_checks_count,
-            fixed_checks_count=self.audit.fixed_accessibility_statement_checks_count,
+        return format_statement_check_overview(
+            tests_passed=self.audit.passed_statement_check_results.count(),
+            tests_failed=self.audit.failed_statement_check_results.count(),
+            retests_passed=self.audit.passed_retest_statement_check_results.count(),
+            retests_failed=self.audit.failed_retest_statement_check_results.count(),
         )
 
     @property
     def statement_checks_still_initial(self):
-        if self.audit and self.audit.uses_statement_checks:
+        if self.audit:
             return not self.audit.overview_statement_checks_complete
         return (
             self.compliance.statement_compliance_state_initial

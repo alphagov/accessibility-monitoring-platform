@@ -248,13 +248,10 @@ def test_create_audit_creates_case_event(admin_client):
         ("audits:edit-audit-metadata", "Initial test metadata"),
         ("audits:edit-audit-pages", "Add or remove pages"),
         ("audits:edit-website-decision", "Compliance decision"),
-        ("audits:edit-audit-statement-1", "Accessibility statement Pt. 1"),
-        ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
         (
             "audits:edit-statement-decision",
             "Initial statement compliance decision",
         ),
-        ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-wcag-summary", "Test summary"),
         ("audits:edit-audit-statement-summary", "Test summary"),
         ("audits:edit-audit-retest-wcag-summary", "Test summary"),
@@ -263,14 +260,6 @@ def test_create_audit_creates_case_event(admin_client):
         (
             "audits:edit-audit-retest-website-decision",
             "Compliance decision",
-        ),
-        (
-            "audits:edit-audit-retest-statement-1",
-            "Accessibility statement Pt. 1",
-        ),
-        (
-            "audits:edit-audit-retest-statement-2",
-            "Accessibility statement Pt. 2",
         ),
         (
             "audits:edit-audit-retest-statement-decision",
@@ -342,23 +331,6 @@ def test_audit_statement_check_specific_page_loads(
     [
         ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
         ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages"),
-        ("audits:edit-audit-statement-1", "save", "audits:edit-audit-statement-1"),
-        (
-            "audits:edit-audit-statement-1",
-            "save_continue",
-            "audits:edit-audit-statement-2",
-        ),
-        ("audits:edit-audit-statement-2", "save", "audits:edit-audit-statement-2"),
-        (
-            "audits:edit-audit-report-options",
-            "save",
-            "audits:edit-audit-report-options",
-        ),
-        (
-            "audits:edit-audit-report-options",
-            "save_continue",
-            "audits:edit-audit-wcag-summary",
-        ),
         ("audits:edit-audit-wcag-summary", "save", "audits:edit-audit-wcag-summary"),
         (
             "audits:edit-audit-wcag-summary",
@@ -389,26 +361,6 @@ def test_audit_statement_check_specific_page_loads(
             "audits:edit-audit-retest-pages",
             "save",
             "audits:edit-audit-retest-pages",
-        ),
-        (
-            "audits:edit-audit-retest-statement-1",
-            "save",
-            "audits:edit-audit-retest-statement-1",
-        ),
-        (
-            "audits:edit-audit-retest-statement-1",
-            "save_continue",
-            "audits:edit-audit-retest-statement-2",
-        ),
-        (
-            "audits:edit-audit-retest-statement-2",
-            "save",
-            "audits:edit-audit-retest-statement-2",
-        ),
-        (
-            "audits:edit-audit-retest-statement-2",
-            "save_continue",
-            "audits:edit-twelve-week-disproportionate-burden",
         ),
         (
             "audits:edit-audit-retest-wcag-summary",
@@ -468,11 +420,6 @@ def test_audit_edit_redirects_based_on_button_pressed(
             "save_continue",
             "audits:edit-audit-wcag-summary",
         ),
-        (
-            "audits:edit-audit-statement-2",
-            "save_continue",
-            "audits:edit-statement-decision",
-        ),
         ("audits:edit-statement-decision", "save", "audits:edit-statement-decision"),
         (
             "audits:edit-statement-decision",
@@ -519,59 +466,6 @@ def test_audit_compliance_edit_redirects_based_on_button_pressed(
             "version": audit.version,
             button_name: "Button value",
             "case-compliance-version": audit.case.compliance.version,
-        },
-    )
-
-    assert response.status_code == 302
-
-    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
-    assert response.url == expected_path
-
-
-@pytest.mark.parametrize(
-    "path_name, button_name, expected_redirect_path_name",
-    [
-        ("audits:edit-statement-pages", "save", "audits:edit-statement-pages"),
-        (
-            "audits:edit-statement-pages",
-            "save_continue",
-            "audits:edit-audit-statement-1",
-        ),
-        (
-            "audits:edit-audit-retest-statement-pages",
-            "save",
-            "audits:edit-audit-retest-statement-pages",
-        ),
-        (
-            "audits:edit-audit-retest-statement-pages",
-            "save_continue",
-            "audits:edit-audit-retest-statement-1",
-        ),
-    ],
-)
-def test_audit_statement_pages_edit_redirects_based_on_button_pressed_no_statement_checks(
-    path_name,
-    button_name,
-    expected_redirect_path_name,
-    admin_client,
-):
-    """
-    Test that a successful audit statement pages update redirects based
-    on the button pressed (no statement checks)
-    """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs=audit_pk),
-        {
-            "version": audit.version,
-            button_name: "Button value",
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
         },
     )
 
@@ -1276,7 +1170,7 @@ def test_retest_date_change_creates_case_event(admin_client):
 
 def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     """
-    Test save and continue button causes user to skip to statement 1 page
+    Test save and continue button causes user to skip to statement pages
     when no response was received from public sector body.
     """
     audit: Audit = create_audit_and_wcag()
@@ -1836,107 +1730,6 @@ def test_website_decision_field_updates_report_content(
         assert updated_audit.published_report_data_updated_time is None
 
 
-def test_statement_update_one_shows_statement_link(admin_client):
-    """Test that an accessibility statement links shown if present"""
-    audit: Audit = create_audit_and_pages()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, ACCESSIBILITY_STATEMENT_URL)
-
-    StatementPage.objects.create(audit=audit, url=ACCESSIBILITY_STATEMENT_URL)
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, ACCESSIBILITY_STATEMENT_URL)
-
-
-@pytest.mark.parametrize(
-    "url_name, field_label",
-    [
-        (
-            "audits:edit-audit-statement-1",
-            "Non-accessible Content - non compliance with regulations",
-        ),
-        (
-            "audits:edit-audit-statement-2",
-            "Non-accessible Content - disproportionate burden",
-        ),
-    ],
-)
-def test_statement_details_hidden_when_no_statement_page(
-    url_name, field_label, admin_client
-):
-    """
-    Test that accessibility statement details and form fields shown only if
-    such a page is present.
-    """
-    audit: Audit = create_audit_and_pages()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, NO_ACCESSIBILITY_STATEMENT, html=True)
-    assertNotContains(response, field_label)
-
-    StatementPage.objects.create(audit=audit, url=ACCESSIBILITY_STATEMENT_URL)
-
-    response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT, html=True)
-    assertContains(response, field_label)
-
-
-@pytest.mark.parametrize(
-    "email, new_contact_expected",
-    [
-        ("", False),
-        ("email", True),
-    ],
-)
-def test_statement_update_one_adds_contact(email, new_contact_expected, admin_client):
-    """Test that a contact can be added from the statement update one view"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
-        {
-            "version": audit.version,
-            "add_contact_email": email,
-            "save": "Button value",
-        },
-    )
-
-    assert response.status_code == 302
-
-    contacts: QuerySet[Contact] = Contact.objects.filter(case=audit.case)
-
-    if new_contact_expected:
-        assert len(contacts) == 1
-        contact: Contact = contacts[0]
-        assert contact.email == email
-    else:
-        assert len(contacts) == 0
-
-
 def test_add_custom_statement_check_result_form_appears(admin_client):
     """
     Test that pressing the create issue button adds a new custom statement issue form
@@ -2083,46 +1876,6 @@ def test_statement_decision_saved_on_case(admin_client):
         updated_case.compliance.statement_compliance_notes_initial
         == STATEMENT_COMPLIANCE_NOTES
     )
-
-
-@pytest.mark.parametrize(
-    "field_name, new_value, report_content_update",
-    [
-        ("archive_accessibility_statement_state", "found", True),
-        ("archive_report_options_next", "no-errors", True),
-        ("archive_audit_report_options_complete_date", timezone.now(), False),
-    ],
-)
-def test_report_options_field_updates_report_content(
-    field_name, new_value, report_content_update, admin_client
-):
-    """Test that a report data updated time changes when expected"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    assert audit.published_report_data_updated_time is None
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-report-options", kwargs=audit_pk),
-        {
-            "version": audit.version,
-            "archive_accessibility_statement_state": Audit.AccessibilityStatement.NOT_FOUND,
-            "archive_report_options_next": Audit.ReportOptionsNext.ERRORS,
-            "save": "Button value",
-            field_name: new_value,
-            "archive_accessibility_statement_deadline_not_complete_wording": "it includes a deadline of XXX for fixing XXX issues and this has not been completed",
-            "archive_accessibility_statement_deadline_not_sufficient_wording": "it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
-        },
-    )
-
-    assert response.status_code == 302
-
-    updated_audit: Audit = Audit.objects.get(id=audit.id)
-
-    if report_content_update:
-        assert updated_audit.published_report_data_updated_time is not None
-    else:
-        assert updated_audit.published_report_data_updated_time is None
 
 
 def test_start_retest_redirects(admin_client):
@@ -2435,68 +2188,6 @@ def test_retest_statement_custom_with_initial(admin_client):
     assertContains(response, "Custom statement issue")
 
 
-def test_all_initial_statement_one_notes_included_on_retest(admin_client):
-    """
-    Test that initial statement one notes all on retest page
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit.archive_scope_notes = "Initial scope notes"
-    audit.archive_feedback_notes = "Initial feedback notes"
-    audit.archive_contact_information_notes = "Initial contact information notes"
-    audit.archive_enforcement_procedure_notes = "Initial enforcement procedure notes"
-    audit.archive_declaration_notes = "Initial declaration notes"
-    audit.archive_compliance_notes = "Initial compliance notes"
-    audit.archive_non_regulation_notes = "Initial non-regulation notes"
-    audit.save()
-    StatementPage.objects.create(audit=audit, url=ACCESSIBILITY_STATEMENT_URL)
-
-    audit_pk: int = audit.id
-    path_kwargs: dict[str, int] = {"pk": audit_pk}
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-statement-1", kwargs=path_kwargs),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Initial scope notes")
-    assertContains(response, "Initial feedback notes")
-    assertContains(response, "Initial contact information notes")
-    assertContains(response, "Initial enforcement procedure notes")
-    assertContains(response, "Initial declaration notes")
-    assertContains(response, "Initial compliance notes")
-    assertContains(response, "Initial non-regulation notes")
-
-
-def test_all_initial_statement_two_notes_included_on_retest(admin_client):
-    """
-    Test that initial statement two notes all on retest page
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit.archive_disproportionate_burden_notes = "Initial disproportional burden notes"
-    audit.archive_content_not_in_scope_notes = "Initial not in scope notes"
-    audit.archive_preparation_date_notes = "Initial preperation date notes"
-    audit.archive_review_notes = "Initial review notes"
-    audit.archive_method_notes = "Initial method notes"
-    audit.archive_access_requirements_notes = "Initial access requirements notes"
-    audit.save()
-    StatementPage.objects.create(audit=audit, url=ACCESSIBILITY_STATEMENT_URL)
-
-    audit_pk: int = audit.id
-    path_kwargs: dict[str, int] = {"pk": audit_pk}
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-statement-2", kwargs=path_kwargs),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Initial disproportional burden notes")
-    assertContains(response, "Initial not in scope notes")
-    assertContains(response, "Initial preperation date notes")
-    assertContains(response, "Initial review notes")
-    assertContains(response, "Initial method notes")
-    assertContains(response, "Initial access requirements notes")
-
-
 def test_wcag_definition_list_view_shows_all(admin_client):
     """Test WCAG definition list shows all rows"""
     response: HttpResponse = admin_client.get(reverse("audits:wcag-definition-list"))
@@ -2672,7 +2363,7 @@ def test_update_audit_checks_case_version(url_name, admin_client):
     "url_name",
     [
         "audits:edit-audit-metadata",
-        "audits:edit-audit-retest-statement-2",
+        "audits:edit-statement-overview",
     ],
 )
 def test_frequently_used_links_displayed(url_name, admin_client):
