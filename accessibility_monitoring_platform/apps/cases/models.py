@@ -475,7 +475,7 @@ class Case(VersionModel):
             and not self.completed_date
         ):
             self.completed_date = now
-        self.qa_status = self.calulate_qa_status()
+        self.qa_status = self.calulate_qa_status
         self.updated = now
         super().save(*args, **kwargs)
         if new_case:
@@ -502,21 +502,27 @@ class Case(VersionModel):
         return mark_safe(title)
 
     @property
-    def return_no_contact_due_date(self) -> date:
+    def calculate_no_contact_due_date(self) -> date | None:
         """Returns no contact due date"""
-        if (self.no_contact_one_week_chaser_due_date and self.no_contact_one_week_chaser_sent_date is None):
+        if (
+            self.no_contact_one_week_chaser_due_date
+            and self.no_contact_one_week_chaser_sent_date is None
+        ):
             return self.no_contact_one_week_chaser_due_date
 
-        if (self.no_contact_four_week_chaser_due_date and self.no_contact_four_week_chaser_sent_date is None):
+        if (
+            self.no_contact_four_week_chaser_due_date
+            and self.no_contact_four_week_chaser_sent_date is None
+        ):
             return self.no_contact_four_week_chaser_due_date
 
         if self.no_contact_four_week_chaser_sent_date is not None:
-            return self.no_contact_four_week_chaser_sent_date + timedelta(days=ONE_WEEK_IN_DAYS)
-
-        return date(1970, 1, 1)
+            return self.no_contact_four_week_chaser_sent_date + timedelta(
+                days=ONE_WEEK_IN_DAYS
+            )
 
     @property
-    def return_initial_correspondence_due_date(self) -> date | None:
+    def calculate_initial_correspondence_due_date(self) -> date | None:
         """Returns initial correspondence due date"""
         if self.report_followup_week_1_sent_date is None:
             return self.report_followup_week_1_due_date
@@ -528,12 +534,9 @@ class Case(VersionModel):
             return self.report_followup_week_4_sent_date + timedelta(
                 days=ONE_WEEK_IN_DAYS
             )
-        raise Exception(
-            "Case is in-report-correspondence but neither sent date is set"
-        )
 
     @property
-    def return_12_week_correspondence_due_date(self) -> date | None:
+    def calculate_12_week_correspondence_due_date(self) -> date | None:
         if self.twelve_week_1_week_chaser_sent_date is None:
             return self.twelve_week_1_week_chaser_due_date
         return self.twelve_week_1_week_chaser_sent_date + timedelta(
@@ -543,18 +546,16 @@ class Case(VersionModel):
     @property
     def next_action_due_date(self) -> date | None:
         if self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND:
-            return self.return_no_contact_due_date
+            return self.calculate_no_contact_due_date
 
         if self.status.status == CaseStatus.Status.IN_REPORT_CORES:
-            return self.return_initial_correspondence_due_date
+            return self.calculate_initial_correspondence_due_date
 
         if self.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
             return self.report_followup_week_12_due_date
 
         if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
-            return self.return_12_week_correspondence_due_date
-
-        return date(1970, 1, 1)
+            return self.calculate_12_week_correspondence_due_date
 
     @property
     def next_action_due_date_tense(self) -> str:
@@ -606,6 +607,7 @@ class Case(VersionModel):
             and self.report_approved_status == Case.ReportApprovedStatus.APPROVED
         )
 
+    @property
     def calulate_qa_status(self) -> str:
         if self.calculate_unnassigned_qa_status:
             return Case.QAStatus.UNASSIGNED
@@ -687,10 +689,7 @@ class Case(VersionModel):
 
         return Link(
             label="Unknown",
-            url=reverse(
-                "cases:manage-contact-details",
-                kwargs={"pk": self.id}
-            ),
+            url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
         )
 
     @property
@@ -1120,6 +1119,7 @@ class CaseStatus(models.Model):
 
     class Status(models.TextChoices):
         """Constants for status"""
+
         UNKNOWN = "unknown", "Unknown"
         UNASSIGNED = "unassigned-case", "Unassigned case"
         TEST_IN_PROGRESS = "test-in-progress", "Test in progress"
@@ -1178,16 +1178,20 @@ class CaseStatus(models.Model):
         """Calculates case complete status"""
         return (
             self.case.case_completed == Case.CaseCompleted.COMPLETE_NO_SEND
-            or self.case.enforcement_body_pursuing == Case.EnforcementBodyPursuing.YES_COMPLETED
-            or self.case.enforcement_body_closed_case == Case.EnforcementBodyClosedCase.YES
+            or self.case.enforcement_body_pursuing
+            == Case.EnforcementBodyPursuing.YES_COMPLETED
+            or self.case.enforcement_body_closed_case
+            == Case.EnforcementBodyClosedCase.YES
         )
 
     @property
     def calculate_in_correspondence_with_enforcement_body_status(self) -> bool:
         """Calculates correspondence with enforcement body status"""
         return (
-            self.case.enforcement_body_pursuing == Case.EnforcementBodyPursuing.YES_IN_PROGRESS
-            or self.case.enforcement_body_closed_case == Case.EnforcementBodyClosedCase.IN_PROGRESS
+            self.case.enforcement_body_pursuing
+            == Case.EnforcementBodyPursuing.YES_IN_PROGRESS
+            or self.case.enforcement_body_closed_case
+            == Case.EnforcementBodyClosedCase.IN_PROGRESS
         )
 
     @property
@@ -1203,12 +1207,9 @@ class CaseStatus(models.Model):
     @property
     def calculate_final_decision_due_status(self) -> bool:
         """Calculates final decision due status"""
-        return (
-            self.case.no_psb_contact == Boolean.YES
-            or (
-                self.case.is_ready_for_final_decision == Boolean.YES
-                and self.case.case_completed == Case.CaseCompleted.NO_DECISION
-            )
+        return self.case.no_psb_contact == Boolean.YES or (
+            self.case.is_ready_for_final_decision == Boolean.YES
+            and self.case.case_completed == Case.CaseCompleted.NO_DECISION
         )
 
     @property
@@ -1284,7 +1285,8 @@ class CaseStatus(models.Model):
         """Calculates reviewing changes status"""
         return (
             self.case.twelve_week_correspondence_acknowledged_date
-            or self.case.organisation_response != Case.OrganisationResponse.NOT_APPLICABLE
+            or self.case.organisation_response
+            != Case.OrganisationResponse.NOT_APPLICABLE
         ) and self.case.is_ready_for_final_decision == Boolean.NO
 
     def calculate_and_save_status(self) -> None:
