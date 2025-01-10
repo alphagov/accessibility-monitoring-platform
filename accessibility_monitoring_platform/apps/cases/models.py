@@ -521,6 +521,8 @@ class Case(VersionModel):
                 days=ONE_WEEK_IN_DAYS
             )
 
+        return date(1970, 1, 1)
+
     @property
     def calculate_initial_correspondence_due_date(self) -> date | None:
         """Returns initial correspondence due date"""
@@ -556,6 +558,8 @@ class Case(VersionModel):
 
         if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
             return self.calculate_12_week_correspondence_due_date
+
+        return date(1970, 1, 1)
 
     @property
     def next_action_due_date_tense(self) -> str:
@@ -1294,53 +1298,27 @@ class CaseStatus(models.Model):
         self.save()
 
     def calculate_status(self) -> str:  # noqa: C901
-        if self.case.is_deactivated:
-            return CaseStatus.Status.DEACTIVATED
+        status_dict = {
+            CaseStatus.Status.DEACTIVATED: self.case.is_deactivated,
+            CaseStatus.Status.COMPLETE: self.calculate_case_complete_status,
+            CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY: self.calculate_in_correspondence_with_enforcement_body_status,
+            CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY: self.calculate_case_closed_sent_to_enforcement_body_status,
+            CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND: self.calculate_case_closed_waiting_to_be_sent_status,
+            CaseStatus.Status.FINAL_DECISION_DUE: self.calculate_final_decision_due_status,
+            CaseStatus.Status.UNASSIGNED: self.calculate_unnassigned_case_status,
+            CaseStatus.Status.TEST_IN_PROGRESS: self.calculate_test_in_progress_status,
+            CaseStatus.Status.REPORT_IN_PROGRESS: self.calculate_report_in_progress_status,
+            CaseStatus.Status.QA_IN_PROGRESS: self.calculate_qa_in_progress_status,
+            CaseStatus.Status.REPORT_READY_TO_SEND: self.calculate_report_ready_to_send_status,
+            CaseStatus.Status.IN_REPORT_CORES: self.calculate_in_report_correspondence_status,
+            CaseStatus.Status.AWAITING_12_WEEK_DEADLINE: self.calculate_awaiting_12_week_deadline_status,
+            CaseStatus.Status.IN_12_WEEK_CORES: self.calculate_in_12_week_correspondence_status,
+            CaseStatus.Status.REVIEWING_CHANGES: self.calculate_reviewing_changes_status,
+        }
 
-        if self.calculate_case_complete_status:
-            return CaseStatus.Status.COMPLETE
-
-        if self.calculate_in_correspondence_with_enforcement_body_status:
-            return CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
-
-        if self.calculate_case_closed_sent_to_enforcement_body_status:
-            return CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
-
-        if self.calculate_case_closed_waiting_to_be_sent_status:
-            return CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
-
-        if self.calculate_final_decision_due_status:
-            return CaseStatus.Status.FINAL_DECISION_DUE
-
-        if self.calculate_unnassigned_case_status:
-            return CaseStatus.Status.UNASSIGNED
-
-        if self.calculate_test_in_progress_status:
-            return CaseStatus.Status.TEST_IN_PROGRESS
-
-        if self.calculate_report_in_progress_status:
-            return CaseStatus.Status.REPORT_IN_PROGRESS
-
-        if self.calculate_qa_in_progress_status:
-            return CaseStatus.Status.QA_IN_PROGRESS
-
-        if self.calculate_report_ready_to_send_status:
-            return CaseStatus.Status.REPORT_READY_TO_SEND
-
-        if self.calculate_in_report_correspondence_status:
-            return CaseStatus.Status.IN_REPORT_CORES
-
-        if self.calculate_awaiting_12_week_deadline_status:
-            return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
-
-        if self.calculate_in_12_week_correspondence_status:
-            return CaseStatus.Status.IN_12_WEEK_CORES
-
-        if self.calculate_reviewing_changes_status:
-            return CaseStatus.Status.REVIEWING_CHANGES
-
-        if self.calculate_final_decision_due_status:
-            return CaseStatus.Status.FINAL_DECISION_DUE
+        for key, value in status_dict.items():
+            if value:
+                return key
 
         return CaseStatus.Status.UNKNOWN
 

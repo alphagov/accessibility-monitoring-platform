@@ -1056,7 +1056,7 @@ def test_calulate_qa_status_unassigned():
     """Test Case calulate_qa_status correctly returns unassigned"""
     case: Case = Case.objects.create(report_review_status=Boolean.YES)
 
-    assert case.calulate_qa_status() == Case.QAStatus.UNASSIGNED
+    assert case.calulate_qa_status == Case.QAStatus.UNASSIGNED
 
 
 @pytest.mark.django_db
@@ -1068,7 +1068,7 @@ def test_calulate_qa_status_in_qa():
         report_review_status=Boolean.YES,
     )
 
-    assert case.calulate_qa_status() == Case.QAStatus.IN_QA
+    assert case.calulate_qa_status == Case.QAStatus.IN_QA
 
 
 @pytest.mark.django_db
@@ -1079,7 +1079,7 @@ def test_calulate_qa_status_approved():
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
 
-    assert case.calulate_qa_status() == Case.QAStatus.APPROVED
+    assert case.calulate_qa_status == Case.QAStatus.APPROVED
 
 
 @pytest.mark.django_db
