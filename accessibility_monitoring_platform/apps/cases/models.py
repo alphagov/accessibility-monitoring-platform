@@ -1178,48 +1178,60 @@ class CaseStatus(models.Model):
         return self.status
 
     @property
+    def calculate_case_deactivated_status(self):
+        """Calculates case deactivated status"""
+        if self.case.is_deactivated:
+            return CaseStatus.Status.DEACTIVATED
+
+    @property
     def calculate_case_complete_status(self) -> bool:
         """Calculates case complete status"""
-        return (
+        if (
             self.case.case_completed == Case.CaseCompleted.COMPLETE_NO_SEND
             or self.case.enforcement_body_pursuing
             == Case.EnforcementBodyPursuing.YES_COMPLETED
             or self.case.enforcement_body_closed_case
             == Case.EnforcementBodyClosedCase.YES
-        )
+        ):
+            return CaseStatus.Status.COMPLETE
 
     @property
     def calculate_in_correspondence_with_enforcement_body_status(self) -> bool:
         """Calculates correspondence with enforcement body status"""
-        return (
+        if (
             self.case.enforcement_body_pursuing
             == Case.EnforcementBodyPursuing.YES_IN_PROGRESS
             or self.case.enforcement_body_closed_case
             == Case.EnforcementBodyClosedCase.IN_PROGRESS
-        )
-
-    @property
-    def calculate_case_closed_waiting_to_be_sent_status(self) -> bool:
-        """Calculates correspondence with enforcement body status"""
-        return self.case.case_completed == Case.CaseCompleted.COMPLETE_SEND
+        ):
+            return CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
 
     @property
     def calculate_case_closed_sent_to_enforcement_body_status(self) -> bool:
         """Calculates case closed sent to enforcement body status"""
-        return self.case.sent_to_enforcement_body_sent_date is not None
+        if self.case.sent_to_enforcement_body_sent_date is not None:
+            return CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
+
+    @property
+    def calculate_case_closed_waiting_to_be_sent_status(self) -> bool:
+        """Calculates correspondence with enforcement body status"""
+        if self.case.case_completed == Case.CaseCompleted.COMPLETE_SEND:
+            return CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
 
     @property
     def calculate_final_decision_due_status(self) -> bool:
         """Calculates final decision due status"""
-        return self.case.no_psb_contact == Boolean.YES or (
+        if self.case.no_psb_contact == Boolean.YES or (
             self.case.is_ready_for_final_decision == Boolean.YES
             and self.case.case_completed == Case.CaseCompleted.NO_DECISION
-        )
+        ):
+            return CaseStatus.Status.FINAL_DECISION_DUE
 
     @property
     def calculate_unnassigned_case_status(self) -> bool:
-        """Calculates unnassigned case status"""
-        return self.case.auditor is None
+        """Calculates unassigned case status"""
+        if self.case.auditor is None:
+            return CaseStatus.Status.UNASSIGNED
 
     @property
     def calculate_test_in_progress_status(self) -> bool:
@@ -1229,96 +1241,102 @@ class CaseStatus(models.Model):
         except CaseCompliance.DoesNotExist:
             compliance: CaseCompliance | None = None
 
-        return (
+        if (
             compliance is None
             or self.case.compliance.website_compliance_state_initial
             == CaseCompliance.WebsiteCompliance.UNKNOWN
             or self.case.statement_checks_still_initial
-        )
+        ):
+            return CaseStatus.Status.TEST_IN_PROGRESS
 
     @property
     def calculate_report_in_progress_status(self) -> bool:
         """Calculates report in progress status"""
-        return (
+        if (
             self.case.compliance.website_compliance_state_initial
             != CaseCompliance.WebsiteCompliance.UNKNOWN
             and not self.case.statement_checks_still_initial
             and self.case.report_review_status != Boolean.YES
-        )
+        ):
+            return CaseStatus.Status.REPORT_IN_PROGRESS
 
     @property
     def calculate_qa_in_progress_status(self) -> bool:
         """Calculates qa in progress status"""
-        return (
+        if (
             self.case.report_review_status == Boolean.YES
             and self.case.report_approved_status != Case.ReportApprovedStatus.APPROVED
-        )
+        ):
+            return CaseStatus.Status.QA_IN_PROGRESS
 
     @property
     def calculate_report_ready_to_send_status(self) -> bool:
         """Calculates report ready to send status"""
-        return (
+        if (
             self.case.report_approved_status == Case.ReportApprovedStatus.APPROVED
             and self.case.report_sent_date is None
-        )
+        ):
+            return CaseStatus.Status.REPORT_READY_TO_SEND
 
     @property
     def calculate_in_report_correspondence_status(self) -> bool | None:
         """Calculates in report correspondence status"""
-        return self.case.report_sent_date and self.case.report_acknowledged_date is None
+        if self.case.report_sent_date and self.case.report_acknowledged_date is None:
+            return CaseStatus.Status.IN_REPORT_CORES
 
     @property
     def calculate_awaiting_12_week_deadline_status(self) -> bool | None:
         """Calculates awaiting 12 week deadline status"""
-        return self.case.report_acknowledged_date and (
+        if self.case.report_acknowledged_date and (
             self.case.twelve_week_update_requested_date is None
             and self.case.twelve_week_correspondence_acknowledged_date is None
-        )
+        ):
+            return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
 
     @property
     def calculate_in_12_week_correspondence_status(self) -> bool | None:
         """Calculates in 12 week correspondence status"""
-        return self.case.twelve_week_update_requested_date and (
+        if self.case.twelve_week_update_requested_date and (
             self.case.twelve_week_correspondence_acknowledged_date is None
             and self.case.organisation_response
             == Case.OrganisationResponse.NOT_APPLICABLE
-        )
+        ):
+            return CaseStatus.Status.IN_12_WEEK_CORES
 
     @property
     def calculate_reviewing_changes_status(self) -> bool | None:
         """Calculates reviewing changes status"""
-        return (
+        if (
             self.case.twelve_week_correspondence_acknowledged_date
             or self.case.organisation_response
             != Case.OrganisationResponse.NOT_APPLICABLE
-        ) and self.case.is_ready_for_final_decision == Boolean.NO
+        ) and self.case.is_ready_for_final_decision == Boolean.NO:
+            return CaseStatus.Status.REVIEWING_CHANGES
 
     def calculate_and_save_status(self) -> None:
         self.status = self.calculate_status()
         self.save()
 
     def calculate_status(self) -> str:  # noqa: C901
-        status_dict = {
-            CaseStatus.Status.DEACTIVATED: self.case.is_deactivated,
-            CaseStatus.Status.COMPLETE: self.calculate_case_complete_status,
-            CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY: self.calculate_in_correspondence_with_enforcement_body_status,
-            CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY: self.calculate_case_closed_sent_to_enforcement_body_status,
-            CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND: self.calculate_case_closed_waiting_to_be_sent_status,
-            CaseStatus.Status.FINAL_DECISION_DUE: self.calculate_final_decision_due_status,
-            CaseStatus.Status.UNASSIGNED: self.calculate_unnassigned_case_status,
-            CaseStatus.Status.TEST_IN_PROGRESS: self.calculate_test_in_progress_status,
-            CaseStatus.Status.REPORT_IN_PROGRESS: self.calculate_report_in_progress_status,
-            CaseStatus.Status.QA_IN_PROGRESS: self.calculate_qa_in_progress_status,
-            CaseStatus.Status.REPORT_READY_TO_SEND: self.calculate_report_ready_to_send_status,
-            CaseStatus.Status.IN_REPORT_CORES: self.calculate_in_report_correspondence_status,
-            CaseStatus.Status.AWAITING_12_WEEK_DEADLINE: self.calculate_awaiting_12_week_deadline_status,
-            CaseStatus.Status.IN_12_WEEK_CORES: self.calculate_in_12_week_correspondence_status,
-            CaseStatus.Status.REVIEWING_CHANGES: self.calculate_reviewing_changes_status,
-        }
-
-        for key, value in status_dict.items():
-            if value:
-                return key
+        for calculated_status in [
+            self.calculate_case_deactivated_status,
+            self.calculate_case_complete_status,
+            self.calculate_in_correspondence_with_enforcement_body_status,
+            self.calculate_case_closed_sent_to_enforcement_body_status,
+            self.calculate_case_closed_waiting_to_be_sent_status,
+            self.calculate_final_decision_due_status,
+            self.calculate_unnassigned_case_status,
+            self.calculate_test_in_progress_status,
+            self.calculate_report_in_progress_status,
+            self.calculate_qa_in_progress_status,
+            self.calculate_report_ready_to_send_status,
+            self.calculate_in_report_correspondence_status,
+            self.calculate_awaiting_12_week_deadline_status,
+            self.calculate_in_12_week_correspondence_status,
+            self.calculate_reviewing_changes_status,
+        ]:
+            if calculated_status:
+                return calculated_status
 
         return CaseStatus.Status.UNKNOWN
 
