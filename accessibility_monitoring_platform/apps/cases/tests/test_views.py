@@ -12,7 +12,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
-from django.utils.text import slugify
 from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
