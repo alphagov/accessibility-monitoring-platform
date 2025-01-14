@@ -14,7 +14,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
-from ...cases.models import Case, CaseCompliance, CaseEvent, Contact
+from ...cases.models import Case, CaseCompliance, CaseEvent
 from ...common.models import Event
 from ...reports.models import Report
 from ..models import (
@@ -2531,6 +2531,10 @@ def test_summary_page_view(url_name, admin_client):
         wcag_definition=wcag_definition_pdf,
         check_result_state=CheckResult.Result.ERROR,
     )
+    StatementCheckResult.objects.create(
+        audit=audit,
+        report_comment="Custom statement issue",
+    )
 
     response: HttpResponse = admin_client.get(
         f"{reverse(url_name, kwargs=audit_pk)}?page-view=true",
@@ -2567,6 +2571,10 @@ def test_summary_wcag_view(url_name, admin_client):
         page=page,
         wcag_definition=wcag_definition_pdf,
         check_result_state=CheckResult.Result.ERROR,
+    )
+    StatementCheckResult.objects.create(
+        audit=audit,
+        report_comment="Custom statement issue",
     )
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
@@ -2693,6 +2701,10 @@ def test_test_summary_page_view(url_name, admin_client):
         statement_check=statement_check,
         report_comment=STATEMENT_CHECK_INITIAL_COMMENT,
         retest_comment=STATEMENT_CHECK_RETEST_COMMENT,
+    )
+    StatementCheckResult.objects.create(
+        audit=audit,
+        report_comment="Custom statement issue",
     )
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))

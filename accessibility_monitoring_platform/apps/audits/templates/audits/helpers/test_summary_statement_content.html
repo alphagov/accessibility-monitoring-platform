@@ -2,11 +2,19 @@
 <p class="govuk-body govuk-button-group">
     <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
         Open statement page in new tab</a>
-    <a href="{% url statement_check_results.0.statement_check.edit_initial_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+    {% if statement_check_type == 'custom' %}
+        <a href="{% url 'audits:edit-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+    {% else %}
+        <a href="{% url statement_check_results.0.statement_check.edit_initial_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+    {% endif %}
         Edit initial test
     </a>
     {% if enable_12_week_ui %}
-        <a href="{% url statement_check_results.0.statement_check.edit_12_week_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        {% if statement_check_type == 'custom' %}
+            <a href="{% url 'audits:edit-retest-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        {% else %}
+            <a href="{% url statement_check_results.0.statement_check.edit_12_week_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
             Edit 12-week test
         </a>
     {% else %}
