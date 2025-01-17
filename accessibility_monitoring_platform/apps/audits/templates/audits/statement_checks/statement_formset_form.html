@@ -19,10 +19,6 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full govuk-button-group">
-                {% include 'cases/helpers/save_continue_cancel.html' %}
-            </div>
-        </div>
+        {% include 'cases/helpers/save_continue_cancel.html' %}
     </form>
 {% endblock %}

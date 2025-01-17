@@ -8,11 +8,12 @@ from typing import Any
 import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
-from django.http import HttpRequest
+from django.http import Http404, HttpRequest
 from django.urls import reverse
 
 from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
+from ...common.sitemap import PlatformPage
 from ..forms import CheckResultFormset
 from ..models import (
     Audit,
@@ -33,10 +34,11 @@ from ..utils import (
     create_statement_checks_for_new_audit,
     get_all_possible_check_results_for_page,
     get_audit_summary_context,
-    get_next_equality_body_retest_page_url,
-    get_next_page_url,
-    get_next_retest_page_url,
+    get_next_platform_page_equality_body,
+    get_next_platform_page_initial,
+    get_next_platform_page_twelve_week,
     get_other_pages_with_retest_notes,
+    index_or_404,
     other_page_failed_check_results,
     report_data_updated,
 )
@@ -441,50 +443,58 @@ def test_get_all_possible_check_results_for_page():
 
 
 @pytest.mark.django_db
-def test_get_next_page_url_audit_with_no_pages():
+def test_get_next_platform_page_audit_with_no_pages():
     """
-    Test get_next_page_url returns url for accessibility statement part 1
+    Test get_next_platform_page returns website decision page
     when audit has no testable pages.
     """
     audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    assert get_next_page_url(audit=audit) == reverse(
-        "audits:edit-website-decision", kwargs=audit_pk
-    )
+
+    platform_page: PlatformPage = get_next_platform_page_initial(audit=audit)
+
+    assert platform_page.url_name == "audits:edit-website-decision"
 
 
 @pytest.mark.django_db
-def test_get_next_page_url_audit_with_pages():
+def test_get_next_platform_page_audit_with_pages():
     """
-    Test get_next_page_url returns urls for each testable page in audit in in turn.
+    Test get_next_platform_page returns each testable page in audit in in turn.
     """
     audit: Audit = create_audit_and_check_results()
     audit_pk: dict[str, int] = {"pk": audit.id}
 
     next_page: Page = audit.testable_pages[0]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
-    assert get_next_page_url(audit=audit) == reverse(
+    platform_page: PlatformPage = get_next_platform_page_initial(audit=audit)
+
+    assert platform_page.url == reverse(
         "audits:edit-audit-page-checks", kwargs=next_page_pk
     )
 
     current_page: Page = audit.testable_pages[0]
     next_page: Page = audit.testable_pages[1]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
-    assert get_next_page_url(audit=audit, current_page=current_page) == reverse(
+    platform_page: PlatformPage = get_next_platform_page_initial(
+        audit=audit, current_page=current_page
+    )
+
+    assert platform_page.url == reverse(
         "audits:edit-audit-page-checks", kwargs=next_page_pk
     )
 
     current_page: Page = audit.testable_pages[1]
-    assert get_next_page_url(audit=audit, current_page=current_page) == reverse(
-        "audits:edit-website-decision", kwargs=audit_pk
+    platform_page: PlatformPage = get_next_platform_page_initial(
+        audit=audit, current_page=current_page
     )
+
+    assert platform_page.url == reverse("audits:edit-website-decision", kwargs=audit_pk)
 
 
 @pytest.mark.django_db
-def test_get_next_retest_page_url_audit_with_pages():
+def test_get_next_platform_page_twelve_week_audit_with_pages():
     """
-    Test get_next_retest_page_url returns urls for each testable page (with
-    errors) in audit in in turn.
+    Test get_next_platform_page_twelve_week returns platform page
+    for each testable page (with errors) in audit in in turn.
     """
     audit: Audit = create_audit_and_check_results()
     audit_pk: dict[str, int] = {"pk": audit.id}
@@ -495,32 +505,42 @@ def test_get_next_retest_page_url_audit_with_pages():
 
     next_page: Page = audit.testable_pages[0]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
-    assert get_next_retest_page_url(audit=audit) == reverse(
+    platform_page: PlatformPage = get_next_platform_page_twelve_week(audit=audit)
+
+    assert platform_page.url == reverse(
         "audits:edit-audit-retest-page-checks", kwargs=next_page_pk
     )
 
     current_page: Page = audit.testable_pages[0]
     next_page: Page = audit.testable_pages[1]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
-    assert get_next_retest_page_url(audit=audit, current_page=current_page) == reverse(
+    platform_page: PlatformPage = get_next_platform_page_twelve_week(
+        audit=audit, current_page=current_page
+    )
+
+    assert platform_page.url == reverse(
         "audits:edit-audit-retest-page-checks", kwargs=next_page_pk
     )
 
     current_page: Page = audit.testable_pages[1]
-    assert get_next_retest_page_url(audit=audit, current_page=current_page) == reverse(
+    platform_page: PlatformPage = get_next_platform_page_twelve_week(
+        audit=audit, current_page=current_page
+    )
+
+    assert platform_page.url == reverse(
         "audits:edit-audit-retest-website-decision", kwargs=audit_pk
     )
 
 
 @pytest.mark.django_db
-def test_get_next_retest_page_url_audit_with_no_errors():
+def test_get_next_platform_page_twelve_week_audit_with_no_errors():
     """
-    Test get_next_retest_page_url returns url for website compliance decision
-    when audit has no pages with errors.
+    Test get_next_platform_page_twelve_week returns expected platform page
+    for website compliance decision when audit has no pages with errors.
     """
     audit: Audit = create_audit_and_check_results()
     audit_pk: dict[str, int] = {"pk": audit.id}
-    assert get_next_retest_page_url(audit=audit) == reverse(
+    assert get_next_platform_page_twelve_week(audit=audit).url == reverse(
         "audits:edit-audit-retest-website-decision", kwargs=audit_pk
     )
 
@@ -745,23 +765,24 @@ def test_create_checkresults_for_retest_creates_statement_checks():
 
 
 @pytest.mark.django_db
-def test_get_next_equality_body_retest_page_url_with_no_pages():
+def test_get_next_platform_page_equality_body_with_no_pages():
     """
-    Test get_next_equality_body_retest_page_url returns url for retest comparison
-    update when retest has no retest pages.
+    Test get_next_platform_page_equality_body returns platform page for retest
+    comparison update when retest has no retest pages.
     """
     case: Case = Case.objects.create()
     retest: Retest = Retest.objects.create(case=case)
-    assert get_next_equality_body_retest_page_url(retest) == reverse(
+    platform_page: PlatformPage = get_next_platform_page_equality_body(retest=retest)
+    assert platform_page.url == reverse(
         "audits:retest-comparison-update", kwargs={"pk": retest.id}
     )
 
 
 @pytest.mark.django_db
-def test_get_next_equality_body_retest_page_url_with_pages():
+def test_get_next_platform_page_equality_body_with_pages():
     """
-    Test get_next_equality_body_retest_page_url returns urls for each retest page
-    in retest in in turn.
+    Test get_next_platform_page_equality_bodyreturns patform pages
+    for each retest page in retest in in turn.
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
@@ -779,15 +800,17 @@ def test_get_next_equality_body_retest_page_url_with_pages():
         page=page,
     )
 
-    assert get_next_equality_body_retest_page_url(retest) == reverse(
+    assert get_next_platform_page_equality_body(retest).url == reverse(
         "audits:edit-retest-page-checks", kwargs={"pk": first_retest_page.id}
     )
-    assert get_next_equality_body_retest_page_url(
+    assert get_next_platform_page_equality_body(
         retest, current_page=first_retest_page
-    ) == reverse("audits:edit-retest-page-checks", kwargs={"pk": last_retest_page.id})
-    assert get_next_equality_body_retest_page_url(
+    ).url == reverse(
+        "audits:edit-retest-page-checks", kwargs={"pk": last_retest_page.id}
+    )
+    assert get_next_platform_page_equality_body(
         retest, current_page=last_retest_page
-    ) == reverse("audits:retest-comparison-update", kwargs={"pk": retest.id})
+    ).url == reverse("audits:retest-comparison-update", kwargs={"pk": retest.id})
 
 
 @pytest.mark.django_db
@@ -1117,3 +1140,13 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
 
     assert "overview" in statement_check_results_by_type
     assert len(statement_check_results_by_type["overview"]) == 1
+
+
+def test_index_or_404():
+    """Text index or 404 returns index or raises 404"""
+    items: str = ["a", "b", "c"]
+
+    assert index_or_404(items=items, item="b") == 1
+
+    with pytest.raises(Http404):
+        index_or_404(items=items, item="d")

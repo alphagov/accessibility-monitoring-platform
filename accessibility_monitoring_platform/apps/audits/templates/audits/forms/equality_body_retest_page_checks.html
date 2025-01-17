@@ -94,6 +94,7 @@
                             {% endif %}
                         </div>
                     </div>
+                    {% include 'common/next_platform_page.html' %}
                     {% include 'common/formset_error_summary.html' with formset=retest_check_results_formset %}
                     {% include 'common/error_summary.html' %}
                     {% csrf_token %}

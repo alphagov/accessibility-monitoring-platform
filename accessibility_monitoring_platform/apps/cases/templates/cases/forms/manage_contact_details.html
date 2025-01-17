@@ -60,17 +60,5 @@
 {% endblock %}
 
 {% block formbuttons %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full govuk-button-group">
-        {% include 'cases/helpers/save_continue_cancel.html' %}
-        <p class="govuk-body">
-            Next:
-            {% if case.enable_correspondence_process %}
-                <b>Contact details | Request contact details</b>
-            {% else %}
-                <b>Report correspondence | Report sent on</b>
-            {% endif %}
-        </p>
-    </div>
-</div>
+    {% include 'cases/helpers/save_continue_cancel.html' %}
 {% endblock %}

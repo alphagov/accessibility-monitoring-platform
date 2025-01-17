@@ -1307,11 +1307,6 @@ def test_updating_case_creates_case_event(admin_client):
             "cases:edit-12-week-update-request-ack",
         ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
-        (
-            "cases:edit-twelve-week-retest",
-            "save_continue",
-            "cases:edit-review-changes",
-        ),
         ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
         (
             "cases:edit-review-changes",
@@ -4105,3 +4100,51 @@ def test_add_contact_details_redirects_correctly(admin_client):
         "cases:edit-request-contact-details",
         kwargs={"pk": case.id},
     )
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_next_page",
+    [
+        ("edit-case-metadata", "Initial test | Testing details"),
+        ("manage-contact-details", "Report correspondence | Report sent on"),
+        ("edit-12-week-update-request-ack", "Closing the case | Reviewing changes"),
+        ("edit-case-close", "Post case | Statement enforcement"),
+    ],
+)
+def test_next_page_name(path_name, expected_next_page, admin_client):
+    """
+    Test next page shown for when Save and continue button pressed
+    """
+    case: Case = Case.objects.create()
+    url: str = reverse(f"cases:{path_name}", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, f"<b>{expected_next_page}</b>", html=True)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_next_page",
+    [
+        ("edit-case-metadata", "Initial WCAG test | Initial test metadata"),
+        (
+            "edit-12-week-update-request-ack",
+            "12-week WCAG test | 12-week retest metadata",
+        ),
+    ],
+)
+def test_next_page_name_with_audit(path_name, expected_next_page, admin_client):
+    """
+    Test next page shown for when Save and continue button pressed on Case with Audit
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case, retest_date=TODAY)
+    url: str = reverse(f"cases:{path_name}", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, f"<b>{expected_next_page}</b>", html=True)

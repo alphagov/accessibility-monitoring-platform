@@ -42,10 +42,11 @@ from ..sitemap import (
     ReportPlatformPage,
     RetestOverviewPlatformPage,
     Sitemap,
+    build_sitemap_by_url_name,
     build_sitemap_for_current_page,
-    get_platform_page_name_by_url,
+    get_platform_page_by_url_name,
     get_requested_platform_page,
-    get_subpages_by_url_name,
+    populate_subpages_with_instance,
 )
 
 PLATFORM_PAGE_NAME: str = "Platform page name"
@@ -65,11 +66,11 @@ class MockRequest:
 
 def test_platform_page_url_kwarg_key():
     """
-    Test PlatformPage url_kwarg_key defaults to "pk" if an object_class is set
+    Test PlatformPage url_kwarg_key defaults to "pk" if an instance_class is set
     """
     assert PlatformPage(name=PLATFORM_PAGE_NAME).url_kwarg_key is None
     assert (
-        PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case).url_kwarg_key == "pk"
+        PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=Case).url_kwarg_key == "pk"
     )
 
 
@@ -85,9 +86,9 @@ def test_platform_page_repr():
     )
     assert (
         PlatformPage(
-            name=PLATFORM_PAGE_NAME, url_name=URL_NAME, object_class=Case
+            name=PLATFORM_PAGE_NAME, url_name=URL_NAME, instance_class=Case
         ).__repr__()
-        == f'PlatformPage(name="{PLATFORM_PAGE_NAME}", url_name="{URL_NAME}", object_class="<class \'accessibility_monitoring_platform.apps.cases.models.Case\'>")'
+        == f'PlatformPage(name="{PLATFORM_PAGE_NAME}", url_name="{URL_NAME}", instance_class="<class \'accessibility_monitoring_platform.apps.cases.models.Case\'>")'
     )
 
 
@@ -105,18 +106,18 @@ def test_platform_page_url():
         PlatformPage(
             name="Case metadata",
             url_name="cases:edit-case-metadata",
-            object_class=Case,
-            object=case,
+            instance_class=Case,
+            instance=case,
         ).url
         == "/cases/1/edit-case-metadata/"
     )
 
 
-def test_platform_page_url_missing_object():
-    """Test PlatformPage.url returns empty string when a required object is missing"""
+def test_platform_page_url_missing_instance():
+    """Test PlatformPage.url returns empty string when a required instance is missing"""
     assert (
         PlatformPage(
-            name=PLATFORM_PAGE_NAME, url_name=URL_NAME, object_required_for_url=True
+            name=PLATFORM_PAGE_NAME, url_name=URL_NAME, instance_required_for_url=True
         ).url
         == ""
     )
@@ -125,15 +126,15 @@ def test_platform_page_url_missing_object():
 def test_platform_page_show():
     """Test PlatformPage.show"""
     assert PlatformPage(name=PLATFORM_PAGE_NAME).show is True
-    assert PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case).show is True
+    assert PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=Case).show is True
 
     case: Case = Case(organisation_name="Show flag")
 
     assert (
         PlatformPage(
             name=PLATFORM_PAGE_NAME,
-            object_class=Case,
-            object=case,
+            instance_class=Case,
+            instance=case,
             show_flag_name="organisation_name",
         ).show
         == "Show flag"
@@ -149,49 +150,49 @@ def test_platform_page_complete():
     assert (
         PlatformPage(
             name=PLATFORM_PAGE_NAME,
-            object_class=Case,
-            object=case,
+            instance_class=Case,
+            instance=case,
             complete_flag_name="organisation_name",
         ).complete
         == "complete flag"
     )
 
 
-def test_platform_page_populate_subpage_objects():
+def test_platform_page_populate_subpage_instances():
     """
-    Test PlatformPage.populate_subpage_objects() populates subpages with objects
+    Test PlatformPage.populate_subpage_instances() populates subpages with instances
     """
     case: Case = Case()
 
     platform_page: PlatformPage = PlatformPage(
         name=PLATFORM_PAGE_NAME,
-        object=case,
-        object_class=Case,
+        instance=case,
+        instance_class=Case,
         subpages=[
-            PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case),
-            PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Case),
-            PlatformPage(name=PLATFORM_PAGE_NAME, object_class=Audit),
+            PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=Case),
+            PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=Case),
+            PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=Audit),
         ],
     )
 
-    platform_page.populate_subpage_objects()
+    platform_page.populate_subpage_instances()
 
     assert len(platform_page.subpages) == 3
-    assert platform_page.subpages[0].object == case
-    assert platform_page.subpages[1].object == case
-    assert platform_page.subpages[2].object is None
+    assert platform_page.subpages[0].instance == case
+    assert platform_page.subpages[1].instance == case
+    assert platform_page.subpages[2].instance is None
 
 
 def test_platform_page_populate_from_case():
     """
-    Test PlatformPage.populate_from_case() populates subpages with objects
+    Test PlatformPage.populate_from_case() populates subpages with instances
     """
     case: Case = Case()
 
     platform_page: PlatformPage = PlatformPage(
         name=PLATFORM_PAGE_NAME,
-        object=case,
-        object_class=Case,
+        instance=case,
+        instance_class=Case,
         subpages=[
             CasePlatformPage(name=PLATFORM_PAGE_NAME),
             CasePlatformPage(name=PLATFORM_PAGE_NAME),
@@ -202,14 +203,14 @@ def test_platform_page_populate_from_case():
     platform_page.populate_from_case(case=case)
 
     assert len(platform_page.subpages) == 3
-    assert platform_page.subpages[0].object == case
-    assert platform_page.subpages[1].object == case
-    assert platform_page.subpages[2].object is None
+    assert platform_page.subpages[0].instance == case
+    assert platform_page.subpages[1].instance == case
+    assert platform_page.subpages[2].instance is None
 
 
 @pytest.mark.django_db
 def test_populate_from_request(rf):
-    """Test PlatformPage.populate_from_request sets the object"""
+    """Test PlatformPage.populate_from_request sets the instance"""
     case: Case = Case.objects.create()
     contact: Contact = Contact.objects.create(case=case, name="Contact name")
 
@@ -222,15 +223,15 @@ def test_populate_from_request(rf):
     request.user = request_user
 
     platform_page: PlatformPage = PlatformPage(
-        name="Edit contact {object}",
+        name="Edit contact {instance}",
         url_name="cases:edit-contact-update",
-        object_required_for_url=True,
-        object_class=Contact,
+        instance_required_for_url=True,
+        instance_class=Contact,
     )
 
     platform_page.populate_from_request(request=request)
 
-    assert platform_page.object == contact
+    assert platform_page.instance == contact
     assert platform_page.get_name() == "Edit contact Contact name"
     assert platform_page.url == f"/cases/contacts/{contact.id}/edit-contact-update/"
 
@@ -243,8 +244,8 @@ def test_platform_page_get_name():
 
     assert (
         PlatformPage(
-            name="{object.organisation_name}",
-            object=case,
+            name="{instance.organisation_name}",
+            instance=case,
         ).get_name()
         == ORGANISATION_NAME
     )
@@ -256,19 +257,21 @@ def test_platform_page_get_case():
 
     case: Case = Case()
 
-    assert PlatformPage(name=PLATFORM_PAGE_NAME, object=case).get_case() == case
+    assert PlatformPage(name=PLATFORM_PAGE_NAME, instance=case).get_case() == case
 
     audit: Audit = Audit(case=case)
 
-    assert PlatformPage(name=PLATFORM_PAGE_NAME, object=audit).get_case() == case
+    assert PlatformPage(name=PLATFORM_PAGE_NAME, instance=audit).get_case() == case
     page: Page = Page(audit=audit)
 
-    assert PlatformPage(name=PLATFORM_PAGE_NAME, object=page).get_case() == case
+    assert PlatformPage(name=PLATFORM_PAGE_NAME, instance=page).get_case() == case
 
     retest: Retest = Retest(case=case)
     retest_page: RetestPage = RetestPage(retest=retest)
 
-    assert PlatformPage(name=PLATFORM_PAGE_NAME, object=retest_page).get_case() == case
+    assert (
+        PlatformPage(name=PLATFORM_PAGE_NAME, instance=retest_page).get_case() == case
+    )
 
 
 def test_home_platform_page():
@@ -323,27 +326,27 @@ def test_case_platform_page():
     """Test CasePlatformPage"""
     case_platform_page: CasePlatformPage = CasePlatformPage(name=PLATFORM_PAGE_NAME)
 
-    assert case_platform_page.object_required_for_url is True
-    assert case_platform_page.object_class == Case
+    assert case_platform_page.instance_required_for_url is True
+    assert case_platform_page.instance_class == Case
     assert case_platform_page.url_kwarg_key == "pk"
 
     case: Case = Case()
 
     case_platform_page.populate_from_case(case=case)
 
-    assert case_platform_page.object == case
+    assert case_platform_page.instance == case
 
 
 @pytest.mark.django_db
 def test_case_comments_platform_page():
     """Test CaseCommentsPlatformPage"""
-    case_comments_platform_page: CaseCommentsPlatformPage = CaseCommentsPlatformPage(
-        name="Comments",
-        url_name="cases:edit-qa-comments",
+    case_comments_platform_page: CaseCommentsPlatformPage = (
+        get_platform_page_by_url_name(url_name="cases:edit-qa-comments")
     )
 
-    assert case_comments_platform_page.object_required_for_url is True
-    assert case_comments_platform_page.object_class == Case
+    assert isinstance(case_comments_platform_page, CaseCommentsPlatformPage)
+    assert case_comments_platform_page.instance_required_for_url is True
+    assert case_comments_platform_page.instance_class == Case
     assert case_comments_platform_page.url_kwarg_key == "pk"
 
     case: Case = Case.objects.create()
@@ -353,7 +356,7 @@ def test_case_comments_platform_page():
 
     case_comments_platform_page.populate_from_case(case=case)
 
-    assert case_comments_platform_page.object == case
+    assert case_comments_platform_page.instance == case
     assert len(case_comments_platform_page.subpages) == 2
     assert (
         case_comments_platform_page.subpages[0].get_name() == "Edit or delete comment"
@@ -366,13 +369,13 @@ def test_case_comments_platform_page():
 @pytest.mark.django_db
 def test_case_contacts_platform_page():
     """Test CaseContactsPlatformPage"""
-    case_contacts_platform_page: CaseContactsPlatformPage = CaseContactsPlatformPage(
-        name="Manage contact details",
-        url_name="cases:manage-contact-details",
+    case_contacts_platform_page: CaseContactsPlatformPage = (
+        get_platform_page_by_url_name(url_name="cases:manage-contact-details")
     )
 
-    assert case_contacts_platform_page.object_required_for_url is True
-    assert case_contacts_platform_page.object_class == Case
+    assert isinstance(case_contacts_platform_page, CaseContactsPlatformPage)
+    assert case_contacts_platform_page.instance_required_for_url is True
+    assert case_contacts_platform_page.instance_class == Case
     assert case_contacts_platform_page.url_kwarg_key == "pk"
 
     case: Case = Case.objects.create()
@@ -381,7 +384,7 @@ def test_case_contacts_platform_page():
 
     case_contacts_platform_page.populate_from_case(case=case)
 
-    assert case_contacts_platform_page.object == case
+    assert case_contacts_platform_page.instance == case
     assert len(case_contacts_platform_page.subpages) == 3
     assert case_contacts_platform_page.subpages[0].get_name() == "Add contact"
     assert (
@@ -397,8 +400,8 @@ def test_audit_platform_page():
     """Test AuditPlatformPage"""
     audit_platform_page: AuditPlatformPage = AuditPlatformPage(name=PLATFORM_PAGE_NAME)
 
-    assert audit_platform_page.object_required_for_url is True
-    assert audit_platform_page.object_class == Audit
+    assert audit_platform_page.instance_required_for_url is True
+    assert audit_platform_page.instance_class == Audit
     assert audit_platform_page.url_kwarg_key == "pk"
 
     case: Case = Case.objects.create()
@@ -406,19 +409,19 @@ def test_audit_platform_page():
 
     audit_platform_page.populate_from_case(case=case)
 
-    assert audit_platform_page.object == audit
+    assert audit_platform_page.instance == audit
 
 
 @pytest.mark.django_db
 def test_audit_pages_platform_page():
     """Test AuditPagesPlatformPage"""
-    audit_pages_platform_page: AuditPagesPlatformPage = AuditPagesPlatformPage(
-        name="Add or remove pages",
+    audit_pages_platform_page: AuditPagesPlatformPage = get_platform_page_by_url_name(
         url_name="audits:edit-audit-pages",
     )
 
-    assert audit_pages_platform_page.object_required_for_url is True
-    assert audit_pages_platform_page.object_class == Audit
+    assert isinstance(audit_pages_platform_page, AuditPagesPlatformPage)
+    assert audit_pages_platform_page.instance_required_for_url is True
+    assert audit_pages_platform_page.instance_class == Audit
     assert audit_pages_platform_page.url_kwarg_key == "pk"
 
     case: Case = Case.objects.create()
@@ -428,7 +431,7 @@ def test_audit_pages_platform_page():
 
     audit_pages_platform_page.populate_from_case(case=case)
 
-    assert audit_pages_platform_page.object == audit
+    assert audit_pages_platform_page.instance == audit
     assert len(audit_pages_platform_page.subpages) == 2
     assert audit_pages_platform_page.subpages[0].get_name() == "Page one page test"
     assert audit_pages_platform_page.subpages[1].get_name() == "Page two page test"
@@ -441,8 +444,8 @@ def test_report_platform_page():
         name=PLATFORM_PAGE_NAME
     )
 
-    assert report_platform_page.object_required_for_url is True
-    assert report_platform_page.object_class == Report
+    assert report_platform_page.instance_required_for_url is True
+    assert report_platform_page.instance_class == Report
     assert report_platform_page.url_kwarg_key == "pk"
 
     case: Case = Case.objects.create()
@@ -450,21 +453,21 @@ def test_report_platform_page():
 
     report_platform_page.populate_from_case(case=case)
 
-    assert report_platform_page.object == report
+    assert report_platform_page.instance == report
 
 
 @pytest.mark.django_db
 def test_audit_retest_pages_platform_page():
     """Test AuditRetestPagesPlatformPage"""
     audit_retest_pages_platform_page: AuditRetestPagesPlatformPage = (
-        AuditRetestPagesPlatformPage(
-            name="Pages",
+        get_platform_page_by_url_name(
             url_name="audits:edit-audit-retest-pages",
         )
     )
 
-    assert audit_retest_pages_platform_page.object_required_for_url is True
-    assert audit_retest_pages_platform_page.object_class == Audit
+    assert isinstance(audit_retest_pages_platform_page, AuditRetestPagesPlatformPage)
+    assert audit_retest_pages_platform_page.instance_required_for_url is True
+    assert audit_retest_pages_platform_page.instance_class == Audit
     assert audit_retest_pages_platform_page.url_kwarg_key == "pk"
 
     case: Case = Case.objects.create()
@@ -489,7 +492,7 @@ def test_audit_retest_pages_platform_page():
 
     audit_retest_pages_platform_page.populate_from_case(case=case)
 
-    assert audit_retest_pages_platform_page.object == audit
+    assert audit_retest_pages_platform_page.instance == audit
     assert len(audit_retest_pages_platform_page.subpages) == 2
     assert (
         audit_retest_pages_platform_page.subpages[0].get_name()
@@ -507,8 +510,8 @@ def test_equality_body_retest_platform_page():
         EqualityBodyRetestPlatformPage(name=PLATFORM_PAGE_NAME)
     )
 
-    assert equality_body_retest_platform_page.object_required_for_url is True
-    assert equality_body_retest_platform_page.object_class == Retest
+    assert equality_body_retest_platform_page.instance_required_for_url is True
+    assert equality_body_retest_platform_page.instance_class == Retest
     assert equality_body_retest_platform_page.url_kwarg_key == "pk"
 
 
@@ -516,14 +519,14 @@ def test_equality_body_retest_platform_page():
 def test_retest_overview_platform_page():
     """Test RetestOverviewPlatformPage"""
     retest_overview_platform_page: RetestOverviewPlatformPage = (
-        RetestOverviewPlatformPage(
-            name="Retest overview",
+        get_platform_page_by_url_name(
             url_name="cases:edit-retest-overview",
         )
     )
 
-    assert retest_overview_platform_page.object_required_for_url is True
-    assert retest_overview_platform_page.object_class == Case
+    assert isinstance(retest_overview_platform_page, RetestOverviewPlatformPage)
+    assert retest_overview_platform_page.instance_required_for_url is True
+    assert retest_overview_platform_page.instance_class == Case
     assert retest_overview_platform_page.url_kwarg_key == "pk"
 
     case: Case = Case.objects.create()
@@ -533,7 +536,7 @@ def test_retest_overview_platform_page():
 
     retest_overview_platform_page.populate_from_case(case=case)
 
-    assert retest_overview_platform_page.object == case
+    assert retest_overview_platform_page.instance == case
     assert len(retest_overview_platform_page.subpages) == 2
     assert retest_overview_platform_page.subpages[0].get_name() == "Retest #2"
     assert retest_overview_platform_page.subpages[1].get_name() == "Retest #1"
@@ -547,17 +550,17 @@ def test_equality_body_retest_pages_platform_page():
             name="Pages",
             subpages=[
                 PlatformPage(
-                    name="{object.retest} | {object}",
+                    name="{instance.retest} | {instance}",
                     url_name="audits:edit-retest-page-checks",
-                    object_class=RetestPage,
+                    instance_class=RetestPage,
                     complete_flag_name="complete_date",
                 )
             ],
         )
     )
 
-    assert equality_body_retest_pages_platform_page.object_required_for_url is True
-    assert equality_body_retest_pages_platform_page.object_class == Retest
+    assert equality_body_retest_pages_platform_page.instance_required_for_url is True
+    assert equality_body_retest_pages_platform_page.instance_class == Retest
     assert equality_body_retest_pages_platform_page.url_kwarg_key == "pk"
 
     case: Case = Case.objects.create()
@@ -567,8 +570,8 @@ def test_equality_body_retest_pages_platform_page():
     RetestPage.objects.create(retest=retest, page=page)
     RetestPage.objects.create(retest=retest, page=page)
 
-    equality_body_retest_pages_platform_page.object = retest
-    equality_body_retest_pages_platform_page.populate_subpage_objects()
+    equality_body_retest_pages_platform_page.instance = retest
+    equality_body_retest_pages_platform_page.populate_subpage_instances()
 
     assert len(equality_body_retest_pages_platform_page.subpages) == 2
     assert (
@@ -593,14 +596,14 @@ def test_retest_overview_platform_page_populates_subpages():
     RetestPage.objects.create(retest=retest, page=page_2)
 
     retest_overview_platform_page: RetestOverviewPlatformPage = (
-        RetestOverviewPlatformPage(
-            name="Retest overview",
+        get_platform_page_by_url_name(
             url_name="cases:edit-retest-overview",
         )
     )
     retest_overview_platform_page.populate_from_case(case=case)
 
-    assert retest_overview_platform_page.object == case
+    assert isinstance(retest_overview_platform_page, RetestOverviewPlatformPage)
+    assert retest_overview_platform_page.instance == case
     assert len(retest_overview_platform_page.subpages) == 1
     assert retest_overview_platform_page.subpages[0].get_name() == "Retest #1"
 
@@ -738,18 +741,27 @@ def test_sitemap_by_url_name():
     assert SITEMAP_BY_URL_NAME["cases:edit-case-metadata"].get_name() == "Case metadata"
 
 
-def test_get_subpages_by_url_name():
-    """Test get_subpages_by_url_name returns expected subpages"""
-
-    assert get_subpages_by_url_name("cases:edit-case-metadata") is None
-
-    subpages: list[PlatformPage] = get_subpages_by_url_name(
-        "audits:edit-statement-overview"
+def test_build_sitemap_by_url_name():
+    """Test build_sitemap_by_url_name turns list into dictionary"""
+    platform_page_1: PlatformPage = PlatformPage(
+        name="First page",
+        url_name="test:page-one",
     )
+    platform_page_2: PlatformPage = PlatformPage(
+        name="Second page",
+        url_name="test:page-two",
+    )
+    site_map: list[PlatformPageGroup] = [
+        PlatformPageGroup(
+            name="Group name",
+            pages=[platform_page_1, platform_page_2],
+        ),
+    ]
 
-    assert subpages is not None
-    assert len(subpages) > 0
-    assert subpages[0].name == "Statement information"
+    assert build_sitemap_by_url_name(site_map=site_map) == {
+        "test:page-one": platform_page_1,
+        "test:page-two": platform_page_2,
+    }
 
 
 def test_build_sitemap_for_non_case_current_page():
@@ -769,7 +781,7 @@ def test_build_sitemap_for_case_related_current_page():
     """Test build_sitemap_for_current_page when current page is Case-related"""
     case: Case = Case.objects.create()
     platform_page: PlatformPage = PlatformPage(
-        name="Test", url_name="cases:case-metadata", object_class=Case, object=case
+        name="Test", url_name="cases:case-metadata", instance_class=Case, instance=case
     )
     platform_page_groups: list[PlatformPageGroup] = build_sitemap_for_current_page(
         current_platform_page=platform_page
@@ -812,29 +824,6 @@ def test_case_sitemap(rf):
 
     assert sitemap.current_platform_page.get_case() == case
     assert len(sitemap.platform_page_groups) < len(SITE_MAP)
-
-
-@pytest.mark.django_db
-def test_get_platform_page_name_by_url():
-    """Test get_platform_page_name_by_url returns the name of the page"""
-
-    assert get_platform_page_name_by_url("/") == "Your cases"
-    assert (
-        get_platform_page_name_by_url("/account/login/")
-        == "Page name not found for two_factor:login"
-    )
-    assert get_platform_page_name_by_url("/x/") == "URL not found for /x/"
-
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    page: Page = Page.objects.create(audit=audit, name="PSB page one")
-
-    assert (
-        get_platform_page_name_by_url(
-            f"/audits/pages/{page.id}/edit-audit-page-checks/"
-        )
-        == f"{page.page_title} test"
-    )
 
 
 @pytest.mark.parametrize(
@@ -898,3 +887,32 @@ def test_page_name(url, expected_page_name, admin_client):
     assertContains(response, "Report an issue")
     assertContains(response, url)
     assertContains(response, expected_page_name)
+
+
+def test_populate_subpage_instances():
+    """Test populate_subpage_instances"""
+    case: Case = Case()
+    case_platform_page: PlatformPage = PlatformPage(
+        name="Case page",
+        url_name="url_name_2",
+        instance_class=Case,
+    )
+    platform_page: PlatformPage = PlatformPage(
+        name="Page without instance class",
+        url_name="url_name_1",
+        subpages=[
+            case_platform_page,
+            PlatformPage(
+                name="Subpage without instance class",
+                url_name="url_name_3",
+            ),
+        ],
+    )
+
+    bound_subpages: list[PlatformPage] = populate_subpages_with_instance(
+        platform_page=platform_page, instance=case
+    )
+
+    assert len(bound_subpages) == 1
+    assert bound_subpages[0].name == case_platform_page.name
+    assert bound_subpages[0].instance == case

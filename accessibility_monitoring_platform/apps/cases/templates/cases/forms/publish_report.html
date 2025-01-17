@@ -38,15 +38,13 @@
 {% endblock %}
 
 {% block formbuttons %}
-    <div class="govuk-grid-row">
-        {% if case.published_report_url %}
-            <div class="govuk-grid-column-full govuk-button-group">
-                {% include 'cases/helpers/save_continue_cancel.html' %}
-            </div>
-        {% elif case.report and case.report_review_status == 'yes' and case.report_approved_status == 'yes' %}
+    {% if case.published_report_url %}
+        {% include 'cases/helpers/save_continue_cancel.html' %}
+    {% elif case.report and case.report_review_status == 'yes' and case.report_approved_status == 'yes' %}
+        <div class="govuk-grid-row">
             <div class="govuk-grid-column-full govuk-button-group">
                 <input type="submit" value="Publish report" name="create_html_report" class="govuk-button" data-module="govuk-button" />
             </div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 {% endblock %}

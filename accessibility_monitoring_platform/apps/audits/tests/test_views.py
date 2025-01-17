@@ -500,6 +500,39 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
     assert response.url == expected_path
 
 
+@pytest.mark.parametrize(
+    "path_name",
+    [
+        "edit-statement-pages",
+        "edit-audit-retest-statement-pages",
+    ],
+)
+def test_add_statement_page(path_name, admin_client):
+    """
+    Test pressing add statement page button redirects to page with add_extra parameter
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    url: str = reverse(f"audits:{path_name}", kwargs={"pk": audit.id})
+
+    response: HttpResponse = admin_client.post(
+        url,
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            "add_statement_page": "Save and add link to statement",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = f"{url}?add_extra=true#statement-page-None"
+    assert response.url == expected_path
+
+
 def test_audit_statement_pages_default_added_stage(
     admin_client,
 ):
@@ -3344,3 +3377,56 @@ def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
         '<a href="#" class="govuk-link govuk-link--no-visited-state">Back to top</a>',
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_next_page",
+    [
+        ("edit-audit-metadata", "Initial WCAG test | Add or remove pages"),
+        ("edit-audit-pages", "Initial WCAG test | Compliance decision"),
+        ("edit-statement-overview", "Initial statement | Statement information"),
+        ("edit-statement-overview", "Initial statement | Disproportionate burden"),
+        ("edit-audit-retest-metadata", "12-week WCAG test | Retest pages"),
+        ("edit-audit-retest-pages", "12-week WCAG test | Compliance decision"),
+        ("edit-retest-statement-overview", "12-week statement | Statement information"),
+        (
+            "edit-retest-statement-overview",
+            "12-week statement | Disproportionate burden",
+        ),
+    ],
+)
+def test_audit_next_page_name(path_name, expected_next_page, admin_client):
+    """
+    Test next page shown for when Save and continue button pressed on audit
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    url: str = reverse(f"audits:{path_name}", kwargs={"pk": audit.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, f"<b>{expected_next_page}</b>", html=True)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_next_page",
+    [
+        ("retest-metadata-update", "Post case | Retest #1 | Home"),
+        ("edit-equality-body-statement-overview", "Post case | Statement information"),
+        ("edit-equality-body-statement-overview", "Post case | Statement results"),
+    ],
+)
+def test_retest_next_page_name(path_name, expected_next_page, admin_client):
+    """
+    Test next page shown for when Save and continue button pressed on equality
+    body retest
+    """
+    retest: Retest = create_equality_body_retest()
+    url: str = reverse(f"audits:{path_name}", kwargs={"pk": retest.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, f"<b>{expected_next_page}</b>", html=True)
