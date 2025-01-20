@@ -1079,17 +1079,6 @@ class CaseRetestCreateErrorTemplateView(TemplateView):
         return context
 
 
-class CaseLegacyEndOfCaseUpdateView(CaseUpdateView):
-    """
-    View to note correspondence with enforcement body
-    """
-
-    form_class: type[CaseStatementEnforcementUpdateForm] = (
-        CaseStatementEnforcementUpdateForm
-    )
-    template_name: str = "cases/forms/legacy_end_of_case.html"
-
-
 class CaseZendeskTicketsDetailView(DetailView):
     """
     View of Zendesk tickets for a case

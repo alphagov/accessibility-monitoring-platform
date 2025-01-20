@@ -335,25 +335,6 @@ def test_archived_case_view_case_includes_post_case_sections(admin_client):
     assertContains(response, "Equality body metadata")
     assertContains(response, "Equality body correspondence")
     assertContains(response, "Retest overview")
-    assertContains(response, "Legacy end of case data")
-
-
-def test_non_archived_case_view_case_has_no_legacy_section(admin_client):
-    """
-    Test that the Case overview page for a non-archived case has no
-    legacy section.
-    """
-    case: Case = Case.objects.create(variant=Case.Variant.CLOSE_CASE)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-
-    assertContains(response, "Statement enforcement")
-    assertContains(response, "Equality body metadata")
-    assertContains(response, "Equality body correspondence")
-    assertContains(response, "Retest overview")
-    assertNotContains(response, "Legacy end of case data")
 
 
 def test_view_case_includes_tests(admin_client):
@@ -2018,7 +1999,6 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         "cases:list-equality-body-correspondence",
         "cases:create-equality-body-correspondence",
         "cases:edit-retest-overview",
-        "cases:legacy-end-of-case",
         "cases:zendesk-tickets",
         "cases:create-zendesk-ticket",
         # "cases:email-template-list",  Nav not in UI design

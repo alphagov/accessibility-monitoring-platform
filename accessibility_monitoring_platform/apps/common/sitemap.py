@@ -1183,13 +1183,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 ],
                 case_details_template_name="cases/details/details_retest_overview.html",
             ),
-            CasePlatformPage(
-                name="Legacy end of case data",
-                url_name="cases:legacy-end-of-case",
-                show_flag_name="archive",
-                case_details_form_class=CaseStatementEnforcementUpdateForm,
-                case_details_template_name="cases/details/details.html",
-            ),
         ],
     ),
     # Misc Case
