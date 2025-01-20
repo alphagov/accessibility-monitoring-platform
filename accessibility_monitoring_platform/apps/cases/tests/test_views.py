@@ -2036,7 +2036,6 @@ def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
     Test that the case navigation sections appear on all case pages
     """
     case: Case = Case.objects.create(enable_correspondence_process=True)
-
     case_key: str = (
         "case_id"
         if case_page_url
@@ -3037,13 +3036,6 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     audit: Audit = Audit.objects.create(case=case)
     audit_pk_kwargs: dict[str, int] = {"pk": audit.id}
 
-    for statement_check in StatementCheck.objects.all():
-        StatementCheckResult.objects.create(
-            audit=audit,
-            type=statement_check.type,
-            statement_check=statement_check,
-        )
-
     response: HttpResponse = admin_client.get(
         reverse("cases:status-workflow", kwargs=case_pk_kwargs),
     )
@@ -3051,33 +3043,31 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     assert response.status_code == 200
 
     overview_url: str = reverse(
-        "audits:edit-statement-overview", kwargs=audit_pk_kwargs
+        "audits:edit-statement-decision",
+        kwargs=audit_pk_kwargs,
     )
+
     assertContains(
         response,
-        f"""<li>
-            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
-                Statement overview not filled in
-            </a></li>""",
+        f"""<a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
+        Initial accessibility statement decision is not filled in
+        </a>""",
         html=True,
     )
 
-    for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = StatementCheckResult.Result.YES
-        statement_check_result.save()
+    case.compliance.statement_compliance_state_initial = CaseCompliance.StatementCompliance.NOT_COMPLIANT
+    case.compliance.save()
 
-    response: HttpResponse = admin_client.get(
-        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
-    )
+    response: HttpResponse = admin_client.get(reverse("cases:status-workflow", kwargs=case_pk_kwargs))
 
     assert response.status_code == 200
 
     assertContains(
         response,
-        f"""<li>
-            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
-                Statement overview not filled in
-            </a>&check;</li>""",
+        f"""<a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
+        Initial accessibility statement decision is not filled in
+        </a>&check;
+        """,
         html=True,
     )
 

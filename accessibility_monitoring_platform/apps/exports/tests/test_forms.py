@@ -31,6 +31,7 @@ def create_exportable_case() -> Case:
         report_acknowledged_date=CUTOFF_DATETIME,
         twelve_week_update_requested_date=CUTOFF_DATETIME,
         twelve_week_correspondence_acknowledged_date=CUTOFF_DATETIME,
+        is_ready_for_final_decision=Boolean.YES,
         compliance_email_sent_date=CUTOFF_DATE,
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
     )

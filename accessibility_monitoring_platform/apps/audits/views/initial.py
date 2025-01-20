@@ -345,8 +345,9 @@ class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        audit: Audit = self.object
+        audit.case.status.calculate_and_save_status()
         if "save_continue" in self.request.POST:
-            audit: Audit = self.object
             audit_pk: dict[str, int] = {"pk": audit.id}
             return reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk)
         return super().get_success_url()
@@ -424,9 +425,8 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        audit: Audit = self.object
-        audit.case.status.calculate_and_save_status()
         if "save_continue" in self.request.POST:
+            audit: Audit = self.object
             audit_pk: dict[str, int] = {"pk": audit.id}
             if audit.all_overview_statement_checks_have_passed:
                 return reverse("audits:edit-statement-website", kwargs=audit_pk)
@@ -641,6 +641,8 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        audit: Audit = self.object
+        audit.case.status.calculate_and_save_status()
         if "save_continue" in self.request.POST:
             audit_pk: dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-statement-summary", kwargs=audit_pk)

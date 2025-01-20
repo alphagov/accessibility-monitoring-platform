@@ -963,6 +963,8 @@ def test_audit_edit_statement_overview_updates_case_status(
     assert response.status_code == 302
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    case.compliance.statement_compliance_state_initial = CaseCompliance.StatementCompliance.NOT_COMPLIANT
+    case.save()
     assert audit_from_db.case.status.status == "report-in-progress"
 
     statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
