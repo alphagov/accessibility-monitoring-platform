@@ -25,7 +25,7 @@
                     {% if django_settings.AMP_PROTOTYPE_NAME and django_settings.AMP_PROTOTYPE_NAME != 'TEST' %}
                       Report an issue
                     {% else %}
-                      <a class="govuk-footer__link" href="{% url 'common:issue-report' %}?page_url={{ request.path }}" target="_blank">Report an issue</a>
+                      <a class="govuk-footer__link" href="{% url 'common:issue-report' %}?page_url={{ request.path }}&page_title={{ sitemap.current_platform_page.get_name }}" target="_blank">Report an issue</a>
                     {% endif %}
                   </li>
                 {% endif %}

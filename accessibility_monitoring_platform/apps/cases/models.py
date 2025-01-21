@@ -1043,7 +1043,7 @@ class Case(VersionModel):
             and self.contact_details_found == Case.ContactDetailsFound.NOT_FOUND
         ):
             if (
-                self.seven_day_no_contact_email_sent_date != None
+                self.seven_day_no_contact_email_sent_date is not None
                 and self.seven_day_no_contact_email_sent_date > start_date
                 and self.seven_day_no_contact_email_sent_date <= seven_days_ago
                 and self.no_contact_one_week_chaser_sent_date is None
@@ -1056,7 +1056,7 @@ class Case(VersionModel):
                     ),
                 )
             if (
-                self.no_contact_one_week_chaser_due_date != None
+                self.no_contact_one_week_chaser_due_date is not None
                 and self.no_contact_one_week_chaser_due_date > start_date
                 and self.no_contact_one_week_chaser_due_date <= end_date
                 and self.no_contact_one_week_chaser_sent_date is None
@@ -1068,7 +1068,7 @@ class Case(VersionModel):
                     ),
                 )
             if (
-                self.no_contact_four_week_chaser_due_date != None
+                self.no_contact_four_week_chaser_due_date is not None
                 and self.no_contact_four_week_chaser_due_date > start_date
                 and self.no_contact_four_week_chaser_due_date <= end_date
                 and self.no_contact_four_week_chaser_sent_date is None
@@ -1082,21 +1082,21 @@ class Case(VersionModel):
 
         if self.status.status == CaseStatus.Status.IN_REPORT_CORES:
             if (
-                self.report_followup_week_1_due_date != None
+                self.report_followup_week_1_due_date is not None
                 and self.report_followup_week_1_due_date > start_date
                 and self.report_followup_week_1_due_date <= end_date
                 and self.report_followup_week_1_sent_date is None
             ):
                 return self.in_report_correspondence_progress
             if (
-                self.report_followup_week_4_due_date != None
+                self.report_followup_week_4_due_date is not None
                 and self.report_followup_week_4_due_date > start_date
                 and self.report_followup_week_4_due_date <= end_date
                 and self.report_followup_week_4_sent_date is None
             ):
                 return self.in_report_correspondence_progress
             if (
-                self.report_followup_week_4_sent_date != None
+                self.report_followup_week_4_sent_date is not None
                 and self.report_followup_week_4_sent_date > start_date
                 and self.report_followup_week_4_sent_date <= seven_days_ago
             ):
@@ -1104,7 +1104,7 @@ class Case(VersionModel):
 
         if self.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
             if (
-                self.report_followup_week_12_due_date != None
+                self.report_followup_week_12_due_date is not None
                 and self.report_followup_week_12_due_date > start_date
                 and self.report_followup_week_12_due_date <= end_date
             ):
@@ -1117,14 +1117,14 @@ class Case(VersionModel):
 
         if self.status.status == CaseStatus.Status.IN_12_WEEK_CORES:
             if (
-                self.twelve_week_1_week_chaser_due_date != None
+                self.twelve_week_1_week_chaser_due_date is not None
                 and self.twelve_week_1_week_chaser_due_date > start_date
                 and self.twelve_week_1_week_chaser_due_date <= end_date
                 and self.twelve_week_1_week_chaser_sent_date is None
             ):
                 return self.twelve_week_correspondence_progress
             if (
-                self.twelve_week_1_week_chaser_sent_date != None
+                self.twelve_week_1_week_chaser_sent_date is not None
                 and self.twelve_week_1_week_chaser_sent_date > start_date
                 and self.twelve_week_1_week_chaser_sent_date <= seven_days_ago
             ):
