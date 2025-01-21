@@ -18,7 +18,6 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseEqualityBodyCorrespondenceUpdateView,
     CaseEqualityBodyMetadataUpdateView,
     CaseFourWeekContactDetailsUpdateView,
-    CaseLegacyEndOfCaseUpdateView,
     CaseListView,
     CaseMetadataUpdateView,
     CaseNoPSBResponseUpdateView,
@@ -279,11 +278,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/retest-create-error/",
         login_required(CaseRetestCreateErrorTemplateView.as_view()),
         name="retest-create-error",
-    ),
-    path(
-        "<int:pk>/legacy-end-of-case/",
-        login_required(CaseLegacyEndOfCaseUpdateView.as_view()),
-        name="legacy-end-of-case",
     ),
     path(
         "<int:pk>/zendesk-tickets/",

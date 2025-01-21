@@ -21,6 +21,7 @@ from ...common.utils import (
     record_model_create_event,
     record_model_update_event,
 )
+from ...common.views import NextPlatformPageMixin
 from ..forms import (
     StatementCheckCreateUpdateForm,
     StatementCheckResultFormset,
@@ -92,7 +93,7 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))
 
 
-class AuditUpdateView(UpdateView):
+class AuditUpdateView(NextPlatformPageMixin, UpdateView):
     """
     View to update audit
     """
@@ -115,10 +116,6 @@ class AuditUpdateView(UpdateView):
                 )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """Remain on current page on save"""
-        return self.request.path
 
 
 class AuditCaseComplianceUpdateView(AuditUpdateView):

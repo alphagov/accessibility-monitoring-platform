@@ -4,14 +4,14 @@ Utilities for audits app
 
 from collections import namedtuple
 from datetime import date, datetime
-from typing import Any
+from typing import Any, TypeVar
 
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
-from django.http import HttpRequest
-from django.urls import reverse
+from django.http import Http404, HttpRequest
 from django.utils import timezone
 
+from ..common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ..common.utils import (
     list_to_dictionary_of_lists,
     record_model_create_event,
@@ -55,6 +55,17 @@ STATEMENT_CONTENT_SUBSECTIONS: list[StatementContentSubsection] = [
     ),
     StatementContentSubsection("Custom statement issues", "custom", "custom"),
 ]
+
+P = TypeVar("P", bound=Page | RetestPage)
+
+
+def index_or_404(items: list[P], item: P) -> int:
+    """Return index of item in list or raise 404 if not found"""
+    try:
+        position: int = items.index(item)
+    except ValueError:
+        raise Http404
+    return position
 
 
 def create_or_update_check_results_for_page(
@@ -165,52 +176,70 @@ def create_statement_checks_for_new_audit(audit: Audit) -> None:
         )
 
 
-def get_next_page_url(audit: Audit, current_page: Page | None = None) -> str:
+def get_next_platform_page_initial(
+    audit: Audit, current_page: Page | None = None
+) -> PlatformPage:
     """
-    Return the path of the page to go to when a save and continue button is
-    pressed on the page where pages or pages check results are entered.
+    Return the platform page to go to when a save and continue button is
+    pressed on the page where pages or page check results are entered.
     """
-    audit_pk: dict[str, int] = {"pk": audit.id}
     if not audit.testable_pages:
-        return reverse("audits:edit-website-decision", kwargs=audit_pk)
+        return get_platform_page_by_url_name(
+            url_name="audits:edit-website-decision", instance=audit
+        )
 
     if current_page is None:
-        next_page_pk: dict[str, int] = {"pk": audit.testable_pages.first().id}
-        return reverse("audits:edit-audit-page-checks", kwargs=next_page_pk)
+        return get_platform_page_by_url_name(
+            url_name="audits:edit-audit-page-checks",
+            instance=audit.testable_pages.first(),
+        )
 
     testable_pages: list[Page] = list(audit.testable_pages)
     if testable_pages[-1] == current_page:
-        return reverse("audits:edit-website-decision", kwargs=audit_pk)
+        return get_platform_page_by_url_name(
+            url_name="audits:edit-website-decision", instance=audit
+        )
 
-    current_page_position: int = testable_pages.index(current_page)
-    next_page_pk: dict[str, int] = {"pk": testable_pages[current_page_position + 1].id}
-    return reverse("audits:edit-audit-page-checks", kwargs=next_page_pk)
+    current_page_position: int = index_or_404(items=testable_pages, item=current_page)
+    next_page: Page = testable_pages[current_page_position + 1]
+    return get_platform_page_by_url_name(
+        url_name="audits:edit-audit-page-checks", instance=next_page
+    )
 
 
-def get_next_retest_page_url(audit: Audit, current_page: Page | None = None) -> str:
+def get_next_platform_page_twelve_week(
+    audit: Audit, current_page: Page | None = None
+) -> PlatformPage:
     """
-    Return the path of the page to go to when a save and continue button is
-    pressed on the page where pages or pages check results are retested.
+    Return the platform page page to go to when a save and continue button is
+    pressed on the page where pages or page check results are retested.
     """
-    audit_pk: dict[str, int] = {"pk": audit.id}
     testable_pages_with_errors: list[Page] = [
         page for page in audit.testable_pages if page.failed_check_results
     ]
     if not testable_pages_with_errors:
-        return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
+        return get_platform_page_by_url_name(
+            url_name="audits:edit-audit-retest-website-decision", instance=audit
+        )
 
     if current_page is None:
-        next_page_pk: dict[str, int] = {"pk": testable_pages_with_errors[0].id}
-        return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
+        return get_platform_page_by_url_name(
+            url_name="audits:edit-audit-retest-page-checks",
+            instance=testable_pages_with_errors[0],
+        )
 
     if testable_pages_with_errors[-1] == current_page:
-        return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
+        return get_platform_page_by_url_name(
+            url_name="audits:edit-audit-retest-website-decision", instance=audit
+        )
 
-    current_page_position: int = testable_pages_with_errors.index(current_page)
-    next_page_pk: dict[str, int] = {
-        "pk": testable_pages_with_errors[current_page_position + 1].id
-    }
-    return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
+    current_page_position: int = index_or_404(
+        items=testable_pages_with_errors, item=current_page
+    )
+    next_page: Page = testable_pages_with_errors[current_page_position + 1]
+    return get_platform_page_by_url_name(
+        url_name="audits:edit-audit-retest-page-checks", instance=next_page
+    )
 
 
 def other_page_failed_check_results(
@@ -297,28 +326,34 @@ def create_checkresults_for_retest(retest: Retest) -> None:
         )
 
 
-def get_next_equality_body_retest_page_url(
+def get_next_platform_page_equality_body(
     retest: Retest, current_page: RetestPage | None = None
-) -> str:
+) -> PlatformPage:
     """
-    Return the path of the next retest page to go to when a save and continue button is
+    Return the next retest platform page to go to when a save and continue button is
     pressed.
     """
-    retest_pk: dict[str, int] = {"pk": retest.id}
     retest_pages: list[RetestPage] = list(retest.retestpage_set.all())
     if not retest_pages:
-        return reverse("audits:retest-comparison-update", kwargs=retest_pk)
+        return get_platform_page_by_url_name(
+            url_name="audits:retest-comparison-update", instance=retest
+        )
 
     if current_page is None:
-        next_page_pk: dict[str, int] = {"pk": retest_pages[0].id}
-        return reverse("audits:edit-retest-page-checks", kwargs=next_page_pk)
+        return get_platform_page_by_url_name(
+            url_name="audits:edit-retest-page-checks", instance=retest_pages[0]
+        )
 
     if retest_pages[-1] == current_page:
-        return reverse("audits:retest-comparison-update", kwargs=retest_pk)
+        return get_platform_page_by_url_name(
+            url_name="audits:retest-comparison-update", instance=retest
+        )
 
-    current_page_position: int = retest_pages.index(current_page)
-    next_page_pk: dict[str, int] = {"pk": retest_pages[current_page_position + 1].id}
-    return reverse("audits:edit-retest-page-checks", kwargs=next_page_pk)
+    current_page_position: int = index_or_404(items=retest_pages, item=current_page)
+    next_retest_page: RetestPage = retest_pages[current_page_position + 1]
+    return get_platform_page_by_url_name(
+        url_name="audits:edit-retest-page-checks", instance=next_retest_page
+    )
 
 
 def get_other_pages_with_retest_notes(page: Page) -> list[Page]:

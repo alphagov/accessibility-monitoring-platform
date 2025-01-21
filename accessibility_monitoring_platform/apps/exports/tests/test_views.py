@@ -318,7 +318,7 @@ def test_confirm_delete_export(admin_client):
     """Test that export can be deleted"""
     export: Export = create_cases_and_export()
 
-    assert export.is_deleted == False
+    assert export.is_deleted is False
 
     response: HttpResponse = admin_client.post(
         reverse("exports:export-confirm-delete", kwargs={"pk": export.id}),
