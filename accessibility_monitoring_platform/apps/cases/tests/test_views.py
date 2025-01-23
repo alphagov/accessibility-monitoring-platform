@@ -4087,6 +4087,8 @@ def test_add_contact_details_redirects_correctly(admin_client):
     [
         ("edit-case-metadata", "Initial test | Testing details"),
         ("manage-contact-details", "Report correspondence | Report sent on"),
+        ("edit-no-psb-response", "Report correspondence | Report sent on"),
+        ("edit-no-psb-response", "Closing the case | Recommendation"),
         ("edit-12-week-update-request-ack", "Closing the case | Reviewing changes"),
         ("edit-case-close", "Post case | Statement enforcement"),
     ],

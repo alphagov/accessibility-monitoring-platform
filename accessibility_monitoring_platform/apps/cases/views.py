@@ -605,6 +605,20 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         )
         return get_platform_page_by_url_name(url_name=next_page_url_name, instance=case)
 
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        context["next_platform_pages"] = [
+            get_platform_page_by_url_name(
+                url_name="cases:edit-report-sent-on", instance=case
+            ),
+            get_platform_page_by_url_name(
+                url_name="cases:edit-enforcement-recommendation", instance=case
+            ),
+        ]
+        return context
+
 
 class CaseReportSentOnUpdateView(CaseUpdateView):
     """
