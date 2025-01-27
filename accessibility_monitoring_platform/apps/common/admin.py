@@ -108,15 +108,29 @@ class EmailTemplateAdmin(admin.ModelAdmin):
 class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for IssueReport model"""
 
-    readonly_fields = ["page_url", "page_title", "description", "created", "created_by"]
-    search_fields = ["page_url", "page_title", "description", "trello_ticket"]
+    readonly_fields = [
+        "page_url",
+        "page_title",
+        "goal_description",
+        "issue_description",
+        "created",
+        "created_by",
+    ]
+    search_fields = [
+        "page_url",
+        "page_title",
+        "goal_description",
+        "issue_description",
+        "trello_ticket",
+    ]
     list_display = [
         "issue_number",
         "page_title",
         "created_by",
         "created",
         "complete",
-        "description",
+        "goal_description",
+        "issue_description",
     ]
     list_filter = ["complete", ("created_by", admin.RelatedOnlyFieldListFilter)]
     fieldsets = (
@@ -126,7 +140,8 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
                 "fields": (
                     ("page_title", "page_url"),
                     ("created_by", "created"),
-                    ("description",),
+                    ("goal_description",),
+                    ("issue_description",),
                     ("trello_ticket", "complete"),
                     ("notes",),
                 )

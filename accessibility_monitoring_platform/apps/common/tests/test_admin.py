@@ -11,18 +11,24 @@ from django.urls import reverse
 
 from ..models import IssueReport
 
-ISSUE_REPORT_DESCRIPTION_1: str = "Issue One"
-ISSUE_REPORT_DESCRIPTION_2: str = "Issue Two"
+ISSUE_REPORT_GOAL_DESCRIPTION_1: str = "Issue One"
+ISSUE_REPORT_GOAL_DESCRIPTION_2: str = "Issue Two"
+ISSUE_REPORT_ISSUE_DESCRIPTION_1: str = "Issue One"
+ISSUE_REPORT_ISSUE_DESCRIPTION_2: str = "Issue Two"
 
 
 def test_issue_report_export_as_csv(admin_client):
     """Test action to export issue reports as csv"""
     user: User = User.objects.create()
     issue_report_1: IssueReport = IssueReport.objects.create(
-        created_by=user, description=ISSUE_REPORT_DESCRIPTION_1
+        created_by=user,
+        goal_description=ISSUE_REPORT_GOAL_DESCRIPTION_1,
+        issue_description=ISSUE_REPORT_ISSUE_DESCRIPTION_1,
     )
     issue_report_2: IssueReport = IssueReport.objects.create(
-        created_by=user, description=ISSUE_REPORT_DESCRIPTION_2
+        created_by=user,
+        goal_description=ISSUE_REPORT_GOAL_DESCRIPTION_2,
+        issue_description=ISSUE_REPORT_ISSUE_DESCRIPTION_2,
     )
 
     response: HttpResponse = admin_client.post(
@@ -45,12 +51,15 @@ def test_issue_report_export_as_csv(admin_client):
         "issue_number",
         "page_url",
         "page_title",
-        "description",
+        "goal_description",
+        "issue_description",
         "created_by",
         "created",
         "complete",
         "trello_ticket",
         "notes",
     ]
-    assert rows[1][4] == ISSUE_REPORT_DESCRIPTION_2
-    assert rows[2][4] == ISSUE_REPORT_DESCRIPTION_1
+    assert rows[1][4] == ISSUE_REPORT_GOAL_DESCRIPTION_2
+    assert rows[2][4] == ISSUE_REPORT_GOAL_DESCRIPTION_1
+    assert rows[1][5] == ISSUE_REPORT_ISSUE_DESCRIPTION_2
+    assert rows[2][5] == ISSUE_REPORT_ISSUE_DESCRIPTION_1
