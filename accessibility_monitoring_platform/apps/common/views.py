@@ -133,12 +133,14 @@ class IssueReportView(FormView):
         target_page_url: str = self.request.GET.get("page_url", "")
         target_page_title: str = self.request.GET.get("page_title", "Unknown page")
 
-        description: str = self.request.GET.get("description", "")
+        goal_description: str = self.request.GET.get("goal_description", "")
+        issue_description: str = self.request.GET.get("issue_description", "")
         self.form: AMPIssueReportForm = self.form_class(
             {
                 "page_url": target_page_url,
                 "page_title": target_page_title,
-                "description": description,
+                "goal_description": goal_description,
+                "issue_description": issue_description,
             }
         )
         self.form.is_valid()
@@ -165,7 +167,9 @@ class IssueReportView(FormView):
 
 URL: https://{self.request.get_host()}{issue_report.page_url}
 
-{issue_report.description}""",
+Goal: {issue_report.goal_description}
+
+Issue: {issue_report.issue_description}""",
             from_email=self.request.user.email,
             to=[settings.CONTACT_ADMIN_EMAIL],
         )

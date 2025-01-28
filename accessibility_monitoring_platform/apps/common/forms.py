@@ -406,14 +406,16 @@ class AMPIssueReportForm(forms.ModelForm):
 
     page_url = forms.CharField(widget=forms.HiddenInput())
     page_title = AMPCharFieldWide(label="Page where the problem occurred")
-    description = AMPTextField(label="Description")
+    goal_description = AMPTextField(label="What were you doing?")
+    issue_description = AMPTextField(label="What went wrong?")
 
     class Meta:
         model = IssueReport
         fields = [
             "page_url",
             "page_title",
-            "description",
+            "goal_description",
+            "issue_description",
         ]
 
 
