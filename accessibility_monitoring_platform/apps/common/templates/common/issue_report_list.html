@@ -45,9 +45,15 @@
                                     <b>Reported by:</b>
                                     {{ issue_report.created_by.first_name }}
                                 </p>
+                                {% if issue_report.goal_description %}
+                                    <p class="govuk-body-m amp-margin-bottom-5">
+                                        <b>User goal:</b>
+                                        {{ issue_report.goal_description }}
+                                    </p>
+                                {% endif %}
                                 <p class="govuk-body-m amp-margin-bottom-5">
-                                    <b>User feedback:</b>
-                                    {{ issue_report.description }}
+                                    <b>User issue:</b>
+                                    {{ issue_report.issue_description }}
                                 </p>
                                 <p class="govuk-body-m amp-margin-bottom-5">
                                     <b>Tech response:</b>

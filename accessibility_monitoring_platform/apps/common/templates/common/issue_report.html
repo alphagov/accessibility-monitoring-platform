@@ -32,7 +32,9 @@
                                 <label class="govuk-label"
                                     for="{{ field.auto_id }}"><b>{{ field.label }}</b>
                                 </label>
-                                <p class="govuk-body-m">{{ field.help_text }}</p>
+                                {% if field.help_text %}
+                                    <p class="govuk-body-m">{{ field.help_text }}</p>
+                                {% endif %}
                                 {% include 'common/form_errors.html' with errors=field.errors %}
                                 {{ field }}
                             </div>
