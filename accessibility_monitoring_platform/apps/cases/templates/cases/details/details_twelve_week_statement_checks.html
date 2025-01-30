@@ -14,7 +14,8 @@
                 {% for statement_check_result in statement_check_results %}
                     <tr class="govuk-table__row ">
                         <td class="govuk-table__cell amp-width-one-third">
-                            {{ statement_check_result.label }}
+                            {{ statement_check_result.label }}<br>
+                            {% include 'audits/helpers/issue_identifier.html' with issue=statement_check_result %}
                         </td>
                         <td class="govuk-table__cell amp-width-one-third">
                             {{ statement_check_result.get_check_result_state_display }}
