@@ -8,6 +8,9 @@
         <tr class="govuk-table__row">
             <td class="govuk-table__cell amp-width-one-third">
                 <label class="govuk-label">{{ retest_check_result.check_result.wcag_definition }}</label>
+                <div class="govuk-hint">
+                    {% include 'audits/helpers/issue_identifier.html' with issue=retest_check_result %}
+                </div>
             </td>
             <td class="govuk-table__cell amp-width-one-third">
                 <label class="govuk-label">{{ retest_check_result.previous_retest_check_result.get_retest_state_display }}</label>
