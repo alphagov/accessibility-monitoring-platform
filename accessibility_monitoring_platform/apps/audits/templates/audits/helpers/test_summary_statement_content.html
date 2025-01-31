@@ -1,5 +1,5 @@
-<h2 id="statement-{{ statement_check_results.0.type }}" class="govuk-heading-m">{{ statement_check_results.0.get_type_display }}</h2>
-<p class="govuk-body govuk-button-group">
+<h2 id="statement-{{ statement_check_results.0.type }}" class="govuk-heading-m govuk-body govuk-!-font-size-19 govuk-!-font-weight-bold">{{ statement_check_results.0.get_type_display }}</h2>
+<p class="govuk-body govuk-button-group amp-margin-bottom-0">
     <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
         Open statement page in new tab</a>
     {% if statement_check_type == 'custom' %}
