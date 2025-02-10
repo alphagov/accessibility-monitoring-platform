@@ -45,13 +45,14 @@ class CheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for CheckResult model"""
 
     search_fields = [
+        "issue_identifier",
         "audit__case__organisation_name",
         "audit__case__case_number",
         "wcag_definition__name",
         "page__name",
         "page__page_type",
     ]
-    list_display = ["__str__", "audit", "page"]
+    list_display = ["issue_identifier", "__str__", "audit", "page"]
     list_filter = ["check_result_state"]
 
 
@@ -75,7 +76,14 @@ class StatementCheckAdmin(admin.ModelAdmin):
     """Django admin configuration for StatementCheck model"""
 
     search_fields = ["label", "success_criteria", "report_text"]
-    list_display = ["label", "type", "position", "date_start", "date_end"]
+    list_display = [
+        "issue_number",
+        "label",
+        "type",
+        "position",
+        "date_start",
+        "date_end",
+    ]
     list_filter = ["type"]
     fieldsets = (
         (
@@ -97,12 +105,13 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for StatementCheck model"""
 
     search_fields = [
+        "issue_identifier",
         "audit__case__organisation_name",
         "statement_check__label",
         "statement_check__success_criteria",
         "statement_check__report_text",
     ]
-    list_display = ["statement_check", "audit", "is_deleted"]
+    list_display = ["issue_identifier", "statement_check", "audit", "is_deleted"]
     list_filter = ["is_deleted", "check_result_state", "retest_state"]
     fieldsets = (
         (
@@ -154,12 +163,14 @@ class RetestCheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for RetestCheckResult model"""
 
     search_fields = [
+        "issue_identifier",
         "check_result__wcag_definition__name",
         "retest__case__organisation_name",
         "retest_page__page__name",
         "retest_page__page__url",
     ]
     list_display = [
+        "issue_identifier",
         "check_result",
         "retest",
         "retest_page",
@@ -182,13 +193,14 @@ class RetestStatementCheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for RetestStatementCheckResult model"""
 
     search_fields = [
+        "issue_identifier",
         "retest__case__case_number",
         "retest__case__organisation_name",
         "statement_check__label",
         "comment",
     ]
     list_display = [
-        "id",
+        "issue_identifier",
         "retest",
         "type",
         "check_result_state",

@@ -9,7 +9,10 @@
         {% for statement_check_result in statement_check_results %}
             <tr class="govuk-table__row">
                 <td class="govuk-table__cell amp-width-one-half">
-                    {{ statement_check_result.label }}
+                    <ul class="govuk-list">
+                        <li>{{ statement_check_result.label }}</li>
+                        <li>{% include 'audits/helpers/issue_identifier.html' with issue=statement_check_result %}</li>
+                    </ul>
                 </td>
                 <td class="govuk-table__cell amp-width-one-half">
                     {{ statement_check_result.get_check_result_state_display }}

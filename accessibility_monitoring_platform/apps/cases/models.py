@@ -454,7 +454,7 @@ class Case(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.organisation_name} | #{self.case_number}")
+        return f"{self.organisation_name} | #{self.case_number}"
 
     def get_absolute_url(self) -> str:
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
@@ -1406,7 +1406,7 @@ class CaseEvent(models.Model):
         ordering = ["event_time"]
 
     def __str__(self) -> str:
-        return str(f"{self.case.organisation_name}: {self.message}")
+        return f"{self.case.organisation_name}: {self.message}"
 
 
 class EqualityBodyCorrespondence(models.Model):
@@ -1445,7 +1445,7 @@ class EqualityBodyCorrespondence(models.Model):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"Equality body correspondence #{self.id_within_case}")
+        return f"Equality body correspondence #{self.id_within_case}"
 
     def get_absolute_url(self) -> str:
         return reverse(
@@ -1478,7 +1478,7 @@ class ZendeskTicket(models.Model):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(self.url)
+        return self.url
 
     def get_absolute_url(self) -> str:
         return reverse("cases:update-zendesk-ticket", kwargs={"pk": self.id})
