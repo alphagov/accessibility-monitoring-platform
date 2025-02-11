@@ -1,10 +1,11 @@
 <div class="govuk-grid-row">
+    <br/>
     <div class="govuk-grid-column-full">
         <h2 class="govuk-heading-s">WCAG issues summary</h2>
         <ul class="govuk-list govuk-list--bullet">
             <li>Initial WCAG compliance decision: <b>{{ case.compliance.get_website_compliance_state_initial_display }}</b></li>
-            <li>12-week WCAG compliance decision: <b>{{ case.compliance.get_website_compliance_state_12_week_display }}</b></li>
             <li>Initial issues: {{ case.audit.failed_check_results.count }}</li>
+            <li>12-week WCAG compliance decision: <b>{{ case.compliance.get_website_compliance_state_12_week_display }}</b></li>
             <li>
                 Issues remaining at 12-weeks: {{ case.audit.unfixed_check_results.count }} issues
                 {% if case.audit %}
@@ -16,22 +17,7 @@
                 ({{ case.audit.missing_at_retest_check_results.count }} issues)
             </li>
         </ul>
-        <h2 class="govuk-heading-s">Statement issues summary</h2>
-        <ul class="govuk-list govuk-list--bullet">
-            <li>Initial statement compliance: <b>{{ case.compliance.get_statement_compliance_state_initial_display }}</b></li>
-            <li>Initial disproportionate burden: <b>{{ case.audit.get_initial_disproportionate_burden_claim_display }}</b></li>
-            <li>12-week statement compliance: <b>{{ case.compliance.get_statement_compliance_state_12_week_display }}</b></li>
-            <li>12-week disproportionate burden: <b>{{ case.audit.get_twelve_week_disproportionate_burden_claim_display }}</b></li>
-            <li>
-                {% if case.audit.accessibility_statement_found %}
-                    <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
-                        Accessibility Statement</a>
-                    added to case
-                {% else %}
-                    No accessibility statement added
-                {% endif %}
-            </li>
-        </ul>
+        <br/>
     </div>
 </div>
 <div class="govuk-grid-row">
@@ -68,8 +54,26 @@
         </div>
     </div>
 </div>
+<br/>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
+        <h2 class="govuk-heading-s">Statement issues summary</h2>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>Initial statement compliance: <b>{{ case.compliance.get_statement_compliance_state_initial_display }}</b></li>
+            <li>Initial disproportionate burden: <b>{{ case.audit.get_initial_disproportionate_burden_claim_display }}</b></li>
+            <li>12-week statement compliance: <b>{{ case.compliance.get_statement_compliance_state_12_week_display }}</b></li>
+            <li>12-week disproportionate burden: <b>{{ case.audit.get_twelve_week_disproportionate_burden_claim_display }}</b></li>
+            <li>
+                {% if case.audit.accessibility_statement_found %}
+                    <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                        Accessibility Statement</a>
+                    added to case
+                {% else %}
+                    No accessibility statement added
+                {% endif %}
+            </li>
+        </ul>
+        <br/>
         <h2 class="govuk-heading-s">Statement assessment contents</h2>
         <div class="amp-border-left">
             <ul class="govuk-list">
@@ -80,6 +84,7 @@
         </div>
     </div>
 </div>
+<br/>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <h2 class="govuk-heading-s">Filter and group test results</h2>
@@ -117,9 +122,10 @@
 </div>
 {% if show_failures_by_page %}
     {% for page, failures in audit_failures_by_page.items %}
+        <br/>    
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h2 id="page-{{ page.id }}" class="govuk-heading-m">{{ page.page_title }} ({{ failures|length }})</h2>
+                <h2 id="page-{{ page.id }}" class="govuk-heading-m govuk-!-font-size-19 govuk-!-font-weight-bold">{{ page.page_title }} ({{ failures|length }})</h2>
                 {% if page.location %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
@@ -128,7 +134,7 @@
                     </div>
                 {% endif %}
                 <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-full govuk-button-group">
+                    <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-0">
                         <a href="{{ page.url }}" class="govuk-link" target="_blank">
                             Open page in new tab
                         </a>
@@ -182,9 +188,10 @@
     {% endfor %}
 {% else %}
     {% for wcag_definition, failures in audit_failures_by_wcag.items %}
+        <br />
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h2 id="wcag-{{ wcag_definition.id }}" class="govuk-heading-m">{{ wcag_definition.name }} ({{ failures|length }})</h2>
+                <h2 id="wcag-{{ wcag_definition.id }}" class="govuk-heading-m govuk-body govuk-!-font-size-19 govuk-!-font-weight-bold">{{ wcag_definition.name }} ({{ failures|length }})</h2>
                 {% if wcag_definition.description %}
                     <p class="govuk-body-m">{{ wcag_definition.description }}</p>
                 {% endif %}
@@ -243,7 +250,7 @@
         </div>
     {% endfor %}
     {% if pages_with_retest_notes %}
-        <h2 id="additional-page-issues" class="govuk-heading-m">Additional issues found on page ({{ pages_with_retest_notes|length }})</h2>
+        <h2 id="additional-page-issues" class="govuk-heading-m govuk-!-font-size-19 govuk-!-font-weight-bold">Additional issues found on page ({{ pages_with_retest_notes|length }})</h2>
         <table class="govuk-table">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
@@ -295,5 +302,6 @@
 {% endif %}
 
 {% for statement_check_type, statement_check_results in statement_check_results_by_type.items %}
+    <br />
     {% include 'audits/helpers/test_summary_statement_content.html' with statement_check_results=statement_check_results %}
 {% endfor %}
