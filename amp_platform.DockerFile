@@ -16,7 +16,7 @@ RUN npm install
 EXPOSE 8001
 CMD make static_files_process \
     && python manage.py collectstatic --noinput \
-    && python manage.py clearsessions \
     && python manage.py migrate \
     && python manage.py recache_statuses \
+    && python manage.py clearsessions \
     && waitress-serve --port=8001 --threads=5 accessibility_monitoring_platform.wsgi:application
