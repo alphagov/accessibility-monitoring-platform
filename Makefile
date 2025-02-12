@@ -61,6 +61,15 @@ test:
 int_test:
 	docker compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
 
+local_stack_up:
+	docker compose --file docker-compose-full-stack.yml  up --build
+
+local_stack_make_admin:
+	docker compose exec web sh -c "echo \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin@email.com', 'admin@email.com', 'secret')\" | python manage.py shell"
+
+local_stack_cleanup:
+	rm -r data/postgres-data-full-stack
+
 deploy_prototype:
 	python aws_prototype/main.py -b up
 

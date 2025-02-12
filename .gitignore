@@ -17,6 +17,7 @@ data/localstack-data/*
 filehash.txt
 20210823_cleaned_case_record.csv
 **/data/s3_files/*
+**/data/postgres-data-full-stack/*
 cases.csv
 temp_manifest.yml
 backup.sql
