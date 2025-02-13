@@ -1,221 +1,313 @@
 {% load user_tags %}
 
-<h2 class="govuk-heading-l">QA cases</h2>
-<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-qa-cases">
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-qa-cases-heading-report-ready-to-qa">
-                    Reports in QA - {{ all_cases_in_qa|length }}
-                </span>
-            </h2>
-        </div>
-        <div id="accordion-qa-cases-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-qa-cases-heading-report-ready-to-qa">
-            {% include "dashboard/13_reports_in_qa.html" %}
-        </div>
+<div class="govuk-grid-row amp-margin-bottom-30">
+    <div class="govuk-grid-column-one-half">
+        <p class="govuk-body amp-margin-bottom-10"><b>QA cases</b></p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if all_cases_in_qa %}
+                <a href="#all-cases-in-qa" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Reports in QA ({{ all_cases_in_qa|length }}){% if all_cases_in_qa %}</a>{% endif %}
+        </p>
+
+        <p class="govuk-body amp-margin-bottom-10"><b>Audit cases</b></p>
+        {% if cases_by_status.unknown %}
+            <p class="govuk-body amp-margin-bottom-10">
+                <a href="#cases-status-unknown" class="govuk-link govuk-link--no-visited-state">
+                    Unknown ({{ cases_by_status.unknown|length }})</a>
+            </p>
+        {% endif %}
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.unassigned_cases %}
+                <a href="#cases-status-unassigned" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Unassigned cases ({{ cases_by_status.unassigned_cases|length }}){% if cases_by_status.unassigned_cases %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.test_in_progress %}
+                <a href="#cases-status-test-in-progress" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Tests in progress ({{ cases_by_status.test_in_progress|length }}){% if cases_by_status.test_in_progress %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.reports_in_progress %}
+                <a href="#cases-status-reports-in-progress" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Reports in progress ({{ cases_by_status.reports_in_progress|length }}){% if cases_by_status.reports_in_progress %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.qa_in_progress %}
+                <a href="#cases-status-qa-in-progress" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            QA in progress ({{ cases_by_status.qa_in_progress|length }}){% if cases_by_status.qa_in_progress %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.report_ready_to_send %}
+                <a href="#cases-status-report-ready-to-send" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Reports ready to send ({{ cases_by_status.report_ready_to_send|length }}){% if cases_by_status.report_ready_to_send %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.in_report_correspondence %}
+                <a href="#cases-status-in-report-correspondence" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Report sent ({{ cases_by_status.in_report_correspondence|length }}){% if cases_by_status.in_report_correspondence %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.in_probation_period %}
+                <a href="#cases-status-in-probation-period" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Report acknowledged waiting for 12-week deadline ({{ cases_by_status.in_probation_period|length }}){% if cases_by_status.in_probation_period %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.in_12_week_correspondence %}
+                <a href="#cases-status-in-12-week-correspondence" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            After 12-week correspondence ({{ cases_by_status.in_12_week_correspondence|length }}){% if cases_by_status.in_12_week_correspondence %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.reviewing_changes %}
+                <a href="#cases-status-reviewing-changes" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Reviewing changes ({{ cases_by_status.reviewing_changes|length }}){% if cases_by_status.reviewing_changes %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.final_decision_due %}
+                <a href="#cases-status-final-decision-due" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Final decision due ({{ cases_by_status.final_decision_due|length }}){% if cases_by_status.final_decision_due %}</a>{% endif %}
+        </p>
+
+        <p class="govuk-body amp-margin-bottom-10"><b>Post case</b></p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.case_closed_waiting_to_be_sent %}
+                <a href="#cases-status-case-closed-waiting-to-be-sent" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            Case closed and waiting to be sent to equalities body ({{ cases_by_status.case_closed_waiting_to_be_sent|length }}){% if cases_by_status.case_closed_waiting_to_be_sent %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            Case closed and sent to equalities body
+            <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=case-closed-sent-to-equalities-body" class="govuk-link govuk-link--no-visited-state">
+                View in search</a>
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if cases_by_status.in_correspondence_with_equalities_body %}
+                <a href="#cases-status-in-correspondence-with-equalities-body" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            In correspondence with equalities body ({{ cases_by_status.in_correspondence_with_equalities_body|length }}){% if cases_by_status.in_correspondence_with_equalities_body %}</a>{% endif %}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10">
+            Completed cases
+            <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=complete" class="govuk-link govuk-link--no-visited-state">
+                View in search</a>
+        </p>
+    </div>
+    <div class="govuk-grid-column-one-half amp-left-border">
+        <p class="govuk-body amp-margin-bottom-10"><b>Active QA</b></p>
+        <p class="govuk-body amp-margin-bottom-10">
+            {% if platform.active_qa_auditor %}
+                {{ platform.active_qa_auditor.first_name }}
+            {% else %}
+                None
+            {% endif%}
+        </p>
+        <p class="govuk-body amp-margin-bottom-10"><b>Total active cases</b></p>
+        <p class="govuk-body amp-margin-bottom-10">{{ total_incomplete_cases }}</p>
+        <p class="govuk-body amp-margin-bottom-10"><b>Your active cases</b></p>
+        <p class="govuk-body amp-margin-bottom-10">{{ total_your_active_cases }}</p>
+        <p class="govuk-body amp-margin-bottom-10"><b>Unassigned cases</b></p>
+        <p class="govuk-body amp-margin-bottom-10">{{ total_unassigned_cases }}</p>
+        <p class="govuk-body amp-margin-bottom-10"><b>QA comments unread</b></p>
+        <p class="govuk-body amp-margin-bottom-10">?</p>
+        <p class="govuk-body amp-margin-bottom-10"><b>Reminders overdue</b></p>
+        <p class="govuk-body amp-margin-bottom-10">?</p>
+        <p class="govuk-body amp-margin-bottom-10"><b>Cases overdue</b></p>
+        <p class="govuk-body amp-margin-bottom-10">?</p>
+        <p class="govuk-body amp-margin-bottom-10"><b>Post case notifications</b></p>
+        <p class="govuk-body amp-margin-bottom-10">?</p>
     </div>
 </div>
-<h2 class="govuk-heading-l">Audit cases</h2>
-<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
-    {% if cases_by_status.unknown %}
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-unknown">
-                    Unknown - {{ cases_by_status.unknown|length }}
-                </span>
-            </h2>
+
+{% if all_cases_in_qa %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="all-cases-in-qa" class="govuk-heading-m">Reports in QA ({{ all_cases_in_qa|length }})</h2>
         </div>
-        <div id="accordion-default-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-unknown">
-            {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unknown %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    {% endif %}
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-unassigned-cases">
-                    Unassigned cases - {{ cases_by_status.unassigned_cases|length }}
-                </span>
+    {% include "dashboard/13_reports_in_qa.html" %}
+{% endif %}
+
+{% if cases_by_status.unknown %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-unknown" class="govuk-heading-m">
+                Unknown - {{ cases_by_status.unknown|length }}
             </h2>
         </div>
-        <div id="accordion-default-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-unassigned-cases">
-            {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unassigned_cases %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-test-in-progress">
-                    Tests in progress - {{ cases_by_status.test_in_progress|length }}
-                </span>
+    {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unknown %}
+{% endif %}
+{% if cases_by_status.unassigned_cases %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-unassigned" class="govuk-heading-m">
+                Unassigned cases ({{ cases_by_status.unassigned_cases|length }})
             </h2>
         </div>
-        <div id="accordion-default-content-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-test-in-progress">
-            {% include "dashboard/2_tests_in_progress_table.html" with cases=cases_by_status.test_in_progress %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-reports-in-progress">
-                    Reports in progress - {{ cases_by_status.reports_in_progress|length }}
-                </span>
+    {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unassigned_cases %}
+{% endif %}
+{% if cases_by_status.test_in_progress %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-test-in-progress" class="govuk-heading-m">
+                Tests in progress - {{ cases_by_status.test_in_progress|length }}
             </h2>
         </div>
-        <div id="accordion-default-content-3" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-reports-in-progress">
-            {% include "dashboard/3_reports_in_progress_table.html" with cases=cases_by_status.reports_in_progress %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-qa-in-progress">
-                    QA in progress - {{ cases_by_status.qa_in_progress|length }}
-                </span>
+    {% include "dashboard/2_tests_in_progress_table.html" with cases=cases_by_status.test_in_progress %}
+{% endif %}
+{% if cases_by_status.reports_in_progress %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-reports-in-progress" class="govuk-heading-m">
+                Reports in progress ({{ cases_by_status.reports_in_progress|length }})
             </h2>
         </div>
-        <div id="accordion-default-content-4" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-qa-in-progress">
-            {% include "dashboard/4_qa_in_progress_table.html" with cases=cases_by_status.qa_in_progress %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-reports-ready-to-send">
-                    Reports ready to send - {{ cases_by_status.report_ready_to_send|length }}
-                </span>
+    {% include "dashboard/3_reports_in_progress_table.html" with cases=cases_by_status.reports_in_progress %}
+{% endif %}
+{% if cases_by_status.qa_in_progress %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-qa-in-progress" class="govuk-heading-m">
+                QA in progress - {{ cases_by_status.qa_in_progress|length }}
             </h2>
         </div>
-        <div id="accordion-default-content-5" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-reports-ready-to-send">
-            {% include "dashboard/6_report_ready_to_send.html" with cases=cases_by_status.report_ready_to_send %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-in-report-correspondence">
-                    Report sent - {{ cases_by_status.in_report_correspondence|length }}
-                </span>
+    {% include "dashboard/4_qa_in_progress_table.html" with cases=cases_by_status.qa_in_progress %}
+{% endif %}
+{% if cases_by_status.report_ready_to_send %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-report-ready-to-send" class="govuk-heading-m">
+                Reports ready to send ({{ cases_by_status.report_ready_to_send|length }})
             </h2>
         </div>
-        <div id="accordion-default-content-6" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-report-correspondence">
-            {% include "dashboard/7_in_report_correspondence.html" with cases=cases_by_status.in_report_correspondence %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-in-probation-period">
-                    Report acknowledged waiting for 12-week deadline - {{ cases_by_status.in_probation_period|length }}
-                </span>
+    {% include "dashboard/6_report_ready_to_send.html" with cases=cases_by_status.report_ready_to_send %}
+{% endif %}
+{% if cases_by_status.in_report_correspondence %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-in-report-correspondence" class="govuk-heading-m">
+                Report sent ({{ cases_by_status.in_report_correspondence|length }})
             </h2>
         </div>
-        <div id="accordion-default-content-7" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-probation-period">
-            {% include "dashboard/8_in_probation_period.html" with cases=cases_by_status.in_probation_period %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-in-twelve-week-correspondence">
-                    After 12-week correspondence - {{ cases_by_status.in_12_week_correspondence|length }}
-                </span>
+    {% include "dashboard/7_in_report_correspondence.html" with cases=cases_by_status.in_report_correspondence %}
+{% endif %}
+{% if cases_by_status.in_probation_period %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-in-probation-period" class="govuk-heading-m">
+                Report acknowledged waiting for 12-week deadline ({{ cases_by_status.in_probation_period|length }})
             </h2>
         </div>
-        <div id="accordion-default-content-8" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
-            {% include "dashboard/9_in_12_week_correspondence.html" with cases=cases_by_status.in_12_week_correspondence %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-reviewing-changes">
-                    Reviewing changes - {{ cases_by_status.reviewing_changes|length }}
-                </span>
+    {% include "dashboard/8_in_probation_period.html" with cases=cases_by_status.in_probation_period %}
+{% endif %}
+{% if cases_by_status.in_12_week_correspondence %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-in-12-week-correspondence" class="govuk-heading-m">
+                After 12-week correspondence ({{ cases_by_status.in_12_week_correspondence|length }})
             </h2>
         </div>
-        <div id="accordion-default-content-9" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
-            {% include "dashboard/10_reviewing_changes.html" with cases=cases_by_status.reviewing_changes %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-final-decision-due">
-                    Final decision due - {{ cases_by_status.final_decision_due|length }}
-                </span>
+    {% include "dashboard/9_in_12_week_correspondence.html" with cases=cases_by_status.in_12_week_correspondence %}
+{% endif %}
+{% if cases_by_status.reviewing_changes %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-reviewing-changes" class="govuk-heading-m">
+                Reviewing changes ({{ cases_by_status.reviewing_changes|length }})
             </h2>
         </div>
-        <div id="accordion-default-content-10" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-default-heading-final-decision-due">
-            {% include "dashboard/11_final_decision_due.html" with cases=cases_by_status.final_decision_due %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-</div>
+    {% include "dashboard/10_reviewing_changes.html" with cases=cases_by_status.reviewing_changes %}
+{% endif %}
+{% if cases_by_status.final_decision_due %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-final-decision-due" class="govuk-heading-m">
+                Final decision due ({{ cases_by_status.final_decision_due|length }})
+            </h2>
+        </div>
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+        </div>
+    </div>
+    {% include "dashboard/11_final_decision_due.html" with cases=cases_by_status.final_decision_due %}
+{% endif %}
+
 <h2 class="govuk-heading-l">Post case</h2>
-<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-post-case">
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-case-closed-waiting-to-be-sent">
-                    Case closed and waiting to be sent to equalities body  - {{ cases_by_status.case_closed_waiting_to_be_sent|length }}
-                </span>
+{% if cases_by_status.case_closed_waiting_to_be_sent %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-case-closed-waiting-to-be-sent" class="govuk-heading-m">
+                Case closed and waiting to be sent to equalities body ({{ cases_by_status.case_closed_waiting_to_be_sent|length }})
             </h2>
         </div>
-        <div id="accordion-post-case-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-content-case-closed-waiting-to-be-sent">
-            {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_waiting_to_be_sent %}
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-case-closed-sent-to-equalities-body">
-                    Case closed and sent to equalities body  - {{ cases_by_status.case_closed_sent_to_equalities_body|length }}
-                </span>
+    {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_waiting_to_be_sent %}
+{% endif %}
+{% if cases_by_status.in_correspondence_with_equalities_body %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 id="cases-status-in-correspondence-with-equalities-body" class="govuk-heading-m">
+                In correspondence with equalities body ({{ cases_by_status.in_correspondence_with_equalities_body|length }})
             </h2>
         </div>
-        <div id="accordion-post-case-content-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-case-closed-sent-to-equalities-body">
-            <p class="govuk-body">
-                {% if show_all_cases %}
-                    <a href="{% url 'cases:case-list' %}?status=case-closed-sent-to-equalities-body" class="govuk-link">
-                        View all cases with status "Case closed and sent to equalities body"</a>
-                {% else %}
-                    <a href="{% url 'cases:case-list' %}?auditor={{ user.id }}&status=case-closed-sent-to-equalities-body" class="govuk-link">
-                        View all your cases with status "Case closed and sent to equalities body"</a>
-                {% endif %}
-            </p>
+        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
         </div>
     </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-equality-body-correspondence">
-                    In correspondence with equalities body  - {{ cases_by_status.in_correspondence_with_equalities_body|length }}
-                </span>
-            </h2>
-        </div>
-        <div id="accordion-post-case-content-3" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-equality-body-correspondence">
-            {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.in_correspondence_with_equalities_body %}
-        </div>
-    </div>
-    <div class="govuk-accordion__section">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-complete">
-                    Completed cases - {{ cases_by_status.completed|length }}
-                </span>
-            </h2>
-        </div>
-        <div id="accordion-post-case-content-4" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-post-case-heading-complete">
-            <p class="govuk-body">
-                {% if show_all_cases %}
-                    <a href="{% url 'cases:case-list' %}?status=complete" class="govuk-link">
-                        View all cases with status "Complete"</a>
-                {% else %}
-                    <a href="{% url 'cases:case-list' %}?auditor={{ user.id }}&status=complete" class="govuk-link">
-                        View all your cases with status "Complete"</a>
-                {% endif %}
-            </p>
-        </div>
-    </div>
-</div>
+    {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.in_correspondence_with_equalities_body %}
+{% endif %}

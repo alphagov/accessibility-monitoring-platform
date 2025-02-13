@@ -41,87 +41,31 @@
             </div>
             {% endif %}
 
-            <div class="govuk-grid-column-one-third">
-                <h1 class="govuk-heading-xl">{{ sitemap.current_platform_page.get_name }}</h1>
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl amp-margin-bottom-10">{{ sitemap.current_platform_page.get_name }}</h1>
             </div>
-            <div class="govuk-grid-column-two-thirds govuk-button-group amp-flex-end">
+            <div class="govuk-grid-column-full govuk-button-group">
                 {% if show_all_cases %}
                     <a
                         href="{% url 'dashboard:home' %}?view=View your cases"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
+                        class="govuk-link govuk-link--no-visited-state"
                     >
                         View your cases
                     </a>
                 {% else %}
                     <a
                         href="{% url 'dashboard:home' %}?view=View all cases"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
+                        class="govuk-link govuk-link--no-visited-state"
                     >
                         View all cases
                     </a>
                 {% endif %}
                 <a
-                    href="{% url 'cases:case-list' %}?status=unassigned-case"
-                    role="button"
-                    draggable="false"
-                    class="govuk-button govuk-button--secondary"
-                    data-module="govuk-button"
-                >
-                    View unassigned cases
-                </a>
-                <a
                     href="{% url 'cases:case-create' %}"
-                    role="button"
-                    draggable="false"
-                    class="govuk-button amp-margin-right-0"
-                    data-module="govuk-button"
+                    class="govuk-link govuk-link--no-visited-state"
                 >
                     Create case
                 </a>
-            </div>
-        </div>
-        <div class="govuk-grid-row insert-margin">
-            <div class="govuk-grid-column-one-quarter">
-                <div class="govuk-body-m">
-                    Total active cases
-                </div>
-                <div class="govuk-heading-xl amp-margin-bottom-0">
-                    {{total_incomplete_cases}}
-                </div>
-            </div>
-            <div class="govuk-grid-column-one-quarter leftborder">
-                <div class="govuk-body-m">
-                    Your active cases
-                </div>
-                <div class="govuk-heading-xl amp-margin-bottom-0">
-                    {{total_your_active_cases}}
-                </div>
-            </div>
-            <div class="govuk-grid-column-one-quarter leftborder">
-                <div class="govuk-body-m">
-                    Unassigned cases
-                </div>
-                <div class="govuk-heading-xl amp-margin-bottom-0">
-                    {{total_unassigned_cases}}
-                </div>
-            </div>
-            <div class="govuk-grid-column-one-quarter leftborder">
-                <div class="govuk-body-m">
-                    On call
-                </div>
-                <div class="govuk-heading-xl amp-margin-bottom-0">
-                    {% if platform.active_qa_auditor %}
-                        {{ platform.active_qa_auditor.first_name }}
-                    {% else %}
-                        None
-                    {% endif%}
-                </div>
             </div>
         </div>
         {% include "dashboard/list_view.html" %}

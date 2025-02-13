@@ -39,13 +39,13 @@ def test_dashboard_redirects_to_login_when_user_not_logged_in(client):
     ["View+your+cases", "View+all+cases"],
 )
 def test_dashboard_shows_qa_auditors(dashboard_view, admin_client):
-    """Tests if dashboard views are showing the expected QA auditors column"""
+    """Tests if dashboard views are showing the QA auditor"""
     response: HttpResponse = admin_client.get(
         f'{reverse("dashboard:home")}?view={dashboard_view}'
     )
 
     assert response.status_code == 200
-    assertContains(response, "On call")
+    assertContains(response, "Active QA")
 
 
 def test_dashboard_shows_oldest_unassigned_cases_first(admin_client):
@@ -91,10 +91,9 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
 
     assertContains(
         response,
-        f"""<p class="govuk-body">
-            <a href="/cases/?auditor={admin_user.id}&status=case-closed-sent-to-equalities-body" class="govuk-link">
-                View all your cases with status "Case closed and sent to equalities body"</a>
-        </p>""",
+        f"""<a href="/cases/?auditor={admin_user.id}&status=case-closed-sent-to-equalities-body"
+            class="govuk-link govuk-link--no-visited-state">
+                View in search</a>""",
         html=True,
     )
 
@@ -166,10 +165,9 @@ def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
 
     assertContains(
         response,
-        f"""<p class="govuk-body">
-            <a href="/cases/?auditor={admin_user.id}&status=complete" class="govuk-link">
-                View all your cases with status "Complete"</a>
-        </p>""",
+        f"""<a href="/cases/?auditor={admin_user.id}&status=complete"
+            class="govuk-link govuk-link--no-visited-state">
+                View in search</a>""",
         html=True,
     )
 
@@ -255,8 +253,8 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
     assert Case.objects.all().count() == 5
     assert response.status_code == 200
     expected_number_of_active_cases: str = """
-    <div class="govuk-body-m"> Total active cases </div>
-    <div class="govuk-heading-xl amp-margin-bottom-0"> 2 </div>
+    <p class="govuk-body amp-margin-bottom-10"><b>Total active cases</b></p>
+    <p class="govuk-body amp-margin-bottom-10">2</p>
     """
     assertContains(
         response,
@@ -279,8 +277,8 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
     assert Case.objects.all().count() == 3
     assert response.status_code == 200
     expected_number_of_your_active_cases: str = """
-    <div class="govuk-body-m"> Your active cases </div>
-    <div class="govuk-heading-xl amp-margin-bottom-0"> 1 </div>
+    <p class="govuk-body amp-margin-bottom-10"><b>Your active cases</b></p>
+    <p class="govuk-body amp-margin-bottom-10">1</p>
     """
     assertContains(
         response,
@@ -289,8 +287,8 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
     )
 
     expected_number_of_unnassigned_cases: str = """
-    <div class="govuk-body-m"> Unassigned cases </div>
-    <div class="govuk-heading-xl amp-margin-bottom-0"> 2 </div>
+    <p class="govuk-body amp-margin-bottom-10"><b>Unassigned cases</b></p>
+    <p class="govuk-body amp-margin-bottom-10">2</p>
     """
     assertContains(
         response,

@@ -59,7 +59,7 @@ def test_active_qa_auditor_present(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        f"""<div class="govuk-heading-xl amp-margin-bottom-0">{USER_FIRST_NAME}</div>""",
+        f"""<p class="govuk-body amp-margin-bottom-10">{USER_FIRST_NAME}</p>""",
         html=True,
     )
 
