@@ -1,6 +1,7 @@
-""" Prepare Local DB - Downloads the latest db backup and uploads to local postgres instance """
+"""Prepare Local DB - Downloads the latest db backup and uploads to local postgres instance"""
 
 import subprocess
+from datetime import date
 from pathlib import Path
 
 import boto3
@@ -11,8 +12,11 @@ LOCAL_DIR_PATH: Path = Path("data", "s3_files")
 if __name__ == "__main__":
     s3_client = boto3.client("s3")
     db_backups: list = []
-    for key in s3_client.list_objects(Bucket=S3_BUCKET)["Contents"]:
-        if "aws_aurora_backup/" in key["Key"] and "prodenv" in key["Key"]:
+    backup_key_prefix: str = f"aws_aurora_backup/{date.today().year}"
+    for key in s3_client.list_objects(Bucket=S3_BUCKET, Prefix=backup_key_prefix)[
+        "Contents"
+    ]:
+        if "prodenv" in key["Key"]:
             db_backups.append(key)
     db_backups.sort(key=lambda x: x["LastModified"])
     file_name: str = db_backups[-1]["Key"].split("/")[-1]

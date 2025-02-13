@@ -21,7 +21,8 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
-from ..common.email_template_utils import get_email_template_context
+from ..common.sitemap import PlatformPage, Sitemap
+from .email_template_utils import get_email_template_context
 from .forms import (
     ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
@@ -54,7 +55,6 @@ from .models import (
     Platform,
 )
 from .platform_template_view import PlatformTemplateView
-from .sitemap import get_platform_page_name_by_url
 from .utils import (
     extract_domain_from_url,
     get_one_year_ago,
@@ -68,6 +68,29 @@ from .utils import (
 logger = logging.getLogger(__name__)
 
 EMAIL_TEMPLATE_PREVIEW_CASE_ID: int = 1170
+
+
+class NextPlatformPageMixin:
+    """Mixin for UpdateViews with Save and continue buttons"""
+
+    def get_next_platform_page(self) -> PlatformPage:
+        sitemap: Sitemap = Sitemap(request=self.request)
+        next_platform_page: PlatformPage = sitemap.current_platform_page.next_page
+        if next_platform_page is not None:
+            next_platform_page.set_instance(instance=self.object)
+        return next_platform_page
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["next_platform_pages"] = [self.get_next_platform_page()]
+        return context
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            return self.get_next_platform_page().url
+        return self.request.path
 
 
 class ContactAdminView(FormView):
@@ -108,13 +131,16 @@ class IssueReportView(FormView):
     def get(self, request, *args, **kwargs):
         """Populate form"""
         target_page_url: str = self.request.GET.get("page_url", "")
-        target_page_name: str = get_platform_page_name_by_url(target_page_url)
-        description: str = self.request.GET.get("description", "")
+        target_page_title: str = self.request.GET.get("page_title", "Unknown page")
+
+        goal_description: str = self.request.GET.get("goal_description", "")
+        issue_description: str = self.request.GET.get("issue_description", "")
         self.form: AMPIssueReportForm = self.form_class(
             {
                 "page_url": target_page_url,
-                "page_title": target_page_name,
-                "description": description,
+                "page_title": target_page_title,
+                "goal_description": goal_description,
+                "issue_description": issue_description,
             }
         )
         self.form.is_valid()
@@ -141,7 +167,9 @@ class IssueReportView(FormView):
 
 URL: https://{self.request.get_host()}{issue_report.page_url}
 
-{issue_report.description}""",
+Goal: {issue_report.goal_description}
+
+Issue: {issue_report.issue_description}""",
             from_email=self.request.user.email,
             to=[settings.CONTACT_ADMIN_EMAIL],
         )

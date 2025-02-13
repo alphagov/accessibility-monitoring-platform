@@ -1,7 +1,6 @@
-version: "3.7"
 services:
   db:
-    image: postgres:14.4
+    image: postgres:14.13
     restart: always
     environment:
       POSTGRES_DB: postgres
@@ -9,13 +8,13 @@ services:
       POSTGRES_PASSWORD: secret
       PGDATA: /var/lib/postgresql/data
     volumes:
-      - ./data/postgres-data:/var/lib/postgresql/data
+      - ./data/postgres-data-full-stack:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   web:
       build:
-          dockerfile: ./amp_platform.Dockerfile
+          dockerfile: ./amp_platform.DockerFile
       image: "amp_platform"
       ports:
           - "8001:8001"
@@ -23,7 +22,7 @@ services:
           - db
           - localstack
       environment:
-          - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001 web web:8001'
+          - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001 web web:8001' # Only localhost:8001 works for localstack
           - SECRET_KEY='123456789'
           - DEBUG=FALSE
           - INTEGRATION_TEST=FALSE
@@ -36,7 +35,7 @@ services:
 
   report_viewer:
       build:
-          dockerfile: ./amp_viewer.Dockerfile
+          dockerfile: ./amp_viewer.DockerFile
       image: "amp_viewer"
       ports:
           - "8002:8001"

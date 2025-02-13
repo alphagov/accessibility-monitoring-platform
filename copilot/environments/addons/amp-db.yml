@@ -104,7 +104,7 @@ Resources:
         !Join [ "",  [ '{{resolve:secretsmanager:', !Ref ampdbAuroraSecret, ":SecretString:password}}" ]]
       DatabaseName: !Ref ampdbDBName
       Engine: 'aurora-postgresql'
-      EngineVersion: '14.4'
+      EngineVersion: '14.13'
       DBClusterParameterGroupName: !Ref ampdbDBClusterParameterGroup
       DBSubnetGroupName: !Ref ampdbDBSubnetGroup
       Port: 5432

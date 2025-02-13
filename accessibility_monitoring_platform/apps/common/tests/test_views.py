@@ -36,7 +36,7 @@ NOT_FOUND_DOMAIN: str = "not-found"
 FOUND_DOMAIN: str = "found"
 EMAIL_SUBJECT: str = "Email subject"
 EMAIL_MESSAGE: str = "Email message"
-ISSUE_REPORT_LINK: str = """<a class="govuk-footer__link" href="/common/report-issue/?page_url=/"
+ISSUE_REPORT_LINK: str = """<a class="govuk-footer__link" href="/common/report-issue/?page_url=/&page_title=Your cases"
 target="_blank">Report an issue</a>"""
 METRIC_OVER_LAST_30_DAYS: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_last_30_days}</b></span>
@@ -1271,3 +1271,30 @@ def test_navbar_tasks_emboldened(admin_client, admin_user):
         </li>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "url, expected_page_name",
+    [
+        ("/", "Your cases"),
+        ("/cases/1/edit-case-metadata/", "Case metadata"),
+        ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
+    ],
+)
+def test_page_name(url, expected_page_name, admin_client):
+    """
+    Test that the page renders and problem page's url and name are populated
+    as expected.
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        f"/common/report-issue/?page_url={url}&page_title={expected_page_name}"
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Report an issue")
+    assertContains(response, url)
+    assertContains(response, expected_page_name)

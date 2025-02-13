@@ -13,12 +13,14 @@ from django.views.generic.edit import UpdateView
 
 from ...cases.models import Case
 from ...common.models import Boolean
+from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ...common.utils import (
     list_to_dictionary_of_lists,
     mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
 )
+from ...common.views import NextPlatformPageMixin
 from ..forms import (
     RetestCheckResultFormset,
     RetestComparisonUpdateForm,
@@ -50,10 +52,7 @@ from ..models import (
     StatementCheck,
     StatementPage,
 )
-from ..utils import (
-    create_checkresults_for_retest,
-    get_next_equality_body_retest_page_url,
-)
+from ..utils import create_checkresults_for_retest, get_next_platform_page_equality_body
 
 
 def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -88,7 +87,7 @@ def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-class RetestMetadataUpdateView(UpdateView):
+class RetestMetadataUpdateView(NextPlatformPageMixin, UpdateView):
     """
     View to update a equality body retest metadata
     """
@@ -98,6 +97,9 @@ class RetestMetadataUpdateView(UpdateView):
     template_name: str = "audits/forms/equality_body_retest_metadata_update.html"
     context_object_name: str = "retest"
 
+    def get_next_platform_page(self) -> PlatformPage:
+        return get_next_platform_page_equality_body(retest=self.object)
+
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add record event on change"""
         if form.changed_data:
@@ -105,14 +107,8 @@ class RetestMetadataUpdateView(UpdateView):
             record_model_update_event(user=self.request.user, model_object=self.object)
         return super().form_valid(form)
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            return get_next_equality_body_retest_page_url(retest=self.object)
-        return reverse("audits:retest-metadata-update", kwargs={"pk": self.object.id})
 
-
-class RetestPageChecksFormView(UpdateView):
+class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
     """
     View to update check results for a page in a retest requested by an equality body
     """
@@ -121,6 +117,12 @@ class RetestPageChecksFormView(UpdateView):
     form_class: type[RetestPageChecksForm] = RetestPageChecksForm
     template_name: str = "audits/forms/equality_body_retest_page_checks.html"
     context_object_name: str = "retest_page"
+
+    def get_next_platform_page(self) -> PlatformPage:
+        retest_page: RetestPage = self.object
+        return get_next_platform_page_equality_body(
+            retest=retest_page.retest, current_page=retest_page
+        )
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
@@ -162,17 +164,8 @@ class RetestPageChecksFormView(UpdateView):
 
         return super().form_valid(form)
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest_page: RetestPage = self.object
-            return get_next_equality_body_retest_page_url(
-                retest=retest_page.retest, current_page=retest_page
-            )
-        return self.request.path
 
-
-class RetestComparisonUpdateView(UpdateView):
+class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):
     """
     View to update a equality body retest comparison
     """
@@ -216,16 +209,8 @@ class RetestComparisonUpdateView(UpdateView):
             record_model_update_event(user=self.request.user, model_object=self.object)
         return super().form_valid(form)
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            return reverse(
-                "audits:retest-compliance-update", kwargs={"pk": self.object.id}
-            )
-        return reverse("audits:retest-comparison-update", kwargs={"pk": self.object.id})
 
-
-class RetestComplianceUpdateView(UpdateView):
+class RetestComplianceUpdateView(NextPlatformPageMixin, UpdateView):
     """
     View to update a equality body retest compliance
     """
@@ -242,18 +227,8 @@ class RetestComplianceUpdateView(UpdateView):
             record_model_update_event(user=self.request.user, model_object=self.object)
         return super().form_valid(form)
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        retest: Retest = self.object
-        retest_pk: dict[str, int] = {"pk": retest.id}
-        if "save_continue" in self.request.POST:
-            return reverse(
-                "audits:edit-equality-body-statement-pages", kwargs=retest_pk
-            )
-        return reverse("audits:retest-compliance-update", kwargs=retest_pk)
 
-
-class RetestStatementPageFormsetUpdateView(UpdateView):
+class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
     """
     View to update statement pages in equality body-requested retest
     """
@@ -317,24 +292,19 @@ class RetestStatementPageFormsetUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        retest: Retest = self.object
-        retest_pk: dict[str, int] = {"pk": retest.id}
-        current_url: str = reverse(
-            "audits:edit-equality-body-statement-pages", kwargs=retest_pk
-        )
-        if "save_continue" in self.request.POST:
-            return reverse(
-                "audits:edit-equality-body-statement-overview", kwargs=retest_pk
+        if "add_statement_page" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: dict[str, int] = {"pk": retest.id}
+            current_url: str = reverse(
+                "audits:edit-equality-body-statement-pages", kwargs=retest_pk
             )
-        elif "add_statement_page" in self.request.POST:
             return f"{current_url}?add_extra=true#statement-page-None"
-        else:
-            return current_url
+        return super().get_success_url()
 
 
-class RetestUpdateView(UpdateView):
+class RetestUpdateView(NextPlatformPageMixin, UpdateView):
     """
-    View to update audit
+    View to update equality body retest
     """
 
     model: type[Retest] = Retest
@@ -347,10 +317,6 @@ class RetestUpdateView(UpdateView):
             record_model_update_event(user=self.request.user, model_object=self.object)
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """Remain on current page on save"""
-        return self.request.path
 
 
 class RetestStatementCheckingView(RetestUpdateView):
@@ -418,19 +384,29 @@ class RetestStatementOverviewFormView(RetestStatementCheckingView):
     )
     statement_check_type: str = StatementCheck.Type.OVERVIEW
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            retest_pk: dict[str, int] = {"pk": retest.id}
-            if retest.all_overview_statement_checks_have_passed:
-                return reverse(
-                    "audits:edit-equality-body-statement-website", kwargs=retest_pk
-                )
-            return reverse(
-                "audits:edit-equality-body-statement-results", kwargs=retest_pk
+    def get_next_platform_page(self) -> PlatformPage:
+        retest: Retest = self.object
+        if retest.all_overview_statement_checks_have_passed:
+            return get_platform_page_by_url_name(
+                url_name="audits:edit-equality-body-statement-website", instance=retest
             )
-        return super().get_success_url()
+        return get_platform_page_by_url_name(
+            url_name="audits:edit-equality-body-statement-results", instance=retest
+        )
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        retest: Retest = self.object
+        context["next_platform_pages"] = [
+            get_platform_page_by_url_name(
+                url_name="audits:edit-equality-body-statement-website", instance=retest
+            ),
+            get_platform_page_by_url_name(
+                url_name="audits:edit-equality-body-statement-results", instance=retest
+            ),
+        ]
+        return context
 
 
 class RetestStatementWebsiteFormView(RetestStatementCheckingView):
@@ -446,16 +422,6 @@ class RetestStatementWebsiteFormView(RetestStatementCheckingView):
     )
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            retest_pk: dict[str, int] = {"pk": retest.id}
-            return reverse(
-                "audits:edit-equality-body-statement-compliance", kwargs=retest_pk
-            )
-        return super().get_success_url()
-
 
 class RetestStatementComplianceFormView(RetestStatementCheckingView):
     """
@@ -469,16 +435,6 @@ class RetestStatementComplianceFormView(RetestStatementCheckingView):
         "audits/statement_checks/equality_body_retest_statement_compliance.html"
     )
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            retest_pk: dict[str, int] = {"pk": retest.id}
-            return reverse(
-                "audits:edit-equality-body-statement-non-accessible", kwargs=retest_pk
-            )
-        return super().get_success_url()
 
 
 class RetestStatementNonAccessibleFormView(RetestStatementCheckingView):
@@ -494,16 +450,6 @@ class RetestStatementNonAccessibleFormView(RetestStatementCheckingView):
     )
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            retest_pk: dict[str, int] = {"pk": retest.id}
-            return reverse(
-                "audits:edit-equality-body-statement-preparation", kwargs=retest_pk
-            )
-        return super().get_success_url()
-
 
 class RetestStatementPreparationFormView(RetestStatementCheckingView):
     """
@@ -518,16 +464,6 @@ class RetestStatementPreparationFormView(RetestStatementCheckingView):
     )
     statement_check_type: str = StatementCheck.Type.PREPARATION
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            retest_pk: dict[str, int] = {"pk": retest.id}
-            return reverse(
-                "audits:edit-equality-body-statement-feedback", kwargs=retest_pk
-            )
-        return super().get_success_url()
-
 
 class RetestStatementFeedbackFormView(RetestStatementCheckingView):
     """
@@ -541,16 +477,6 @@ class RetestStatementFeedbackFormView(RetestStatementCheckingView):
         "audits/statement_checks/equality_body_retest_statement_feedback.html"
     )
     statement_check_type: str = StatementCheck.Type.FEEDBACK
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            retest_pk: dict[str, int] = {"pk": retest.id}
-            return reverse(
-                "audits:edit-equality-body-statement-custom", kwargs=retest_pk
-            )
-        return super().get_success_url()
 
 
 class RetestStatementCustomFormView(RetestUpdateView):
@@ -632,21 +558,14 @@ class RetestStatementCustomFormView(RetestUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        retest: Retest = self.object
-        retest_pk: dict[str, int] = {"pk": retest.id}
-        current_url: str = reverse(
-            "audits:edit-equality-body-statement-custom", kwargs=retest_pk
-        )
-
-        if "save" in self.request.POST:
-            return current_url
-        if "save_continue" in self.request.POST:
-            return reverse(
-                "audits:edit-equality-body-statement-results", kwargs=retest_pk
+        if "add_custom" in self.request.POST:
+            retest: Retest = self.object
+            retest_pk: dict[str, int] = {"pk": retest.id}
+            current_url: str = reverse(
+                "audits:edit-equality-body-statement-custom", kwargs=retest_pk
             )
-        elif "add_custom" in self.request.POST:
             return f"{current_url}?add_custom=true#custom-None"
-        return current_url
+        return super().get_success_url()
 
 
 class RetestStatementResultsUpdateView(RetestUpdateView):
@@ -658,16 +577,6 @@ class RetestStatementResultsUpdateView(RetestUpdateView):
         RetestStatementResultsUpdateForm
     )
     template_name: str = "audits/forms/equality_body_retest_statement_results.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            retest_pk: dict[str, int] = {"pk": retest.id}
-            return reverse(
-                "audits:edit-equality-body-disproportionate-burden", kwargs=retest_pk
-            )
-        return super().get_success_url()
 
 
 class RetestDisproportionateBurdenUpdateView(RetestUpdateView):
@@ -682,16 +591,6 @@ class RetestDisproportionateBurdenUpdateView(RetestUpdateView):
         "audits/forms/equality_body_retest_disproportionate_burden.html"
     )
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            retest_pk: dict[str, int] = {"pk": retest.id}
-            return reverse(
-                "audits:edit-equality-body-statement-decision", kwargs=retest_pk
-            )
-        return super().get_success_url()
-
 
 class RetestStatementDecisionUpdateView(RetestUpdateView):
     """
@@ -702,11 +601,3 @@ class RetestStatementDecisionUpdateView(RetestUpdateView):
         RetestStatementDecisionUpdateForm
     )
     template_name: str = "audits/forms/equality_body_retest_statement_decision.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            retest: Retest = self.object
-            case_pk: dict[str, int] = {"pk": retest.case.id}
-            return reverse("cases:edit-retest-overview", kwargs=case_pk)
-        return super().get_success_url()

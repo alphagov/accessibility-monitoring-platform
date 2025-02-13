@@ -7,7 +7,26 @@
 {% block formbuttons %}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full govuk-button-group">
-        {% include 'cases/helpers/save_continue_cancel.html' %}
+        <input
+            type="submit"
+            value="Save and continue"
+            name="save_continue"
+            class="govuk-button"
+            data-module="govuk-button"
+        />
+        <input
+            type="submit"
+            value="Save"
+            name="save"
+            class="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+        />
+        <a
+            href="{{ case.get_absolute_url }}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Return to overview
+        </a>
         <a
             href="{% url 'cases:mark-qa-comments-as-read' case.id %}"
             class="govuk-link govuk-link--no-visited-state"
@@ -16,6 +35,7 @@
         </a>
     </div>
 </div>
+{% include 'common/next_platform_page.html' %}
 {% endblock %}
 
 {% block postform %}

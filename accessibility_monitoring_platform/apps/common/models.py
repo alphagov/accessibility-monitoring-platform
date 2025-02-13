@@ -65,7 +65,8 @@ class IssueReport(models.Model):
     issue_number = models.IntegerField(default=1)
     page_url = models.CharField(max_length=200)
     page_title = models.CharField(max_length=200)
-    description = models.TextField(default="", blank=True)
+    goal_description = models.TextField(default="", blank=True)
+    issue_description = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
