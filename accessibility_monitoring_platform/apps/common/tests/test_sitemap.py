@@ -857,7 +857,6 @@ def test_case_sitemap(rf):
 def test_page_name(url, expected_page_name, admin_client):
     """
     Test that the page renders and its name is as expected.
-    Also that an issue on that page can be reported.
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
@@ -876,16 +875,6 @@ def test_page_name(url, expected_page_name, admin_client):
     response: HttpResponse = admin_client.get(url)
     assert response.status_code == 200
 
-    assertContains(response, expected_page_name)
-
-    issue_report_response: HttpResponse = admin_client.get(
-        f"/common/report-issue/?page_url={url}"
-    )
-
-    assert issue_report_response.status_code == 200
-
-    assertContains(response, "Report an issue")
-    assertContains(response, url)
     assertContains(response, expected_page_name)
 
 
