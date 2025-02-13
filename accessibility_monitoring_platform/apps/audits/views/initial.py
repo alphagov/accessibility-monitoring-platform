@@ -337,7 +337,6 @@ class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView)
     )
     template_name: str = "audits/forms/website_decision.html"
 
-<<<<<<< HEAD
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object
@@ -347,8 +346,6 @@ class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView)
             return reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk)
         return super().get_success_url()
 
-=======
->>>>>>> dev
 
 class AuditSummaryUpdateView(AuditUpdateView):
     """
@@ -435,7 +432,6 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
         return context
 
     def get_success_url(self) -> str:
-<<<<<<< HEAD
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
@@ -445,11 +441,6 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
             return reverse(
                 "audits:edit-initial-disproportionate-burden", kwargs=audit_pk
             )
-=======
-        """Recalculate Case status"""
-        audit: Audit = self.object
-        audit.case.status.calculate_and_save_status()
->>>>>>> dev
         return super().get_success_url()
 
 
@@ -607,7 +598,6 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
     )
     template_name: str = "audits/forms/statement_decision.html"
 
-<<<<<<< HEAD
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object
@@ -617,8 +607,6 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
             return reverse("audits:edit-audit-statement-summary", kwargs=audit_pk)
         return super().get_success_url()
 
-=======
->>>>>>> dev
 
 class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
     """
