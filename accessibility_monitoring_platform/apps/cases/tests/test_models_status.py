@@ -440,6 +440,9 @@ def test_case_qa_status_unassigned_qa_case():
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
     )
+    assert case.calculate_unnassigned_qa_status is True
+    assert case.calculate_in_qa_status is True
+    assert case.calculate_qa_approved_status is False
     assert case.qa_status == Case.QAStatus.UNASSIGNED
 
 
@@ -457,6 +460,9 @@ def test_case_qa_status_in_qa():
         report_review_status=Boolean.YES,
         reviewer=user2,
     )
+    assert case.calculate_unnassigned_qa_status is False
+    assert case.calculate_in_qa_status is True
+    assert case.calculate_qa_approved_status is False
     assert case.qa_status == Case.QAStatus.IN_QA
 
 
@@ -475,4 +481,7 @@ def test_case_qa_status_qa_approved():
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         reviewer=user2,
     )
+    assert case.calculate_unnassigned_qa_status is False
+    assert case.calculate_in_qa_status is False
+    assert case.calculate_qa_approved_status is True
     assert case.qa_status == Case.QAStatus.APPROVED

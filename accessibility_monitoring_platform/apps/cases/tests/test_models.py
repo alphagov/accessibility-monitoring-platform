@@ -325,20 +325,22 @@ def test_next_action_due_date_for_report_ready_to_send():
         no_contact_one_week_chaser_due_date=no_contact_one_week_chaser_due_date,
         no_contact_four_week_chaser_due_date=no_contact_four_week_chaser_due_date,
     )
-    case.status.status = "report-ready-to-send"
+    case.status.status = CaseStatus.Status.REPORT_READY_TO_SEND
 
     # Initial no countact details request sent
     assert case.next_action_due_date == no_contact_one_week_chaser_due_date
-
+    assert case.calculate_no_contact_due_date == no_contact_one_week_chaser_due_date
+    
     case.no_contact_one_week_chaser_sent_date = NO_CONTACT_ONE_WEEK
 
     # No contact details 1-week chaser sent
     assert case.next_action_due_date == no_contact_four_week_chaser_due_date
-
+    assert case.calculate_no_contact_due_date == no_contact_four_week_chaser_due_date
     case.no_contact_four_week_chaser_sent_date = NO_CONTACT_FOUR_WEEKS
 
     # No contact details 4-week chaser sent
     assert case.next_action_due_date == NO_CONTACT_FOUR_WEEKS + timedelta(days=7)
+    assert case.calculate_no_contact_due_date == NO_CONTACT_FOUR_WEEKS + timedelta(days=7)
 
 
 @pytest.mark.django_db
@@ -359,13 +361,15 @@ def test_next_action_due_date_for_in_report_correspondence():
         report_followup_week_4_due_date=report_followup_week_4_due_date,
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
-    case.status.status = "in-report-correspondence"
+    case.status.status = CaseStatus.Status.IN_REPORT_CORES
 
     case.report_followup_week_4_sent_date = None
     assert case.next_action_due_date == report_followup_week_4_due_date
+    assert case.calculate_initial_correspondence_due_date == report_followup_week_4_due_date
 
     case.report_followup_week_1_sent_date = None
     assert case.next_action_due_date == report_followup_week_1_due_date
+    assert case.calculate_initial_correspondence_due_date == report_followup_week_1_due_date
 
 
 @pytest.mark.django_db
@@ -379,9 +383,10 @@ def test_next_action_due_date_for_in_probation_period():
     case: Case = Case.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
-    case.status.status = "in-probation-period"
+    case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
 
     assert case.next_action_due_date == report_followup_week_12_due_date
+    assert case.report_followup_week_12_due_date == report_followup_week_12_due_date
 
 
 @pytest.mark.django_db
@@ -395,14 +400,18 @@ def test_next_action_due_date_for_in_12_week_correspondence():
     case: Case = Case.objects.create(
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
-    case.status.status = "in-12-week-correspondence"
+    case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
 
     assert case.next_action_due_date == twelve_week_1_week_chaser_due_date
+    assert case.calculate_12_week_correspondence_due_date == twelve_week_1_week_chaser_due_date
 
     twelve_week_1_week_chaser_sent_date: date = date(2020, 1, 1)
     case.twelve_week_1_week_chaser_sent_date = twelve_week_1_week_chaser_sent_date
 
     assert case.next_action_due_date == twelve_week_1_week_chaser_sent_date + timedelta(
+        days=7
+    )
+    assert case.calculate_12_week_correspondence_due_date == twelve_week_1_week_chaser_sent_date + timedelta(
         days=7
     )
 
