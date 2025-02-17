@@ -4,6 +4,7 @@ Forms - checks (called tests by users)
 
 from django import forms
 
+from ..cases.case_note_history import AMPNoteTextField, CaseNoteHistory
 from ..cases.models import Boolean, Case, CaseCompliance
 from ..common.forms import (
     AMPCharFieldWide,
@@ -58,7 +59,9 @@ class AuditMetadataUpdateForm(VersionForm):
         label="Exemptions?",
         choices=Audit.Exemptions.choices,
     )
-    exemptions_notes = AMPTextField(label="Notes")
+    exemptions_notes = AMPNoteTextField(
+        label="Notes", note_type=CaseNoteHistory.NoteType.INITIAL_TEST_METADATA
+    )
     audit_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -520,7 +523,9 @@ class AuditRetestMetadataUpdateForm(VersionForm):
     """
 
     retest_date = AMPDateField(label="Date of retest")
-    audit_retest_metadata_notes = AMPTextField(label="Notes")
+    audit_retest_metadata_notes = AMPNoteTextField(
+        label="Notes", note_type=CaseNoteHistory.NoteType.TWELVE_WEEK_TEST_METADATA
+    )
     audit_retest_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:

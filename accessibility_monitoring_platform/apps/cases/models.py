@@ -1133,6 +1133,10 @@ class Case(VersionModel):
             label="Go to case", url=reverse("cases:case-detail", kwargs=kwargs_case_pk)
         )
 
+    @property
+    def case_note_history(self) -> QuerySet["CaseNoteHistory"]:
+        return self.casenotehistory_set.filter(is_deleted=False)
+
 
 class CaseStatus(models.Model):
     """
@@ -1374,9 +1378,7 @@ class Contact(VersionModel):
 
 
 class CaseEvent(models.Model):
-    """
-    Model to records events on a case
-    """
+    """Model to record events on a case"""
 
     class EventType(models.TextChoices):
         CREATE = "create", "Create"
@@ -1406,7 +1408,51 @@ class CaseEvent(models.Model):
         ordering = ["event_time"]
 
     def __str__(self) -> str:
-        return str(f"{self.case.organisation_name}: {self.message}")
+        return f"{self.case.organisation_name}: {self.message}"
+
+
+class CaseNoteHistory(models.Model):
+    """Model to record history of case notes entered"""
+
+    class NoteType(models.TextChoices):
+        GENERIC = "generic", "Generic"
+        METADATA = "case-metadata", "Case metadata"
+        INITIAL_TEST_METADATA = "initial-metadata", "Initial test metadata"
+        MANAGE_CONTACTS = "manage-contacts", "Manage contacts"
+        CORRESPONDENCE_NOTES = "correspondence-notes", "Correspondence notes"
+        TWELVE_WEEK_CORRESPONDENCE_NOTES = (
+            "12-week-cores-notes",
+            "12-week correspondence notes",
+        )
+        TWELVE_WEEK_TEST_METADATA = "12-week-metadata", "12-week retest metadata"
+        POST_CASE_NOTES = (
+            "post-case-notes",
+            "Summary of events after the case was closed",
+        )
+        PSB_APPEAL_NOTES = "psb-appeal-notes", "Public sector body appeal notes"
+        EQUALITY_BODY_NOTES = "equality-body-notes", "Equality body notes"
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    note_type = models.CharField(
+        max_length=100, choices=NoteType.choices, default=NoteType.GENERIC
+    )
+    note = models.TextField(default="", blank=True)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="case_note_entered_by_user",
+        null=True,
+        blank=True,
+    )
+    created = models.DateTimeField(null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name_plural = "Case note history"
+
+    def __str__(self) -> str:
+        return f"{self.case.organisation_name}: {self.note}"
 
 
 class EqualityBodyCorrespondence(models.Model):

@@ -36,6 +36,11 @@
                 Equality body correspondence
             </a>
         </li>
+        <li>
+            <a href="{% url 'cases:internal-notes' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Internal notes
+            </a>
+        </li>
         {% if not case.archive %}
             {% if case.trello_url %}
                 <li>
