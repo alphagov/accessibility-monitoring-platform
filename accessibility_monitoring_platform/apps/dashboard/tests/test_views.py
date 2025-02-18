@@ -11,6 +11,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import ChangeToPlatform
 
+from ...audits.models import Audit
 from ...cases.models import Case, CaseCompliance, CaseStatus
 from ...cases.utils import create_case_and_compliance
 from ...common.models import Boolean
@@ -39,13 +40,13 @@ def test_dashboard_redirects_to_login_when_user_not_logged_in(client):
     ["View+your+cases", "View+all+cases"],
 )
 def test_dashboard_shows_qa_auditors(dashboard_view, admin_client):
-    """Tests if dashboard views are showing the expected QA auditors column"""
+    """Tests if dashboard views are showing the QA auditor"""
     response: HttpResponse = admin_client.get(
         f'{reverse("dashboard:home")}?view={dashboard_view}'
     )
 
     assert response.status_code == 200
-    assertContains(response, "On call")
+    assertContains(response, "Active QA")
 
 
 def test_dashboard_shows_oldest_unassigned_cases_first(admin_client):
@@ -91,10 +92,9 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
 
     assertContains(
         response,
-        f"""<p class="govuk-body">
-            <a href="/cases/?auditor={admin_user.id}&status=case-closed-sent-to-equalities-body" class="govuk-link">
-                View all your cases with status "Case closed and sent to equalities body"</a>
-        </p>""",
+        f"""<a href="/cases/?auditor={admin_user.id}&status=case-closed-sent-to-equalities-body"
+            class="govuk-link govuk-link--no-visited-state">
+                View in search</a>""",
         html=True,
     )
 
@@ -166,10 +166,9 @@ def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
 
     assertContains(
         response,
-        f"""<p class="govuk-body">
-            <a href="/cases/?auditor={admin_user.id}&status=complete" class="govuk-link">
-                View all your cases with status "Complete"</a>
-        </p>""",
+        f"""<a href="/cases/?auditor={admin_user.id}&status=complete"
+            class="govuk-link govuk-link--no-visited-state">
+                View in search</a>""",
         html=True,
     )
 
@@ -255,8 +254,8 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
     assert Case.objects.all().count() == 5
     assert response.status_code == 200
     expected_number_of_active_cases: str = """
-    <div class="govuk-body-m"> Total active cases </div>
-    <div class="govuk-heading-xl amp-margin-bottom-0"> 2 </div>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Total active cases</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">2</p>
     """
     assertContains(
         response,
@@ -279,8 +278,8 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
     assert Case.objects.all().count() == 3
     assert response.status_code == 200
     expected_number_of_your_active_cases: str = """
-    <div class="govuk-body-m"> Your active cases </div>
-    <div class="govuk-heading-xl amp-margin-bottom-0"> 1 </div>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Your active cases</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">1</p>
     """
     assertContains(
         response,
@@ -289,12 +288,46 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
     )
 
     expected_number_of_unnassigned_cases: str = """
-    <div class="govuk-body-m"> Unassigned cases </div>
-    <div class="govuk-heading-xl amp-margin-bottom-0"> 2 </div>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Unassigned cases</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">2</p>
     """
     assertContains(
         response,
         expected_number_of_unnassigned_cases,
+        html=True,
+    )
+
+
+def test_dashboard_shows_correct_links_to_tasks(admin_client, admin_user):
+    """Check dashboard shows links to tasks"""
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA comments unread</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                0
+                (<a href="/notifications/task-list/?type=qa-comment" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Reminders overdue</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                0
+                (<a href="/notifications/task-list/?type=reminder" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Cases overdue</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                0
+                (<a href="/notifications/task-list/?type=overdue" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case notifications</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                0
+                (<a href="/notifications/task-list/?type=postcase" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+            </p>
+        """,
         html=True,
     )
 
@@ -379,4 +412,44 @@ def test_dashboard_shows_link_to_reminder_final(admin_client, admin_user):
     assertContains(
         response,
         reverse("notifications:edit-reminder-task", kwargs={"pk": task.id}),
+    )
+
+
+def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
+    admin_client, admin_user
+):
+    """
+    Tests dashboard shows link to testing details for cases of status
+    test in progress only when test does not yet exist
+    """
+    case: Case = Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=admin_user,
+    )
+    case.status.status = CaseStatus.Status.TEST_IN_PROGRESS
+    case.status.save()
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
+    )
+
+    audit: Audit = Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+
+    assertNotContains(
+        response,
+        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
+    )
+    assertContains(
+        response,
+        reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),
     )

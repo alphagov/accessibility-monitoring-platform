@@ -1,0 +1,101 @@
+<nav aria-label="Table of contents">
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA cases</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if all_cases_in_qa %}
+            <a href="#all-cases-in-qa" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Reports in QA ({{ all_cases_in_qa|length }}){% if all_cases_in_qa %}</a>{% endif %}
+    </p>
+
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Audit cases</b></p>
+    {% if cases_by_status.unknown %}
+        <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+            <a href="#cases-status-unknown" class="govuk-link govuk-link--no-visited-state">
+                Unknown ({{ cases_by_status.unknown|length }})</a>
+        </p>
+    {% endif %}
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.unassigned_cases %}
+            <a href="#cases-status-unassigned" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Unassigned cases ({{ cases_by_status.unassigned_cases|length }}){% if cases_by_status.unassigned_cases %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.test_in_progress %}
+            <a href="#cases-status-test-in-progress" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Tests in progress ({{ cases_by_status.test_in_progress|length }}){% if cases_by_status.test_in_progress %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.reports_in_progress %}
+            <a href="#cases-status-reports-in-progress" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Reports in progress ({{ cases_by_status.reports_in_progress|length }}){% if cases_by_status.reports_in_progress %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.qa_in_progress %}
+            <a href="#cases-status-qa-in-progress" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        QA in progress ({{ cases_by_status.qa_in_progress|length }}){% if cases_by_status.qa_in_progress %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.report_ready_to_send %}
+            <a href="#cases-status-report-ready-to-send" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Reports ready to send ({{ cases_by_status.report_ready_to_send|length }}){% if cases_by_status.report_ready_to_send %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.in_report_correspondence %}
+            <a href="#cases-status-in-report-correspondence" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Report sent ({{ cases_by_status.in_report_correspondence|length }}){% if cases_by_status.in_report_correspondence %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.in_probation_period %}
+            <a href="#cases-status-in-probation-period" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Report acknowledged waiting for 12-week deadline ({{ cases_by_status.in_probation_period|length }}){% if cases_by_status.in_probation_period %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.in_12_week_correspondence %}
+            <a href="#cases-status-in-12-week-correspondence" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        After 12-week correspondence ({{ cases_by_status.in_12_week_correspondence|length }}){% if cases_by_status.in_12_week_correspondence %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.reviewing_changes %}
+            <a href="#cases-status-reviewing-changes" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Reviewing changes ({{ cases_by_status.reviewing_changes|length }}){% if cases_by_status.reviewing_changes %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.final_decision_due %}
+            <a href="#cases-status-final-decision-due" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Final decision due ({{ cases_by_status.final_decision_due|length }}){% if cases_by_status.final_decision_due %}</a>{% endif %}
+    </p>
+
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.case_closed_waiting_to_be_sent %}
+            <a href="#cases-status-case-closed-waiting-to-be-sent" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        Case closed and waiting to be sent to equalities body ({{ cases_by_status.case_closed_waiting_to_be_sent|length }}){% if cases_by_status.case_closed_waiting_to_be_sent %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        Case closed and sent to equalities body
+        <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=case-closed-sent-to-equalities-body" class="govuk-link govuk-link--no-visited-state">
+            View in search</a>
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if cases_by_status.in_correspondence_with_equalities_body %}
+            <a href="#cases-status-in-correspondence-with-equalities-body" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+        In correspondence with equalities body ({{ cases_by_status.in_correspondence_with_equalities_body|length }}){% if cases_by_status.in_correspondence_with_equalities_body %}</a>{% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        Completed cases
+        <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=complete" class="govuk-link govuk-link--no-visited-state">
+            View in search</a>
+    </p>
+</nav>

@@ -1,7 +1,7 @@
 {% if cases|length == 0 %}
    <p class="govuk-body"> There are currently no tests in progress </p>
 {% else %}
-    <table class="govuk-table amp-accordion-table">
+    <table class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row amp-width-one-quarter">
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Date created</th>
@@ -25,6 +25,8 @@
                     <td class="govuk-table__cell amp-width-one-quarter">
                         {% if show_all_cases %}
                             <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" class="govuk-link"> {{ case.auditor.get_full_name }} </a>
+                        {% elif case.audit %}
+                            <a href="{% url 'audits:edit-audit-metadata' case.audit.id %}" class="govuk-link"> Testing details </a>
                         {% else %}
                             <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link"> Testing details </a>
                         {% endif %}
