@@ -1,313 +1,352 @@
 {% load user_tags %}
 
-<div class="govuk-grid-row amp-margin-bottom-30">
+<div class="govuk-grid-row amp-margin-bottom-60">
     <div class="govuk-grid-column-one-half">
-        <p class="govuk-body amp-margin-bottom-10"><b>QA cases</b></p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if all_cases_in_qa %}
-                <a href="#all-cases-in-qa" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            Reports in QA ({{ all_cases_in_qa|length }}){% if all_cases_in_qa %}</a>{% endif %}
-        </p>
-
-        <p class="govuk-body amp-margin-bottom-10"><b>Audit cases</b></p>
-        {% if cases_by_status.unknown %}
-            <p class="govuk-body amp-margin-bottom-10">
-                <a href="#cases-status-unknown" class="govuk-link govuk-link--no-visited-state">
-                    Unknown ({{ cases_by_status.unknown|length }})</a>
+        <div class="amp-margin-bottom-25">
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA cases</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if all_cases_in_qa %}
+                    <a href="#all-cases-in-qa" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Reports in QA ({{ all_cases_in_qa|length }}){% if all_cases_in_qa %}</a>{% endif %}
             </p>
-        {% endif %}
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.unassigned_cases %}
-                <a href="#cases-status-unassigned" class="govuk-link govuk-link--no-visited-state">
+        </div>
+        <div class="amp-margin-bottom-25">
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Audit cases</b></p>
+            {% if cases_by_status.unknown %}
+                <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                    <a href="#cases-status-unknown" class="govuk-link govuk-link--no-visited-state">
+                        Unknown ({{ cases_by_status.unknown|length }})</a>
+                </p>
             {% endif %}
-            Unassigned cases ({{ cases_by_status.unassigned_cases|length }}){% if cases_by_status.unassigned_cases %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.test_in_progress %}
-                <a href="#cases-status-test-in-progress" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            Tests in progress ({{ cases_by_status.test_in_progress|length }}){% if cases_by_status.test_in_progress %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.reports_in_progress %}
-                <a href="#cases-status-reports-in-progress" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            Reports in progress ({{ cases_by_status.reports_in_progress|length }}){% if cases_by_status.reports_in_progress %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.qa_in_progress %}
-                <a href="#cases-status-qa-in-progress" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            QA in progress ({{ cases_by_status.qa_in_progress|length }}){% if cases_by_status.qa_in_progress %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.report_ready_to_send %}
-                <a href="#cases-status-report-ready-to-send" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            Reports ready to send ({{ cases_by_status.report_ready_to_send|length }}){% if cases_by_status.report_ready_to_send %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.in_report_correspondence %}
-                <a href="#cases-status-in-report-correspondence" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            Report sent ({{ cases_by_status.in_report_correspondence|length }}){% if cases_by_status.in_report_correspondence %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.in_probation_period %}
-                <a href="#cases-status-in-probation-period" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            Report acknowledged waiting for 12-week deadline ({{ cases_by_status.in_probation_period|length }}){% if cases_by_status.in_probation_period %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.in_12_week_correspondence %}
-                <a href="#cases-status-in-12-week-correspondence" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            After 12-week correspondence ({{ cases_by_status.in_12_week_correspondence|length }}){% if cases_by_status.in_12_week_correspondence %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.reviewing_changes %}
-                <a href="#cases-status-reviewing-changes" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            Reviewing changes ({{ cases_by_status.reviewing_changes|length }}){% if cases_by_status.reviewing_changes %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.final_decision_due %}
-                <a href="#cases-status-final-decision-due" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            Final decision due ({{ cases_by_status.final_decision_due|length }}){% if cases_by_status.final_decision_due %}</a>{% endif %}
-        </p>
-
-        <p class="govuk-body amp-margin-bottom-10"><b>Post case</b></p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.case_closed_waiting_to_be_sent %}
-                <a href="#cases-status-case-closed-waiting-to-be-sent" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            Case closed and waiting to be sent to equalities body ({{ cases_by_status.case_closed_waiting_to_be_sent|length }}){% if cases_by_status.case_closed_waiting_to_be_sent %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            Case closed and sent to equalities body
-            <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=case-closed-sent-to-equalities-body" class="govuk-link govuk-link--no-visited-state">
-                View in search</a>
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if cases_by_status.in_correspondence_with_equalities_body %}
-                <a href="#cases-status-in-correspondence-with-equalities-body" class="govuk-link govuk-link--no-visited-state">
-            {% endif %}
-            In correspondence with equalities body ({{ cases_by_status.in_correspondence_with_equalities_body|length }}){% if cases_by_status.in_correspondence_with_equalities_body %}</a>{% endif %}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10">
-            Completed cases
-            <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=complete" class="govuk-link govuk-link--no-visited-state">
-                View in search</a>
-        </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.unassigned_cases %}
+                    <a href="#cases-status-unassigned" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Unassigned cases ({{ cases_by_status.unassigned_cases|length }}){% if cases_by_status.unassigned_cases %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.test_in_progress %}
+                    <a href="#cases-status-test-in-progress" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Tests in progress ({{ cases_by_status.test_in_progress|length }}){% if cases_by_status.test_in_progress %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.reports_in_progress %}
+                    <a href="#cases-status-reports-in-progress" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Reports in progress ({{ cases_by_status.reports_in_progress|length }}){% if cases_by_status.reports_in_progress %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.qa_in_progress %}
+                    <a href="#cases-status-qa-in-progress" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                QA in progress ({{ cases_by_status.qa_in_progress|length }}){% if cases_by_status.qa_in_progress %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.report_ready_to_send %}
+                    <a href="#cases-status-report-ready-to-send" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Reports ready to send ({{ cases_by_status.report_ready_to_send|length }}){% if cases_by_status.report_ready_to_send %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.in_report_correspondence %}
+                    <a href="#cases-status-in-report-correspondence" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Report sent ({{ cases_by_status.in_report_correspondence|length }}){% if cases_by_status.in_report_correspondence %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.in_probation_period %}
+                    <a href="#cases-status-in-probation-period" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Report acknowledged waiting for 12-week deadline ({{ cases_by_status.in_probation_period|length }}){% if cases_by_status.in_probation_period %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.in_12_week_correspondence %}
+                    <a href="#cases-status-in-12-week-correspondence" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                After 12-week correspondence ({{ cases_by_status.in_12_week_correspondence|length }}){% if cases_by_status.in_12_week_correspondence %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.reviewing_changes %}
+                    <a href="#cases-status-reviewing-changes" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Reviewing changes ({{ cases_by_status.reviewing_changes|length }}){% if cases_by_status.reviewing_changes %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.final_decision_due %}
+                    <a href="#cases-status-final-decision-due" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Final decision due ({{ cases_by_status.final_decision_due|length }}){% if cases_by_status.final_decision_due %}</a>{% endif %}
+            </p>
+        </div>
+        <div class="amp-margin-bottom-0">
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.case_closed_waiting_to_be_sent %}
+                    <a href="#cases-status-case-closed-waiting-to-be-sent" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                Case closed and waiting to be sent to equalities body ({{ cases_by_status.case_closed_waiting_to_be_sent|length }}){% if cases_by_status.case_closed_waiting_to_be_sent %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                Case closed and sent to equalities body
+                <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=case-closed-sent-to-equalities-body" class="govuk-link govuk-link--no-visited-state">
+                    View in search</a>
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                {% if cases_by_status.in_correspondence_with_equalities_body %}
+                    <a href="#cases-status-in-correspondence-with-equalities-body" class="govuk-link govuk-link--no-visited-state">
+                {% endif %}
+                In correspondence with equalities body ({{ cases_by_status.in_correspondence_with_equalities_body|length }}){% if cases_by_status.in_correspondence_with_equalities_body %}</a>{% endif %}
+            </p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                Completed cases
+                <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=complete" class="govuk-link govuk-link--no-visited-state">
+                    View in search</a>
+            </p>
+        </div>
     </div>
     <div class="govuk-grid-column-one-half amp-left-border">
-        <p class="govuk-body amp-margin-bottom-10"><b>Active QA</b></p>
-        <p class="govuk-body amp-margin-bottom-10">
-            {% if platform.active_qa_auditor %}
-                {{ platform.active_qa_auditor.first_name }}
-            {% else %}
-                None
-            {% endif%}
-        </p>
-        <p class="govuk-body amp-margin-bottom-10"><b>Total active cases</b></p>
-        <p class="govuk-body amp-margin-bottom-10">{{ total_incomplete_cases }}</p>
-        <p class="govuk-body amp-margin-bottom-10"><b>Your active cases</b></p>
-        <p class="govuk-body amp-margin-bottom-10">{{ total_your_active_cases }}</p>
-        <p class="govuk-body amp-margin-bottom-10"><b>Unassigned cases</b></p>
-        <p class="govuk-body amp-margin-bottom-10">{{ total_unassigned_cases }}</p>
-        <p class="govuk-body amp-margin-bottom-10"><b>QA comments unread</b></p>
-        <p class="govuk-body amp-margin-bottom-10">?</p>
-        <p class="govuk-body amp-margin-bottom-10"><b>Reminders overdue</b></p>
-        <p class="govuk-body amp-margin-bottom-10">?</p>
-        <p class="govuk-body amp-margin-bottom-10"><b>Cases overdue</b></p>
-        <p class="govuk-body amp-margin-bottom-10">?</p>
-        <p class="govuk-body amp-margin-bottom-10"><b>Post case notifications</b></p>
-        <p class="govuk-body amp-margin-bottom-10">?</p>
+        <div class="amp-margin-bottom-25">
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Active QA</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5">
+                {% if platform.active_qa_auditor %}
+                    {{ platform.active_qa_auditor.first_name }}
+                {% else %}
+                    None
+                {% endif%}
+            </p>
+        </div>
+        <div class="amp-margin-bottom-20">
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Your active cases</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5">{{ total_your_active_cases }}</p>
+        </div>
+        <div class="amp-margin-bottom-20">
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>QA comments unread</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5">?</p>
+        </div>
+        <div class="amp-margin-bottom-20">
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Reminders overdue</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5">?</p>
+        </div>
+        <div class="amp-margin-bottom-20">
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Cases overdue</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5">?</p>
+        </div>
+        <div class="amp-margin-bottom-0">
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Post case notifications</b></p>
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5">?</p>
+        </div>
     </div>
 </div>
 
 {% if all_cases_in_qa %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="all-cases-in-qa" class="govuk-heading-m">Reports in QA ({{ all_cases_in_qa|length }})</h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="all-cases-in-qa" class="govuk-heading-m">Reports in QA - {{ all_cases_in_qa|length }}</h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/13_reports_in_qa.html" %}
     </div>
-    {% include "dashboard/13_reports_in_qa.html" %}
 {% endif %}
 
 {% if cases_by_status.unknown %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-unknown" class="govuk-heading-m">
-                Unknown - {{ cases_by_status.unknown|length }}
-            </h2>
+    <div class="amp-margin-bottom-60"></div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-unknown" class="govuk-heading-m">
+                    Unknown - {{ cases_by_status.unknown|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unknown %}
     </div>
-    {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unknown %}
 {% endif %}
 {% if cases_by_status.unassigned_cases %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-unassigned" class="govuk-heading-m">
-                Unassigned cases ({{ cases_by_status.unassigned_cases|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-unassigned" class="govuk-heading-m">
+                    Unassigned cases - {{ cases_by_status.unassigned_cases|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unassigned_cases %}
     </div>
-    {% include "dashboard/1_new_cases_table.html" with cases=cases_by_status.unassigned_cases %}
 {% endif %}
 {% if cases_by_status.test_in_progress %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-test-in-progress" class="govuk-heading-m">
-                Tests in progress - {{ cases_by_status.test_in_progress|length }}
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-test-in-progress" class="govuk-heading-m">
+                    Tests in progress - {{ cases_by_status.test_in_progress|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/2_tests_in_progress_table.html" with cases=cases_by_status.test_in_progress %}
     </div>
-    {% include "dashboard/2_tests_in_progress_table.html" with cases=cases_by_status.test_in_progress %}
 {% endif %}
 {% if cases_by_status.reports_in_progress %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-reports-in-progress" class="govuk-heading-m">
-                Reports in progress ({{ cases_by_status.reports_in_progress|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-reports-in-progress" class="govuk-heading-m">
+                    Reports in progress - {{ cases_by_status.reports_in_progress|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/3_reports_in_progress_table.html" with cases=cases_by_status.reports_in_progress %}
     </div>
-    {% include "dashboard/3_reports_in_progress_table.html" with cases=cases_by_status.reports_in_progress %}
 {% endif %}
 {% if cases_by_status.qa_in_progress %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-qa-in-progress" class="govuk-heading-m">
-                QA in progress - {{ cases_by_status.qa_in_progress|length }}
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-qa-in-progress" class="govuk-heading-m">
+                    QA in progress - {{ cases_by_status.qa_in_progress|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/4_qa_in_progress_table.html" with cases=cases_by_status.qa_in_progress %}
     </div>
-    {% include "dashboard/4_qa_in_progress_table.html" with cases=cases_by_status.qa_in_progress %}
 {% endif %}
 {% if cases_by_status.report_ready_to_send %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-report-ready-to-send" class="govuk-heading-m">
-                Reports ready to send ({{ cases_by_status.report_ready_to_send|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-report-ready-to-send" class="govuk-heading-m">
+                    Reports ready to send - {{ cases_by_status.report_ready_to_send|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/6_report_ready_to_send.html" with cases=cases_by_status.report_ready_to_send %}
     </div>
-    {% include "dashboard/6_report_ready_to_send.html" with cases=cases_by_status.report_ready_to_send %}
 {% endif %}
 {% if cases_by_status.in_report_correspondence %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-in-report-correspondence" class="govuk-heading-m">
-                Report sent ({{ cases_by_status.in_report_correspondence|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-in-report-correspondence" class="govuk-heading-m">
+                    Report sent - {{ cases_by_status.in_report_correspondence|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/7_in_report_correspondence.html" with cases=cases_by_status.in_report_correspondence %}
     </div>
-    {% include "dashboard/7_in_report_correspondence.html" with cases=cases_by_status.in_report_correspondence %}
 {% endif %}
 {% if cases_by_status.in_probation_period %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-in-probation-period" class="govuk-heading-m">
-                Report acknowledged waiting for 12-week deadline ({{ cases_by_status.in_probation_period|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-in-probation-period" class="govuk-heading-m">
+                    Report acknowledged waiting for 12-week deadline - {{ cases_by_status.in_probation_period|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/8_in_probation_period.html" with cases=cases_by_status.in_probation_period %}
     </div>
-    {% include "dashboard/8_in_probation_period.html" with cases=cases_by_status.in_probation_period %}
 {% endif %}
 {% if cases_by_status.in_12_week_correspondence %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-in-12-week-correspondence" class="govuk-heading-m">
-                After 12-week correspondence ({{ cases_by_status.in_12_week_correspondence|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-in-12-week-correspondence" class="govuk-heading-m">
+                    After 12-week correspondence - {{ cases_by_status.in_12_week_correspondence|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/9_in_12_week_correspondence.html" with cases=cases_by_status.in_12_week_correspondence %}
     </div>
-    {% include "dashboard/9_in_12_week_correspondence.html" with cases=cases_by_status.in_12_week_correspondence %}
 {% endif %}
 {% if cases_by_status.reviewing_changes %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-reviewing-changes" class="govuk-heading-m">
-                Reviewing changes ({{ cases_by_status.reviewing_changes|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-reviewing-changes" class="govuk-heading-m">
+                    Reviewing changes - {{ cases_by_status.reviewing_changes|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/10_reviewing_changes.html" with cases=cases_by_status.reviewing_changes %}
     </div>
-    {% include "dashboard/10_reviewing_changes.html" with cases=cases_by_status.reviewing_changes %}
 {% endif %}
 {% if cases_by_status.final_decision_due %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-final-decision-due" class="govuk-heading-m">
-                Final decision due ({{ cases_by_status.final_decision_due|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-final-decision-due" class="govuk-heading-m">
+                    Final decision due - {{ cases_by_status.final_decision_due|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/11_final_decision_due.html" with cases=cases_by_status.final_decision_due %}
     </div>
-    {% include "dashboard/11_final_decision_due.html" with cases=cases_by_status.final_decision_due %}
 {% endif %}
 
-<h2 class="govuk-heading-l">Post case</h2>
 {% if cases_by_status.case_closed_waiting_to_be_sent %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-case-closed-waiting-to-be-sent" class="govuk-heading-m">
-                Case closed and waiting to be sent to equalities body ({{ cases_by_status.case_closed_waiting_to_be_sent|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-case-closed-waiting-to-be-sent" class="govuk-heading-m">
+                    Case closed and waiting to be sent to equalities body - {{ cases_by_status.case_closed_waiting_to_be_sent|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_waiting_to_be_sent %}
     </div>
-    {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_waiting_to_be_sent %}
 {% endif %}
 {% if cases_by_status.in_correspondence_with_equalities_body %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <h2 id="cases-status-in-correspondence-with-equalities-body" class="govuk-heading-m">
-                In correspondence with equalities body ({{ cases_by_status.in_correspondence_with_equalities_body|length }})
-            </h2>
+    <div class="amp-margin-bottom-60">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-three-quarters">
+                <h2 id="cases-status-in-correspondence-with-equalities-body" class="govuk-heading-m">
+                    In correspondence with equalities body - {{ cases_by_status.in_correspondence_with_equalities_body|length }}
+                </h2>
+            </div>
+            <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
+                <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
+            </div>
         </div>
-        <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
-            <a href="#" class="govuk-link govuk-link--no-visited-state">Return to top</a>
-        </div>
+        {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.in_correspondence_with_equalities_body %}
     </div>
-    {% include "dashboard/12_in_correspondence_with_equality_body.html" with cases=cases_by_status.in_correspondence_with_equalities_body %}
 {% endif %}

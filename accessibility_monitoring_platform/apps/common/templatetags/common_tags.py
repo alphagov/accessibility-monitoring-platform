@@ -14,6 +14,7 @@ from django.utils.safestring import mark_safe
 
 from ..utils import (  # pylint: disable=relative-beyond-top-level
     amp_format_date,
+    amp_format_trunc_date,
     amp_format_datetime,
     undo_double_escapes,
 )
@@ -45,6 +46,12 @@ def markdown_to_html(text: str) -> str:
 def amp_date(date_to_format: date) -> str:
     """Format date according to GDS style guide"""
     return amp_format_date(date_to_format)
+
+
+@register.filter
+def amp_date_trunc(date_to_format: date) -> str:
+    """Format truncated date according to GDS style guide"""
+    return amp_format_trunc_date(date_to_format)
 
 
 @register.filter

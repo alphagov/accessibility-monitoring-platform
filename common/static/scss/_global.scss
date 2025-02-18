@@ -204,6 +204,7 @@ table#all-issues {
     font-family: sans-serif;
 }
 
+
 .amp-display-none {
     display: none;
 }
@@ -248,12 +249,24 @@ img, .amp-max-width-100 {
     margin-bottom: 15px;
 }
 
+.amp-margin-bottom-20 {
+    margin-bottom: 20px;
+}
+
+.amp-margin-bottom-25 {
+    margin-bottom: 25px;
+}
+
 .amp-margin-bottom-30 {
     margin-bottom: 30px;
 }
 
 .amp-margin-bottom-40 {
     margin-bottom: 40px;
+}
+
+.amp-margin-bottom-60 {
+    margin-bottom: 60px;
 }
 
 .amp-margin-left-0 {
@@ -796,7 +809,7 @@ svg {
 }
 
 .amp-left-border {
-    padding-left: 10px;
+    padding-left: 15px;
     border-left: 3px solid #b1b4b6;
 }
 
