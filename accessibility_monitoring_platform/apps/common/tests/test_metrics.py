@@ -321,25 +321,25 @@ def test_get_case_progress_metrics(mock_date):
 
     Case.objects.create(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
-        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
     )
     Case.objects.create(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
-        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
     Case.objects.create(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
-        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
     )
     Case.objects.create(
         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
-        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 16, tzinfo=timezone.utc),
     )
@@ -371,25 +371,25 @@ def test_get_case_yearly_metrics(mock_datetime):
 
     Case.objects.create(
         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
-        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
     )
     Case.objects.create(
         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
-        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
     Case.objects.create(
         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
-        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
     )
     Case.objects.create(
         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
-        testing_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
+        reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 16, tzinfo=timezone.utc),
     )

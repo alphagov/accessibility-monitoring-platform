@@ -387,7 +387,7 @@ CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(
         column_header="Testing details page complete",
         source_class=Case,
-        source_attr="testing_details_complete_date",
+        source_attr="reporting_details_complete_date",
     ),
     CSVColumn(
         column_header="Link to report draft",
