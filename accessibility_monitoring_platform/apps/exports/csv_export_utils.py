@@ -9,12 +9,14 @@ from datetime import date, datetime
 from typing import Any, Literal
 
 from django.db.models import QuerySet
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.urls import reverse
 
 from ..audits.models import Audit
 from ..cases.models import Case, CaseCompliance, CaseStatus, Contact
 from ..reports.models import Report
+
+DOWNLOAD_CASES_CHUNK_SIZE: int = 500
 
 
 @dataclass
@@ -887,21 +889,35 @@ def populate_csv_columns(
 
 def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpResponse:
     """Given a Case queryset, download the data in csv format"""
-    response: HttpResponse = HttpResponse(content_type="text/csv")
+
+    class DummyFile:
+        def write(self, value_to_write):
+            return value_to_write
+
+    def get_csv_output(cases: QuerySet[Case]) -> list[Any]:
+        writer: Any = csv.writer(DummyFile())
+        column_row: list[str] = [
+            column.column_header for column in CASE_COLUMNS_FOR_EXPORT
+        ]
+
+        output: str = writer.writerow(column_row)
+
+        for counter, case in enumerate(cases):
+            case_columns: list[CSVColumn] = populate_csv_columns(
+                case=case, column_definitions=CASE_COLUMNS_FOR_EXPORT
+            )
+            row = [column.formatted_data for column in case_columns]
+            output += writer.writerow(row)
+            if counter % DOWNLOAD_CASES_CHUNK_SIZE == 0:
+                yield output
+                output = ""
+        if output:
+            yield output
+
+    response = StreamingHttpResponse(
+        get_csv_output(cases=cases), content_type="text/csv"
+    )
     response["Content-Disposition"] = f"attachment; filename={filename}"
-
-    writer: Any = csv.writer(response)
-    writer.writerow([column.column_header for column in CASE_COLUMNS_FOR_EXPORT])
-
-    output: list[list[str]] = []
-    for case in cases:
-        case_columns: list[CSVColumn] = populate_csv_columns(
-            case=case, column_definitions=CASE_COLUMNS_FOR_EXPORT
-        )
-        row = [column.formatted_data for column in case_columns]
-        output.append(row)
-    writer.writerows(output)
-
     return response
 
 
