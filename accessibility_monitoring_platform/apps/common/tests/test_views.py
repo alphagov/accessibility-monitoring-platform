@@ -311,7 +311,7 @@ def test_issue_report_link(prototype_name, issue_report_link_expected, admin_cli
     "case_field, metric_id, lowercase_label",
     [
         ("created", "cases-created", "cases created"),
-        ("testing_details_complete_date", "tests-completed", "tests completed"),
+        ("reporting_details_complete_date", "tests-completed", "tests completed"),
         ("report_sent_date", "reports-sent", "reports sent"),
         ("completed_date", "cases-closed", "cases closed"),
     ],
@@ -353,7 +353,7 @@ def test_case_progress_metric_over(
     "case_field, metric_id, lowercase_label",
     [
         ("created", "cases-created", "cases created"),
-        ("testing_details_complete_date", "tests-completed", "tests completed"),
+        ("reporting_details_complete_date", "tests-completed", "tests completed"),
         ("report_sent_date", "reports-sent", "reports sent"),
         ("completed_date", "cases-closed", "cases closed"),
     ],
@@ -398,7 +398,7 @@ def test_case_progress_metric_under(
         (
             "Tests completed",
             "tests-completed-over-the-last-year",
-            "testing_details_complete_date",
+            "reporting_details_complete_date",
         ),
         ("Reports sent", "reports-sent-over-the-last-year", "report_sent_date"),
         ("Cases completed", "cases-completed-over-the-last-year", "completed_date"),

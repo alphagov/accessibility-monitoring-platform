@@ -1,4 +1,4 @@
-""" Utility functions for calculating metrics and charts """
+"""Utility functions for calculating metrics and charts"""
 
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -219,12 +219,12 @@ def get_case_progress_metrics() -> list[ThirtyDayMetric]:
         ThirtyDayMetric(
             label="Tests completed",
             last_30_day_count=Case.objects.filter(
-                testing_details_complete_date__gte=thirty_days_ago
+                reporting_details_complete_date__gte=thirty_days_ago
             ).count(),
             previous_30_day_count=Case.objects.filter(
-                testing_details_complete_date__gte=sixty_days_ago
+                reporting_details_complete_date__gte=sixty_days_ago
             )
-            .filter(testing_details_complete_date__lt=thirty_days_ago)
+            .filter(reporting_details_complete_date__lt=thirty_days_ago)
             .count(),
         ),
         ThirtyDayMetric(
@@ -258,7 +258,7 @@ def get_case_yearly_metrics() -> list[YearlyMetric]:
     start_date: datetime = get_first_of_this_month_last_year()
     for label, date_column_name in [
         ("Cases created", "created"),
-        ("Tests completed", "testing_details_complete_date"),
+        ("Tests completed", "reporting_details_complete_date"),
         ("Reports sent", "report_sent_date"),
         ("Cases completed", "completed_date"),
     ]:
