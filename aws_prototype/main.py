@@ -23,6 +23,13 @@ parser.add_argument(
     help="Decides if it builds a branch or tears it down",
 )
 
+parser.add_argument(
+    "-fd" "--flush_database",
+    dest="flush_database",
+    action="store_true",
+    help="Decides if it builds a branch or tears it down",
+)
+
 args = parser.parse_args()
 
 git_branch_name: str = subprocess.check_output(
@@ -150,6 +157,16 @@ def restore_yaml(backup_yaml: str):
         yaml.dump(backup_yaml, f)
 
 
+def flush_database():
+    bucket: str = get_copilot_s3_bucket()
+    sync_command = f"aws s3 sync s3://{BACKUP_DB}/ s3://{bucket}/"
+    os.system(sync_command)
+    command = "python aws_prototype/ecs_prepare_db.py"
+    copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
+    os.system(copilot_exec_cmd)
+    create_burner_account(app_name=APP_NAME, env_name=ENV_NAME)
+
+
 def up():
     print(">>> Setting up AWS Copilot prototype")
 
@@ -160,7 +177,9 @@ def up():
         f"""copilot app init {APP_NAME} --domain proto.accessibility-monitoring.service.gov.uk {get_aws_resource_tags()}"""
     )
 
-    if does_copilot_env_already_exist(env_name=ENV_NAME):
+    env_exists: bool = does_copilot_env_already_exist(env_name=ENV_NAME)
+
+    if env_exists:
         print(f">>> {ENV_NAME} already exists")
         restore_prototype_env_file()
 
@@ -202,13 +221,8 @@ def up():
         f"""copilot svc deploy --name viewer-svc --env {ENV_NAME} {get_aws_resource_tags(system='Viewer')}"""
     )
 
-    bucket: str = get_copilot_s3_bucket()
-    sync_command = f"aws s3 sync s3://{BACKUP_DB}/ s3://{bucket}/"
-    os.system(sync_command)
-    command = "python aws_prototype/ecs_prepare_db.py"
-    copilot_exec_cmd = f"""copilot svc exec -a {APP_NAME} -e {ENV_NAME} -n amp-svc --command "{command}" """
-    os.system(copilot_exec_cmd)
-    create_burner_account(app_name=APP_NAME, env_name=ENV_NAME)
+    if args.flush_database or env_exists is False:
+        flush_database()
 
     restore_copilot_prod_settings()
 
@@ -228,6 +242,7 @@ if __name__ == "__main__":
     )
     client = boto3.client("sts")
     account_id = client.get_caller_identity()["Account"]
+
     if account_id != AWS_ACCOUNT_ID:
         raise Exception("AWS credentials is not running in AWS test account")
 
@@ -243,5 +258,7 @@ if __name__ == "__main__":
         down()
     elif args.build_direction == "newaccount":
         create_burner_account(app_name=APP_NAME, env_name=ENV_NAME)
+    elif args.build_direction == "reload_database":
+        flush_database()
     else:
         raise Exception("Build direction needs to be up or down or newaccount")

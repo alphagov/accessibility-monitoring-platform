@@ -311,7 +311,7 @@ def test_issue_report_link(prototype_name, issue_report_link_expected, admin_cli
     "case_field, metric_id, lowercase_label",
     [
         ("created", "cases-created", "cases created"),
-        ("testing_details_complete_date", "tests-completed", "tests completed"),
+        ("reporting_details_complete_date", "tests-completed", "tests completed"),
         ("report_sent_date", "reports-sent", "reports sent"),
         ("completed_date", "cases-closed", "cases closed"),
     ],
@@ -353,7 +353,7 @@ def test_case_progress_metric_over(
     "case_field, metric_id, lowercase_label",
     [
         ("created", "cases-created", "cases created"),
-        ("testing_details_complete_date", "tests-completed", "tests completed"),
+        ("reporting_details_complete_date", "tests-completed", "tests completed"),
         ("report_sent_date", "reports-sent", "reports sent"),
         ("completed_date", "cases-closed", "cases closed"),
     ],
@@ -398,7 +398,7 @@ def test_case_progress_metric_under(
         (
             "Tests completed",
             "tests-completed-over-the-last-year",
-            "testing_details_complete_date",
+            "reporting_details_complete_date",
         ),
         ("Reports sent", "reports-sent-over-the-last-year", "report_sent_date"),
         ("Cases completed", "cases-completed-over-the-last-year", "completed_date"),
@@ -1271,3 +1271,30 @@ def test_navbar_tasks_emboldened(admin_client, admin_user):
         </li>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "url, expected_page_name",
+    [
+        ("/", "Your cases"),
+        ("/cases/1/edit-case-metadata/", "Case metadata"),
+        ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
+    ],
+)
+def test_page_name(url, expected_page_name, admin_client):
+    """
+    Test that the page renders and problem page's url and name are populated
+    as expected.
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        f"/common/report-issue/?page_url={url}&page_title={expected_page_name}"
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Report an issue")
+    assertContains(response, url)
+    assertContains(response, expected_page_name)

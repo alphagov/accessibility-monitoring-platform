@@ -294,7 +294,7 @@ CSP_FONT_SRC = ("'self'",)
 CSP_IMG_SRC = ("'self'", "data:")
 
 AWS_PROTOTYPE_FILE: Path = Path("aws_prototype.json")
-if AWS_PROTOTYPE_FILE.exists():
+if AWS_PROTOTYPE_FILE.exists() and UNDER_TEST is False:
     aws_prototype_text: str = AWS_PROTOTYPE_FILE.read_text()
     aws_prototype_data: dict = json.loads(aws_prototype_text)
     AMP_PROTOTYPE_NAME = aws_prototype_data["prototype_name"]
