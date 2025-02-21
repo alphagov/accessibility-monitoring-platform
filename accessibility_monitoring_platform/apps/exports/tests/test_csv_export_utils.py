@@ -8,7 +8,7 @@ from datetime import date, datetime, timezone
 from typing import Any
 
 import pytest
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 
 from ...audits.models import Audit
 from ...cases.models import Case, Contact
@@ -54,9 +54,17 @@ CONTACT_NOTES: str = "Contact notes"
 CONTACT_EMAIL: str = "example@example.com"
 
 
-def decode_csv_response(response: HttpResponse) -> tuple[list[str], list[list[str]]]:
+def decode_csv_response(
+    response: HttpResponse | StreamingHttpResponse,
+) -> tuple[list[str], list[list[str]]]:
     """Decode CSV HTTP response and break into column names and data"""
-    content: str = response.content.decode("utf-8")
+    if isinstance(response, StreamingHttpResponse):
+        content_chunks: list[str] = [
+            chunk.decode("utf-8") for chunk in response.streaming_content
+        ]
+        content: str = "".join(content_chunks)
+    else:
+        content: str = response.content.decode("utf-8")
     csv_reader: Any = csv.reader(io.StringIO(content))
     csv_body: list[list[str]] = list(csv_reader)
     csv_header: list[str] = csv_body.pop(0)
