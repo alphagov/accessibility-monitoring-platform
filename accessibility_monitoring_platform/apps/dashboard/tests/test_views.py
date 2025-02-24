@@ -247,6 +247,7 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
+        is_ready_for_final_decision=Boolean.YES,
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
         sent_to_enforcement_body_sent_date=datetime.now(),
     )

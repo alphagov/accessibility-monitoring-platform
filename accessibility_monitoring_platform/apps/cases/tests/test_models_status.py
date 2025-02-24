@@ -43,6 +43,7 @@ def test_case_status_unassigned(admin_client):
         organisation_name="org name",
     )
     assert case.status.status == CaseStatus.Status.UNASSIGNED
+    assert case.status.check_unnassigned_case_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to case metadata"
@@ -58,6 +59,8 @@ def test_case_status_test_in_progress(admin_client):
         auditor=user,
     )
     assert case.status.status == CaseStatus.Status.TEST_IN_PROGRESS
+    assert case.status.check_unnassigned_case_status_complete is True
+    assert case.status.check_test_in_progress_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to testing details"
@@ -76,6 +79,8 @@ def test_case_status_report_in_progress(admin_client):
     )
 
     assert case.status.status == CaseStatus.Status.REPORT_IN_PROGRESS
+    assert case.status.check_test_in_progress_status_complete is True
+    assert case.status.check_report_in_progress_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to report ready for QA"
@@ -94,6 +99,8 @@ def test_case_status_qa_in_progress(admin_client):
         report_review_status=Boolean.YES,
     )
     assert case.status.status == CaseStatus.Status.QA_IN_PROGRESS
+    assert case.status.check_report_in_progress_status_complete is True
+    assert case.status.check_qa_in_progress_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to QA approval"
@@ -113,6 +120,8 @@ def test_case_status_report_ready_to_send(admin_client):
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
     )
     assert case.status.status == CaseStatus.Status.REPORT_READY_TO_SEND
+    assert case.status.check_qa_in_progress_status_complete is True
+    assert case.status.check_report_ready_to_send_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to Report sent on"
@@ -133,6 +142,8 @@ def test_case_status_in_report_correspondence(admin_client):
         report_sent_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.IN_REPORT_CORES
+    assert case.status.check_report_ready_to_send_status_complete is True
+    assert case.status.check_calculate_in_report_correspondence_status_complete is False
 
     check_for_status_specific_link(
         admin_client,
@@ -155,6 +166,11 @@ def test_case_status_when_no_psb_contact(admin_client):
         no_psb_contact=Boolean.YES,
     )
     assert case.status.status == CaseStatus.Status.FINAL_DECISION_DUE
+    assert case.status.check_calculate_in_report_correspondence_status_complete is True
+    assert case.status.check_awaiting_12_week_deadline_status_complete is True
+    assert case.status.check_in_12_week_correspondence_status_complete is True
+    assert case.status.check_reviewing_changes_status_complete is True
+    assert case.status.check_final_decision_due_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Closing the case"
@@ -176,6 +192,8 @@ def test_case_status_in_probation_period(admin_client):
         report_acknowledged_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
+    assert case.status.check_calculate_in_report_correspondence_status_complete is True
+    assert case.status.check_awaiting_12_week_deadline_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to 12-week update requested"
@@ -198,6 +216,8 @@ def test_case_status_in_12_week_correspondence(admin_client):
         twelve_week_update_requested_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.IN_12_WEEK_CORES
+    assert case.status.check_awaiting_12_week_deadline_status_complete is True
+    assert case.status.check_in_12_week_correspondence_status_complete is False
 
     check_for_status_specific_link(
         admin_client,
@@ -222,6 +242,8 @@ def test_case_status_skips_to_reviewing_changes_when_psb_respond_early(admin_cli
         twelve_week_correspondence_acknowledged_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.REVIEWING_CHANGES
+    assert case.status.check_in_12_week_correspondence_status_complete is True
+    assert case.status.check_reviewing_changes_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to reviewing changes"
@@ -245,6 +267,8 @@ def test_case_status_reviewing_changes(admin_client):
         twelve_week_correspondence_acknowledged_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.REVIEWING_CHANGES
+    assert case.status.check_in_12_week_correspondence_status_complete is True
+    assert case.status.check_reviewing_changes_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to reviewing changes"
@@ -269,6 +293,8 @@ def test_case_status_final_decision_due(admin_client):
         is_ready_for_final_decision=Boolean.YES,
     )
     assert case.status.status == CaseStatus.Status.FINAL_DECISION_DUE
+    assert case.status.check_reviewing_changes_status_complete is True
+    assert case.status.check_final_decision_due_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to closing the case"
@@ -290,9 +316,12 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
         report_acknowledged_date=date.today(),
         twelve_week_update_requested_date=date.today(),
         twelve_week_correspondence_acknowledged_date=date.today(),
+        is_ready_for_final_decision=Boolean.YES,
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
     )
     assert case.status.status == CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
+    assert case.status.check_final_decision_due_status_complete is True
+    assert case.status.check_case_closed_waiting_to_be_sent_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to closing the case"
@@ -314,10 +343,13 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
         report_acknowledged_date=date.today(),
         twelve_week_update_requested_date=date.today(),
         twelve_week_correspondence_acknowledged_date=date.today(),
+        is_ready_for_final_decision=Boolean.YES,
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
         sent_to_enforcement_body_sent_date=date.today(),
     )
     assert case.status.status == CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
+    assert case.status.check_case_closed_waiting_to_be_sent_status_complete is True
+    assert case.status.check_calculate_case_closed_sent_to_enforcement_body_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to equality body metadata"
@@ -339,11 +371,14 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
         report_acknowledged_date=date.today(),
         twelve_week_update_requested_date=date.today(),
         twelve_week_correspondence_acknowledged_date=date.today(),
+        is_ready_for_final_decision=Boolean.YES,
         case_completed=Case.CaseCompleted.COMPLETE_SEND,
         sent_to_enforcement_body_sent_date=date.today(),
         enforcement_body_pursuing=Case.EnforcementBodyPursuing.YES_IN_PROGRESS,
     )
     assert case.status.status == CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
+    assert case.status.check_calculate_case_closed_sent_to_enforcement_body_status_complete is True
+    assert case.status.check_in_correspondence_with_enforcement_body_status_complete is False
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to equality body metadata"
@@ -370,6 +405,7 @@ def test_case_status_equality_bodies_complete(admin_client):
         enforcement_body_pursuing=Case.EnforcementBodyPursuing.YES_COMPLETED,
     )
     assert case.status.status == CaseStatus.Status.COMPLETE
+    assert case.status.calculate_case_complete_status is True
 
     check_for_status_specific_link(
         admin_client, case=case, expected_link_label="Go to post case summary"
@@ -389,6 +425,7 @@ def test_case_status_complete():
         case_completed=Case.CaseCompleted.COMPLETE_NO_SEND,
     )
     assert case.status.status == CaseStatus.Status.COMPLETE
+    assert case.status.calculate_case_complete_status is True
 
 
 @pytest.mark.django_db
@@ -403,6 +440,9 @@ def test_case_qa_status_unassigned_qa_case():
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
     )
+    assert case.calculate_unnassigned_qa_status is True
+    assert case.calculate_in_qa_status is True
+    assert case.calculate_qa_approved_status is False
     assert case.qa_status == Case.QAStatus.UNASSIGNED
 
 
@@ -420,6 +460,9 @@ def test_case_qa_status_in_qa():
         report_review_status=Boolean.YES,
         reviewer=user2,
     )
+    assert case.calculate_unnassigned_qa_status is False
+    assert case.calculate_in_qa_status is True
+    assert case.calculate_qa_approved_status is False
     assert case.qa_status == Case.QAStatus.IN_QA
 
 
@@ -438,4 +481,7 @@ def test_case_qa_status_qa_approved():
         report_approved_status=Case.ReportApprovedStatus.APPROVED,
         reviewer=user2,
     )
+    assert case.calculate_unnassigned_qa_status is False
+    assert case.calculate_in_qa_status is False
+    assert case.calculate_qa_approved_status is True
     assert case.qa_status == Case.QAStatus.APPROVED

@@ -337,6 +337,15 @@ class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView)
     )
     template_name: str = "audits/forms/website_decision.html"
 
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        audit: Audit = self.object
+        audit.case.status.calculate_and_save_status()
+        if "save_continue" in self.request.POST:
+            audit_pk: dict[str, int] = {"pk": audit.id}
+            return reverse("audits:edit-audit-wcag-summary", kwargs=audit_pk)
+        return super().get_success_url()
+
 
 class AuditSummaryUpdateView(AuditUpdateView):
     """
@@ -423,9 +432,15 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
         return context
 
     def get_success_url(self) -> str:
-        """Recalculate Case status"""
-        audit: Audit = self.object
-        audit.case.status.calculate_and_save_status()
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit: Audit = self.object
+            audit_pk: dict[str, int] = {"pk": audit.id}
+            if audit.all_overview_statement_checks_have_passed:
+                return reverse("audits:edit-statement-website", kwargs=audit_pk)
+            return reverse(
+                "audits:edit-initial-disproportionate-burden", kwargs=audit_pk
+            )
         return super().get_success_url()
 
 
@@ -582,6 +597,15 @@ class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateVie
         CaseComplianceStatementInitialUpdateForm
     )
     template_name: str = "audits/forms/statement_decision.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        audit: Audit = self.object
+        audit.case.status.calculate_and_save_status()
+        if "save_continue" in self.request.POST:
+            audit_pk: dict[str, int] = {"pk": self.object.id}
+            return reverse("audits:edit-audit-statement-summary", kwargs=audit_pk)
+        return super().get_success_url()
 
 
 class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
