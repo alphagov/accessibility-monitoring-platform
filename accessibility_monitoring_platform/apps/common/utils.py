@@ -240,6 +240,11 @@ def amp_format_date(date_to_format: date) -> str:
     return f"{date_to_format:%-d %B %Y}" if date_to_format else ""
 
 
+def amp_format_trunc_date(date_to_format: date) -> str:
+    """Format date according to GDS style guide"""
+    return f"{date_to_format:%-d %b %Y}" if date_to_format else ""
+
+
 def amp_format_time(datetime_to_format: datetime) -> str:
     """Format time according to GDS style guide"""
     return f"{datetime_to_format:%-I:%M%p}".lower() if datetime_to_format else ""
