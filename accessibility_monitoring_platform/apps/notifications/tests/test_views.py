@@ -263,6 +263,9 @@ def test_reminder_task_create(admin_client):
     reminder_task: Task = Task.objects.get(case=case)
 
     assert reminder_task.description == DESCRIPTION
+    assert response.url == reverse(
+        "cases:case-detail", kwargs={"pk": reminder_task.case.id}
+    )
 
 
 @pytest.mark.django_db
@@ -369,9 +372,9 @@ def test_reminder_task_create_redirects_to_case(rf):
 
 
 @pytest.mark.django_db
-def test_reminder_task_update_redirects_to_case(rf):
+def test_reminder_task_update_redirects_to_self(rf):
     """
-    Test updating a reminder task redirects to parent case details
+    Test updating a reminder task redirects to reminder page
     """
     user: User = User.objects.create()
     case: Case = Case.objects.create(auditor=user)
@@ -397,12 +400,58 @@ def test_reminder_task_update_redirects_to_case(rf):
     response: HttpResponse = ReminderTaskUpdateView.as_view()(request, pk=task.id)
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs={"pk": case.id})
+    assert response.url == reverse(
+        "notifications:edit-reminder-task", kwargs={"pk": task.id}
+    )
 
     task_from_db: Task = Task.objects.get(id=task.id)
 
     assert task_from_db is not None
     assert task_from_db.description == DESCRIPTION
+
+    event: Event = Event.objects.all().first()
+
+    assert event is not None
+    assert event.type == Event.Type.UPDATE
+
+
+@pytest.mark.django_db
+def test_reminder_task_delete_redirects_to_create(rf):
+    """
+    Test deleting a reminder task redirects to create reminder page
+    """
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        case=case,
+    )
+
+    request: HttpRequest = rf.post(
+        reverse("notifications:edit-reminder-task", kwargs={"pk": task.id}),
+        {
+            "date_0": TODAY.day,
+            "date_1": TODAY.month,
+            "date_2": TODAY.year,
+            "description": DESCRIPTION,
+            "delete": "Delete",
+        },
+    )
+    request.user = user
+
+    response: HttpResponse = ReminderTaskUpdateView.as_view()(request, pk=task.id)
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "notifications:reminder-create", kwargs={"case_id": task.case.id}
+    )
+
+    task_from_db: Task = Task.objects.get(id=task.id)
+
+    assert task_from_db is not None
+    assert task_from_db.read is True
 
     event: Event = Event.objects.all().first()
 
