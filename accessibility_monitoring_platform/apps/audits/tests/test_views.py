@@ -14,7 +14,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
-from ...cases.models import Case, CaseCompliance, CaseEvent
+from ...cases.models import Case, CaseCompliance, CaseEvent, CaseStatus
 from ...common.models import Event
 from ...reports.models import Report
 from ..models import (
@@ -973,7 +973,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     )
     case.compliance.save()
 
-    assert audit.case.status.status == "test-in-progress"
+    assert audit.case.status.status == CaseStatus.Status.TEST_IN_PROGRESS
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-statement-overview", kwargs=audit_pk),
@@ -996,7 +996,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     assert response.status_code == 302
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
-    assert audit_from_db.case.status.status == "report-in-progress"
+    assert audit_from_db.case.status.status == CaseStatus.Status.REPORT_IN_PROGRESS
 
     statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
         id=1

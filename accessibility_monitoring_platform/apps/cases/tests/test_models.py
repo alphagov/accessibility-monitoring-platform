@@ -325,7 +325,7 @@ def test_next_action_due_date_for_report_ready_to_send():
         no_contact_one_week_chaser_due_date=no_contact_one_week_chaser_due_date,
         no_contact_four_week_chaser_due_date=no_contact_four_week_chaser_due_date,
     )
-    case.status.status = "report-ready-to-send"
+    case.status.status = CaseStatus.Status.REPORT_READY_TO_SEND
 
     # Initial no countact details request sent
     assert case.next_action_due_date == no_contact_one_week_chaser_due_date
@@ -359,7 +359,7 @@ def test_next_action_due_date_for_in_report_correspondence():
         report_followup_week_4_due_date=report_followup_week_4_due_date,
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
-    case.status.status = "in-report-correspondence"
+    case.status.status = CaseStatus.Status.IN_REPORT_CORES
 
     case.report_followup_week_4_sent_date = None
     assert case.next_action_due_date == report_followup_week_4_due_date
@@ -379,7 +379,7 @@ def test_next_action_due_date_for_in_probation_period():
     case: Case = Case.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
-    case.status.status = "in-probation-period"
+    case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
 
     assert case.next_action_due_date == report_followup_week_12_due_date
 
@@ -395,7 +395,7 @@ def test_next_action_due_date_for_in_12_week_correspondence():
     case: Case = Case.objects.create(
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
-    case.status.status = "in-12-week-correspondence"
+    case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
 
     assert case.next_action_due_date == twelve_week_1_week_chaser_due_date
 
@@ -410,16 +410,16 @@ def test_next_action_due_date_for_in_12_week_correspondence():
 @pytest.mark.parametrize(
     "status",
     [
-        "unknown",
-        "unassigned-case",
-        "test-in-progress",
-        "report-in-progress",
-        "unassigned-qa-case",
-        "qa-in-progress",
-        "report-ready-to-send",
-        "final-decision-due",
-        "in-correspondence-with-equalities-body",
-        "complete",
+        "000-unknown",
+        "010-unassigned-case",
+        "020-test-in-progress",
+        "030-report-in-progress",
+        "040-unassigned-qa-case",
+        "050-qa-in-progress",
+        "060-report-ready-to-send",
+        "110-final-decision-due",
+        "140-in-correspondence-with-equalities-body",
+        "150-complete",
     ],
 )
 @pytest.mark.django_db
@@ -454,7 +454,7 @@ def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_t
     case: Case = Case.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
-    case.status.status = "in-probation-period"
+    case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
 
     assert case.next_action_due_date_tense == expected_tense
 

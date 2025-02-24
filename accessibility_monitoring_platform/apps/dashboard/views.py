@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
-from ..cases.models import Case
+from ..cases.models import Case, CaseStatus
 from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
 from .utils import (
     get_all_cases_in_qa,
@@ -51,14 +51,18 @@ class DashboardView(TemplateView):
             case
             for case in all_cases
             if (
-                case.status.status != "complete"
-                and case.status.status != "case-closed-sent-to-equalities-body"
-                and case.status.status != "deleted"
-                and case.status.status != "deactivated"
+                case.status.status != CaseStatus.Status.COMPLETE
+                and case.status.status
+                != CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
+                and case.status.status != CaseStatus.Status.DEACTIVATED
             )
         ]
         unassigned_cases: list[Case] = sorted(
-            [case for case in all_cases if case.status.status == "unassigned-case"],
+            [
+                case
+                for case in all_cases
+                if case.status.status == CaseStatus.Status.UNASSIGNED
+            ],
             key=lambda case: (case.created),  # type: ignore
         )
         cases_by_status["unassigned_cases"] = unassigned_cases
