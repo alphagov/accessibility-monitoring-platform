@@ -115,7 +115,8 @@
     "pk": 1,
     "fields": {
       "case_id": 1,
-      "status": "test-in-progress"
+      "status": "020-test-in-progress",
+      "farthest_status": "020-test-in-progress"
     }
   }
 ]

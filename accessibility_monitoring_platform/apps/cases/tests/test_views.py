@@ -406,7 +406,7 @@ def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     Case.objects.create(organisation_name="Included", report_review_status="yes")
 
     response: HttpResponse = admin_client.get(
-        f'{reverse("cases:case-list")}?status=unassigned-qa-case'
+        f'{reverse("cases:case-list")}?status=040-unassigned-qa-case'
     )
 
     assert response.status_code == 200

@@ -15,7 +15,7 @@ from django.http.request import QueryDict
 
 from ...audits.models import Audit
 from ...common.models import Boolean, Sector, SubCategory
-from ..models import Case, CaseCompliance, CaseEvent
+from ..models import Case, CaseCompliance, CaseEvent, CaseStatus
 from ..utils import (
     build_edit_link_html,
     create_case_and_compliance,
@@ -124,7 +124,7 @@ def test_case_filtered_by_case_number_search_string():
 def test_case_filtered_by_status():
     """Test that filtering cases by status is reflected in the queryset"""
     Case.objects.create(organisation_name=ORGANISATION_NAME)
-    form: MockForm = MockForm(cleaned_data={"status": "unassigned-case"})
+    form: MockForm = MockForm(cleaned_data={"status": CaseStatus.Status.UNASSIGNED})
 
     filtered_cases: list[Case] = list(filter_cases(form))
 

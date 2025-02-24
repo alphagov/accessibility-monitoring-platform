@@ -150,7 +150,7 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
                 filters[filter_name] = filter_value
 
     if str(filters.get("status", "")) == CaseStatus.Status.READY_TO_QA:
-        filters["qa_status"] = CaseStatus.Status.READY_TO_QA
+        filters["qa_status"] = Case.QAStatus.UNASSIGNED
         del filters["status"]
 
     if "status" in filters:
