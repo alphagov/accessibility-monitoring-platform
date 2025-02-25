@@ -196,74 +196,6 @@ def test_dashboard_shows_warning_of_recent_changes_to_platform(admin_client):
     )
 
 
-def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user):
-    """Check dashboard shows correct number of active cases"""
-    # Creates unassigned case
-    Case.objects.create()
-
-    # Creates test in progress case
-    Case.objects.create(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-        auditor=admin_user,
-    )
-
-    # Creates deactivated case
-    Case.objects.create(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-        is_deactivated=True,
-    )
-
-    # Creates completed case
-    create_case_and_compliance(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-        auditor=admin_user,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        report_review_status=Boolean.YES,
-        report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
-        case_completed=Case.CaseCompleted.COMPLETE_SEND,
-        sent_to_enforcement_body_sent_date=datetime.now(),
-        enforcement_body_pursuing=Case.EnforcementBodyPursuing.YES_COMPLETED,
-    )
-
-    # Creates closed sent to equalities-body case
-    create_case_and_compliance(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-        auditor=admin_user,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        report_review_status=Boolean.YES,
-        report_approved_status=Case.ReportApprovedStatus.APPROVED,
-        report_sent_date=datetime.now(),
-        report_acknowledged_date=datetime.now(),
-        twelve_week_update_requested_date=datetime.now(),
-        twelve_week_correspondence_acknowledged_date=datetime.now(),
-        case_completed=Case.CaseCompleted.COMPLETE_SEND,
-        sent_to_enforcement_body_sent_date=datetime.now(),
-    )
-
-    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
-    assert Case.objects.all().count() == 5
-    assert response.status_code == 200
-    expected_number_of_active_cases: str = """
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Total active cases</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">2</p>
-    """
-    assertContains(
-        response,
-        expected_number_of_active_cases,
-        html=True,
-    )
-
-
 def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin_user):
     """Check dashboard shows correct number of your active cases"""
 
@@ -287,16 +219,6 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
         html=True,
     )
 
-    expected_number_of_unnassigned_cases: str = """
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Unassigned cases</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">2</p>
-    """
-    assertContains(
-        response,
-        expected_number_of_unnassigned_cases,
-        html=True,
-    )
-
 
 def test_dashboard_shows_correct_links_to_tasks(admin_client, admin_user):
     """Check dashboard shows links to tasks"""
@@ -307,26 +229,34 @@ def test_dashboard_shows_correct_links_to_tasks(admin_client, admin_user):
     assertContains(
         response,
         """
-            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA comments unread</b></p>
-            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-                0
-                (<a href="/notifications/task-list/?type=qa-comment" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
-            </p>
-            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Reminders overdue</b></p>
-            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-                0
-                (<a href="/notifications/task-list/?type=reminder" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
-            </p>
-            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Cases overdue</b></p>
-            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-                0
-                (<a href="/notifications/task-list/?type=overdue" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
-            </p>
-            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case notifications</b></p>
-            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-                0
-                (<a href="/notifications/task-list/?type=postcase" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
-            </p>
+            <div class="amp-margin-bottom-25">
+                <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA comments unread</b></p>
+                <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                    0
+                    (<a href="/notifications/task-list/?type=qa-comment" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+                </p>
+            </div>
+            <div class="amp-margin-bottom-25">
+                <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Reminders overdue</b></p>
+                <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                    0
+                    (<a href="/notifications/task-list/?type=reminder" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+                </p>
+            </div>
+            <div class="amp-margin-bottom-25">
+                <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Cases overdue</b></p>
+                <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                    0
+                    (<a href="/notifications/task-list/?type=overdue" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+                </p>
+            </div>
+            <div class="amp-margin-bottom-25">
+                <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case notifications</b></p>
+                <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+                    0
+                    (<a href="/notifications/task-list/?type=postcase" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+                </p>
+            </div>
         """,
         html=True,
     )

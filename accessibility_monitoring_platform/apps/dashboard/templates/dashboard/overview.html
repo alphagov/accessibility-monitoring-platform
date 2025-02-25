@@ -1,34 +1,42 @@
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Active QA</b></p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-    {% if platform.active_qa_auditor %}
-        {{ platform.active_qa_auditor.first_name }}
-    {% else %}
-        None
-    {% endif%}
-</p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Total active cases</b></p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">{{ total_incomplete_cases }}</p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Your active cases</b></p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">{{ total_your_active_cases }}</p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Unassigned cases</b></p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">{{ total_unassigned_cases }}</p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA comments unread</b></p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-    {{ task_type_counts.qa_comment }}
-    (<a href="{% url 'notifications:task-list' %}?type=qa-comment" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
-</p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Reminders overdue</b></p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-    {{ task_type_counts.reminder }}
-    (<a href="{% url 'notifications:task-list' %}?type=reminder" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
-</p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Cases overdue</b></p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-    {{ task_type_counts.overdue }}
-    (<a href="{% url 'notifications:task-list' %}?type=overdue" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
-</p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case notifications</b></p>
-<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-    {{ task_type_counts.postcase }}
-    (<a href="{% url 'notifications:task-list' %}?type=postcase" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
-</p>
+<div class="amp-margin-bottom-25">
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Active QA</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {% if platform.active_qa_auditor %}
+            {{ platform.active_qa_auditor.first_name }}
+        {% else %}
+            None
+        {% endif%}
+    </p>
+</div>
+<div class="amp-margin-bottom-25">
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Your active cases</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">{{ total_your_active_cases }}</p>
+</div>
+<div class="amp-margin-bottom-25">
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA comments unread</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {{ task_type_counts.qa_comment }}
+        (<a href="{% url 'notifications:task-list' %}?type=qa-comment" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+    </p>
+</div>
+<div class="amp-margin-bottom-25">
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Reminders overdue</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {{ task_type_counts.reminder }}
+        (<a href="{% url 'notifications:task-list' %}?type=reminder" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+    </p>
+</div>
+<div class="amp-margin-bottom-25">
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Cases overdue</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {{ task_type_counts.overdue }}
+        (<a href="{% url 'notifications:task-list' %}?type=overdue" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+    </p>
+</div>
+<div class="amp-margin-bottom-25">
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case notifications</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+        {{ task_type_counts.postcase }}
+        (<a href="{% url 'notifications:task-list' %}?type=postcase" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+    </p>
+</div>
