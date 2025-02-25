@@ -175,5 +175,11 @@ class ReminderTaskUpdateView(UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        """Record creation event"""
-        return reverse("cases:case-detail", kwargs={"pk": self.object.case.id})
+        """Redirect to reminder create page if current reminder deleted"""
+        if "delete" in self.request.POST:
+            return reverse(
+                "notifications:reminder-create", kwargs={"case_id": self.object.case.id}
+            )
+        return reverse(
+            "notifications:edit-reminder-task", kwargs={"pk": self.object.id}
+        )
