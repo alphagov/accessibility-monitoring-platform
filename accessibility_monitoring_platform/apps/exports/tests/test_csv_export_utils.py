@@ -5,7 +5,7 @@ Test utility functions of cases app
 import csv
 import io
 from datetime import date, datetime, timezone
-from typing import Any
+from typing import Any, Generator
 
 import pytest
 from django.http import HttpResponse, StreamingHttpResponse
@@ -18,6 +18,7 @@ from ..csv_export_utils import (
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     CSVColumn,
     EqualityBodyCSVColumn,
+    csv_output_generator,
     download_cases,
     download_equality_body_cases,
     download_feedback_survey_cases,
@@ -55,16 +56,13 @@ CONTACT_EMAIL: str = "example@example.com"
 
 
 def decode_csv_response(
-    response: HttpResponse | StreamingHttpResponse,
+    response: StreamingHttpResponse,
 ) -> tuple[list[str], list[list[str]]]:
     """Decode CSV HTTP response and break into column names and data"""
-    if isinstance(response, StreamingHttpResponse):
-        content_chunks: list[str] = [
-            chunk.decode("utf-8") for chunk in response.streaming_content
-        ]
-        content: str = "".join(content_chunks)
-    else:
-        content: str = response.content.decode("utf-8")
+    content_chunks: list[str] = [
+        chunk.decode("utf-8") for chunk in response.streaming_content
+    ]
+    content: str = "".join(content_chunks)
     csv_reader: Any = csv.reader(io.StringIO(content))
     csv_body: list[list[str]] = list(csv_reader)
     csv_header: list[str] = csv_body.pop(0)
@@ -489,3 +487,31 @@ def test_populate_feedback_survey_columns():
     )
 
     assert len(row) == 8
+
+
+@pytest.mark.django_db
+def test_csv_output_generator():
+    """
+    Test CSV output generator returns:
+
+    1. Column headers and first Case
+    2. Next 500 Cases (current DOWNLOAD_CASES_CHUNK_SIZE)
+    3. Stops after all Cases returned
+    """
+    case: Case = Case.objects.create()
+    cases: list[Case] = [case for _ in range(501)]
+
+    generator: Generator[str, None, None] = csv_output_generator(
+        cases=cases, columns_for_export=CASE_COLUMNS_FOR_EXPORT
+    )
+
+    first_yield: str = next(generator)
+
+    assert first_yield.count("\n") == 2
+
+    second_yield: str = next(generator)
+
+    assert second_yield.count("\n") == 500
+
+    with pytest.raises(StopIteration):
+        next(generator)

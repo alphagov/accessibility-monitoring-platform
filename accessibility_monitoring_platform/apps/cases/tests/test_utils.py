@@ -48,15 +48,6 @@ class MockForm:
     cleaned_data: dict[str, str]
 
 
-def decode_csv_response(response: HttpResponse) -> tuple[list[str], list[list[str]]]:
-    """Decode CSV HTTP response and break into column names and data"""
-    content: str = response.content.decode("utf-8")
-    csv_reader: Any = csv.reader(io.StringIO(content))
-    csv_body: list[list[str]] = list(csv_reader)
-    csv_header: list[str] = csv_body.pop(0)
-    return csv_header, csv_body
-
-
 def validate_csv_response(
     csv_header: list[str],
     csv_body: list[list[str]],

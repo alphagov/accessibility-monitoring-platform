@@ -6,10 +6,10 @@ import copy
 import csv
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Literal
+from typing import Any, Generator, Literal
 
 from django.db.models import QuerySet
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import StreamingHttpResponse
 from django.urls import reverse
 
 from ..audits.models import Audit
@@ -839,31 +839,6 @@ def populate_equality_body_columns(
     return columns
 
 
-def download_equality_body_cases(
-    cases: QuerySet[Case],
-    filename: str = "enforcement_body_cases.csv",
-) -> HttpResponse:
-    """Given a Case queryset, download the data in csv format for equality body"""
-    response: HttpResponse = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = f"attachment; filename={filename}"
-
-    writer: Any = csv.writer(response)
-    writer.writerow(
-        [column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT]
-    )
-
-    output: list[list[str]] = []
-    for case in cases:
-        case_columns: list[EqualityBodyCSVColumn] = populate_equality_body_columns(
-            case=case
-        )
-        row = [column.formatted_data for column in case_columns]
-        output.append(row)
-    writer.writerows(output)
-
-    return response
-
-
 def populate_csv_columns(
     case: Case, column_definitions: list[CSVColumn]
 ) -> list[CSVColumn]:
@@ -887,35 +862,67 @@ def populate_csv_columns(
     return columns
 
 
-def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpResponse:
-    """Given a Case queryset, download the data in csv format"""
+def csv_output_generator(
+    cases: QuerySet[Case],
+    columns_for_export: list[CSVColumn],
+    equality_body_csv: bool = False,
+) -> Generator[str, None, None]:
+    """
+    Generate a series of strings containing the content for a CSV streaming response
+    """
 
     class DummyFile:
         def write(self, value_to_write):
             return value_to_write
 
-    def get_csv_output(cases: QuerySet[Case]) -> list[Any]:
-        writer: Any = csv.writer(DummyFile())
-        column_row: list[str] = [
-            column.column_header for column in CASE_COLUMNS_FOR_EXPORT
-        ]
+    writer: Any = csv.writer(DummyFile())
+    column_row: list[str] = [column.column_header for column in columns_for_export]
 
-        output: str = writer.writerow(column_row)
+    output: str = writer.writerow(column_row)
 
-        for counter, case in enumerate(cases):
-            case_columns: list[CSVColumn] = populate_csv_columns(
-                case=case, column_definitions=CASE_COLUMNS_FOR_EXPORT
+    for counter, case in enumerate(cases):
+        if equality_body_csv is True:
+            case_columns: list[EqualityBodyCSVColumn] = populate_equality_body_columns(
+                case=case
             )
-            row = [column.formatted_data for column in case_columns]
-            output += writer.writerow(row)
-            if counter % DOWNLOAD_CASES_CHUNK_SIZE == 0:
-                yield output
-                output = ""
-        if output:
+        else:
+            case_columns: list[CSVColumn] = populate_csv_columns(
+                case=case, column_definitions=columns_for_export
+            )
+        row = [column.formatted_data for column in case_columns]
+        output += writer.writerow(row)
+        if counter % DOWNLOAD_CASES_CHUNK_SIZE == 0:
             yield output
+            output = ""
+    if output:
+        yield output
+
+
+def download_equality_body_cases(
+    cases: QuerySet[Case],
+    filename: str = "enforcement_body_cases.csv",
+) -> StreamingHttpResponse:
+    """Given a Case queryset, download the data in csv format for equality body"""
+    response = StreamingHttpResponse(
+        csv_output_generator(
+            cases=cases,
+            columns_for_export=EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+            equality_body_csv=True,
+        ),
+        content_type="text/csv",
+    )
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+    return response
+
+
+def download_cases(
+    cases: QuerySet[Case], filename: str = "cases.csv"
+) -> StreamingHttpResponse:
+    """Given a Case queryset, download the data in csv format"""
 
     response = StreamingHttpResponse(
-        get_csv_output(cases=cases), content_type="text/csv"
+        csv_output_generator(cases=cases, columns_for_export=CASE_COLUMNS_FOR_EXPORT),
+        content_type="text/csv",
     )
     response["Content-Disposition"] = f"attachment; filename={filename}"
     return response
@@ -923,23 +930,13 @@ def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpRe
 
 def download_feedback_survey_cases(
     cases: QuerySet[Case], filename: str = "feedback_survey_cases.csv"
-) -> HttpResponse:
+) -> StreamingHttpResponse:
     """Given a Case queryset, download the feedback survey data in csv format"""
-    response: HttpResponse = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = f"attachment; filename={filename}"
-
-    writer: Any = csv.writer(response)
-    writer.writerow(
-        [column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT]
+    response = StreamingHttpResponse(
+        csv_output_generator(
+            cases=cases, columns_for_export=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+        ),
+        content_type="text/csv",
     )
-
-    output: list[list[str]] = []
-    for case in cases:
-        case_columns: list[CSVColumn] = populate_csv_columns(
-            case=case, column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
-        )
-        row = [column.formatted_data for column in case_columns]
-        output.append(row)
-    writer.writerows(output)
-
+    response["Content-Disposition"] = f"attachment; filename={filename}"
     return response
