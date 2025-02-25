@@ -13,7 +13,6 @@ from django.views.generic import TemplateView
 
 from ..cases.models import Case
 from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
-from ..notifications.models import Task
 from ..notifications.utils import build_task_list, get_task_type_counts
 from .utils import (
     get_all_cases_in_qa,
@@ -71,11 +70,9 @@ class DashboardView(TemplateView):
         context.update(
             {
                 "cases_by_status": cases_by_status,
-                "total_incomplete_cases": len(incomplete_cases),
                 "total_your_active_cases": len(
                     [case for case in incomplete_cases if case.auditor == user]
                 ),
-                "total_unassigned_cases": len(unassigned_cases),
                 "today": date.today(),
                 "show_all_cases": show_all_cases,
                 "page_title": "All cases" if show_all_cases else "Your cases",
