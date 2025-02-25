@@ -13,6 +13,7 @@ from django.views.generic import TemplateView
 
 from ..cases.models import Case
 from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
+from ..notifications.utils import build_task_list, get_task_type_counts
 from .utils import (
     get_all_cases_in_qa,
     group_cases_by_status,
@@ -29,7 +30,10 @@ class DashboardView(TemplateView):
         context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         user: User = get_object_or_404(User, id=self.request.user.id)  # type: ignore
         all_cases: list[Case] = list(
-            Case.objects.all().select_related("auditor", "reviewer").all()
+            Case.objects.all()
+            .prefetch_related("status")
+            .select_related("auditor", "reviewer")
+            .all()
         )
 
         view_url_param: str | None = self.request.GET.get("view")
@@ -66,17 +70,18 @@ class DashboardView(TemplateView):
         context.update(
             {
                 "cases_by_status": cases_by_status,
-                "total_incomplete_cases": len(incomplete_cases),
                 "total_your_active_cases": len(
                     [case for case in incomplete_cases if case.auditor == user]
                 ),
-                "total_unassigned_cases": len(unassigned_cases),
                 "today": date.today(),
                 "show_all_cases": show_all_cases,
                 "page_title": "All cases" if show_all_cases else "Your cases",
                 "mfa_disabled": not checks_if_2fa_is_enabled(user=user),
                 "recent_changes_to_platform": get_recent_changes_to_platform(),
                 "all_cases_in_qa": get_all_cases_in_qa(all_cases=all_cases),
+                "task_type_counts": get_task_type_counts(
+                    tasks=build_task_list(user=self.request.user)
+                ),
             }
         )
         return context

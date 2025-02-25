@@ -1,9 +1,8 @@
 {% if tense == "future" %}
-    <strong>{{ date_to_tag|amp_date }}</strong>
+    {{ date_to_tag|amp_date_trunc }}
 {% else %}
     <div>
-        <strong class="govuk-tag govuk-tag--red">{{ date_to_tag|amp_date }}</strong>
+        <strong class="govuk-tag govuk-tag--red">{{ date_to_tag|amp_date_trunc }}</strong>
         <span class="govuk-visually-hidden">{% if tense == "past" %}over{% endif %}due</span>
-        <span class="amp-alert-icon" aria-hidden="true">!</span>
     </div>
 {% endif %}
