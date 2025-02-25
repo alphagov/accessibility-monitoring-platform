@@ -79,7 +79,9 @@ def test_register_redirects_with_auth(admin_client):
 
     assert response.status_code == 200
     assertContains(
-        response, """<h1 class="govuk-heading-xl">Your cases</h1>""", html=True
+        response,
+        """<h1 class="govuk-heading-xl amp-margin-bottom-10">Your cases</h1>""",
+        html=True,
     )
 
 

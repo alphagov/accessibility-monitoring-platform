@@ -8,7 +8,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.db import connection
 from django.db.models.query import QuerySet
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
@@ -20,6 +20,17 @@ from .test_forms import CUTOFF_DATE, create_exportable_case
 ORGANISATION_NAME: str = "Org Name"
 COMPLIANCE_EMAIL_SENT_DATE: date = date(2024, 3, 18)
 EXPORT_CSV_COLUMNS: str = "Equality body,Test type,Case number,Organisation"
+
+
+def get_csv_streaming_content(
+    response: StreamingHttpResponse,
+) -> str:
+    """Decode CSV HTTP response and break into column names and data"""
+    content_chunks: list[str] = [
+        chunk.decode("utf-8") for chunk in response.streaming_content
+    ]
+    content: str = "".join(content_chunks)
+    return content
 
 
 def create_cases_and_export(
@@ -144,14 +155,17 @@ def test_draft_export_csv_returned(admin_client):
     """Test that draft csv returned"""
     export: Export = create_cases_and_export()
 
-    response: HttpResponse = admin_client.get(
+    response: StreamingHttpResponse = admin_client.get(
         reverse("exports:export-all-cases", kwargs={"pk": export.id})
     )
 
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "text/csv"
-    assertContains(response, EXPORT_CSV_COLUMNS)
-    assertContains(response, ORGANISATION_NAME)
+
+    csv_response: str = get_csv_streaming_content(response=response)
+
+    assert EXPORT_CSV_COLUMNS in csv_response
+    assert ORGANISATION_NAME in csv_response
 
 
 @pytest.mark.parametrize(
@@ -222,27 +236,33 @@ def test_ready_export_csv_returned(admin_client):
     """
     export: Export = create_cases_and_export()
 
-    response: HttpResponse = admin_client.get(
+    response: StreamingHttpResponse = admin_client.get(
         reverse("exports:export-ready-cases", kwargs={"pk": export.id})
     )
 
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "text/csv"
-    assertContains(response, EXPORT_CSV_COLUMNS)
-    assertNotContains(response, ORGANISATION_NAME)
+
+    csv_response: str = get_csv_streaming_content(response=response)
+
+    assert EXPORT_CSV_COLUMNS in csv_response
+    assert ORGANISATION_NAME not in csv_response
 
     export_case: ExportCase = export.exportcase_set.first()
     export_case.status = ExportCase.Status.READY
     export_case.save()
 
-    response: HttpResponse = admin_client.get(
+    response: StreamingHttpResponse = admin_client.get(
         reverse("exports:export-ready-cases", kwargs={"pk": export.id})
     )
 
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "text/csv"
-    assertContains(response, EXPORT_CSV_COLUMNS)
-    assertContains(response, ORGANISATION_NAME)
+
+    csv_response: str = get_csv_streaming_content(response=response)
+
+    assert EXPORT_CSV_COLUMNS in csv_response
+    assert ORGANISATION_NAME in csv_response
 
 
 def test_create_export(admin_client, admin_user):

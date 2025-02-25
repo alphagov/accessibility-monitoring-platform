@@ -162,14 +162,14 @@
                                 <div class="govuk-grid-column-full amp-markdown">
                                     {% if hide_fixed %}
                                         {% if retest_page.unfixed_check_results %}
-                                            <table class="govuk-table amp-accordion-table">
+                                            <table class="govuk-table">
                                                 {% include 'audits/helpers/equality_body_retest_page_comparison_table.html' with retest_check_results=retest_page.unfixed_check_results %}
                                             </table>
                                         {% else %}
                                             <p class="govuk-body-m">No unfixed issues</p>
                                         {% endif %}
                                     {% else %}
-                                        <table class="govuk-table amp-accordion-table">
+                                        <table class="govuk-table">
                                             {% include 'audits/helpers/equality_body_retest_page_comparison_table.html' with retest_check_results=retest_page.all_check_results %}
                                         </table>
                                     {% endif %}
