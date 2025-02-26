@@ -6,7 +6,10 @@
             <tbody class="govuk-table__body">
                 {% for check_result in case_detail_page.page.instance.failed_check_results %}
                     <tr class="govuk-table__row ">
-                        <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">{{ check_result.wcag_definition }}</th>
+                        <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">
+                            {{ check_result.wcag_definition }}<br>
+                            {% include 'audits/helpers/issue_identifier.html' with issue=check_result %}
+                        </th>
                         <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes|markdown_to_html }}</td>
                     </tr>
                 {% endfor %}

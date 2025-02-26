@@ -52,7 +52,7 @@
     {% for wcag_definition, form, matching_issues in definitions_forms_errors %}
         <div class="govuk-grid-row"
             data-check-type="{{ wcag_definition.type }}"
-            data-filter-string="{{wcag_definition.name}} {{wcag_definition.description}}"
+            data-filter-string="{{ form.check_result_state.label }}"
         >
             <div class="govuk-grid-column-full">
                 <hr class="amp-width-100 amp-margin-bottom-30">

@@ -117,7 +117,6 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
             <table id="email-issues-table-{{ forloop.counter }}">
                 <thead>
                     <tr>
-                        <td width=1%>#</td>
                         <td id="issue-{{ forloop.counter }}" width=33%>Issue and description</td>
                         <td id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</td>
                         <td id="retest-update-{{ forloop.counter }}" width=33%>Retest outcome</td>
@@ -126,7 +125,6 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
                 <tbody>
                     {% for retest_check_result in retest_page.unfixed_check_results %}
                         <tr valign="top">
-                            <td width=1%>{{ forloop.counter }}</td>
                             <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
                                 {% if retest_check_result.check_result.wcag_definition.url_on_w3 %}
                                     <a href="{{ retest_check_result.check_result.wcag_definition.url_on_w3 }}">
@@ -134,6 +132,9 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
                                 {% else %}
                                     {{ retest_check_result.check_result.wcag_definition.name }}
                                 {% endif %}
+                                <br>
+                                <br>
+                                [{{ retest_check_result.issue_identifier }}]
                                 <br>
                                 <br>
                                 {{ retest_check_result.check_result.wcag_definition.description|markdown_to_html }}
@@ -192,21 +193,20 @@ Disproportionate burden was: {{ retest.get_disproportionate_burden_claim_display
     <table id="email-statement-issues-table">
         <thead>
             <tr>
-                <td width=1%>#</td>
-                <td id="statement-issue-{{ forloop.counter }}" width=99%>Issue</td>
+                <td id="statement-issue-{{ forloop.counter }}" width=100%>Issue</td>
             </tr>
         </thead>
         <tbody>
         {% for failed_statement_check_result in retest.failed_statement_check_results %}
             <tr valign="top">
-                <td width=1%>{{ forloop.counter }}</td>
-                <td headers="statement-issue-{{ forloop.parentloop.counter }}" width=99%>
+                <td headers="statement-issue-{{ forloop.parentloop.counter }}" width=100%>
                     {{ failed_statement_check_result.statement_check.report_text }}
                     {% if failed_statement_check_result.comment %}
                         <br>
                         <br>
                         {{ failed_statement_check_result.comment|markdown_to_html }}
                     {% endif %}
+                    [{{ failed_statement_check_result.issue_identifier }}]
                 </td>
             </tr>
         {% endfor %}

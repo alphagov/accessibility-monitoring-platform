@@ -55,7 +55,6 @@ You do not need to provide information from your own audit.
             <table id="email-issues-table-{{ forloop.counter }}">
                 <thead>
                     <tr>
-                        <th width=1%>#</th>
                         <th id="issue-{{ forloop.counter }}" width=33%>Issue and description</th>
                         <th id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</th>
                         <th id="12-week-update-{{ forloop.counter }}" width=33%>12-week update</th>
@@ -64,7 +63,6 @@ You do not need to provide information from your own audit.
                 <tbody>
                     {% for row in issues_table.rows %}
                         <tr valign="top">
-                            <td width=1%>{{ forloop.counter }}</td>
                             <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
                             <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
                             <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
@@ -94,24 +92,26 @@ You do not need to provide information from your own audit.
     <table id="email-statement-issues-table">
         <thead>
             <tr>
-                <th width=4%>#</th>
-                <th id="statement-issue" width=48%>Issue and description</th>
-                <th id="statement-12-week-update" width=48%>12-week update</th>
+                <th id="statement-issue" width=50%>Issue and description</th>
+                <th id="statement-12-week-update" width=50%>12-week update</th>
             </tr>
         </thead>
         <tbody>
             {% for statement_check_result in case.audit.failed_statement_check_results %}
                 <tr valign="top">
-                    <td width=4%>{{ forloop.counter }}</td>
-                    <td headers="statement-issue" width=48%>
+                    <td headers="statement-issue" width=50%>
                         {{ statement_check_result.statement_check.report_text }}
                         {% if statement_check_result.report_comment %}
-                            <br>
-                            <br>
+                            {% if statement_check_result.statement_check.report_text %}
+                                <br>
+                                <br>
+                            {% endif %}
                             {{ statement_check_result.report_comment }}
                         {% endif %}
+                        <br>
+                        [{{ statement_check_result.issue_identifier }}]
                     </td>
-                    <td headers="statement-12-week-update" width=48%></td>
+                    <td headers="statement-12-week-update" width=50%></td>
                 </tr>
             {% endfor %}
         </tbody>

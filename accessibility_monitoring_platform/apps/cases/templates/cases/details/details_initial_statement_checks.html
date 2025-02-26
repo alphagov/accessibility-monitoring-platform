@@ -7,7 +7,8 @@
                 {% for statement_check_result in statement_check_results %}
                     <tr class="govuk-table__row ">
                         <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                            {{ statement_check_result.label }}
+                            {{ statement_check_result.label }}<br>
+                            {% include 'audits/helpers/issue_identifier.html' with issue=statement_check_result %}
                         </th>
                         <td class="govuk-table__cell amp-width-one-half amp-notes">
                             <p>{{ statement_check_result.get_check_result_state_display }}</p>
