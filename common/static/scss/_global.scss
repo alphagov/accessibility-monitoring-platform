@@ -694,11 +694,6 @@ img, .amp-max-width-100 {
     table[id^='issues-table-'] {
         page-break-before: always;
 
-        tr td:nth-child(1) {
-            width: 1%;
-            white-space: nowrap;
-        }
-
         td+td {
             width: 50%;
         }
@@ -706,11 +701,6 @@ img, .amp-max-width-100 {
 
     table[id^='email-issues-table-'] {
         table-layout:fixed;
-
-        tr td:nth-child(1) {
-            width: 1%;
-            white-space: nowrap;
-        }
 
         td {
             width: 33%;

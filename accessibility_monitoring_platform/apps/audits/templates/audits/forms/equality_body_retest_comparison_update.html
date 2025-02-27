@@ -109,6 +109,9 @@
                                                                 <p class="govuk-body">{{ retest_check_result.retest_page.page.location }}</p>
                                                             {% endif %}
                                                         </li>
+                                                        <li>
+                                                            {% include 'audits/helpers/issue_identifier.html' with issue=retest_check_result %}
+                                                        </li>
                                                     </ul>
                                                 </td>
                                                 <td class="govuk-table__cell amp-width-one-third">

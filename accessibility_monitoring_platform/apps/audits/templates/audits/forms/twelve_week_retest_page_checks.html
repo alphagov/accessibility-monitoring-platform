@@ -89,14 +89,14 @@
         {% for check_result, form in check_results_and_forms %}
             <div class="govuk-grid-row"
                 data-check-type="{{ check_result.wcag_definition.type }}"
-                data-filter-string="{{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }}"
+                data-filter-string="{{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }} {{ check_result.issue_identifier }}"
             >
                 <div class="govuk-grid-column-full">
                     <hr class="amp-width-100 amp-margin-bottom-30">
-                    <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
+                    <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b> [{{ check_result.issue_identifier }}]</label>
                     <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.retest_state %}
+                    {% include 'common/amp_field.html' with field=form.retest_state %}
                     {% if check_result.matching_wcag_with_retest_notes_check_results %}
                         <details class="govuk-details" data-module="govuk-details">
                             <summary class="govuk-details__summary">
@@ -122,7 +122,7 @@
                             </div>
                         </details>
                     {% endif %}
-                    {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.retest_notes %}
+                    {% include 'common/amp_field.html' with field=form.retest_notes %}
                     {% include 'common/preview_markdown.html' with field_id=form.retest_notes.auto_id %}
                 </div>
             </div>

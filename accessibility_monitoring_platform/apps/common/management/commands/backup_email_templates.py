@@ -13,7 +13,7 @@ PATH_TO_EMAILS_DIRECTORY: str = (
 class Command(BaseCommand):
     """Django command to backup email templates"""
 
-    def handle(self, *args, **options):  # pylint: disable=unused-argument
+    def handle(self, *args, **options):
         """Read all email templates from database and save as files"""
         for email_template in EmailTemplate.objects.all():
             backup_file = open(
