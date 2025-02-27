@@ -284,12 +284,7 @@ class AuditPageChecksFormView(NextPlatformPageMixin, FormView):
         ] = []
         for count, check_results_form in enumerate(check_results_formset.forms):
             wcag_definition: WcagDefinition = wcag_definitions[count]
-            if check_results_form.initial.get("id_within_case") is not None:
-                check_results_form.fields["check_result_state"].label = (
-                    f'{wcag_definition} | #E{check_results_form.initial["id_within_case"]}'
-                )
-            else:
-                check_results_form.fields["check_result_state"].label = wcag_definition
+            check_results_form.fields["check_result_state"].label = wcag_definition
             definitions_forms_errors.append(
                 (
                     wcag_definition,

@@ -122,7 +122,7 @@
 </div>
 {% if show_failures_by_page %}
     {% for page, failures in audit_failures_by_page.items %}
-        <br/>    
+        <br/>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h2 id="page-{{ page.id }}" class="govuk-heading-m govuk-!-font-size-19 govuk-!-font-weight-bold">{{ page.page_title }} ({{ failures|length }})</h2>
@@ -163,7 +163,10 @@
                     <tbody class="govuk-table__body">
                         {% for failure in failures %}
                             <tr class="govuk-table__row ">
-                                <td scope="row" class="govuk-table__cell amp-width-one-third">{{ failure.wcag_definition.name }} | {{ failure.unique_id_within_case }}</td>
+                                <td scope="row" class="govuk-table__cell amp-width-one-third">
+                                    {{ failure.wcag_definition.name }}<br>
+                                    {% include 'audits/helpers/issue_identifier.html' with issue=failure %}
+                                </td>
                                 <td class="govuk-table__cell amp-width-one-third amp-notes">
                                     <p>{{ failure.get_check_result_state_display }}</p>
                                     {{ failure.notes|markdown_to_html }}
@@ -207,32 +210,36 @@
                         {% for failure in failures %}
                             <tr class="govuk-table__row ">
                                 <td class="govuk-table__cell amp-width-one-third amp-notes">
-                                    <p>{{ failure.page }} | {{ failure.unique_id_within_case }}</p>
+                                    <p>{{ failure.page }}</p>
                                     <ul class="govuk-list">
-                                    {% if failure.page.location %}
-                                        <li>{{ failure.page.location }}</li>
-                                    {% endif %}
-                                    <li>
-                                        <a href="{{ failure.page.url }}" class="govuk-link" target="_blank">
-                                            Open page in new tab
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url 'audits:edit-audit-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state">
-                                            Edit initial test
-                                        </a>
-                                    </li>
-                                    {% if enable_12_week_ui %}
-                                        {% if failure.page.failed_check_results %}
-                                            <li>
-                                                <a href="{% url 'audits:edit-audit-retest-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state">
-                                                    Edit 12-week test
-                                                </a>
-                                            </li>
+                                        {% if failure.page.location %}
+                                            <li>{{ failure.page.location }}</li>
                                         {% endif %}
-                                    {% else %}
-                                        <li><span class="govuk-body amp-disabled">Edit 12-week test</span></li>
-                                    {% endif %}
+                                        <li>
+                                            <a href="{{ failure.page.url }}" class="govuk-link" target="_blank">
+                                                Open page in new tab
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'audits:edit-audit-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                Edit initial test
+                                            </a>
+                                        </li>
+                                        {% if enable_12_week_ui %}
+                                            {% if failure.page.failed_check_results %}
+                                                <li>
+                                                    <a href="{% url 'audits:edit-audit-retest-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                        Edit 12-week test
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% else %}
+                                            <li><span class="govuk-body amp-disabled">Edit 12-week test</span></li>
+                                        {% endif %}
+                                        <li>
+                                            {% include 'audits/helpers/issue_identifier.html' with issue=failure %}
+                                        </li>
+                                    </ul>
                                 </td>
                                 <td class="govuk-table__cell amp-width-one-third amp-notes">
                                     <p>{{ failure.get_check_result_state_display }}</p>

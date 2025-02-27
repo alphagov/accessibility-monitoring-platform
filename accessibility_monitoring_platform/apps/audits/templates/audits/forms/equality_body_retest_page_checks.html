@@ -106,7 +106,10 @@
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <hr class="amp-width-100 amp-margin-bottom-15">
-                                    <label class="govuk-label amp-margin-bottom-15"><b>{{ form.instance.check_result.wcag_definition }}</b></label>
+                                    <label class="govuk-label amp-margin-bottom-15">
+                                        <b>{{ form.instance.check_result.wcag_definition }}</b>
+                                        {% include 'audits/helpers/issue_identifier.html' with issue=form.instance %}
+                                    </label>
                                     <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
                                         <summary class="govuk-details__summary">
                                             <span class="govuk-details__summary-text">Previous test notes</span>

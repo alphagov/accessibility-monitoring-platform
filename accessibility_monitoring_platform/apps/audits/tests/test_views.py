@@ -1782,7 +1782,15 @@ def test_add_custom_statement_check_result_form_appears(admin_client):
         follow=True,
     )
     assert response.status_code == 200
-    assertContains(response, "Custom issue #1")
+    assertContains(response, "Custom issue")
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    custom_statment_check_result: StatementCheckResult | None = (
+        audit_from_db.custom_statement_check_results.first()
+    )
+
+    assert custom_statment_check_result is not None
+    assertContains(response, custom_statment_check_result.issue_identifier)
 
 
 def test_add_custom_statement_check_result(admin_client):

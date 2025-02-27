@@ -33,9 +33,14 @@
                             {% for statement_check_result_form in retest_statement_check_results_formset %}
                                 <div class="govuk-grid-row">
                                     <div class="govuk-grid-column-full">
-                                        <h2 id="custom-{{ statement_check_result_form.instance.id }}" class="govuk-heading-m amp-margin-bottom-10">
-                                            Custom issue #{{ forloop.counter }}
+                                        <h2 id="custom-{{ statement_check_result_form.instance.id }}" class="govuk-heading-m {% if statement_check_result_form.instance.id %}amp-margin-bottom-0{% else %}amp-margin-bottom-10{% endif %}">
+                                            Custom issue
                                         </h2>
+                                        {% if statement_check_result_form.instance.id %}
+                                            <label class="govuk-label amp-margin-bottom-15">
+                                                {% include 'audits/helpers/issue_identifier.html' with issue=statement_check_result_form.instance %}
+                                            </label>
+                                        {% endif %}
                                         {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}
                                         {% include 'common/amp_field.html' with field=statement_check_result_form.comment %}
                                     </div>

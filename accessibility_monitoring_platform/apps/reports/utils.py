@@ -17,6 +17,8 @@ from ..s3_read_write.utils import S3ReadWriteReport
 from .models import Report
 
 WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% endif %}{% if wcag_definition.description and wcag_definition.type != 'manual' %}{{ wcag_definition.description|safe }}.{% endif %}
+
+[{{ check_result.issue_identifier }}]
 {% if first_use_of_wcag_definition %}
 {{ wcag_definition.report_boilerplate|safe }}
 {% endif %}"""
@@ -135,6 +137,7 @@ def build_issue_table_rows(
             {
                 "wcag_definition": check_result.wcag_definition,
                 "first_use_of_wcag_definition": first_use_of_wcag_definition,
+                "check_result": check_result,
             }
         )
         check_result_context: Context = Context({"check_result": check_result})

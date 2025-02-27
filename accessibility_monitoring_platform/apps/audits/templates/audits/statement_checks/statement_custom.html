@@ -14,7 +14,12 @@
                         <td class="govuk-table__cell">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <h2 id="custom-{{ custom_form.instance.id }}" class="govuk-heading-m">Custom issue #{{ forloop.counter }}</h2>
+                                    <h2 id="custom-{{ custom_form.instance.id }}" class="govuk-heading-m{% if custom_form.instance.id %} amp-margin-bottom-0{% endif %}">Custom issue</h2>
+                                    {% if custom_form.instance.id %}
+                                        <p class="govuk-body amp-margin-bottom-15">
+                                            {% include 'audits/helpers/issue_identifier.html' with issue=custom_form.instance %}
+                                        </p>
+                                    {% endif %}
                                     {% include 'common/form_errors.html' with errors=custom_form.non_field_errors %}
                                     {% include 'common/form_hidden_fields.html' with hidden_fields=custom_form.hidden_fields %}
                                     {% for field in custom_form.visible_fields %}

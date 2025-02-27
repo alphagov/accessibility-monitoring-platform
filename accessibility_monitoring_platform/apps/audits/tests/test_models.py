@@ -23,7 +23,9 @@ from ..models import (
     StatementCheckResult,
     StatementPage,
     WcagDefinition,
+    build_issue_identifier,
 )
+from ..utils import create_checkresults_for_retest
 
 TODAY = date.today()
 PAGE_NAME = "Page name"
@@ -768,14 +770,17 @@ def test_statement_check_results_str():
 
     assert (
         statement_check_result.__str__()
-        == f"{audit} | {statement_check_result.statement_check}"
+        == f"{audit} | {statement_check_result.statement_check} [{statement_check_result.issue_identifier}]"
     )
 
     custom_statement_check_result: StatementCheckResult = (
         audit.custom_statement_check_results.first()
     )
 
-    assert custom_statement_check_result.__str__() == f"{audit} | Custom"
+    assert (
+        custom_statement_check_result.__str__()
+        == f"{audit} | Custom [{custom_statement_check_result.issue_identifier}]"
+    )
 
 
 @pytest.mark.django_db
@@ -1710,7 +1715,10 @@ def test_retest_statement_check_results_str():
         RetestStatementCheckResult.objects.create(retest=retest)
     )
 
-    assert retest_statement_check_result.__str__() == "Retest #1 | Custom"
+    assert (
+        retest_statement_check_result.__str__()
+        == f"{retest} | Custom [{retest_statement_check_result.issue_identifier}]"
+    )
 
     statement_check: StatementCheck = StatementCheck.objects.get(
         id=ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID
@@ -1720,7 +1728,7 @@ def test_retest_statement_check_results_str():
 
     assert (
         retest_statement_check_result.__str__()
-        == "Retest #1 | Is there an accessibility page?: An accessibility page is found on the website (Statement overview)"
+        == f"{retest} | {statement_check} [{retest_statement_check_result.issue_identifier}]"
     )
 
 
@@ -1897,8 +1905,8 @@ def test_statement_check_result_display_value():
 
 
 @pytest.mark.django_db
-def test_check_result_unique_id_within_case():
-    """Test check result gets unique id withn Case"""
+def test_check_result_issue_identifier():
+    """Test check result gets unique identifier"""
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
@@ -1914,7 +1922,7 @@ def test_check_result_unique_id_within_case():
         wcag_definition=wcag_definition,
     )
 
-    assert check_result_1a.unique_id_within_case == "#E1"
+    assert check_result_1a.issue_identifier == "1-A-1"
 
     check_result_1b: CheckResult = CheckResult.objects.create(
         audit=audit_1,
@@ -1925,7 +1933,7 @@ def test_check_result_unique_id_within_case():
         wcag_definition=wcag_definition,
     )
 
-    assert check_result_1b.unique_id_within_case == "#E2"
+    assert check_result_1b.issue_identifier == "1-A-2"
 
     case_2: Case = Case.objects.create()
     audit_2: Audit = Audit.objects.create(case=case_2)
@@ -1939,4 +1947,180 @@ def test_check_result_unique_id_within_case():
         wcag_definition=wcag_definition,
     )
 
-    assert check_result_2a.unique_id_within_case == "#E1"
+    assert check_result_2a.issue_identifier == "2-A-1"
+
+
+@pytest.mark.django_db
+def test_issue_identifier():
+    """
+    Test issue_identifier property is populated on CheckResult, StatementCheckResult,
+    RetestCheckResult and RetestStatementCheckResult creation.
+    """
+
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+
+    first_check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert first_check_result.issue_identifier == "1-A-1"
+
+    second_check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert second_check_result.issue_identifier == "1-A-2"
+
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    first_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+    )
+
+    assert first_statement_check_result.issue_identifier == "1-S-1"
+
+    second_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.create(
+            audit=audit,
+            report_comment="Custom statement issue",
+        )
+    )
+
+    assert second_statement_check_result.issue_identifier == "1-SC-2"
+
+    retest: Retest = Retest.objects.create(case=case)
+    create_checkresults_for_retest(retest=retest)
+
+    first_retest_check_result: RetestCheckResult = (
+        retest.retestcheckresult_set.all().first()
+    )
+    second_retest_check_result: RetestCheckResult = (
+        retest.retestcheckresult_set.all().last()
+    )
+
+    assert first_retest_check_result.issue_identifier == "1-A-1"
+    assert second_retest_check_result.issue_identifier == "1-A-2"
+
+    assert retest.reteststatementcheckresult_set.count() > 2
+
+    first_retest_statement_check_result: RetestStatementCheckResult = (
+        retest.reteststatementcheckresult_set.all().first()
+    )
+    second_retest_statement_check_result: RetestStatementCheckResult = (
+        retest.reteststatementcheckresult_set.all().last()
+    )
+
+    assert first_retest_statement_check_result.issue_identifier == "1-S-1"
+    assert second_retest_statement_check_result.issue_identifier == "1-S-42"
+
+    new_custom_retest_statement_check_result: RetestStatementCheckResult = (
+        RetestStatementCheckResult.objects.create(
+            retest=retest,
+        )
+    )
+
+    assert new_custom_retest_statement_check_result.issue_identifier == "1-SC-43"
+
+
+@pytest.mark.django_db
+def test_build_issue_identifier():
+    """Test building issue identifiers"""
+
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        check_result_state=CheckResult.Result.ERROR,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    assert build_issue_identifier(case=case, issue=check_result) == "1-A-1"
+
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+    )
+
+    assert build_issue_identifier(case=case, issue=statement_check_result) == "1-S-1"
+
+    custom_statement_check_result: StatementCheck = StatementCheckResult.objects.create(
+        audit=audit,
+        report_comment="Custom statement issue",
+    )
+
+    assert (
+        build_issue_identifier(
+            case=case, issue=custom_statement_check_result, custom_issue=True
+        )
+        == "1-SC-2"
+    )
+
+    retest: Retest = Retest.objects.create(case=case)
+    retest_page: RetestPage = RetestPage.objects.create(
+        retest=retest,
+        page=page,
+    )
+    retest_check_result: RetestCheckResult = RetestCheckResult.objects.create(
+        retest=retest,
+        id_within_case=check_result.id_within_case,
+        retest_page=retest_page,
+        check_result=check_result,
+    )
+
+    assert build_issue_identifier(case=case, issue=retest_check_result) == "1-A-1"
+
+    retest_statement_check_result: RetestStatementCheckResult = (
+        RetestStatementCheckResult.objects.create(
+            retest=retest,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+    )
+
+    assert (
+        build_issue_identifier(case=case, issue=retest_statement_check_result)
+        == "1-S-1"
+    )
+
+    custom_retest_statement_check_result: RetestStatementCheckResult = (
+        RetestStatementCheckResult.objects.create(
+            retest=retest,
+            comment="Custom statement issue",
+        )
+    )
+
+    assert (
+        build_issue_identifier(
+            case=case, issue=custom_retest_statement_check_result, custom_issue=True
+        )
+        == "1-SC-2"
+    )

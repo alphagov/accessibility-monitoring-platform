@@ -16,7 +16,6 @@ Please review the issues listed below and provide an update.
     <table id="email-issues-table-{{ forloop.counter }}">
     <thead>
     <tr>
-    <th width=1%>#</th>
     <th id="issue-{{ forloop.counter }}" width=33%>Issue and description</th>
     <th id="where-found-{{ forloop.counter }}" width=33%>Notes</th>
     <th id="12-week-update-{{ forloop.counter }}" width=33%>Organisation update</th>
@@ -25,9 +24,9 @@ Please review the issues listed below and provide an update.
     <tbody>
     {% for check_result in page.unfixed_check_results %}
     <tr valign="top">
-    <td width=1%>{{ forloop.counter }}</td>
     <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
-        <a href="{{ check_result.wcag_definition.url_on_w3 }}">{{ check_result.wcag_definition.name }}</a>
+        <p><a href="{{ check_result.wcag_definition.url_on_w3 }}">{{ check_result.wcag_definition.name }}</a></p>
+        <p>[{{ check_result.issue_identifier }}]</p>
     </td>
     <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ check_result.notes|markdown_to_html }}</td>
     <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
@@ -48,20 +47,19 @@ Please review the issues listed below and provide an update.
 <table id="email-statement-issues-table">
 <thead>
 <tr>
-<th width=1%>#</th>
-<th id="statement-issue" width=49%>Issue</th>
-<th id="statement-12-week-update" width=49%>Organisation update</th>
+<th id="statement-issue" width=50%>Issue</th>
+<th id="statement-12-week-update" width=50%>Organisation update</th>
 </tr>
 </thead>
 <tbody>
 {% for statement_check_result in case.audit.outstanding_statement_check_results %}
 <tr valign="top">
-<td width=1%>{{ forloop.counter }}</td>
-<td headers="statement-issue" width=49%>
+<td headers="statement-issue" width=50%>
 <p>{{ statement_check_result.statement_check.report_text }}</p>
 {{ statement_check_result.report_comment|markdown_to_html }}
+<p>[{{ statement_check_result.issue_identifier }}]</p>
 </td>
-<td headers="statement-12-week-update" width=49%>
+<td headers="statement-12-week-update" width=50%>
 {{ statement_check_result.retest_comment|markdown_to_html }}
 </td>
 </tr>

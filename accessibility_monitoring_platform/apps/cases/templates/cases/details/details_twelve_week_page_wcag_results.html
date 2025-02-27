@@ -13,6 +13,7 @@
                     <tr class="govuk-table__row">
                         <td class="govuk-table__cell amp-width-one-third">
                             <label class="govuk-label">{{ check_result.wcag_definition }}</label>
+                            {% include 'audits/helpers/issue_identifier.html' with issue=check_result %}
                         </td>
                         <td class="govuk-table__cell amp-width-one-third">
                             <label class="govuk-label">{{ check_result.get_check_result_state_display }}</label>
