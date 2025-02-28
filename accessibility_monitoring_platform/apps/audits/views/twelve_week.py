@@ -19,6 +19,7 @@ from ..forms import (
     AuditRetestCheckResultFormset,
     AuditRetestMetadataUpdateForm,
     AuditRetestPageChecksForm,
+    AuditRetestPageFormset,
     AuditRetestPagesUpdateForm,
     AuditRetestStatementCheckResultFormset,
     AuditRetestStatementComplianceUpdateForm,
@@ -86,6 +87,38 @@ class AuditRetestPagesView(AuditUpdateView):
     def get_next_platform_page(self):
         audit: Audit = self.object
         return get_next_platform_page_twelve_week(audit=audit)
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        audit: Audit = self.object
+        if self.request.POST:
+            audit_retest_pages_formset: AuditRetestPageFormset = AuditRetestPageFormset(
+                self.request.POST
+            )
+        else:
+            audit_retest_pages_formset: AuditRetestPageFormset = AuditRetestPageFormset(
+                queryset=audit.testable_pages
+            )
+        context["audit_retest_pages_formset"] = audit_retest_pages_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: dict[str, Any] = self.get_context_data()
+        audit_retest_pages_formset: AuditRetestPageFormset = context[
+            "audit_retest_pages_formset"
+        ]
+
+        if audit_retest_pages_formset.is_valid():
+            pages: list[Page] = audit_retest_pages_formset.save(commit=False)
+            for page in pages:
+                record_model_update_event(user=self.request.user, model_object=page)
+                page.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
 
 
 class AuditRetestPageChecksFormView(AuditPageChecksFormView):
