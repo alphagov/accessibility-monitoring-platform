@@ -147,7 +147,7 @@ class Audit(VersionModel):
     audit_retest_metadata_notes = models.TextField(default="", blank=True)
     audit_retest_metadata_complete_date = models.DateField(null=True, blank=True)
 
-    # Retest pages
+    # Update page links
     audit_retest_pages_complete_date = models.DateField(null=True, blank=True)
 
     # Retest website compliance
@@ -576,7 +576,9 @@ class Page(models.Model):
     )
     name = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
+    updated_url = models.TextField(default="", blank=True)
     location = models.TextField(default="", blank=True)
+    updated_location = models.TextField(default="", blank=True)
     complete_date = models.DateField(null=True, blank=True)
     no_errors_date = models.DateField(null=True, blank=True)
     not_found = models.CharField(

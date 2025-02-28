@@ -402,6 +402,10 @@ def test_audit_edit_redirects_based_on_button_pressed(
             "version": audit.version,
             button_name: "Button value",
             "case-compliance-version": audit.case.compliance.version,
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
         },
     )
 
@@ -3394,7 +3398,7 @@ def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
         ("edit-audit-pages", "Initial WCAG test | Compliance decision"),
         ("edit-statement-overview", "Initial statement | Statement information"),
         ("edit-statement-overview", "Initial statement | Disproportionate burden"),
-        ("edit-audit-retest-metadata", "12-week WCAG test | Retest pages"),
+        ("edit-audit-retest-metadata", "12-week WCAG test | Update page links"),
         ("edit-audit-retest-pages", "12-week WCAG test | Compliance decision"),
         ("edit-retest-statement-overview", "12-week statement | Statement information"),
         (

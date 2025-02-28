@@ -1,0 +1,47 @@
+<details class="govuk-details" data-module="govuk-details">
+    <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">
+            Website links
+        </span>
+    </summary>
+    <div class="govuk-details__text">
+        <p class="govuk-body-m amp-margin-bottom-0"><b>Initial test</b></p>
+        <p class="govuk-body-m amp-margin-bottom-0">
+            {{ page }} link:
+            {% if page.url %}
+                <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Open page in new tab</a>
+            {% else %}
+                None
+            {% endif %}
+        </p>
+        <p class="govuk-body-m">
+            Page location:
+            {% if page.location %}
+                {{ page.location }}
+            {% else %}
+                N/A
+            {% endif %}
+        </p>
+        {% if page.updated_url %}
+            <p class="govuk-body-m amp-margin-bottom-0"><b>12-week test</b></p>
+            <p class="govuk-body-m amp-margin-bottom-0">
+                {{ page }} link:
+                {% if page.updated_url %}
+                    <a href="{{ page.updated_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        Open page in new tab</a>
+                {% else %}
+                    None
+                {% endif %}
+            </p>
+            <p class="govuk-body-m">
+                Page location:
+                {% if page.updated_location %}
+                    {{ page.updated_location }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+</details>

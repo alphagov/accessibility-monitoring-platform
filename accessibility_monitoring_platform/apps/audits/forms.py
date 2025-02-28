@@ -548,6 +548,25 @@ class AuditRetestPagesUpdateForm(VersionForm):
         ]
 
 
+class AuditRetestPageUpdateForm(forms.ModelForm):
+    """Form for updating a page at 12-week retest"""
+
+    updated_url = AMPURLField(label="New URL (if applicable)")
+    updated_location = AMPCharFieldWide(label="New page location (if applicable)")
+
+    class Meta:
+        model = Page
+        fields = [
+            "updated_url",
+            "updated_location",
+        ]
+
+
+AuditRetestPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    Page, AuditRetestPageUpdateForm, extra=0
+)
+
+
 class AuditRetestPageChecksForm(forms.Form):
     """
     Form for retesting checks for a page
