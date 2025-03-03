@@ -1280,16 +1280,22 @@ def test_standard_pages_appear_on_pages_page(admin_client):
         reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),
     )
     assert response.status_code == 200
-    assertContains(response, """<h2 class="govuk-heading-m">Home</h2>""", html=True)
-    assertContains(response, """<h2 class="govuk-heading-m">Contact</h2>""", html=True)
+    assertContains(
+        response, """<h2 class="govuk-heading-m">Home page</h2>""", html=True
+    )
+    assertContains(
+        response, """<h2 class="govuk-heading-m">Contact page</h2>""", html=True
+    )
     assertContains(response, "Form is on contact page")
     assertContains(
         response,
-        """<h2 class="govuk-heading-m">Accessibility Statement</h2>""",
+        """<h2 class="govuk-heading-m">Accessibility Statement page</h2>""",
         html=True,
     )
     assertContains(response, """<h2 class="govuk-heading-m">PDF</h2>""", html=True)
-    assertContains(response, """<h2 class="govuk-heading-m">A Form</h2>""", html=True)
+    assertContains(
+        response, """<h2 class="govuk-heading-m">A Form page</h2>""", html=True
+    )
 
 
 def test_two_extra_pages_appear_on_pages_page(admin_client):

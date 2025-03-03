@@ -7,7 +7,7 @@
     <div class="govuk-details__text">
         <p class="govuk-body-m amp-margin-bottom-0"><b>Initial test</b></p>
         <p class="govuk-body-m amp-margin-bottom-0">
-            {{ page }} link:
+            {{ page.page_title }} link:
             {% if page.url %}
                 <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     Open page in new tab</a>
@@ -26,7 +26,7 @@
         {% if page.updated_url %}
             <p class="govuk-body-m amp-margin-bottom-0"><b>12-week test</b></p>
             <p class="govuk-body-m amp-margin-bottom-0">
-                {{ page }} link:
+                {{ page.page_title }} link:
                 {% if page.updated_url %}
                     <a href="{{ page.updated_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                         Open page in new tab</a>

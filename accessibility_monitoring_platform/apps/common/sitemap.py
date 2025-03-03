@@ -905,6 +905,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                         case_details_template_name="cases/details/details_twelve_week_page_wcag_results.html",
                     )
                 ],
+                case_details_template_name="cases/details/details_12_week_pages.html",
             ),
             AuditPlatformPage(
                 name="Compliance decision",
