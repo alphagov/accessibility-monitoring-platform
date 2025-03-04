@@ -101,7 +101,7 @@
                     <tbody class="govuk-table__body">
                         {% for page in audit.deleted_pages %}
                             <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header amp-width-one-half">{{ page }}</th>
+                                <th scope="row" class="govuk-table__header amp-width-one-half">{{ page.page_title }}</th>
                                 <td class="govuk-table__cell amp-width-one-half">
                                     <a href="{% url 'audits:restore-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
                                         Unremove page</a>

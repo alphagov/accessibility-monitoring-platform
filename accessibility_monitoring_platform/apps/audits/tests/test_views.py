@@ -402,6 +402,10 @@ def test_audit_edit_redirects_based_on_button_pressed(
             "version": audit.version,
             button_name: "Button value",
             "case-compliance-version": audit.case.compliance.version,
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
         },
     )
 
@@ -1276,16 +1280,22 @@ def test_standard_pages_appear_on_pages_page(admin_client):
         reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),
     )
     assert response.status_code == 200
-    assertContains(response, """<h2 class="govuk-heading-m">Home</h2>""", html=True)
-    assertContains(response, """<h2 class="govuk-heading-m">Contact</h2>""", html=True)
+    assertContains(
+        response, """<h2 class="govuk-heading-m">Home page</h2>""", html=True
+    )
+    assertContains(
+        response, """<h2 class="govuk-heading-m">Contact page</h2>""", html=True
+    )
     assertContains(response, "Form is on contact page")
     assertContains(
         response,
-        """<h2 class="govuk-heading-m">Accessibility Statement</h2>""",
+        """<h2 class="govuk-heading-m">Accessibility Statement page</h2>""",
         html=True,
     )
     assertContains(response, """<h2 class="govuk-heading-m">PDF</h2>""", html=True)
-    assertContains(response, """<h2 class="govuk-heading-m">A Form</h2>""", html=True)
+    assertContains(
+        response, """<h2 class="govuk-heading-m">A Form page</h2>""", html=True
+    )
 
 
 def test_two_extra_pages_appear_on_pages_page(admin_client):
@@ -3394,7 +3404,7 @@ def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
         ("edit-audit-pages", "Initial WCAG test | Compliance decision"),
         ("edit-statement-overview", "Initial statement | Statement information"),
         ("edit-statement-overview", "Initial statement | Disproportionate burden"),
-        ("edit-audit-retest-metadata", "12-week WCAG test | Retest pages"),
+        ("edit-audit-retest-metadata", "12-week WCAG test | Update page links"),
         ("edit-audit-retest-pages", "12-week WCAG test | Compliance decision"),
         ("edit-retest-statement-overview", "12-week statement | Statement information"),
         (

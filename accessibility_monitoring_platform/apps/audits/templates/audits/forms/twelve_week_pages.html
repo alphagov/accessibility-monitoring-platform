@@ -1,21 +1,55 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-{% for page in case.audit.testable_pages %}
-    {% if page.failed_check_results.count > 0 %}
-        <h2 class="govuk-heading-m">{{ page }}</h2>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <div class="govuk-form-group">
-                    <label class="govuk-label"><b>URL</b></label>
-                    <div class="govuk-hint">{{ page.url }}</div>
-                </div>
-                <div class="govuk-form-group">
-                    <label class="govuk-label"><b>Page location description if single page app</b></label>
-                    <div class="govuk-hint">{% if page.location %}{{ page.location }}{% else %}None{% endif %}</div>
-                </div>
-            </div>
+{% if audit_retest_pages_formset.errors %}
+    {% for form in audit_retest_pages_formset.forms %}
+        {% if form.errors %}
+            {% include 'common/error_summary.html' %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block form %}
+<form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">
+    {% csrf_token %}
+    {{ audit_retest_pages_formset.management_form }}
+
+    <table class="govuk-table">
+        <tbody class="govuk-table__body">
+        {% for page_form in audit_retest_pages_formset %}
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-m">{{ page_form.instance.page_title }}</h2>
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>URL</b></label>
+                                <div class="govuk-hint">{{ page_form.instance.url }}</div>
+                            </div>
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Page location description if single page app</b></label>
+                                <div class="govuk-hint">{% if page_form.instance.location %}{{ page_form.instance.location }}{% else %}None{% endif %}</div>
+                            </div>
+                            {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
+                            {% for field in page_form.visible_fields %}
+                                {% include 'common/amp_field.html' %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/amp_form_snippet.html' %}
         </div>
-    {% endif %}
-{% endfor %}
+        <div class="govuk-grid-column-full">
+            {% include 'cases/helpers/save_continue_cancel.html' %}
+        </div>
+    </div>
+</form>
 {% endblock %}
