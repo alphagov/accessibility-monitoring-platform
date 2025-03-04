@@ -296,6 +296,10 @@ img, .amp-max-width-100 {
     margin-top: 10px;
 }
 
+.amp-margin-top-20 {
+    margin-top: 20px;
+}
+
 .amp-margin-top-30 {
     margin-top: 30px;
 }
@@ -956,4 +960,19 @@ svg {
     border-left: 1px solid govuk-colour("mid-grey");
     padding-left: 12px;
     margin-bottom: 10px;
+}
+
+.amp-preview {
+    min-height: 25px;
+    border-left: 1px solid govuk-colour("mid-grey");
+    padding-left: 12px;
+    padding-top: 4px;
+    margin-bottom: 10px;
+
+    ul:first-child, p:first-child {
+        margin-top: 0;
+    }
+    ul:last-child, p:last-child {
+        margin-bottom: 0;
+    }
 }

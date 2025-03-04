@@ -155,10 +155,11 @@ class AuditPageChecksForm(forms.Form):
     """
 
     complete_date = AMPDatePageCompleteField(
-        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+        label="Mark this page as complete",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page complete"}),
     )
     no_errors_date = AMPDatePageCompleteField(
-        label="",
+        label="Mark page as having no errors",
         widget=AMPDateCheckboxWidget(attrs={"label": "Web page has no errors"}),
     )
 
@@ -573,13 +574,14 @@ class AuditRetestPageChecksForm(forms.Form):
     """
 
     retest_complete_date = AMPDatePageCompleteField(
-        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+        label="Mark this page as complete",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page complete"}),
     )
     retest_page_missing_date = AMPDatePageCompleteField(
-        label="",
+        label="Mark page as missing",
         widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
     )
-    retest_notes = AMPTextField(label="Additional issues found on page")
+    retest_notes = AMPTextField(label="Error details for correspondence")
 
     class Meta:
         model = Audit
