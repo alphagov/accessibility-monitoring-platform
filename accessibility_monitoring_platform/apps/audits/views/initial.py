@@ -73,11 +73,11 @@ from .base import (
 )
 
 STANDARD_PAGE_HEADERS: list[str] = [
-    "Home",
-    "Contact",
-    "A Form",
+    "Home page",
+    "Contact page",
+    "A Form page",
     "PDF",
-    "Accessibility Statement",
+    "Accessibility Statement page",
 ]
 
 

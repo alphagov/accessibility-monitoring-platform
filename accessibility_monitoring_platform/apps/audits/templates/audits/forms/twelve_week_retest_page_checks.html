@@ -3,6 +3,11 @@
 {% load static %}
 
 {% block preform %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'audits/helpers/psb_page_links.html' %}
+        </div>
+    </div>
     {% include 'audits/helpers/page_check_filters.html' with page='retest' %}
 {% endblock %}
 
@@ -70,14 +75,6 @@
                     class="govuk-button govuk-button--secondary"
                     data-module="govuk-button"
                 />
-                {% if page %}
-                    <a href="{{ page.url }}" class="govuk-link" target="_blank">
-                        Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
-                    </a>
-                {% endif %}
-                {% if page.location %}
-                    <p class="govuk-body">{{ page.location }}</p>
-                {% endif %}
             </div>
         </div>
         {% include 'common/next_platform_page.html' %}

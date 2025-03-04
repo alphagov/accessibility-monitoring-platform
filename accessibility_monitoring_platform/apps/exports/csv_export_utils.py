@@ -74,7 +74,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Case number",
         source_class=Case,
-        source_attr="id",
+        source_attr="case_number",
         required=True,
         edit_url_class=Case,
         edit_url_name=None,
@@ -322,7 +322,7 @@ EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = (
 )
 
 CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
-    CSVColumn(column_header="Case no.", source_class=Case, source_attr="id"),
+    CSVColumn(column_header="Case no.", source_class=Case, source_attr="case_number"),
     CSVColumn(column_header="Version", source_class=Case, source_attr="version"),
     CSVColumn(column_header="Created by", source_class=Case, source_attr="created_by"),
     CSVColumn(column_header="Date created", source_class=Case, source_attr="created"),
@@ -714,7 +714,7 @@ CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
 ]
 
 FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
-    CSVColumn(column_header="Case no.", source_class=Case, source_attr="id"),
+    CSVColumn(column_header="Case no.", source_class=Case, source_attr="case_number"),
     CSVColumn(
         column_header="Organisation name",
         source_class=Case,

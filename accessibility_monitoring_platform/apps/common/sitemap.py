@@ -892,7 +892,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 case_details_template_name="cases/details/details.html",
             ),
             AuditRetestPagesPlatformPage(
-                name="Retest pages",
+                name="Update page links",
                 url_name="audits:edit-audit-retest-pages",
                 complete_flag_name="audit_retest_pages_complete_date",
                 subpages=[
@@ -905,6 +905,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                         case_details_template_name="cases/details/details_twelve_week_page_wcag_results.html",
                     )
                 ],
+                case_details_template_name="cases/details/details_12_week_pages.html",
             ),
             AuditPlatformPage(
                 name="Compliance decision",

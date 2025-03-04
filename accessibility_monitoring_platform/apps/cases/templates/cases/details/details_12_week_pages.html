@@ -14,7 +14,7 @@
                         None
                     {% endif %}
                 </p>
-                <p class="govuk-body-m amp-margin-bottom-0">
+                <p class="govuk-body-m {% if not page.updated_url %}amp-margin-bottom-0{% endif %}">
                     Initial page location:
                     {% if page.location %}
                         {{ page.location }}
@@ -22,16 +22,26 @@
                         N/A
                     {% endif %}
                 </p>
+                {% if page.updated_url %}
+                    <p class="govuk-body-m amp-margin-bottom-0">
+                        12-week URL link:
+                        {% if page.updated_url %}
+                            <a href="{{ page.updated_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                {{ page.updated_url }}</a>
+                        {% else %}
+                            None
+                        {% endif %}
+                    </p>
+                    <p class="govuk-body-m amp-margin-bottom-0">
+                        12-week page location:
+                        {% if page.updated_location %}
+                            {{ page.updated_location }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                {% endif %}
             </td>
         </tr>
-        {% if page.location %}
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                    Page location description if single page app</th>
-                <td class="govuk-table__cell amp-width-one-half">
-                    {{ page.location }}
-                </td>
-            </tr>
-        {% endif %}
     {% endfor %}
 {% endblock %}
