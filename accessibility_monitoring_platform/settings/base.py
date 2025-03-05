@@ -258,6 +258,7 @@ MARKDOWN_EXTENSIONS = ["fenced_code", "sane_lists"]
 # django-axes
 AXES_LOCKOUT_PARAMETERS = ["username"]  # Block only on username
 AXES_FAILURE_LIMIT = 20
+AXES_PASSWORD_FORM_FIELD = "auth-password"
 
 if UNDER_TEST:
     #  django-axes is incompatible with the platform test environment
