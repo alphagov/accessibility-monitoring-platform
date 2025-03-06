@@ -3,81 +3,68 @@
 {% load static %}
 
 {% block preform %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <p class="govuk-body-m amp-margin-bottom-0"><b>Initial test</b></p>
+        <p class="govuk-body-m amp-margin-bottom-5">
+            {{ page.page_title }} link:
+            {% if page.url %}
+                <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Open page in new tab</a>
+            {% else %}
+                None
+            {% endif %}
+        </p>
+        <p class="govuk-body-m">
+            Page location:
+            {% if page.location %}
+                {{ page.location }}
+            {% else %}
+                N/A
+            {% endif %}
+        </p>
+    </div>
+    <div class="govuk-grid-column-one-third">
+        <p class="govuk-body-m amp-margin-bottom-0">
+            <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+        </p>
+    </div>
+</div>
+{% if page.updated_url %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'audits/helpers/psb_page_links.html' %}
+            <p class="govuk-body-m amp-margin-bottom-0"><b>12-week retest</b></p>
+            <p class="govuk-body-m amp-margin-bottom-0">
+                {{ page.page_title }} link:
+                {% if page.updated_url %}
+                    <a href="{{ page.updated_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        Open page in new tab</a>
+                {% else %}
+                    None
+                {% endif %}
+            </p>
+            <p class="govuk-body-m">
+                Page location:
+                {% if page.updated_location %}
+                    {{ page.updated_location }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </p>
         </div>
     </div>
-    {% include 'audits/helpers/page_check_filters.html' with page='retest' %}
+{% endif %}
+{% include 'audits/helpers/page_check_filters.html' with page='retest' %}
 {% endblock %}
 
 {% block form %}
     <form method="post" action="{% url 'audits:edit-audit-retest-page-checks' page.id %}">
         <div class="govuk-grid-row">
             {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-            <div class="govuk-grid-column-one-half">
-                {% include 'common/amp_field.html' with field=form.retest_complete_date %}
-            </div>
-            <div class="govuk-grid-column-one-half">
+            <div class="govuk-grid-column-full">
                 {% include 'common/amp_field.html' with field=form.retest_page_missing_date %}
             </div>
         </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <details class="govuk-details" data-module="govuk-details" {% if form.retest_notes.value %}open{% endif %}>
-                    <summary class="govuk-details__summary">
-                        <span class="govuk-details__summary-text">Additional issues found on page</span>
-                    </summary>
-                    <div class="govuk-details__text">
-                        {% if other_pages_with_retest_notes %}
-                            <details class="govuk-details" data-module="govuk-details">
-                                <summary class="govuk-details__summary">
-                                    <span class="govuk-details__summary-text">
-                                        Other additional issues
-                                    </span>
-                                </summary>
-                                <div class="govuk-details__text">
-                                    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                                    {% for other_page in other_pages_with_retest_notes %}
-                                        <li>
-                                            <b>{{ other_page }}</b>
-                                            <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ other_page.retest_notes }}</textarea>
-                                            <span tabIndex="0"
-                                                class="amp-control amp-copy-error"
-                                                sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
-                                                targetId="{{ form.retest_notes.auto_id }}">
-                                                Click to populate additional issues</span>
-                                            {{ other_page.retest_notes|markdown_to_html }}
-                                        </li>
-                                    {% endfor %}
-                                    </ul>
-                                </div>
-                            </details>
-                        {% endif %}
-                        {% include 'common/amp_field.html' with field=form.retest_notes %}
-                    </div>
-                </details>
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full govuk-button-group">
-                <input
-                    type="submit"
-                    value="Save and continue"
-                    name="save_continue"
-                    class="govuk-button"
-                    data-module="govuk-button"
-                />
-                <input
-                    type="submit"
-                    value="Save"
-                    name="save"
-                    class="govuk-button govuk-button--secondary"
-                    data-module="govuk-button"
-                />
-            </div>
-        </div>
-        {% include 'common/next_platform_page.html' %}
         {% include 'common/formset_error_summary.html' with formset=check_results_formset %}
         {% csrf_token %}
         {% include 'common/form_errors.html' with errors=form.non_field_errors %}
@@ -121,16 +108,59 @@
                     {% endif %}
                     {% include 'common/amp_field.html' with field=form.retest_notes %}
                     {% include 'common/preview_markdown.html' with field_id=form.retest_notes.auto_id %}
+                    <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            {% include 'common/back_to_top.html' %}
+                            <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         {% endfor %}
-    </form>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full govuk-body">
-            <hr class="amp-width-100 amp-margin-bottom-30">
-            {% include 'common/back_to_top.html' %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <hr class="amp-width-100 amp-margin-bottom-30">
+                <label class="govuk-label amp-margin-bottom-30"><b>Additional issues found on page</b></label>
+                <details class="govuk-details" data-module="govuk-details">
+                    <summary class="govuk-details__summary">
+                        <span class="govuk-details__summary-text">
+                            Other additional issues ({{ other_pages_with_retest_notes|length }})
+                        </span>
+                    </summary>
+                    <div class="govuk-details__text">
+                        <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                        {% for other_page in other_pages_with_retest_notes %}
+                            <li>
+                                <b>{{ other_page }}</b>
+                                <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ other_page.retest_notes }}</textarea>
+                                <span tabIndex="0"
+                                    class="amp-control amp-copy-error"
+                                    sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
+                                    targetId="{{ form.retest_notes.auto_id }}">
+                                    Click to populate additional issues</span>
+                                {{ other_page.retest_notes|markdown_to_html }}
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </details>
+                {% include 'common/amp_field.html' with field=form.retest_notes %}
+                {% include 'common/preview_markdown.html' with field_id=form.retest_notes.auto_id %}
+                <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
+                    <div class="govuk-grid-column-full govuk-button-group">
+                        {% include 'common/back_to_top.html' %}
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+        <hr id="save-and-continue-buttons" class="amp-width-100 amp-margin-bottom-30">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include 'common/amp_field.html' with field=form.retest_complete_date %}
+            </div>
+        </div>
+        {% include 'cases/helpers/save_continue_cancel.html' %}
+    </form>
 {% endblock %}
 
 {% block extrascript %}
