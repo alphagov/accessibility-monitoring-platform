@@ -1,4 +1,4 @@
-""" Tests - test for notifications template tags """
+"""Tests - test for notifications template tags"""
 
 from datetime import date, datetime, timedelta
 
@@ -262,7 +262,7 @@ def test_report_ready_to_send_seven_day_no_contact():
 
     assert len(get_overdue_cases(user)) == 0
 
-    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.save()
 
@@ -282,10 +282,10 @@ def test_report_ready_to_send_seven_day_no_contact_for_all_users():
 
     assert len(get_overdue_cases(None)) == 0
 
-    case_1.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case_1.enable_correspondence_process = True
     case_1.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case_1.save()
-    case_2.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case_2.enable_correspondence_process = True
     case_2.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case_2.save()
 
@@ -301,7 +301,7 @@ def test_report_ready_to_send_no_contact_one_week_chaser_due():
     user: User = User.objects.create()
 
     case: Case = create_case(user)
-    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.no_contact_one_week_chaser_sent_date = TODAY
     case.save()
@@ -323,12 +323,12 @@ def test_report_ready_to_send_no_contact_one_week_chaser_due_for_all_users():
     """
     user_1: User = User.objects.create(username="user1", email="email1@example.com")
     case_1: Case = create_case(user_1)
-    case_1.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case_1.enable_correspondence_process = True
     case_1.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case_1.no_contact_one_week_chaser_sent_date = TODAY
     user_2: User = User.objects.create(username="user2", email="email2@example.com")
     case_2: Case = create_case(user_2)
-    case_2.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case_2.enable_correspondence_process = True
     case_2.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case_2.no_contact_one_week_chaser_sent_date = TODAY
 
@@ -353,7 +353,7 @@ def test_report_ready_to_send_no_contact_four_week_chaser_due():
     user: User = User.objects.create()
 
     case: Case = create_case(user)
-    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.no_contact_four_week_chaser_sent_date = TODAY
     case.save()
@@ -578,7 +578,7 @@ def test_pending_reminder_removes_overdue():
     """Test overdue cases with pending reminders are excluded"""
     user: User = User.objects.create()
     case: Case = create_case(user)
-    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.save()
 
@@ -681,7 +681,7 @@ def test_build_task_list_overdue():
     """Test build_task_list finds overdue task"""
     user: User = User.objects.create()
     case: Case = create_case(user)
-    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.save()
 

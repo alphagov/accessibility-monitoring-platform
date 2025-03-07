@@ -117,7 +117,7 @@ def get_overdue_cases(user_request: User | None) -> list[Case]:
 
     seven_day_no_contact: QuerySet[Case] = cases.filter(
         Q(status__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND),
-        Q(contact_details_found=Case.ContactDetailsFound.NOT_FOUND),
+        Q(enable_correspondence_process=True),
         Q(
             Q(
                 seven_day_no_contact_email_sent_date__range=[
