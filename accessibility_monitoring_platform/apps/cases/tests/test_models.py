@@ -1486,7 +1486,7 @@ def test_overdue_link_seven_day_no_contact():
     """
     case: Case = create_case_for_overdue_link()
 
-    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
     case.save()
 
@@ -1506,7 +1506,7 @@ def test_overdue_link_no_contact_one_week_chaser():
     """
     case: Case = create_case_for_overdue_link()
 
-    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = TWO_WEEKS_AGO
     case.no_contact_one_week_chaser_due_date = TODAY
     case.save()
@@ -1527,7 +1527,7 @@ def test_overdue_link_no_contact_four_week_chaser():
     """
     case: Case = create_case_for_overdue_link()
 
-    case.contact_details_found = Case.ContactDetailsFound.NOT_FOUND
+    case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = TWO_WEEKS_AGO
     case.no_contact_four_week_chaser_due_date = TODAY
     case.save()
