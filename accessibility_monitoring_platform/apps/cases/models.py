@@ -1040,7 +1040,7 @@ class Case(VersionModel):
 
         if (
             self.status.status == CaseStatus.Status.REPORT_READY_TO_SEND
-            and self.contact_details_found == Case.ContactDetailsFound.NOT_FOUND
+            and self.enable_correspondence_process is True
         ):
             if (
                 self.seven_day_no_contact_email_sent_date is not None
