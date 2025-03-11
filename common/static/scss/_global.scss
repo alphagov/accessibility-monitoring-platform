@@ -599,6 +599,12 @@ img, .amp-max-width-100 {
     }
 }
 
+.amp-email-template {
+    @extend .amp-report-wrapper;
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
 .amp-no-bullet-points {
     ul {
         padding: 0;
