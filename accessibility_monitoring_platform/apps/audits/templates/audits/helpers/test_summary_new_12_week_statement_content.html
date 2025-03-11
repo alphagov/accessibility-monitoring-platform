@@ -1,18 +1,9 @@
-<h2 id="new-12-week-custom-statement-issues" class="govuk-heading-s">New 12-week custom statement issues</h2>
+<h2 id="statement-{{ statement_check_type }}" class="govuk-heading-s">{{ statement_check_results.0.get_type_display }}</h2>
 <p class="govuk-body govuk-button-group amp-margin-bottom-0">
     <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
         Open statement page in new tab</a>
-    {% if enable_12_week_ui %}
-        {% if statement_check_results.0.statement_check %}
-            <a href="{% url statement_check_results.0.statement_check.edit_12_week_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
-        {% else %}
-            <a href="{% url 'audits:edit-retest-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
-        {% endif %}
-            Edit 12-week test
-        </a>
-    {% else %}
-        <span class="govuk-body amp-disabled">Edit 12-week test</span>
-    {% endif %}
+    <a href="{% url 'audits:edit-retest-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        Edit 12-week test</a>
 </p>
 <table class="govuk-table">
     <thead class="govuk-table__head">

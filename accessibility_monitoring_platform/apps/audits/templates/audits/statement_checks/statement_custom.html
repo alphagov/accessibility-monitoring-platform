@@ -41,8 +41,11 @@
                     </tr>
                 {% endfor %}
             {% else %}
-                <p class="govuk-body-l">No custom statement issues have been entered</p>
-                <hr class="amp-width-100 amp-margin-bottom-30" />
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">
+                        <p class="govuk-body-l">No custom statement issues have been entered</p>
+                    </td>
+                </tr>
             {% endif %}
             </tbody>
         </table>
