@@ -437,6 +437,36 @@ CustomStatementCheckResultFormsetOneExtra: forms.formsets.BaseFormSet = (
 )
 
 
+class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
+    """
+    Form for updating a custom statement check result
+    """
+
+    report_comment = AMPTextField(label="Issue description")
+    auditor_notes = AMPTextField(label="Notes")
+    retest_state = AMPChoiceRadioField(
+        label="Mark this statement as resolved",
+        choices=StatementCheckResult.Result.choices,
+        widget=AMPRadioSelectWidget(),
+    )
+
+    class Meta:
+        model = StatementCheckResult
+        fields = ["report_comment", "auditor_notes", "retest_state"]
+
+
+New12WeekCustomStatementCheckResultFormset: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        StatementCheckResult, New12WeekCustomStatementCheckResultUpdateForm, extra=0
+    )
+)
+New12WeekCustomStatementCheckResultFormsetOneExtra: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        StatementCheckResult, New12WeekCustomStatementCheckResultUpdateForm, extra=1
+    )
+)
+
+
 class InitialDisproportionateBurdenUpdateForm(VersionForm):
     """
     Form for editing initial disproportional burden claim

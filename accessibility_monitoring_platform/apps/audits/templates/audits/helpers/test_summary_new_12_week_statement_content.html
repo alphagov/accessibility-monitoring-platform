@@ -1,0 +1,38 @@
+<h2 id="new-12-week-custom-statement-issues" class="govuk-heading-s">New 12-week custom statement issues</h2>
+<p class="govuk-body govuk-button-group amp-margin-bottom-0">
+    <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+        Open statement page in new tab</a>
+    {% if enable_12_week_ui %}
+        {% if statement_check_results.0.statement_check %}
+            <a href="{% url statement_check_results.0.statement_check.edit_12_week_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        {% else %}
+            <a href="{% url 'audits:edit-retest-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        {% endif %}
+            Edit 12-week test
+        </a>
+    {% else %}
+        <span class="govuk-body amp-disabled">Edit 12-week test</span>
+    {% endif %}
+</p>
+<table class="govuk-table">
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header amp-width-one-third">Issue description</th>
+            <th scope="col" class="govuk-table__header amp-width-one-third">Assessment and notes</th>
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        {% for new_12_week_custom_issue in statement_check_results %}
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                    {{ new_12_week_custom_issue.report_comment|markdown_to_html }}
+                    {% include 'audits/helpers/issue_identifier.html' with issue=new_12_week_custom_issue %}
+                </td>
+                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                    {{ new_12_week_custom_issue.get_retest_state_display }}<br>
+                    {{ new_12_week_custom_issue.auditor_notes|markdown_to_html }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

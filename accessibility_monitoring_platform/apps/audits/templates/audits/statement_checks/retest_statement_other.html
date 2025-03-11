@@ -5,6 +5,7 @@
     {% include 'common/formset_error_summary.html' with formset=retest_statement_check_results_formset %}
     {% if not retest_statement_check_results_formset.forms %}
         <p class="govuk-body">No custom statement issues found in initial test.</p>
+        <hr class="amp-width-100 amp-margin-bottom-30" />
     {% endif %}
 {% endblock %}
 
@@ -15,7 +16,44 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'audits/helpers/retest_statement_check_formset.html' %}
-                <hr class="amp-width-100 amp-margin-bottom-30" />
+                {{ new_12_week_custom_formset.management_form }}
+                {% for new_12_week_custom_form in new_12_week_custom_formset %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <h2 id="custom-{{ new_12_week_custom_form.instance.id }}" class="govuk-heading-m{% if new_12_week_custom_form.instance.id %} amp-margin-bottom-0{% endif %}">12-week custom issue {{ forloop.counter }}</h2>
+                            {% if new_12_week_custom_form.instance.id %}
+                                <p class="govuk-body amp-margin-bottom-15">
+                                    {% include 'audits/helpers/issue_identifier.html' with issue=new_12_week_custom_form.instance %}
+                                </p>
+                            {% endif %}
+                            {% include 'common/form_errors.html' with errors=new_12_week_custom_form.non_field_errors %}
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=new_12_week_custom_form.hidden_fields %}
+                            {% include 'common/amp_field.html' with field=new_12_week_custom_form.report_comment %}
+                            {% include 'common/amp_field.html' with field=new_12_week_custom_form.auditor_notes %}
+                            {% if new_12_week_custom_form.instance.id %}
+                                {% include 'common/amp_field.html' with field=new_12_week_custom_form.retest_state %}
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-full">
+                                        <input
+                                            type="submit"
+                                            value="Remove issue"
+                                            name="remove_12_week_custom_{{ new_12_week_custom_form.instance.id }}"
+                                            class="govuk-button govuk-button--secondary"
+                                            data-module="govuk-button" />
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <hr class="amp-width-100 amp-margin-bottom-30" />
+                        </div>
+                    </div>
+                {% endfor %}
+                <input
+                    type="submit"
+                    value={% if new_12_week_custom_formset.forms %}"Save and add additional issue"{% else %}"Create issue"{% endif %}
+                    name="add_12_week_custom"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button"
+                />
                 {% include 'common/amp_form_snippet.html' %}
             </div>
         </div>

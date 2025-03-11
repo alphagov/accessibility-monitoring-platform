@@ -5,6 +5,7 @@
             {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}
             {% include 'audits/helpers/statement_check_result_field.html' with twelve_week_retest=True field=statement_check_result_form.retest_state %}
             {% include 'common/amp_field.html' with field=statement_check_result_form.retest_comment %}
+            <hr class="amp-width-100 amp-margin-bottom-30" />
         </div>
     </div>
 {% endfor %}

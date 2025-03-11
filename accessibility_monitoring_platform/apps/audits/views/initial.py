@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import FormView
 
-from ...cases.models import Case, Contact
+from ...cases.models import Case
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ...common.utils import (
@@ -497,7 +497,7 @@ class AuditStatementCustomFormsetView(AuditUpdateView):
         if self.request.POST:
             custom_formset = CustomStatementCheckResultFormset(self.request.POST)
         else:
-            statement_check_results: QuerySet[Contact] = (
+            statement_check_results: QuerySet[StatementCheckResult] = (
                 self.object.custom_statement_check_results
             )
             if "add_custom" in self.request.GET:

@@ -78,7 +78,12 @@
         <div class="amp-border-left">
             <ul class="govuk-list">
                 {% for statement_check_type, statement_check_results in statement_check_results_by_type.items %}
-                    <li><a href="#statement-{{ statement_check_type }}" class="govuk-link govuk-link--no-visited-state">{{ statement_check_results.0.get_type_display }}</a></li>
+                    {% if statement_check_type == '12-week' %}
+                        <li><a href="#new-12-week-custom-statement-issues" class="govuk-link govuk-link--no-visited-state">
+                            New 12-week custom statement issues</a></li>
+                    {% else %}
+                        <li><a href="#statement-{{ statement_check_type }}" class="govuk-link govuk-link--no-visited-state">{{ statement_check_results.0.get_type_display }}</a></li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>
@@ -309,6 +314,9 @@
 {% endif %}
 
 {% for statement_check_type, statement_check_results in statement_check_results_by_type.items %}
-    <br />
-    {% include 'audits/helpers/test_summary_statement_content.html' with statement_check_results=statement_check_results %}
+    {% if statement_check_type == '12-week' %}
+        {% include 'audits/helpers/test_summary_new_12_week_statement_content.html' %}
+    {% else %}
+        {% include 'audits/helpers/test_summary_statement_content.html' %}
+    {% endif %}
 {% endfor %}

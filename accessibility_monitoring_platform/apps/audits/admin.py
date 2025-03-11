@@ -112,7 +112,7 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
         "statement_check__report_text",
     ]
     list_display = ["issue_identifier", "statement_check", "audit", "is_deleted"]
-    list_filter = ["is_deleted", "check_result_state", "retest_state"]
+    list_filter = ["is_deleted", "check_result_state", "retest_state", "type"]
     fieldsets = (
         (
             None,
