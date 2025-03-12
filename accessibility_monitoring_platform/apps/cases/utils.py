@@ -144,13 +144,17 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
                     | Q(website_name__icontains=search)
                     | Q(subcategory__name__icontains=search)
                 )
-        for filter_name in ["is_complaint", "enforcement_body"]:
-            filter_value: str = form.cleaned_data.get(filter_name, Complaint.ALL)
-            if filter_value != Complaint.ALL:
+        for filter_name in [
+            "is_complaint",
+            "enforcement_body",
+            "recommendation_for_enforcement",
+        ]:
+            filter_value: str = form.cleaned_data.get(filter_name, "")
+            if filter_value != "":
                 filters[filter_name] = filter_value
 
     if str(filters.get("status", "")) == CaseStatus.Status.READY_TO_QA:
-        filters["qa_status"] = CaseStatus.Status.READY_TO_QA
+        filters["qa_status"] = Case.QAStatus.UNASSIGNED
         del filters["status"]
 
     if "status" in filters:
