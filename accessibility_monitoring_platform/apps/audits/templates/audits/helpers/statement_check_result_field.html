@@ -2,7 +2,7 @@
     <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
             <h2 id="{{ field.auto_id }}-label" for="{{ field.auto_id }}" class="govuk-heading-m amp-margin-bottom-0">
-                {{ statement_check_result_form.instance.label }}
+                {{ statement_check_result_form.instance.label }} {{ forloop.counter }}
             </h2>
             <span class="govuk-body">
                 {% include 'audits/helpers/issue_identifier.html' with issue=statement_check_result_form.instance %}

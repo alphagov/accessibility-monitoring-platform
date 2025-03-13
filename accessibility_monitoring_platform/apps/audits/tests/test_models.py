@@ -2124,3 +2124,23 @@ def test_build_issue_identifier():
         )
         == "1-SC-2"
     )
+
+
+@pytest.mark.django_db
+def test_audit_new_12_week_custom_statement_check_results():
+    """Test statement custom check result found"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    new_12_week_custom_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=StatementCheck.Type.TWELVE_WEEK,
+            report_comment="12-week custom statement issue",
+        )
+    )
+
+    assert audit.new_12_week_custom_statement_check_results.count() == 1
+    assert (
+        audit.new_12_week_custom_statement_check_results.first()
+        == new_12_week_custom_check_result
+    )
