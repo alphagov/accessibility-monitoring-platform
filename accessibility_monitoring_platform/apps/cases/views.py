@@ -104,6 +104,7 @@ TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
 TRUTHY_SEARCH_FIELDS: list[str] = [
     "sort_by",
     "status",
+    "recommendation_for_enforcement",
     "auditor",
     "reviewer",
     "date_start_0",

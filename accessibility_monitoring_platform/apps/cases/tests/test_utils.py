@@ -2,15 +2,11 @@
 Test utility functions of cases app
 """
 
-import csv
-import io
 from dataclasses import dataclass
-from typing import Any
 
 import pytest
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
-from django.http import HttpResponse
 from django.http.request import QueryDict
 
 from ...audits.models import Audit
@@ -29,6 +25,9 @@ ORGANISATION_NAME: str = "Organisation name one"
 ORGANISATION_NAME_COMPLAINT: str = "Organisation name two"
 ORGANISATION_NAME_ECNI: str = "Organisation name ecni"
 ORGANISATION_NAME_EHRC: str = "Organisation name ehrc"
+ORGANISATION_NAME_NO_FURTHER_ACTION: str = "Organisation name no further action"
+ORGANISATION_NAME_FOR_ENFORCEMENT: str = "Organisation name for enforcement"
+ORGANISATION_NAME_NOT_SELECTED: str = "Organisation name not selected"
 CASE_NUMBER: int = 99
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
@@ -121,6 +120,46 @@ def test_case_filtered_by_status():
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.parametrize(
+    "recommendation_for_enforcement_filter, expected_number, expected_name",
+    [
+        ("", 3, ORGANISATION_NAME_NOT_SELECTED),
+        ("no-further-action", 1, ORGANISATION_NAME_NO_FURTHER_ACTION),
+        ("other", 1, ORGANISATION_NAME_FOR_ENFORCEMENT),
+        ("unknown", 1, ORGANISATION_NAME_NOT_SELECTED),
+    ],
+)
+@pytest.mark.django_db
+def test_case_filtered_by_recommendation_for_enforcement(
+    recommendation_for_enforcement_filter, expected_number, expected_name
+):
+    """
+    Test that filtering by recommendation for enforcement is reflected in the queryset
+    """
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME_NO_FURTHER_ACTION,
+        recommendation_for_enforcement="no-further-action",
+    )
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME_FOR_ENFORCEMENT,
+        recommendation_for_enforcement="other",
+    )
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME_NOT_SELECTED,
+        recommendation_for_enforcement="unknown",
+    )
+    form: MockForm = MockForm(
+        cleaned_data={
+            "recommendation_for_enforcement": recommendation_for_enforcement_filter
+        }
+    )
+
+    filtered_cases: list[Case] = list(filter_cases(form))  # type: ignore
+
+    assert len(filtered_cases) == expected_number
+    assert filtered_cases[0].organisation_name == expected_name
 
 
 @pytest.mark.parametrize(
