@@ -45,6 +45,9 @@ from .models import (
 
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + Case.EnforcementBody.choices
 STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices
+RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
+    ("", "All")
+] + Case.RecommendationForEnforcement.choices
 
 
 class DateType(models.TextChoices):
@@ -74,6 +77,9 @@ class CaseSearchForm(AMPDateRangeForm):
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=STATUS_CHOICES)
+    recommendation_for_enforcement = AMPChoiceField(
+        label="Equality body recommendation", choices=RECOMMENDATION_CHOICES
+    )
     date_type = AMPChoiceField(label="Date filter", choices=DateType.choices)
     date_start = AMPDateField(label="Date start")
     date_end = AMPDateField(label="Date end")
