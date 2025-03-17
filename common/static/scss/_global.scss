@@ -374,7 +374,7 @@ img, .amp-max-width-100 {
     margin-bottom: 0;
 }
 
-.amp-vertically-allign {
+.amp-vertically-align {
     display: flex;
     align-items: center;
     height: 2.65rem;
@@ -780,4 +780,20 @@ svg {
     border-left: 1px solid govuk-colour("mid-grey");
     padding-left: 12px;
     margin-bottom: 10px;
+}
+
+.amp-horizontal-list {
+    list-style-type: None;
+    padding: 0;
+    margin: 0 0 15px 0;
+    display: flex;
+    /* align-items: center; */
+
+    li:first-of-type {
+        margin-left: 0;
+    }
+
+    li {
+        margin-left: 15px;
+    }
 }

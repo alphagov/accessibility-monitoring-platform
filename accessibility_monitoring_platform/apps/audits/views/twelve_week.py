@@ -5,24 +5,21 @@ Views for audits app (called tests by users)
 from datetime import date
 from typing import Any
 
-from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.views.generic.edit import CreateView, UpdateView
 
 from ...cases.models import CaseEvent
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
-from ...common.utils import (
-    mark_object_as_deleted,
-    record_model_create_event,
-    record_model_update_event,
-)
+from ...common.utils import record_model_create_event, record_model_update_event
 from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditRetestCheckResultForm,
     AuditRetestCheckResultFormset,
     AuditRetestMetadataUpdateForm,
+    AuditRetestNew12WeekCustomIssueCreateForm,
     AuditRetestPageChecksForm,
     AuditRetestPageFormset,
     AuditRetestPagesUpdateForm,
@@ -31,6 +28,7 @@ from ..forms import (
     AuditRetestStatementCustomUpdateForm,
     AuditRetestStatementDecisionUpdateForm,
     AuditRetestStatementFeedbackUpdateForm,
+    AuditRetestStatementInitialCustomIssueUpdateForm,
     AuditRetestStatementNonAccessibleUpdateForm,
     AuditRetestStatementOverviewUpdateForm,
     AuditRetestStatementPreparationUpdateForm,
@@ -40,8 +38,7 @@ from ..forms import (
     AuditRetestWebsiteDecisionUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
-    New12WeekCustomStatementCheckResultFormset,
-    New12WeekCustomStatementCheckResultFormsetOneExtra,
+    New12WeekCustomStatementCheckResultUpdateForm,
     TwelveWeekDisproportionateBurdenUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
 )
@@ -439,7 +436,7 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
     statement_check_type: str = StatementCheck.Type.FEEDBACK
 
 
-class AuditRetestStatementCustomFormView(AuditRetestStatementCheckingView):
+class AuditRetestStatementCustomFormView(AuditUpdateView):
     """
     View to add/update custom statement issues check results at 12-weeks
     """
@@ -448,74 +445,99 @@ class AuditRetestStatementCustomFormView(AuditRetestStatementCheckingView):
         AuditRetestStatementCustomUpdateForm
     )
     template_name: str = "audits/statement_checks/retest_statement_other.html"
-    statement_check_type: str = StatementCheck.Type.CUSTOM
+
+
+class AuditRetestInitialCustomIssueUpdateView(AuditUpdateView):
+    """
+    View to update an initial custom issue
+    """
+
+    model: type[StatementCheckResult] = StatementCheckResult
+    context_object_name: str = "custom_issue"
+    form_class: type[AuditRetestStatementInitialCustomIssueUpdateForm] = (
+        AuditRetestStatementInitialCustomIssueUpdateForm
+    )
+    template_name: str = "audits/statement_checks/retest_custom_issue_update.html"
+
+    def get_success_url(self) -> str:
+        """Return to the list of custom issues"""
+        custom_issue: StatementCheckResult = self.object
+        url: str = reverse(
+            "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
+        )
+        return f"{url}#custom-issue-{custom_issue.id}"
+
+
+class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
+    """
+    View to create new 12-week custom issue
+    """
+
+    model: type[StatementCheckResult] = StatementCheckResult
+    form_class: type[AuditRetestNew12WeekCustomIssueCreateForm] = (
+        AuditRetestNew12WeekCustomIssueCreateForm
+    )
+    template_name: str = "audits/forms/custom_issue_create.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            new_12_week_custom_formset = New12WeekCustomStatementCheckResultFormset(
-                self.request.POST, prefix="new-12-week"
-            )
-        else:
-            statement_check_results: QuerySet[StatementCheckResult] = (
-                self.object.new_12_week_custom_statement_check_results
-            )
-            if "add_12_week_custom" in self.request.GET:
-                new_12_week_custom_formset = (
-                    New12WeekCustomStatementCheckResultFormsetOneExtra(
-                        queryset=statement_check_results, prefix="new-12-week"
-                    )
-                )
-            else:
-                new_12_week_custom_formset = New12WeekCustomStatementCheckResultFormset(
-                    queryset=statement_check_results, prefix="new-12-week"
-                )
-        context["new_12_week_custom_formset"] = new_12_week_custom_formset
+        context["audit"] = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
         return context
 
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        context: dict[str, Any] = self.get_context_data()
-        new_12_week_custom_formset = context["new_12_week_custom_formset"]
-        audit: Audit = form.save(commit=False)
-        if new_12_week_custom_formset.is_valid():
-            custom_statement_check_results: list[StatementCheckResult] = (
-                new_12_week_custom_formset.save(commit=False)
-            )
-            for custom_statement_check_result in custom_statement_check_results:
-                if not custom_statement_check_result.audit_id:
-                    custom_statement_check_result.audit = audit
-                    custom_statement_check_result.type = StatementCheck.Type.TWELVE_WEEK
-                    custom_statement_check_result.check_result_state = (
-                        StatementCheckResult.Result.NO
-                    )
-                    custom_statement_check_result.save()
-                    record_model_create_event(
-                        user=self.request.user,
-                        model_object=custom_statement_check_result,
-                    )
-                else:
-                    record_model_update_event(
-                        user=self.request.user,
-                        model_object=custom_statement_check_result,
-                    )
-                    custom_statement_check_result.save()
-        else:
-            return super().form_invalid(form)
-        mark_object_as_deleted(
-            request=self.request,
-            delete_button_prefix="remove_12_week_custom_",
-            object_to_delete_model=StatementCheckResult,
-        )
+    def form_valid(self, form: AuditRetestNew12WeekCustomIssueCreateForm):
+        """Populate custom issue"""
+        audit: Audit = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
+        statement_check_result: StatementCheckResult = form.save(commit=False)
+        statement_check_result.audit = audit
+        statement_check_result.type = StatementCheck.Type.TWELVE_WEEK
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "add_12_week_custom" in self.request.POST:
-            audit_pk: dict[str, int] = {"pk": self.object.id}
-            return f"{reverse('audits:edit-retest-statement-custom', kwargs=audit_pk)}?add_12_week_custom=true#custom-None"
-        return super().get_success_url()
+        """Return to the list of custom issues"""
+        custom_issue: StatementCheckResult = self.object
+        record_model_create_event(user=self.request.user, model_object=custom_issue)
+        url: str = reverse(
+            "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
+        )
+        return f"{url}#custom-issue-{custom_issue.id}"
+
+
+class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
+    """
+    View to update a custom issue
+    """
+
+    model: type[StatementCheckResult] = StatementCheckResult
+    context_object_name: str = "custom_issue"
+    form_class: type[New12WeekCustomStatementCheckResultUpdateForm] = (
+        New12WeekCustomStatementCheckResultUpdateForm
+    )
+    template_name: str = "audits/forms/new_12_week_custom_issue_update.html"
+
+    def get_success_url(self) -> str:
+        """Return to the list of custom issues"""
+        custom_issue: StatementCheckResult = self.object
+        url: str = reverse(
+            "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
+        )
+        return f"{url}#custom-issue-{custom_issue.id}"
+
+
+def delete_new_12_week_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
+    """Mark new 12-week custom issue (StatementCheckResult) as deleted"""
+    if request.method == "POST":
+        custom_issue: StatementCheckResult = get_object_or_404(
+            StatementCheckResult, id=pk
+        )
+        custom_issue.is_deleted = True
+        record_model_update_event(user=request.user, model_object=custom_issue)
+        custom_issue.save()
+    return redirect(
+        reverse(
+            "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
+        )
+    )
 
 
 class TwelveWeekDisproportionateBurdenUpdateView(AuditUpdateView):

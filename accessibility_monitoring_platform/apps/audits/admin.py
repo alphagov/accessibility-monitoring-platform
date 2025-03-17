@@ -125,6 +125,7 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
                     ("report_comment",),
                     ("retest_state",),
                     ("retest_comment",),
+                    ("auditor_notes",),
                 )
             },
         ),

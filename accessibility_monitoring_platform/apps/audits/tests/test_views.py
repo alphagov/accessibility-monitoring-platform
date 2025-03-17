@@ -1817,16 +1817,10 @@ def test_add_custom_statement_check_result(admin_client):
     ).delete()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
+        reverse("audits:edit-custom-issue-create", kwargs={"audit_id": audit.id}),
         {
-            "form-TOTAL_FORMS": "1",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "form-0-id": "",
-            "form-0-report_comment": CUSTOM_STATEMENT_ISSUE,
-            "form-0-auditor_notes": "",
-            "version": audit.version,
+            "report_comment": CUSTOM_STATEMENT_ISSUE,
+            "auditor_notes": "",
             "save": "Save",
         },
         follow=True,
@@ -1845,23 +1839,20 @@ def test_delete_custom_statement_check_result(admin_client):
     Test that pressing the remove issue button deletes the custom statement issue
     """
     audit: Audit = create_audit_and_statement_check_results()
-    custom_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.get(audit=audit, type=StatementCheck.Type.CUSTOM)
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(
+        audit=audit, type=StatementCheck.Type.CUSTOM
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
-            f"remove_custom_{custom_statement_check_result.id}": "Remove issue",
-        },
+        reverse(
+            "audits:edit-custom-issue-delete",
+            kwargs={"pk": custom_issue.id},
+        ),
+        {},
         follow=True,
     )
     assert response.status_code == 200
+
     assertContains(response, "No custom statement issues have been entered")
 
     result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
@@ -2226,7 +2217,7 @@ def test_retest_statement_custom_no_initial(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "No custom statement issues found in initial test.")
+    assertContains(response, "No custom statement issues were initially entered")
 
 
 def test_retest_statement_custom_with_initial(admin_client):
@@ -3454,73 +3445,3 @@ def test_retest_next_page_name(path_name, expected_next_page, admin_client):
     assert response.status_code == 200
 
     assertContains(response, f"<b>{expected_next_page}</b>", html=True)
-
-
-def test_fields_for_new_12_week_custom_statement_issues_shown(admin_client):
-    """Test that new 12-week custom statement issues can be added at 12-weeks"""
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    url: str = reverse("audits:edit-retest-statement-custom", kwargs=audit_pk)
-
-    response: HttpResponse = admin_client.get(url)
-
-    assert response.status_code == 200
-
-    assertNotContains(response, "Issue description")
-    assertContains(response, "Create issue")
-    assertNotContains(response, "Save and add additional issue")
-
-    response: HttpResponse = admin_client.get(f"{url}?add_12_week_custom=true")
-
-    assert response.status_code == 200
-
-    assertContains(response, "Issue description")
-    assertNotContains(response, "Create issue")
-    assertContains(response, "Save and add additional issue")
-
-
-def test_adding_new_12_week_custom_statement_issues(admin_client):
-    """Test that new custom statement issues are added at 12-weeks"""
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    assert (
-        StatementCheckResult.objects.filter(
-            audit=audit, type=StatementCheck.Type.TWELVE_WEEK
-        ).first()
-        is None
-    )
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-retest-statement-custom", kwargs=audit_pk),
-        {
-            "version": audit.version,
-            "save": "Save",
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "new-12-week-TOTAL_FORMS": "1",
-            "new-12-week-INITIAL_FORMS": "0",
-            "new-12-week-MIN_NUM_FORMS": "0",
-            "new-12-week-MAX_NUM_FORMS": "1000",
-            "new-12-week-0-id": "",
-            "new-12-week-0-report_comment": NEW_12_WEEK_CUSTOM_REPORT_COMMENT,
-            "new-12-week-0-auditor_notes": NEW_12_WEEK_CUSTOM_AUDITOR_NOTES,
-        },
-    )
-
-    assert response.status_code == 302
-
-    new_12_week_custom_issue: StatementCheckResult = StatementCheckResult.objects.get(
-        audit=audit, type=StatementCheck.Type.TWELVE_WEEK
-    )
-
-    assert new_12_week_custom_issue.report_comment == NEW_12_WEEK_CUSTOM_REPORT_COMMENT
-    assert new_12_week_custom_issue.auditor_notes == NEW_12_WEEK_CUSTOM_AUDITOR_NOTES
-
-    events: QuerySet[Event] = Event.objects.all()
-
-    assert events.count() == 1
-    assert events[0].parent == new_12_week_custom_issue
-    assert events[0].type == Event.Type.CREATE

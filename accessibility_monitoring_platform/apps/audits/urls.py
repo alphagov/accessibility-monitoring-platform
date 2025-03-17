@@ -42,7 +42,7 @@ from .views.initial import (
     AuditPageChecksFormView,
     AuditPagesUpdateView,
     AuditStatementComplianceFormView,
-    AuditStatementCustomFormsetView,
+    AuditStatementCustomFormView,
     AuditStatementFeedbackFormView,
     AuditStatementNonAccessibleFormView,
     AuditStatementOverviewFormView,
@@ -50,14 +50,20 @@ from .views.initial import (
     AuditStatementSummaryUpdateView,
     AuditStatementWebsiteFormView,
     AuditWcagSummaryUpdateView,
+    CustomIssueCreateView,
+    CustomIssueUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementPageFormsetUpdateView,
     clear_published_report_data_updated_time,
+    delete_custom_issue,
 )
 from .views.twelve_week import (
     AuditRetestCaseComplianceStatement12WeekUpdateView,
     AuditRetestCaseComplianceWebsite12WeekUpdateView,
+    AuditRetestInitialCustomIssueUpdateView,
     AuditRetestMetadataUpdateView,
+    AuditRetestNew12WeekCustomIssueCreateView,
+    AuditRetestNew12WeekCustomIssueUpdateView,
     AuditRetestPageChecksFormView,
     AuditRetestPagesView,
     AuditRetestStatementComplianceFormView,
@@ -71,6 +77,7 @@ from .views.twelve_week import (
     AuditRetestWcagSummaryUpdateView,
     TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementPageFormsetUpdateView,
+    delete_new_12_week_custom_issue,
     start_retest,
 )
 
@@ -143,8 +150,23 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-statement-custom/",
-        login_required(AuditStatementCustomFormsetView.as_view()),
+        login_required(AuditStatementCustomFormView.as_view()),
         name="edit-statement-custom",
+    ),
+    path(
+        "<int:audit_id>/edit-custom-issue-create/",
+        login_required(CustomIssueCreateView.as_view()),
+        name="edit-custom-issue-create",
+    ),
+    path(
+        "<int:pk>/edit-custom-issue-update/",
+        login_required(CustomIssueUpdateView.as_view()),
+        name="edit-custom-issue-update",
+    ),
+    path(
+        "<int:pk>/edit-custom-issue-delete/",
+        login_required(delete_custom_issue),
+        name="edit-custom-issue-delete",
     ),
     path(
         "<int:pk>/edit-initial-disproportionate-burden/",
@@ -240,6 +262,26 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-retest-statement-custom/",
         login_required(AuditRetestStatementCustomFormView.as_view()),
         name="edit-retest-statement-custom",
+    ),
+    path(
+        "<int:pk>/edit-retest-initial-custom-issue-update/",
+        login_required(AuditRetestInitialCustomIssueUpdateView.as_view()),
+        name="edit-retest-initial-custom-issue-update",
+    ),
+    path(
+        "<int:pk>/edit-retest-new-12-week-custom-issue-update/",
+        login_required(AuditRetestNew12WeekCustomIssueUpdateView.as_view()),
+        name="edit-retest-new-12-week-custom-issue-update",
+    ),
+    path(
+        "<int:audit_id>/edit-retest-12-week-custom-issue-create/",
+        login_required(AuditRetestNew12WeekCustomIssueCreateView.as_view()),
+        name="edit-retest-12-week-custom-issue-create",
+    ),
+    path(
+        "<int:pk>/edit-retest-12-week-custom-issue-delete/",
+        login_required(delete_new_12_week_custom_issue),
+        name="edit-retest-12-week-custom-issue-delete",
     ),
     path(
         "<int:pk>/edit-twelve-week-disproportionate-burden/",

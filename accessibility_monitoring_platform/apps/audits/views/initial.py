@@ -4,12 +4,11 @@ Views for audits app (called tests by users)
 
 from typing import Any
 
-from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic.edit import FormView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 
 from ...cases.models import Case
 from ...common.forms import AMPChoiceCheckboxWidget
@@ -45,8 +44,7 @@ from ..forms import (
     CheckResultFilterForm,
     CheckResultForm,
     CheckResultFormset,
-    CustomStatementCheckResultFormset,
-    CustomStatementCheckResultFormsetOneExtra,
+    CustomIssueCreateUpdateForm,
     InitialDisproportionateBurdenUpdateForm,
 )
 from ..models import (
@@ -482,76 +480,77 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     statement_check_type: str = StatementCheck.Type.FEEDBACK
 
 
-class AuditStatementCustomFormsetView(AuditUpdateView):
+class AuditStatementCustomFormView(AuditUpdateView):
     """
     View to add/update custom statement issues check results
     """
 
     form_class: type[AuditStatementCustomUpdateForm] = AuditStatementCustomUpdateForm
     template_name: str = "audits/statement_checks/statement_custom.html"
-    statement_check_type: str = StatementCheck.Type.CUSTOM
+
+
+class CustomIssueCreateView(CreateView):
+    """
+    View to create custom issue
+    """
+
+    model: type[StatementCheckResult] = StatementCheckResult
+    form_class: type[CustomIssueCreateUpdateForm] = CustomIssueCreateUpdateForm
+    template_name: str = "audits/forms/custom_issue_create.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            custom_formset = CustomStatementCheckResultFormset(self.request.POST)
-        else:
-            statement_check_results: QuerySet[StatementCheckResult] = (
-                self.object.custom_statement_check_results
-            )
-            if "add_custom" in self.request.GET:
-                custom_formset = CustomStatementCheckResultFormsetOneExtra(
-                    queryset=statement_check_results
-                )
-            else:
-                custom_formset = CustomStatementCheckResultFormset(
-                    queryset=statement_check_results
-                )
-        context["custom_formset"] = custom_formset
+        context["audit"] = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
         return context
 
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        context: dict[str, Any] = self.get_context_data()
-        custom_formset = context["custom_formset"]
-        audit: Audit = form.save(commit=False)
-        if custom_formset.is_valid():
-            custom_statement_check_results: list[StatementCheckResult] = (
-                custom_formset.save(commit=False)
-            )
-            for custom_statement_check_result in custom_statement_check_results:
-                if not custom_statement_check_result.audit_id:
-                    custom_statement_check_result.audit = audit
-                    custom_statement_check_result.check_result_state = (
-                        StatementCheckResult.Result.NO
-                    )
-                    custom_statement_check_result.save()
-                    record_model_create_event(
-                        user=self.request.user,
-                        model_object=custom_statement_check_result,
-                    )
-                else:
-                    record_model_update_event(
-                        user=self.request.user,
-                        model_object=custom_statement_check_result,
-                    )
-                    custom_statement_check_result.save()
-        else:
-            return super().form_invalid(form)
-        mark_object_as_deleted(
-            request=self.request,
-            delete_button_prefix="remove_custom_",
-            object_to_delete_model=StatementCheckResult,
-        )
+    def form_valid(self, form: CustomIssueCreateUpdateForm):
+        """Populate custom issue"""
+        audit: Audit = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
+        statement_check_result: StatementCheckResult = form.save(commit=False)
+        statement_check_result.audit = audit
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "add_custom" in self.request.POST:
-            audit_pk: dict[str, int] = {"pk": self.object.id}
-            return f"{reverse('audits:edit-statement-custom', kwargs=audit_pk)}?add_custom=true#custom-None"
-        return super().get_success_url()
+        """Return to the list of custom issues"""
+        custom_issue: StatementCheckResult = self.object
+        url: str = reverse(
+            "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
+        )
+        return f"{url}#custom-issue-{custom_issue.id}"
+
+
+class CustomIssueUpdateView(UpdateView):
+    """
+    View to update a custom issue
+    """
+
+    model: type[StatementCheckResult] = StatementCheckResult
+    context_object_name: str = "custom_issue"
+    form_class: type[CustomIssueCreateUpdateForm] = CustomIssueCreateUpdateForm
+    template_name: str = "audits/forms/custom_issue_update.html"
+
+    def get_success_url(self) -> str:
+        """Return to the list of custom issues"""
+        custom_issue: StatementCheckResult = self.object
+        url: str = reverse(
+            "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
+        )
+        return f"{url}#custom-issue-{custom_issue.id}"
+
+
+def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
+    """Mark custom issue (StatementCheckResult) as deleted"""
+    if request.method == "POST":
+        custom_issue: StatementCheckResult = get_object_or_404(
+            StatementCheckResult, id=pk
+        )
+        custom_issue.is_deleted = True
+        record_model_update_event(user=request.user, model_object=custom_issue)
+        custom_issue.save()
+    return redirect(
+        reverse("audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id})
+    )
 
 
 class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
