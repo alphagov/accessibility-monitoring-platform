@@ -412,7 +412,7 @@ class AuditStatementCustomUpdateForm(VersionForm):
         ]
 
 
-class CustomIssueCreateUpdateForm(forms.ModelForm):
+class InitialCustomIssueCreateUpdateForm(forms.ModelForm):
     """
     Form for creating or updating a custom issue StatementCheckResult
     """
@@ -873,7 +873,7 @@ class AuditRetestStatementInitialCustomIssueUpdateForm(forms.ModelForm):
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    retest_comment = AMPTextField(label="12-week internal notes")
+    retest_comment = AMPTextField(label="Comments for email")
 
     class Meta:
         model = StatementCheckResult

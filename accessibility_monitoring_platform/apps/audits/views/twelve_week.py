@@ -447,7 +447,7 @@ class AuditRetestStatementCustomFormView(AuditUpdateView):
     template_name: str = "audits/statement_checks/retest_statement_other.html"
 
 
-class AuditRetestInitialCustomIssueUpdateView(AuditUpdateView):
+class AuditRetestInitialCustomIssueUpdateView(UpdateView):
     """
     View to update an initial custom issue
     """
@@ -457,13 +457,21 @@ class AuditRetestInitialCustomIssueUpdateView(AuditUpdateView):
     form_class: type[AuditRetestStatementInitialCustomIssueUpdateForm] = (
         AuditRetestStatementInitialCustomIssueUpdateForm
     )
-    template_name: str = "audits/statement_checks/retest_custom_issue_update.html"
+    template_name: str = (
+        "audits/statement_checks/retest_initial_custom_issue_update.html"
+    )
+
+    def form_valid(self, form: AuditRetestStatementInitialCustomIssueUpdateForm):
+        """Populate custom issue"""
+        custom_issue: StatementCheckResult = form.save(commit=False)
+        record_model_update_event(user=self.request.user, model_object=custom_issue)
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
         custom_issue: StatementCheckResult = self.object
         url: str = reverse(
-            "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
+            "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
         return f"{url}#custom-issue-{custom_issue.id}"
 
@@ -514,6 +522,12 @@ class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
         New12WeekCustomStatementCheckResultUpdateForm
     )
     template_name: str = "audits/forms/new_12_week_custom_issue_update.html"
+
+    def form_valid(self, form: New12WeekCustomStatementCheckResultUpdateForm):
+        """Populate custom issue"""
+        custom_issue: StatementCheckResult = form.save(commit=False)
+        record_model_update_event(user=self.request.user, model_object=custom_issue)
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""

@@ -21,6 +21,8 @@
             </ul>
         </h2>
         {% include 'audits/statement_checks/initial_custom_issue_detail.html' %}
+        <h3 class="govuk-heading-s amp-margin-bottom-0">Mark this statement issue as resolved</h3>
+        <p class="govuk-body">{{ custom_issue.get_retest_state_display }}</p>
         <hr class="amp-width-100 amp-margin-bottom-30" />
     {% endfor %}
 
@@ -49,16 +51,16 @@
         {% else %}
             <p class="govuk-body">None</p>
         {% endif %}
-        <h3 class="govuk-heading-s amp-margin-bottom-0">Mark this statement issue as resolved</h3>
-        <p class="govuk-body">{{ custom_issue.get_retest_state_display }}</p>
         <h3 class="govuk-heading-s amp-margin-bottom-0">12-week internal notes</h3>
         {% if custom_issue.auditor_notes %}
             <div class="govuk-body amp-notes amp-margin-bottom-15">{{ custom_issue.auditor_notes|markdown_to_html }}</div>
         {% else %}
             <p class="govuk-body">None</p>
         {% endif %}
-        <h3 class="govuk-heading-3 amp-margin-bottom-0">Added</h3>
+        <h3 class="govuk-heading-s amp-margin-bottom-0">Added</h3>
         <p class="govuk-body">12-week test</p>
+        <h3 class="govuk-heading-s amp-margin-bottom-0">Mark this statement issue as resolved</h3>
+        <p class="govuk-body">{{ custom_issue.get_retest_state_display }}</p>
         <hr class="amp-width-100 amp-margin-bottom-30" />
     {% endfor %}
 

@@ -44,7 +44,7 @@ from ..forms import (
     CheckResultFilterForm,
     CheckResultForm,
     CheckResultFormset,
-    CustomIssueCreateUpdateForm,
+    InitialCustomIssueCreateUpdateForm,
     InitialDisproportionateBurdenUpdateForm,
 )
 from ..models import (
@@ -495,7 +495,9 @@ class CustomIssueCreateView(CreateView):
     """
 
     model: type[StatementCheckResult] = StatementCheckResult
-    form_class: type[CustomIssueCreateUpdateForm] = CustomIssueCreateUpdateForm
+    form_class: type[InitialCustomIssueCreateUpdateForm] = (
+        InitialCustomIssueCreateUpdateForm
+    )
     template_name: str = "audits/forms/custom_issue_create.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
@@ -504,7 +506,7 @@ class CustomIssueCreateView(CreateView):
         context["audit"] = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
         return context
 
-    def form_valid(self, form: CustomIssueCreateUpdateForm):
+    def form_valid(self, form: InitialCustomIssueCreateUpdateForm):
         """Populate custom issue"""
         audit: Audit = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
         statement_check_result: StatementCheckResult = form.save(commit=False)
@@ -514,21 +516,30 @@ class CustomIssueCreateView(CreateView):
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
         custom_issue: StatementCheckResult = self.object
+        record_model_create_event(user=self.request.user, model_object=custom_issue)
         url: str = reverse(
             "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
         return f"{url}#custom-issue-{custom_issue.id}"
 
 
-class CustomIssueUpdateView(UpdateView):
+class InitialCustomIssueUpdateView(UpdateView):
     """
     View to update a custom issue
     """
 
     model: type[StatementCheckResult] = StatementCheckResult
     context_object_name: str = "custom_issue"
-    form_class: type[CustomIssueCreateUpdateForm] = CustomIssueCreateUpdateForm
-    template_name: str = "audits/forms/custom_issue_update.html"
+    form_class: type[InitialCustomIssueCreateUpdateForm] = (
+        InitialCustomIssueCreateUpdateForm
+    )
+    template_name: str = "audits/forms/initial_custom_issue_update.html"
+
+    def form_valid(self, form: InitialCustomIssueCreateUpdateForm):
+        """Populate custom issue"""
+        custom_issue: StatementCheckResult = form.save(commit=False)
+        record_model_update_event(user=self.request.user, model_object=custom_issue)
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""

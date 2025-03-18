@@ -4,13 +4,19 @@
 {% else %}
     <p class="govuk-body">None</p>
 {% endif %}
+<h3 class="govuk-heading-s amp-margin-bottom-0">Initial result</h3>
+<p class="govuk-body">{{ custom_issue.get_check_result_state_display }}</p>
+<h3 class="govuk-heading-s amp-margin-bottom-0">Comments for email</h3>
+{% if custom_issue.retest_comment %}
+    <div class="govuk-body amp-notes amp-margin-bottom-15">{{ custom_issue.retest_comment|markdown_to_html }}</div>
+{% else %}
+    <p class="govuk-body">None</p>
+{% endif %}
 <h3 class="govuk-heading-s amp-margin-bottom-0">Notes for auditor</h3>
 {% if custom_issue.auditor_notes %}
     <div class="govuk-body amp-notes amp-margin-bottom-15">{{ custom_issue.auditor_notes|markdown_to_html }}</div>
 {% else %}
     <p class="govuk-body">None</p>
 {% endif %}
-<h3 class="govuk-heading-3 amp-margin-bottom-0">Added</h3>
+<h3 class="govuk-heading-s amp-margin-bottom-0">Added</h3>
 <p class="govuk-body">Initial test</p>
-<h3 class="govuk-heading-s amp-margin-bottom-0">Mark this statement issue as resolved</h3>
-<p class="govuk-body">{{ custom_issue.get_retest_state_display }}</p>

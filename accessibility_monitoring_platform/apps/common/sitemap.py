@@ -331,6 +331,12 @@ class AuditCustomIssuesPlatformPage(AuditPlatformPage):
                     bound_subpages += populate_subpages_with_instance(
                         platform_page=self, instance=custom_issue
                     )
+                for (
+                    custom_issue
+                ) in case.audit.new_12_week_custom_statement_check_results:
+                    bound_subpages += populate_subpages_with_instance(
+                        platform_page=self, instance=custom_issue
+                    )
                 self.subpages = bound_subpages
 
 
@@ -1015,6 +1021,14 @@ SITE_MAP: list[PlatformPageGroup] = [
                 url_name="audits:edit-retest-statement-custom",
                 complete_flag_name="audit_retest_statement_custom_complete_date",
                 subpages=[
+                    PlatformPage(
+                        name="Edit initial custom issue {instance.issue_identifier}",
+                        url_name="audits:edit-retest-initial-custom-issue-update",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_required_for_url=True,
+                        instance_class=StatementCheckResult,
+                    ),
                     AuditPlatformPage(
                         name="Add 12-week custom issue",
                         url_name="audits:edit-retest-12-week-custom-issue-create",
@@ -1024,14 +1038,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                     PlatformPage(
                         name="Edit 12-week custom issue {instance.issue_identifier}",
                         url_name="audits:edit-retest-new-12-week-custom-issue-update",
-                        url_kwarg_key="pk",
-                        visible_only_when_current=True,
-                        instance_required_for_url=True,
-                        instance_class=StatementCheckResult,
-                    ),
-                    PlatformPage(
-                        name="Edit initial custom issue {instance.issue_identifier}",
-                        url_name="audits:edit-retest-initial-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
                         instance_required_for_url=True,

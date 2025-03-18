@@ -51,7 +51,7 @@ from .views.initial import (
     AuditStatementWebsiteFormView,
     AuditWcagSummaryUpdateView,
     CustomIssueCreateView,
-    CustomIssueUpdateView,
+    InitialCustomIssueUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementPageFormsetUpdateView,
     clear_published_report_data_updated_time,
@@ -160,7 +160,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-custom-issue-update/",
-        login_required(CustomIssueUpdateView.as_view()),
+        login_required(InitialCustomIssueUpdateView.as_view()),
         name="edit-custom-issue-update",
     ),
     path(
@@ -269,14 +269,14 @@ urlpatterns: list[URLPattern] = [
         name="edit-retest-initial-custom-issue-update",
     ),
     path(
-        "<int:pk>/edit-retest-new-12-week-custom-issue-update/",
-        login_required(AuditRetestNew12WeekCustomIssueUpdateView.as_view()),
-        name="edit-retest-new-12-week-custom-issue-update",
-    ),
-    path(
         "<int:audit_id>/edit-retest-12-week-custom-issue-create/",
         login_required(AuditRetestNew12WeekCustomIssueCreateView.as_view()),
         name="edit-retest-12-week-custom-issue-create",
+    ),
+    path(
+        "<int:pk>/edit-retest-new-12-week-custom-issue-update/",
+        login_required(AuditRetestNew12WeekCustomIssueUpdateView.as_view()),
+        name="edit-retest-new-12-week-custom-issue-update",
     ),
     path(
         "<int:pk>/edit-retest-12-week-custom-issue-delete/",
