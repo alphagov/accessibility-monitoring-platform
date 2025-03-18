@@ -22,7 +22,7 @@
         </h2>
         {% include 'audits/statement_checks/initial_custom_issue_detail.html' %}
         <h3 class="govuk-heading-s amp-margin-bottom-0">Mark this statement issue as resolved</h3>
-        <p class="govuk-body">{{ custom_issue.get_retest_state_display }}</p>
+        <p class="govuk-body amp-margin-bottom-30">{{ custom_issue.get_retest_state_display }}</p>
         <hr class="amp-width-100 amp-margin-bottom-30" />
     {% endfor %}
 
@@ -60,11 +60,11 @@
         <h3 class="govuk-heading-s amp-margin-bottom-0">Added</h3>
         <p class="govuk-body">12-week test</p>
         <h3 class="govuk-heading-s amp-margin-bottom-0">Mark this statement issue as resolved</h3>
-        <p class="govuk-body">{{ custom_issue.get_retest_state_display }}</p>
+        <p class="govuk-body amp-margin-bottom-30">{{ custom_issue.get_retest_state_display }}</p>
         <hr class="amp-width-100 amp-margin-bottom-30" />
     {% endfor %}
 
-    <p class="govuk-body">
+    <p class="govuk-body amp-margin-bottom-30">
         + <a href="{% url 'audits:edit-retest-12-week-custom-issue-create' audit.id %}" class="govuk-link govuk-link--no-visited-state">
             Add custom issue</a>
     </p>
