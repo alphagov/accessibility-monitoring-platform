@@ -9,6 +9,7 @@ from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ...cases.models import CaseEvent
@@ -536,6 +537,19 @@ class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
             "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
         return f"{url}#custom-issue-{custom_issue.id}"
+
+
+class New12WeekCustomIssueDeleteTemplateView(TemplateView):
+    template_name: str = "audits/statement_checks/new_12_week_custom_issue_delete.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add custom issue to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        custom_issue: StatementCheckResult = get_object_or_404(
+            StatementCheckResult, id=kwargs.get("pk")
+        )
+        context["custom_issue"] = custom_issue
+        return context
 
 
 def delete_new_12_week_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:

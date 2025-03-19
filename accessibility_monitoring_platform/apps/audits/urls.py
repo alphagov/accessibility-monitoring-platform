@@ -51,6 +51,7 @@ from .views.initial import (
     AuditStatementWebsiteFormView,
     AuditWcagSummaryUpdateView,
     CustomIssueCreateView,
+    InitialCustomIssueDeleteTemplateView,
     InitialCustomIssueUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementPageFormsetUpdateView,
@@ -75,6 +76,7 @@ from .views.twelve_week import (
     AuditRetestStatementSummaryUpdateView,
     AuditRetestStatementWebsiteFormView,
     AuditRetestWcagSummaryUpdateView,
+    New12WeekCustomIssueDeleteTemplateView,
     TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementPageFormsetUpdateView,
     delete_new_12_week_custom_issue,
@@ -162,6 +164,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-custom-issue-update/",
         login_required(InitialCustomIssueUpdateView.as_view()),
         name="edit-custom-issue-update",
+    ),
+    path(
+        "<int:pk>/edit-custom-issue-delete-confirm/",
+        login_required(InitialCustomIssueDeleteTemplateView.as_view()),
+        name="edit-custom-issue-delete-confirm",
     ),
     path(
         "<int:pk>/edit-custom-issue-delete/",
@@ -277,6 +284,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-retest-new-12-week-custom-issue-update/",
         login_required(AuditRetestNew12WeekCustomIssueUpdateView.as_view()),
         name="edit-retest-new-12-week-custom-issue-update",
+    ),
+    path(
+        "<int:pk>/edit-retest-new-12-week-custom-issue-delete-confirm/",
+        login_required(New12WeekCustomIssueDeleteTemplateView.as_view()),
+        name="edit-retest-new-12-week-custom-issue-delete-confirm",
     ),
     path(
         "<int:pk>/edit-retest-12-week-custom-issue-delete/",

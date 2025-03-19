@@ -17,4 +17,8 @@
     <p class="govuk-body">None</p>
 {% endif %}
 <h3 class="govuk-heading-s amp-margin-bottom-0">Added</h3>
-<p class="govuk-body">Initial test</p>
+<p class="govuk-body">{% if custom_issue.type == '12-week' %}12-week{% else %}Initial{% endif %}</p>
+{% if show_retest_state %}
+    <h3 class="govuk-heading-s amp-margin-bottom-0">Mark this statement issue as resolved</h3>
+    <p class="govuk-body amp-margin-bottom-30">{{ custom_issue.get_retest_state_display }}</p>
+{% endif %}

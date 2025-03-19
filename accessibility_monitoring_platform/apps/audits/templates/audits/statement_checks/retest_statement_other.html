@@ -20,9 +20,7 @@
                 </li>
             </ul>
         </h2>
-        {% include 'audits/statement_checks/initial_custom_issue_detail.html' %}
-        <h3 class="govuk-heading-s amp-margin-bottom-0">Mark this statement issue as resolved</h3>
-        <p class="govuk-body amp-margin-bottom-30">{{ custom_issue.get_retest_state_display }}</p>
+        {% include 'audits/statement_checks/custom_issue_detail.html' with show_retest_state=True %}
         <hr class="amp-width-100 amp-margin-bottom-30" />
     {% endfor %}
 
@@ -38,29 +36,12 @@
                         Edit</a>
                 </li>
                 <li>
-                    <form method="post" action="{% url 'audits:edit-retest-12-week-custom-issue-delete' custom_issue.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="amp-button-as-link govuk-body amp-margin-bottom-0" role="link">Remove</button>
-                    </form>
+                    <a href="{% url 'audits:edit-retest-new-12-week-custom-issue-delete-confirm' custom_issue.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Remove</a>
                 </li>
             </ul>
         </h2>
-        <h3 class="govuk-heading-s amp-margin-bottom-0">Issue description for organisation</h3>
-        {% if custom_issue.retest_comment %}
-            <div class="govuk-body amp-notes amp-margin-bottom-15">{{ custom_issue.retest_comment|markdown_to_html }}</div>
-        {% else %}
-            <p class="govuk-body">None</p>
-        {% endif %}
-        <h3 class="govuk-heading-s amp-margin-bottom-0">12-week internal notes</h3>
-        {% if custom_issue.auditor_notes %}
-            <div class="govuk-body amp-notes amp-margin-bottom-15">{{ custom_issue.auditor_notes|markdown_to_html }}</div>
-        {% else %}
-            <p class="govuk-body">None</p>
-        {% endif %}
-        <h3 class="govuk-heading-s amp-margin-bottom-0">Added</h3>
-        <p class="govuk-body">12-week test</p>
-        <h3 class="govuk-heading-s amp-margin-bottom-0">Mark this statement issue as resolved</h3>
-        <p class="govuk-body amp-margin-bottom-30">{{ custom_issue.get_retest_state_display }}</p>
+        {% include 'audits/statement_checks/custom_issue_detail.html' %}
         <hr class="amp-width-100 amp-margin-bottom-30" />
     {% endfor %}
 
