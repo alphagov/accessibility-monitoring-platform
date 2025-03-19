@@ -39,12 +39,13 @@
             <p class="govuk-body">None</p>
         {% endif %}
         <h3 class="govuk-heading-s amp-margin-bottom-0">Added</h3>
-        <p class="govuk-body">Initial test</p>
+        <p class="govuk-body amp-margin-bottom-30">Initial test</p>
         <hr class="amp-width-100 amp-margin-bottom-30" />
     {% endfor %}
 
-    <p class="govuk-body">
+    <p class="govuk-body amp-margin-bottom-30">
         + <a href="{% url 'audits:edit-custom-issue-create' audit.id %}" class="govuk-link govuk-link--no-visited-state">
-            Add custom issue</a>
+            Add custom issue
+        </a>
     </p>
 {% endblock %}
