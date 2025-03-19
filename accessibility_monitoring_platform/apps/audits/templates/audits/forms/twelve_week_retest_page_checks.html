@@ -86,7 +86,7 @@
         {% for check_result, form in check_results_and_forms %}
             <div class="govuk-grid-row"
                 data-check-type="{{ check_result.wcag_definition.type }}"
-                data-filter-string="{{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }} {{ check_result.issue_identifier }}"
+                data-filter-string="{{ check_result.wcag_definition }} {{ check_result.wcag_definition.hint }} {{ check_result.issue_identifier }}"
             >
                 <div class="govuk-grid-column-full">
                     <hr class="amp-width-100 amp-margin-bottom-30">
