@@ -211,6 +211,7 @@ def test_download_feedback_survey_cases():
         "16/12/2022",  # Closing the case date
         "Not selected",  # Enforcement recommendation
         "",  # Enforcement recommendation notes
+        "Not assessed",  # statement_compliance_state_12_week
         "",  # Contact email
         CONTACT_NOTES,  # Contact notes
         "No",  # Feedback survey sent
@@ -486,7 +487,7 @@ def test_populate_feedback_survey_columns():
         case=case, column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
     )
 
-    assert len(row) == 8
+    assert len(row) == 9
 
 
 @pytest.mark.django_db

@@ -735,6 +735,11 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_class=Case,
         source_attr="recommendation_notes",
     ),
+    CSVColumn(
+        column_header="Final statement decision",
+        source_class=CaseCompliance,
+        source_attr="statement_compliance_state_12_week",
+    ),
     CSVColumn(column_header="Contact email", source_class=Contact, source_attr="email"),
     CSVColumn(
         column_header="Contact notes", source_class=Case, source_attr="contact_notes"
