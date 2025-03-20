@@ -1,0 +1,27 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+{% include 'audits/helpers/statement_pages.html' with audit=custom_issue.audit %}
+{% endblock %}
+
+{% block formbuttons %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="govuk-button-group">
+            <input
+                type="submit"
+                value="Save and return"
+                name="save"
+                class="govuk-button"
+                data-module="govuk-button"
+            />
+            <a
+                href="{% url 'audits:edit-retest-statement-custom' custom_issue.audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+            >
+                Cancel
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

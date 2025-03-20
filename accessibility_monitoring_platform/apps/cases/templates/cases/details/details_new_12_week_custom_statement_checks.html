@@ -1,0 +1,25 @@
+{% if case.audit.new_12_week_custom_statement_check_results %}
+    <h4 class="govuk-heading-s">{{ case.audit.new_12_week_custom_statement_check_results.0.get_type_display }}</h4>
+    <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group_name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header amp-width-one-third">Issue description</th>
+                <th scope="col" class="govuk-table__header amp-width-one-third">Assessment and notes</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for custom_issue in case.audit.new_12_week_custom_statement_check_results %}
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                        {{ custom_issue.report_comment|markdown_to_html }}
+                        {% include 'audits/helpers/issue_identifier.html' with issue=custom_issue %}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                        {{ custom_issue.get_retest_state_display }}<br>
+                        {{ custom_issue.auditor_notes|markdown_to_html }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

@@ -20,7 +20,7 @@ from ..audits.forms import (
     InitialDisproportionateBurdenUpdateForm,
     TwelveWeekDisproportionateBurdenUpdateForm,
 )
-from ..audits.models import Audit, Page, Retest, RetestPage
+from ..audits.models import Audit, Page, Retest, RetestPage, StatementCheckResult
 from ..cases.forms import (
     CaseCloseUpdateForm,
     CaseEnforcementRecommendationUpdateForm,
@@ -315,6 +315,27 @@ class AuditPagesPlatformPage(AuditPlatformPage):
                 for page in case.audit.testable_pages:
                     bound_subpages += populate_subpages_with_instance(
                         platform_page=self, instance=page
+                    )
+                self.subpages = bound_subpages
+
+
+class AuditCustomIssuesPlatformPage(AuditPlatformPage):
+    def populate_from_case(self, case: Case):
+        if case.audit is not None:
+            self.set_instance(instance=case.audit)
+            if self.subpages is not None:
+                bound_subpages: list[PlatformPage] = populate_subpages_with_instance(
+                    platform_page=self, instance=case.audit
+                )
+                for custom_issue in case.audit.custom_statement_check_results:
+                    bound_subpages += populate_subpages_with_instance(
+                        platform_page=self, instance=custom_issue
+                    )
+                for (
+                    custom_issue
+                ) in case.audit.new_12_week_custom_statement_check_results:
+                    bound_subpages += populate_subpages_with_instance(
+                        platform_page=self, instance=custom_issue
                     )
                 self.subpages = bound_subpages
 
@@ -619,16 +640,39 @@ SITE_MAP: list[PlatformPageGroup] = [
                         case_details_template_name="cases/details/details_initial_statement_checks_feedback.html",
                         next_page_url_name="audits:edit-statement-custom",
                     ),
-                    AuditPlatformPage(
-                        name="Custom statement issues",
-                        url_name="audits:edit-statement-custom",
-                        complete_flag_name="audit_statement_custom_complete_date",
-                        show_flag_name="all_overview_statement_checks_have_passed",
-                        case_details_template_name="cases/details/details_initial_statement_checks_custom.html",
-                        next_page_url_name="audits:edit-initial-disproportionate-burden",
-                    ),
                 ],
                 case_details_template_name="cases/details/details_initial_statement_checks_overview.html",
+            ),
+            AuditCustomIssuesPlatformPage(
+                name="Custom issues",
+                url_name="audits:edit-statement-custom",
+                complete_flag_name="audit_statement_custom_complete_date",
+                subpages=[
+                    AuditPlatformPage(
+                        name="Add custom issue",
+                        url_name="audits:edit-custom-issue-create",
+                        url_kwarg_key="audit_id",
+                        visible_only_when_current=True,
+                    ),
+                    PlatformPage(
+                        name="Edit custom issue {instance.issue_identifier}",
+                        url_name="audits:edit-custom-issue-update",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_required_for_url=True,
+                        instance_class=StatementCheckResult,
+                    ),
+                    PlatformPage(
+                        name="Remove custom issue {instance.issue_identifier}",
+                        url_name="audits:edit-custom-issue-delete-confirm",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_required_for_url=True,
+                        instance_class=StatementCheckResult,
+                    ),
+                ],
+                case_details_template_name="cases/details/details_initial_statement_checks_custom.html",
+                next_page_url_name="audits:edit-initial-disproportionate-burden",
             ),
             AuditPlatformPage(
                 name="Disproportionate burden",
@@ -977,16 +1021,47 @@ SITE_MAP: list[PlatformPageGroup] = [
                         case_details_template_name="cases/details/details_twelve_week_statement_checks_feedback.html",
                         next_page_url_name="audits:edit-retest-statement-custom",
                     ),
-                    AuditPlatformPage(
-                        name="Custom issues",
-                        url_name="audits:edit-retest-statement-custom",
-                        complete_flag_name="audit_retest_statement_custom_complete_date",
-                        show_flag_name="all_overview_statement_checks_have_passed",
-                        case_details_template_name="cases/details/details_twelve_week_statement_checks_custom.html",
-                        next_page_url_name="audits:edit-twelve-week-disproportionate-burden",
-                    ),
                 ],
                 case_details_template_name="cases/details/details_twelve_week_statement_checks_overview.html",
+            ),
+            AuditCustomIssuesPlatformPage(
+                name="Custom issues",
+                url_name="audits:edit-retest-statement-custom",
+                complete_flag_name="audit_retest_statement_custom_complete_date",
+                subpages=[
+                    PlatformPage(
+                        name="Edit initial custom issue {instance.issue_identifier}",
+                        url_name="audits:edit-retest-initial-custom-issue-update",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_required_for_url=True,
+                        instance_class=StatementCheckResult,
+                    ),
+                    AuditPlatformPage(
+                        name="Add 12-week custom issue",
+                        url_name="audits:edit-retest-12-week-custom-issue-create",
+                        url_kwarg_key="audit_id",
+                        visible_only_when_current=True,
+                    ),
+                    PlatformPage(
+                        name="Edit 12-week custom issue {instance.issue_identifier}",
+                        url_name="audits:edit-retest-new-12-week-custom-issue-update",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_required_for_url=True,
+                        instance_class=StatementCheckResult,
+                    ),
+                    PlatformPage(
+                        name="Remove 12-week custom issue {instance.issue_identifier}",
+                        url_name="audits:edit-retest-new-12-week-custom-issue-delete-confirm",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_required_for_url=True,
+                        instance_class=StatementCheckResult,
+                    ),
+                ],
+                case_details_template_name="cases/details/details_twelve_week_statement_checks_custom.html",
+                next_page_url_name="audits:edit-twelve-week-disproportionate-burden",
             ),
             AuditPlatformPage(
                 name="Disproportionate burden",

@@ -83,7 +83,7 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Feedback and enforcement procedure`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Custom statement issues`)
+    cy.title().should('eq', `${newOrganisationName} | Custom issues`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Disproportionate burden`)
