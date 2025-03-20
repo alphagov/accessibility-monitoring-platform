@@ -1,5 +1,5 @@
 {{ retest_statement_check_results_formset.management_form }}
-{% for statement_check_result_form in retest_statement_check_results_formset %}
+{% for statement_check_result_form in retest_statement_check_results_formset.forms %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}

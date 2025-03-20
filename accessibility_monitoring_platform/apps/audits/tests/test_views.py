@@ -694,7 +694,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-overview",
             "save_continue",
-            "audits:edit-initial-disproportionate-burden",
+            "audits:edit-statement-custom",
         ),
         (
             "audits:edit-statement-website",
@@ -789,7 +789,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-retest-statement-overview",
             "save_continue",
-            "audits:edit-twelve-week-disproportionate-burden",
+            "audits:edit-retest-statement-custom",
         ),
         (
             "audits:edit-retest-statement-website",
@@ -3396,13 +3396,13 @@ def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
         ("edit-audit-metadata", "Initial WCAG test | Add or remove pages"),
         ("edit-audit-pages", "Initial WCAG test | Compliance decision"),
         ("edit-statement-overview", "Initial statement | Statement information"),
-        ("edit-statement-overview", "Initial statement | Disproportionate burden"),
+        ("edit-statement-overview", "Initial statement | Custom issues"),
         ("edit-audit-retest-metadata", "12-week WCAG test | Update page links"),
         ("edit-audit-retest-pages", "12-week WCAG test | Compliance decision"),
         ("edit-retest-statement-overview", "12-week statement | Statement information"),
         (
             "edit-retest-statement-overview",
-            "12-week statement | Disproportionate burden",
+            "12-week statement | Custom issues",
         ),
     ],
 )

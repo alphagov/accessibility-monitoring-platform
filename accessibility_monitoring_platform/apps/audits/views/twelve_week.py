@@ -363,7 +363,7 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
                 url_name="audits:edit-retest-statement-website", instance=audit
             )
         return get_platform_page_by_url_name(
-            url_name="audits:edit-twelve-week-disproportionate-burden", instance=audit
+            url_name="audits:edit-retest-statement-custom", instance=audit
         )
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
@@ -375,7 +375,7 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
                 url_name="audits:edit-retest-statement-website", instance=audit
             ),
             get_platform_page_by_url_name(
-                url_name="audits:edit-twelve-week-disproportionate-burden",
+                url_name="audits:edit-retest-statement-custom",
                 instance=audit,
             ),
         ]
