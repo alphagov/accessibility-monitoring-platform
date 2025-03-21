@@ -2695,7 +2695,7 @@ def test_summary_page_view_unfixed(url_name, admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        f"{reverse(url_name, kwargs=audit_pk)}?show-unfixed=true",
+        reverse(url_name, kwargs=audit_pk),
     )
 
     assert response.status_code == 200
@@ -2738,7 +2738,7 @@ def test_summary_page_view_show_all(url_name, admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
+        f"{reverse(url_name, kwargs=audit_pk)}?show-all=true",
     )
 
     assert response.status_code == 200

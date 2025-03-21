@@ -93,11 +93,15 @@
             <br/>
             <h2 class="govuk-heading-s">Statement assessment contents</h2>
             <div class="amp-border-left">
-                <ul class="govuk-list">
-                    {% for statement_check_type, statement_check_results in statement_check_results_by_type.items %}
-                        <li><a href="#statement-{{ statement_check_type }}" class="govuk-link govuk-link--no-visited-state">{{ statement_check_results.0.get_type_display }}</a></li>
-                    {% endfor %}
-                </ul>
+                {% if statement_check_results_by_type.items %}
+                    <ul class="govuk-list">
+                        {% for statement_check_type, statement_check_results in statement_check_results_by_type.items %}
+                            <li><a href="#statement-{{ statement_check_type }}" class="govuk-link govuk-link--no-visited-state">{{ statement_check_results.0.get_type_display }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="govuk-body">None</p>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -112,20 +116,20 @@
     <div class="govuk-grid-column-full">
         <ul class="govuk-list">
             <li>
-                {% if show_unfixed %}
+                {% if show_all %}
+                    <a href="{% if show_failures_by_page %}?page-view=true{% endif %}#wcag-toc" class="govuk-link govuk-link--no-visited-state">
+                        View only unfixed issues</a>
+                {% else %}
                     <a href="?show-all=true{% if show_failures_by_page %}&page-view=true{% endif %}#wcag-toc" class="govuk-link govuk-link--no-visited-state">
                         View all issues</a>
-                {% else %}
-                    <a href="?show-unfixed=true{% if show_failures_by_page %}&page-view=true{% endif %}#wcag-toc" class="govuk-link govuk-link--no-visited-state">
-                        View only unfixed issues</a>
                 {% endif %}
             </li>
             {% if show_wcag_summary %}
                 <li>
                     {% if show_failures_by_page %}
-                        <a href="?wcag-view=true{% if show_unfixed %}&show-unfixed=true{% endif %}#wcag-toc" class="govuk-link govuk-link--no-visited-state">Group by WCAG issue</a>
+                        <a href="?wcag-view=true{% if show_all %}&show-all=true{% endif %}#wcag-toc" class="govuk-link govuk-link--no-visited-state">Group by WCAG issue</a>
                     {% else %}
-                        <a href="?page-view=true{% if show_unfixed %}&show-unfixed=true{% endif %}#wcag-toc" class="govuk-link govuk-link--no-visited-state">Group by page</a>
+                        <a href="?page-view=true{% if show_all %}&show-all=true{% endif %}#wcag-toc" class="govuk-link govuk-link--no-visited-state">Group by page</a>
                     {% endif %}
                 </li>
             {% endif %}
@@ -133,7 +137,7 @@
         <p class="govuk-body">
             Currently showing
             {% if show_wcag_summary %}
-                {% if show_unfixed %}unfixed{% else %}all{% endif %} issues
+                {% if show_all %}all{% else %}unfixed{% endif %} issues
                 grouped by {% if show_failures_by_page %}page{% else %}WCAG issue{% endif %}:
                 {{ number_of_wcag_issues }} WCAG issue{% if number_of_wcag_issues != 1 %}s{% endif %}
             {% endif %}

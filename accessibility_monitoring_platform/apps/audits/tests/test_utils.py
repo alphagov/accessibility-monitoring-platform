@@ -854,7 +854,7 @@ def test_get_audit_summary_context(rf):
 
     assert "enable_12_week_ui" in context
     assert "show_failures_by_page" in context
-    assert "show_unfixed" in context
+    assert "show_all" in context
     assert "audit_failures_by_page" in context
     assert "pages_with_retest_notes" in context
     assert "audit_failures_by_wcag" in context
@@ -1005,8 +1005,8 @@ def test_get_audit_summary_audit_failures_by_wcag(rf):
 @pytest.mark.django_db
 def test_get_audit_summary_unfixed_audit_failures(rf):
     """
-    Test fixed results are not returned when show_unfixed URL paremeter
-    set.
+    Test fixed results are not returned when show_all URL paremeter
+    not set.
     """
     request: HttpRequest = rf.get("/")
     case: Case = Case.objects.create()
@@ -1021,7 +1021,6 @@ def test_get_audit_summary_unfixed_audit_failures(rf):
         audit=audit,
         page=page,
         check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.FIXED,
         type=wcag_definition.type,
         wcag_definition=wcag_definition,
     )
@@ -1046,7 +1045,8 @@ def test_get_audit_summary_unfixed_audit_failures(rf):
     assert "number_of_wcag_issues" in context
     assert context["number_of_wcag_issues"] == 1
 
-    request.GET = {"show-unfixed": "true"}
+    check_result.retest_state = CheckResult.RetestResult.FIXED
+    check_result.save()
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
 
@@ -1062,6 +1062,7 @@ def test_get_audit_summary_unfixed_audit_failures(rf):
 def test_get_audit_summary_issue_counts(rf):
     """Test counting of issues for Test summary page"""
     request: HttpRequest = rf.get("/")
+    request.GET = {"show-all": "true"}
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(
@@ -1103,6 +1104,7 @@ def test_get_audit_summary_issue_counts(rf):
 def test_get_audit_summary_statement_check_results_by_type(rf):
     """Test statement check results grouped by type"""
     request: HttpRequest = rf.get("/")
+    request.GET = {"show-all": "true"}
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     create_statement_checks_for_new_audit(audit=audit)
@@ -1119,8 +1121,7 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
     assert len(statement_check_results_by_type["overview"]) == 2
 
     statement_check_result = statement_check_results_by_type["overview"][0]
-
-    request.GET = {"show-unfixed": "true"}
+    request.GET = {}
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
 
