@@ -87,7 +87,7 @@ STATEMENT_PAGE_URL: str = "https://example.com/statement"
 WCAG_DEFINITION_HINT: str = "WCAG definition hint text"
 PAGE_LOCATION: str = "Press button then click on link"
 STATEMENT_CHECK_INITIAL_COMMENT: str = "Statement check initial comment"
-STATEMENT_CHECK_RETEST_COMMENT: str = "Statement check retest comment"
+STATEMENT_CHECK_CUSTOM_COMMENT: str = "Statement check custom comment"
 
 
 def create_audit() -> Audit:
@@ -252,10 +252,10 @@ def test_create_audit_creates_case_event(admin_client):
             "audits:edit-statement-decision",
             "Initial statement compliance decision",
         ),
-        ("audits:edit-audit-wcag-summary", "Test summary"),
-        ("audits:edit-audit-statement-summary", "Test summary"),
-        ("audits:edit-audit-retest-wcag-summary", "Test summary"),
-        ("audits:edit-audit-retest-statement-summary", "Test summary"),
+        ("audits:edit-audit-wcag-summary", "WCAG summary"),
+        ("audits:edit-audit-statement-summary", "Statement summary"),
+        ("audits:edit-audit-retest-wcag-summary", "WCAG summary"),
+        ("audits:edit-audit-retest-statement-summary", "Statement summary"),
         ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
         (
             "audits:edit-audit-retest-website-decision",
@@ -2599,8 +2599,6 @@ def test_update_statement_check_works(admin_client):
     [
         "audits:edit-audit-wcag-summary",
         "audits:edit-audit-retest-wcag-summary",
-        "audits:edit-audit-statement-summary",
-        "audits:edit-audit-retest-statement-summary",
     ],
 )
 def test_summary_page_view(url_name, admin_client):
@@ -2616,10 +2614,6 @@ def test_summary_page_view(url_name, admin_client):
         page=page,
         wcag_definition=wcag_definition_pdf,
         check_result_state=CheckResult.Result.ERROR,
-    )
-    StatementCheckResult.objects.create(
-        audit=audit,
-        report_comment="Custom statement issue",
     )
 
     response: HttpResponse = admin_client.get(
@@ -2640,8 +2634,6 @@ def test_summary_page_view(url_name, admin_client):
     [
         "audits:edit-audit-wcag-summary",
         "audits:edit-audit-retest-wcag-summary",
-        "audits:edit-audit-statement-summary",
-        "audits:edit-audit-retest-statement-summary",
     ],
 )
 def test_summary_wcag_view(url_name, admin_client):
@@ -2657,10 +2649,6 @@ def test_summary_wcag_view(url_name, admin_client):
         page=page,
         wcag_definition=wcag_definition_pdf,
         check_result_state=CheckResult.Result.ERROR,
-    )
-    StatementCheckResult.objects.create(
-        audit=audit,
-        report_comment="Custom statement issue",
     )
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
@@ -2679,8 +2667,6 @@ def test_summary_wcag_view(url_name, admin_client):
     [
         "audits:edit-audit-wcag-summary",
         "audits:edit-audit-retest-wcag-summary",
-        "audits:edit-audit-statement-summary",
-        "audits:edit-audit-retest-statement-summary",
     ],
 )
 def test_summary_page_view_unfixed(url_name, admin_client):
@@ -2724,8 +2710,6 @@ def test_summary_page_view_unfixed(url_name, admin_client):
     [
         "audits:edit-audit-wcag-summary",
         "audits:edit-audit-retest-wcag-summary",
-        "audits:edit-audit-statement-summary",
-        "audits:edit-audit-retest-statement-summary",
     ],
 )
 def test_summary_page_view_show_all(url_name, admin_client):
@@ -2767,37 +2751,79 @@ def test_summary_page_view_show_all(url_name, admin_client):
 @pytest.mark.parametrize(
     "url_name",
     [
-        "audits:edit-audit-wcag-summary",
         "audits:edit-audit-statement-summary",
-        "audits:edit-audit-retest-wcag-summary",
         "audits:edit-audit-retest-statement-summary",
     ],
 )
-def test_test_summary_page_view(url_name, admin_client):
-    """Test that initial summary page views contain statement results"""
+def test_test_statement_summary_page_view(url_name, admin_client):
+    """Test that statement summary page views contain statement results"""
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
     StatementPage.objects.create(audit=audit, url="https://example.com")
     statement_check: StatementCheck = StatementCheck.objects.filter(
-        type=StatementCheck.Type.OVERVIEW
+        type=StatementCheck.Type.WEBSITE
     ).first()
     StatementCheckResult.objects.create(
         audit=audit,
         type=statement_check.type,
         statement_check=statement_check,
+        check_result_state=StatementCheckResult.Result.NO,
         report_comment=STATEMENT_CHECK_INITIAL_COMMENT,
-        retest_comment=STATEMENT_CHECK_RETEST_COMMENT,
     )
     StatementCheckResult.objects.create(
         audit=audit,
-        report_comment="Custom statement issue",
+        type=StatementCheck.Type.CUSTOM,
+        check_result_state=StatementCheckResult.Result.NO,
+        report_comment=STATEMENT_CHECK_CUSTOM_COMMENT,
     )
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
 
     assert response.status_code == 200
+
     assertContains(response, STATEMENT_CHECK_INITIAL_COMMENT)
-    assertContains(response, STATEMENT_CHECK_RETEST_COMMENT)
+    assertContains(response, STATEMENT_CHECK_CUSTOM_COMMENT)
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-audit-statement-summary",
+        "audits:edit-audit-retest-statement-summary",
+    ],
+)
+def test_test_statement_summary_page_summary(url_name, admin_client):
+    """
+    Test that statement summary page shows initial compliance values before 12-week
+    values are entered.
+    """
+    audit: Audit = create_audit()
+    audit_pk: dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
+
+    assert response.status_code == 200
+    assertContains(response, "<li>Initial statement compliance: <b>")
+    assertContains(response, "<li>Initial disproportionate burden: <b>")
+    assertNotContains(response, "<li>12-week statement compliance: <b>")
+    assertNotContains(response, "<li>12-week disproportionate burden: <b>")
+
+    audit.twelve_week_disproportionate_burden_claim = (
+        Audit.DisproportionateBurden.ASSESSMENT
+    )
+    audit.save()
+    audit.case.compliance.statement_compliance_state_12_week = (
+        CaseCompliance.StatementCompliance.COMPLIANT
+    )
+    audit.case.compliance.save()
+
+    response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
+
+    assert response.status_code == 200
+    assertNotContains(response, "<li>Initial statement compliance: <b>")
+    assertNotContains(response, "<li>Initial disproportionate burden: <b>")
+    assertContains(response, "<li>12-week statement compliance: <b>")
+    assertContains(response, "<li>12-week disproportionate burden: <b>")
 
 
 def test_create_equality_body_retest_redirects(admin_client):
