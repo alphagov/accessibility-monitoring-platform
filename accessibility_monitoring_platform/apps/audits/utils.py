@@ -375,13 +375,13 @@ def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, A
     """Return the context for test summary pages"""
     context: dict[str, Any] = {}
     show_failures_by_page: bool = "page-view" in request.GET
-    show_unfixed: bool = "show-unfixed" in request.GET
+    show_all: bool = "show-all" in request.GET
     context["show_failures_by_page"] = show_failures_by_page
-    context["show_unfixed"] = show_unfixed
+    context["show_all"] = show_all
     context["enable_12_week_ui"] = audit.retest_date is not None
 
     check_results: QuerySet[CheckResult] = (
-        audit.unfixed_check_results if show_unfixed else audit.failed_check_results
+        audit.failed_check_results if show_all else audit.unfixed_check_results
     )
 
     context["audit_failures_by_page"] = list_to_dictionary_of_lists(
@@ -393,9 +393,9 @@ def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, A
     )
 
     statement_check_results: QuerySet[StatementCheckResult] = (
-        audit.outstanding_statement_check_results
-        if show_unfixed
-        else audit.statement_check_results
+        audit.statement_check_results
+        if show_all
+        else audit.outstanding_statement_check_results
     )
     if not audit.all_overview_statement_checks_have_passed:
         statement_check_results = statement_check_results.filter(

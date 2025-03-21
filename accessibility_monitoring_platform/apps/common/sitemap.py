@@ -556,7 +556,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 next_page_url_name="audits:edit-audit-wcag-summary",
             ),
             AuditPlatformPage(
-                name="Test summary",
+                name="WCAG summary",
                 url_name="audits:edit-audit-wcag-summary",
                 complete_flag_name="audit_wcag_summary_complete_date",
                 next_page_url_name="audits:edit-statement-pages",
@@ -646,7 +646,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 next_page_url_name="audits:edit-audit-statement-summary",
             ),
             AuditPlatformPage(
-                name="Test summary",
+                name="Statement summary",
                 url_name="audits:edit-audit-statement-summary",
                 complete_flag_name="audit_statement_summary_complete_date",
             ),
@@ -915,7 +915,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 next_page_url_name="audits:edit-audit-retest-wcag-summary",
             ),
             AuditPlatformPage(
-                name="Test summary",
+                name="WCAG summary",
                 url_name="audits:edit-audit-retest-wcag-summary",
                 complete_flag_name="audit_retest_wcag_summary_complete_date",
                 next_page_url_name="audits:edit-audit-retest-statement-pages",
@@ -1004,7 +1004,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 next_page_url_name="audits:edit-audit-retest-statement-summary",
             ),
             AuditPlatformPage(
-                name="Test summary",
+                name="Statement summary",
                 url_name="audits:edit-audit-retest-statement-summary",
                 complete_flag_name="audit_retest_statement_summary_complete_date",
                 next_page_url_name="cases:edit-review-changes",

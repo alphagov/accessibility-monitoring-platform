@@ -1,0 +1,5 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    {% include 'audits/helpers/test_summary.html' with show_statement_summary=True %}
+{% endblock %}

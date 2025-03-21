@@ -57,7 +57,7 @@ describe('Create case, tests and report', () => {
     cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Test summary`)
+    cy.title().should('eq', `${newOrganisationName} | WCAG summary`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Statement links`)
@@ -92,7 +92,7 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Statement compliance`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Test summary`)
+    cy.title().should('eq', `${newOrganisationName} | Statement summary`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Start report`)
@@ -173,7 +173,7 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Compliance decision`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Test summary`)
+    cy.title().should('eq', `${newOrganisationName} | WCAG summary`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Statement links`)
@@ -206,7 +206,7 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Compliance decision`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Test summary`)
+    cy.title().should('eq', `${newOrganisationName} | Statement summary`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Reviewing changes`)

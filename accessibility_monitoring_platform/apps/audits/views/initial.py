@@ -353,7 +353,7 @@ class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
     """
 
     form_class: type[AuditWcagSummaryUpdateForm] = AuditWcagSummaryUpdateForm
-    template_name: str = "audits/forms/test_summary.html"
+    template_name: str = "audits/forms/test_summary_wcag.html"
 
 
 class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
@@ -585,7 +585,7 @@ class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
     """
 
     form_class: type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm
-    template_name: str = "audits/forms/test_summary.html"
+    template_name: str = "audits/forms/test_summary_statement.html"
 
     def get_next_platform_page(self) -> PlatformPage:
         case: Case = self.object.case

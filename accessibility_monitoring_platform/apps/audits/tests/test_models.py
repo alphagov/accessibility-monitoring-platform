@@ -729,34 +729,43 @@ def test_statement_check_str():
     )
 
 
-def test_statement_check_edit_initial_url_name():
-    """Tests an StatementCheck edit_initial_url_name contains the expected string"""
-    statement_check: StatementCheck = StatementCheck(
+@pytest.mark.django_db
+def test_statement_check_result_edit_initial_url_name():
+    """
+    Tests an StatementCheckResult edit_initial_url_name contains the expected string
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.create(
         type=StatementCheck.Type.COMPLIANCE
     )
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit, statement_check=statement_check, type=statement_check.type
+    )
 
-    assert statement_check.edit_initial_url_name == "audits:edit-statement-compliance"
+    assert (
+        statement_check_result.edit_initial_url_name
+        == "audits:edit-statement-compliance"
+    )
 
-    statement_check.type = StatementCheck.Type.OVERVIEW
 
-    assert statement_check.edit_initial_url_name == "audits:edit-statement-overview"
-
-
+@pytest.mark.django_db
 def test_statement_check_edit_12_week_url_name():
-    """Tests an StatementCheck edit_12_week_url_name contains the expected string"""
-    statement_check: StatementCheck = StatementCheck(
+    """
+    Tests an StatementCheckResult edit_12_week_url_name contains the expected string
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.create(
         type=StatementCheck.Type.COMPLIANCE
     )
-
-    assert (
-        statement_check.edit_12_week_url_name
-        == "audits:edit-retest-statement-compliance"
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit, statement_check=statement_check, type=statement_check.type
     )
 
-    statement_check.type = StatementCheck.Type.OVERVIEW
-
     assert (
-        statement_check.edit_12_week_url_name == "audits:edit-retest-statement-overview"
+        statement_check_result.edit_12_week_url_name
+        == "audits:edit-retest-statement-compliance"
     )
 
 

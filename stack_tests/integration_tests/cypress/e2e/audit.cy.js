@@ -59,7 +59,7 @@ describe('View test', () => {
 
   it('can edit WCAG test summary', () => {
     cy.contains('Initial WCAG test').click()
-    cy.contains(/^Test summary$/).click()
+    cy.contains(/^WCAG summary$/).click()
     cy.get('[name="audit_wcag_summary_complete_date"]').click()
     cy.contains('Save').click()
   })

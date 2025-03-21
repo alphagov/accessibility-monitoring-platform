@@ -816,14 +816,6 @@ class StatementCheck(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("audits:statement-check-update", kwargs={"pk": self.pk})
 
-    @property
-    def edit_initial_url_name(self) -> str:
-        return f"audits:edit-statement-{self.type}"
-
-    @property
-    def edit_12_week_url_name(self) -> str:
-        return f"audits:edit-retest-statement-{self.type}"
-
 
 class StatementCheckResult(models.Model):
     """
@@ -899,6 +891,18 @@ class StatementCheckResult(models.Model):
         if self.report_comment:
             value_str += f"<br><br>Auditor's comment: {self.report_comment}"
         return mark_safe(value_str)
+
+    @property
+    def edit_initial_url_name(self) -> str:
+        if self.statement_check is None:
+            return "audits:edit-statement-custom"
+        return f"audits:edit-statement-{self.statement_check.type}"
+
+    @property
+    def edit_12_week_url_name(self) -> str:
+        if self.statement_check is None:
+            return "audits:edit-retest-statement-custom"
+        return f"audits:edit-retest-statement-{self.type}"
 
 
 class Retest(VersionModel):

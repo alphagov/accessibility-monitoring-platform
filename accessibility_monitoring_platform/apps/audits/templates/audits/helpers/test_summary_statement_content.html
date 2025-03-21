@@ -2,21 +2,11 @@
 <p class="govuk-body govuk-button-group amp-margin-bottom-0">
     <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
         Open statement page in new tab</a>
-    {% if statement_check_type == 'custom' %}
-        <a href="{% url 'audits:edit-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
-    {% else %}
-        <a href="{% url statement_check_results.0.statement_check.edit_initial_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
-    {% endif %}
-        Edit initial test
-    </a>
+    <a href="{% url statement_check_results.0.edit_initial_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        Edit initial test</a>
     {% if enable_12_week_ui %}
-        {% if statement_check_type == 'custom' %}
-            <a href="{% url 'audits:edit-retest-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
-        {% else %}
-            <a href="{% url statement_check_results.0.statement_check.edit_12_week_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
-        {% endif %}
-            Edit 12-week test
-        </a>
+        <a href="{% url statement_check_results.0.edit_12_week_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+            Edit 12-week test</a>
     {% else %}
         <span class="govuk-body amp-disabled">Edit 12-week test</span>
     {% endif %}
@@ -25,35 +15,25 @@
     <table class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
-                <th scope="col" class="govuk-table__header amp-width-one-third">Initial test</th>
-                <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">12-week test</th>
+                <th scope="col" class="govuk-table__header amp-width-one-third">Issue</th>
             </tr>
         </thead>
         <tbody class="govuk-table__body">
             {% for statement_check_result in statement_check_results %}
                 <tr class="govuk-table__row ">
-                    <td class="govuk-table__cell">
-                        {{ statement_check_result.label }}<br>
-                        {% include 'audits/helpers/issue_identifier.html' with issue=statement_check_result %}
-                    </td>
                     <td class="govuk-table__cell amp-notes">
-                        <p>{{ statement_check_result.get_check_result_state_display }}</p>
-                        {% if statement_check_result.check_result_state == 'no' %}
-                            {{ statement_check_result.check.report_text|markdown_to_html }}
-                        {% endif %}
+                        {{ statement_check_result.statement_check.report_text|markdown_to_html }}
                         {% if statement_check_result.report_comment %}
                             {{ statement_check_result.report_comment|markdown_to_html }}
                         {% endif %}
-                    </td>
-                    <td class="govuk-table__cell amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                        <p>{{ statement_check_result.get_retest_state_display }}</p>
-                        {% if statement_check_result.retest_state == 'no' %}
-                            {{ statement_check_result.statement_check.report_text|markdown_to_html }}
+                        [{{ statement_check_result.issue_identifier }}]
+                        <a class="govuk-link govuk-link--no-visited-state"
+                        {% if enable_12_week_ui %}
+                            href="{% url statement_check_result.edit_12_week_url_name case.audit.id %}#issue-{{ statement_check_result.issue_identifier }}"
+                        {% else %}
+                            href="{% url statement_check_result.edit_initial_url_name case.audit.id %}#issue-{{ statement_check_result.issue_identifier }}"
                         {% endif %}
-                        {% if statement_check_result.retest_comment  %}
-                            {{ statement_check_result.retest_comment|markdown_to_html }}
-                        {% endif %}
+                        >Edit</a>
                     </td>
                 </tr>
             {% endfor %}
