@@ -5,21 +5,18 @@
 {% block preform %}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <p class="govuk-body-m amp-margin-bottom-5">
-            {{ page.page_title }} link:
+        <p class="govuk-body-m amp-margin-bottom-10">
             {% if page.url %}
                 <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Open page in new tab</a>
+                    Open page in new tab
+                </a>
             {% else %}
                 None
             {% endif %}
         </p>
         <p class="govuk-body-m">
-            Page location:
             {% if page.location %}
-                {{ page.location }}
-            {% else %}
-                N/A
+                Page location: {{ page.location }}
             {% endif %}
         </p>
     </div>

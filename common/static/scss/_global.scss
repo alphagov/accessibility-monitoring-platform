@@ -501,7 +501,7 @@ img, .amp-max-width-100 {
 // Fos use in test check results filtering
 
 .amp-filter-form {
-    margin: 0 0 10px 0;
+    margin: 0 0 40px 0;
     padding: 10px 0 0 0;
 
     h2, .govuk-form-group {
@@ -974,5 +974,11 @@ svg {
     }
     ul:last-child, p:last-child {
         margin-bottom: 0;
+    }
+}
+
+.amp-small-inline-radio {
+    label {
+        max-width: none;
     }
 }
