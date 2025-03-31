@@ -14,11 +14,11 @@
                 None
             {% endif %}
         </p>
-        <p class="govuk-body-m">
-            {% if page.location %}
+        {% if page.location %}
+            <p class="govuk-body-m">
                 Page location: {{ page.location }}
-            {% endif %}
-        </p>
+            </p>
+        {% endif %}
     </div>
     <div class="govuk-grid-column-one-third">
         <p class="govuk-body-m amp-margin-bottom-0">
