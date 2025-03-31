@@ -1,6 +1,6 @@
 <div class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
     {% if field.field.widget.input_type == 'radio' %}
-        <fieldset class="govuk-fieldset">
+        <fieldset class="govuk-fieldset amp-margin-bottom-25">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                 <label id="{{ field.auto_id }}-label" class="govuk-label"><b>{{ field.label }}</b></label>
             </legend>
@@ -18,9 +18,11 @@
             {{ field }}
         </fieldset>
     {% else %}
-        <label id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
-        {% if field.help_text %}<div class="govuk-hint">{{ field.help_text|safe }}</div>{% endif %}
-        {% include 'common/field_errors.html' with errors=field.errors %}
-        {{ field }}
+        <div class="amp-margin-bottom-30">
+            <label id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
+            {% if field.help_text %}<div class="govuk-hint">{{ field.help_text|safe }}</div>{% endif %}
+            {% include 'common/field_errors.html' with errors=field.errors %}
+            {{ field }}
+        </div>
     {% endif %}
 </div>

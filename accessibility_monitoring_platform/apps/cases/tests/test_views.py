@@ -778,7 +778,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ),
         (
             "cases:zendesk-tickets",
-            '<h1 class="govuk-heading-xl amp-margin-bottom-15">PSB Zendesk tickets</h1>',
+            '<h1 class="govuk-heading-xl amp-margin-bottom-30">PSB Zendesk tickets</h1>',
         ),
         ("cases:manage-contact-details", "<b>Manage contact details</b>"),
         ("cases:edit-request-contact-details", "<b>Request contact details</b>"),
@@ -799,7 +799,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ),
         (
             "cases:outstanding-issues",
-            '<h1 class="govuk-heading-xl amp-margin-bottom-15">Outstanding issues</h1>',
+            '<h1 class="govuk-heading-xl amp-margin-bottom-30">Outstanding issues</h1>',
         ),
     ],
 )
@@ -887,7 +887,7 @@ def test_update_contact_page_loads(admin_client):
 
     assertContains(
         response,
-        f"""<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit contact {contact}</h1>""",
+        f"""<h1 class="govuk-heading-xl amp-margin-bottom-30">Edit contact {contact}</h1>""",
         html=True,
     )
 
@@ -904,7 +904,7 @@ def test_create_zendesk_ticket_page_loads(admin_client):
 
     assertContains(
         response,
-        '<h1 class="govuk-heading-xl amp-margin-bottom-15">Add PSB Zendesk ticket</h1>',
+        '<h1 class="govuk-heading-xl amp-margin-bottom-30">Add PSB Zendesk ticket</h1>',
         html=True,
     )
 
@@ -922,7 +922,7 @@ def test_update_zendesk_ticket_page_loads(admin_client):
 
     assertContains(
         response,
-        '<h1 class="govuk-heading-xl amp-margin-bottom-15">Edit PSB Zendesk ticket</h1>',
+        '<h1 class="govuk-heading-xl amp-margin-bottom-30">Edit PSB Zendesk ticket</h1>',
         html=True,
     )
 

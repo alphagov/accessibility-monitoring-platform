@@ -181,13 +181,23 @@ class CheckResultFilterForm(forms.Form):
         label="Type of WCAG error",
         choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     state_filter = AMPChoiceRadioField(
         label="Test state",
         choices=TEST_CHECK_RESULT_STATE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
 
     class Meta:
@@ -210,9 +220,14 @@ class CheckResultForm(forms.ModelForm):
     check_result_state = AMPChoiceRadioField(
         label="",
         choices=CheckResult.Result.choices,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
-    notes = AMPTextField(label="Error details")
+    notes = AMPTextField(label="Error details for report")
 
     class Meta:
         model = CheckResult
@@ -602,13 +617,23 @@ class AuditRetestCheckResultFilterForm(forms.Form):
         label="Type of WCAG error",
         choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     state_filter = AMPChoiceRadioField(
         label="Retest state",
         choices=RETEST_CHECK_RESULT_STATE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
 
     class Meta:
@@ -629,7 +654,12 @@ class AuditRetestCheckResultForm(forms.ModelForm):
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
         choices=CheckResult.RetestResult.choices,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     retest_notes = AMPTextField(label="Notes")
 
@@ -1053,7 +1083,12 @@ class RetestCheckResultForm(forms.ModelForm):
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
         choices=CheckResult.RetestResult.choices,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     retest_notes = AMPTextField(label="Notes")
 
