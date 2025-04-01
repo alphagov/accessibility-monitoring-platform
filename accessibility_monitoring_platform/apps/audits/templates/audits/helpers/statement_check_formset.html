@@ -1,6 +1,6 @@
 {{ statement_check_results_formset.management_form }}
 {% for statement_check_result_form in statement_check_results_formset %}
-    <div class="govuk-grid-row amp-margin-bottom-30">
+    <div class="govuk-grid-row amp-margin-bottom-30" id="{{ statement_check_result_form.instance.issue_identifier }}">
         <div class="govuk-grid-column-full">
             {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}
             {% include 'audits/helpers/statement_check_result_field.html' with field=statement_check_result_form.check_result_state %}

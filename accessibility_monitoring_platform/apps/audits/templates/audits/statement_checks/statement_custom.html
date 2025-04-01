@@ -12,7 +12,7 @@
                 {% for custom_form in custom_formset %}
                     <tr class="govuk-table__row">
                         <td class="govuk-table__cell">
-                            <div class="govuk-grid-row">
+                            <div class="govuk-grid-row" id="{{ custom_form.instance.issue_identifier }}">
                                 <div class="govuk-grid-column-full">
                                     <h2 id="custom-{{ custom_form.instance.id }}" class="govuk-heading-m{% if custom_form.instance.id %} amp-margin-bottom-0{% endif %}">Custom issue</h2>
                                     {% if custom_form.instance.id %}
