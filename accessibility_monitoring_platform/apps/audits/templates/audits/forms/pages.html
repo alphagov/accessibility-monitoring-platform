@@ -19,6 +19,7 @@
                 <td class="govuk-table__cell">
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
+                            <br/>
                             <h2 class="govuk-heading-m">
                                 {{ standard_page_headers|list_item_by_index:forloop.counter0 }}
                             </h2>
@@ -63,6 +64,7 @@
                 <td class="govuk-table__cell">
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
+                            <br/>
                             <h2 id="extra-page-{{ forloop.counter }}" class="govuk-heading-m">Page {{ forloop.counter }}</h2>
                             {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
                             {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
@@ -86,6 +88,7 @@
         {% endfor %}
         </tbody>
     </table>
+    <br/>
     <input
         type="submit"
         value="Save and create additional page"
@@ -94,9 +97,9 @@
         data-module="govuk-button"
     />
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <h2 id="deleted-pages"class="govuk-heading-l amp-margin-bottom-5">Removed pages</h2>
-            {% if audit.deleted_pages %}
+        {% if audit.deleted_pages %}
+            <div class="govuk-grid-column-full amp-margin-bottom-30">
+                <h2 id="deleted-pages"class="govuk-heading-m amp-margin-bottom-5">Removed pages</h2>
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
                         {% for page in audit.deleted_pages %}
@@ -110,10 +113,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            {% else %}
-                <p class="govuk-body">No removed pages</p>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
         <div class="govuk-grid-column-full">
             {% include 'common/amp_form_snippet.html' %}
         </div>
