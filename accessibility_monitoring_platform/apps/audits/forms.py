@@ -155,10 +155,11 @@ class AuditPageChecksForm(forms.Form):
     """
 
     complete_date = AMPDatePageCompleteField(
-        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+        label="Mark this page as complete",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page complete"}),
     )
     no_errors_date = AMPDatePageCompleteField(
-        label="",
+        label="Mark page as having no errors",
         widget=AMPDateCheckboxWidget(attrs={"label": "Web page has no errors"}),
     )
 
@@ -180,13 +181,23 @@ class CheckResultFilterForm(forms.Form):
         label="Type of WCAG error",
         choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     state_filter = AMPChoiceRadioField(
         label="Test state",
         choices=TEST_CHECK_RESULT_STATE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
 
     class Meta:
@@ -209,9 +220,14 @@ class CheckResultForm(forms.ModelForm):
     check_result_state = AMPChoiceRadioField(
         label="",
         choices=CheckResult.Result.choices,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
-    notes = AMPTextField(label="Error details")
+    notes = AMPTextField(label="Error details for report")
 
     class Meta:
         model = CheckResult
@@ -592,13 +608,14 @@ class AuditRetestPageChecksForm(forms.Form):
     """
 
     retest_complete_date = AMPDatePageCompleteField(
-        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+        label="Mark this page as complete",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page complete"}),
     )
     retest_page_missing_date = AMPDatePageCompleteField(
-        label="",
+        label="Mark page as missing",
         widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
     )
-    retest_notes = AMPTextField(label="Additional issues found on page")
+    retest_notes = AMPTextField(label="Error details for correspondence")
 
     class Meta:
         model = Audit
@@ -619,13 +636,23 @@ class AuditRetestCheckResultFilterForm(forms.Form):
         label="Type of WCAG error",
         choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     state_filter = AMPChoiceRadioField(
         label="Retest state",
         choices=RETEST_CHECK_RESULT_STATE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
 
     class Meta:
@@ -646,7 +673,12 @@ class AuditRetestCheckResultForm(forms.ModelForm):
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
         choices=CheckResult.RetestResult.choices,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     retest_notes = AMPTextField(label="Notes")
 
@@ -1090,7 +1122,12 @@ class RetestCheckResultForm(forms.ModelForm):
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
         choices=CheckResult.RetestResult.choices,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     retest_notes = AMPTextField(label="Notes")
 

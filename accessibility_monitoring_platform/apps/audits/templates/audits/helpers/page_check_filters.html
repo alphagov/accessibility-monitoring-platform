@@ -1,18 +1,11 @@
 <div class="amp-filter-form">
-    <h2 class="govuk-heading-l">Search WCAG error</h2>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <p class="govuk-body-m" id="number_of_errors">Showing {{ definitions_forms_errors|length }} errors</p>
-        </div>
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             {% include 'common/amp_form_snippet.html' with form=filter_form %}
         </div>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-0">
-            <input type="submit" value="Clear filters" name="clear" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="clear_search_form" />
-        </div>
-    </div>
+
+    <p class="govuk-body-m" id="number_of_errors">Showing {{ definitions_forms_errors|length }} errors</p>
 </div>

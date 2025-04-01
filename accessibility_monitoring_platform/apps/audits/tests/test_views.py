@@ -1567,6 +1567,41 @@ def test_page_checks_edit_page_contains_hint_text(admin_client):
     assertContains(response, WCAG_DEFINITION_HINT)
 
 
+@pytest.mark.parametrize(
+    "url_name",
+    ["audits:edit-audit-page-checks", "audits:edit-audit-retest-page-checks"],
+)
+def test_data_filter_string_contains_issue_identifier_on_check_result_pages(
+    url_name, admin_client
+):
+    """
+    Test data-filter-string contains issue identifier on check results pages
+    """
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: dict[str, int] = {"pk": page.id}
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    wcag_definition.hint = "hint"
+    wcag_definition.save()
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+
+    response: HttpResponse = admin_client.get(reverse(url_name, kwargs=page_pk))
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f'data-filter-string="{wcag_definition} hint {check_result.issue_identifier}"',
+    )
+
+
 def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
     """Test page checks edit view page loads and hides future WCAG definitions"""
     audit: Audit = create_audit_and_wcag()

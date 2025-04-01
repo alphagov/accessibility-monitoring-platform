@@ -261,6 +261,10 @@ img, .amp-max-width-100 {
     margin-top: 10px;
 }
 
+.amp-margin-top-20 {
+    margin-top: 20px;
+}
+
 .amp-margin-top-30 {
     margin-top: 30px;
 }
@@ -410,7 +414,7 @@ img, .amp-max-width-100 {
 // Fos use in test check results filtering
 
 .amp-filter-form {
-    margin: 0 0 10px 0;
+    margin: 0 0 40px 0;
     padding: 10px 0 0 0;
 
     h2, .govuk-form-group {
@@ -597,6 +601,12 @@ img, .amp-max-width-100 {
             margin-bottom: 0;
         }
     }
+}
+
+.amp-email-template {
+    @extend .amp-report-wrapper;
+    font-size: 1rem;
+    line-height: 1.25;
 }
 
 .amp-no-bullet-points {
@@ -795,5 +805,26 @@ svg {
 
     li {
         margin-left: 15px;
+    }
+}
+
+.amp-preview {
+    min-height: 25px;
+    border-left: 1px solid govuk-colour("mid-grey");
+    padding-left: 12px;
+    padding-top: 4px;
+    margin-bottom: 10px;
+
+    ul:first-child, p:first-child {
+        margin-top: 0;
+    }
+    ul:last-child, p:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.amp-small-inline-radio {
+    label {
+        max-width: none;
     }
 }
