@@ -309,6 +309,9 @@
 {% endif %}
 
 {% for statement_check_type, statement_check_results in statement_check_results_by_type.items %}
-    <br />
-    {% include 'audits/helpers/test_summary_statement_content.html' with statement_check_results=statement_check_results %}
+    {% if statement_check_type == '12-week' %}
+        {% include 'audits/helpers/test_summary_new_12_week_statement_content.html' %}
+    {% else %}
+        {% include 'audits/helpers/test_summary_initial_statement_content.html' %}
+    {% endif %}
 {% endfor %}
