@@ -41,7 +41,7 @@
                 </li>
             </ul>
         </h2>
-        {% include 'audits/statement_checks/custom_issue_detail.html' %}
+        {% include 'audits/statement_checks/custom_issue_detail.html' with show_retest_state=True %}
         <hr class="amp-width-100 amp-margin-bottom-30" />
     {% endfor %}
 
