@@ -184,33 +184,23 @@ def test_get_initial_statement_check_result_url_from_issue_identifier():
     """Test expected statement check result url found from issue identifier"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-    )
-
-    assert (
-        get_initial_statement_check_result_url_from_issue_identifier(
-            issue_identifier=statement_check_result.issue_identifier
+    for statement_check_type in StatementCheck.Type:
+        if statement_check_type == StatementCheck.Type.TWELVE_WEEK:
+            continue  # Issues added at 12-weeks don't appear in initial results
+        statement_check: StatementCheck = StatementCheck.objects.filter(
+            type=statement_check_type
+        ).first()
+        statement_check_result: StatementCheckResult = (
+            StatementCheckResult.objects.create(
+                audit=audit,
+                type=statement_check_type,
+                statement_check=statement_check,
+            )
         )
-        == "/audits/1/edit-statement-overview/"
-    )
 
-
-@pytest.mark.django_db
-def test_get_initial_custom_statement_check_result_url_from_issue_identifier():
-    """Test expected custom statement check result url found from issue identifier"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        audit=audit,
-    )
-
-    assert (
-        get_initial_statement_check_result_url_from_issue_identifier(
-            issue_identifier=statement_check_result.issue_identifier
+        assert (
+            get_initial_statement_check_result_url_from_issue_identifier(
+                issue_identifier=statement_check_result.issue_identifier
+            )
+            == f"/audits/1/edit-statement-{statement_check_type}/"
         )
-        == "/audits/1/edit-statement-custom/"
-    )
