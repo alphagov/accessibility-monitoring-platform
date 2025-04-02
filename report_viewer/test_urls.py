@@ -24,9 +24,7 @@ def test_security_txt(url, client):
     response: HttpResponse = client.get(url)
 
     assert response.status_code == 200
-    assertContains(
-        response, "Generated at: https://github.com/CO-Cyber-Security/security.txt"
-    )
+    assertContains(response, "Policy: https://www.gov.uk/help/report-vulnerability")
 
 
 def test_custom_404(client):
