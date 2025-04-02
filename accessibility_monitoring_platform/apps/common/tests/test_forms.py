@@ -34,7 +34,7 @@ from ..models import Boolean
 
 EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
 <div class="govuk-radios">
-    <div class="govuk-radios__item amp-margin-right-5">
+    <div class="govuk-radios__item">
         <input class="govuk-radios__input" type="radio" name="name" value="val1">
         <label class="govuk-label govuk-radios__label">Label1</label>
     </div>

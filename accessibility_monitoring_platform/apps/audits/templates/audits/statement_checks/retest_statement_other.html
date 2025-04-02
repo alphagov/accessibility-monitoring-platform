@@ -2,23 +2,51 @@
 
 {% block preform %}
     {% include 'audits/helpers/statement_pages_twelve_week.html' %}
-    {% include 'common/formset_error_summary.html' with formset=retest_statement_check_results_formset %}
-    {% if not retest_statement_check_results_formset.forms %}
-        <p class="govuk-body">No custom statement issues found in initial test.</p>
-    {% endif %}
-{% endblock %}
 
-{% block form %}
-    <form method="post" action="{% url sitemap.current_platform_page.url_name audit.id %}">
-        {% csrf_token %}
-        {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include 'audits/helpers/retest_statement_check_formset.html' %}
-                <hr class="amp-width-100 amp-margin-bottom-30" />
-                {% include 'common/amp_form_snippet.html' %}
-            </div>
-        </div>
-        {% include 'cases/helpers/save_continue_cancel.html' %}
-    </form>
+    {% if not audit.custom_statement_check_results %}
+        <p class="govuk-body">No custom statement issues were initially entered</p>
+    {% endif %}
+
+    {% for custom_issue in audit.custom_statement_check_results %}
+        <h2 id="custom-issue-{{ custom_issue.id }}" class="govuk-heading-s">
+            <ul id="custom-issue-{{ custom_issue.id }}" class="govuk-body amp-horizontal-list">
+                <li>
+                    <b>Custom issue {{ custom_issue.issue_identifier }}</b>
+                </li>
+                <li aria-hidden="true"> | </li>
+                <li>
+                    <a href="{% url 'audits:edit-retest-initial-custom-issue-update' custom_issue.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Edit</a>
+                </li>
+            </ul>
+        </h2>
+        {% include 'audits/statement_checks/custom_issue_detail.html' with show_retest_state=True %}
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    {% endfor %}
+
+    {% for custom_issue in audit.new_12_week_custom_statement_check_results %}
+        <h2 id="custom-issue-{{ custom_issue.id }}" class="govuk-heading-s">
+            <ul id="custom-issue-{{ custom_issue.id }}" class="govuk-body amp-horizontal-list">
+                <li>
+                    <b>12-week custom issue {{ custom_issue.issue_identifier }}</b>
+                </li>
+                <li aria-hidden="true"> | </li>
+                <li>
+                    <a href="{% url 'audits:edit-retest-new-12-week-custom-issue-update' custom_issue.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Edit</a>
+                </li>
+                <li>
+                    <a href="{% url 'audits:edit-retest-new-12-week-custom-issue-delete-confirm' custom_issue.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Remove</a>
+                </li>
+            </ul>
+        </h2>
+        {% include 'audits/statement_checks/custom_issue_detail.html' with show_retest_state=True %}
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    {% endfor %}
+
+    <p class="govuk-body amp-margin-bottom-30">
+        + <a href="{% url 'audits:edit-retest-12-week-custom-issue-create' audit.id %}" class="govuk-link govuk-link--no-visited-state">
+            Add custom issue</a>
+    </p>
 {% endblock %}
