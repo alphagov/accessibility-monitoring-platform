@@ -1,10 +1,11 @@
 {{ retest_statement_check_results_formset.management_form }}
-{% for statement_check_result_form in retest_statement_check_results_formset %}
-    <div class="govuk-grid-row amp-margin-bottom-30">
+{% for statement_check_result_form in retest_statement_check_results_formset.forms %}
+    <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}
             {% include 'audits/helpers/statement_check_result_field.html' with twelve_week_retest=True field=statement_check_result_form.retest_state %}
             {% include 'common/amp_field.html' with field=statement_check_result_form.retest_comment %}
+            <hr class="amp-width-100 amp-margin-bottom-30" />
         </div>
     </div>
 {% endfor %}

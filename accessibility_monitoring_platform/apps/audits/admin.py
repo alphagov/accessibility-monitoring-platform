@@ -54,6 +54,7 @@ class CheckResultAdmin(admin.ModelAdmin):
     ]
     list_display = ["issue_identifier", "__str__", "audit", "page"]
     list_filter = ["check_result_state"]
+    readonly_fields = ["audit"]
 
 
 class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):
@@ -112,7 +113,7 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
         "statement_check__report_text",
     ]
     list_display = ["issue_identifier", "statement_check", "audit", "is_deleted"]
-    list_filter = ["is_deleted", "check_result_state", "retest_state"]
+    list_filter = ["is_deleted", "check_result_state", "retest_state", "type"]
     fieldsets = (
         (
             None,
@@ -125,10 +126,12 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
                     ("report_comment",),
                     ("retest_state",),
                     ("retest_comment",),
+                    ("auditor_notes",),
                 )
             },
         ),
     )
+    readonly_fields = ["audit"]
 
 
 class RetestAdmin(admin.ModelAdmin):

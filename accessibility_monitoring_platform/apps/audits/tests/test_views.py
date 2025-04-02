@@ -88,6 +88,8 @@ WCAG_DEFINITION_HINT: str = "WCAG definition hint text"
 PAGE_LOCATION: str = "Press button then click on link"
 STATEMENT_CHECK_INITIAL_COMMENT: str = "Statement check initial comment"
 STATEMENT_CHECK_RETEST_COMMENT: str = "Statement check retest comment"
+NEW_12_WEEK_CUSTOM_REPORT_COMMENT: str = "New 12-week custom report comment"
+NEW_12_WEEK_CUSTOM_AUDITOR_NOTES: str = "New 12-week custom auditor notes"
 
 
 def create_audit() -> Audit:
@@ -692,7 +694,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-overview",
             "save_continue",
-            "audits:edit-initial-disproportionate-burden",
+            "audits:edit-statement-custom",
         ),
         (
             "audits:edit-statement-website",
@@ -787,7 +789,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-retest-statement-overview",
             "save_continue",
-            "audits:edit-twelve-week-disproportionate-burden",
+            "audits:edit-retest-statement-custom",
         ),
         (
             "audits:edit-retest-statement-website",
@@ -1846,16 +1848,10 @@ def test_add_custom_statement_check_result(admin_client):
     ).delete()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
+        reverse("audits:edit-custom-issue-create", kwargs={"audit_id": audit.id}),
         {
-            "form-TOTAL_FORMS": "1",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "form-0-id": "",
-            "form-0-report_comment": CUSTOM_STATEMENT_ISSUE,
-            "form-0-auditor_notes": "",
-            "version": audit.version,
+            "report_comment": CUSTOM_STATEMENT_ISSUE,
+            "auditor_notes": "",
             "save": "Save",
         },
         follow=True,
@@ -1874,23 +1870,20 @@ def test_delete_custom_statement_check_result(admin_client):
     Test that pressing the remove issue button deletes the custom statement issue
     """
     audit: Audit = create_audit_and_statement_check_results()
-    custom_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.get(audit=audit, type=StatementCheck.Type.CUSTOM)
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(
+        audit=audit, type=StatementCheck.Type.CUSTOM
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
-            f"remove_custom_{custom_statement_check_result.id}": "Remove issue",
-        },
+        reverse(
+            "audits:edit-custom-issue-delete",
+            kwargs={"pk": custom_issue.id},
+        ),
+        {},
         follow=True,
     )
     assert response.status_code == 200
+
     assertContains(response, "No custom statement issues have been entered")
 
     result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
@@ -2255,7 +2248,7 @@ def test_retest_statement_custom_no_initial(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "No custom statement issues found in initial test.")
+    assertContains(response, "No custom statement issues were initially entered")
 
 
 def test_retest_statement_custom_with_initial(admin_client):
@@ -3438,13 +3431,13 @@ def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
         ("edit-audit-metadata", "Initial WCAG test | Add or remove pages"),
         ("edit-audit-pages", "Initial WCAG test | Compliance decision"),
         ("edit-statement-overview", "Initial statement | Statement information"),
-        ("edit-statement-overview", "Initial statement | Disproportionate burden"),
+        ("edit-statement-overview", "Initial statement | Custom issues"),
         ("edit-audit-retest-metadata", "12-week WCAG test | Update page links"),
         ("edit-audit-retest-pages", "12-week WCAG test | Compliance decision"),
         ("edit-retest-statement-overview", "12-week statement | Statement information"),
         (
             "edit-retest-statement-overview",
-            "12-week statement | Disproportionate burden",
+            "12-week statement | Custom issues",
         ),
     ],
 )
@@ -3483,3 +3476,234 @@ def test_retest_next_page_name(path_name, expected_next_page, admin_client):
     assert response.status_code == 200
 
     assertContains(response, f"<b>{expected_next_page}</b>", html=True)
+
+
+def test_create_initial_custom_issue_redirects(admin_client):
+    """
+    Test that statement initial custom issue create redirects to initial statement
+    custom issues page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-custom-issue-create", kwargs={"audit_id": audit.id}),
+        {
+            "save": "Save and return",
+        },
+    )
+
+    assert response.status_code == 302
+
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(audit=audit)
+    response_url: str = reverse("audits:edit-statement-custom", kwargs={"pk": audit.id})
+
+    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == custom_issue
+    assert events[0].type == Event.Type.CREATE
+
+
+def test_update_initial_custom_issue_redirects(admin_client):
+    """
+    Test that statement initial custom issue update redirects to initial statement
+    custom issues page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-custom-issue-update", kwargs={"pk": custom_issue.id}),
+        {
+            "auditor_notes": "Made a change",
+            "save": "Save and return",
+        },
+    )
+
+    assert response.status_code == 302
+
+    response_url: str = reverse("audits:edit-statement-custom", kwargs={"pk": audit.id})
+
+    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == custom_issue
+    assert events[0].type == Event.Type.UPDATE
+
+
+def test_delete_initial_custom_issue_redirects(admin_client):
+    """
+    Test that statement initial custom issue delete redirects to initial statement
+    custom issues page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-custom-issue-delete", kwargs={"pk": custom_issue.id}),
+        {},
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "audits:edit-statement-custom", kwargs={"pk": audit.id}
+    )
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == custom_issue
+    assert events[0].type == Event.Type.UPDATE
+
+
+def test_update_at_12_week_initial_custom_issue_redirects(admin_client):
+    """
+    Test that statement initial custom issue update at 12-weeks redirects to 12-week
+    statement custom issues page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-retest-initial-custom-issue-update",
+            kwargs={"pk": custom_issue.id},
+        ),
+        {
+            "retest_state": "yes",
+            "auditor_notes": "Made a change",
+            "save": "Save and return",
+        },
+    )
+
+    assert response.status_code == 302
+
+    response_url: str = reverse(
+        "audits:edit-retest-statement-custom", kwargs={"pk": audit.id}
+    )
+
+    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == custom_issue
+    assert events[0].type == Event.Type.UPDATE
+
+
+def test_create_new_12_week_custom_issue_redirects(admin_client):
+    """
+    Test that statement new 12-week custom issue create redirects to 12-week statement
+    custom issues page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-retest-12-week-custom-issue-create",
+            kwargs={"audit_id": audit.id},
+        ),
+        {
+            "save": "Save and return",
+        },
+    )
+
+    assert response.status_code == 302
+
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(audit=audit)
+    response_url: str = reverse(
+        "audits:edit-retest-statement-custom", kwargs={"pk": audit.id}
+    )
+
+    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == custom_issue
+    assert events[0].type == Event.Type.CREATE
+
+
+def test_update_new_12_week_custom_issue_redirects(admin_client):
+    """
+    Test that statement new 12-week custom issue update redirects to 12-week statement
+    custom issues page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-retest-new-12-week-custom-issue-update",
+            kwargs={"pk": custom_issue.id},
+        ),
+        {
+            "auditor_notes": "Made a change",
+            "save": "Save and return",
+        },
+    )
+
+    assert response.status_code == 302
+
+    response_url: str = reverse(
+        "audits:edit-retest-statement-custom", kwargs={"pk": audit.id}
+    )
+
+    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == custom_issue
+    assert events[0].type == Event.Type.UPDATE
+
+
+def test_delete_new_12_week_custom_issue_redirects(admin_client):
+    """
+    Test that statement new 12-week custom issue delete redirects to 12-week statement
+    custom issues page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-retest-12-week-custom-issue-delete",
+            kwargs={"pk": custom_issue.id},
+        ),
+        {},
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "audits:edit-retest-statement-custom", kwargs={"pk": audit.id}
+    )
+
+    events: QuerySet[Event] = Event.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == custom_issue
+    assert events[0].type == Event.Type.UPDATE
