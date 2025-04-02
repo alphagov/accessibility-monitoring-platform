@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Any
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.mail import EmailMessage
@@ -192,6 +193,7 @@ class ActiveQAAuditorUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Remain on current page on save"""
+        messages.success(self.request, "Active QA auditor has been updated")
         return self.request.path
 
 

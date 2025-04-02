@@ -12,6 +12,7 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+                {% include 'common/messages.html' %}
                 {% include 'common/error_summary.html' %}
                 <form method="post">
                     {% csrf_token %}
