@@ -3,6 +3,29 @@
 {% load static %}
 
 {% block preform %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <p class="govuk-body-m amp-margin-bottom-10">
+            {% if page.url %}
+                <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Open page in new tab
+                </a>
+            {% else %}
+                None
+            {% endif %}
+        </p>
+        {% if page.location %}
+            <p class="govuk-body-m">
+                Page location: {{ page.location }}
+            </p>
+        {% endif %}
+    </div>
+    <div class="govuk-grid-column-one-third">
+        <p class="govuk-body-m amp-margin-bottom-0">
+            <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+        </p>
+    </div>
+</div>
 {% include 'audits/helpers/page_check_filters.html' with page='test' %}
 {% endblock %}
 
@@ -10,40 +33,10 @@
 <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}">
     <div class="govuk-grid-row">
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-        <div class="govuk-grid-column-one-half">
-            {% include 'common/amp_field.html' with field=form.complete_date %}
-        </div>
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-full">
             {% include 'common/amp_field.html' with field=form.no_errors_date %}
         </div>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full govuk-button-group">
-            <input
-                type="submit"
-                value="Save and continue"
-                name="save_continue"
-                class="govuk-button"
-                data-module="govuk-button"
-            />
-            <input
-                type="submit"
-                value="Save"
-                name="save"
-                class="govuk-button govuk-button--secondary"
-                data-module="govuk-button"
-            />
-            {% if page %}
-                <a href="{{ page.url }}" class="govuk-link" target="_blank">
-                    Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
-                </a>
-            {% endif %}
-            {% if page.location %}
-                <p class="govuk-body">{{ page.location }}</p>
-            {% endif %}
-        </div>
-    </div>
-    {% include 'common/next_platform_page.html' %}
     {% include 'common/formset_error_summary.html' with formset=check_results_formset %}
     {% csrf_token %}
     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
@@ -85,16 +78,23 @@
                 {% endif %}
                 {% include 'common/amp_field.html' with field=form.notes %}
                 {% include 'common/preview_markdown.html' with field_id=form.notes.auto_id %}
+                <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
+                    <div class="govuk-grid-column-full govuk-button-group">
+                        {% include 'common/back_to_top.html' %}
+                        <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+                    </div>
+                </div>
             </div>
         </div>
     {% endfor %}
-</form>
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full govuk-body">
-        <hr class="amp-width-100 amp-margin-bottom-30">
-        {% include 'common/back_to_top.html' %}
+    <hr id="save-and-continue-buttons" class="amp-width-100 amp-margin-bottom-30">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/amp_field.html' with field=form.complete_date %}
+        </div>
     </div>
-</div>
+    {% include 'cases/helpers/save_continue_cancel.html' %}
+</form>
 {% endblock %}
 
 {% block extrascript %}

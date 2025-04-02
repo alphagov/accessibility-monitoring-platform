@@ -400,6 +400,10 @@ class Audit(VersionModel):
         return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 
     @property
+    def new_12_week_custom_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.TWELVE_WEEK)
+
+    @property
     def failed_statement_check_results(self):
         return self.statement_check_results.filter(
             check_result_state=StatementCheckResult.Result.NO
@@ -416,6 +420,7 @@ class Audit(VersionModel):
         return self.statement_check_results.filter(
             Q(check_result_state=StatementCheckResult.Result.NO)
             | Q(retest_state=StatementCheckResult.Result.NO)
+            | Q(statement_check=None)
         ).exclude(retest_state=StatementCheckResult.Result.YES)
 
     @property
@@ -784,6 +789,7 @@ class StatementCheck(models.Model):
         PREPARATION = "preparation", "Statement preparation"
         FEEDBACK = "feedback", "Feedback and enforcement procedure"
         CUSTOM = "custom", "Custom statement issues"
+        TWELVE_WEEK = "12-week", "New 12-week custom statement issues"
 
     type = models.CharField(
         max_length=20,

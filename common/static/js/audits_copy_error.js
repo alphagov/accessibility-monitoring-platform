@@ -6,6 +6,8 @@ function copyTextToInput (targetId, sourceId) {
   const sourceValue = document.getElementById(sourceId).value
   const target = document.getElementById(targetId)
   target.value = sourceValue
+  const event = new Event('input')
+  target.dispatchEvent(event)
 }
 
 function keyboardCopyTextToInput (event, targetId, sourceId) {

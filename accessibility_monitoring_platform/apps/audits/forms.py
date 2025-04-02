@@ -155,10 +155,11 @@ class AuditPageChecksForm(forms.Form):
     """
 
     complete_date = AMPDatePageCompleteField(
-        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+        label="Mark this page as complete",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page complete"}),
     )
     no_errors_date = AMPDatePageCompleteField(
-        label="",
+        label="Mark page as having no errors",
         widget=AMPDateCheckboxWidget(attrs={"label": "Web page has no errors"}),
     )
 
@@ -180,13 +181,23 @@ class CheckResultFilterForm(forms.Form):
         label="Type of WCAG error",
         choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     state_filter = AMPChoiceRadioField(
         label="Test state",
         choices=TEST_CHECK_RESULT_STATE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
 
     class Meta:
@@ -209,9 +220,14 @@ class CheckResultForm(forms.ModelForm):
     check_result_state = AMPChoiceRadioField(
         label="",
         choices=CheckResult.Result.choices,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
-    notes = AMPTextField(label="Error details")
+    notes = AMPTextField(label="Error details for report")
 
     class Meta:
         model = CheckResult
@@ -412,9 +428,9 @@ class AuditStatementCustomUpdateForm(VersionForm):
         ]
 
 
-class CustomStatementCheckResultUpdateForm(forms.ModelForm):
+class InitialCustomIssueCreateUpdateForm(forms.ModelForm):
     """
-    Form for updating a custom statement check result
+    Form for creating or updating a custom issue StatementCheckResult
     """
 
     report_comment = AMPTextField(label="Comments for report")
@@ -425,16 +441,35 @@ class CustomStatementCheckResultUpdateForm(forms.ModelForm):
         fields = ["report_comment", "auditor_notes"]
 
 
-CustomStatementCheckResultFormset: forms.formsets.BaseFormSet = (
-    forms.modelformset_factory(
-        StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=0
+class AuditRetestNew12WeekCustomIssueCreateForm(forms.ModelForm):
+    """
+    Form for creating a new 12-week custom issue StatementCheckResult
+    """
+
+    retest_comment = AMPTextField(label="Issue description for organisation")
+    auditor_notes = AMPTextField(label="12-week internal notes")
+
+    class Meta:
+        model = StatementCheckResult
+        fields = ["retest_comment", "auditor_notes"]
+
+
+class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
+    """
+    Form for updating a custom statement check result
+    """
+
+    retest_comment = AMPTextField(label="Issue description for organisation")
+    auditor_notes = AMPTextField(label="12-week internal notes")
+    retest_state = AMPChoiceRadioField(
+        label="Mark this statement as resolved",
+        choices=StatementCheckResult.Result.choices,
+        widget=AMPRadioSelectWidget(),
     )
-)
-CustomStatementCheckResultFormsetOneExtra: forms.formsets.BaseFormSet = (
-    forms.modelformset_factory(
-        StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=1
-    )
-)
+
+    class Meta:
+        model = StatementCheckResult
+        fields = ["retest_comment", "auditor_notes", "retest_state"]
 
 
 class InitialDisproportionateBurdenUpdateForm(VersionForm):
@@ -573,13 +608,14 @@ class AuditRetestPageChecksForm(forms.Form):
     """
 
     retest_complete_date = AMPDatePageCompleteField(
-        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+        label="Mark this page as complete",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page complete"}),
     )
     retest_page_missing_date = AMPDatePageCompleteField(
-        label="",
+        label="Mark page as missing",
         widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
     )
-    retest_notes = AMPTextField(label="Additional issues found on page")
+    retest_notes = AMPTextField(label="Error details for correspondence")
 
     class Meta:
         model = Audit
@@ -600,13 +636,23 @@ class AuditRetestCheckResultFilterForm(forms.Form):
         label="Type of WCAG error",
         choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     state_filter = AMPChoiceRadioField(
         label="Retest state",
         choices=RETEST_CHECK_RESULT_STATE_FILTER_CHOICES,
         initial="",
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
 
     class Meta:
@@ -627,7 +673,12 @@ class AuditRetestCheckResultForm(forms.ModelForm):
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
         choices=CheckResult.RetestResult.choices,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     retest_notes = AMPTextField(label="Notes")
 
@@ -722,7 +773,7 @@ class AuditRetestStatementCheckResultForm(forms.ModelForm):
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    retest_comment = AMPTextField(label="Retest comments")
+    retest_comment = AMPTextField(label="12-week internal notes")
 
     class Meta:
         model = StatementCheckResult
@@ -841,6 +892,26 @@ class AuditRetestStatementCustomUpdateForm(VersionForm):
         fields: list[str] = [
             "version",
             "audit_retest_statement_custom_complete_date",
+        ]
+
+
+class AuditRetestStatementInitialCustomIssueUpdateForm(forms.ModelForm):
+    """
+    Form for updating an initial statement custom issue
+    """
+
+    retest_state = AMPChoiceRadioField(
+        label="Mark this statement issue as resolved",
+        choices=StatementCheckResult.Result.choices,
+        widget=AMPRadioSelectWidget(),
+    )
+    retest_comment = AMPTextField(label="Comments for email")
+
+    class Meta:
+        model = StatementCheckResult
+        fields = [
+            "retest_state",
+            "retest_comment",
         ]
 
 
@@ -1051,7 +1122,12 @@ class RetestCheckResultForm(forms.ModelForm):
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
         choices=CheckResult.RetestResult.choices,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
     )
     retest_notes = AMPTextField(label="Notes")
 

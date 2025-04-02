@@ -917,7 +917,6 @@ def test_audit_failed_statement_check_results():
         ("non-accessible", "non_accessible"),
         ("preparation", "preparation"),
         ("feedback", "feedback"),
-        ("custom", "custom"),
     ],
 )
 @pytest.mark.django_db
@@ -934,6 +933,24 @@ def test_audit_contains_specific_outstanding_statement_check_results(type, attr)
 
     assertQuerySetEqual(
         getattr(audit, f"{attr}_outstanding_statement_check_results"),
+        failed_statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_audit_contains_custom_outstanding_statement_check_results():
+    """
+    Tests audit contains specific statement check results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    failed_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit, type=StatementCheck.Type.CUSTOM
+        )
+    )
+
+    assertQuerySetEqual(
+        audit.custom_outstanding_statement_check_results,
         failed_statement_check_results,
     )
 
@@ -1043,7 +1060,6 @@ def test_all_overview_statement_checks_have_passed():
         ("non-accessible", "non_accessible"),
         ("preparation", "preparation"),
         ("feedback", "feedback"),
-        ("custom", "custom"),
     ],
 )
 @pytest.mark.django_db
@@ -1076,6 +1092,37 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
     statement_check_result.save()
 
     assert getattr(audit, attr_name).exists() is False
+    assert audit.outstanding_statement_check_results.count() == 0
+
+
+@pytest.mark.django_db
+def test_audit_specific_outstanding_custom_statement_check_results():
+    """
+    Tests specific audit custom_outstanding_statement_check_results property contains
+    the expected statement check results.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.custom_outstanding_statement_check_results.exists() is False
+    assert audit.outstanding_statement_check_results.count() == 0
+
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=StatementCheck.Type.CUSTOM,
+    )
+
+    assert audit.custom_outstanding_statement_check_results.exists() is True
+    assert (
+        audit.custom_outstanding_statement_check_results.first()
+        == statement_check_result
+    )
+    assert audit.outstanding_statement_check_results.count() == 1
+
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
+    statement_check_result.save()
+
+    assert audit.custom_outstanding_statement_check_results.exists() is False
     assert audit.outstanding_statement_check_results.count() == 0
 
 
@@ -2132,4 +2179,24 @@ def test_build_issue_identifier():
             case=case, issue=custom_retest_statement_check_result, custom_issue=True
         )
         == "1-SC-2"
+    )
+
+
+@pytest.mark.django_db
+def test_audit_new_12_week_custom_statement_check_results():
+    """Test statement custom check result found"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    new_12_week_custom_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=StatementCheck.Type.TWELVE_WEEK,
+            report_comment="12-week custom statement issue",
+        )
+    )
+
+    assert audit.new_12_week_custom_statement_check_results.count() == 1
+    assert (
+        audit.new_12_week_custom_statement_check_results.first()
+        == new_12_week_custom_check_result
     )

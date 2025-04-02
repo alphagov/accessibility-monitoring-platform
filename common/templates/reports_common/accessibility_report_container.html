@@ -54,14 +54,14 @@
                 </div>
             </div>
             <div class="govuk-grid-row">
-                <div class="govuk-grid-column-two-thirds">
-                    <div class="report-contents-{{report.report_version}}">
-                        {{ html_report|safe }}
-                    </div>
+                <div class="govuk-grid-column-full amp-margin-bottom-25">
+                    {{ html_report|safe }}
                 </div>
+            </div>
+            <div class="govuk-grid-row">
                 <div class="govuk-grid-column-one-third amp-no-bullet-points no-print">
                     <div class="related-content-wrapper">
-                        <h2 class="govuk-heading-m" id="related-content">Related content</h2>
+                        <h2 id="related-content">Related content</h2>
                     </div>
                     <nav aria-label="Related content">
                         {{ report.wrapper.related_content|markdown_to_html }}

@@ -17,7 +17,7 @@ stateRadioButtons.forEach(stateRadioButton => {
   stateRadioButton.addEventListener('change', updateCheckListFiltering)
 })
 
-document.getElementById('clear_search_form').addEventListener('click', resetFilterForm)
+// document.getElementById('clear_search_form').addEventListener('click', resetFilterForm)
 
 const divElements = document.getElementsByTagName('div')
 const checkListElements = Array.from(divElements).filter(divElement => divElement.hasAttribute('data-check-type'))

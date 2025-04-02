@@ -1,6 +1,7 @@
 """
 Test top-level urls
 """
+
 import pytest
 from django.http.response import HttpResponse
 from pytest_django.asserts import assertContains
@@ -23,7 +24,9 @@ def test_security_txt(url, client):
     response: HttpResponse = client.get(url)
 
     assert response.status_code == 200
-    assertContains(response, "Generated at: https://github.com/alphagov/security.txt")
+    assertContains(
+        response, "Generated at: https://github.com/CO-Cyber-Security/security.txt"
+    )
 
 
 def test_custom_404(client):

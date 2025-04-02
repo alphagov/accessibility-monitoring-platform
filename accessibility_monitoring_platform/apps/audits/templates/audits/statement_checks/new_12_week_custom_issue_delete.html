@@ -1,0 +1,20 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    {% include 'audits/helpers/statement_pages.html' with audit=custom_issue.audit %}
+    <h2 class="govuk-heading-s">Custom issue {{ custom_issue.issue_identifier }}</h2>
+    {% include 'audits/statement_checks/custom_issue_detail.html' with show_retest_state=True %}
+    <form method="post" action="{% url 'audits:edit-retest-12-week-custom-issue-delete' custom_issue.id %}">
+        {% csrf_token %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <input type="submit" value="Remove" name="remove" class="govuk-button govuk-button--warning" data-module="govuk-button" />
+                <a href="{% url 'audits:edit-retest-statement-custom' custom_issue.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Return to custom issues</a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block form %}
+{% endblock %}
