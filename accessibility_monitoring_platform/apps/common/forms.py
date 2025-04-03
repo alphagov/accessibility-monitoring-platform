@@ -348,7 +348,7 @@ class AMPDatePageCompleteField(forms.DateField):
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
-        kwargs.setdefault("label", "Mark this page as completed")
+        kwargs.setdefault("label", "Mark this page as complete")
         kwargs.setdefault(
             "widget", AMPDateCheckboxWidget(attrs={"label": "Page complete"})
         )

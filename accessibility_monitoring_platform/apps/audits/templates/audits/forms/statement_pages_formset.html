@@ -7,7 +7,7 @@
         {% csrf_token %}
         {{ statement_pages_formset.management_form }}
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-        <table class="govuk-table">
+        <table class="govuk-table amp-margin-bottom-40">
             <tbody class="govuk-table__body">
             {% if statement_pages_formset.forms %}
                 {% for statement_page_form in statement_pages_formset %}
@@ -45,7 +45,7 @@
             type="submit"
             value={% if statement_pages_formset.forms %}"Save and add link to statement"{% else %}"Create statement link"{% endif %}
             name="add_statement_page"
-            class="govuk-button govuk-button--secondary"
+            class="govuk-button govuk-button--secondary amp-margin-bottom-50"
             data-module="govuk-button"
         />
         {% include 'common/amp_field.html' with field=form.audit_statement_pages_complete_date %}
