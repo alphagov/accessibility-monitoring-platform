@@ -474,7 +474,7 @@ class AuditRetestInitialCustomIssueUpdateView(UpdateView):
         url: str = reverse(
             "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
-        return f"{url}#custom-issue-{custom_issue.id}"
+        return f"{url}#{custom_issue.issue_identifier}"
 
 
 class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
@@ -509,7 +509,7 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
         url: str = reverse(
             "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
-        return f"{url}#custom-issue-{custom_issue.id}"
+        return f"{url}#{custom_issue.issue_identifier}"
 
 
 class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
@@ -536,7 +536,7 @@ class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
         url: str = reverse(
             "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
-        return f"{url}#custom-issue-{custom_issue.id}"
+        return f"{url}#{custom_issue.issue_identifier}"
 
 
 class New12WeekCustomIssueDeleteTemplateView(TemplateView):

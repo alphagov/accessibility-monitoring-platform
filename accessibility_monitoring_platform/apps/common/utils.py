@@ -1,4 +1,4 @@
-""" Common utility functions """
+"""Common utility functions"""
 
 import copy
 import json
@@ -346,3 +346,8 @@ def get_one_year_ago():
         today.year - 1, today.month, today.day, 0, 0, tzinfo=datetime_timezone.utc
     )
     return one_year_ago
+
+
+def replace_whole_words(old_word: str, replacement: str, string: str):
+    """Replace whole word matches of old_word with replacement in string"""
+    return re.sub(r"\b" + old_word + r"\b", replacement, string)

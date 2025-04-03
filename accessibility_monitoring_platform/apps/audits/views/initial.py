@@ -521,7 +521,7 @@ class CustomIssueCreateView(CreateView):
         url: str = reverse(
             "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
-        return f"{url}#custom-issue-{custom_issue.id}"
+        return f"{url}#{custom_issue.issue_identifier}"
 
 
 class InitialCustomIssueUpdateView(UpdateView):
@@ -548,7 +548,7 @@ class InitialCustomIssueUpdateView(UpdateView):
         url: str = reverse(
             "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
-        return f"{url}#custom-issue-{custom_issue.id}"
+        return f"{url}#{custom_issue.issue_identifier}"
 
 
 class InitialCustomIssueDeleteTemplateView(TemplateView):

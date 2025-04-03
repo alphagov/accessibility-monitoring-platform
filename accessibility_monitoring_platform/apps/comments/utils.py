@@ -1,4 +1,4 @@
-""" Comments utilities """
+"""Comments utilities"""
 
 from django.contrib.auth.models import User
 from django.http import HttpRequest

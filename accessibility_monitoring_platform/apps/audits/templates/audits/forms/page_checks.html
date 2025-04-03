@@ -43,7 +43,7 @@
     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
     {{ check_results_formset.management_form }}
     {% for wcag_definition, form, matching_issues in definitions_forms_errors %}
-        <div class="govuk-grid-row"
+        <div class="govuk-grid-row" {% if form.initial.issue_identifier %}id="{{ form.initial.issue_identifier }}"{% endif %}
             data-check-type="{{ wcag_definition.type }}"
             data-filter-string="{{ wcag_definition }} {{ wcag_definition.hint }} {{ form.initial.issue_identifier }}"
         >

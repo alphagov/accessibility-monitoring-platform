@@ -3529,7 +3529,7 @@ def test_create_initial_custom_issue_redirects(admin_client):
     custom_issue: StatementCheckResult = StatementCheckResult.objects.get(audit=audit)
     response_url: str = reverse("audits:edit-statement-custom", kwargs={"pk": audit.id})
 
-    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+    assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
     events: QuerySet[Event] = Event.objects.all()
 
@@ -3561,7 +3561,7 @@ def test_update_initial_custom_issue_redirects(admin_client):
 
     response_url: str = reverse("audits:edit-statement-custom", kwargs={"pk": audit.id})
 
-    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+    assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
     events: QuerySet[Event] = Event.objects.all()
 
@@ -3628,7 +3628,7 @@ def test_update_at_12_week_initial_custom_issue_redirects(admin_client):
         "audits:edit-retest-statement-custom", kwargs={"pk": audit.id}
     )
 
-    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+    assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
     events: QuerySet[Event] = Event.objects.all()
 
@@ -3662,7 +3662,7 @@ def test_create_new_12_week_custom_issue_redirects(admin_client):
         "audits:edit-retest-statement-custom", kwargs={"pk": audit.id}
     )
 
-    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+    assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
     events: QuerySet[Event] = Event.objects.all()
 
@@ -3699,7 +3699,7 @@ def test_update_new_12_week_custom_issue_redirects(admin_client):
         "audits:edit-retest-statement-custom", kwargs={"pk": audit.id}
     )
 
-    assert response.url == f"{response_url}#custom-issue-{custom_issue.id}"
+    assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
     events: QuerySet[Event] = Event.objects.all()
 

@@ -47,6 +47,7 @@ from ..utils import (
     mark_object_as_deleted,
     record_model_create_event,
     record_model_update_event,
+    replace_whole_words,
     sanitise_domain,
     undo_double_escapes,
     validate_url,
@@ -626,4 +627,14 @@ def test_diff_model_fields(old_fields, new_fields, expected_diff):
     """Test event diff contains expected value"""
     assert (
         diff_model_fields(old_fields=old_fields, new_fields=new_fields) == expected_diff
+    )
+
+
+def test_replace_whole_words():
+    """Test that only matching whole words are replaced"""
+    assert (
+        replace_whole_words(
+            old_word="fred", replacement="bob", string="freddy fred alfred"
+        )
+        == "freddy bob alfred"
     )
