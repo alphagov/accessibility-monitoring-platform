@@ -729,34 +729,43 @@ def test_statement_check_str():
     )
 
 
-def test_statement_check_edit_initial_url_name():
-    """Tests an StatementCheck edit_initial_url_name contains the expected string"""
-    statement_check: StatementCheck = StatementCheck(
+@pytest.mark.django_db
+def test_statement_check_result_edit_initial_url_name():
+    """
+    Tests an StatementCheckResult edit_initial_url_name contains the expected string
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.create(
         type=StatementCheck.Type.COMPLIANCE
     )
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit, statement_check=statement_check, type=statement_check.type
+    )
 
-    assert statement_check.edit_initial_url_name == "audits:edit-statement-compliance"
+    assert (
+        statement_check_result.edit_initial_url_name
+        == "audits:edit-statement-compliance"
+    )
 
-    statement_check.type = StatementCheck.Type.OVERVIEW
 
-    assert statement_check.edit_initial_url_name == "audits:edit-statement-overview"
-
-
+@pytest.mark.django_db
 def test_statement_check_edit_12_week_url_name():
-    """Tests an StatementCheck edit_12_week_url_name contains the expected string"""
-    statement_check: StatementCheck = StatementCheck(
+    """
+    Tests an StatementCheckResult edit_12_week_url_name contains the expected string
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.create(
         type=StatementCheck.Type.COMPLIANCE
     )
-
-    assert (
-        statement_check.edit_12_week_url_name
-        == "audits:edit-retest-statement-compliance"
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit, statement_check=statement_check, type=statement_check.type
     )
 
-    statement_check.type = StatementCheck.Type.OVERVIEW
-
     assert (
-        statement_check.edit_12_week_url_name == "audits:edit-retest-statement-overview"
+        statement_check_result.edit_12_week_url_name
+        == "audits:edit-retest-statement-compliance"
     )
 
 
@@ -908,7 +917,6 @@ def test_audit_failed_statement_check_results():
         ("non-accessible", "non_accessible"),
         ("preparation", "preparation"),
         ("feedback", "feedback"),
-        ("custom", "custom"),
     ],
 )
 @pytest.mark.django_db
@@ -925,6 +933,24 @@ def test_audit_contains_specific_outstanding_statement_check_results(type, attr)
 
     assertQuerySetEqual(
         getattr(audit, f"{attr}_outstanding_statement_check_results"),
+        failed_statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_audit_contains_custom_outstanding_statement_check_results():
+    """
+    Tests audit contains specific statement check results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    failed_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit, type=StatementCheck.Type.CUSTOM
+        )
+    )
+
+    assertQuerySetEqual(
+        audit.custom_outstanding_statement_check_results,
         failed_statement_check_results,
     )
 
@@ -1034,7 +1060,6 @@ def test_all_overview_statement_checks_have_passed():
         ("non-accessible", "non_accessible"),
         ("preparation", "preparation"),
         ("feedback", "feedback"),
-        ("custom", "custom"),
     ],
 )
 @pytest.mark.django_db
@@ -1067,6 +1092,37 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
     statement_check_result.save()
 
     assert getattr(audit, attr_name).exists() is False
+    assert audit.outstanding_statement_check_results.count() == 0
+
+
+@pytest.mark.django_db
+def test_audit_specific_outstanding_custom_statement_check_results():
+    """
+    Tests specific audit custom_outstanding_statement_check_results property contains
+    the expected statement check results.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.custom_outstanding_statement_check_results.exists() is False
+    assert audit.outstanding_statement_check_results.count() == 0
+
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=StatementCheck.Type.CUSTOM,
+    )
+
+    assert audit.custom_outstanding_statement_check_results.exists() is True
+    assert (
+        audit.custom_outstanding_statement_check_results.first()
+        == statement_check_result
+    )
+    assert audit.outstanding_statement_check_results.count() == 1
+
+    statement_check_result.retest_state = StatementCheckResult.Result.YES
+    statement_check_result.save()
+
+    assert audit.custom_outstanding_statement_check_results.exists() is False
     assert audit.outstanding_statement_check_results.count() == 0
 
 

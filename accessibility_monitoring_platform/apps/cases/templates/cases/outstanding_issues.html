@@ -2,7 +2,7 @@
 
 {% block preform %}
 {% if case.audit %}
-    {% include 'audits/helpers/test_summary.html' %}
+    {% include 'audits/helpers/test_summary.html' with show_wcag_summary=True show_statement_summary=True %}
 {% else %}
     <h2 class="govuk-heading-l">Overview</h2>
     <p class="govuk-body">

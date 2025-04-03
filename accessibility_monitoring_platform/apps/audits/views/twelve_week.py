@@ -255,7 +255,7 @@ class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
     form_class: type[AuditRetestWcagSummaryUpdateForm] = (
         AuditRetestWcagSummaryUpdateForm
     )
-    template_name: str = "audits/forms/test_summary.html"
+    template_name: str = "audits/forms/test_summary_wcag.html"
 
 
 class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
@@ -601,7 +601,7 @@ class AuditRetestStatementSummaryUpdateView(AuditRetestSummaryUpdateView):
     form_class: type[AuditRetestStatementSummaryUpdateForm] = (
         AuditRetestStatementSummaryUpdateForm
     )
-    template_name: str = "audits/forms/test_summary.html"
+    template_name: str = "audits/forms/test_summary_statement.html"
 
 
 def start_retest(
