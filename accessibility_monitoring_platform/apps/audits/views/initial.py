@@ -352,7 +352,7 @@ class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
     """
 
     form_class: type[AuditWcagSummaryUpdateForm] = AuditWcagSummaryUpdateForm
-    template_name: str = "audits/forms/test_summary.html"
+    template_name: str = "audits/forms/test_summary_wcag.html"
 
 
 class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
@@ -521,7 +521,7 @@ class CustomIssueCreateView(CreateView):
         url: str = reverse(
             "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
-        return f"{url}#custom-issue-{custom_issue.id}"
+        return f"{url}#{custom_issue.issue_identifier}"
 
 
 class InitialCustomIssueUpdateView(UpdateView):
@@ -548,7 +548,7 @@ class InitialCustomIssueUpdateView(UpdateView):
         url: str = reverse(
             "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
-        return f"{url}#custom-issue-{custom_issue.id}"
+        return f"{url}#{custom_issue.issue_identifier}"
 
 
 class InitialCustomIssueDeleteTemplateView(TemplateView):
@@ -609,7 +609,7 @@ class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
     """
 
     form_class: type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm
-    template_name: str = "audits/forms/test_summary.html"
+    template_name: str = "audits/forms/test_summary_statement.html"
 
     def get_next_platform_page(self) -> PlatformPage:
         case: Case = self.object.case

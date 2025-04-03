@@ -4,9 +4,9 @@
 
 {% block preform %}
 {% include 'cases/helpers/zendesk_tickets.html' %}
-{% include 'cases/helpers/email_templates.html' %}
+
 {% if case.audit %}
-    <details class="govuk-details" data-module="govuk-details">
+    <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
         <summary class="govuk-details__summary">
             <span class="govuk-details__summary-text">View compliance decisions</span>
         </summary>
@@ -84,6 +84,8 @@
         </div>
     </details>
 {% endif %}
+{% include 'cases/helpers/email_templates.html' %}
+
 <div class="amp-margin-bottom-30">
     {% include 'audits/helpers/numbers_of_issues.html' with audit=case.audit %}
 </div>

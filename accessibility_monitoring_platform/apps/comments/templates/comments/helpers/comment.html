@@ -3,5 +3,5 @@
     on {{ comment.created_date|amp_datetime }}
 </p>
 <div class="govuk-body">
-    {{ comment.body|markdown_to_html }}
+    {{ comment.body_html_with_issue_identifier_links }}
 </div>
