@@ -36,7 +36,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <div id="email-text" class="amp-email-template">
-                <p>Here is the data for accessibility monitoring case {{ case.case_number }}.</p>
+                <p>{{ case.organisation_name }} {{ case.case_number }} export {{ export.cutoff_date|amp_date }}</p>
                 <table>
                     <tbody>
                         {% for column in export_columns %}
