@@ -17,7 +17,11 @@ from django.views.generic.list import ListView
 
 from ..cases.models import Case
 from ..common.utils import record_model_create_event, record_model_update_event
-from .csv_export_utils import download_equality_body_cases
+from .csv_export_utils import (
+    EqualityBodyCSVColumn,
+    download_equality_body_cases,
+    populate_equality_body_columns,
+)
 from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
 
@@ -96,6 +100,23 @@ class ExportDetailView(DetailView):
 
     model: type[Export] = Export
     context_object_name: str = "export"
+
+
+class ExportCaseAsEmailDetailView(DetailView):
+    """
+    View of details of a Case for export as an email
+    """
+
+    model: type[Case] = Case
+    context_object_name: str = "case"
+    template_name: str = "exports/export_case_as_email.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add field values into context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["export_columns"] = populate_equality_body_columns(case=self.object)
+        context["export"] = get_object_or_404(Export, pk=self.kwargs["export_id"])
+        return context
 
 
 class ConfirmExportUpdateView(UpdateView):

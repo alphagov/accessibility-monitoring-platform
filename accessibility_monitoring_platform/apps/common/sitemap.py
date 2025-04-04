@@ -1342,6 +1342,10 @@ SITE_MAP: list[PlatformPageGroup] = [
                 instance_required_for_url=True,
                 instance_class=Export,
             ),
+            CasePlatformPage(
+                name="Export Case as email for #{instance.case_number}",
+                url_name="exports:export-case-as-email",
+            ),
         ],
     ),
     # Settings

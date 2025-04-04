@@ -85,8 +85,13 @@
                                     class="govuk-link govuk-link--no-visited-state"
                                     target="_blank"
                                 >
-                                    {{ export_case.case.case_number }}
-                                </a>
+                                    {{ export_case.case.case_number }}</a>
+                                {% if export.enforcement_body == 'ecni' %}
+                                    (<a
+                                        href="{% url 'exports:export-case-as-email' export.id export_case.case.id %}"
+                                        class="govuk-link govuk-link--no-visited-state"
+                                    >email</a>)
+                                {% endif %}
                             </td>
                             <td class="govuk-table__cell">
                                 {{ export_case.case.organisation_name }}

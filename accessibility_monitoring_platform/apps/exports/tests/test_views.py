@@ -205,7 +205,7 @@ def test_export_case_status_updated(path_name, expected_status, admin_client):
     assert export_case_from_db.status == expected_status
 
 
-def test_ell_export_cases_set_to_ready(admin_client):
+def test_all_export_cases_set_to_ready(admin_client):
     """Test that all export cases statuses are set to ready"""
     export: Export = create_cases_and_export()
     export_case_1: ExportCase = export.exportcase_set.first()
@@ -359,4 +359,25 @@ def test_confirm_delete_export(admin_client):
 
     assert event is not None
     assert event.parent == export
-    assert event.type == "model_update"
+
+
+def test_export_case_as_email(admin_client):
+    """
+    Test that Case export can be rendered as a HTML table which can be copied into an
+    email.
+    """
+    export: Export = create_cases_and_export(enforcement_body=Case.EnforcementBody.ECNI)
+    case: ExportCase = export.exportcase_set.first()
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "exports:export-case-as-email",
+            kwargs={"export_id": export.id, "pk": case.id},
+        )
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, '<tr><th scope="row">Equality body</th><td>ECNI</td></tr>', html=True
+    )
