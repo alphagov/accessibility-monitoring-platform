@@ -1,0 +1,58 @@
+{% extends 'common/case_no_nav.html' %}
+
+{% load static %}
+{% load l10n %}
+
+{% block breadcrumbs %}
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}{% if export.enforcement_body != 'ehrc' %}?enforcement_body={{ export.enforcement_body }}{% endif %}">{{ export.enforcement_body|upper }} CSV export manager</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-detail' export.id %}">{{ export }}</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+        </ol>
+    </div>
+{% endblock %}
+
+{% block controls %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full govuk-button-group">
+            <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
+                Copy email template
+            </button>
+            {% include "common/amp_control_go_back.html" %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block subcontent %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div id="email-text" class="amp-email-template">
+                <p>Here is the data for accessibility monitoring case {{ case.case_number }}.</p>
+                <table>
+                    <tbody>
+                        {% for column in export_columns %}
+                            <tr>
+                                <th scope="row">{{ column.column_header }}</th>
+                                <td>{{ column.formatted_data }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'js/cases_copy_email.js' %}"></script>
+    <script src="{% static 'js/go_back.js' %}"></script>
+{% endblock %}

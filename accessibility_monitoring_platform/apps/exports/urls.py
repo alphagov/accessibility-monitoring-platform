@@ -8,6 +8,7 @@ from django.urls.resolvers import URLPattern
 
 from .views import (
     ConfirmExportUpdateView,
+    ExportCaseAsEmailDetailView,
     ExportConfirmDeleteUpdateView,
     ExportCreateView,
     ExportDetailView,
@@ -76,5 +77,10 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/export-ready-cases/",
         login_required(export_ready_cases),
         name="export-ready-cases",
+    ),
+    path(
+        "<int:export_id>/cases/<int:pk>/export-as-email/",
+        login_required(ExportCaseAsEmailDetailView.as_view()),
+        name="export-case-as-email",
     ),
 ]
