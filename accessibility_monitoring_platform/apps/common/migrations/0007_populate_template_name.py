@@ -22,7 +22,7 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("common", "0005_remove_emailtemplate_slug_and_more"),
+        ("common", "0006_remove_emailtemplate_slug_and_more"),
     ]
 
     operations = [
