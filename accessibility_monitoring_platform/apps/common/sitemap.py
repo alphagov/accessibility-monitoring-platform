@@ -1342,6 +1342,10 @@ SITE_MAP: list[PlatformPageGroup] = [
                 instance_required_for_url=True,
                 instance_class=Export,
             ),
+            CasePlatformPage(
+                name="Export Case as email for #{instance.case_number}",
+                url_name="exports:export-case-as-email",
+            ),
         ],
     ),
     # Settings
@@ -1401,28 +1405,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         name="Update statement issue",
                         url_name="audits:statement-check-update",
                         instance_required_for_url=True,
-                    ),
-                ],
-            ),
-            PlatformPage(
-                name="Email template manager",
-                url_name="common:email-template-list",
-                subpages=[
-                    PlatformPage(
-                        name="{instance.name} preview",
-                        url_name="common:email-template-preview",
-                        instance_required_for_url=True,
-                        instance_class=EmailTemplate,
-                    ),
-                    PlatformPage(
-                        name="Create email template",
-                        url_name="common:email-template-create",
-                    ),
-                    PlatformPage(
-                        name="Email template editor",
-                        url_name="common:email-template-update",
-                        instance_required_for_url=True,
-                        instance_class=EmailTemplate,
                     ),
                 ],
             ),

@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.template import Context, Template
 from django.urls import reverse
 
 ACCESSIBILITY_STATEMENT_DEFAULT: str = """# Accessibility statement
@@ -252,20 +251,8 @@ class SubCategory(models.Model):
 class EmailTemplate(models.Model):
     """Email template"""
 
-    class Type(models.TextChoices):
-        SIMPLE = "simple"
-        COMPLEX = "complex"
-
-    class Slug(models.TextChoices):
-        DEFAULT = "default"
-        TWELVE_WEEK_REQUEST = "12-week-request", "12-week update request"
-        OUTSTANDING_ISSUES = "outstanding-issues", "Outstanding issues"
-        EQUALITY_BODY_RETEST = "equality-body-retest", "Equality body retest"
-
     name = models.TextField(default="Default")
-    type = models.CharField(max_length=20, choices=Type, default=Type.SIMPLE)
-    slug = models.CharField(max_length=50, choices=Slug, default=Slug.DEFAULT)
-    template = models.TextField(default="", blank=True)
+    template_name = models.CharField(max_length=250, default="")
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -289,8 +276,3 @@ class EmailTemplate(models.Model):
 
     def __str__(self) -> str:
         return self.name
-
-    def render(self, context: dict) -> str:
-        """Render email template using context and return result"""
-        template: Template = Template(self.template)
-        return template.render(context=Context(context))

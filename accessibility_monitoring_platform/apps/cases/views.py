@@ -1215,15 +1215,12 @@ class CaseEmailTemplatePreviewDetailView(DetailView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add case and email template to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-        context["case"] = self.case
-        email_template_context: dict[str, Any] = get_email_template_context(
-            case=self.case
+        case: Case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        extra_context: dict[str, Any] = get_email_template_context(case=case)
+        context["email_template_name"] = (
+            f"common/emails/templates/{self.object.template_name}.html"
         )
-        context["email_template_render"] = self.object.render(
-            context=email_template_context
-        )
-        return context
+        return {**extra_context, **context}
 
 
 def enable_correspondence_process(

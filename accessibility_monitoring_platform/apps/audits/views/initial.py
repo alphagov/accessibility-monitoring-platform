@@ -512,6 +512,8 @@ class CustomIssueCreateView(CreateView):
         audit: Audit = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
         statement_check_result: StatementCheckResult = form.save(commit=False)
         statement_check_result.audit = audit
+        if statement_check_result.type == StatementCheck.Type.CUSTOM:
+            statement_check_result.check_result_state = StatementCheckResult.Result.NO
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

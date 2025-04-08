@@ -4,9 +4,7 @@
     "pk": 1,
     "fields": {
       "name": "Test email template",
-      "type": "simple",
-      "slug": "test-email-template",
-      "template": "Dear <b>[NAMED CONTACT]</b>,\n<br>\n<br>\nThis is a test email template",
+      "template_name": "4-12-week-update-request",
       "created_by": 1,
       "created": "2024-04-26T09:25:48.627Z",
       "updated_by": 1,

@@ -12,7 +12,13 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import Audit, Page, StatementCheckResult
+from ...audits.models import (
+    Audit,
+    Page,
+    StatementCheck,
+    StatementCheckResult,
+    StatementPage,
+)
 from ...cases.models import Case, CaseCompliance, CaseEvent
 from ...common.models import Boolean
 from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
@@ -23,6 +29,7 @@ HOME_PAGE_URL: str = "https://example.com"
 PAGE_LOCATION: str = "Click on second link"
 FIRST_CODENAME: str = "FirstCodename"
 SECOND_CODENAME: str = "SecondCodename"
+STATEMENT_CUSTOM_CHECK_COMMENT: str = "Statement custom check result comment"
 
 
 def create_report() -> Report:
@@ -310,3 +317,34 @@ def test_report_metrics_unique_vists_shows_only_current_report(admin_client):
     response: HttpResponse = admin_client.get(url)
     assert response.status_code == 200
     assertNotContains(response, "2020-01-05")
+
+
+def test_report_includes_statement_custom_issue(admin_client):
+    """
+    Test that report contains the page location
+    """
+    report: Report = create_report()
+    audit: Audit = report.case.audit
+    StatementPage.objects.create(audit=audit, url="https://example.com")
+
+    report_pk_kwargs: dict[str, int] = {"pk": report.id}
+
+    for statement_check_result in StatementCheckResult.objects.filter(
+        type=StatementCheck.Type.CUSTOM
+    ):
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
+        statement_check_result.save()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-custom-issue-create", kwargs={"audit_id": audit.id}),
+        {"report_comment": STATEMENT_CUSTOM_CHECK_COMMENT, "save": "Save and return"},
+    )
+
+    assert response.status_code == 302
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-preview", kwargs=report_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+    assertContains(response, STATEMENT_CUSTOM_CHECK_COMMENT)

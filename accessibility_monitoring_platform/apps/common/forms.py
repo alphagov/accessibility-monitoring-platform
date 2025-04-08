@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 from django import forms
 from django.contrib.auth.models import User
 
-from .models import EmailTemplate, FooterLink, FrequentlyUsedLink, IssueReport, Platform
+from .models import FooterLink, FrequentlyUsedLink, IssueReport, Platform
 from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(
@@ -498,22 +498,3 @@ FooterLinkOneExtraFormset: Any = forms.modelformset_factory(
 
 class BulkURLSearchForm(forms.Form):
     urls = AMPTextField(label="URLs")
-
-
-class EmailTemplateCreateUpdateForm(forms.ModelForm):
-    """
-    Form for creating or updating an email template
-    """
-
-    name = AMPCharFieldWide(label="Name")
-    template = AMPTextField(
-        label="Email template",
-        widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "12"}),
-    )
-
-    class Meta:
-        model = EmailTemplate
-        fields = [
-            "name",
-            "template",
-        ]

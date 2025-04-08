@@ -3282,8 +3282,8 @@ def test_twelve_week_email_template_contains_issues(admin_client):
     page.url = "https://example.com"
     page.save()
     Report.objects.create(case=audit.case)
-    email_template: EmailTemplate = EmailTemplate.objects.get(
-        slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
+    email_template: EmailTemplate = EmailTemplate.objects.create(
+        template_name="4-12-week-update-request"
     )
     url: str = reverse(
         "cases:email-template-preview",
@@ -3303,8 +3303,8 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    email_template: EmailTemplate = EmailTemplate.objects.get(
-        slug=EmailTemplate.Slug.TWELVE_WEEK_REQUEST
+    email_template: EmailTemplate = EmailTemplate.objects.create(
+        template_name="4-12-week-update-request"
     )
     url: str = reverse(
         "cases:email-template-preview",
@@ -3323,7 +3323,6 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
     Test outstanding issues (issues_table) contains only unfixed issues
     """
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
-    user: User = User.objects.create()
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit, url="https://example.com")
@@ -3336,9 +3335,7 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
     )
 
     email_template: EmailTemplate = EmailTemplate.objects.create(
-        template="{{ issues_tables.0.rows.0.cell_content_2 }}",
-        created_by=user,
-        updated_by=user,
+        template_name="5a-outstanding-issues-initial-test-notes"
     )
     url: str = reverse(
         "cases:email-template-preview",
@@ -3927,8 +3924,8 @@ def test_case_email_template_list_view_hides_deleted(admin_client):
 def test_case_email_template_preview_view(admin_client):
     """Test case email template list page is rendered"""
     case: Case = Case.objects.create()
-    email_template: EmailTemplate = EmailTemplate.objects.get(
-        pk=EXAMPLE_EMAIL_TEMPLATE_ID
+    email_template: EmailTemplate = EmailTemplate.objects.create(
+        template_name="4-12-week-update-request"
     )
 
     response: HttpResponse = admin_client.get(
