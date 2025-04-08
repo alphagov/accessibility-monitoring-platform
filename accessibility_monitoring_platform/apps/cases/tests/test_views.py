@@ -3861,17 +3861,17 @@ def test_case_overview(admin_client):
 
     assertContains(
         response,
-        """<p class="govuk-body-s amp-margin-bottom-10">Initial test: 3</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 3</p>""",
         html=True,
     )
     assertContains(
         response,
-        """<p class="govuk-body-s amp-margin-bottom-10">Retest: 3 (0% fixed) (1 deleted page)</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Retest: 3 (0% fixed) (1 deleted page)</p>""",
         html=True,
     )
     assertContains(
         response,
-        """<p class="govuk-body-s amp-margin-bottom-10">Initial test: 1</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 1</p>""",
         html=True,
     )
     assertContains(
