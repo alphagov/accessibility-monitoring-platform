@@ -71,14 +71,6 @@ from .base import (
     StatementPageFormsetUpdateView,
 )
 
-STANDARD_PAGE_HEADERS: list[str] = [
-    "Home page",
-    "Contact page",
-    "A Form page",
-    "PDF",
-    "Accessibility Statement page",
-]
-
 
 def clear_published_report_data_updated_time(
     request: HttpRequest, pk: int
@@ -165,7 +157,6 @@ class AuditPagesUpdateView(AuditUpdateView):
                 )
         context["standard_pages_formset"] = standard_pages_formset
         context["extra_pages_formset"] = extra_pages_formset
-        context["standard_page_headers"] = STANDARD_PAGE_HEADERS
         return context
 
     def form_valid(self, form: ModelForm):

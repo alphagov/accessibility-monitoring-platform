@@ -21,7 +21,7 @@
                         <div class="govuk-grid-column-full">
                             <br/>
                             <h2 class="govuk-heading-m">
-                                {{ standard_page_headers|list_item_by_index:forloop.counter0 }}
+                                {{ page_form.instance.page_title }}
                             </h2>
                             {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
                             {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
