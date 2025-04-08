@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("common", "0004_rename_description_issuereport_issue_description_and_more"),
+        ("common", "0005_reset_case_updated"),
     ]
 
     operations = [
