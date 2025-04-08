@@ -52,7 +52,8 @@ from ..sitemap import (
 PLATFORM_PAGE_NAME: str = "Platform page name"
 URL_NAME: str = "url-name"
 ORGANISATION_NAME: str = "Organisation name"
-EMAIL_TEMPLATE_NAME: str = "1c. Template name"
+EMAIL_TEMPLATE_NAME: str = "4. 12-week update request"
+EMAIL_TEMPLATE_TEMPLATE_NAME: str = "4-12-week-update-request"
 FIRST_SEPTEMBER_2024 = date(2024, 9, 1)
 
 
@@ -687,7 +688,7 @@ def test_get_requested_platform_page_for_email_template(rf):
     """Test get_requested_platform_page returns expected EmailTemplate-specific name"""
     case: Case = Case.objects.create()
     email_template: EmailTemplate = EmailTemplate.objects.create(
-        name=EMAIL_TEMPLATE_NAME
+        name=EMAIL_TEMPLATE_NAME, template_name=EMAIL_TEMPLATE_TEMPLATE_NAME
     )
 
     request_user: User = User.objects.create(
@@ -843,7 +844,6 @@ def test_case_sitemap(rf):
         ("/notifications/1/edit-reminder-task/", "Reminder"),
         ("/cases/1/edit-equality-body-correspondence/", "Edit Zendesk ticket"),
         ("/cases/1/update-zendesk-ticket/", "Edit PSB Zendesk ticket"),
-        ("/cases/1/1/email-template-preview/", "12-week update request"),
         ("/comments/1/edit-qa-comment/", "Edit or delete comment"),
         ("/exports/export-create/?enforcement_body=ecni", "New ECNI CSV export"),
         ("/exports/1/export-detail/", "EHRC CSV export 1 September 2024"),
@@ -851,7 +851,6 @@ def test_case_sitemap(rf):
         ("/common/edit-active-qa-auditor/", "Active QA auditor"),
         ("/audits/1/edit-wcag-definition/", "Update WCAG definition"),
         ("/audits/1/edit-statement-check/", "Update statement issue"),
-        ("/common/1/email-template-preview/", "12-week update request preview"),
     ],
 )
 def test_page_name(url, expected_page_name, admin_client):
