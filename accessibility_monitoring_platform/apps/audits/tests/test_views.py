@@ -1291,12 +1291,12 @@ def test_standard_pages_appear_on_pages_page(admin_client):
     assertContains(response, "Form is on contact page")
     assertContains(
         response,
-        """<h2 class="govuk-heading-m">Accessibility Statement page</h2>""",
+        """<h2 class="govuk-heading-m">Accessibility statement page</h2>""",
         html=True,
     )
     assertContains(response, """<h2 class="govuk-heading-m">PDF</h2>""", html=True)
     assertContains(
-        response, """<h2 class="govuk-heading-m">A Form page</h2>""", html=True
+        response, """<h2 class="govuk-heading-m">Form page</h2>""", html=True
     )
 
 

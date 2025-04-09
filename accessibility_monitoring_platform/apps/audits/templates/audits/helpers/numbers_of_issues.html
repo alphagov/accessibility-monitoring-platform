@@ -1,6 +1,6 @@
-<h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">WCAG issues</h2>
-<p class="govuk-body-s amp-margin-bottom-10">Initial test: {{ audit.failed_check_results.count }}</p>
-<p class="govuk-body-s amp-margin-bottom-10">
+<h2 class="govuk-heading-s amp-margin-bottom-5 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">WCAG issues</h2>
+<p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">Initial test: {{ audit.failed_check_results.count }}</p>
+<p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">
     Retest: {{ audit.unfixed_check_results.count }}
     {% if audit %}
         ({{ audit.percentage_wcag_issues_fixed }}% fixed)
@@ -9,8 +9,8 @@
         ({{ audit.missing_at_retest_pages.count }} deleted page{% if audit.missing_at_retest_pages.count != 1 %}s{% endif %})
     {% endif %}
 </p>
-<h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Statement issues</h2>
-<p class="govuk-body-s amp-margin-bottom-10">
+<h2 class="govuk-heading-s amp-margin-bottom-5 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">Statement issues</h2>
+<p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">
     Initial test:
     {% if audit.accessibility_statement_page and audit.accessibility_statement_page.not_found == 'no' %}
         {{ audit.failed_statement_check_results.count }}
@@ -18,7 +18,7 @@
         No statement found
     {% endif %}
 </p>
-<p class="govuk-body-m amp-margin-bottom-10 govuk-!-font-size-16">
+<p class="govuk-body-m amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">
     Retest test:
     {% if audit.accessibility_statement_page and not audit.accessibility_statement_page.retest_page_missing_date %}
         {{ audit.failed_retest_statement_check_results.count }}
