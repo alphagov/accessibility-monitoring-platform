@@ -90,7 +90,7 @@ jobs:
 
       - name: Staging tests
         run: |
-          aws s3 sync s3://ampapp-prodenv-addonsstack-yu-reportstoragebucket-18zkdeyu0it3u/ s3://ampapp-stageenv-addonsstack-u-reportstoragebucket-hms911jlrqzu/ && \
+          aws s3 sync s3://ampapp-prodenv-addonsstack-yu-reportstoragebucket-18zkdeyu0it3u/ s3://ampapp-stageenv-addonsstack-h2-reportstoragebucket-xwtkixk9ar66/ && \
           copilot svc exec -a ampapp -e stageenv -n amp-svc --command "python aws_tools/reset_staging_db.py" && \
           copilot svc deploy --name viewer-svc --env stageenv && \
           copilot svc deploy --name amp-svc --env stageenv && \
