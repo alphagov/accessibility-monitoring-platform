@@ -16,6 +16,7 @@ from django.views.generic.edit import UpdateView
 
 from ..cases.models import Case, CaseEvent
 from ..common.utils import record_model_create_event, record_model_update_event
+from ..common.views import HideCaseNavigationMixin
 from .forms import ReportWrapperUpdateForm
 from .models import Report, ReportVisitsMetrics, ReportWrapper
 from .utils import build_report_context, get_report_visits_metrics, publish_report_util
@@ -142,7 +143,7 @@ class ReportWrapperUpdateView(UpdateView):
         return ReportWrapper.objects.all().first()
 
 
-class ReportVisitsMetricsView(ReportTemplateView):
+class ReportVisitsMetricsView(HideCaseNavigationMixin, ReportTemplateView):
     """
     View of list of published reports
     """

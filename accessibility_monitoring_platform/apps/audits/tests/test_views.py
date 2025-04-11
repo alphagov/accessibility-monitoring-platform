@@ -2457,9 +2457,8 @@ def test_frequently_used_links_displayed(url_name, admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "View outstanding issues")
+    assertContains(response, "Outstanding issues")
     assertContains(response, "Email templates")
-    assertContains(response, "View website")
     assertContains(response, "PSB Zendesk tickets")
 
 

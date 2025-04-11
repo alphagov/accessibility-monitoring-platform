@@ -17,7 +17,7 @@
                                     {% elif equality_body_column.data_type == 'pre' %}
                                         <pre class="govuk-body">{{ equality_body_column.formatted_data }}</pre>
                                     {% else %}
-                                        <span style="white-space: pre-line;">{{ equality_body_column.formatted_data }}{{ equality_body_column.ui_suffix }}</span>
+                                        <span class="amp-pre-line">{{ equality_body_column.formatted_data }}{{ equality_body_column.ui_suffix }}</span>
                                     {% endif %}
                                 {% else %}
                                     No data available

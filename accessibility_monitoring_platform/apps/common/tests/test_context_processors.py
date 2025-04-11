@@ -85,12 +85,12 @@ def test_platform_page_template_context():
     assert platform_page_context["platform"] is not None
     assert platform_page_context["number_of_tasks"] == 0
 
-    assert len(platform_page_context["custom_frequently_used_links"]) == 1
-    custom_frequently_used_links: list[FrequentlyUsedLink] = platform_page_context[
-        "custom_frequently_used_links"
+    assert len(platform_page_context["frequently_used_links"]) == 1
+    custom_frequently_used_link: FrequentlyUsedLink = platform_page_context[
+        "frequently_used_links"
     ][0]
-    assert custom_frequently_used_links.label == LINK_LABEL
-    assert custom_frequently_used_links.url == LINK_URL
+    assert custom_frequently_used_link.label == LINK_LABEL
+    assert custom_frequently_used_link.url == LINK_URL
 
     assert len(platform_page_context["custom_footer_links"]) == 1
     custom_footer_links: list[FooterLink] = platform_page_context[

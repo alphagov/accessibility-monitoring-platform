@@ -1,19 +1,6 @@
 {% for platform_page_group in sitemap.platform_page_groups %}
-    {% if platform_page_group.show %}
-        {% if platform_page_group.name == '' %}
-            {% for platform_page in platform_page_group.pages %}
-                {% if platform_page.show %}
-                    <p class="govuk-body-s amp-margin-bottom-10">
-                        {% if platform_page.url == sitemap.current_platform_page.url %}
-                            {{ platform_page.name }}
-                            {% if platform_page.complete %}<span class="govuk-visually-hidden">complete</span> &check;{% endif %}
-                        {% else %}
-                            {% include 'cases/helpers/case_nav_url.html' %}
-                        {% endif %}
-                    </p>
-                {% endif %}
-            {% endfor %}
-        {% elif platform_page_group.name == sitemap.current_platform_page.platform_page_group_name or case.archive %}
+    {% if platform_page_group.type == 'case_nav' and platform_page_group.show %}
+        {% if platform_page_group.name == sitemap.current_platform_page.platform_page_group_name or case.archive %}
             <p class="govuk-body-s amp-margin-bottom-5">
                 {{ platform_page_group.name }}
                 {% if platform_page_group.number_pages_and_subpages > 0 %}
