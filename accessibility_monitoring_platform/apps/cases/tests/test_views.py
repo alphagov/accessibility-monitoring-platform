@@ -82,7 +82,7 @@ I am"""
 STATEMENT_COMPLIANCE_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
-TRELLO_URL: str = "https://trello.com/"
+TRELLO_URL: str = "https://trello.com/board12"
 case_feedback_survey_columns_to_export_str: str = ",".join(
     column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
 )

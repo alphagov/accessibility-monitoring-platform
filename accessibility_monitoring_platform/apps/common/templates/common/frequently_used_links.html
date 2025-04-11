@@ -1,9 +1,9 @@
 <br/>
-<h2 class="govuk-heading-s amp-margin-bottom-10">Case tools</h2>
-<div class="amp-nav-steps">
-    <ul class="govuk-list">
-        {% for platform_page_group in sitemap.platform_page_groups %}
-            {% if platform_page_group.type == 'case_tools' and platform_page_group.show %}
+{% for platform_page_group in sitemap.platform_page_groups %}
+    {% if platform_page_group.type == 'case_tools' and platform_page_group.show %}
+        <h2 class="govuk-heading-s amp-margin-bottom-10">{{ platform_page_group.name }}</h2>
+        <div class="amp-nav-steps">
+            <ul class="govuk-list">
                 {% for platform_page in platform_page_group.pages %}
                     {% if platform_page.show %}
                         <li>
@@ -19,10 +19,10 @@
                         {% endif %}
                     {% endif %}
                 {% endfor %}
-            {% endif %}
-        {% endfor %}
-    </ul>
-</div>
+            </ul>
+        </div>
+    {% endif %}
+{% endfor %}
 <h2 class="govuk-heading-s amp-margin-bottom-10">Links</h2>
 <div class="amp-nav-steps">
     <ul class="govuk-list">
