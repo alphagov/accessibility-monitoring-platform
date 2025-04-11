@@ -28,7 +28,7 @@ def check_if_env_is_staging() -> bool:
 
 def download_db_backup() -> str:
     print(">>> Downloading DB backup..")
-    s3_bucket: str = "ampapp-stageenv-addonsstack-u-reportstoragebucket-hms911jlrqzu"
+    s3_bucket: str = "ampapp-stageenv-addonsstack-h2-reportstoragebucket-xwtkixk9ar66"
     s3_client = boto3.client("s3")
     db_backups: list = []
     for key in s3_client.list_objects(Bucket=s3_bucket)["Contents"]:
