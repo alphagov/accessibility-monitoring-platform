@@ -30,9 +30,7 @@ def platform_page(
         "platform": platform,
         "number_of_tasks": get_number_of_tasks(user=request.user),
         "django_settings": settings,
-        "custom_frequently_used_links": FrequentlyUsedLink.objects.filter(
-            is_deleted=False
-        ),
+        "frequently_used_links": FrequentlyUsedLink.objects.filter(is_deleted=False),
         "custom_footer_links": FooterLink.objects.filter(is_deleted=False),
         "sitemap": sitemap,
         "case": sitemap.current_platform_page.get_case(),

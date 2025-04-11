@@ -64,7 +64,7 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> list[CaseDetailSec
                             display_fields = get_case_rows(
                                 form=page.case_details_form_class()
                             )
-                        if page.case_details_form_class._meta.model == Audit:
+                        elif page.case_details_form_class._meta.model == Audit:
                             display_fields = get_audit_rows(
                                 form=page.case_details_form_class()
                             )

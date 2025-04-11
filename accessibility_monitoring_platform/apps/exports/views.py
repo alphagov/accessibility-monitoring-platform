@@ -17,8 +17,8 @@ from django.views.generic.list import ListView
 
 from ..cases.models import Case
 from ..common.utils import record_model_create_event, record_model_update_event
+from ..common.views import HideCaseNavigationMixin
 from .csv_export_utils import (
-    EqualityBodyCSVColumn,
     download_equality_body_cases,
     populate_equality_body_columns,
 )
@@ -102,7 +102,7 @@ class ExportDetailView(DetailView):
     context_object_name: str = "export"
 
 
-class ExportCaseAsEmailDetailView(DetailView):
+class ExportCaseAsEmailDetailView(HideCaseNavigationMixin, DetailView):
     """
     View of details of a Case for export as an email
     """

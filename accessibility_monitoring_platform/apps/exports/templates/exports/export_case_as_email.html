@@ -1,4 +1,4 @@
-{% extends 'common/case_no_nav.html' %}
+{% extends 'common/case_form.html' %}
 
 {% load static %}
 {% load l10n %}
@@ -27,12 +27,11 @@
             <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
                 Copy email template
             </button>
-            {% include "common/amp_control_go_back.html" %}
         </div>
     </div>
 {% endblock %}
 
-{% block subcontent %}
+{% block preform %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <div id="email-text" class="amp-email-template">
@@ -52,7 +51,8 @@
     </div>
 {% endblock %}
 
+{% block form %}{% endblock %}
+
 {% block extrascript %}
     <script src="{% static 'js/cases_copy_email.js' %}"></script>
-    <script src="{% static 'js/go_back.js' %}"></script>
 {% endblock %}

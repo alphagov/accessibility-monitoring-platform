@@ -1191,7 +1191,7 @@ def test_latest_statement_frequently_used_link(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "No accessibility statement URL")
-    assertNotContains(response, "View latest accessibility statement")
+    assertNotContains(response, "Latest accessibility statement")
 
     audit: Audit = Audit.objects.create(case=case)
     StatementPage.objects.create(audit=audit, url="https://example.com/statement")
@@ -1203,7 +1203,7 @@ def test_latest_statement_frequently_used_link(admin_client):
     assert response.status_code == 200
 
     assertNotContains(response, "No accessibility statement URL")
-    assertContains(response, "View latest accessibility statement")
+    assertContains(response, "Latest accessibility statement")
 
 
 @pytest.mark.django_db

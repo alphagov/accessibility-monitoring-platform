@@ -82,6 +82,7 @@ I am"""
 STATEMENT_COMPLIANCE_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
+TRELLO_URL: str = "https://trello.com/board12"
 case_feedback_survey_columns_to_export_str: str = ",".join(
     column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
 )
@@ -182,7 +183,6 @@ CORRESPONDENCE_PROCESS_PAGES: list[tuple[str, str]] = [
     ("edit-request-contact-details", "Request contact details"),
     ("edit-one-week-contact-details", "One-week follow-up"),
     ("edit-four-week-contact-details", "Four-week follow-up"),
-    ("edit-no-psb-response", "Unresponsive PSB"),
 ]
 
 
@@ -229,7 +229,8 @@ def test_archived_case_view_case_includes_contents(admin_client):
 
 def test_archived_case_view_case_includes_sections(admin_client):
     """
-    Test that the Case overview page for an archived case shows sections and subsections.
+    Test that the Case overview page for an archived case shows sections and
+    subsections.
     """
     case: Case = Case.objects.create(archive=json.dumps(CASE_ARCHIVE))
 
@@ -682,7 +683,7 @@ def test_case_export_view_filters_by_search(export_view_name, admin_client):
     Case.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
-        f"{reverse(export_view_name)}?search={included_case.id}"
+        f"{reverse(export_view_name)}?search={included_case.case_number}"
     )
 
     assert response.status_code == 200
@@ -764,56 +765,85 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     assertContains(response, expected_content)
 
 
-@pytest.mark.parametrize(
-    "path_name, expected_content",
-    [
-        (
-            "cases:case-detail",
-            '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">Case overview</h1>',
-        ),
-        ("cases:edit-case-metadata", "<b>Case metadata</b>"),
-        (
-            "cases:edit-test-results",
-            "<li><b>Testing details</b></li>",
-        ),
-        (
-            "cases:zendesk-tickets",
-            '<h1 class="govuk-heading-xl amp-margin-bottom-30">PSB Zendesk tickets</h1>',
-        ),
-        ("cases:manage-contact-details", "<b>Manage contact details</b>"),
-        ("cases:edit-request-contact-details", "<b>Request contact details</b>"),
-        ("cases:edit-one-week-contact-details", "<b>One-week follow-up</b>"),
-        ("cases:edit-four-week-contact-details", "<b>Four-week follow-up</b>"),
-        ("cases:edit-report-sent-on", "<b>Report sent on</b>"),
-        ("cases:edit-report-one-week-followup", "<b>One week follow-up</b>"),
-        ("cases:edit-report-four-week-followup", "<b>Four week follow-up</b>"),
-        ("cases:edit-report-acknowledged", "<b>Report acknowledged</b>"),
-        ("cases:edit-12-week-update-requested", "<b>12-week update requested</b>"),
-        (
-            "cases:edit-12-week-one-week-followup-final",
-            "<b>One week follow-up for final update</b>",
-        ),
-        (
-            "cases:edit-12-week-update-request-ack",
-            "<b>12-week update request acknowledged</b>",
-        ),
-        (
-            "cases:outstanding-issues",
-            '<h1 class="govuk-heading-xl amp-margin-bottom-30">Outstanding issues</h1>',
-        ),
-    ],
-)
-def test_case_specific_page_loads(path_name, expected_content, admin_client):
-    """Test that the case-specific view page loads"""
-    case: Case = Case.objects.create(enable_correspondence_process=True)
+def test_case_page_with_case_nav_and_form_without_go_back(admin_client):
+    """
+    Test that a case-specific page loads with case-navigation and form
+    and without the go back to previous page in browser history widget.
+    """
+    case: Case = Case.objects.create()
+    url: str = reverse("cases:edit-case-metadata", kwargs={"pk": case.id})
 
-    response: HttpResponse = admin_client.get(
-        reverse(path_name, kwargs={"pk": case.id})
-    )
+    response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
 
-    assertContains(response, expected_content, html=True)
+    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(
+        response,
+        f"""<form method="post" action="{url}">""",
+    )
+    assertContains(response, '<select name="auditor"')
+    assertNotContains(response, "Return to previous page")
+
+
+def test_case_page_with_form_and_go_back_without_case_nav(admin_client):
+    """
+    Test that a case-specific page loads with a form and without case-navigation or
+    the go back to previous page in browser history widget.
+    """
+    case: Case = Case.objects.create()
+    url: str = reverse("cases:edit-no-psb-response", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Case details (0/1)", html=True)
+    assertContains(
+        response,
+        f"""<form method="post" action="{url}">""",
+    )
+    assertContains(response, "Return to previous page")
+
+
+def test_case_page_with_go_back_without_form_or_case_nav(admin_client):
+    """
+    Test that a case-specific page loads without a form or case-navigation but with
+    the go back to previous page in browser history widget.
+    """
+    case: Case = Case.objects.create()
+    url: str = reverse("cases:email-template-list", kwargs={"case_id": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Case details (0/1)", html=True)
+    assertNotContains(
+        response,
+        f"""<form method="post" action="{url}">""",
+    )
+    assertContains(response, "Return to previous page")
+
+
+def test_case_page_with_case_nav_no_form_and_no_go_back(admin_client):
+    """
+    Test that a case-specific page loads with case-navigation but no form and no
+    go back to previous page in browser history widget.
+    """
+    case: Case = Case.objects.create()
+    url: str = reverse("cases:edit-retest-overview", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Case details (0/1)", html=True)
+    assertNotContains(
+        response,
+        f"""<form method="post" action="{url}">""",
+    )
+    assertNotContains(response, "Return to previous page")
 
 
 @pytest.mark.parametrize(
@@ -922,7 +952,7 @@ def test_update_zendesk_ticket_page_loads(admin_client):
 
     assertContains(
         response,
-        '<h1 class="govuk-heading-xl amp-margin-bottom-30">Edit PSB Zendesk ticket</h1>',
+        '<h1 class="govuk-heading-xl amp-margin-bottom-30">Edit PSB Zendesk ticket #1</h1>',
         html=True,
     )
 
@@ -986,15 +1016,18 @@ def test_update_zendesk_ticket_view(admin_client):
     assert event.type == Event.Type.UPDATE
 
 
-def test_delete_zendesk_ticket_view(admin_client):
-    """Test that the delete Zendesk ticket view works"""
+def test_confirm_delete_zendesk_ticket_view(admin_client):
+    """Test that the confirm delete Zendesk ticket view works"""
     case: Case = Case.objects.create()
     zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
 
     assert zendesk_ticket.is_deleted is False
 
-    response: HttpResponse = admin_client.get(
-        reverse("cases:delete-zendesk-ticket", kwargs={"pk": zendesk_ticket.id})
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "cases:confirm-delete-zendesk-ticket", kwargs={"pk": zendesk_ticket.id}
+        ),
+        {"is_deleted": True, "delete": "Remove ticket"},
     )
 
     assert response.status_code == 302
@@ -1231,10 +1264,14 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-four-week-contact-details",
             "save_continue",
-            "cases:edit-no-psb-response",
+            "cases:edit-report-sent-on",
         ),
         ("cases:edit-no-psb-response", "save", "cases:edit-no-psb-response"),
-        ("cases:edit-no-psb-response", "save_continue", "cases:edit-report-sent-on"),
+        (
+            "cases:edit-no-psb-response",
+            "save_continue",
+            "cases:edit-enforcement-recommendation",
+        ),
         ("cases:edit-report-sent-on", "save", "cases:edit-report-sent-on"),
         (
             "cases:edit-report-sent-on",
@@ -1979,7 +2016,6 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         "cases:edit-request-contact-details",
         "cases:edit-one-week-contact-details",
         "cases:edit-four-week-contact-details",
-        # "cases:edit-no-psb-response",  Nav not in UI design
         "cases:edit-report-sent-on",
         "cases:edit-report-one-week-followup",
         "cases:edit-report-four-week-followup",
@@ -1993,16 +2029,11 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         "cases:edit-case-close",
         "cases:edit-post-case",
         "cases:status-workflow",
-        "cases:outstanding-issues",
         "cases:edit-statement-enforcement",
         "cases:edit-equality-body-metadata",
         "cases:list-equality-body-correspondence",
         "cases:create-equality-body-correspondence",
         "cases:edit-retest-overview",
-        "cases:zendesk-tickets",
-        "cases:create-zendesk-ticket",
-        # "cases:email-template-list",  Nav not in UI design
-        # "cases:email-template-preview",  Nav not in UI design
     ],
 )
 def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
@@ -2029,7 +2060,7 @@ def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Case details (0/1)", html=True)
-    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Contact details (0/4)", html=True)
     assertContains(response, "Report correspondence (0/4)", html=True)
     assertContains(response, "12-week correspondence (0/3)", html=True)
     assertContains(response, "Closing the case (0/3)", html=True)
@@ -2055,7 +2086,7 @@ def test_case_navigation_shown_on_edit_equality_body_cores_page(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Case details (0/1)", html=True)
-    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Contact details (0/4)", html=True)
     assertContains(response, "Report correspondence (0/4)", html=True)
     assertContains(response, "12-week correspondence (0/3)", html=True)
     assertContains(response, "Closing the case (0/3)", html=True)
@@ -2078,30 +2109,7 @@ def test_case_navigation_shown_on_edit_contact_page(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Case details (0/1)", html=True)
-    assertContains(response, "Contact details (0/5)", html=True)
-    assertContains(response, "Report correspondence (0/4)", html=True)
-    assertContains(response, "12-week correspondence (0/3)", html=True)
-    assertContains(response, "Closing the case (0/3)", html=True)
-
-
-def test_case_navigation_shown_on_update_zendesk_ticket_page(admin_client):
-    """
-    Test that the case navigation sections appear on edit zendesk ticket page
-    """
-    case: Case = Case.objects.create(enable_correspondence_process=True)
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "cases:update-zendesk-ticket",
-            kwargs={"pk": zendesk_ticket.id},
-        ),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Case details (0/1)", html=True)
-    assertContains(response, "Contact details (0/5)", html=True)
+    assertContains(response, "Contact details (0/4)", html=True)
     assertContains(response, "Report correspondence (0/4)", html=True)
     assertContains(response, "12-week correspondence (0/3)", html=True)
     assertContains(response, "Closing the case (0/3)", html=True)
@@ -2597,6 +2605,11 @@ def test_report_approved_notifies_auditor(rf):
     assert task is not None
     assert task.description == f"{request_user.get_full_name()} QA approved Case {case}"
 
+    content_type: ContentType = ContentType.objects.get_for_model(Task)
+    event: Event = Event.objects.get(content_type=content_type, object_id=task.id)
+
+    assert event.type == Event.Type.CREATE
+
 
 @pytest.mark.django_db
 def test_publish_report_no_report(admin_client):
@@ -2706,63 +2719,21 @@ def test_publish_report_already_published(admin_client):
     assertContains(response, 'value="Save and continue"')
 
 
-@pytest.mark.parametrize(
-    "useful_link, edit_url_name",
-    [
-        ("zendesk_url", "edit-case-metadata"),
-        ("trello_url", "manage-contact-details"),
-        ("zendesk_url", "edit-test-results"),
-        ("zendesk_url", "edit-review-changes"),
-        ("zendesk_url", "edit-case-close"),
-    ],
-)
-def test_frequently_used_links_displayed_in_edit(
-    useful_link, edit_url_name, admin_client
-):
+def test_frequently_used_links_displays_trello_url(admin_client):
     """
     Test that the frequently used links are displayed on all edit pages
     """
-    case: Case = Case.objects.create(home_page_url="https://home_page_url.com")
-    setattr(case, useful_link, f"https://{useful_link}.com")
-    case.save()
-    psb_zendesk_url: str = reverse("cases:zendesk-tickets", kwargs={"pk": case.id})
+    case: Case = Case.objects.create(
+        home_page_url="https://home_page_url.com", trello_url=TRELLO_URL
+    )
 
     response: HttpResponse = admin_client.get(
-        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),
+        reverse("cases:edit-retest-overview", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
 
-    assertContains(
-        response,
-        f"""<li>
-            <a href="{psb_zendesk_url}" class="govuk-link govuk-link--no-visited-state">
-                PSB Zendesk tickets
-            </a>
-        </li>""",
-        html=True,
-    )
-
-    if useful_link == "trello_url":
-        assertContains(
-            response,
-            """<li>
-                <a href="https://trello_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Trello
-                </a>
-            </li>""",
-            html=True,
-        )
-    else:
-        assertNotContains(
-            response,
-            """<li>
-                <a href="https://trello_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Trello
-                </a>
-            </li>""",
-            html=True,
-        )
+    assertContains(response, TRELLO_URL)
 
 
 @pytest.mark.django_db
@@ -3268,9 +3239,8 @@ def test_frequently_used_links_displayed(url_name, admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "View outstanding issues")
+    assertContains(response, "Outstanding issues")
     assertContains(response, "Email templates")
-    assertContains(response, "View website")
 
 
 def test_twelve_week_email_template_contains_issues(admin_client):
@@ -4084,7 +4054,6 @@ def test_add_contact_details_redirects_correctly(admin_client):
     [
         ("edit-case-metadata", "Initial test | Testing details"),
         ("manage-contact-details", "Report correspondence | Report sent on"),
-        ("edit-no-psb-response", "Report correspondence | Report sent on"),
         ("edit-no-psb-response", "Closing the case | Recommendation"),
         ("edit-12-week-update-request-ack", "Closing the case | Reviewing changes"),
         ("edit-case-close", "Post case | Statement enforcement"),

@@ -52,9 +52,9 @@ from accessibility_monitoring_platform.apps.cases.views import (
     ListCaseEqualityBodyCorrespondenceUpdateView,
     ManageContactDetailsUpdateView,
     PostCaseUpdateView,
+    ZendeskTicketConfirmDeleteUpdateView,
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
-    delete_zendesk_ticket,
     enable_correspondence_process,
     export_cases,
     export_feedback_suvey_cases,
@@ -295,9 +295,9 @@ urlpatterns: list[URLPattern] = [
         name="update-zendesk-ticket",
     ),
     path(
-        "<int:pk>/delete-zendesk-ticket/",
-        login_required(delete_zendesk_ticket),
-        name="delete-zendesk-ticket",
+        "<int:pk>/confirm-delete-zendesk-ticket/",
+        login_required(ZendeskTicketConfirmDeleteUpdateView.as_view()),
+        name="confirm-delete-zendesk-ticket",
     ),
     path(
         "<int:case_id>/email-template-list/",

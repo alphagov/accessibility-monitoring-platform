@@ -22,7 +22,7 @@ from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.email_template_utils import get_email_template_context
-from ..common.models import Boolean, EmailTemplate
+from ..common.models import EmailTemplate
 from ..common.sitemap import PlatformPage, Sitemap, get_platform_page_by_url_name
 from ..common.utils import (
     amp_format_date,
@@ -34,7 +34,11 @@ from ..common.utils import (
     record_model_create_event,
     record_model_update_event,
 )
-from ..common.views import NextPlatformPageMixin
+from ..common.views import (
+    HideCaseNavigationMixin,
+    NextPlatformPageMixin,
+    ShowGoBackJSWidgetMixin,
+)
 from ..exports.csv_export_utils import (
     EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
@@ -83,6 +87,7 @@ from .forms import (
     ListCaseEqualityBodyCorrespondenceUpdateForm,
     ManageContactDetailsUpdateForm,
     PostCaseUpdateForm,
+    ZendeskTicketConfirmDeleteUpdateForm,
     ZendeskTicketCreateUpdateForm,
 )
 from .models import (
@@ -217,7 +222,7 @@ class CaseSearchView(CaseDetailView):
     View and search details of a single case
     """
 
-    template_name: str = "cases/case_search.html"
+    template_name: str = "cases/case_search_all_data.html"
 
 
 class CaseListView(ListView):
@@ -448,7 +453,7 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
             if self.object.report_approved_status == Case.ReportApprovedStatus.APPROVED:
                 case: Case = self.object
                 if case.auditor:
-                    add_task(
+                    task: Task = add_task(
                         user=case.auditor,
                         case=case,
                         type=Task.Type.REPORT_APPROVED,
@@ -456,6 +461,7 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
                         list_description=f"{case} - Report approved",
                         request=self.request,
                     )
+                    record_model_create_event(user=self.request.user, model_object=task)
         return super().form_valid(form=form)
 
 
@@ -589,36 +595,15 @@ class CaseFourWeekContactDetailsUpdateView(CaseUpdateView):
     template_name: str = "cases/forms/four_week_followup_contact.html"
 
 
-class CaseNoPSBResponseUpdateView(CaseUpdateView):
+class CaseNoPSBResponseUpdateView(
+    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, CaseUpdateView
+):
     """
     View to set no psb contact flag
     """
 
     form_class: type[CaseNoPSBContactUpdateForm] = CaseNoPSBContactUpdateForm
     template_name: str = "cases/forms/no_psb_response.html"
-
-    def get_next_platform_page(self) -> PlatformPage:
-        case: Case = self.object
-        next_page_url_name: str = (
-            "cases:edit-enforcement-recommendation"
-            if case.no_psb_contact == Boolean.YES
-            else "cases:edit-report-sent-on"
-        )
-        return get_platform_page_by_url_name(url_name=next_page_url_name, instance=case)
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = self.object
-        context["next_platform_pages"] = [
-            get_platform_page_by_url_name(
-                url_name="cases:edit-report-sent-on", instance=case
-            ),
-            get_platform_page_by_url_name(
-                url_name="cases:edit-enforcement-recommendation", instance=case
-            ),
-        ]
-        return context
 
 
 class CaseReportSentOnUpdateView(CaseUpdateView):
@@ -882,7 +867,9 @@ class CaseStatusWorkflowDetailView(DetailView):
     template_name: str = "cases/status_workflow.html"
 
 
-class CaseOutstandingIssuesDetailView(DetailView):
+class CaseOutstandingIssuesDetailView(
+    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, DetailView
+):
     model: type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/outstanding_issues.html"
@@ -1094,7 +1081,9 @@ class CaseRetestCreateErrorTemplateView(TemplateView):
         return context
 
 
-class CaseZendeskTicketsDetailView(DetailView):
+class CaseZendeskTicketsDetailView(
+    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, DetailView
+):
     """
     View of Zendesk tickets for a case
     """
@@ -1104,7 +1093,7 @@ class CaseZendeskTicketsDetailView(DetailView):
     template_name: str = "cases/zendesk_tickets.html"
 
 
-class ZendeskTicketCreateView(CreateView):
+class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
     """
     View to create a Zendesk ticket
     """
@@ -1136,7 +1125,7 @@ class ZendeskTicketCreateView(CreateView):
         return reverse("cases:zendesk-tickets", kwargs=case_pk)
 
 
-class ZendeskTicketUpdateView(UpdateView):
+class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
     """
     View to update Zendesk ticket
     """
@@ -1147,7 +1136,7 @@ class ZendeskTicketUpdateView(UpdateView):
     template_name: str = "cases/forms/zendesk_ticket_update.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add message on change of case"""
+        """Add update event"""
         if form.changed_data:
             zendesk_ticket: ZendeskTicket = form.save(commit=False)
             user: User = self.request.user
@@ -1162,27 +1151,20 @@ class ZendeskTicketUpdateView(UpdateView):
         return reverse("cases:zendesk-tickets", kwargs=case_pk)
 
 
-def delete_zendesk_ticket(request: HttpRequest, pk: int) -> HttpResponse:
+class ZendeskTicketConfirmDeleteUpdateView(ZendeskTicketUpdateView):
     """
-    Delete ZendeskTicket
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        pk (int): Id of ZendeskTicket to delete
-
-    Returns:
-        HttpResponse: Django HttpResponse
+    View to confirm delete of Zendesk ticket
     """
-    zendesk_ticket: ZendeskTicket = get_object_or_404(ZendeskTicket, id=pk)
-    zendesk_ticket.is_deleted = True
-    record_model_update_event(user=request.user, model_object=zendesk_ticket)
-    zendesk_ticket.save()
-    return redirect(
-        reverse("cases:zendesk-tickets", kwargs={"pk": zendesk_ticket.case.id})
+
+    form_class: type[ZendeskTicketConfirmDeleteUpdateForm] = (
+        ZendeskTicketConfirmDeleteUpdateForm
     )
+    template_name: str = "cases/forms/zendesk_ticket_confirm_delete.html"
 
 
-class CaseEmailTemplateListView(ListView):
+class CaseEmailTemplateListView(
+    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, ListView
+):
     """
     View of list of email templates for the case.
     """
@@ -1203,7 +1185,7 @@ class CaseEmailTemplateListView(ListView):
         return EmailTemplate.objects.filter(is_deleted=False)
 
 
-class CaseEmailTemplatePreviewDetailView(DetailView):
+class CaseEmailTemplatePreviewDetailView(HideCaseNavigationMixin, DetailView):
     """
     View email template populated with case data
     """

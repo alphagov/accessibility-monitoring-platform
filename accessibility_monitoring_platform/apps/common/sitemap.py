@@ -433,6 +433,7 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
 class PlatformPageGroup:
     class Type(StrEnum):
         CASE_NAV: str = auto()
+        CASE_TOOLS: str = auto()
         DEFAULT: str = auto()
 
     name: str
@@ -832,15 +833,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 complete_flag_name="four_week_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
                 case_details_form_class=CaseFourWeekContactDetailsUpdateForm,
-                case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-no-psb-response",
-            ),
-            CasePlatformPage(
-                name="Unresponsive PSB",
-                url_name="cases:edit-no-psb-response",
-                complete_flag_name="no_psb_contact_complete_date",
-                show_flag_name="enable_correspondence_process",
-                case_details_form_class=CaseNoPSBContactUpdateForm,
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="cases:edit-report-sent-on",
             ),
@@ -1261,15 +1253,68 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    # Misc Case
-    PlatformPageGroup(
-        name="",
+    CasePlatformPageGroup(
+        name="Case tools",
+        type=PlatformPageGroup.Type.CASE_TOOLS,
         pages=[
-            CasePlatformPage(name="Case overview", url_name="cases:case-detail"),
             CasePlatformPage(
                 name="View and search all case data",
                 url_name="cases:case-view-and-search",
             ),
+            CasePlatformPage(
+                name="Outstanding issues",
+                show_flag_name="not_archived",
+                url_name="cases:outstanding-issues",
+            ),
+            CasePlatformPage(
+                name="Email templates",
+                show_flag_name="not_archived",
+                url_name="cases:email-template-list",
+                url_kwarg_key="case_id",
+                subpages=[
+                    CaseEmailTemplatePreviewPlatformPage(
+                        name="{instance.name}",
+                        show_flag_name="not_archived",
+                        url_name="cases:email-template-preview",
+                    ),
+                ],
+            ),
+            CasePlatformPage(
+                name="PSB Zendesk tickets",
+                url_name="cases:zendesk-tickets",
+                case_details_template_name="cases/details/details_psb_zendesk_tickets.html",
+                subpages=[
+                    CasePlatformPage(
+                        name="Add PSB Zendesk ticket",
+                        url_name="cases:create-zendesk-ticket",
+                        url_kwarg_key="case_id",
+                    ),
+                    PlatformPage(
+                        name="Edit PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="cases:update-zendesk-ticket",
+                        instance_class=ZendeskTicket,
+                    ),
+                    PlatformPage(
+                        name="Remove PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="cases:confirm-delete-zendesk-ticket",
+                        instance_class=ZendeskTicket,
+                    ),
+                ],
+            ),
+            CasePlatformPage(
+                name="Unresponsive PSB",
+                show_flag_name="not_archived",
+                url_name="cases:edit-no-psb-response",
+                case_details_form_class=CaseNoPSBContactUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="cases:edit-enforcement-recommendation",
+            ),
+        ],
+    ),
+    PlatformPageGroup(
+        name="Case other",
+        pages=[
+            CasePlatformPage(name="Case overview", url_name="cases:case-detail"),
             CasePlatformPage(
                 name="Create reminder",
                 url_name="notifications:reminder-create",
@@ -1277,44 +1322,15 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
             CasePlatformPage(name="Deactivate case", url_name="cases:deactivate-case"),
             CasePlatformPage(name="Post case summary", url_name="cases:edit-post-case"),
-            CasePlatformPage(
-                name="Email templates", url_name="cases:email-template-list"
-            ),
-            CaseEmailTemplatePreviewPlatformPage(
-                name="{instance.name}",
-                url_name="cases:email-template-preview",
-            ),
-            CasePlatformPage(
-                name="Outstanding issues", url_name="cases:outstanding-issues"
-            ),
             CasePlatformPage(name="Reactivate case", url_name="cases:reactivate-case"),
             CasePlatformPage(
                 name="Cannot start new retest", url_name="cases:retest-create-error"
             ),
             CasePlatformPage(name="Status workflow", url_name="cases:status-workflow"),
-            CasePlatformPage(
-                name="PSB Zendesk tickets",
-                url_name="cases:zendesk-tickets",
-                subpages=[
-                    CasePlatformPage(
-                        name="Add PSB Zendesk ticket",
-                        url_name="cases:create-zendesk-ticket",
-                        url_kwarg_key="case_id",
-                        visible_only_when_current=True,
-                    ),
-                    PlatformPage(
-                        name="Edit PSB Zendesk ticket",
-                        url_name="cases:update-zendesk-ticket",
-                        instance_class=ZendeskTicket,
-                        visible_only_when_current=True,
-                    ),
-                ],
-            ),
         ],
     ),
-    # Exports
     PlatformPageGroup(
-        name="",
+        name="Exports",
         pages=[
             ExportPlatformPage(
                 name="{enforcement_body} CSV export manager",
@@ -1348,9 +1364,8 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    # Settings
     PlatformPageGroup(
-        name="",
+        name="Settings",
         pages=[
             PlatformPage(name="Case metrics", url_name="common:metrics-case"),
             PlatformPage(name="Policy metrics", url_name="common:metrics-policy"),
@@ -1411,9 +1426,8 @@ SITE_MAP: list[PlatformPageGroup] = [
             PlatformPage(name="Bulk URL search", url_name="common:bulk-url-search"),
         ],
     ),
-    # Non-case
     PlatformPageGroup(
-        name="",
+        name="Non-Case other",
         pages=[
             PlatformPage(name="Create case", url_name="cases:case-create"),
             PlatformPage(name="Search", url_name="cases:case-list"),
@@ -1517,7 +1531,8 @@ def build_sitemap_for_current_page(
         case_navigation: list[PlatformPageGroup] = [
             platform_page_group
             for platform_page_group in site_map
-            if platform_page_group.type == PlatformPageGroup.Type.CASE_NAV
+            if platform_page_group.type
+            in [PlatformPageGroup.Type.CASE_NAV, PlatformPageGroup.Type.CASE_TOOLS]
         ]
         for platform_page_group in case_navigation:
             platform_page_group.populate_from_case(case=case)

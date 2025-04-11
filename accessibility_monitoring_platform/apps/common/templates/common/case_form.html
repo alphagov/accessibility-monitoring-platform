@@ -15,6 +15,8 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
+            {% if amp_hide_case_nav %}
+            {% else %}
             <div class="govuk-grid-column-one-quarter amp-padding-left-0">
                 {% block nav %}
                     {% if case.archive %}
@@ -25,9 +27,21 @@
                     {% include "cases/helpers/case_nav.html" %}
                 {% endblock %}
             </div>
-            <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
+            {% endif %}
+            <div class="{% if amp_hide_case_nav %}govuk-grid-column-full{% else %}govuk-grid-column-three-quarters amp-padding-vertical-30{% endif %}">
                 {% block header %}
                 {% include "cases/helpers/edit_header.html" %}
+                {% endblock %}
+                {% block controls %}
+                {% if amp_show_go_back %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <p class="govuk-body-m">
+                                {% include "common/amp_control_go_back.html" %}
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
                 {% endblock %}
                 {% include 'common/error_summary.html' %}
                 {% block preform %}{% endblock %}
