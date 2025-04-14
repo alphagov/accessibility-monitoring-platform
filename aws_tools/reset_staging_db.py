@@ -4,6 +4,7 @@ import json
 import os
 
 import boto3
+from datetime import date
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -31,8 +32,9 @@ def download_db_backup() -> str:
     s3_bucket: str = "ampapp-stageenv-addonsstack-h2-reportstoragebucket-xwtkixk9ar66"
     s3_client = boto3.client("s3")
     db_backups: list = []
-    for key in s3_client.list_objects(Bucket=s3_bucket)["Contents"]:
-        if "aws_aurora_backup/" in key["Key"] and "prodenv" in key["Key"]:
+    backup_key_prefix: str = f"aws_aurora_backup/{date.today().year}"
+    for key in s3_client.list_objects(Bucket=s3_bucket, Prefix=backup_key_prefix)["Contents"]:
+        if "prodenv" in key["Key"]:
             db_backups.append(key)
     db_backups.sort(key=lambda x: x["LastModified"])
     file_name: str = db_backups[-1]["Key"].split("/")[-1]
