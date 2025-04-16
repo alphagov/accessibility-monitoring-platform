@@ -4,7 +4,7 @@
             {{ page.name }} (<code class="amp-code">{{ page.url_name }}</code>)
             {% if page.next_page_url_name %}<br>Next page <code>{{ page.next_page_url_name }}</code>{% endif %}
             {% if page.subpages %}
-                {% include 'common/platform_subpages.html' with pages=page.subpages %}
+                {% include 'common/tech_team/platform_subpages.html' with pages=page.subpages %}
             {% endif %}
         </li>
     {% endfor %}

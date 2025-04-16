@@ -153,7 +153,7 @@
                             <b>{% if platform_page_group.name %}{{ platform_page_group.name }}{% else %}ANONYMOUS{% endif %}</b>
                             (type <code>{{ platform_page_group.type }}</code>):
                             {% if platform_page_group.pages %}
-                                {% include 'common/platform_subpages.html' with pages=platform_page_group.pages %}
+                                {% include 'common/tech_team/platform_subpages.html' with pages=platform_page_group.pages %}
                             {% endif %}
                         </li>
                     {% endfor %}
