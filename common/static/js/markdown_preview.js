@@ -8,7 +8,31 @@ markdown to be previewed.
 
 const showdown = require('showdown')
 showdown.setFlavor('original')
-const converter = new showdown.Converter({ ghCodeBlocks: true })
+const converter = new showdown.Converter({
+  ghCodeBlocks: true,
+  smoothLivePreview: true,
+  simpleLineBreaks: false,
+  literalMidWordUnderscores: true,
+  ghCompatibleHeaderId: false
+})
+
+function normalizeMarkdown(input) {
+  const lines = input.split('\n');
+  const output = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const current = lines[i]
+    const next = lines[i+1] || ''
+    const isListItem = /^(\d+\.|[-*+])\s+/.test(current);
+    const nextIsListItem = /^(\d+\.|[-*+])\s+/.test(next);
+
+    output.push(current);
+    if (!(isListItem === false && nextIsListItem === true)) {
+      output.push('\n');
+    }
+  }
+  return output.join('')
+}
 
 function escapeSpecialChars (str) {
   return str
@@ -32,7 +56,8 @@ function undoubleEscape (str) {
 
 function previewMarkdown (sourceId, targetId) {
   const markdown = document.getElementById(sourceId).value
-  const escapedText = escapeSpecialChars(markdown)
+  const normalized = normalizeMarkdown(markdown)
+  const escapedText = escapeSpecialChars(normalized)
   const targetElement = document.getElementById(targetId)
   targetElement.innerHTML = undoubleEscape(converter.makeHtml(escapedText))
 }

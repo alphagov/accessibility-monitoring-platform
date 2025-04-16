@@ -77,6 +77,13 @@
                     </details>
                 {% endif %}
                 {% include 'common/amp_field.html' with field=form.notes %}
+                <div id="amp-content-guidance-container-{{ form.notes.auto_id }}" class="amp-content-guidance-container govuk-grid-row amp-margin-bottom-10">
+                    <div class="govuk-grid-column-full">
+                        <h2 class="govuk-heading-s amp-margin-bottom-5">Content guidance</h2>
+                        <div id="content-guidance-{{ form.notes.auto_id }}" class="amp-content-guidance govuk-body"></div>
+                    </div>
+                </div>
+                
                 {% include 'common/preview_markdown.html' with field_id=form.notes.auto_id %}
                 <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
                     <div class="govuk-grid-column-full govuk-button-group">
@@ -100,5 +107,6 @@
 {% block extrascript %}
 <script src="{% static 'js/audits_check_filter.js' %}"></script>
 <script src="{% static 'js/audits_copy_error.js' %}"></script>
+<script src="{% static 'js/audits_content_guidance.js' %}"></script>
 <script src="{% static 'js/markdown_preview.js' %}"></script>
 {% endblock %}
