@@ -1,0 +1,25 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h2 id="id_formlike_style" class="govuk-heading-m">Form-like style example</h2>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-quarter">
+        <p class="govuk-body amp-margin-bottom-5"><b>Date created</b></p>
+        <p class="govuk-body">{{ case.created|amp_date }}</p>
+        <p class="govuk-body amp-margin-bottom-5"><b>Last edited</b></p>
+        <p class="govuk-body">{{ case.last_edited|amp_date }}</p>
+    </div>
+    <div class="govuk-grid-column-three-quarters govuk-body">
+        <code class="amp-code">
+&lt;p class="govuk-body amp-margin-bottom-5">&lt;b>Date created&lt;/b>&lt;/p>
+&lt;p class="govuk-body">&#123;{ case.created|amp_date }}&lt;/p>
+&lt;p class="govuk-body amp-margin-bottom-5">&lt;b>Last edited&lt;/b>&lt;/p>
+&lt;p class="govuk-body">&#123;{ case.last_edited|amp_date }}&lt;/p></code>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    </div>
+</div>

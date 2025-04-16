@@ -1,6 +1,6 @@
 <div class="amp-margin-bottom-30">
     {% include 'cases/helpers/correspondence_overview_detail.html' %}
-    {% include 'cases/helpers/email_templates.html' %}
+
     <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
     <summary class="govuk-details__summary">
             <span class="govuk-details__summary-text">Website contact links ({{ case.website_contact_links_count }})</span>
@@ -11,4 +11,9 @@
         </div>
     </details>
     {% include 'cases/helpers/zendesk_tickets.html' %}
+    {% include 'cases/helpers/email_templates.html' %}
+    <p class="govuk-body">
+        <a href="{% url 'cases:edit-no-psb-response' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+            Unable to send report or no response from public sector body?</a>
+    </p>
 </div>

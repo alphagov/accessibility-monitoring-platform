@@ -81,6 +81,9 @@
     <script src="{% static 'js/index.js' %}"></script>
     <script src="{% static 'js/populate_date.js' %}"></script>
     <script src="{% static 'js/url_field_dynamic_link.js' %}"></script>
+    {% if amp_show_go_back %}
+      <script src="{% static 'js/go_back.js' %}"></script>
+    {% endif %}
     {% block extrascript %}
     {% endblock %}
   </body>

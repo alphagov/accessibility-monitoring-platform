@@ -11,6 +11,7 @@
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">Tech team</li>
             <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
     </div>
@@ -22,8 +23,51 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                <nav role="navigation" class="amp-margin-bottom-40">
+                    <h2 class="govuk-heading-m">Contents</h2>
+                    <div class="amp-left-border">
+                        <ul class="govuk-list">
+                            <li>
+                                <a href="#id_tools" class="govuk-link govuk-link--no-visited-state">
+                                    Tools</a>
+                                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-0">
+                                    <li>
+                                        <a href="#id_write_to_log" class="govuk-link govuk-link--no-visited-state">
+                                            Write to log</a>
+                                    </li>
+                                    <li>
+                                        <a href="#id_raise_exception" class="govuk-link govuk-link--no-visited-state">
+                                            Raise exception</a>
+                                    </li>
+                                    <li>
+                                        <a href="#id_housekeeping" class="govuk-link govuk-link--no-visited-state">
+                                            Housekeeping</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#id_sitemap" class="govuk-link govuk-link--no-visited-state">
+                                    Sitemap</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <h2 class="govuk-heading-m">Tech team pages</h2>
+                <ul class="govuk-list">
+                    <li>
+                        <a href="{% url 'common:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
+                            Issue reports</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'common:reference-implementation' %}" class="govuk-link govuk-link--no-visited-state">
+                            Reference implementations</a>
+                    </li>
+                </ul>
+            </div>
             <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">Write to log</h2>
+                <h2 id="id_tools" class="govuk-heading-l">Tools</h2>
+                <h3 id="id_write_to_log" class="govuk-heading-m">Write to log</h3>
                 <form method="post" action="{% url 'common:platform-checking' %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
@@ -59,33 +103,33 @@
                             </a>
                         </div>
                     </div>
-                    <h2 class="govuk-heading-m">Trigger exception</h2>
+                    <h3 id="id_raise_exception" class="govuk-heading-m">Raise exception</h3>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
                                 value="400"
-                                name="trigger_400"
+                                name="raise_400"
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
                             <input
                                 type="submit"
                                 value="403"
-                                name="trigger_403"
+                                name="raise_403"
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
                             <input
                                 type="submit"
                                 value="500"
-                                name="trigger_500"
+                                name="raise_500"
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
                         </div>
                     </div>
-                    <h2 class="govuk-heading-m">Housekeeping</h2>
+                    <h3 id="id_housekeeping" class="govuk-heading-m">Housekeeping</h3>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
@@ -99,19 +143,17 @@
                     </div>
                 </form>
             </div>
-            <div class="govuk-grid-column-one-third">
-            </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h2 id="sitemap" class="govuk-heading-m">Sitemap</h2>
-                <ol>
+                <h2 id="id_sitemap" class="govuk-heading-l">Sitemap</h2>
+                <ol class="govuk-list govuk-list--number">
                     {% for platform_page_group in sitemap.platform_page_groups %}
                         <li>
-                            {% if platform_page_group.name %}<i>{{ platform_page_group.name }}</i>{% else %}ANONYMOUS{% endif %}
-                            (page group type {% if platform_page_group.type %}<code>{{ platform_page_group.type }}</code>{% else %}none{% endif %}):
+                            <b>{% if platform_page_group.name %}{{ platform_page_group.name }}{% else %}ANONYMOUS{% endif %}</b>
+                            (type <code>{{ platform_page_group.type }}</code>):
                             {% if platform_page_group.pages %}
-                                {% include 'common/platform_subpages.html' with pages=platform_page_group.pages %}
+                                {% include 'common/tech_team/platform_subpages.html' with pages=platform_page_group.pages %}
                             {% endif %}
                         </li>
                     {% endfor %}

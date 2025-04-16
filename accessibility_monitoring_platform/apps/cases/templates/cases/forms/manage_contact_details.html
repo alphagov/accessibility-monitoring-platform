@@ -4,8 +4,8 @@
 {% include 'cases/helpers/correspondence.html' %}
 <p class="govuk-body amp-margin-bottom-30">
     {% if case.enable_correspondence_process %}
-        + <a href="{% url 'cases:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
-            Add contact</a>
+        <a href="{% url 'cases:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+            + Add contact</a>
     {% else %}
         <a href="{% url 'cases:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Add contact</a> or
         <a href="{% url 'cases:enable-correspondence-process' case.id %}" class="govuk-link govuk-link--no-visited-state">start correspondence process</a>

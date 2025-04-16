@@ -1,0 +1,39 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h2 id="id_links" class="govuk-heading-m">Link examples</h2>
+        <ol class="govuk-list govuk-list--number">
+            <li>
+                To platform page:
+                <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Case metadata</a>
+                <br>
+                <code class="amp-code">&lt;a href="&#123;% url 'cases:edit-case-metadata' case.id %}"
+class="govuk-link govuk-link--no-visited-state">Case metadata&lt;/a></code>
+            </li>
+            <li>
+                To platform page (in new tab):
+                <a href="{% url 'reports:report-preview' case.report.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                    Report preview</a>
+                <br>
+                <code class="amp-code">&lt;a href="&#123;% url 'reports:report-preview' case.report.id %}"
+class="govuk-link govuk-link--no-visited-state" target="_blank">Report preview&lt;/a></code>
+            </li>
+            <li>
+                To external page (in new tab):
+                <a href="{{ case.audit.latest_statement_link }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    View latest accessibility statement</a>
+                <br>
+                <code class="amp-code">&lt;a href="&#123;{ case.audit.latest_statement_link }}" rel="noreferrer noopener"
+target="_blank" class="govuk-link">View latest accessibility statement&lt;/a></code>
+            </li>
+            <li>
+                On current page:
+                <a href="#id_lists" class="govuk-link govuk-link--no-visited-state">
+                    List examples</a>
+                <br>
+                <code class="amp-code">&lt;a href="#id_lists" class="govuk-link govuk-link--no-visited-state">List examples&lt;/a></code>
+            </li>
+        </ol>
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    </div>
+</div>

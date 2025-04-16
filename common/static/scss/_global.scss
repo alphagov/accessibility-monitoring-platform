@@ -681,13 +681,6 @@ svg {
     }
 }
 
-.temp_nav_bar {
-    margin-bottom: 10px;
-    li {
-        padding-bottom: 4px;
-    }
-}
-
 .amp-nav-details {
     font-family: "GDS Transport",arial,sans-serif;
     font-size: 1rem;
@@ -835,4 +828,15 @@ svg {
 
 .amp-content-guidance-container {
     display: none;
+}
+
+.amp-pre-line {
+    white-space: pre-line;
+}
+
+.amp-code {
+    font-family: monospace;
+    white-space: pre;
+    font-size: 15px;
+    background-color: govuk-colour("yellow");
 }
