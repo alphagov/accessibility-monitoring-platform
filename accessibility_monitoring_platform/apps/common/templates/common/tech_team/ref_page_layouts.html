@@ -1,0 +1,23 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h2 id="id_page_layouts" class="govuk-heading-m">Page layouts</h2>
+        <ol class="govuk-list govuk-list--number">
+            <li>
+                One column:
+                <a href="{% url 'cases:email-template-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Email templates</a>
+            </li>
+            <li>
+                Two columns, one-third:
+                <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Case metadata</a>
+            </li>
+            <li>
+                Two equal columns:
+                <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Case overview</a>
+            </li>
+        </ol>
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    </div>
+</div>

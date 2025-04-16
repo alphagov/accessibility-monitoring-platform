@@ -26,7 +26,7 @@ from ...audits.models import (
 from ...cases.models import Case, CaseCompliance
 from ...cases.utils import create_case_and_compliance
 from ...notifications.models import Task
-from ...reports.models import ReportVisitsMetrics
+from ...reports.models import Report, ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
 from ..models import Event, FooterLink, FrequentlyUsedLink, Platform
@@ -168,7 +168,7 @@ LOG_MESSAGE: str = "Hello"
         ("common:edit-active-qa-auditor", ">Active QA auditor</h1>"),
         ("common:platform-history", ">Platform version history</h1>"),
         ("common:issue-report", ">Report an issue</h1>"),
-        ("common:platform-checking", ">Platform checking</h1>"),
+        ("common:platform-checking", ">Tools and sitemap</h1>"),
         ("common:accessibility-statement", ">Accessibility statement</h1>"),
         ("common:privacy-notice", ">Privacy notice</h1>"),
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
@@ -1126,7 +1126,7 @@ def test_platform_checking_staff_access(client):
     response: HttpResponse = client.get(reverse("common:platform-checking"))
 
     assert response.status_code == 200
-    assertContains(response, "Platform checking")
+    assertContains(response, "Tools and sitemap")
 
 
 @pytest.mark.django_db
@@ -1274,3 +1274,18 @@ def test_page_name(url, expected_page_name, admin_client):
     assertContains(response, "Report an issue")
     assertContains(response, url)
     assertContains(response, expected_page_name)
+
+
+def test_reference_implementations_page(admin_client):
+    """Test that the reference implementation page renders"""
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("common:reference-implementation")
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Reference implementations")

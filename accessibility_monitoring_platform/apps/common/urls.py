@@ -23,6 +23,7 @@ from .views import (
     MoreInformationTemplateView,
     PlatformCheckingView,
     PrivacyNoticeTemplateView,
+    ReferenceImplementaionView,
 )
 
 app_name: str = "common"
@@ -90,6 +91,11 @@ urlpatterns: list[URLPattern] = [
         "platform-checking/",
         login_required(PlatformCheckingView.as_view()),
         name="platform-checking",
+    ),
+    path(
+        "reference-implementation/",
+        login_required(ReferenceImplementaionView.as_view()),
+        name="reference-implementation",
     ),
     path(
         "issue-reports-list/",

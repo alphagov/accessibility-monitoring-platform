@@ -829,3 +829,10 @@ svg {
 .amp-pre-line {
     white-space: pre-line;
 }
+
+.amp-code {
+    font-family: monospace;
+    white-space: pre;
+    font-size: 15px;
+    background-color: govuk-colour("yellow");
+}

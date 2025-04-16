@@ -1,0 +1,80 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+        <nav role="navigation" class="amp-margin-bottom-40">
+            <h2 class="govuk-heading-m">Contents</h2>
+            <div class="amp-left-border">
+                <ul class="govuk-list">
+                    <li>
+                        <a href="#id_forms" class="govuk-link govuk-link--no-visited-state">
+                            Forms</a>
+                    </li>
+                    <li>
+                        <a href="#id_formlike_style" class="govuk-link govuk-link--no-visited-state">
+                            Form-like style example</a>
+                    </li>
+                    <li>
+                        <a href="#id_gds_design_system_components" class="govuk-link govuk-link--no-visited-state">
+                            GDS Design system components</a>
+                    </li>
+                    <li>
+                        <a href="#id_headers" class="govuk-link govuk-link--no-visited-state">
+                            Header examples</a>
+                    </li>
+                    <li>
+                        <a href="#id_labels_of_notes_fields" class="govuk-link govuk-link--no-visited-state">
+                            Labels of notes fields</a>
+                    </li>
+                    <li>
+                        <a href="#id_links" class="govuk-link govuk-link--no-visited-state">
+                            Link examples</a>
+                    </li>
+                    <li>
+                        <a href="#id_lists" class="govuk-link govuk-link--no-visited-state">
+                            List examples</a>
+                    </li>
+                    <li>
+                        <a href="#id_markdown_textarea" class="govuk-link govuk-link--no-visited-state">
+                            Markdown textarea example</a>
+                    </li>
+                    <li>
+                        <a href="#id_page_layouts" class="govuk-link govuk-link--no-visited-state">
+                            Page layouts</a>
+                    </li>
+                    <li>
+                        <a href="#id_tables" class="govuk-link govuk-link--no-visited-state">
+                            Tables</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div class="govuk-grid-column-one-half">
+        <h2 class="govuk-heading-m">Tech team pages</h2>
+        <ul class="govuk-list">
+            <li>
+                <a href="{% url 'common:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
+                    Issue reports</a>
+            </li>
+            <li>
+                <a href="{% url 'common:platform-checking' %}" class="govuk-link govuk-link--no-visited-state">
+                    Tools and sitemap</a>
+                (<a href="{% url 'common:platform-checking' %}#id_sitemap" class="govuk-link govuk-link--no-visited-state"
+                    >sitemap</a>)
+            </li>
+        </ul>
+        <h2 class="govuk-heading-m">Platform history</h2>
+        <ul class="govuk-list">
+            <li>
+                <a href="{% url 'common:platform-history' %}" class="govuk-link govuk-link--no-visited-state">
+                    Versions</a>
+                (<a href="{% url 'admin:common_issuereport_changelist' %}?complete__exact=0" class="govuk-link govuk-link--no-visited-state"
+                    >admin</a>)
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    </div>
+</div>
