@@ -1,0 +1,18 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h2 id="id_forms" class="govuk-heading-m">Forms</h2>
+        <ol class="govuk-list govuk-list--number">
+            <li>
+                Case page with Save an continue:
+                <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Case metadata</a>
+            </li>
+            <li>
+                Case page with formset:
+                <a href="{% url 'audits:edit-audit-pages' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Add or remove pages</a>
+            </li>
+        </ol>
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    </div>
+</div>

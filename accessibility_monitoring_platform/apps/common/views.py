@@ -64,11 +64,40 @@ from .utils import (
 
 logger = logging.getLogger(__name__)
 
-EMAIL_TEMPLATE_PREVIEW_CASE_ID: int = 1170
+REFERENCE_IMPLEMENTATION_CASE_ID: int = 1170
+
+
+class HideCaseNavigationMixin:
+    """
+    Mixin for Case pages which hides the Case navigation and makes page contents full
+    width.
+    """
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["amp_hide_case_nav"] = True
+        return context
+
+
+class ShowGoBackJSWidgetMixin:
+    """
+    Mixin for Case pages which enables the JS widget to go back to previous page in
+    browser history.
+    """
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["amp_show_go_back"] = True
+        return context
 
 
 class NextPlatformPageMixin:
-    """Mixin for UpdateViews with Save and continue buttons"""
+    """
+    Mixin for UpdateViews with Save and continue buttons which returns next platform
+    page, adds it to context and returns its URL on success.
+    """
 
     def get_next_platform_page(self) -> PlatformPage:
         sitemap: Sitemap = Sitemap(request=self.request)
@@ -392,7 +421,7 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
     """
 
     form_class = PlatformCheckingForm
-    template_name: str = "common/platform_checking.html"
+    template_name: str = "common/tech_team/platform_checking.html"
     success_url: str = reverse_lazy("common:platform-checking")
 
     def test_func(self):
@@ -431,6 +460,23 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
             level=int(form.cleaned_data["level"]), msg=form.cleaned_data["message"]
         )
         return super().form_valid(form)
+
+
+class ReferenceImplementaionView(TemplateView):
+    """Reference implementations of reusable components"""
+
+    template_name: str = "common/tech_team/reference_implementation.html"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case | None = Case.objects.filter(
+            id=REFERENCE_IMPLEMENTATION_CASE_ID
+        ).first()
+        if case is None:  # In test environment
+            case: Case | None = Case.objects.all().first()
+        context["case"] = case
+        return context
 
 
 class IssueReportListView(ListView):
