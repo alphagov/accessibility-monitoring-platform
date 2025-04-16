@@ -14,6 +14,7 @@ from django.utils.safestring import mark_safe
 
 from ..common.forms import (
     AMPAuditorModelChoiceField,
+    AMPBooleanCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
@@ -770,7 +771,6 @@ class CaseNoPSBContactUpdateForm(VersionForm):
     no_psb_contact_notes = AMPTextField(
         label="Public sector body is unresponsive notes"
     )
-    no_psb_contact_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -778,7 +778,6 @@ class CaseNoPSBContactUpdateForm(VersionForm):
             "version",
             "no_psb_contact",
             "no_psb_contact_notes",
-            "no_psb_contact_complete_date",
         ]
 
 
@@ -1024,6 +1023,22 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
             "notes",
             "zendesk_url",
         ]
+
+
+class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
+    """
+    Form for confirming the deletion of a zendesk ticket
+    """
+
+    is_deleted = forms.BooleanField(
+        label="Conform you want to remove Zendest ticket",
+        required=False,
+        widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove ticket"}),
+    )
+
+    class Meta:
+        model = ZendeskTicket
+        fields = ["is_deleted"]
 
 
 class ZendeskTicketCreateUpdateForm(forms.ModelForm):

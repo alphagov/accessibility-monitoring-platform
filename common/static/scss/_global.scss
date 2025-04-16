@@ -681,13 +681,6 @@ svg {
     }
 }
 
-.temp_nav_bar {
-    margin-bottom: 10px;
-    li {
-        padding-bottom: 4px;
-    }
-}
-
 .amp-nav-details {
     font-family: "GDS Transport",arial,sans-serif;
     font-size: 1rem;
@@ -831,4 +824,8 @@ svg {
     label {
         max-width: none;
     }
+}
+
+.amp-pre-line {
+    white-space: pre-line;
 }
