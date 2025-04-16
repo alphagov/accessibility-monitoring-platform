@@ -462,6 +462,18 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
         return super().form_valid(form)
 
 
+class ReferenceImplementaionView(TemplateView):
+    """Reference implementations of reusable components"""
+
+    template_name: str = "common/reference_implementation.html"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["case"] = Case.objects.filter(id=1170).first()
+        return context
+
+
 class IssueReportListView(ListView):
     """
     View of list of issue reports.

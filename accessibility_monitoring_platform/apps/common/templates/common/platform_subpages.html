@@ -1,8 +1,8 @@
 <ol>
     {% for page in pages %}
         <li>
-            <b>{{ page.name }}</b> (URL name {% if page.url_name %}<code>{{ page.url_name }}</code>{% else %}NONE{% endif %})
-            {% if page.next_page_url_name %}Next page is <b>{{ page.next_page_url_name }}</b>.{% endif %}
+            {{ page.name }} (<code class="amp-code">{{ page.url_name }}</code>)
+            {% if page.next_page_url_name %}<br>Next page <code>{{ page.next_page_url_name }}</code>{% endif %}
             {% if page.subpages %}
                 {% include 'common/platform_subpages.html' with pages=page.subpages %}
             {% endif %}
