@@ -149,11 +149,10 @@ def validate_url(url: str) -> None:
 
 def get_platform_settings() -> Platform:
     """Return the platform-wide settings"""
-    try:
-        return Platform.objects.get(pk=1)
-    except Platform.DoesNotExist:
+    platform: Platform | None = Platform.objects.all().first()
+    if platform is None:
         platform: Platform = Platform.objects.create()
-        return platform
+    return platform
 
 
 def get_recent_changes_to_platform() -> QuerySet[ChangeToPlatform]:
