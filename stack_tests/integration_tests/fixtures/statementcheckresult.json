@@ -5,6 +5,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 1,
+      "issue_identifier": "1-S-1",
       "type": "overview",
       "check_result_state": "yes",
       "report_comment": "",
@@ -20,6 +21,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 2,
+      "issue_identifier": "1-S-1",
       "type": "overview",
       "check_result_state": "yes",
       "report_comment": "",
@@ -35,6 +37,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 3,
+      "issue_identifier": "1-S-1",
       "type": "website",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -50,6 +53,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 4,
+      "issue_identifier": "1-S-1",
       "type": "website",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -65,6 +69,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 5,
+      "issue_identifier": "1-S-1",
       "type": "website",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -80,6 +85,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 6,
+      "issue_identifier": "1-S-1",
       "type": "website",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -95,6 +101,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 43,
+      "issue_identifier": "1-S-1",
       "type": "website",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -110,6 +117,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 7,
+      "issue_identifier": "1-S-1",
       "type": "website",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -125,6 +133,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 8,
+      "issue_identifier": "1-S-1",
       "type": "website",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -140,6 +149,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 9,
+      "issue_identifier": "1-S-1",
       "type": "website",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -155,6 +165,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 10,
+      "issue_identifier": "1-S-1",
       "type": "website",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -170,6 +181,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 11,
+      "issue_identifier": "1-S-1",
       "type": "compliance",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -185,6 +197,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 12,
+      "issue_identifier": "1-S-1",
       "type": "compliance",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -200,6 +213,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 13,
+      "issue_identifier": "1-S-1",
       "type": "compliance",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -215,6 +229,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 14,
+      "issue_identifier": "1-S-1",
       "type": "compliance",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -230,6 +245,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 15,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -245,6 +261,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 16,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -260,6 +277,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 17,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -275,6 +293,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 18,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -290,6 +309,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 19,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -305,6 +325,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 20,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -320,6 +341,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 21,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -335,6 +357,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 22,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -350,6 +373,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 23,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -365,6 +389,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 24,
+      "issue_identifier": "1-S-1",
       "type": "non-accessible",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -380,6 +405,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 25,
+      "issue_identifier": "1-S-1",
       "type": "preparation",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -395,6 +421,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 26,
+      "issue_identifier": "1-S-1",
       "type": "preparation",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -410,6 +437,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 27,
+      "issue_identifier": "1-S-1",
       "type": "preparation",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -425,6 +453,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 28,
+      "issue_identifier": "1-S-1",
       "type": "preparation",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -440,6 +469,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 29,
+      "issue_identifier": "1-S-1",
       "type": "preparation",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -455,6 +485,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 30,
+      "issue_identifier": "1-S-1",
       "type": "preparation",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -470,6 +501,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 31,
+      "issue_identifier": "1-S-1",
       "type": "preparation",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -485,6 +517,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 32,
+      "issue_identifier": "1-S-1",
       "type": "preparation",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -500,6 +533,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 33,
+      "issue_identifier": "1-S-1",
       "type": "preparation",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -515,6 +549,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 34,
+      "issue_identifier": "1-S-1",
       "type": "feedback",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -530,6 +565,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 35,
+      "issue_identifier": "1-S-1",
       "type": "feedback",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -545,6 +581,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 36,
+      "issue_identifier": "1-S-1",
       "type": "feedback",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -560,6 +597,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 37,
+      "issue_identifier": "1-S-1",
       "type": "feedback",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -575,6 +613,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 38,
+      "issue_identifier": "1-S-1",
       "type": "feedback",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -590,6 +629,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 39,
+      "issue_identifier": "1-S-1",
       "type": "feedback",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -605,6 +645,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 40,
+      "issue_identifier": "1-S-1",
       "type": "feedback",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -620,6 +661,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 41,
+      "issue_identifier": "1-S-1",
       "type": "feedback",
       "check_result_state": "not-tested",
       "report_comment": "",
@@ -635,6 +677,7 @@
     "fields": {
       "audit": 1,
       "statement_check": 42,
+      "issue_identifier": "1-S-1",
       "type": "feedback",
       "check_result_state": "not-tested",
       "report_comment": "",
