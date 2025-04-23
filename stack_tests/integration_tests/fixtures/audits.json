@@ -114,6 +114,7 @@
       "page": 1,
       "is_deleted": false,
       "type": "pdf",
+      "issue_identifier": "1-A-1",
       "wcag_definition": 1,
       "check_result_state": "error",
       "notes": "Error detail text",
