@@ -100,6 +100,8 @@ You do not need to provide information from your own audit.
             {% for statement_check_result in case.audit.failed_statement_check_results %}
                 <tr valign="top">
                     <td headers="statement-issue" width=50%>
+                        <b>Issue {{ statement_check_result.issue_identifier }}</b>
+                        <br>
                         {{ statement_check_result.statement_check.report_text }}
                         {% if statement_check_result.report_comment %}
                             {% if statement_check_result.statement_check.report_text %}
@@ -108,8 +110,6 @@ You do not need to provide information from your own audit.
                             {% endif %}
                             {{ statement_check_result.report_comment }}
                         {% endif %}
-                        <br>
-                        [{{ statement_check_result.issue_identifier }}]
                     </td>
                     <td headers="statement-12-week-update" width=50%></td>
                 </tr>
