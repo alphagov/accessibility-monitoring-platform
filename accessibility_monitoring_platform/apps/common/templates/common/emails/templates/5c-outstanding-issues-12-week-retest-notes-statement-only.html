@@ -20,8 +20,8 @@ Please review the issues listed below and provide an update.
             {% for statement_check_result in case.audit.outstanding_statement_check_results %}
                 <tr valign="top">
                     <td headers="statement-issue" width=33%>
+                        <p><b>Issue {{ statement_check_result.issue_identifier }}</b></p>
                         <p>{{ statement_check_result.statement_check.report_text }}</p>
-                        <p>[{{ statement_check_result.issue_identifier }}]</p>
                     </td>
                     <td headers="statement-issue" width=33%>
                         {{ statement_check_result.report_comment|markdown_to_html }}

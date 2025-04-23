@@ -1,561 +1,604 @@
 [
-{
+  {
     "model": "audits.statementcheck",
     "pk": 1,
     "fields": {
-        "type": "overview",
-        "label": "Is there an accessibility page?",
-        "success_criteria": "An accessibility page is found on the website",
-        "report_text": "No accessibility page or statement was found on the website. You need to write and publish an accessibility statement that meets the required legal format.",
-        "position": 10,
-        "date_start": null,
-        "date_end": null
+      "type": "overview",
+      "issue_number": 1,
+      "label": "Is there an accessibility page?",
+      "success_criteria": "An accessibility page is found on the website",
+      "report_text": "No accessibility page or statement was found on the website. You need to write and publish an accessibility statement that meets the required legal format.",
+      "position": 10,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 2,
     "fields": {
-        "type": "overview",
-        "label": "Does the accessibility page include a statement, including some mandatory sections?",
-        "success_criteria": "The accessibility page includes some statement wording and sections. (If you would like them to work on the statement before testing, select \"No\")",
-        "report_text": "The accessibility page does not include an accessibility statement that follows the model accessibility statement template. You need to write and publish an accessibility statement that meets the required legal format.",
-        "position": 20,
-        "date_start": null,
-        "date_end": null
+      "type": "overview",
+      "issue_number": 1,
+      "label": "Does the accessibility page include a statement, including some mandatory sections?",
+      "success_criteria": "The accessibility page includes some statement wording and sections. (If you would like them to work on the statement before testing, select \"No\")",
+      "report_text": "The accessibility page does not include an accessibility statement that follows the model accessibility statement template. You need to write and publish an accessibility statement that meets the required legal format.",
+      "position": 20,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 3,
     "fields": {
-        "type": "website",
-        "label": "Is the page heading \"Accessibility statement\"?",
-        "success_criteria": "The title and main heading is Accessibility Statement or Accessibility Statement for [x]",
-        "report_text": "The title and main heading of the page should be \"Accessibility statement\" or \"Accessibility statement for [name of website]\".",
-        "position": 30,
-        "date_start": null,
-        "date_end": null
+      "type": "website",
+      "issue_number": 1,
+      "label": "Is the page heading \"Accessibility statement\"?",
+      "success_criteria": "The title and main heading is Accessibility Statement or Accessibility Statement for [x]",
+      "report_text": "The title and main heading of the page should be \"Accessibility statement\" or \"Accessibility statement for [name of website]\".",
+      "position": 30,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 4,
     "fields": {
-        "type": "website",
-        "label": "Is there an accessibility commitment?",
-        "success_criteria": "A commitment to make the site accessible is found",
-        "report_text": "There is no commitment to make the website accessible, as required in the model accessibility statement.",
-        "position": 40,
-        "date_start": null,
-        "date_end": null
+      "type": "website",
+      "issue_number": 1,
+      "label": "Is there an accessibility commitment?",
+      "success_criteria": "A commitment to make the site accessible is found",
+      "report_text": "There is no commitment to make the website accessible, as required in the model accessibility statement.",
+      "position": 40,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 5,
     "fields": {
-        "type": "website",
-        "label": "Does the commitment use the correct wording?",
-        "success_criteria": "The text is: [Name of organisation] is committed to making its [website(s)/mobile application(s), as appropriate] accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.",
-        "report_text": "The wording of the commitment to make the website accessible is incorrect.",
-        "position": 50,
-        "date_start": null,
-        "date_end": null
+      "type": "website",
+      "issue_number": 1,
+      "label": "Does the commitment use the correct wording?",
+      "success_criteria": "The text is: [Name of organisation] is committed to making its [website(s)/mobile application(s), as appropriate] accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.",
+      "report_text": "The wording of the commitment to make the website accessible is incorrect.",
+      "position": 50,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 6,
     "fields": {
-        "type": "website",
-        "label": "Is there a scope for the accessibility statement?",
-        "success_criteria": "The statement is clear about what it applies to.",
-        "report_text": "There is no scope included for the statement or it is not clear enough.",
-        "position": 60,
-        "date_start": null,
-        "date_end": null
+      "type": "website",
+      "issue_number": 1,
+      "label": "Is there a scope for the accessibility statement?",
+      "success_criteria": "The statement is clear about what it applies to.",
+      "report_text": "There is no scope included for the statement or it is not clear enough.",
+      "position": 60,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 7,
     "fields": {
-        "type": "website",
-        "label": "Is the accessibility statement provided as a web page?",
-        "success_criteria": "The statement is a web page.",
-        "report_text": "Some users may have accessibility issues reading an accessibility statement that is not a standard HTML web page. It would be beneficial to publish as a web page.",
-        "position": 70,
-        "date_start": null,
-        "date_end": null
+      "type": "website",
+      "issue_number": 1,
+      "label": "Is the accessibility statement provided as a web page?",
+      "success_criteria": "The statement is a web page.",
+      "report_text": "Some users may have accessibility issues reading an accessibility statement that is not a standard HTML web page. It would be beneficial to publish as a web page.",
+      "position": 70,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 8,
     "fields": {
-        "type": "website",
-        "label": "Is the accessibility statement prominent on the home page or on every page of the site?",
-        "success_criteria": "The statement is not properly linked.",
-        "report_text": "Your statement should be prominently placed on the homepage of the website or made available on every web page, for example in a static header or footer, as the regulations require.                                                                                                                                                ",
-        "position": 80,
-        "date_start": null,
-        "date_end": null
+      "type": "website",
+      "issue_number": 1,
+      "label": "Is the accessibility statement prominent on the home page or on every page of the site?",
+      "success_criteria": "The statement is not properly linked.",
+      "report_text": "Your statement should be prominently placed on the homepage of the website or made available on every web page, for example in a static header or footer, as the regulations require.                                                                                                                                                ",
+      "position": 80,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 9,
     "fields": {
-        "type": "website",
-        "label": "Is the statement complete on one page?",
-        "success_criteria": "The statement is on one page and is not split over many pages.",
-        "report_text": "The statement should be easy to read and navigate. Splitting the statement over multiple pages could mean a user cannot find the information they were looking for.",
-        "position": 90,
-        "date_start": null,
-        "date_end": null
+      "type": "website",
+      "issue_number": 1,
+      "label": "Is the statement complete on one page?",
+      "success_criteria": "The statement is on one page and is not split over many pages.",
+      "report_text": "The statement should be easy to read and navigate. Splitting the statement over multiple pages could mean a user cannot find the information they were looking for.",
+      "position": 90,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 10,
     "fields": {
-        "type": "website",
-        "label": "Does the statement cover the entire website?",
-        "success_criteria": "The statement covers the entire website, no further accessibility statements are needed.",
-        "report_text": "The accessibility statement needs to cover the entire website. Either this statement needs to be extended or an additional statement needs to be published.",
-        "position": 100,
-        "date_start": null,
-        "date_end": null
+      "type": "website",
+      "issue_number": 1,
+      "label": "Does the statement cover the entire website?",
+      "success_criteria": "The statement covers the entire website, no further accessibility statements are needed.",
+      "report_text": "The accessibility statement needs to cover the entire website. Either this statement needs to be extended or an additional statement needs to be published.",
+      "position": 100,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 11,
     "fields": {
-        "type": "compliance",
-        "label": "Is there a heading for compliance status?",
-        "success_criteria": "There is a heading for compliance status",
-        "report_text": "A heading for \"Compliance status\" was not found.",
-        "position": 110,
-        "date_start": null,
-        "date_end": null
+      "type": "compliance",
+      "issue_number": 1,
+      "label": "Is there a heading for compliance status?",
+      "success_criteria": "There is a heading for compliance status",
+      "report_text": "A heading for \"Compliance status\" was not found.",
+      "position": 110,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 12,
     "fields": {
-        "type": "compliance",
-        "label": "If there is a compliance status heading, is the heading worded correctly?",
-        "success_criteria": "The heading is \"Compliance status\"",
-        "report_text": "The heading for \"Compliance status\" is not worded correctly",
-        "position": 120,
-        "date_start": null,
-        "date_end": null
+      "type": "compliance",
+      "issue_number": 1,
+      "label": "If there is a compliance status heading, is the heading worded correctly?",
+      "success_criteria": "The heading is \"Compliance status\"",
+      "report_text": "The heading for \"Compliance status\" is not worded correctly",
+      "position": 120,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 13,
     "fields": {
-        "type": "compliance",
-        "label": "Is 1 of the 3 compliance status options included?",
-        "success_criteria": "A compliance status option is included",
-        "report_text": "The statement does not include the compliance status, as required in the model accessibility statement.",
-        "position": 130,
-        "date_start": null,
-        "date_end": null
+      "type": "compliance",
+      "issue_number": 1,
+      "label": "Is 1 of the 3 compliance status options included?",
+      "success_criteria": "A compliance status option is included",
+      "report_text": "The statement does not include the compliance status, as required in the model accessibility statement.",
+      "position": 130,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 14,
     "fields": {
-        "type": "compliance",
-        "label": "Is the compliance status option correct?",
-        "success_criteria": "The status option matches our testing results and is worded correctly",
-        "report_text": "The compliance status does not match the results of our testing or is not using the correct wording.",
-        "position": 140,
-        "date_start": null,
-        "date_end": null
+      "type": "compliance",
+      "issue_number": 1,
+      "label": "Is the compliance status option correct?",
+      "success_criteria": "The status option matches our testing results and is worded correctly",
+      "report_text": "The compliance status does not match the results of our testing or is not using the correct wording.",
+      "position": 140,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 15,
     "fields": {
-        "type": "non-accessible",
-        "label": "Is there a heading for non-accessible content?",
-        "success_criteria": "A heading for non-accessible content is included (if needed)",
-        "report_text": "A heading for \"Non-accessible content\" was not found.",
-        "position": 150,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "Is there a heading for non-accessible content?",
+      "success_criteria": "A heading for non-accessible content is included (if needed)",
+      "report_text": "A heading for \"Non-accessible content\" was not found.",
+      "position": 150,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 16,
     "fields": {
-        "type": "non-accessible",
-        "label": "Is the non-accessible content heading worded correctly?",
-        "success_criteria": "The heading is \"Non-accessible content\"",
-        "report_text": "The heading for \"Non-accessible content\" is not worded correctly.",
-        "position": 160,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "Is the non-accessible content heading worded correctly?",
+      "success_criteria": "The heading is \"Non-accessible content\"",
+      "report_text": "The heading for \"Non-accessible content\" is not worded correctly.",
+      "position": 160,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 17,
     "fields": {
-        "type": "non-accessible",
-        "label": "Are issues found from the testing listed as non-accessible content in the statement?",
-        "success_criteria": "The issues found in testing are included in the non-accessible content section.",
-        "report_text": "Known accessibility issues are not included within the 'non-accessible content' section. You need to review your accessibility statement to cover the issues found in this report and any others found during your own audit.",
-        "position": 170,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "Are issues found from the testing listed as non-accessible content in the statement?",
+      "success_criteria": "The issues found in testing are included in the non-accessible content section.",
+      "report_text": "Known accessibility issues are not included within the 'non-accessible content' section. You need to review your accessibility statement to cover the issues found in this report and any others found during your own audit.",
+      "position": 170,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 18,
     "fields": {
-        "type": "non-accessible",
-        "label": "Is non-compliant content correct and complete?",
-        "success_criteria": "Non-compliant content is correct and complete.",
-        "report_text": "The non-accessible content is not correct or complete.",
-        "position": 180,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "Is non-compliant content correct and complete?",
+      "success_criteria": "Non-compliant content is correct and complete.",
+      "report_text": "The non-accessible content is not correct or complete.",
+      "position": 180,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 19,
     "fields": {
-        "type": "non-accessible",
-        "label": "Is the non-compliant content clear?",
-        "success_criteria": "Non-compliant content is clear.",
-        "report_text": "The non-accessible content is not clear.",
-        "position": 190,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "Is the non-compliant content clear?",
+      "success_criteria": "Non-compliant content is clear.",
+      "report_text": "The non-accessible content is not clear.",
+      "position": 190,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 20,
     "fields": {
-        "type": "non-accessible",
-        "label": "Does the non-compliant content mention the WCAG criteria?",
-        "success_criteria": "The non-compliant content mentions the WCAG criteria it fails.",
-        "report_text": "The non-accessible content does not say which WCAG criteria it fails.",
-        "position": 200,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "Does the non-compliant content mention the WCAG criteria?",
+      "success_criteria": "The non-compliant content mentions the WCAG criteria it fails.",
+      "report_text": "The non-accessible content does not say which WCAG criteria it fails.",
+      "position": 200,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 21,
     "fields": {
-        "type": "non-accessible",
-        "label": "Are all dates for fixes in the future?",
-        "success_criteria": "There are no dates in the past for fixes.",
-        "report_text": "The non-compliant content includes dates for fixes that are in the past.",
-        "position": 210,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "Are all dates for fixes in the future?",
+      "success_criteria": "There are no dates in the past for fixes.",
+      "report_text": "The non-compliant content includes dates for fixes that are in the past.",
+      "position": 210,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 22,
     "fields": {
-        "type": "non-accessible",
-        "label": "If disproportionate burden is claimed, is the scope of disproportionate burden content clear?",
-        "success_criteria": "The scope of disproportionate burden content is not clear.",
-        "report_text": "The content where disproportionate burden is claimed is not clear or in enough detail.",
-        "position": 220,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "If disproportionate burden is claimed, is the scope of disproportionate burden content clear?",
+      "success_criteria": "The scope of disproportionate burden content is not clear.",
+      "report_text": "The content where disproportionate burden is claimed is not clear or in enough detail.",
+      "position": 220,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 23,
     "fields": {
-        "type": "non-accessible",
-        "label": "If disproportionate burden is claimed, is the disproportionate burden assessment provided?",
-        "success_criteria": "The disproportionate burden assessment is provided.",
-        "report_text": "A disproportionate burden assessment must have been completed before adding a claim to your accessibility statement. You need to send evidence of the assessment to us for review.",
-        "position": 230,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "If disproportionate burden is claimed, is the disproportionate burden assessment provided?",
+      "success_criteria": "The disproportionate burden assessment is provided.",
+      "report_text": "A disproportionate burden assessment must have been completed before adding a claim to your accessibility statement. You need to send evidence of the assessment to us for review.",
+      "position": 230,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 24,
     "fields": {
-        "type": "non-accessible",
-        "label": "Is no content listed as being out of scope that should be in another part of the accessibility statement?",
-        "success_criteria": "No content is listed as out of scope that should be in another section.",
-        "report_text": "Content is included in the out of scope section that should be listed in another part of the statement.",
-        "position": 240,
-        "date_start": null,
-        "date_end": null
+      "type": "non-accessible",
+      "issue_number": 1,
+      "label": "Is no content listed as being out of scope that should be in another part of the accessibility statement?",
+      "success_criteria": "No content is listed as out of scope that should be in another section.",
+      "report_text": "Content is included in the out of scope section that should be listed in another part of the statement.",
+      "position": 240,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 25,
     "fields": {
-        "type": "preparation",
-        "label": "Is there a heading for preparation of this accessibility statement?",
-        "success_criteria": "There is a heading for preparation of this accessibility statement.",
-        "report_text": "A heading for \"Preparation of this accessibility statement\" was not found.",
-        "position": 250,
-        "date_start": null,
-        "date_end": null
+      "type": "preparation",
+      "issue_number": 1,
+      "label": "Is there a heading for preparation of this accessibility statement?",
+      "success_criteria": "There is a heading for preparation of this accessibility statement.",
+      "report_text": "A heading for \"Preparation of this accessibility statement\" was not found.",
+      "position": 250,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 26,
     "fields": {
-        "type": "preparation",
-        "label": "Is the statement preparation heading worded correctly?",
-        "success_criteria": "The heading is \"preparation\"",
-        "report_text": "The heading for \"Preparation of this accessibility statement\" is not worded correctly.",
-        "position": 260,
-        "date_start": null,
-        "date_end": null
+      "type": "preparation",
+      "issue_number": 1,
+      "label": "Is the statement preparation heading worded correctly?",
+      "success_criteria": "The heading is \"preparation\"",
+      "report_text": "The heading for \"Preparation of this accessibility statement\" is not worded correctly.",
+      "position": 260,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 27,
     "fields": {
-        "type": "preparation",
-        "label": "Is there a date for the statement preparation?",
-        "success_criteria": "There is a date for statement preparation.",
-        "report_text": "A statement preparation date was not included.",
-        "position": 270,
-        "date_start": null,
-        "date_end": null
+      "type": "preparation",
+      "issue_number": 1,
+      "label": "Is there a date for the statement preparation?",
+      "success_criteria": "There is a date for statement preparation.",
+      "report_text": "A statement preparation date was not included.",
+      "position": 270,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 28,
     "fields": {
-        "type": "preparation",
-        "label": "Is the statement preparation date worded correctly?",
-        "success_criteria": "The statement preparation date is worded correctly.",
-        "report_text": "A statement preparation date was included but needs to be worded correctly.",
-        "position": 280,
-        "date_start": null,
-        "date_end": null
+      "type": "preparation",
+      "issue_number": 1,
+      "label": "Is the statement preparation date worded correctly?",
+      "success_criteria": "The statement preparation date is worded correctly.",
+      "report_text": "A statement preparation date was included but needs to be worded correctly.",
+      "position": 280,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 29,
     "fields": {
-        "type": "preparation",
-        "label": "Is there a date for the last review of the statement?",
-        "success_criteria": "There is a date for the last statement review or has been published in the last year.",
-        "report_text": "A statement review date was not included.",
-        "position": 290,
-        "date_start": null,
-        "date_end": null
+      "type": "preparation",
+      "issue_number": 1,
+      "label": "Is there a date for the last review of the statement?",
+      "success_criteria": "There is a date for the last statement review or has been published in the last year.",
+      "report_text": "A statement review date was not included.",
+      "position": 290,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 30,
     "fields": {
-        "type": "preparation",
-        "label": "Is the the last review date worded correctly?",
-        "success_criteria": "The last statement review date is worded correctly.",
-        "report_text": "A statement review date was included but needs to be worded correctly.",
-        "position": 300,
-        "date_start": null,
-        "date_end": null
+      "type": "preparation",
+      "issue_number": 1,
+      "label": "Is the the last review date worded correctly?",
+      "success_criteria": "The last statement review date is worded correctly.",
+      "report_text": "A statement review date was included but needs to be worded correctly.",
+      "position": 300,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 31,
     "fields": {
-        "type": "preparation",
-        "label": "If there is a review date, is the statement review date within the last year?",
-        "success_criteria": "The statement has not been reviewed in the last year.",
-        "report_text": "The statement has not been reviewed in the last year and is out of date.",
-        "position": 310,
-        "date_start": null,
-        "date_end": null
+      "type": "preparation",
+      "issue_number": 1,
+      "label": "If there is a review date, is the statement review date within the last year?",
+      "success_criteria": "The statement has not been reviewed in the last year.",
+      "report_text": "The statement has not been reviewed in the last year and is out of date.",
+      "position": 310,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 32,
     "fields": {
-        "type": "preparation",
-        "label": "Is there information about the method used to prepare the statement?",
-        "success_criteria": "The method used to prepare the statement is not included.",
-        "report_text": "The statement does not include the method used to prepare the statement.",
-        "position": 320,
-        "date_start": null,
-        "date_end": null
+      "type": "preparation",
+      "issue_number": 1,
+      "label": "Is there information about the method used to prepare the statement?",
+      "success_criteria": "The method used to prepare the statement is not included.",
+      "report_text": "The statement does not include the method used to prepare the statement.",
+      "position": 320,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 33,
     "fields": {
-        "type": "preparation",
-        "label": "Is the method used to prepare the statement descriptive enough?",
-        "success_criteria": "The method used to prepare the statement is not descriptive enough.",
-        "report_text": "The method used to prepare the statement needs to be more descriptive.",
-        "position": 330,
-        "date_start": null,
-        "date_end": null
+      "type": "preparation",
+      "issue_number": 1,
+      "label": "Is the method used to prepare the statement descriptive enough?",
+      "success_criteria": "The method used to prepare the statement is not descriptive enough.",
+      "report_text": "The method used to prepare the statement needs to be more descriptive.",
+      "position": 330,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 34,
     "fields": {
-        "type": "feedback",
-        "label": "Is there a heading for feedback and contact information?",
-        "success_criteria": "There is a heading for feedback and contact information.",
-        "report_text": "A heading for \"Feedback and contact information\" was not found.",
-        "position": 340,
-        "date_start": null,
-        "date_end": null
+      "type": "feedback",
+      "issue_number": 1,
+      "label": "Is there a heading for feedback and contact information?",
+      "success_criteria": "There is a heading for feedback and contact information.",
+      "report_text": "A heading for \"Feedback and contact information\" was not found.",
+      "position": 340,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 35,
     "fields": {
-        "type": "feedback",
-        "label": "Is the feedback and contact information heading worded correctly?",
-        "success_criteria": "The heading is \"Feedback and contact information\"",
-        "report_text": "The heading for \"Feedback and contact information\" is not worded correctly.",
-        "position": 350,
-        "date_start": null,
-        "date_end": null
+      "type": "feedback",
+      "issue_number": 1,
+      "label": "Is the feedback and contact information heading worded correctly?",
+      "success_criteria": "The heading is \"Feedback and contact information\"",
+      "report_text": "The heading for \"Feedback and contact information\" is not worded correctly.",
+      "position": 350,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 36,
     "fields": {
-        "type": "feedback",
-        "label": "Is there contact information for the organisation?",
-        "success_criteria": "There is an email address or contact form.",
-        "report_text": "There is no contact information to report accessibility issues.",
-        "position": 360,
-        "date_start": null,
-        "date_end": null
+      "type": "feedback",
+      "issue_number": 1,
+      "label": "Is there contact information for the organisation?",
+      "success_criteria": "There is an email address or contact form.",
+      "report_text": "There is no contact information to report accessibility issues.",
+      "position": 360,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 37,
     "fields": {
-        "type": "feedback",
-        "label": "Is there a heading for enforcement procedure?",
-        "success_criteria": "There is a heading for enforcement procedure.",
-        "report_text": "A heading for \"Enforcement procedure\" is not found.",
-        "position": 370,
-        "date_start": null,
-        "date_end": null
+      "type": "feedback",
+      "issue_number": 1,
+      "label": "Is there a heading for enforcement procedure?",
+      "success_criteria": "There is a heading for enforcement procedure.",
+      "report_text": "A heading for \"Enforcement procedure\" is not found.",
+      "position": 370,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 38,
     "fields": {
-        "type": "feedback",
-        "label": "Is the heading for enforcement procedure worded correctly?",
-        "success_criteria": "The heading is \"Enforcement procedure\".",
-        "report_text": "The heading for \"Enforcement procedure\" is not worded correctly.",
-        "position": 380,
-        "date_start": null,
-        "date_end": null
+      "type": "feedback",
+      "issue_number": 1,
+      "label": "Is the heading for enforcement procedure worded correctly?",
+      "success_criteria": "The heading is \"Enforcement procedure\".",
+      "report_text": "The heading for \"Enforcement procedure\" is not worded correctly.",
+      "position": 380,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 39,
     "fields": {
-        "type": "feedback",
-        "label": "If GB: does the content mention EHRC?",
-        "success_criteria": "The content mentions EHRC as the enforcement body.",
-        "report_text": "The statement must say that EHRC are responsible for enforcing the regulations.",
-        "position": 390,
-        "date_start": null,
-        "date_end": null
+      "type": "feedback",
+      "issue_number": 1,
+      "label": "If GB: does the content mention EHRC?",
+      "success_criteria": "The content mentions EHRC as the enforcement body.",
+      "report_text": "The statement must say that EHRC are responsible for enforcing the regulations.",
+      "position": 390,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 40,
     "fields": {
-        "type": "feedback",
-        "label": "If NI: does the content mention ECNI?",
-        "success_criteria": "The content mentions ECNI as the enforcement body.",
-        "report_text": "The statement must say that ECNI are responsible for enforcing the regulations.",
-        "position": 400,
-        "date_start": null,
-        "date_end": null
+      "type": "feedback",
+      "issue_number": 1,
+      "label": "If NI: does the content mention ECNI?",
+      "success_criteria": "The content mentions ECNI as the enforcement body.",
+      "report_text": "The statement must say that ECNI are responsible for enforcing the regulations.",
+      "position": 400,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 41,
     "fields": {
-        "type": "feedback",
-        "label": "If GB: is there a link to EASS?",
-        "success_criteria": "There is a line about contacting EASS and this is linked.",
-        "report_text": "There must be a link to the EASS website for complaints.",
-        "position": 410,
-        "date_start": null,
-        "date_end": null
+      "type": "feedback",
+      "issue_number": 1,
+      "label": "If GB: is there a link to EASS?",
+      "success_criteria": "There is a line about contacting EASS and this is linked.",
+      "report_text": "There must be a link to the EASS website for complaints.",
+      "position": 410,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 42,
     "fields": {
-        "type": "feedback",
-        "label": "If NI: is there a link to ECNI?",
-        "success_criteria": "There is a line about contacting ECNI and this is linked.",
-        "report_text": "There must be a link to the ECNI website for complaints.",
-        "position": 420,
-        "date_start": null,
-        "date_end": null
+      "type": "feedback",
+      "issue_number": 1,
+      "label": "If NI: is there a link to ECNI?",
+      "success_criteria": "There is a line about contacting ECNI and this is linked.",
+      "report_text": "There must be a link to the ECNI website for complaints.",
+      "position": 420,
+      "date_start": null,
+      "date_end": null
     }
-},
-{
+  },
+  {
     "model": "audits.statementcheck",
     "pk": 43,
     "fields": {
-        "type": "website",
-        "label": "Does the scope of the accessibility page clearly cover the site being tested?",
-        "success_criteria": "There is an accessibility page or statement reachable from the site being tested, which clearly applies to the site being tested.",
-        "report_text": "An accessibility page or statement was linked to from your website but it was not clear whether your website was included in the scope of that page or statement.",
-        "position": 65,
-        "date_start": null,
-        "date_end": null
+      "type": "website",
+      "issue_number": 1,
+      "label": "Does the scope of the accessibility page clearly cover the site being tested?",
+      "success_criteria": "There is an accessibility page or statement reachable from the site being tested, which clearly applies to the site being tested.",
+      "report_text": "An accessibility page or statement was linked to from your website but it was not clear whether your website was included in the scope of that page or statement.",
+      "position": 65,
+      "date_start": null,
+      "date_end": null
     }
-}
+  }
 ]

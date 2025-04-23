@@ -848,3 +848,24 @@ svg {
     font-size: 15px;
     background-color: govuk-colour("yellow");
 }
+
+
+.amp-copy-text-to-clipboard {
+    color: govuk-colour("blue");
+    cursor: pointer;
+
+    &:focus {
+        background-color: govuk-colour("yellow");
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+        box-shadow: 0 -2px govuk-colour("yellow"), 0 4px govuk-colour("black");
+        outline: 3px solid transparent;
+        text-decoration: none;
+    }
+
+    svg {
+        display: inline;
+        fill: currentColor;
+        height: 1rem;
+    }
+}

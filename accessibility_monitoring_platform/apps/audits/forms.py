@@ -45,6 +45,9 @@ TEST_CHECK_RESULT_STATE_FILTER_CHOICES: list[tuple[str, str]] = (
 RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: list[tuple[str, str]] = (
     CheckResult.RetestResult.choices + [("", "All")]
 )
+COPY_TICK_HELP_TEXT: str = """
+<span class="amp-control amp-copy-text-to-clipboard" data-text-to-copy="✓" tabindex="0">Copy</span>
+    the ✓ and paste next to the fixes the organisation has made"""
 
 
 class AuditMetadataUpdateForm(VersionForm):
@@ -680,7 +683,7 @@ class AuditRetestCheckResultForm(forms.ModelForm):
             }
         ),
     )
-    retest_notes = AMPTextField(label="Notes")
+    retest_notes = AMPTextField(label="Notes", help_text=COPY_TICK_HELP_TEXT)
 
     class Meta:
         model = CheckResult
