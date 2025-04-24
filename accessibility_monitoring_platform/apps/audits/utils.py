@@ -21,6 +21,7 @@ from .forms import CheckResultForm
 from .models import (
     Audit,
     CheckResult,
+    CheckResultHistory,
     Page,
     Retest,
     RetestCheckResult,
@@ -409,3 +410,17 @@ def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, A
     context["number_of_statement_issues"] = statement_check_results.count()
 
     return context
+
+
+def add_to_check_result_restest_notes_history(
+    check_result: CheckResult, request: HttpRequest
+) -> None:
+    """Add latest chenge to CheckResult.retest_notes history"""
+    old_check_result: CheckResult = CheckResult.objects.get(id=check_result.id)
+    if check_result.retest_notes != old_check_result.retest_notes:
+        CheckResultHistory.objects.create(
+            check_result=check_result,
+            user=request.user,
+            retest_notes=check_result.retest_notes,
+            retest_state=check_result.retest_state,
+        )

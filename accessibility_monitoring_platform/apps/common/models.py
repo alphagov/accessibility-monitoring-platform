@@ -176,39 +176,6 @@ class Event(models.Model):
         ordering = ["-created"]
 
 
-class FieldHistory(models.Model):
-    """Model to records history of changes to the contents of a field"""
-
-    class Type(models.TextChoices):
-        CHECK_RESULT_TWELVE_WEEK_RETEST_NOTES = (
-            "checkresult__retest_notes",
-            "12-week retest notes",
-        )
-
-    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
-    object_id = models.PositiveIntegerField()
-    parent = GenericForeignKey("content_type", "object_id")
-    parent_status_label = models.CharField(max_length=250, default="")
-    type = models.CharField(
-        max_length=250,
-        choices=Type.choices,
-        default=Type.CHECK_RESULT_TWELVE_WEEK_RETEST_NOTES,
-    )
-    value = models.TextField(default="", blank=True)
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="field_history_by_user",
-    )
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"#{self.parent} {self.created} {self.created_by}"
-
-    class Meta:
-        ordering = ["-created"]
-
-
 class VersionModel(models.Model):
     """
     Model subclass to add versioning

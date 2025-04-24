@@ -106,7 +106,7 @@
                     {% include 'common/preview_markdown.html' with field_id=form.retest_notes.auto_id %}
                     <div class="govuk-grid-row amp-margin-top-20">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/field_history.html' with history=check_result.retest_notes_history %}
+                            {% include 'audits/helpers/check_result_history.html' %}
                         </div>
                     </div>
                     <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">

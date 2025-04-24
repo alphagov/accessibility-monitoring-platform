@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Case as DjangoCase
 from django.db.models import Max, Q, When
@@ -16,7 +16,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from ..cases.models import Case, CaseCompliance
-from ..common.models import Boolean, FieldHistory, StartEndDateManager, VersionModel
+from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date, calculate_percentage
 
 ISSUE_IDENTIFIER_WCAG: str = "A"
@@ -736,7 +736,6 @@ class CheckResult(models.Model):
     )
     retest_notes = models.TextField(default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
-    field_history = GenericRelation(FieldHistory)
 
     @property
     def dict_for_retest(self) -> dict[str, str]:
@@ -775,13 +774,6 @@ class CheckResult(models.Model):
             self.audit.failed_check_results.filter(wcag_definition=self.wcag_definition)
             .exclude(page=self.page)
             .exclude(retest_notes="")
-        )
-
-    @property
-    def retest_notes_history(self) -> dict[str, str]:
-        """Other check results with retest notes for matching WCAGDefinition"""
-        return self.field_history.filter(
-            type=FieldHistory.Type.CHECK_RESULT_TWELVE_WEEK_RETEST_NOTES
         )
 
 
@@ -1322,3 +1314,23 @@ class StatementPage(models.Model):
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         return self.url or self.backup_url
+
+
+class CheckResultHistory(models.Model):
+    """Model to record history of changes to CheckResult retest_notes"""
+
+    check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
+    retest_notes = models.TextField(default="", blank=True)
+    retest_state = models.CharField(
+        max_length=20,
+        choices=CheckResult.RetestResult.choices,
+        default=CheckResult.RetestResult.NOT_RETESTED,
+    )
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"#{self.check_result} {self.created} {self.created_by}"
+
+    class Meta:
+        ordering = ["-created"]

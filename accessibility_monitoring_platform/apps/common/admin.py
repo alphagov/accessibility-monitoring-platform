@@ -11,7 +11,6 @@ from .models import (
     ChangeToPlatform,
     EmailTemplate,
     Event,
-    FieldHistory,
     FooterLink,
     FrequentlyUsedLink,
     IssueReport,
@@ -101,35 +100,6 @@ class EmailTemplateAdmin(admin.ModelAdmin):
     readonly_fields = [
         "created",
         "updated",
-    ]
-    show_facets = admin.ShowFacets.ALWAYS
-
-
-class FieldHistoryAdmin(admin.ModelAdmin):
-    """Django admin configuration for FieldHistory model"""
-
-    readonly_fields = [
-        "content_type",
-        "object_id",
-        "parent_status_label",
-        "type",
-        "created",
-        "created_by",
-        "value",
-    ]
-    search_fields = ["value", "created_by__username", "object_id"]
-    list_display = [
-        "content_type",
-        "object_id",
-        "type",
-        "created",
-        "created_by",
-        "value",
-    ]
-    list_filter = [
-        "type",
-        ("content_type", admin.RelatedOnlyFieldListFilter),
-        ("created_by", admin.RelatedOnlyFieldListFilter),
     ]
     show_facets = admin.ShowFacets.ALWAYS
 
@@ -224,7 +194,6 @@ class SubCategorysAdmin(admin.ModelAdmin):
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(EmailTemplate, EmailTemplateAdmin)
-admin.site.register(FieldHistory, FieldHistoryAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
 admin.site.register(ChangeToPlatform, ChangeToPlatformAdmin)
