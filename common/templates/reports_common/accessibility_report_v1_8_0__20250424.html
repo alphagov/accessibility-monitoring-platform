@@ -1,0 +1,281 @@
+{% load static %}
+
+<nav aria-label="Table of contents">
+    <h2 id="contents">Contents</h2>
+    <ul class="amp-no-bullet-points">
+        <li><a href="#report-introduction">Introduction</a></li>
+        <li><a href="#report-how-accessible-the-website-is">How accessible the website is</a></li>
+        <li><a href="#report-how-we-checked">How we checked</a></li>
+        <li><a href="#report-pages-we-checked">Pages we checked</a></li>
+        <li><a href="#report-the-issues-we-found">The issues we found</a>
+            <ul class="amp-bullet-points">
+            {% for issues_table in issues_tables %}
+                <li><a href="#{{ issues_table.anchor }}">{{ issues_table.page }}</a></li>
+            {% endfor %}
+            </ul>
+        </li>
+        <li><a href="#report-your-accessibility-statement">Your accessibility statement</a></li>
+        <li><a href="#report-what-to-do-next">What to do next</a></li>
+        <li><a href="#report-enforcement">Enforcement</a></li>
+        <li><a href="#report-contact-and-more-information">Contact and more information</a></li>
+    </ul>
+</nav>
+
+<br />
+<h2 id="report-introduction" class="amp-new-page">Introduction</h2>
+<p>
+    Website accessibility regulations came into force on 23 September 2018.
+    The regulations mean that public sector bodies now have a legal obligation to
+    meet accessibility requirements for their websites.
+</p>
+<p>
+    To check how well the public sector are meeting the requirements, the Government
+    Digital Service has been monitoring a sample of
+    public sector websites.
+</p>
+<p>
+    You’ve been sent this report because
+    {% if audit.case.website_name %}
+        {{ audit.case.website_name }}
+        (<a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>)
+    {% else %}
+        <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>
+    {% endif %}
+    is one of the websites we’ve monitored. This report explains:
+</p>
+<ul>
+    <li>which parts of your website we looked at</li>
+    <li>how we checked the accessibility of those pages</li>
+    <li>the accessibility issues found and how important they are</li>
+    <li>what you need to do next to fix the issues</li>
+</ul>
+<p>
+    You can
+    <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">read more about the web accessibility regulations</a>.
+</p>
+
+<br />
+<h2 id="report-how-accessible-the-website-is" class="amp-new-page">How accessible the website is</h2>
+<p>
+    We checked
+    {% if audit.case.website_name %}
+        {{ audit.case.website_name }}
+        (<a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>)
+    {% else %}
+        <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>
+    {% endif %}
+    on
+    {{ audit.date_of_test|date:"j F Y" }}
+    against the
+    <a href="https://www.w3.org/TR/WCAG22/">Web Content Accessibility Guidelines (WCAG) 2.2 AA</a>
+    standard.
+</p>
+<p>
+    {% if audit.case.compliance.website_compliance_state_initial  == 'not-compliant' %}
+        Based on our testing, this site is not compliant with WCAG 2.2 AA.
+        This means there are some things which would cause significant barriers
+        to users with certain accessibility needs.
+    {% elif audit.case.compliance.website_compliance_state_initial  == 'partially-compliant' %}
+        Based on our testing, this site is partially compliant with WCAG 2.2 AA.
+        This means there are some things which are not fully accessible.
+    {% elif audit.case.compliance.website_compliance_state_initial  == 'compliant' %}
+        Based on our testing, this site is compliant with WCAG 2.2 AA.
+        This means no serious or critical issues were found during our testing.
+        We run basic tests on a small part of your website so we can't say for
+        certain that your entire site will meet the regulations.
+    {% endif %}
+</p>
+
+<br />
+<h2 id="report-how-we-checked" class="amp-new-page">How we checked</h2>
+<p>
+    We use a mixture of simple manual checks and automated tests to find only
+    the most common barriers to users with accessibility needs.
+    We would expect your organisation to fully audit the website to find any
+    other accessibility issues.
+</p>
+<p>
+    Manual checks included using each page without a mouse, viewing the page at
+    different zoom settings, and simulating viewing the page on a small screen.
+</p>
+<p>
+    The automated tests were completed using the latest version of
+    <a href="https://www.deque.com/axe/">Axe</a>.
+</p>
+<p>
+    Tests were completed using different settings in the Google Chrome browser
+    on Mac OSX with a {{ audit.get_screen_size_display }} screen.
+</p>
+
+<br />
+<h2 id="report-pages-we-checked" class="amp-new-page">Pages we checked</h2>
+<table id="urls-table">
+    <caption class="govuk-visually-hidden">Names and URLs of the pages we checked</caption>
+    <thead>
+        <tr>
+            <th id="name">Page Name</th>
+            <th id="url">URL</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for page in audit.testable_pages %}
+            <tr valign="top" >
+                <td headers="name">{{ page }}</td>
+                <td headers="url"><a href="{{ page.url }}">{{ page.url }}</a> {{ page.location }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<br />
+<h2 id="report-the-issues-we-found" class="amp-new-page">The issues we found</h2>
+<p>
+    Only serious accessibility issues on the sample of pages we tested are
+    listed in this report – these will cause problems for users with access
+    needs when using your website. There are likely to be smaller errors which
+    will make things more difficult for some users. You must carry out your own
+    audit to find and fix issues.
+</p>
+
+{% for issues_table in issues_tables %}
+    <br />
+    <h2 id="{{ issues_table.anchor }}" class="amp-new-page">
+        {{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} accessibility issues
+    </h2>
+    <p>
+        <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
+        {{ issues_table.page.location }}
+    </p>
+    {% if issues_table.rows %}
+        <table id="issues-table-{{ forloop.counter }}">
+            <caption class="govuk-visually-hidden">Issues found on page</caption>
+            <thead>
+                <tr>
+                    <th id="issue-{{ issues_table.anchor }}">Issue and description</th>
+                    <th id="where-found-{{ issues_table.anchor }}">Where the issue was found</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in issues_table.rows %}
+                    <tr valign="top">
+                        <td headers="issue-{{ issues_table.anchor }}">{{ row.cell_content_1|markdown_to_html }}</td>
+                        <td headers="where-found-{{ issues_table.anchor }}">{{ row.cell_content_2|markdown_to_html }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>We found no major accessibility issues.</p>
+    {% endif %}
+{% endfor %}
+
+<br />
+<h2 id="report-your-accessibility-statement" class="amp-new-page">Your accessibility statement</h2>
+<p>
+    As part of the regulations you must publish an accessibility statement.
+</p>
+<p>
+{% if audit.failed_statement_check_results %}
+    <table id="statement-check-results">
+        <caption class="govuk-visually-hidden">Issues found on accessibility statement</caption>
+        <thead>
+            <tr>
+                <th id="statement-issues">Issue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for statement_check_result in audit.failed_statement_check_results %}
+                <tr valign="top">
+                    <td headers="statement-issues" class="amp-notes">
+                        <b>Issue {{ statement_check_result.issue_identifier }}</b>
+                        {{ statement_check_result.statement_check.report_text|markdown_to_html }}
+                        {% if statement_check_result.report_comment %}
+                            {{ statement_check_result.report_comment|markdown_to_html }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>
+        An accessibility statement for the website was found in the correct format.
+    </p>
+{% endif %}
+{{ audit.statement_extra_report_text|markdown_to_html }}
+<p>
+    More information about accessibility statements can be found at
+    <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>.
+</p>
+<p>
+    The model statement can be found at
+    <a href="https://www.gov.uk/guidance/model-accessibility-statement">https://www.gov.uk/guidance/model-accessibility-statement</a>.
+</p>
+
+<br />
+<h2 id="report-what-to-do-next" class="amp-new-page">What to do next</h2>
+<p>
+    It is a requirement of The Public Sector Bodies (Websites and Mobile
+    Applications) (No. 2) Accessibility Regulations 2018 that public sector
+    websites are accessible.
+</p>
+<p>
+    You should fix any issues that were found and do your own accessibility
+    audit to check for issues that go beyond the scope of simple accessibility
+    testing.
+</p>
+
+<br />
+<h2 id="report-enforcement" class="amp-new-page">Enforcement</h2>
+<p>
+    On behalf of the Minister for the Cabinet Office we provide the
+    {% if audit.case.enforcement_body == 'ehrc' %}
+        Equality and Human Rights Commission (EHRC)
+    {% else %}
+        Equality Commission for Northern Ireland (ECNI)
+    {% endif %}
+    with details about public sector bodies who have been monitored. If
+    accessibility issues remain after giving you time to fix them, the
+    {% if audit.case.enforcement_body == 'ehrc' %}
+        EHRC
+    {% else %}
+        ECNI
+    {% endif %}
+    may take further action.
+</p>
+<p>
+    Public sector bodies must publish an accessibility statement and review it
+    regularly. If the decision is taken that a public sector body has failed to
+    publish an accessibility statement or that the accessibility statement is
+    incorrect, the Minister for the Cabinet Office may publish the name of the
+    body and a copy of the decision.
+</p>
+<p>
+    The enforcement process can be found at
+    <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced</a>.
+</p>
+
+<br />
+<h2 id="report-contact-and-more-information" class="amp-new-page">Contact and more information</h2>
+<p>
+    This test was conducted by the Government Digital Service on behalf of the
+    Minister of the Cabinet Office as part of their obligations to monitor the
+    accessibility of public sector websites in the United Kingdom.
+</p>
+<p>
+    As the monitoring body we cannot offer specific advice on approaches or
+    general accessibility queries other than questions directly related to the
+    items in this report.
+</p>
+<p>
+    Any questions about this report can be sent to
+    <a href="mailto:accessibility-monitoring@digital.cabinet-office.gov.uk">accessibility-monitoring@digital.cabinet-office.gov.uk</a>.
+</p>
+<p>
+    Further information on guidance and tools for digital accessibility can be found at
+    <a href="https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility">https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility</a>.
+</p>
+<p>
+    Help with accessibility auditing and publishing an accessibility statement can be found at
+    <a href="https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement">https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement</a>.
+</p>
