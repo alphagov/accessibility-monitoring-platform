@@ -420,7 +420,7 @@ def add_to_check_result_restest_notes_history(
     if check_result.retest_notes != old_check_result.retest_notes:
         CheckResultHistory.objects.create(
             check_result=check_result,
-            user=request.user,
+            created_by=request.user,
             retest_notes=check_result.retest_notes,
             retest_state=check_result.retest_state,
         )
