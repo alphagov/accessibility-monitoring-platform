@@ -45,6 +45,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("audits", "0016_checkresulthistory"),
+        ("common", "0001_initial"),
     ]
 
     operations = [
