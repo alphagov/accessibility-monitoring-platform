@@ -19,7 +19,7 @@ from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from .models import ChangeToPlatform, Event, Platform
+from .models import ChangeToPlatform, Event, FieldHistory, Platform
 
 SESSION_EXPIRY_WARNING_WINDOW: timedelta = timedelta(hours=12)
 
@@ -219,6 +219,22 @@ def record_model_create_event(user: User, model_object: models.Model) -> None:
         parent=model_object,
         type=Event.Type.CREATE,
         value=json.dumps(new_model_fields, default=str),
+    )
+
+
+def add_field_update_history_event(
+    user: User,
+    model_object: models.Model,
+    type: FieldHistory.Type,
+    new_value: str,
+    parent_status_label: str,
+) -> None:
+    """Record new value in field update history"""
+    FieldHistory.objects.create(
+        created_by=user,
+        parent=model_object,
+        parent_status_label=parent_status_label,
+        value=new_value,
     )
 
 

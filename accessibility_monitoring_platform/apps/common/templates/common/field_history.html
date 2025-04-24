@@ -1,0 +1,28 @@
+{% if history %}
+    <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+                Update history ({{ history|length }})
+            </span>
+        </summary>
+        <div class="govuk-details__text">
+            {% for event in history %}
+                <p>
+                    <b>
+                        {% if forloop.counter == 1 %}
+                            Last update:
+                        {% endif %}
+                        {{ event.created|amp_date }}
+                        |
+                        {% if event.parent_status_label %}
+                            {{ event.parent_status_label }}
+                        {% else %}
+                            {{ event.created_by.get_full_name }}
+                        {% endif %}
+                    </b>
+                </p>
+                {{ event.value|markdown_to_html }}
+            {% endfor %}
+        </div>
+    </details>
+{% endif %}

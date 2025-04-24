@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Case as DjangoCase
 from django.db.models import Max, Q, When
@@ -15,7 +16,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from ..cases.models import Case, CaseCompliance
-from ..common.models import Boolean, StartEndDateManager, VersionModel
+from ..common.models import Boolean, FieldHistory, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date, calculate_percentage
 
 ISSUE_IDENTIFIER_WCAG: str = "A"
@@ -735,6 +736,7 @@ class CheckResult(models.Model):
     )
     retest_notes = models.TextField(default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
+    field_history = GenericRelation(FieldHistory)
 
     @property
     def dict_for_retest(self) -> dict[str, str]:
@@ -773,6 +775,13 @@ class CheckResult(models.Model):
             self.audit.failed_check_results.filter(wcag_definition=self.wcag_definition)
             .exclude(page=self.page)
             .exclude(retest_notes="")
+        )
+
+    @property
+    def retest_notes_history(self) -> dict[str, str]:
+        """Other check results with retest notes for matching WCAGDefinition"""
+        return self.field_history.filter(
+            type=FieldHistory.Type.CHECK_RESULT_TWELVE_WEEK_RETEST_NOTES
         )
 
 

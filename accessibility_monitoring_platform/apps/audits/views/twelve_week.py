@@ -13,8 +13,13 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ...cases.models import CaseEvent
+from ...common.models import FieldHistory
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
-from ...common.utils import record_model_create_event, record_model_update_event
+from ...common.utils import (
+    add_field_update_history_event,
+    record_model_create_event,
+    record_model_update_event,
+)
 from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditRetestCheckResultForm,
@@ -209,6 +214,17 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
                     )
                     check_result.retest_state = form.cleaned_data["retest_state"]
                     check_result.retest_notes = form.cleaned_data["retest_notes"]
+                    old_check_result: CheckResult = CheckResult.objects.get(
+                        id=check_result.id
+                    )
+                    if check_result.retest_notes != old_check_result.retest_notes:
+                        add_field_update_history_event(
+                            user=self.request.user,
+                            model_object=check_result,
+                            type=FieldHistory.Type.CHECK_RESULT_TWELVE_WEEK_RETEST_NOTES,
+                            new_value=check_result.retest_notes,
+                            parent_status_label=check_result.get_retest_state_display(),
+                        )
                     record_model_update_event(
                         user=self.request.user, model_object=check_result
                     )
