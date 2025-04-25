@@ -8,6 +8,7 @@ from ..common.admin import ExportCsvMixin
 from .models import (
     Audit,
     CheckResult,
+    CheckResultRetestNotesHistory,
     Page,
     Retest,
     RetestCheckResult,
@@ -55,6 +56,20 @@ class CheckResultAdmin(admin.ModelAdmin):
     list_display = ["issue_identifier", "__str__", "audit", "page"]
     list_filter = ["check_result_state"]
     readonly_fields = ["audit"]
+
+
+class CheckResultRetestNotesHistoryAdmin(admin.ModelAdmin):
+    search_fields = [
+        "check_result__issue_identifier",
+        "check_result__audit__case__organisation_name",
+        "check_result__audit__case__case_number",
+        "check_result__wcag_definition__name",
+        "check_result__page__name",
+        "check_result__page__page_type",
+    ]
+    list_display = ["check_result", "created_by", "retest_state", "created"]
+    list_filter = ["created_by", "retest_state"]
+    readonly_fields = ["check_result", "created"]
 
 
 class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):
@@ -217,6 +232,7 @@ class RetestStatementCheckResultAdmin(admin.ModelAdmin):
 admin.site.register(Audit, AuditAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(CheckResult, CheckResultAdmin)
+admin.site.register(CheckResultRetestNotesHistory, CheckResultRetestNotesHistoryAdmin)
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)
 admin.site.register(StatementCheck, StatementCheckAdmin)
 admin.site.register(StatementCheckResult, StatementCheckResultAdmin)

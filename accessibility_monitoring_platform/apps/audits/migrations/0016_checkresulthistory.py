@@ -56,6 +56,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "ordering": ["-created"],
+                "verbose_name_plural": "Check result retest notes histories",
             },
         ),
     ]

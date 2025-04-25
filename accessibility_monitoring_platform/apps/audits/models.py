@@ -777,6 +777,27 @@ class CheckResult(models.Model):
         )
 
 
+class CheckResultRetestNotesHistory(models.Model):
+    """Model to record history of changes to CheckResult retest_notes"""
+
+    check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
+    retest_notes = models.TextField(default="", blank=True)
+    retest_state = models.CharField(
+        max_length=20,
+        choices=CheckResult.RetestResult.choices,
+        default=CheckResult.RetestResult.NOT_RETESTED,
+    )
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"#{self.check_result} {self.created} {self.created_by}"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Check result retest notes histories"
+
+
 class StatementCheck(models.Model):
     """
     Model for accessibilty statement-specific checks
@@ -1314,23 +1335,3 @@ class StatementPage(models.Model):
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         return self.url or self.backup_url
-
-
-class CheckResultRetestNotesHistory(models.Model):
-    """Model to record history of changes to CheckResult retest_notes"""
-
-    check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
-    retest_notes = models.TextField(default="", blank=True)
-    retest_state = models.CharField(
-        max_length=20,
-        choices=CheckResult.RetestResult.choices,
-        default=CheckResult.RetestResult.NOT_RETESTED,
-    )
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"#{self.check_result} {self.created} {self.created_by}"
-
-    class Meta:
-        ordering = ["-created"]

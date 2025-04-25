@@ -12,12 +12,14 @@
                         {% if forloop.counter == 1 %}
                             Current status:
                         {% endif %}
-                        {{ check_result_history_event.created|amp_date }}
+                        {{ check_result_history_event.created|amp_date_trunc }}
                         |
                         {{ check_result_history_event.get_retest_state_display }}
                     </b>
                 </p>
-                {{ check_result_history_event.retest_notes|markdown_to_html }}
+                {% if forloop.counter > 1 %}
+                    {{ check_result_history_event.retest_notes|markdown_to_html }}
+                {% endif %}
             {% endfor %}
         </div>
     </details>
