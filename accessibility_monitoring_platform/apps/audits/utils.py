@@ -21,7 +21,7 @@ from .forms import CheckResultForm
 from .models import (
     Audit,
     CheckResult,
-    CheckResultHistory,
+    CheckResultRetestNotesHistory,
     Page,
     Retest,
     RetestCheckResult,
@@ -416,9 +416,9 @@ def add_to_check_result_restest_notes_history(
     check_result: CheckResult, request: HttpRequest
 ) -> None:
     """Add latest chenge to CheckResult.retest_notes history"""
-    old_check_result: CheckResult = CheckResult.objects.get(id=check_result.id)
-    if check_result.retest_notes != old_check_result.retest_notes:
-        CheckResultHistory.objects.create(
+    previous_check_result: CheckResult = CheckResult.objects.get(id=check_result.id)
+    if check_result.retest_notes != previous_check_result.retest_notes:
+        CheckResultRetestNotesHistory.objects.create(
             check_result=check_result,
             created_by=request.user,
             retest_notes=check_result.retest_notes,

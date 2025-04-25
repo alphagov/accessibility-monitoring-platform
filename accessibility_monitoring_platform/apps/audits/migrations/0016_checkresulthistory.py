@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="CheckResultHistory",
+            name="CheckResultRetestNotesHistory",
             fields=[
                 (
                     "id",

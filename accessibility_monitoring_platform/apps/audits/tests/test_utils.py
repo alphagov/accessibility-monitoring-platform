@@ -18,6 +18,7 @@ from ..forms import CheckResultFormset
 from ..models import (
     Audit,
     CheckResult,
+    CheckResultRetestNotesHistory,
     Page,
     Retest,
     RetestCheckResult,
@@ -28,6 +29,7 @@ from ..models import (
     WcagDefinition,
 )
 from ..utils import (
+    add_to_check_result_restest_notes_history,
     create_checkresults_for_retest,
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
@@ -64,6 +66,8 @@ NUMBER_OF_WCAG_PER_TYPE_OF_PAGE: int = 1
 NUMBER_OF_HTML_PAGES: int = 4
 UPDATED_NOTE: str = "Updated note"
 NEW_CHECK_NOTE: str = "New note"
+OLD_RETEST_NOTES: str = "Old retest notes"
+NEW_RETEST_NOTES: str = "New retest notes"
 EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: list[FieldLabelAndValue] = [
     FieldLabelAndValue(
         value="An accessibility statement for the website was not found.",
@@ -1151,3 +1155,92 @@ def test_index_or_404():
 
     with pytest.raises(Http404):
         index_or_404(items=items, item="d")
+
+
+@pytest.mark.django_db
+def test_check_result_restest_notes_history_changed(rf):
+    """
+    Test add_to_check_result_restest_notes_history creates an entry only if the
+    retest notes have changed.
+    """
+    request: HttpRequest = rf.get("/")
+    request_user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    request.user = request_user
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    WcagDefinition.objects.all().delete()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
+    )
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        type=wcag_definition.type,
+        retest_notes=OLD_RETEST_NOTES,
+    )
+
+    add_to_check_result_restest_notes_history(
+        check_result=check_result, request=request
+    )
+
+    assert CheckResultRetestNotesHistory.objects.all().count() == 0
+
+    check_result.retest_notes = NEW_RETEST_NOTES
+
+    add_to_check_result_restest_notes_history(
+        check_result=check_result, request=request
+    )
+
+    assert CheckResultRetestNotesHistory.objects.all().count() == 1
+
+
+@pytest.mark.django_db
+def test_add_check_result_restest_notes_history(rf):
+    """
+    Test add_to_check_result_restest_notes_history creates an entry with the correct
+    retest notes, retest state and logged in user.
+    """
+    request: HttpRequest = rf.get("/")
+    request_user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    request.user = request_user
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    WcagDefinition.objects.all().delete()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
+    )
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        type=wcag_definition.type,
+        retest_notes=OLD_RETEST_NOTES,
+        retest_state=CheckResult.RetestResult.FIXED,
+    )
+
+    check_result.retest_notes = NEW_RETEST_NOTES
+
+    add_to_check_result_restest_notes_history(
+        check_result=check_result, request=request
+    )
+
+    check_result_retest_notes_history: CheckResultRetestNotesHistory = (
+        CheckResultRetestNotesHistory.objects.get(check_result=check_result)
+    )
+
+    assert check_result_retest_notes_history.retest_notes == NEW_RETEST_NOTES
+    assert (
+        check_result_retest_notes_history.retest_state == CheckResult.RetestResult.FIXED
+    )
+    assert check_result_retest_notes_history.created_by == request_user

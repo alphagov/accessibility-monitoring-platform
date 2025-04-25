@@ -20,6 +20,7 @@ from ...reports.models import Report
 from ..models import (
     Audit,
     CheckResult,
+    CheckResultRetestNotesHistory,
     Page,
     Retest,
     RetestCheckResult,
@@ -90,6 +91,7 @@ STATEMENT_CHECK_INITIAL_COMMENT: str = "Statement check initial comment"
 STATEMENT_CHECK_CUSTOM_COMMENT: str = "Statement check custom comment"
 NEW_12_WEEK_CUSTOM_REPORT_COMMENT: str = "New 12-week custom report comment"
 NEW_12_WEEK_CUSTOM_AUDITOR_NOTES: str = "New 12-week custom auditor notes"
+HISTORIC_RETEST_NOTES: str = "Historic retest notes"
 
 
 def create_audit() -> Audit:
@@ -2047,13 +2049,13 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     check_result_axe: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
-        wcag_definition=wcag_definition_pdf,
+        wcag_definition=wcag_definition_axe,
         check_result_state=CheckResult.Result.ERROR,
     )
     check_result_pdf: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
-        wcag_definition=wcag_definition_axe,
+        wcag_definition=wcag_definition_pdf,
         check_result_state=CheckResult.Result.ERROR,
     )
 
@@ -2112,6 +2114,112 @@ def test_retest_page_checks_edit_saves_results(admin_client):
         events[2].value
         == f'{{"retest_complete_date": "None -> {TODAY}", "retest_page_missing_date": "None -> {TODAY}", "retest_notes": " -> Retest notes"}}'
     )
+
+
+def test_retest_page_checks_edit_adds_to_retest_notes_history(admin_client):
+    """
+    Test retest page checks edit view adds to the retest notes history when the
+    retest notes have changed
+    """
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: dict[str, int] = {"pk": page.id}
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    check_result_axe: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_axe,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    check_result_pdf: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-retest-page-checks", kwargs=page_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "2",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": check_result_axe.id,
+            "form-0-retest_state": CheckResult.RetestResult.FIXED,
+            "form-0-retest_notes": "",
+            "form-1-id": check_result_pdf.id,
+            "form-1-retest_state": CheckResult.RetestResult.NOT_FIXED,
+            "form-1-retest_notes": CHECK_RESULT_NOTES,
+            "retest_complete_date": "on",
+            "retest_page_missing_date": "on",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    assert (
+        CheckResultRetestNotesHistory.objects.filter(
+            check_result=check_result_axe
+        ).count()
+        == 0
+    )
+    assert (
+        CheckResultRetestNotesHistory.objects.filter(
+            check_result=check_result_pdf
+        ).count()
+        == 1
+    )
+
+    check_result_retest_notes_history: CheckResultRetestNotesHistory = (
+        CheckResultRetestNotesHistory.objects.get(check_result=check_result_pdf)
+    )
+
+    assert check_result_retest_notes_history.retest_notes == CHECK_RESULT_NOTES
+    assert (
+        check_result_retest_notes_history.retest_state
+        == CheckResult.RetestResult.NOT_FIXED
+    )
+
+
+def test_retest_page_checks_shows_retest_notes_history(admin_client):
+    """Test retest page checks view shows the retest notes history"""
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: dict[str, int] = {"pk": page.id}
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    user: User = User.objects.create()
+
+    CheckResultRetestNotesHistory.objects.create(
+        check_result=check_result,
+        retest_notes=HISTORIC_RETEST_NOTES,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        created_by=user,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-page-checks", kwargs=page_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, HISTORIC_RETEST_NOTES)
 
 
 def test_retest_pages_shows_location(admin_client):

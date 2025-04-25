@@ -10,7 +10,9 @@ RETEST_STATE_DEFAULT: str = "not-fixed"
 def populate_retest_notes_history(apps, schema_editor):
     Event = apps.get_model("common", "Event")
     CheckResult = apps.get_model("audits", "CheckResult")
-    CheckResultHistory = apps.get_model("audits", "CheckResultHistory")
+    CheckResultRetestNotesHistory = apps.get_model(
+        "audits", "CheckResultRetestNotesHistory"
+    )
     for event in (
         Event.objects.filter(content_type_id=CHECK_RESULT_CONTENT_TYPE_ID)
         .filter(type="model_update")
@@ -27,11 +29,13 @@ def populate_retest_notes_history(apps, schema_editor):
         else:
             retest_state: str = RETEST_STATE_DEFAULT
         check_result = CheckResult.objects.get(id=event.object_id)
-        check_result_history: CheckResultHistory = CheckResultHistory.objects.create(
-            check_result=check_result,
-            retest_state=retest_state,
-            retest_notes=retest_notes,
-            created_by=event.created_by,
+        check_result_history: CheckResultRetestNotesHistory = (
+            CheckResultRetestNotesHistory.objects.create(
+                check_result=check_result,
+                retest_state=retest_state,
+                retest_notes=retest_notes,
+                created_by=event.created_by,
+            )
         )
         check_result_history.created = event.created
         check_result_history.save()

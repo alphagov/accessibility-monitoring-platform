@@ -1316,7 +1316,7 @@ class StatementPage(models.Model):
         return self.url or self.backup_url
 
 
-class CheckResultHistory(models.Model):
+class CheckResultRetestNotesHistory(models.Model):
     """Model to record history of changes to CheckResult retest_notes"""
 
     check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
