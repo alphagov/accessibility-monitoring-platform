@@ -2212,6 +2212,11 @@ def test_retest_page_checks_shows_retest_notes_history(admin_client):
         retest_state=CheckResult.RetestResult.NOT_FIXED,
         created_by=user,
     )
+    CheckResultRetestNotesHistory.objects.create(
+        check_result=check_result,
+        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        created_by=user,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-retest-page-checks", kwargs=page_pk),
