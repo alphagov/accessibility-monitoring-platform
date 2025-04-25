@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' %}
+        </div>
+    </div>
+    {% include 'cases/helpers/breadcrumbs.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" %}
+                {% include 'common/messages.html' %}
+                {% if case.event_set.all %}
+                    <ol class="govuk-list govuk-list--number">
+                    {% for event in case.event_set.all %}
+                        <li>
+                            {{ event.created|amp_datetime }}:
+                            <b>{{ event.created_by.get_full_name }}</b>
+                            {% if event.event_type == 'model_create' %}
+                                created
+                            {% else %}
+                                updated
+                            {% endif %}
+                            <b>{{ event.parent }}</b>
+                            ({{ event.content_type }} #{{ event.object_id }}):<br>
+                            {{ event.difference }}
+                        </li>
+                    {% endfor %}
+                    </ol>
+                {% else %}
+                    <p class="govuk-body">No history found for this case.</p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+{% if not case.archive %}
+    <script src="{% static 'js/cases_search_in_case.js' %}"></script>
+{% endif %}
+{% endblock %}

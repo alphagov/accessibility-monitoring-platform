@@ -22,6 +22,7 @@ from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.email_template_utils import get_email_template_context
+from ..common.mark_deleted_util import get_id_from_button_name
 from ..common.models import EmailTemplate
 from ..common.sitemap import PlatformPage, Sitemap, get_platform_page_by_url_name
 from ..common.utils import (
@@ -29,10 +30,7 @@ from ..common.utils import (
     check_dict_for_truthy_values,
     extract_domain_from_url,
     get_dict_without_page_items,
-    get_id_from_button_name,
     get_url_parameters_for_pagination,
-    record_model_create_event,
-    record_model_update_event,
 )
 from ..common.views import (
     HideCaseNavigationMixin,
@@ -101,6 +99,8 @@ from .utils import (
     filter_cases,
     get_case_detail_sections,
     record_case_event,
+    record_model_create_event,
+    record_model_update_event,
     replace_search_key_with_case_search,
 )
 
@@ -303,7 +303,7 @@ class CaseCreateView(CreateView):
         """Detect the submit button used and act accordingly"""
         case: Case = self.object
         user: User = self.request.user
-        record_model_create_event(user=user, model_object=case)
+        record_model_create_event(user=user, model_object=case, case=case)
         record_case_event(user=user, new_case=case)
         case_pk: dict[str, int] = {"pk": self.object.id}
         if "save_continue_case" in self.request.POST:
@@ -331,7 +331,9 @@ class CaseUpdateView(NextPlatformPageMixin, UpdateView):
         if form.changed_data:
             self.object: Case = form.save(commit=False)
             user: User = self.request.user
-            record_model_update_event(user=user, model_object=self.object)
+            record_model_update_event(
+                user=user, model_object=self.object, case=self.object
+            )
             old_case: Case = Case.objects.get(pk=self.object.id)
             old_status: str = old_case.status
             record_case_event(user=user, new_case=self.object, old_case=old_case)
@@ -434,7 +436,9 @@ class CaseQACommentsUpdateView(CaseUpdateView):
             comment: Comment = Comment.objects.create(
                 case=case, user=self.request.user, body=form.cleaned_data.get("body")
             )
-            record_model_create_event(user=self.request.user, model_object=comment)
+            record_model_create_event(
+                user=self.request.user, model_object=comment, case=case
+            )
             add_comment_notification(self.request, comment)
         return HttpResponseRedirect(self.get_success_url())
 
@@ -461,7 +465,9 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
                         list_description=f"{case} - Report approved",
                         request=self.request,
                     )
-                    record_model_create_event(user=self.request.user, model_object=task)
+                    record_model_create_event(
+                        user=self.request.user, model_object=task, case=case
+                    )
         return super().form_valid(form=form)
 
 
@@ -538,7 +544,9 @@ class ContactUpdateView(UpdateView):
         contact: Contact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
             contact.is_deleted = True
-        record_model_update_event(user=self.request.user, model_object=contact)
+        record_model_update_event(
+            user=self.request.user, model_object=contact, case=contact.case
+        )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -839,7 +847,7 @@ class CaseDeactivateUpdateView(CaseUpdateView):
         case: Case = form.save(commit=False)
         case.is_deactivated = True
         case.deactivate_date = date.today()
-        record_model_update_event(user=self.request.user, model_object=case)
+        record_model_update_event(user=self.request.user, model_object=case, case=case)
         case.save()
         return HttpResponseRedirect(case.get_absolute_url())
 
@@ -856,7 +864,7 @@ class CaseReactivateUpdateView(CaseUpdateView):
         """Process contents of valid form"""
         case: Case = form.save(commit=False)
         case.is_deactivated = False
-        record_model_update_event(user=self.request.user, model_object=case)
+        record_model_update_event(user=self.request.user, model_object=case, case=case)
         case.save()
         return HttpResponseRedirect(case.get_absolute_url())
 
@@ -979,7 +987,9 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
                     EqualityBodyCorrespondence.Status.UNRESOLVED
                 )
             record_model_update_event(
-                user=self.request.user, model_object=equality_body_correspondence
+                user=self.request.user,
+                model_object=equality_body_correspondence,
+                case=equality_body_correspondence.case,
             )
             equality_body_correspondence.save()
         return super().form_valid(form)
@@ -1014,7 +1024,9 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Record creation of object and return to equality body correspondence page"""
-        record_model_create_event(user=self.request.user, model_object=self.object)
+        record_model_create_event(
+            user=self.request.user, model_object=self.object, case=self.object.case
+        )
         if "save_return" in self.request.POST:
             return reverse(
                 "cases:list-equality-body-correspondence",
@@ -1043,7 +1055,9 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
             commit=False
         )
         record_model_update_event(
-            user=self.request.user, model_object=equality_body_correspondence
+            user=self.request.user,
+            model_object=equality_body_correspondence,
+            case=equality_body_correspondence.case,
         )
         equality_body_correspondence.save()
         if "save_return" in self.request.POST:
@@ -1120,7 +1134,9 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
         """Detect the submit button used and act accordingly"""
         zendesk_ticket: ZendeskTicket = self.object
         user: User = self.request.user
-        record_model_create_event(user=user, model_object=zendesk_ticket)
+        record_model_create_event(
+            user=user, model_object=zendesk_ticket, case=zendesk_ticket.case
+        )
         case_pk: dict[str, int] = {"pk": zendesk_ticket.case.id}
         return reverse("cases:zendesk-tickets", kwargs=case_pk)
 
@@ -1140,7 +1156,9 @@ class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
         if form.changed_data:
             zendesk_ticket: ZendeskTicket = form.save(commit=False)
             user: User = self.request.user
-            record_model_update_event(user=user, model_object=zendesk_ticket)
+            record_model_update_event(
+                user=user, model_object=zendesk_ticket, case=zendesk_ticket.case
+            )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -1203,6 +1221,16 @@ class CaseEmailTemplatePreviewDetailView(HideCaseNavigationMixin, DetailView):
             f"common/emails/templates/{self.object.template_name}.html"
         )
         return {**extra_context, **context}
+
+
+class CaseHistoryDetailView(DetailView):
+    """
+    View of details of a single case
+    """
+
+    model: type[Case] = Case
+    context_object_name: str = "case"
+    template_name: str = "cases/case_history.html"
 
 
 def enable_correspondence_process(

@@ -3,6 +3,7 @@ Utility functions for cases app
 """
 
 import copy
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
@@ -11,6 +12,7 @@ from typing import Any
 
 from django import forms
 from django.contrib.auth.models import User
+from django.db import models
 from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
 from django.http.request import QueryDict
@@ -22,8 +24,8 @@ from ..common.form_extract_utils import (
     extract_form_labels_and_values,
 )
 from ..common.sitemap import PlatformPage, Sitemap
-from ..common.utils import build_filters
-from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, Complaint, Sort
+from ..common.utils import build_filters, diff_model_fields
+from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, Event, Sort
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -299,3 +301,39 @@ def create_case_and_compliance(**kwargs):
         case.compliance.save()
         case.save()
     return case
+
+
+def record_model_update_event(
+    user: User, model_object: models.Model, case: Case | None = None
+) -> None:
+    """Record model update event"""
+    previous_object = model_object.__class__.objects.get(pk=model_object.id)
+    previous_object_fields = copy.copy(vars(previous_object))
+    del previous_object_fields["_state"]
+    model_object_fields = copy.copy(vars(model_object))
+    del model_object_fields["_state"]
+    diff_fields: dict[str, Any] = diff_model_fields(
+        old_fields=previous_object_fields, new_fields=model_object_fields
+    )
+    if diff_fields:
+        Event.objects.create(
+            case=case,
+            created_by=user,
+            parent=model_object,
+            difference=json.dumps(diff_fields, default=str),
+        )
+
+
+def record_model_create_event(
+    user: User, model_object: models.Model, case: Case | None = None
+) -> None:
+    """Record model create event"""
+    model_object_fields = copy.copy(vars(model_object))
+    del model_object_fields["_state"]
+    Event.objects.create(
+        case=case,
+        created_by=user,
+        parent=model_object,
+        type=Event.Type.CREATE,
+        difference=json.dumps(model_object_fields, default=str),
+    )

@@ -1327,6 +1327,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Cannot start new retest", url_name="cases:retest-create-error"
             ),
             CasePlatformPage(name="Status workflow", url_name="cases:status-workflow"),
+            CasePlatformPage(name="Case history", url_name="cases:case-history"),
         ],
     ),
     PlatformPageGroup(

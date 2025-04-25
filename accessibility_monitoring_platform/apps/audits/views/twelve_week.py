@@ -13,8 +13,8 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ...cases.models import CaseEvent
+from ...cases.utils import record_model_create_event, record_model_update_event
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
-from ...common.utils import record_model_create_event, record_model_update_event
 from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditRetestCheckResultForm,
@@ -119,7 +119,9 @@ class AuditRetestPagesView(AuditUpdateView):
         if audit_retest_pages_formset.is_valid():
             pages: list[Page] = audit_retest_pages_formset.save(commit=False)
             for page in pages:
-                record_model_update_event(user=self.request.user, model_object=page)
+                record_model_update_event(
+                    user=self.request.user, model_object=page, case=page.audit.case
+                )
                 page.save()
         else:
             return super().form_invalid(form)
@@ -196,7 +198,9 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
                 "retest_page_missing_date"
             ]
             page.retest_notes = form.cleaned_data["retest_notes"]
-            record_model_update_event(user=self.request.user, model_object=page)
+            record_model_update_event(
+                user=self.request.user, model_object=page, case=page.audit.case
+            )
             page.save()
 
         check_results_formset: AuditRetestCheckResultFormset = context[
@@ -214,7 +218,9 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
                         check_result=check_result, request=self.request
                     )
                     record_model_update_event(
-                        user=self.request.user, model_object=check_result
+                        user=self.request.user,
+                        model_object=check_result,
+                        case=check_result.audit.case,
                     )
                     check_result.save()
         else:
@@ -341,7 +347,9 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
                         retest_statement_check_results_form.save(commit=False)
                     )
                     record_model_update_event(
-                        user=self.request.user, model_object=statement_check_result
+                        user=self.request.user,
+                        model_object=statement_check_result,
+                        case=statement_check_result.audit.case,
                     )
                     statement_check_result.save()
             else:
@@ -469,7 +477,11 @@ class AuditRetestInitialCustomIssueUpdateView(UpdateView):
     def form_valid(self, form: AuditRetestStatementInitialCustomIssueUpdateForm):
         """Populate custom issue"""
         custom_issue: StatementCheckResult = form.save(commit=False)
-        record_model_update_event(user=self.request.user, model_object=custom_issue)
+        record_model_update_event(
+            user=self.request.user,
+            model_object=custom_issue,
+            case=custom_issue.audit.case,
+        )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -509,7 +521,11 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
         custom_issue: StatementCheckResult = self.object
-        record_model_create_event(user=self.request.user, model_object=custom_issue)
+        record_model_create_event(
+            user=self.request.user,
+            model_object=custom_issue,
+            case=custom_issue.audit.case,
+        )
         url: str = reverse(
             "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
@@ -531,7 +547,11 @@ class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
     def form_valid(self, form: New12WeekCustomStatementCheckResultUpdateForm):
         """Populate custom issue"""
         custom_issue: StatementCheckResult = form.save(commit=False)
-        record_model_update_event(user=self.request.user, model_object=custom_issue)
+        record_model_update_event(
+            user=self.request.user,
+            model_object=custom_issue,
+            case=custom_issue.audit.case,
+        )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -563,7 +583,9 @@ def delete_new_12_week_custom_issue(request: HttpRequest, pk: int) -> HttpRespon
             StatementCheckResult, id=pk
         )
         custom_issue.is_deleted = True
-        record_model_update_event(user=request.user, model_object=custom_issue)
+        record_model_update_event(
+            user=request.user, model_object=custom_issue, case=custom_issue.audit.case
+        )
         custom_issue.save()
     return redirect(
         reverse(
@@ -623,7 +645,7 @@ def start_retest(
     """
     audit: Audit = get_object_or_404(Audit, id=pk)
     audit.retest_date = date.today()
-    record_model_update_event(user=request.user, model_object=audit)
+    record_model_update_event(user=request.user, model_object=audit, case=audit.case)
     audit.save()
     CaseEvent.objects.create(
         case=audit.case,

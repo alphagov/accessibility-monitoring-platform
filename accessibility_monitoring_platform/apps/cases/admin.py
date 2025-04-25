@@ -12,6 +12,7 @@ from .models import (
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
+    Event,
     ZendeskTicket,
 )
 
@@ -141,6 +142,30 @@ class ZendeskTicketAdmin(admin.ModelAdmin):
     list_filter = ["is_deleted"]
 
 
+class EventAdmin(admin.ModelAdmin):
+    """Django admin configuration for Event model"""
+
+    search_fields = [
+        "case__organisation_name",
+        "case__case_number",
+    ]
+    list_display = [
+        "case",
+        "event_type",
+        "content_type",
+        "created",
+        "created_by",
+        "difference",
+    ]
+    list_filter = [
+        "event_type",
+        ("content_type", admin.RelatedOnlyFieldListFilter),
+        ("created_by", admin.RelatedOnlyFieldListFilter),
+    ]
+    readonly_fields = ["case"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
 admin.site.register(Case, CaseAdmin)
 admin.site.register(CaseStatus, CaseStatusAdmin)
 admin.site.register(CaseCompliance, CaseComplianceAdmin)
@@ -148,3 +173,4 @@ admin.site.register(CaseEvent, CaseEventAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(EqualityBodyCorrespondence, EqualityBodyCorrespondenceAdmin)
 admin.site.register(ZendeskTicket, ZendeskTicketAdmin)
+admin.site.register(Event, EventAdmin)

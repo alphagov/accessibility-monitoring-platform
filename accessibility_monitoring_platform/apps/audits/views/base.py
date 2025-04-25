@@ -14,13 +14,9 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ...cases.models import Case, CaseEvent
-from ...common.utils import (
-    amp_format_date,
-    get_url_parameters_for_pagination,
-    mark_object_as_deleted,
-    record_model_create_event,
-    record_model_update_event,
-)
+from ...cases.utils import record_model_create_event, record_model_update_event
+from ...common.mark_deleted_util import mark_object_as_deleted
+from ...common.utils import amp_format_date, get_url_parameters_for_pagination
 from ...common.views import NextPlatformPageMixin
 from ..forms import (
     StatementCheckCreateUpdateForm,
@@ -63,7 +59,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
             reverse("audits:edit-audit-metadata", kwargs={"pk": case.audit.id})
         )
     audit: Audit = Audit.objects.create(case=case)
-    record_model_create_event(user=request.user, model_object=audit)
+    record_model_create_event(user=request.user, model_object=audit, case=case)
     create_mandatory_pages_for_new_audit(audit=audit)
     create_statement_checks_for_new_audit(audit=audit)
     CaseEvent.objects.create(
@@ -88,7 +84,9 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     """
     page: Page = get_object_or_404(Page, id=pk)
     page.is_deleted = False
-    record_model_update_event(user=request.user, model_object=page)
+    record_model_update_event(
+        user=request.user, model_object=page, case=page.audit.case
+    )
     page.save()
     return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))
 
@@ -105,7 +103,9 @@ class AuditUpdateView(NextPlatformPageMixin, UpdateView):
         """Add event on change of audit"""
         if form.changed_data:
             self.object: Audit = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)
+            record_model_update_event(
+                user=self.request.user, model_object=self.object, case=self.object.case
+            )
             old_audit: Audit = Audit.objects.get(id=self.object.id)
             if old_audit.retest_date != self.object.retest_date:
                 CaseEvent.objects.create(
@@ -202,6 +202,7 @@ class AuditStatementCheckingView(AuditUpdateView):
                 record_model_update_event(
                     user=self.request.user,
                     model_object=statement_check_results_form.instance,
+                    case=statement_check_results_form.instance.audit.case,
                 )
                 statement_check_results_form.save()
         else:
@@ -423,11 +424,15 @@ class StatementPageFormsetUpdateView(AuditUpdateView):
                     statement_page.audit = audit
                     statement_page.save()
                     record_model_create_event(
-                        user=self.request.user, model_object=statement_page
+                        user=self.request.user,
+                        model_object=statement_page,
+                        case=statement_page.audit.case,
                     )
                 else:
                     record_model_update_event(
-                        user=self.request.user, model_object=statement_page
+                        user=self.request.user,
+                        model_object=statement_page,
+                        case=statement_page.audit.case,
                     )
                     statement_page.save()
         else:

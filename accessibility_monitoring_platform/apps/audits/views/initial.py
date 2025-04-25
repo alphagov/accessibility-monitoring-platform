@@ -12,13 +12,10 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 
 from ...cases.models import Case
+from ...cases.utils import record_model_create_event, record_model_update_event
 from ...common.forms import AMPChoiceCheckboxWidget
+from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
-from ...common.utils import (
-    mark_object_as_deleted,
-    record_model_create_event,
-    record_model_update_event,
-)
 from ...common.views import NextPlatformPageMixin
 from ..forms import (
     AuditExtraPageFormset,
@@ -87,7 +84,7 @@ def clear_published_report_data_updated_time(
     """
     audit: Audit = get_object_or_404(Audit, id=pk)
     audit.published_report_data_updated_time = None
-    record_model_update_event(user=request.user, model_object=audit)
+    record_model_update_event(user=request.user, model_object=audit, case=audit.case)
     audit.save()
     redirect_destination: str = request.GET.get(
         "redirect_destination",
@@ -179,9 +176,13 @@ class AuditPagesUpdateView(AuditUpdateView):
                             url=page.url,
                         )
                         record_model_create_event(
-                            user=self.request.user, model_object=statement_page
+                            user=self.request.user,
+                            model_object=statement_page,
+                            case=audit.case,
                         )
-                record_model_update_event(user=self.request.user, model_object=page)
+                record_model_update_event(
+                    user=self.request.user, model_object=page, case=audit.case
+                )
                 page.save()
         else:
             return super().form_invalid(form)
@@ -192,9 +193,13 @@ class AuditPagesUpdateView(AuditUpdateView):
                 if not page.audit_id:
                     page.audit = audit
                     page.save()
-                    record_model_create_event(user=self.request.user, model_object=page)
+                    record_model_create_event(
+                        user=self.request.user, model_object=page, case=audit.case
+                    )
                 else:
-                    record_model_update_event(user=self.request.user, model_object=page)
+                    record_model_update_event(
+                        user=self.request.user, model_object=page, case=audit.case
+                    )
                     page.save()
         else:
             return super().form_invalid(form)
@@ -295,7 +300,9 @@ class AuditPageChecksFormView(NextPlatformPageMixin, FormView):
         if form.changed_data:
             page.complete_date = form.cleaned_data["complete_date"]
             page.no_errors_date = form.cleaned_data["no_errors_date"]
-            record_model_update_event(user=self.request.user, model_object=page)
+            record_model_update_event(
+                user=self.request.user, model_object=page, case=page.audit.case
+            )
             page.save()
 
         check_results_formset: CheckResultFormset = context["check_results_formset"]
@@ -510,7 +517,11 @@ class CustomIssueCreateView(CreateView):
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
         custom_issue: StatementCheckResult = self.object
-        record_model_create_event(user=self.request.user, model_object=custom_issue)
+        record_model_create_event(
+            user=self.request.user,
+            model_object=custom_issue,
+            case=custom_issue.audit.case,
+        )
         url: str = reverse(
             "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
@@ -532,7 +543,11 @@ class InitialCustomIssueUpdateView(UpdateView):
     def form_valid(self, form: InitialCustomIssueCreateUpdateForm):
         """Populate custom issue"""
         custom_issue: StatementCheckResult = form.save(commit=False)
-        record_model_update_event(user=self.request.user, model_object=custom_issue)
+        record_model_update_event(
+            user=self.request.user,
+            model_object=custom_issue,
+            case=custom_issue.audit.case,
+        )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -564,7 +579,9 @@ def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
             StatementCheckResult, id=pk
         )
         custom_issue.is_deleted = True
-        record_model_update_event(user=request.user, model_object=custom_issue)
+        record_model_update_event(
+            user=request.user, model_object=custom_issue, case=custom_issue.audit.case
+        )
         custom_issue.save()
     return redirect(
         reverse("audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id})
