@@ -13,11 +13,11 @@ attrs==25.3.0
     # via
     #   outcome
     #   trio
-boto3==1.37.25
+boto3==1.38.2
     # via
     #   -r requirements.in
     #   moto
-botocore==1.37.25
+botocore==1.38.2
     # via
     #   boto3
     #   moto
@@ -32,7 +32,7 @@ charset-normalizer==3.4.1
     # via requests
 cryptography==44.0.2
     # via moto
-django==5.1.8
+django==5.2
     # via
     #   -r requirements.in
     #   django-axes
@@ -46,19 +46,19 @@ django-axes==7.0.2
     # via -r requirements.in
 django-browser-reload==1.18.0
     # via -r requirements.in
-django-csp==3.8
+django-csp==4.0
     # via -r requirements.in
 django-formtools==2.5.1
     # via django-two-factor-auth
-django-otp==1.5.4
+django-otp==1.6.0
     # via django-two-factor-auth
-django-phonenumber-field==8.0.0
+django-phonenumber-field==8.1.0
     # via django-two-factor-auth
 django-two-factor-auth==1.17.0
     # via -r requirements.in
 docopt==0.6.2
     # via notifications-python-client
-h11==0.14.0
+h11==0.16.0
     # via wsproto
 idna==3.10
     # via
@@ -72,13 +72,13 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-markdown==3.7
+markdown==3.8
     # via -r requirements.in
 markupsafe==3.0.2
     # via
     #   jinja2
     #   werkzeug
-moto==5.1.2
+moto==5.1.4
     # via -r requirements.in
 notifications-python-client==10.0.1
     # via -r requirements.in
@@ -86,11 +86,12 @@ outcome==1.3.0.post0
     # via
     #   trio
     #   trio-websocket
-packaging==24.2
+packaging==25.0
     # via
+    #   django-csp
     #   pytest
     #   webdriver-manager
-phonenumbers==9.0.2
+phonenumbers==9.0.4
     # via -r requirements.in
 pluggy==1.5.0
     # via pytest
@@ -106,7 +107,7 @@ pysocks==1.7.1
     # via urllib3
 pytest==8.3.5
     # via pytest-django
-pytest-django==4.11.0
+pytest-django==4.11.1
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
@@ -128,9 +129,9 @@ requests==2.32.3
     #   webdriver-manager
 responses==0.25.7
     # via moto
-s3transfer==0.11.4
+s3transfer==0.12.0
     # via boto3
-selenium==4.30.0
+selenium==4.31.0
     # via -r requirements.in
 six==1.17.0
     # via python-dateutil
@@ -140,17 +141,17 @@ sortedcontainers==2.4.0
     # via trio
 sqlparse==0.5.3
     # via django
-trio==0.29.0
+trio==0.30.0
     # via
     #   selenium
     #   trio-websocket
 trio-websocket==0.12.2
     # via selenium
-typing-extensions==4.13.0
+typing-extensions==4.13.2
     # via
     #   qrcode
     #   selenium
-urllib3[socks]==2.3.0
+urllib3[socks]==2.4.0
     # via
     #   botocore
     #   requests
