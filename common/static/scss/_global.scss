@@ -849,6 +849,16 @@ svg {
     background-color: govuk-colour("yellow");
 }
 
+.amp-new-window {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==)
+         no-repeat center;
+    width: 1em;
+    height: 1em;
+}
+
+.amp-margin-right-5 {
+    margin-right: 5px;
+}
 
 .amp-copy-text-to-clipboard {
     color: govuk-colour("blue");
