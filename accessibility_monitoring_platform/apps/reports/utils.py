@@ -16,9 +16,10 @@ from ..s3_read_write.models import S3Report
 from ..s3_read_write.utils import S3ReadWriteReport
 from .models import Report
 
-WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% endif %}{% if wcag_definition.description and wcag_definition.type != 'manual' %}{{ wcag_definition.description|safe }}.{% endif %}
+WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """**Issue {{ check_result.issue_identifier }}**
 
-[{{ check_result.issue_identifier }}]
+{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% endif %}{% if wcag_definition.description and wcag_definition.type != 'manual' %}{{ wcag_definition.description|safe }}.{% endif %}
+
 {% if first_use_of_wcag_definition %}
 {{ wcag_definition.report_boilerplate|safe }}
 {% endif %}"""
