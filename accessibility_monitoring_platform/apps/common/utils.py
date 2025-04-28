@@ -269,17 +269,6 @@ def get_first_of_this_month_last_year() -> datetime:
     return datetime(now.year - 1, now.month, 1, tzinfo=datetime_timezone.utc)
 
 
-def get_one_year_ago():
-    """Calculate and return timestamp of midnight one year ago"""
-    today: date = date.today()
-    if today.month == 2 and today.day == 29:
-        today -= timedelta(days=1)
-    one_year_ago: datetime = datetime(
-        today.year - 1, today.month, today.day, 0, 0, tzinfo=datetime_timezone.utc
-    )
-    return one_year_ago
-
-
 def replace_whole_words(old_word: str, replacement: str, string: str):
     """Replace whole word matches of old_word with replacement in string"""
     return re.sub(r"\b" + old_word + r"\b", replacement, string)

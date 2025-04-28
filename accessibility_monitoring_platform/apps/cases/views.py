@@ -93,6 +93,7 @@ from .models import (
     Case,
     Contact,
     EqualityBodyCorrespondence,
+    EventHistory,
     ZendeskTicket,
 )
 from .utils import (
@@ -1231,6 +1232,16 @@ class CaseHistoryDetailView(DetailView):
     model: type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/case_history.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add current case to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+        event_history: EventHistory = EventHistory.objects.filter(
+            case=case
+        ).prefetch_related("parent")
+        context["event_history"] = event_history
+        return context
 
 
 def enable_correspondence_process(

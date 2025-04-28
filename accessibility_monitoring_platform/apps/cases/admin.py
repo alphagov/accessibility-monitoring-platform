@@ -12,7 +12,7 @@ from .models import (
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
-    Event,
+    EventHistory,
     ZendeskTicket,
 )
 
@@ -173,4 +173,4 @@ admin.site.register(CaseEvent, CaseEventAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(EqualityBodyCorrespondence, EqualityBodyCorrespondenceAdmin)
 admin.site.register(ZendeskTicket, ZendeskTicketAdmin)
-admin.site.register(Event, EventAdmin)
+admin.site.register(EventHistory, EventAdmin)

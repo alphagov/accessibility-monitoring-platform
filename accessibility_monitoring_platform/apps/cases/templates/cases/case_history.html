@@ -17,9 +17,9 @@
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" %}
                 {% include 'common/messages.html' %}
-                {% if case.event_set.all %}
+                {% if event_history %}
                     <ol class="govuk-list govuk-list--number">
-                    {% for event in case.event_set.all %}
+                    {% for event in event_history %}
                         <li>
                             {{ event.created|amp_datetime }}:
                             <b>{{ event.created_by.get_full_name }}</b>

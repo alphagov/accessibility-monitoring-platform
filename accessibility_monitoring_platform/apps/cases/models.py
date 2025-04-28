@@ -1491,7 +1491,7 @@ class ZendeskTicket(models.Model):
         super().save(*args, **kwargs)
 
 
-class Event(models.Model):
+class EventHistory(models.Model):
     """Model to record events on platform"""
 
     class Type(models.TextChoices):

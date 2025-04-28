@@ -25,7 +25,7 @@ from ..common.form_extract_utils import (
 )
 from ..common.sitemap import PlatformPage, Sitemap
 from ..common.utils import build_filters, diff_model_fields
-from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, Event, Sort
+from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, EventHistory, Sort
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -316,7 +316,7 @@ def record_model_update_event(
         old_fields=previous_object_fields, new_fields=model_object_fields
     )
     if diff_fields:
-        Event.objects.create(
+        EventHistory.objects.create(
             case=case,
             created_by=user,
             parent=model_object,
@@ -330,10 +330,10 @@ def record_model_create_event(
     """Record model create event"""
     model_object_fields = copy.copy(vars(model_object))
     del model_object_fields["_state"]
-    Event.objects.create(
+    EventHistory.objects.create(
         case=case,
         created_by=user,
         parent=model_object,
-        type=Event.Type.CREATE,
+        event_type=EventHistory.Type.CREATE,
         difference=json.dumps(model_object_fields, default=str),
     )

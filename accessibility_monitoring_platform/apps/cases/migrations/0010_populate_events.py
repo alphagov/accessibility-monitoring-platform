@@ -5,7 +5,7 @@ from django.db import migrations
 
 def populate_events(apps, schema_editor):
     CommonEvent = apps.get_model("common", "Event")
-    CasesEvent = apps.get_model("cases", "Event")
+    EventHistory = apps.get_model("cases", "EventHistory")
     Contact = apps.get_model("cases", "Contact")
     Audit = apps.get_model("audits", "Audit")
     Page = apps.get_model("audits", "Page")
@@ -97,7 +97,7 @@ def populate_events(apps, schema_editor):
             if task is not None:
                 case_id: int | None = task.case_id
 
-        case_event: CasesEvent = CasesEvent.objects.create(
+        event_history: EventHistory = EventHistory.objects.create(
             case_id=case_id,
             content_type_id=common_event.content_type_id,
             object_id=common_event.object_id,
@@ -105,8 +105,8 @@ def populate_events(apps, schema_editor):
             difference=common_event.value,
             created_by=common_event.created_by,
         )
-        case_event.created = common_event.created
-        case_event.save()
+        event_history.created = common_event.created
+        event_history.save()
 
         counter += 1
         if counter % 1000 == 0:
@@ -114,8 +114,8 @@ def populate_events(apps, schema_editor):
 
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
-    CasesEvent = apps.get_model("cases", "Event")
-    CasesEvent.objects.all().delete()
+    EventHistory = apps.get_model("cases", "Event")
+    EventHistory.objects.all().delete()
 
 
 class Migration(migrations.Migration):

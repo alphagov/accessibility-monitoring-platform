@@ -14,7 +14,7 @@ from django.http.request import QueryDict
 
 from ...audits.models import Audit
 from ...common.models import Boolean, Sector, SubCategory
-from ..models import Case, CaseCompliance, CaseEvent, Event
+from ..models import Case, CaseCompliance, CaseEvent, EventHistory
 from ..utils import (
     build_edit_link_html,
     create_case_and_compliance,
@@ -447,18 +447,20 @@ def test_record_model_create_event():
     record_model_create_event(user=user, model_object=user)
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
-    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
+    event: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=user.id
+    )
 
-    assert event.type == Event.Type.CREATE
+    assert event.event_type == EventHistory.Type.CREATE
 
-    value_dict: dict[str, Any] = json.loads(event.value)
+    difference_dict: dict[str, Any] = json.loads(event.difference)
 
-    assert "last_login" in value_dict
-    assert value_dict["last_login"] is None
-    assert "is_active" in value_dict
-    assert value_dict["is_active"] is True
-    assert "is_staff" in value_dict
-    assert value_dict["is_staff"] is False
+    assert "last_login" in difference_dict
+    assert difference_dict["last_login"] is None
+    assert "is_active" in difference_dict
+    assert difference_dict["is_active"] is True
+    assert "is_staff" in difference_dict
+    assert difference_dict["is_staff"] is False
 
 
 @pytest.mark.django_db
@@ -469,7 +471,9 @@ def test_record_model_update_event():
     record_model_update_event(user=user, model_object=user)
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
-    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
+    event: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=user.id
+    )
 
-    assert event.type == Event.Type.UPDATE
-    assert event.value == '{"first_name": " -> Changed"}'
+    assert event.event_type == EventHistory.Type.UPDATE
+    assert event.difference == '{"first_name": " -> Changed"}'

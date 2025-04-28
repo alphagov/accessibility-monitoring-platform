@@ -1,11 +1,11 @@
-""" Tests - test for comments model """
+"""Tests - test for comments model"""
 
 import pytest
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 
-from ...cases.models import Case
-from ...common.models import Event, Platform
+from ...cases.models import Case, EventHistory
+from ...common.models import Platform
 from ...common.utils import get_platform_settings
 from ...notifications.models import Task
 from ..models import Comment
@@ -56,9 +56,9 @@ def test_add_comment_notification(rf):
         == "Second User left a message in discussion:\n\nthis is a comment by a second user"
     )
 
-    event: Event = Event.objects.all().first()
+    event_history: EventHistory = EventHistory.objects.all().first()
 
-    assert event is not None
+    assert event_history is not None
 
 
 @pytest.mark.django_db

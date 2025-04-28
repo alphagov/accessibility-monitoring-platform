@@ -36,7 +36,6 @@ from ..utils import (
     get_days_ago_timestamp,
     get_dict_without_page_items,
     get_first_of_this_month_last_year,
-    get_one_year_ago,
     get_platform_settings,
     get_recent_changes_to_platform,
     get_url_parameters_for_pagination,
@@ -519,26 +518,6 @@ def test_get_first_of_this_month_last_year(now, expected_result):
     ) as mock_timezone:
         mock_timezone.now.return_value = now
         assert get_first_of_this_month_last_year() == expected_result
-
-
-@pytest.mark.parametrize(
-    "today, expected_result",
-    [
-        (
-            date(2023, 8, 25),
-            datetime(2022, 8, 25, 0, 0, tzinfo=datetime_timezone.utc),
-        ),
-        (
-            date(2022, 1, 2),
-            datetime(2021, 1, 2, 0, 0, tzinfo=datetime_timezone.utc),
-        ),
-    ],
-)
-def test_get_one_year_ago(today, expected_result):
-    """Test midnight one year ago is calculated"""
-    with patch("accessibility_monitoring_platform.apps.common.utils.date") as mock_date:
-        mock_date.today.return_value = today
-        assert get_one_year_ago() == expected_result
 
 
 def test_session_expiry():
