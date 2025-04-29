@@ -33,15 +33,15 @@
                 {% include "cases/helpers/edit_header.html" %}
                 {% endblock %}
                 {% block controls %}
-                {% if amp_show_go_back %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <p class="govuk-body-m">
-                                {% include "common/amp_control_go_back.html" %}
-                            </p>
+                    {% if amp_show_go_back %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <p class="govuk-body-m">
+                                    {% include "common/amp_control_go_back.html" %}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                {% endif %}
+                    {% endif %}
                 {% endblock %}
                 {% include 'common/error_summary.html' %}
                 {% block preform %}{% endblock %}
