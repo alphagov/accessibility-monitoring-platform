@@ -1327,7 +1327,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Cannot start new retest", url_name="cases:retest-create-error"
             ),
             CasePlatformPage(name="Status workflow", url_name="cases:status-workflow"),
-            CasePlatformPage(name="Case history", url_name="cases:case-history"),
         ],
     ),
     PlatformPageGroup(
@@ -1451,12 +1450,18 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="More information about monitoring",
                 url_name="common:more-information",
             ),
+        ],
+    ),
+    PlatformPageGroup(
+        name="Tech team",
+        pages=[
+            CasePlatformPage(name="Case history", url_name="cases:case-history"),
             PlatformPage(name="Issue reports", url_name="common:issue-reports-list"),
-            PlatformPage(name="Tools and sitemap", url_name="common:platform-checking"),
             PlatformPage(
                 name="Reference implementations",
                 url_name="common:reference-implementation",
             ),
+            PlatformPage(name="Tools and sitemap", url_name="common:platform-checking"),
         ],
     ),
 ]
