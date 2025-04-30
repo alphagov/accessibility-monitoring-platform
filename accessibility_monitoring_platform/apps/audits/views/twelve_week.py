@@ -59,10 +59,10 @@ from ..utils import (
 )
 from .base import (
     AuditCaseComplianceUpdateView,
+    AuditPageChecksBaseFormView,
     AuditUpdateView,
     StatementPageFormsetUpdateView,
 )
-from .initial import AuditPageChecksFormView
 
 
 class AuditRetestMetadataUpdateView(AuditUpdateView):
@@ -127,14 +127,13 @@ class AuditRetestPagesView(AuditUpdateView):
         return super().form_valid(form)
 
 
-class AuditRetestPageChecksFormView(AuditPageChecksFormView):
+class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
     """
     View to retest check results for a page
     """
 
     form_class: type[AuditRetestPageChecksForm] = AuditRetestPageChecksForm
     template_name: str = "audits/forms/twelve_week_retest_page_checks.html"
-    page: Page
 
     def get_next_platform_page(self):
         page: Page = self.page
@@ -211,7 +210,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
                     check_result.retest_state = form.cleaned_data["retest_state"]
                     check_result.retest_notes = form.cleaned_data["retest_notes"]
                     add_to_check_result_restest_notes_history(
-                        check_result=check_result, request=self.request
+                        check_result=check_result, user=self.request.user
                     )
                     record_model_update_event(
                         user=self.request.user, model_object=check_result

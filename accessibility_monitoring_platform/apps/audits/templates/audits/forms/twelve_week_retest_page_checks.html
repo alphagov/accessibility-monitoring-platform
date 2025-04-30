@@ -73,8 +73,9 @@
             >
                 <div class="govuk-grid-column-full">
                     <hr class="amp-width-100 amp-margin-bottom-30">
-                    <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b> [{{ check_result.issue_identifier }}]</label>
-                    <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
+                    <p class="govuk-heading-s"><b>{{ check_result.wcag_definition }}</b> [{{ check_result.issue_identifier }}]</p>
+                    <p class="govuk-heading-s amp-margin-bottom-5"><b>Error details for report</b></p>
+                    <div class="amp-nav-details__text amp-markdown">{{ check_result.notes|markdown_to_html }}</div>
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {% include 'common/amp_field.html' with field=form.retest_state %}
                     {% if check_result.matching_wcag_with_retest_notes_check_results %}
@@ -104,11 +105,7 @@
                     {% endif %}
                     {% include 'common/amp_field.html' with field=form.retest_notes %}
                     {% include 'common/preview_markdown.html' with field_id=form.retest_notes.auto_id %}
-                    <div class="govuk-grid-row amp-margin-top-20">
-                        <div class="govuk-grid-column-full">
-                            {% include 'audits/helpers/check_result_history.html' %}
-                        </div>
-                    </div>
+                    {% include 'audits/helpers/check_result_retest_notes_history.html' %}
                     <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'common/back_to_top.html' %}

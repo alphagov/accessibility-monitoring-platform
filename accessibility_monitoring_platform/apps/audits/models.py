@@ -777,6 +777,27 @@ class CheckResult(models.Model):
         )
 
 
+class CheckResultNotesHistory(models.Model):
+    """Model to record history of changes to CheckResult notes"""
+
+    check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
+    notes = models.TextField(default="", blank=True)
+    check_result_state = models.CharField(
+        max_length=20,
+        choices=CheckResult.Result.choices,
+        default=CheckResult.Result.NOT_TESTED,
+    )
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"#{self.check_result} {self.created} {self.created_by}"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Check result notes histories"
+
+
 class CheckResultRetestNotesHistory(models.Model):
     """Model to record history of changes to CheckResult retest_notes"""
 

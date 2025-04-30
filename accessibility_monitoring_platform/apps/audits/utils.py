@@ -21,6 +21,7 @@ from .forms import CheckResultForm
 from .models import (
     Audit,
     CheckResult,
+    CheckResultNotesHistory,
     CheckResultRetestNotesHistory,
     Page,
     Retest,
@@ -99,6 +100,7 @@ def create_or_update_check_results_for_page(
                 check_result.check_result_state = check_result_state
                 check_result.notes = notes
                 record_model_update_event(user=user, model_object=check_result)
+                add_to_check_result_notes_history(check_result=check_result, user=user)
                 report_data_updated(audit=check_result.audit)
                 check_result.save()
         elif notes != "" or check_result_state != CheckResult.Result.NOT_TESTED:
@@ -110,13 +112,16 @@ def create_or_update_check_results_for_page(
                 check_result_state=check_result_state,
                 notes=notes,
             )
+            add_to_check_result_notes_history(
+                check_result=check_result, user=user, new_check_result=True
+            )
             record_model_create_event(user=user, model_object=check_result)
             report_data_updated(audit=page.audit)
 
 
 def get_all_possible_check_results_for_page(
     page: Page, wcag_definitions: list[WcagDefinition]
-) -> list[dict[str, str | WcagDefinition]]:
+) -> list[dict[str, str | WcagDefinition | CheckResult]]:
     """
     Combine existing check result with all the WCAG definitions
     to create a list of dictionaries for use in populating the
@@ -125,7 +130,9 @@ def get_all_possible_check_results_for_page(
     check_results_by_wcag_definition: dict[WcagDefinition, CheckResult] = (
         page.check_results_by_wcag_definition
     )
-    check_results: list[dict[str, str | WcagDefinition]] = []
+    check_results_formset_initial: list[
+        dict[str, str | WcagDefinition | CheckResult]
+    ] = []
 
     for wcag_definition in wcag_definitions:
         if wcag_definition in check_results_by_wcag_definition:
@@ -139,15 +146,17 @@ def get_all_possible_check_results_for_page(
             check_result_state: str = CheckResult.Result.NOT_TESTED
             notes: str = ""
             issue_identifier: str = ""
-        check_results.append(
+            check_result: None = None
+        check_results_formset_initial.append(
             {
                 "wcag_definition": wcag_definition,
                 "check_result_state": check_result_state,
                 "notes": notes,
                 "issue_identifier": issue_identifier,
+                "check_result": check_result,
             }
         )
-    return check_results
+    return check_results_formset_initial
 
 
 def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
@@ -412,15 +421,39 @@ def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, A
     return context
 
 
-def add_to_check_result_restest_notes_history(
-    check_result: CheckResult, request: HttpRequest
+def add_to_check_result_notes_history(
+    check_result: CheckResult, user: User, new_check_result: bool = False
 ) -> None:
-    """Add latest chenge to CheckResult.retest_notes history"""
+    """Add latest change to CheckResult.notes history"""
+    if new_check_result is True:
+        previous_check_result: None = None
+    else:
+        previous_check_result: CheckResult | None = (
+            CheckResult.objects.filter(id=check_result.id).first()
+            if check_result.id is not None
+            else None
+        )
+    if (
+        previous_check_result is None
+        or check_result.notes != previous_check_result.notes
+    ):
+        CheckResultNotesHistory.objects.create(
+            check_result=check_result,
+            created_by=user,
+            notes=check_result.notes,
+            check_result_state=check_result.check_result_state,
+        )
+
+
+def add_to_check_result_restest_notes_history(
+    check_result: CheckResult, user: User
+) -> None:
+    """Add latest change to CheckResult.retest_notes history"""
     previous_check_result: CheckResult = CheckResult.objects.get(id=check_result.id)
     if check_result.retest_notes != previous_check_result.retest_notes:
         CheckResultRetestNotesHistory.objects.create(
             check_result=check_result,
-            created_by=request.user,
+            created_by=user,
             retest_notes=check_result.retest_notes,
             retest_state=check_result.retest_state,
         )

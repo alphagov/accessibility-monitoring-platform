@@ -683,7 +683,9 @@ class AuditRetestCheckResultForm(forms.ModelForm):
             }
         ),
     )
-    retest_notes = AMPTextField(label="Notes", help_text=COPY_TICK_HELP_TEXT)
+    retest_notes = AMPTextField(
+        label="Error details for correspondence", help_text=COPY_TICK_HELP_TEXT
+    )
 
     class Meta:
         model = CheckResult

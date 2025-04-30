@@ -42,10 +42,10 @@
     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
     {{ check_results_formset.management_form }}
-    {% for wcag_definition, form, matching_issues in definitions_forms_errors %}
+    {% for form, matching_issues in forms_and_matching_issues %}
         <div class="govuk-grid-row" {% if form.initial.issue_identifier %}id="{{ form.initial.issue_identifier }}"{% endif %}
-            data-check-type="{{ wcag_definition.type }}"
-            data-filter-string="{{ wcag_definition }} {{ wcag_definition.hint }} {{ form.initial.issue_identifier }}"
+            data-check-type="{{ form.initial.wcag_definition.type }}"
+            data-filter-string="{{ form.initial.wcag_definition }} {{ form.initial.wcag_definition.hint }} {{ form.initial.issue_identifier }}"
         >
             <div class="govuk-grid-column-full">
                 <hr class="amp-width-100 amp-margin-bottom-30">
@@ -83,8 +83,8 @@
                         <div id="content-guidance-{{ form.notes.auto_id }}" class="amp-content-guidance govuk-body"></div>
                     </div>
                 </div>
-                
                 {% include 'common/preview_markdown.html' with field_id=form.notes.auto_id %}
+                {% include 'audits/helpers/check_result_initial_notes_history.html' with check_result=form.initial.check_result %}
                 <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
                     <div class="govuk-grid-column-full govuk-button-group">
                         {% include 'common/back_to_top.html' %}
