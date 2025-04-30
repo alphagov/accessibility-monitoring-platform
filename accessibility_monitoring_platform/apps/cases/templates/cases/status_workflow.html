@@ -75,7 +75,18 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-5">Test in progress {% if case.compliance.website_compliance_state_initial != 'not-known' %} [COMPLETE] {% endif %}</h2>
+<h2 class="govuk-heading-s amp-margin-bottom-5">
+    Test in progress
+    {% if case.audit %}
+        {% if case.compliance.website_compliance_state_initial != 'not-known' and not case.statement_checks_still_initial and case.compliance.statement_compliance_state_initial != 'unknown'  %} 
+            [COMPLETE] 
+        {% endif %}
+    {% else %}
+        {% if case.compliance.website_compliance_state_initial != 'not-known' and case.compliance.statement_compliance_state_initial != 'unknown' %} 
+            [COMPLETE]
+        {% endif %}
+    {% endif %}
+</h2>
 <ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
