@@ -3,10 +3,10 @@ import ast
 import json
 
 from django.db import migrations
+from django.db.models import Q
 
 CHECK_RESULT_CONTENT_TYPE_ID: int = 51
 UPDATE_SEPARATOR: str = " -> "
-STATE_DEFAULT: str = "error"
 RETEST_STATE_DEFAULT: str = "not-fixed"
 
 
@@ -20,30 +20,23 @@ def populate_retest_notes_history(apps, schema_editor):
     count: int = 0
     for event in (
         Event.objects.filter(content_type_id=CHECK_RESULT_CONTENT_TYPE_ID)
-        .filter(value__contains='"notes"')
+        .filter(Q(value__contains='"notes"') | Q(value__contains="'notes'"))
         .order_by("created")
     ):
-        # import pdb
-
-        # pdb.set_trace()
-        value_dict: dict[str, str] = json.loads(event.value)
+        try:
+            value_dict: dict[str, str] = json.loads(event.value)
+        except json.decoder.JSONDecodeError:
+            value_dict: dict[str, str] = ast.literal_eval(event.value)
         if "notes" in value_dict:
             notes = value_dict["notes"]
             if UPDATE_SEPARATOR in notes:
                 _, notes = notes.split(UPDATE_SEPARATOR)
         else:
             continue
-        if "check_result_state" in value_dict:
-            check_result_state = value_dict["check_result_state"]
-            if UPDATE_SEPARATOR in check_result_state:
-                _, check_result_state = check_result_state.split(UPDATE_SEPARATOR)
-        else:
-            check_result_state: str = STATE_DEFAULT
         check_result = CheckResult.objects.get(id=event.object_id)
         check_result_history: CheckResultNotesHistory = (
             CheckResultNotesHistory.objects.create(
                 check_result=check_result,
-                check_result_state=check_result_state,
                 notes=notes,
                 created_by=event.created_by,
             )
@@ -86,6 +79,12 @@ def populate_retest_notes_history(apps, schema_editor):
 
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
+    CheckResultNotesHistory = apps.get_model("audits", "CheckResultNotesHistory")
+    CheckResultRetestNotesHistory = apps.get_model(
+        "audits", "CheckResultRetestNotesHistory"
+    )
+    CheckResultNotesHistory.objects.all().delete()
+    CheckResultRetestNotesHistory.objects.all().delete()
     pass
 
 

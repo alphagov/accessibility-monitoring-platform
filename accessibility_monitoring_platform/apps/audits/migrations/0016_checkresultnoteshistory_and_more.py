@@ -26,18 +26,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("notes", models.TextField(blank=True, default="")),
-                (
-                    "check_result_state",
-                    models.CharField(
-                        choices=[
-                            ("error", "Error found"),
-                            ("no-error", "No issue"),
-                            ("not-tested", "Not tested"),
-                        ],
-                        default="not-tested",
-                        max_length=20,
-                    ),
-                ),
                 ("created", models.DateTimeField(auto_now_add=True)),
                 (
                     "check_result",

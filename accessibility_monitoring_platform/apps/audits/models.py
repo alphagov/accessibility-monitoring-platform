@@ -782,11 +782,6 @@ class CheckResultNotesHistory(models.Model):
 
     check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
     notes = models.TextField(default="", blank=True)
-    check_result_state = models.CharField(
-        max_length=20,
-        choices=CheckResult.Result.choices,
-        default=CheckResult.Result.NOT_TESTED,
-    )
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
 

@@ -20,6 +20,7 @@ from ...reports.models import Report
 from ..models import (
     Audit,
     CheckResult,
+    CheckResultNotesHistory,
     CheckResultRetestNotesHistory,
     Page,
     Retest,
@@ -92,6 +93,7 @@ STATEMENT_CHECK_CUSTOM_COMMENT: str = "Statement check custom comment"
 NEW_12_WEEK_CUSTOM_REPORT_COMMENT: str = "New 12-week custom report comment"
 NEW_12_WEEK_CUSTOM_AUDITOR_NOTES: str = "New 12-week custom auditor notes"
 HISTORIC_RETEST_NOTES: str = "Historic retest notes"
+HISTORIC_CHECK_RESULT_NOTES: str = "Historic check result notes"
 
 
 def create_audit() -> Audit:
@@ -1530,6 +1532,106 @@ def test_page_checks_edit_page_loads(admin_client):
     assertContains(response, "Showing 2 errors")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
+
+
+def test_page_checks_edit_adds_to_notes_history(admin_client):
+    """
+    Test page checks edit view adds to the notes history when the notes have changed
+    """
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: dict[str, int] = {"pk": page.id}
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE
+    )
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    check_result_axe: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_axe,
+    )
+    check_result_pdf: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "2",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": check_result_axe.id,
+            "form-0-wcag_definition": check_result_axe.wcag_definition.id,
+            "form-0-check_result_state": CheckResult.Result.ERROR,
+            "form-0-notes": "",
+            "form-1-id": check_result_pdf.id,
+            "form-1-wcag_definition": check_result_pdf.wcag_definition.id,
+            "form-1-check_result_state": CheckResult.Result.ERROR,
+            "form-1-notes": CHECK_RESULT_NOTES,
+            "complete_date": "on",
+            "no_errors_date": "off",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    assert (
+        CheckResultNotesHistory.objects.filter(check_result=check_result_axe).count()
+        == 0
+    )
+    assert (
+        CheckResultNotesHistory.objects.filter(check_result=check_result_pdf).count()
+        == 1
+    )
+
+    check_result_notes_history: CheckResultNotesHistory = (
+        CheckResultNotesHistory.objects.get(check_result=check_result_pdf)
+    )
+
+    assert check_result_notes_history.notes == CHECK_RESULT_NOTES
+
+
+def test_page_checks_shows_notes_history(admin_client):
+    """Test page checks view shows the notes history"""
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: dict[str, int] = {"pk": page.id}
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.PDF
+    )
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    user: User = User.objects.create()
+
+    CheckResultNotesHistory.objects.create(
+        check_result=check_result,
+        notes=HISTORIC_CHECK_RESULT_NOTES,
+        created_by=user,
+    )
+    CheckResultNotesHistory.objects.create(
+        check_result=check_result,
+        created_by=user,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, HISTORIC_CHECK_RESULT_NOTES)
 
 
 def test_page_checks_edit_page_shows_location(admin_client):

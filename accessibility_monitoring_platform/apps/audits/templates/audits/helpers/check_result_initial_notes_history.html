@@ -15,10 +15,6 @@
                                     Issue last updated
                                 {% endif %}
                                 {{ check_result_history_event.created|amp_date_trunc }}
-                                {% if forloop.counter > 1 %}
-                                    |
-                                    {{ check_result_history_event.get_check_result_state_display }}
-                                {% endif %}
                             </b>
                         </p>
                         {% if forloop.counter > 1 %}

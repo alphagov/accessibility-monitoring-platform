@@ -67,7 +67,7 @@
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
         {{ check_results_formset.management_form }}
         {% for check_result, form in check_results_and_forms %}
-            <div class="govuk-grid-row"
+            <div class="govuk-grid-row" id="{{ check_result.issue_identifier }}"
                 data-check-type="{{ check_result.wcag_definition.type }}"
                 data-filter-string="{{ check_result.wcag_definition }} {{ check_result.wcag_definition.hint }} {{ check_result.issue_identifier }}"
             >

@@ -441,7 +441,6 @@ def add_to_check_result_notes_history(
             check_result=check_result,
             created_by=user,
             notes=check_result.notes,
-            check_result_state=check_result.check_result_state,
         )
 
 

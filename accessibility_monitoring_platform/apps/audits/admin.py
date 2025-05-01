@@ -68,8 +68,8 @@ class CheckResultNotesHistoryAdmin(admin.ModelAdmin):
         "check_result__page__name",
         "check_result__page__page_type",
     ]
-    list_display = ["check_result", "created_by", "check_result_state", "created"]
-    list_filter = ["created_by", "check_result_state"]
+    list_display = ["check_result", "created_by", "created"]
+    list_filter = ["created_by"]
     readonly_fields = ["check_result", "created"]
 
 
