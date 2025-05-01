@@ -42,7 +42,6 @@ from ..forms import (
     CaseComplianceStatementInitialUpdateForm,
     CaseComplianceWebsiteInitialUpdateForm,
     CheckResultFilterForm,
-    CheckResultForm,
     CheckResultFormset,
     InitialCustomIssueCreateUpdateForm,
     InitialDisproportionateBurdenUpdateForm,
@@ -218,9 +217,7 @@ class AuditPagesUpdateView(AuditUpdateView):
 
 
 class AuditPageChecksFormView(AuditPageChecksBaseFormView):
-    """
-    View to update check results for a page
-    """
+    """View to update check results for a page"""
 
     form_class: type[AuditPageChecksForm] = AuditPageChecksForm
     template_name: str = "audits/forms/page_checks.html"
@@ -230,7 +227,7 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
         return get_next_platform_page_initial(audit=page.audit, current_page=page)
 
     def get_form(self):
-        """Populate next page select field"""
+        """Populate page form"""
         form = super().get_form()
         if "complete_date" in form.fields:
             form.fields["complete_date"].initial = self.page.complete_date
@@ -239,7 +236,10 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
         return form
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Populate context data for template rendering"""
+        """
+        Populate formset of all possible WCAGDefinitions, some of which will
+        have marching CheckResults
+        """
         context: dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
         context["filter_form"] = CheckResultFilterForm(
@@ -254,7 +254,10 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
 
         if self.request.POST:
             check_results_formset: CheckResultFormset = CheckResultFormset(
-                self.request.POST
+                self.request.POST,
+                initial=get_all_possible_check_results_for_page(
+                    page=self.page, wcag_definitions=wcag_definitions
+                ),
             )
         else:
             check_results_formset: CheckResultFormset = CheckResultFormset(
@@ -263,29 +266,18 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
                 )
             )
 
-        forms_and_matching_issues: list[
-            tuple[WcagDefinition, CheckResultForm, list[CheckResult], CheckResult]
-        ] = []
-
         for check_results_form in check_results_formset.forms:
-            if self.request.POST:
-                wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-                    id=check_results_form["wcag_definition"].value()
-                )
-            else:
-                wcag_definition: WcagDefinition = check_results_form.initial[
-                    "wcag_definition"
-                ]
+            wcag_definition: WcagDefinition = check_results_form.initial[
+                "wcag_definition"
+            ]
             check_results_form.fields["check_result_state"].label = wcag_definition
-            forms_and_matching_issues.append(
-                (
-                    check_results_form,
-                    other_pages_failed_check_results.get(wcag_definition, []),
-                )
+            setattr(
+                check_results_form,
+                "other_pages_failed_check_results",
+                other_pages_failed_check_results.get(wcag_definition, []),
             )
 
         context["check_results_formset"] = check_results_formset
-        context["forms_and_matching_issues"] = forms_and_matching_issues
 
         return context
 

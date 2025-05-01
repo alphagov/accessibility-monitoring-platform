@@ -546,6 +546,7 @@ def test_check_result_returns_id_and_fields_for_retest():
         "id": check_result.id,
         "retest_state": CheckResult.RetestResult.NOT_RETESTED,
         "retest_notes": "",
+        "check_result": check_result,
     }
 
 

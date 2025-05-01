@@ -1,0 +1,25 @@
+{% if form.other_pages_failed_check_results %}
+    <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+                Matching errors
+            </span>
+        </summary>
+        <div class="govuk-details__text">
+            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+            {% for failed_check_result in form.other_pages_failed_check_results %}
+                <li>
+                    <b>{{ failed_check_result.page }}</b>
+                    <textarea id="{{ form.notes.auto_id }}-{{ forloop.counter }}" hidden>{{ failed_check_result.notes }}</textarea>
+                    <span tabIndex="0"
+                        class="amp-control amp-copy-error"
+                        sourceId="{{ form.notes.auto_id }}-{{ forloop.counter }}"
+                        targetId="{{ form.notes.auto_id }}">
+                        Click to populate error details</span>
+                    {{ failed_check_result.notes|markdown_to_html }}
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </details>
+{% endif %}

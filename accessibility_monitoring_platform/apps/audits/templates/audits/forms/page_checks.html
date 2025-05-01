@@ -42,7 +42,7 @@
     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
     {{ check_results_formset.management_form }}
-    {% for form, matching_issues in forms_and_matching_issues %}
+    {% for form in check_results_formset %}
         <div class="govuk-grid-row" {% if form.initial.issue_identifier %}id="{{ form.initial.issue_identifier }}"{% endif %}
             data-check-type="{{ form.initial.wcag_definition.type }}"
             data-filter-string="{{ form.initial.wcag_definition }} {{ form.initial.wcag_definition.hint }} {{ form.initial.issue_identifier }}"
@@ -51,31 +51,7 @@
                 <hr class="amp-width-100 amp-margin-bottom-30">
                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                 {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.check_result_state %}
-                {% if matching_issues %}
-                    <details class="govuk-details" data-module="govuk-details">
-                        <summary class="govuk-details__summary">
-                            <span class="govuk-details__summary-text">
-                                Matching errors
-                            </span>
-                        </summary>
-                        <div class="govuk-details__text">
-                            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                            {% for issue in matching_issues %}
-                                <li>
-                                    <b>{{ issue.page }}</b>
-                                    <textarea id="{{ form.notes.auto_id }}-{{ forloop.counter }}" hidden>{{ issue.notes }}</textarea>
-                                    <span tabIndex="0"
-                                        class="amp-control amp-copy-error"
-                                        sourceId="{{ form.notes.auto_id }}-{{ forloop.counter }}"
-                                        targetId="{{ form.notes.auto_id }}">
-                                        Click to populate error details</span>
-                                    {{ issue.notes|markdown_to_html }}
-                                </li>
-                            {% endfor %}
-                            </ul>
-                        </div>
-                    </details>
-                {% endif %}
+                {% include 'audits/helpers/check_result_matching_initial_errors.html' %}
                 {% include 'common/amp_field.html' with field=form.notes %}
                 <div id="amp-content-guidance-container-{{ form.notes.auto_id }}" class="amp-content-guidance-container govuk-grid-row amp-margin-bottom-10">
                     <div class="govuk-grid-column-full">

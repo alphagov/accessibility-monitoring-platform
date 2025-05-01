@@ -1709,9 +1709,7 @@ def test_data_filter_string_contains_issue_identifier_on_check_result_pages(
 def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
     """Test page checks edit view page loads and hides future WCAG definitions"""
     audit: Audit = create_audit_and_wcag()
-    future_wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
-    future_wcag_definition.date_start = audit.date_of_test + timedelta(days=10)
-    future_wcag_definition.save()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
     page: Page = Page.objects.create(audit=audit)
     page_pk: dict[str, int] = {"pk": page.id}
 
@@ -1721,15 +1719,24 @@ def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Showing 1 error")
+    assertContains(response, wcag_definition.name)
+
+    wcag_definition.date_start = audit.date_of_test + timedelta(days=10)
+    wcag_definition.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, wcag_definition.name)
 
 
 def test_page_checks_edit_hides_past_wcag_definitions(admin_client):
     """Test page checks edit view page loads and hides past WCAG definitions"""
     audit: Audit = create_audit_and_wcag()
-    past_wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
-    past_wcag_definition.date_end = audit.date_of_test - timedelta(days=10)
-    past_wcag_definition.save()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
     page: Page = Page.objects.create(audit=audit)
     page_pk: dict[str, int] = {"pk": page.id}
 
@@ -1739,7 +1746,18 @@ def test_page_checks_edit_hides_past_wcag_definitions(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Showing 1 error")
+    assertContains(response, wcag_definition.name)
+
+    wcag_definition.date_end = audit.date_of_test - timedelta(days=10)
+    wcag_definition.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, wcag_definition.name)
 
 
 def test_page_checks_edit_saves_results(admin_client):

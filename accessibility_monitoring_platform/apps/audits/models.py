@@ -743,6 +743,7 @@ class CheckResult(models.Model):
             "id": self.id,
             "retest_state": self.retest_state,
             "retest_notes": self.retest_notes,
+            "check_result": self,
         }
 
     class Meta:

@@ -1,0 +1,25 @@
+{% if check_result.matching_wcag_with_retest_notes_check_results %}
+    <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+                Matching errors
+            </span>
+        </summary>
+        <div class="govuk-details__text">
+            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+            {% for other_check_result in check_result.matching_wcag_with_retest_notes_check_results %}
+                <li>
+                    <b>{{ other_check_result.page }}</b>
+                    <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ other_check_result.retest_notes }}</textarea>
+                    <span tabIndex="0"
+                        class="amp-control amp-copy-error"
+                        sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
+                        targetId="{{ form.retest_notes.auto_id }}">
+                        Click to populate error details</span>
+                    {{ other_check_result.retest_notes|markdown_to_html }}
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </details>
+{% endif %}

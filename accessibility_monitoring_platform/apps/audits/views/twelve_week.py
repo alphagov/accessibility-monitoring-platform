@@ -17,7 +17,6 @@ from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ...common.utils import record_model_create_event, record_model_update_event
 from ..forms import (
     AuditRetestCheckResultFilterForm,
-    AuditRetestCheckResultForm,
     AuditRetestCheckResultFormset,
     AuditRetestMetadataUpdateForm,
     AuditRetestNew12WeekCustomIssueCreateForm,
@@ -162,7 +161,13 @@ class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
         )
         if self.request.POST:
             check_results_formset: AuditRetestCheckResultFormset = (
-                AuditRetestCheckResultFormset(self.request.POST)
+                AuditRetestCheckResultFormset(
+                    self.request.POST,
+                    initial=[
+                        check_result.dict_for_retest
+                        for check_result in self.page.failed_check_results
+                    ],
+                )
             )
         else:
             check_results_formset: AuditRetestCheckResultFormset = (
@@ -173,12 +178,8 @@ class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
                     ]
                 )
             )
-        check_results_and_forms: list[
-            tuple[CheckResult, AuditRetestCheckResultForm]
-        ] = list(zip(self.page.failed_check_results, check_results_formset.forms))
 
         context["check_results_formset"] = check_results_formset
-        context["check_results_and_forms"] = check_results_and_forms
         context["other_pages_with_retest_notes"] = get_other_pages_with_retest_notes(
             page=self.page
         )
