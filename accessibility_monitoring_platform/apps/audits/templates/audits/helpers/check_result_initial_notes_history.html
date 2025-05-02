@@ -10,12 +10,12 @@
                 <div class="govuk-details__text">
                     {% for check_result_history_event in check_result.checkresultnoteshistory_set.all %}
                         <p>
-                            <b>
-                                {% if forloop.counter == 1 %}
-                                    Issue last updated
-                                {% endif %}
+                            {% if forloop.counter == 1 %}
+                                Issue last updated
                                 {{ check_result_history_event.created|amp_date_trunc }}
-                            </b>
+                            {% else %}
+                                <b>{{ check_result_history_event.created|amp_date_trunc }}</b>
+                            {% endif %}
                         </p>
                         {% if forloop.counter > 1 %}
                             {{ check_result_history_event.notes|markdown_to_html }}

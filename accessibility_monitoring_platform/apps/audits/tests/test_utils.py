@@ -36,12 +36,12 @@ from ..utils import (
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
     create_statement_checks_for_new_audit,
-    get_all_possible_check_results_for_page,
     get_audit_summary_context,
     get_next_platform_page_equality_body,
     get_next_platform_page_initial,
     get_next_platform_page_twelve_week,
     get_other_pages_with_retest_notes,
+    get_page_check_results_formset_initial,
     index_or_404,
     other_page_failed_check_results,
     report_data_updated,
@@ -419,7 +419,7 @@ def test_get_all_possible_check_results_for_page():
     wcag_definitions: list[WcagDefinition] = list(WcagDefinition.objects.all())
 
     all_check_results: list[dict[str, str | WcagDefinition]] = (
-        get_all_possible_check_results_for_page(
+        get_page_check_results_formset_initial(
             page=page_home, wcag_definitions=wcag_definitions
         )
     )

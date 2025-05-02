@@ -119,7 +119,7 @@ def create_or_update_check_results_for_page(
             report_data_updated(audit=page.audit)
 
 
-def get_all_possible_check_results_for_page(
+def get_page_check_results_formset_initial(
     page: Page, wcag_definitions: list[WcagDefinition]
 ) -> list[dict[str, str | WcagDefinition | CheckResult]]:
     """
@@ -143,17 +143,17 @@ def get_all_possible_check_results_for_page(
             notes: str = check_result.notes
             issue_identifier: str = check_result.issue_identifier
         else:
+            check_result: None = None
             check_result_state: str = CheckResult.Result.NOT_TESTED
             notes: str = ""
             issue_identifier: str = ""
-            check_result: None = None
         check_results_formset_initial.append(
             {
                 "wcag_definition": wcag_definition,
+                "check_result": check_result,
                 "check_result_state": check_result_state,
                 "notes": notes,
                 "issue_identifier": issue_identifier,
-                "check_result": check_result,
             }
         )
     return check_results_formset_initial

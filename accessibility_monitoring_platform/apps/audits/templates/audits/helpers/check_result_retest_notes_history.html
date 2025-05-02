@@ -10,14 +10,16 @@
                 <div class="govuk-details__text">
                     {% for check_result_history_event in check_result.checkresultretestnoteshistory_set.all %}
                         <p>
-                            <b>
-                                {% if forloop.counter == 1 %}
-                                    Current status:
-                                {% endif %}
+                            {% if forloop.counter == 1 %}
+                                Issue last updated
                                 {{ check_result_history_event.created|amp_date_trunc }}
-                                |
-                                {{ check_result_history_event.get_retest_state_display }}
-                            </b>
+                            {% else %}
+                                <b>
+                                    {{ check_result_history_event.created|amp_date_trunc }}
+                                    |
+                                    {{ check_result_history_event.get_retest_state_display }}
+                                </b>
+                            {% endif %}
                         </p>
                         {% if forloop.counter > 1 %}
                             {{ check_result_history_event.retest_notes|markdown_to_html }}

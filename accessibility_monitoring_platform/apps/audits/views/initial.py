@@ -57,9 +57,9 @@ from ..models import (
 )
 from ..utils import (
     create_or_update_check_results_for_page,
-    get_all_possible_check_results_for_page,
     get_audit_summary_context,
     get_next_platform_page_initial,
+    get_page_check_results_formset_initial,
     other_page_failed_check_results,
 )
 from .base import (
@@ -255,13 +255,13 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
         if self.request.POST:
             check_results_formset: CheckResultFormset = CheckResultFormset(
                 self.request.POST,
-                initial=get_all_possible_check_results_for_page(
+                initial=get_page_check_results_formset_initial(
                     page=self.page, wcag_definitions=wcag_definitions
                 ),
             )
         else:
             check_results_formset: CheckResultFormset = CheckResultFormset(
-                initial=get_all_possible_check_results_for_page(
+                initial=get_page_check_results_formset_initial(
                     page=self.page, wcag_definitions=wcag_definitions
                 )
             )
