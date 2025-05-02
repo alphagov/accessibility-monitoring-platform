@@ -164,7 +164,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
                 AuditRetestCheckResultFormset(
                     self.request.POST,
                     initial=[
-                        check_result.dict_for_retest
+                        check_result.retest_form_initial
                         for check_result in self.page.failed_check_results
                     ],
                 )
@@ -173,7 +173,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
             check_results_formset: AuditRetestCheckResultFormset = (
                 AuditRetestCheckResultFormset(
                     initial=[
-                        check_result.dict_for_retest
+                        check_result.retest_form_initial
                         for check_result in self.page.failed_check_results
                     ]
                 )

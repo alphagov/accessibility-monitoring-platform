@@ -738,7 +738,7 @@ class CheckResult(models.Model):
     updated = models.DateTimeField(null=True, blank=True)
 
     @property
-    def dict_for_retest(self) -> dict[str, str]:
+    def retest_form_initial(self) -> dict[str, str]:
         return {
             "id": self.id,
             "retest_state": self.retest_state,

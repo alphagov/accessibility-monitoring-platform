@@ -28,12 +28,12 @@ def populate_retest_notes_history(apps, schema_editor):
         except json.decoder.JSONDecodeError:
             value_dict: dict[str, str] = ast.literal_eval(event.value)
         if "notes" in value_dict:
-            notes = value_dict["notes"]
+            notes: str = value_dict["notes"]
             if UPDATE_SEPARATOR in notes:
                 _, notes = notes.split(UPDATE_SEPARATOR)
         else:
             continue
-        check_result = CheckResult.objects.get(id=event.object_id)
+        check_result: CheckResult = CheckResult.objects.get(id=event.object_id)
         check_result_history: CheckResultNotesHistory = (
             CheckResultNotesHistory.objects.create(
                 check_result=check_result,
@@ -62,7 +62,7 @@ def populate_retest_notes_history(apps, schema_editor):
             _, retest_state = value_dict["retest_state"].split(" -> ")
         else:
             retest_state: str = RETEST_STATE_DEFAULT
-        check_result = CheckResult.objects.get(id=event.object_id)
+        check_result: CheckResult = CheckResult.objects.get(id=event.object_id)
         check_result_history: CheckResultRetestNotesHistory = (
             CheckResultRetestNotesHistory.objects.create(
                 check_result=check_result,
@@ -85,7 +85,6 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
     )
     CheckResultNotesHistory.objects.all().delete()
     CheckResultRetestNotesHistory.objects.all().delete()
-    pass
 
 
 class Migration(migrations.Migration):
