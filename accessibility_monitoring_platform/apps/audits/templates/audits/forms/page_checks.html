@@ -6,15 +6,16 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <p class="govuk-body-m amp-margin-bottom-0">
-            <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+            ▼ &nbsp; <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
         </p>
     </div>
-    <div class="govuk-grid-column-one-third">
+    <div class="govuk-grid-column-one-third govuk-button-group">
         <p class="govuk-body-m amp-margin-bottom-10">
             {% if page.url %}
-                <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link amp-margin-right-5">
                     Open page in new tab
                 </a>
+                <div class="amp-new-window"></div>
             {% else %}
                 None
             {% endif %}
@@ -42,40 +43,16 @@
     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
     {{ check_results_formset.management_form }}
-    {% for wcag_definition, form, matching_issues in definitions_forms_errors %}
+    {% for form in check_results_formset %}
         <div class="govuk-grid-row" {% if form.initial.issue_identifier %}id="{{ form.initial.issue_identifier }}"{% endif %}
-            data-check-type="{{ wcag_definition.type }}"
-            data-filter-string="{{ wcag_definition }} {{ wcag_definition.hint }} {{ form.initial.issue_identifier }}"
+            data-check-type="{{ form.initial.wcag_definition.type }}"
+            data-filter-string="{{ form.initial.wcag_definition }} {{ form.initial.wcag_definition.hint }} {{ form.initial.issue_identifier }}"
         >
             <div class="govuk-grid-column-full">
                 <hr class="amp-width-100 amp-margin-bottom-30">
                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                 {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.check_result_state %}
-                {% if matching_issues %}
-                    <details class="govuk-details" data-module="govuk-details">
-                        <summary class="govuk-details__summary">
-                            <span class="govuk-details__summary-text">
-                                Matching errors
-                            </span>
-                        </summary>
-                        <div class="govuk-details__text">
-                            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                            {% for issue in matching_issues %}
-                                <li>
-                                    <b>{{ issue.page }}</b>
-                                    <textarea id="{{ form.notes.auto_id }}-{{ forloop.counter }}" hidden>{{ issue.notes }}</textarea>
-                                    <span tabIndex="0"
-                                        class="amp-control amp-copy-error"
-                                        sourceId="{{ form.notes.auto_id }}-{{ forloop.counter }}"
-                                        targetId="{{ form.notes.auto_id }}">
-                                        Click to populate error details</span>
-                                    {{ issue.notes|markdown_to_html }}
-                                </li>
-                            {% endfor %}
-                            </ul>
-                        </div>
-                    </details>
-                {% endif %}
+                {% include 'audits/helpers/check_result_matching_initial_errors.html' %}
                 {% include 'common/amp_field.html' with field=form.notes %}
                 <div id="amp-content-guidance-container-{{ form.notes.auto_id }}" class="amp-content-guidance-container govuk-grid-row amp-margin-bottom-10">
                     <div class="govuk-grid-column-full">
@@ -83,12 +60,12 @@
                         <div id="content-guidance-{{ form.notes.auto_id }}" class="amp-content-guidance govuk-body"></div>
                     </div>
                 </div>
-                
                 {% include 'common/preview_markdown.html' with field_id=form.notes.auto_id %}
+                {% include 'audits/helpers/check_result_initial_notes_history.html' with check_result=form.initial.check_result %}
                 <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
                     <div class="govuk-grid-column-full govuk-button-group">
-                        {% include 'common/back_to_top.html' %}
-                        <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+                        ▼ &nbsp; <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+                        ▲ &nbsp; {% include 'common/back_to_top.html' %}
                     </div>
                 </div>
             </div>

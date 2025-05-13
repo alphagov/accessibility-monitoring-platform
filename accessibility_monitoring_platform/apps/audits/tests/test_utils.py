@@ -18,6 +18,7 @@ from ..forms import CheckResultFormset
 from ..models import (
     Audit,
     CheckResult,
+    CheckResultNotesHistory,
     CheckResultRetestNotesHistory,
     Page,
     Retest,
@@ -29,17 +30,18 @@ from ..models import (
     WcagDefinition,
 )
 from ..utils import (
+    add_to_check_result_notes_history,
     add_to_check_result_restest_notes_history,
     create_checkresults_for_retest,
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
     create_statement_checks_for_new_audit,
-    get_all_possible_check_results_for_page,
     get_audit_summary_context,
     get_next_platform_page_equality_body,
     get_next_platform_page_initial,
     get_next_platform_page_twelve_week,
     get_other_pages_with_retest_notes,
+    get_page_check_results_formset_initial,
     index_or_404,
     other_page_failed_check_results,
     report_data_updated,
@@ -66,6 +68,8 @@ NUMBER_OF_WCAG_PER_TYPE_OF_PAGE: int = 1
 NUMBER_OF_HTML_PAGES: int = 4
 UPDATED_NOTE: str = "Updated note"
 NEW_CHECK_NOTE: str = "New note"
+OLD_CHECK_RESULT_NOTES: str = "Old check result notes"
+NEW_CHECK_RESULT_NOTES: str = "New check result notes"
 OLD_RETEST_NOTES: str = "Old retest notes"
 NEW_RETEST_NOTES: str = "New retest notes"
 EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: list[FieldLabelAndValue] = [
@@ -415,7 +419,7 @@ def test_get_all_possible_check_results_for_page():
     wcag_definitions: list[WcagDefinition] = list(WcagDefinition.objects.all())
 
     all_check_results: list[dict[str, str | WcagDefinition]] = (
-        get_all_possible_check_results_for_page(
+        get_page_check_results_formset_initial(
             page=page_home, wcag_definitions=wcag_definitions
         )
     )
@@ -428,6 +432,7 @@ def test_get_all_possible_check_results_for_page():
             "check_result_state": "not-tested",
             "notes": "",
             "issue_identifier": "",
+            "check_result": None,
         },
         {
             "wcag_definition": WcagDefinition.objects.get(
@@ -436,12 +441,16 @@ def test_get_all_possible_check_results_for_page():
             "check_result_state": "not-tested",
             "notes": "",
             "issue_identifier": "1-A-1",
+            "check_result": CheckResult.objects.get(
+                page=page_home, type=WcagDefinition.Type.MANUAL
+            ),
         },
         {
             "wcag_definition": WcagDefinition.objects.get(type=WcagDefinition.Type.AXE),
             "check_result_state": "not-tested",
             "notes": "",
             "issue_identifier": "",
+            "check_result": None,
         },
     ]
 
@@ -1158,16 +1167,14 @@ def test_index_or_404():
 
 
 @pytest.mark.django_db
-def test_check_result_restest_notes_history_changed(rf):
+def test_add_check_result_notes_history():
     """
-    Test add_to_check_result_restest_notes_history creates an entry only if the
-    retest notes have changed.
+    Test add_to_check_result_notes_history creates an entry with the correct
+    notes and logged in user.
     """
-    request: HttpRequest = rf.get("/")
-    request_user: User = User.objects.create(
+    user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
-    request.user = request_user
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     WcagDefinition.objects.all().delete()
@@ -1182,35 +1189,67 @@ def test_check_result_restest_notes_history_changed(rf):
         page=page,
         wcag_definition=wcag_definition,
         type=wcag_definition.type,
-        retest_notes=OLD_RETEST_NOTES,
+        notes=OLD_CHECK_RESULT_NOTES,
     )
 
-    add_to_check_result_restest_notes_history(
-        check_result=check_result, request=request
+    check_result.notes = NEW_CHECK_RESULT_NOTES
+
+    add_to_check_result_notes_history(check_result=check_result, user=user)
+
+    check_result_notes_history: CheckResultNotesHistory = (
+        CheckResultNotesHistory.objects.get(check_result=check_result)
     )
 
-    assert CheckResultRetestNotesHistory.objects.all().count() == 0
-
-    check_result.retest_notes = NEW_RETEST_NOTES
-
-    add_to_check_result_restest_notes_history(
-        check_result=check_result, request=request
-    )
-
-    assert CheckResultRetestNotesHistory.objects.all().count() == 1
+    assert check_result_notes_history.notes == NEW_CHECK_RESULT_NOTES
+    assert check_result_notes_history.created_by == user
 
 
 @pytest.mark.django_db
-def test_add_check_result_restest_notes_history(rf):
+def test_check_result_notes_history_changed():
+    """
+    Test add_to_check_result_notes_history creates an entry only if the
+    notes have changed.
+    """
+    user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    WcagDefinition.objects.all().delete()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
+    )
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        type=wcag_definition.type,
+        notes=OLD_CHECK_RESULT_NOTES,
+    )
+
+    add_to_check_result_notes_history(check_result=check_result, user=user)
+
+    assert CheckResultNotesHistory.objects.all().count() == 0
+
+    check_result.notes = NEW_CHECK_RESULT_NOTES
+
+    add_to_check_result_notes_history(check_result=check_result, user=user)
+
+    assert CheckResultNotesHistory.objects.all().count() == 1
+
+
+@pytest.mark.django_db
+def test_add_check_result_restest_notes_history():
     """
     Test add_to_check_result_restest_notes_history creates an entry with the correct
     retest notes, retest state and logged in user.
     """
-    request: HttpRequest = rf.get("/")
-    request_user: User = User.objects.create(
+    user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
-    request.user = request_user
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     WcagDefinition.objects.all().delete()
@@ -1231,9 +1270,7 @@ def test_add_check_result_restest_notes_history(rf):
 
     check_result.retest_notes = NEW_RETEST_NOTES
 
-    add_to_check_result_restest_notes_history(
-        check_result=check_result, request=request
-    )
+    add_to_check_result_restest_notes_history(check_result=check_result, user=user)
 
     check_result_retest_notes_history: CheckResultRetestNotesHistory = (
         CheckResultRetestNotesHistory.objects.get(check_result=check_result)
@@ -1243,4 +1280,41 @@ def test_add_check_result_restest_notes_history(rf):
     assert (
         check_result_retest_notes_history.retest_state == CheckResult.RetestResult.FIXED
     )
-    assert check_result_retest_notes_history.created_by == request_user
+    assert check_result_retest_notes_history.created_by == user
+
+
+@pytest.mark.django_db
+def test_check_result_restest_notes_history_changed():
+    """
+    Test add_to_check_result_restest_notes_history creates an entry only if the
+    retest notes have changed.
+    """
+    user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    WcagDefinition.objects.all().delete()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
+    )
+    page: Page = Page.objects.create(
+        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    )
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        type=wcag_definition.type,
+        retest_notes=OLD_RETEST_NOTES,
+    )
+
+    add_to_check_result_restest_notes_history(check_result=check_result, user=user)
+
+    assert CheckResultRetestNotesHistory.objects.all().count() == 0
+
+    check_result.retest_notes = NEW_RETEST_NOTES
+
+    add_to_check_result_restest_notes_history(check_result=check_result, user=user)
+
+    assert CheckResultRetestNotesHistory.objects.all().count() == 1

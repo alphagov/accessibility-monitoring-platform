@@ -17,7 +17,6 @@ from ...cases.utils import record_model_create_event, record_model_update_event
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ..forms import (
     AuditRetestCheckResultFilterForm,
-    AuditRetestCheckResultForm,
     AuditRetestCheckResultFormset,
     AuditRetestMetadataUpdateForm,
     AuditRetestNew12WeekCustomIssueCreateForm,
@@ -59,10 +58,10 @@ from ..utils import (
 )
 from .base import (
     AuditCaseComplianceUpdateView,
+    AuditPageChecksBaseFormView,
     AuditUpdateView,
     StatementPageFormsetUpdateView,
 )
-from .initial import AuditPageChecksFormView
 
 
 class AuditRetestMetadataUpdateView(AuditUpdateView):
@@ -129,14 +128,13 @@ class AuditRetestPagesView(AuditUpdateView):
         return super().form_valid(form)
 
 
-class AuditRetestPageChecksFormView(AuditPageChecksFormView):
+class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
     """
     View to retest check results for a page
     """
 
     form_class: type[AuditRetestPageChecksForm] = AuditRetestPageChecksForm
     template_name: str = "audits/forms/twelve_week_retest_page_checks.html"
-    page: Page
 
     def get_next_platform_page(self):
         page: Page = self.page
@@ -165,23 +163,25 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         )
         if self.request.POST:
             check_results_formset: AuditRetestCheckResultFormset = (
-                AuditRetestCheckResultFormset(self.request.POST)
+                AuditRetestCheckResultFormset(
+                    self.request.POST,
+                    initial=[
+                        check_result.retest_form_initial
+                        for check_result in self.page.failed_check_results
+                    ],
+                )
             )
         else:
             check_results_formset: AuditRetestCheckResultFormset = (
                 AuditRetestCheckResultFormset(
                     initial=[
-                        check_result.dict_for_retest
+                        check_result.retest_form_initial
                         for check_result in self.page.failed_check_results
                     ]
                 )
             )
-        check_results_and_forms: list[
-            tuple[CheckResult, AuditRetestCheckResultForm]
-        ] = list(zip(self.page.failed_check_results, check_results_formset.forms))
 
         context["check_results_formset"] = check_results_formset
-        context["check_results_and_forms"] = check_results_and_forms
         context["other_pages_with_retest_notes"] = get_other_pages_with_retest_notes(
             page=self.page
         )
@@ -215,7 +215,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
                     check_result.retest_state = form.cleaned_data["retest_state"]
                     check_result.retest_notes = form.cleaned_data["retest_notes"]
                     add_to_check_result_restest_notes_history(
-                        check_result=check_result, request=self.request
+                        check_result=check_result, user=self.request.user
                     )
                     record_model_update_event(
                         user=self.request.user,

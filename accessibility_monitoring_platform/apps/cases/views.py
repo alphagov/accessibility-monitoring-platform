@@ -1204,7 +1204,9 @@ class CaseEmailTemplateListView(
         return EmailTemplate.objects.filter(is_deleted=False)
 
 
-class CaseEmailTemplatePreviewDetailView(HideCaseNavigationMixin, DetailView):
+class CaseEmailTemplatePreviewDetailView(
+    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, DetailView
+):
     """
     View email template populated with case data
     """

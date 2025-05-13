@@ -142,6 +142,7 @@ class CaseCreateForm(forms.ModelForm):
         label="URL to previous case (included in equality body export)",
         help_text="If the website has been previously audited, include a link to the case below",
     )
+    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = Case
@@ -156,6 +157,7 @@ class CaseCreateForm(forms.ModelForm):
             "sector",
             "is_complaint",
             "previous_case_url",
+            "notes",
         ]
 
     def clean_home_page_url(self):
@@ -183,7 +185,6 @@ class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
         label="URL to previous case",
         help_text="If the website has been previously audited, include a link to the case below",
     )
-    notes = AMPTextField(label="Notes")
     trello_url = AMPURLField(label="Trello ticket URL")
     is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent?",

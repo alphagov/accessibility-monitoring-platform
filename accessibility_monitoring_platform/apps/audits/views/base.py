@@ -10,7 +10,7 @@ from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ...cases.models import Case, CaseEvent
@@ -116,6 +116,19 @@ class AuditUpdateView(NextPlatformPageMixin, UpdateView):
                 )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class AuditPageChecksBaseFormView(NextPlatformPageMixin, FormView):
+    """
+    View to update check results for a page
+    """
+
+    page: Page
+
+    def setup(self, request, *args, **kwargs):
+        """Add audit and page objects to view"""
+        super().setup(request, *args, **kwargs)
+        self.page = Page.objects.get(pk=kwargs["pk"])
 
 
 class AuditCaseComplianceUpdateView(AuditUpdateView):

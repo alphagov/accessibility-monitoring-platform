@@ -16,6 +16,8 @@ from accessibility_monitoring_platform.apps.common.models import (
 from ....audits.models import (
     Audit,
     CheckResult,
+    CheckResultNotesHistory,
+    CheckResultRetestNotesHistory,
     Page,
     Retest,
     RetestCheckResult,
@@ -93,6 +95,8 @@ class Command(BaseCommand):
                 RetestPage,
                 Retest,
                 StatementCheckResult,
+                CheckResultRetestNotesHistory,
+                CheckResultNotesHistory,
                 CheckResult,
                 Page,
                 Audit,
