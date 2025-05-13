@@ -9,7 +9,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 
 from ...cases.models import Case
 from ...common.forms import AMPChoiceCheckboxWidget
@@ -19,7 +19,6 @@ from ...common.utils import (
     record_model_create_event,
     record_model_update_event,
 )
-from ...common.views import NextPlatformPageMixin
 from ..forms import (
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
@@ -43,7 +42,6 @@ from ..forms import (
     CaseComplianceStatementInitialUpdateForm,
     CaseComplianceWebsiteInitialUpdateForm,
     CheckResultFilterForm,
-    CheckResultForm,
     CheckResultFormset,
     InitialCustomIssueCreateUpdateForm,
     InitialDisproportionateBurdenUpdateForm,
@@ -59,13 +57,14 @@ from ..models import (
 )
 from ..utils import (
     create_or_update_check_results_for_page,
-    get_all_possible_check_results_for_page,
     get_audit_summary_context,
     get_next_platform_page_initial,
+    get_page_check_results_formset_initial,
     other_page_failed_check_results,
 )
 from .base import (
     AuditCaseComplianceUpdateView,
+    AuditPageChecksBaseFormView,
     AuditStatementCheckingView,
     AuditUpdateView,
     StatementPageFormsetUpdateView,
@@ -217,26 +216,18 @@ class AuditPagesUpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditPageChecksFormView(NextPlatformPageMixin, FormView):
-    """
-    View to update check results for a page
-    """
+class AuditPageChecksFormView(AuditPageChecksBaseFormView):
+    """View to update check results for a page"""
 
     form_class: type[AuditPageChecksForm] = AuditPageChecksForm
     template_name: str = "audits/forms/page_checks.html"
-    page: Page
-
-    def setup(self, request, *args, **kwargs):
-        """Add audit and page objects to view"""
-        super().setup(request, *args, **kwargs)
-        self.page = Page.objects.get(pk=kwargs["pk"])
 
     def get_next_platform_page(self):
         page: Page = self.page
         return get_next_platform_page_initial(audit=page.audit, current_page=page)
 
     def get_form(self):
-        """Populate next page select field"""
+        """Populate page form"""
         form = super().get_form()
         if "complete_date" in form.fields:
             form.fields["complete_date"].initial = self.page.complete_date
@@ -245,7 +236,10 @@ class AuditPageChecksFormView(NextPlatformPageMixin, FormView):
         return form
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Populate context data for template rendering"""
+        """
+        Populate formset of all possible WCAGDefinitions, some of which will
+        have marching CheckResults
+        """
         context: dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
         context["filter_form"] = CheckResultFilterForm(
@@ -260,37 +254,35 @@ class AuditPageChecksFormView(NextPlatformPageMixin, FormView):
 
         if self.request.POST:
             check_results_formset: CheckResultFormset = CheckResultFormset(
-                self.request.POST
+                self.request.POST,
+                initial=get_page_check_results_formset_initial(
+                    page=self.page, wcag_definitions=wcag_definitions
+                ),
             )
         else:
             check_results_formset: CheckResultFormset = CheckResultFormset(
-                initial=get_all_possible_check_results_for_page(
+                initial=get_page_check_results_formset_initial(
                     page=self.page, wcag_definitions=wcag_definitions
                 )
             )
 
-        definitions_forms_errors: list[
-            tuple[WcagDefinition, CheckResultForm, list[CheckResult]]
-        ] = []
-        for count, check_results_form in enumerate(check_results_formset.forms):
-            wcag_definition: WcagDefinition = wcag_definitions[count]
+        for check_results_form in check_results_formset.forms:
+            wcag_definition: WcagDefinition = check_results_form.initial[
+                "wcag_definition"
+            ]
             check_results_form.fields["check_result_state"].label = wcag_definition
-            definitions_forms_errors.append(
-                (
-                    wcag_definition,
-                    check_results_form,
-                    other_pages_failed_check_results.get(wcag_definition, []),
-                )
+            setattr(
+                check_results_form,
+                "other_pages_failed_check_results",
+                other_pages_failed_check_results.get(wcag_definition, []),
             )
 
         context["check_results_formset"] = check_results_formset
-        context["definitions_forms_errors"] = definitions_forms_errors
 
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        context: dict[str, Any] = self.get_context_data()
         page: Page = self.page
         if form.changed_data:
             page.complete_date = form.cleaned_data["complete_date"]
@@ -298,7 +290,9 @@ class AuditPageChecksFormView(NextPlatformPageMixin, FormView):
             record_model_update_event(user=self.request.user, model_object=page)
             page.save()
 
-        check_results_formset: CheckResultFormset = context["check_results_formset"]
+        check_results_formset: CheckResultFormset = CheckResultFormset(
+            self.request.POST
+        )
         if check_results_formset.is_valid():
             create_or_update_check_results_for_page(
                 user=self.request.user,

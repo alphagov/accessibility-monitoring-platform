@@ -536,16 +536,17 @@ def test_page_page_title():
 @pytest.mark.django_db
 def test_check_result_returns_id_and_fields_for_retest():
     """
-    Test check_result attribute of dict_for_retest returns id and fields for retest form.
+    Test check_result attribute of form_initial returns id and fields for retest form.
     """
     audit: Audit = create_audit_and_check_results()
     home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = home_page.all_check_results[0]
 
-    assert check_result.dict_for_retest == {
+    assert check_result.retest_form_initial == {
         "id": check_result.id,
         "retest_state": CheckResult.RetestResult.NOT_RETESTED,
         "retest_notes": "",
+        "check_result": check_result,
     }
 
 
