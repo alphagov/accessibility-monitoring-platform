@@ -188,24 +188,24 @@ Disproportionate burden was: {{ retest.get_disproportionate_burden_claim_display
     <br>
 {% endif %}
 {% if retest.failed_statement_check_results %}
-    <b>Issues found with the statement</b>
-    <br>
     <table id="email-statement-issues-table">
         <thead>
             <tr>
-                <td id="statement-issue-{{ forloop.counter }}" width=100%>Issue</td>
+                <td id="statement-issue-{{ forloop.counter }}" width=100%><b>Issues found with the statement</b></td>
             </tr>
         </thead>
         <tbody>
         {% for failed_statement_check_result in retest.failed_statement_check_results %}
             <tr valign="top">
-                <td headers="statement-issue-{{ forloop.parentloop.counter }}" width=100%>
+                <td width=100%>
                     <b>Issue {{ failed_statement_check_result.issue_identifier }}</b>
                     <br>
                     {{ failed_statement_check_result.statement_check.report_text }}
+                    {% if failed_statement_check_result.statement_check.report_text and failed_statement_check_result.comment %}
+                        <br>
+                        <br>
+                    {% endif %}
                     {% if failed_statement_check_result.comment %}
-                        <br>
-                        <br>
                         {{ failed_statement_check_result.comment|markdown_to_html }}
                     {% endif %}
                 </td>
