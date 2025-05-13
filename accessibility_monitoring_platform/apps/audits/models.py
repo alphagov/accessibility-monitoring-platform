@@ -244,7 +244,7 @@ class Audit(VersionModel):
 
     @property
     def every_page(self):
-        """Sort page of type PDF to be last"""
+        """Sort page of type PDF to be last apart from the accessibility statement"""
         return (
             self.page_audit.filter(is_deleted=False)
             .annotate(
@@ -309,11 +309,17 @@ class Audit(VersionModel):
                 page__is_contact_page=Boolean.NO,
             )
             .annotate(
-                position_pdf_page_last=DjangoCase(
-                    When(page__page_type=Page.Type.PDF, then=1), default=0
+                position_pdf_and_statement_page_last=DjangoCase(
+                    When(page__page_type=Page.Type.PDF, then=1),
+                    When(page__page_type=Page.Type.STATEMENT, then=2),
+                    default=0,
                 )
             )
-            .order_by("position_pdf_page_last", "page__id", "wcag_definition__id")
+            .order_by(
+                "position_pdf_and_statement_page_last",
+                "page__id",
+                "wcag_definition__id",
+            )
             .select_related("page", "wcag_definition")
             .all()
         )
@@ -1065,12 +1071,12 @@ class Retest(VersionModel):
                 retest_page__missing_date=None,
             )
             .annotate(
-                position_pdf_page_last=DjangoCase(
+                position_pdf_and_statement_page_last=DjangoCase(
                     When(retest_page__page__page_type=Page.Type.PDF, then=1), default=0
                 )
             )
             .order_by(
-                "position_pdf_page_last",
+                "position_pdf_and_statement_page_last",
                 "retest_page__id",
                 "check_result__wcag_definition__id",
             )

@@ -10,7 +10,7 @@ pre {
 }
 
 .govuk-form-group--error input {
-    border: 2px solid #d4351c;
+    border: 2px solid govuk-colour("red");
 }
 
 .amp-case-banner {
@@ -80,65 +80,43 @@ pre {
     min-width: 38px;
     max-width: 38px;
     height: 38px;
-    color: #fff;
-    background-color: #000;
+    color: govuk-colour("white");
+    background-color: govuk-colour("black");
 
     &:focus {
         box-shadow: inset 0 0 0 2px;
-        outline: 3px solid #fd0;
+        outline: 3px solid govuk-colour("yellow");
         outline-offset: 0;
     }
 }
 
-div#report-text {
-    font-family: arial,sans-serif;
-    font-size: 12pt;
-    h1 {
-        font-size: 20pt;
-    }
-    h2 {
-        font-size: 16pt;
-    }
-    p, li {
-        font-size: 12pt;
-    }
-    table {
-        font-family: arial,sans-serif;
-        width: 100%;
-        border: 1px solid black;
-        border-collapse: collapse;
-        tr, td {
-            border: 1px solid black;
-        }
-        th {
-            text-align: left;
-        }
-        thead > tr {
-            color: #ffffff;
-            background-color: #1A5293;
-        }
-    }
-}
-
 .amp-button-as-link {
-    background: none!important;
+    background: none;
     border: none;
     padding: 0!important;
     cursor: pointer;
-    color: #1d70b8;
+    color: govuk-colour("blue");
     text-decoration: underline;
+
+    &:focus {
+        outline: 3px solid transparent;
+        color: govuk-colour("black");
+        background-color: govuk-colour("yellow");
+        box-shadow: 0 -2px govuk-colour("yellow"), 0 4px govuk-colour("black");
+        text-decoration: none;
+    }
   }
 
 .amp-control {
     text-decoration: underline;
-    color: #1d70b8;
+    color: govuk-colour("blue");
     cursor: pointer;
 
     &:focus {
         outline: 3px solid transparent;
-        color: #0b0c0c;
-        background-color: #ffdd00;
-        box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+        color: govuk-colour("black");
+        background-color: govuk-colour("yellow");
+        box-shadow: 0 -2px govuk-colour("yellow"), 0 4px govuk-colour("black");
         text-decoration: none;
     }
 }
@@ -461,8 +439,8 @@ img, .amp-max-width-100 {
 }
 
 .print-button {
-    border: 1px solid #b1b4b6;
-    color: #1d70b8;
+    border: 1px solid govuk-colour("mid-grey");
+    color: govuk-colour("blue");
     cursor: pointer;
     margin: 0;
     background: url("data:image/png; base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAASAgMAAAAvVbb5AAAACVBMVEX///////8KDAwmYEUdAAAAAXRSTlMAQObYZgAAADBJREFUCFtjYOBa1cDAoBkKJFYCCSYwEYpCrAICZCI0FEhkrURmQRRnrYRpW7WqAQAlGR86Ip1rwwAAAABJRU5ErkJggg==") 10px 50% / 16px 18px no-repeat;
@@ -495,7 +473,7 @@ img, .amp-max-width-100 {
 }
 
 .amp-report-wrapper, .amp-markdown {
-    color: #0b0c0c;
+    color: govuk-colour("black");
     font-family: "GDS Transport",arial,sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -527,30 +505,30 @@ img, .amp-max-width-100 {
 
     a:focus {
         outline: 3px solid transparent;
-        color: #0b0c0c;
-        background-color: #ffdd00;
-        box-shadow:0 -2px #ffdd00,0 4px #0b0c0c;
+        color: govuk-colour("black");
+        background-color: govuk-colour("yellow");
+        box-shadow:0 -2px govuk-colour("yellow"),0 4px govuk-colour("black");
         text-decoration: none;
     }
 
     a:link {
-        color:#1d70b8;
+        color:govuk-colour("blue");
     }
 
     a:visited {
-        color: #4c2c92;
+        color: govuk-colour("purple");
     }
 
     a:hover {
-        color: #003078;
+        color: govuk-colour("dark-blue");
     }
 
     a:active {
-        color: #0b0c0c;
+        color: govuk-colour("black");
     }
 
     a:focus {
-        color: #0b0c0c;
+        color: govuk-colour("black");
     }
 
     table {
@@ -566,7 +544,7 @@ img, .amp-max-width-100 {
 
         th, td {
             padding: 15px 15px 15px 0;
-            border-bottom: 1px solid #b1b4b6;
+            border-bottom: 1px solid govuk-colour("mid-grey");
             text-align: left;
             vertical-align: top;
         }
@@ -660,7 +638,7 @@ svg {
 
 .amp-left-border {
     padding-left: 10px;
-    border-left: 3px solid #b1b4b6;
+    border-left: 3px solid govuk-colour("mid-grey");
 }
 
 .amp-font-weight-normal {
@@ -849,6 +827,16 @@ svg {
     background-color: govuk-colour("yellow");
 }
 
+.amp-new-window {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==)
+         no-repeat center;
+    width: 1em;
+    height: 1em;
+}
+
+.amp-margin-right-5 {
+    margin-right: 5px;
+}
 
 .amp-copy-text-to-clipboard {
     color: govuk-colour("blue");

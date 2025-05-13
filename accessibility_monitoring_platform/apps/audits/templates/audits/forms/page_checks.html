@@ -6,15 +6,16 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <p class="govuk-body-m amp-margin-bottom-0">
-            <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+            ▼ &nbsp; <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
         </p>
     </div>
-    <div class="govuk-grid-column-one-third">
+    <div class="govuk-grid-column-one-third govuk-button-group">
         <p class="govuk-body-m amp-margin-bottom-10">
             {% if page.url %}
-                <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link amp-margin-right-5">
                     Open page in new tab
                 </a>
+                <div class="amp-new-window"></div>
             {% else %}
                 None
             {% endif %}
@@ -63,8 +64,8 @@
                 {% include 'audits/helpers/check_result_initial_notes_history.html' with check_result=form.initial.check_result %}
                 <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
                     <div class="govuk-grid-column-full govuk-button-group">
-                        {% include 'common/back_to_top.html' %}
-                        <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+                        ▼ &nbsp; <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
+                        ▲ &nbsp; {% include 'common/back_to_top.html' %}
                     </div>
                 </div>
             </div>

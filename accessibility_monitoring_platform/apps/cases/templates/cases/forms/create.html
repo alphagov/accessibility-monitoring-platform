@@ -100,7 +100,7 @@
                             {% include 'common/amp_field.html' with field=form.sector %}
                         </div>
                     </div>
-                    <div class="govuk-grid-row">
+                    <div class="govuk-grid-row{% if duplicate_cases %} amp-display-none{% endif %}">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field.html' with field=form.previous_case_url %}
                         </div>
@@ -108,6 +108,11 @@
                     <div class="govuk-grid-row{% if duplicate_cases %} amp-display-none{% endif %}">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field.html' with field=form.is_complaint %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row{% if duplicate_cases %} amp-display-none{% endif %}">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.notes %}
                         </div>
                     </div>
 

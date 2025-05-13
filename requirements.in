@@ -1,4 +1,4 @@
-django==5.1.8
+django
 django-browser-reload
 python-dotenv
 psycopg2
