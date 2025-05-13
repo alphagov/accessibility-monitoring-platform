@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Case as DjangoCase
 from django.db.models import Max, Q, When
@@ -743,11 +744,12 @@ class CheckResult(models.Model):
     updated = models.DateTimeField(null=True, blank=True)
 
     @property
-    def dict_for_retest(self) -> dict[str, str]:
+    def retest_form_initial(self) -> dict[str, str]:
         return {
             "id": self.id,
             "retest_state": self.retest_state,
             "retest_notes": self.retest_notes,
+            "check_result": self,
         }
 
     class Meta:
@@ -780,6 +782,43 @@ class CheckResult(models.Model):
             .exclude(page=self.page)
             .exclude(retest_notes="")
         )
+
+
+class CheckResultNotesHistory(models.Model):
+    """Model to record history of changes to CheckResult notes"""
+
+    check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
+    notes = models.TextField(default="", blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"#{self.check_result} {self.created} {self.created_by}"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Check result notes histories"
+
+
+class CheckResultRetestNotesHistory(models.Model):
+    """Model to record history of changes to CheckResult retest_notes"""
+
+    check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
+    retest_notes = models.TextField(default="", blank=True)
+    retest_state = models.CharField(
+        max_length=20,
+        choices=CheckResult.RetestResult.choices,
+        default=CheckResult.RetestResult.NOT_RETESTED,
+    )
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"#{self.check_result} {self.created} {self.created_by}"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Check result retest notes histories"
 
 
 class StatementCheck(models.Model):

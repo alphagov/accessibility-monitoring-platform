@@ -194,13 +194,13 @@ def diff_model_fields(
 
 def record_model_update_event(user: User, model_object: models.Model) -> None:
     """Record model update event"""
-    old_model = model_object.__class__.objects.get(pk=model_object.id)
-    old_model_fields = copy.copy(vars(old_model))
-    del old_model_fields["_state"]
-    new_model_fields = copy.copy(vars(model_object))
-    del new_model_fields["_state"]
+    previous_object = model_object.__class__.objects.get(pk=model_object.id)
+    previous_object_fields = copy.copy(vars(previous_object))
+    del previous_object_fields["_state"]
+    model_object_fields = copy.copy(vars(model_object))
+    del model_object_fields["_state"]
     diff_fields: dict[str, Any] = diff_model_fields(
-        old_fields=old_model_fields, new_fields=new_model_fields
+        old_fields=previous_object_fields, new_fields=model_object_fields
     )
     if diff_fields:
         Event.objects.create(
@@ -212,13 +212,13 @@ def record_model_update_event(user: User, model_object: models.Model) -> None:
 
 def record_model_create_event(user: User, model_object: models.Model) -> None:
     """Record model create event"""
-    new_model_fields = copy.copy(vars(model_object))
-    del new_model_fields["_state"]
+    model_object_fields = copy.copy(vars(model_object))
+    del model_object_fields["_state"]
     Event.objects.create(
         created_by=user,
         parent=model_object,
         type=Event.Type.CREATE,
-        value=json.dumps(new_model_fields, default=str),
+        value=json.dumps(model_object_fields, default=str),
     )
 
 

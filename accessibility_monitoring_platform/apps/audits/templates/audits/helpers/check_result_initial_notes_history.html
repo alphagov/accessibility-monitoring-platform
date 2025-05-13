@@ -1,0 +1,28 @@
+{% if check_result.checkresultnoteshistory_set.all %}
+    <div class="govuk-grid-row amp-margin-top-20">
+        <div class="govuk-grid-column-full">
+            <details class="govuk-details" data-module="govuk-details">
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                        Update history ({{ check_result.checkresultnoteshistory_set.all.count }})
+                    </span>
+                </summary>
+                <div class="govuk-details__text">
+                    {% for check_result_history_event in check_result.checkresultnoteshistory_set.all %}
+                        <p>
+                            {% if forloop.counter == 1 %}
+                                Issue last updated
+                                {{ check_result_history_event.created|amp_date_trunc }}
+                            {% else %}
+                                <b>{{ check_result_history_event.created|amp_date_trunc }}</b>
+                            {% endif %}
+                        </p>
+                        {% if forloop.counter > 1 %}
+                            {{ check_result_history_event.notes|markdown_to_html }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </details>
+        </div>
+    </div>
+{% endif %}
