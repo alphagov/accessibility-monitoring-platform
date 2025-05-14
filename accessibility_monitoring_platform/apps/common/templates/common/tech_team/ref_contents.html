@@ -54,6 +54,8 @@
             <li>
                 <a href="{% url 'common:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
                     Issue reports</a>
+                (<a href="{% url 'admin:common_issuereport_changelist' %}?complete__exact=0" class="govuk-link govuk-link--no-visited-state"
+                    >admin</a>)
             </li>
             <li>
                 <a href="{% url 'common:platform-checking' %}" class="govuk-link govuk-link--no-visited-state">
@@ -67,7 +69,7 @@
             <li>
                 <a href="{% url 'common:platform-history' %}" class="govuk-link govuk-link--no-visited-state">
                     Versions</a>
-                (<a href="{% url 'admin:common_changetoplatform_changelist' %}?complete__exact=0" class="govuk-link govuk-link--no-visited-state"
+                (<a href="{% url 'admin:common_changetoplatform_changelist' %}" class="govuk-link govuk-link--no-visited-state"
                     >admin</a>)
             </li>
         </ul>
