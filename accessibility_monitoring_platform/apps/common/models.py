@@ -6,8 +6,6 @@ from dataclasses import dataclass
 from datetime import date
 
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 
@@ -145,35 +143,6 @@ class ChangeToPlatform(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("common:platform-history")
-
-
-class Event(models.Model):
-    """
-    Model to records events on platform
-    """
-
-    class Type(models.TextChoices):
-        UPDATE = "model_update", "Model update"
-        CREATE = "model_create", "Model create"
-
-    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
-    object_id = models.PositiveIntegerField()
-    parent = GenericForeignKey("content_type", "object_id")
-    type = models.CharField(max_length=100, choices=Type.choices, default=Type.UPDATE)
-    value = models.TextField(default="", blank=True)
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="event_created_by_user",
-    )
-    created = models.DateTimeField(auto_now_add=True)
-    is_deleted = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"#{self.content_type} {self.object_id} {self.type}"
-
-    class Meta:
-        ordering = ["-created"]
 
 
 class VersionModel(models.Model):

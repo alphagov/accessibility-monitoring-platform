@@ -2,22 +2,27 @@
 Test utility functions of cases app
 """
 
+import json
 from dataclasses import dataclass
+from typing import Any
 
 import pytest
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
 from django.http.request import QueryDict
 
 from ...audits.models import Audit
 from ...common.models import Boolean, Sector, SubCategory
-from ..models import Case, CaseCompliance, CaseEvent
+from ..models import Case, CaseCompliance, CaseEvent, EventHistory
 from ..utils import (
     build_edit_link_html,
     create_case_and_compliance,
     filter_cases,
     get_sent_date,
     record_case_event,
+    record_model_create_event,
+    record_model_update_event,
     replace_search_key_with_case_search,
 )
 
@@ -433,3 +438,42 @@ def test_create_case_and_compliance():
 
     assert case.organisation_name == ORGANISATION_NAME
     assert case.compliance.website_compliance_state_12_week == "compliant"
+
+
+@pytest.mark.django_db
+def test_record_model_create_event():
+    """Test creation of model create event"""
+    user: User = User.objects.create()
+    record_model_create_event(user=user, model_object=user)
+
+    content_type: ContentType = ContentType.objects.get_for_model(User)
+    event: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=user.id
+    )
+
+    assert event.event_type == EventHistory.Type.CREATE
+
+    difference_dict: dict[str, Any] = json.loads(event.difference)
+
+    assert "last_login" in difference_dict
+    assert difference_dict["last_login"] is None
+    assert "is_active" in difference_dict
+    assert difference_dict["is_active"] is True
+    assert "is_staff" in difference_dict
+    assert difference_dict["is_staff"] is False
+
+
+@pytest.mark.django_db
+def test_record_model_update_event():
+    """Test creation of model update event"""
+    user: User = User.objects.create()
+    user.first_name = "Changed"
+    record_model_update_event(user=user, model_object=user)
+
+    content_type: ContentType = ContentType.objects.get_for_model(User)
+    event: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=user.id
+    )
+
+    assert event.event_type == EventHistory.Type.UPDATE
+    assert event.difference == '{"first_name": " -> Changed"}'

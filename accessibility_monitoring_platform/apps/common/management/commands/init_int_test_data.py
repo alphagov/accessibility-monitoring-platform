@@ -35,6 +35,7 @@ from ....cases.models import (
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
+    EventHistory,
     ZendeskTicket,
 )
 from ....comments.models import Comment
@@ -44,7 +45,7 @@ from ....notifications.models import NotificationSetting, Task
 from ....reports.models import Report, ReportVisitsMetrics, ReportWrapper
 from ....s3_read_write.models import S3Report
 from ....users.models import AllowedEmail
-from ...models import ChangeToPlatform, Event, IssueReport, Platform, Sector
+from ...models import ChangeToPlatform, IssueReport, Platform, Sector
 
 
 def load_fixture(fixture: str) -> None:
@@ -127,10 +128,8 @@ class Command(BaseCommand):
                 Report,
             ]
         )
-        delete_from_models([Contact, CaseEvent, Case])
-        delete_from_models(
-            [ChangeToPlatform, Event, IssueReport, Platform, Sector]
-        )  # Common
+        delete_from_models([EventHistory, Contact, CaseEvent, Case])
+        delete_from_models([ChangeToPlatform, IssueReport, Platform, Sector])  # Common
         delete_from_models([Group, User])
         delete_from_models([AllowedEmail])
 

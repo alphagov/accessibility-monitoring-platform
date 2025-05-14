@@ -9,8 +9,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ...cases.models import Case
-from ...common.models import Event
+from ...cases.models import Case, EventHistory
 from ...reports.models import Report
 from ..models import Comment
 
@@ -50,9 +49,11 @@ def test_edit_qa_comment_redirects_based_on_button_pressed(
     )
 
     content_type: ContentType = ContentType.objects.get_for_model(Comment)
-    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
+    event_history: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=comment.id
+    )
 
-    assert event.type == Event.Type.UPDATE
+    assert event_history.event_type == EventHistory.Type.UPDATE
 
 
 def test_qa_comment_removal(admin_client, admin_user):

@@ -29,7 +29,7 @@ from ...notifications.models import Task
 from ...reports.models import Report, ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
-from ..models import Event, FooterLink, FrequentlyUsedLink, Platform
+from ..models import FooterLink, FrequentlyUsedLink, Platform
 from ..utils import get_platform_settings
 
 NOT_FOUND_DOMAIN: str = "not-found"
@@ -1138,42 +1138,6 @@ def test_platform_checking_non_staff_access(client):
     response: HttpResponse = client.get(reverse("common:platform-checking"))
 
     assert response.status_code == 403
-
-
-def test_platform_checking_deletes_old_events(admin_client, admin_user, caplog):
-    """Test platform checking deletes old events"""
-    case: Case = Case.objects.create()
-    old_event: Event = Event.objects.create(
-        created_by=admin_user, parent=case, value="old"
-    )
-    old_event.created = datetime(2020, 1, 1, 0, 0, tzinfo=timezone.utc)
-    old_event.save()
-    new_event: Event = Event.objects.create(
-        created_by=admin_user, parent=case, value="new"
-    )
-
-    response: HttpResponse = admin_client.post(
-        reverse("common:platform-checking"),
-        {
-            "delete_old_events": "Delete 1 old events",
-        },
-    )
-
-    assert response.status_code == 302
-
-    events: QuerySet[Event] = Event.objects.all()
-
-    assert old_event not in events
-    assert new_event in events
-
-    assert response.url == reverse("common:platform-checking")
-    assert caplog.record_tuples == [
-        (
-            "accessibility_monitoring_platform.apps.common.views",
-            30,
-            "admin@example.com deleted 1 old events",
-        )
-    ]
 
 
 @pytest.mark.django_db

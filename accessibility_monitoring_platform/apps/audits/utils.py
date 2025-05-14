@@ -11,12 +11,9 @@ from django.db.models.query import QuerySet
 from django.http import Http404, HttpRequest
 from django.utils import timezone
 
+from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.sitemap import PlatformPage, get_platform_page_by_url_name
-from ..common.utils import (
-    list_to_dictionary_of_lists,
-    record_model_create_event,
-    record_model_update_event,
-)
+from ..common.utils import list_to_dictionary_of_lists
 from .forms import CheckResultForm
 from .models import (
     Audit,
@@ -99,7 +96,9 @@ def create_or_update_check_results_for_page(
             ):
                 check_result.check_result_state = check_result_state
                 check_result.notes = notes
-                record_model_update_event(user=user, model_object=check_result)
+                record_model_update_event(
+                    user=user, model_object=check_result, case=check_result.audit.case
+                )
                 add_to_check_result_notes_history(check_result=check_result, user=user)
                 report_data_updated(audit=check_result.audit)
                 check_result.save()
@@ -112,10 +111,12 @@ def create_or_update_check_results_for_page(
                 check_result_state=check_result_state,
                 notes=notes,
             )
+            record_model_create_event(
+                user=user, model_object=check_result, case=check_result.audit.case
+            )
             add_to_check_result_notes_history(
                 check_result=check_result, user=user, new_check_result=True
             )
-            record_model_create_event(user=user, model_object=check_result)
             report_data_updated(audit=page.audit)
 
 

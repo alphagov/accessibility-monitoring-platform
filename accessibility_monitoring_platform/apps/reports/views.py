@@ -15,7 +15,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 
 from ..cases.models import Case, CaseEvent
-from ..common.utils import record_model_create_event, record_model_update_event
+from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.views import HideCaseNavigationMixin
 from .forms import ReportWrapperUpdateForm
 from .models import Report, ReportVisitsMetrics, ReportWrapper
@@ -39,7 +39,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
             reverse("cases:edit-report-ready-for-qa", kwargs={"pk": case.id})
         )
     report: Report = Report.objects.create(case=case)
-    record_model_create_event(user=request.user, model_object=report)
+    record_model_create_event(user=request.user, model_object=report, case=case)
     CaseEvent.objects.create(
         case=case,
         done_by=request.user,
@@ -62,7 +62,9 @@ class ReportUpdateView(UpdateView):
         if form.changed_data:
             self.object: Report = form.save(commit=False)
             self.object.created_by = self.request.user
-            record_model_update_event(user=self.request.user, model_object=self.object)
+            record_model_update_event(
+                user=self.request.user, model_object=self.object, case=self.object.case
+            )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 

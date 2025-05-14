@@ -2,16 +2,13 @@
 Test - common utility functions
 """
 
-import json
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
-from typing import Any
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import pytest
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.http import HttpRequest
@@ -20,7 +17,8 @@ from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
 from ...cases.models import Case, Contact
-from ..models import ChangeToPlatform, Event, Platform
+from ..mark_deleted_util import get_id_from_button_name, mark_object_as_deleted
+from ..models import ChangeToPlatform, Platform
 from ..utils import (
     SessionExpiry,
     amp_format_date,
@@ -38,15 +36,10 @@ from ..utils import (
     get_days_ago_timestamp,
     get_dict_without_page_items,
     get_first_of_this_month_last_year,
-    get_id_from_button_name,
-    get_one_year_ago,
     get_platform_settings,
     get_recent_changes_to_platform,
     get_url_parameters_for_pagination,
     list_to_dictionary_of_lists,
-    mark_object_as_deleted,
-    record_model_create_event,
-    record_model_update_event,
     replace_whole_words,
     sanitise_domain,
     undo_double_escapes,
@@ -292,41 +285,6 @@ def test_get_recent_changes_to_platform():
     assert recent_change_to_platform in recent_changes_to_platform
 
 
-@pytest.mark.django_db
-def test_record_model_create_event():
-    """Test creation of model create event"""
-    user: User = User.objects.create()
-    record_model_create_event(user=user, model_object=user)
-
-    content_type: ContentType = ContentType.objects.get_for_model(User)
-    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
-
-    assert event.type == Event.Type.CREATE
-
-    value_dict: dict[str, Any] = json.loads(event.value)
-
-    assert "last_login" in value_dict
-    assert value_dict["last_login"] is None
-    assert "is_active" in value_dict
-    assert value_dict["is_active"] is True
-    assert "is_staff" in value_dict
-    assert value_dict["is_staff"] is False
-
-
-@pytest.mark.django_db
-def test_record_model_update_event():
-    """Test creation of model update event"""
-    user: User = User.objects.create()
-    user.first_name = "Changed"
-    record_model_update_event(user=user, model_object=user)
-
-    content_type: ContentType = ContentType.objects.get_for_model(User)
-    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
-
-    assert event.type == Event.Type.UPDATE
-    assert event.value == '{"first_name": " -> Changed"}'
-
-
 def test_list_to_dictionary_of_lists():
     """Test list of items grouped by attribute and converted to dictionary of lists"""
     mock_1: MockModel = MockModel(char_field="key1", integer_field=1)
@@ -560,26 +518,6 @@ def test_get_first_of_this_month_last_year(now, expected_result):
     ) as mock_timezone:
         mock_timezone.now.return_value = now
         assert get_first_of_this_month_last_year() == expected_result
-
-
-@pytest.mark.parametrize(
-    "today, expected_result",
-    [
-        (
-            date(2023, 8, 25),
-            datetime(2022, 8, 25, 0, 0, tzinfo=datetime_timezone.utc),
-        ),
-        (
-            date(2022, 1, 2),
-            datetime(2021, 1, 2, 0, 0, tzinfo=datetime_timezone.utc),
-        ),
-    ],
-)
-def test_get_one_year_ago(today, expected_result):
-    """Test midnight one year ago is calculated"""
-    with patch("accessibility_monitoring_platform.apps.common.utils.date") as mock_date:
-        mock_date.today.return_value = today
-        assert get_one_year_ago() == expected_result
 
 
 def test_session_expiry():

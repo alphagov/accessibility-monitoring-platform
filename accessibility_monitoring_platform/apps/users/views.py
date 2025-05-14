@@ -11,12 +11,9 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django_otp.plugins.otp_email.models import EmailDevice
 
+from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.models import Boolean
-from ..common.utils import (
-    checks_if_2fa_is_enabled,
-    record_model_create_event,
-    record_model_update_event,
-)
+from ..common.utils import checks_if_2fa_is_enabled
 from ..notifications.models import NotificationSetting
 from .forms import UserCreateForm, UserUpdateForm
 

@@ -9,6 +9,8 @@ from datetime import timezone as datetime_timezone
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.query import QuerySet
@@ -1487,3 +1489,56 @@ class ZendeskTicket(models.Model):
         if not self.id:
             self.id_within_case = self.case.zendeskticket_set.all().count() + 1
         super().save(*args, **kwargs)
+
+
+class EventHistory(models.Model):
+    """Model to record events on platform"""
+
+    class Type(models.TextChoices):
+        UPDATE = "model_update", "Model update"
+        CREATE = "model_create", "Model create"
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT, null=True, blank=True)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.PROTECT, related_name="case_event_content_type"
+    )
+    object_id = models.PositiveIntegerField()
+    parent = GenericForeignKey("content_type", "object_id")
+    event_type = models.CharField(
+        max_length=100, choices=Type.choices, default=Type.UPDATE
+    )
+    difference = models.TextField(default="", blank=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="case_event_created_by_user",
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.case} {self.content_type} {self.object_id} {self.event_type} (#{self.id})"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Case histories"
+
+    @property
+    def variables(self):
+        differences: dict[str, str] = json.loads(self.difference)
+
+        variable_list: list[dict[str, int | str]] = []
+        for key, value in differences.items():
+            if self.event_type == EventHistory.Type.CREATE:
+                old_value: str = ""
+                new_value: str | int = value
+            else:
+                old_value, new_value = value.split(" -> ")
+            variable_list.append(
+                {
+                    "name": key,
+                    "old_value": old_value,
+                    "new_value": new_value,
+                }
+            )
+        return variable_list

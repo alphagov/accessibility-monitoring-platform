@@ -11,7 +11,7 @@ from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import Case
-from ..common.utils import record_model_create_event, record_model_update_event
+from ..cases.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
 from .utils import (
@@ -128,7 +128,7 @@ class ReminderTaskCreateView(CreateView):
                 reminder_task.user = user
                 reminder_task.description = form.cleaned_data["description"]
                 record_model_update_event(
-                    user=self.request.user, model_object=reminder_task
+                    user=self.request.user, model_object=reminder_task, case=case
                 )
                 reminder_task.save()
             except Task.DoesNotExist:
@@ -140,7 +140,7 @@ class ReminderTaskCreateView(CreateView):
                     description=form.cleaned_data["description"],
                 )
                 record_model_create_event(
-                    user=self.request.user, model_object=self.object
+                    user=self.request.user, model_object=self.object, case=case
                 )
         return HttpResponseRedirect(
             reverse_lazy("cases:case-detail", kwargs={"pk": case.id})
@@ -148,7 +148,9 @@ class ReminderTaskCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Record creation event"""
-        record_model_create_event(user=self.request.user, model_object=self.object)
+        record_model_create_event(
+            user=self.request.user, model_object=self.object, case=self.object.case
+        )
         return reverse("cases:case-detail", kwargs={"pk": self.object.case.id})
 
 
@@ -170,7 +172,9 @@ class ReminderTaskUpdateView(UpdateView):
                 self.object.read = True
             case: Case = self.object.case
             self.object.user = case.auditor if case.auditor else self.request.user
-            record_model_update_event(user=self.request.user, model_object=self.object)
+            record_model_update_event(
+                user=self.request.user, model_object=self.object, case=self.object.case
+            )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 

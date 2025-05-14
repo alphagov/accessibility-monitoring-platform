@@ -3,7 +3,6 @@ Common views
 """
 
 import logging
-from datetime import datetime
 from typing import Any
 
 from django.conf import settings
@@ -21,6 +20,7 @@ from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
+from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.sitemap import PlatformPage, Sitemap
 from .forms import (
     ActiveQAAuditorUpdateForm,
@@ -33,6 +33,7 @@ from .forms import (
     FrequentlyUsedLinkOneExtraFormset,
     PlatformCheckingForm,
 )
+from .mark_deleted_util import mark_object_as_deleted
 from .metrics import (
     get_case_progress_metrics,
     get_case_yearly_metrics,
@@ -45,22 +46,13 @@ from .metrics import (
 )
 from .models import (
     ChangeToPlatform,
-    Event,
     FooterLink,
     FrequentlyUsedLink,
     IssueReport,
     Platform,
 )
 from .platform_template_view import PlatformTemplateView
-from .utils import (
-    extract_domain_from_url,
-    get_one_year_ago,
-    get_platform_settings,
-    mark_object_as_deleted,
-    record_model_create_event,
-    record_model_update_event,
-    sanitise_domain,
-)
+from .utils import extract_domain_from_url, get_platform_settings, sanitise_domain
 
 logger = logging.getLogger(__name__)
 
@@ -428,28 +420,7 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
         """Only staff users have access to this view"""
         return self.request.user.is_staff
 
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        number_of_old_events: int = Event.objects.filter(
-            created__lte=get_one_year_ago()
-        ).count()
-        context["number_of_old_events"] = number_of_old_events
-        return context
-
     def form_valid(self, form):
-        if "delete_old_events" in self.request.POST:
-            one_year_ago: datetime = get_one_year_ago()
-            number_of_old_events: int = Event.objects.filter(
-                created__lte=one_year_ago
-            ).count()
-            Event.objects.filter(created__lte=one_year_ago).delete()
-            logger.warning(
-                "%s deleted %d old events",
-                self.request.user.email,
-                number_of_old_events,
-            )
-            return super().form_valid(form)
         if "trigger_400" in self.request.POST:
             raise BadRequest
         if "trigger_403" in self.request.POST:

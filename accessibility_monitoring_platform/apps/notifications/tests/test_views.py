@@ -8,8 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...cases.models import Case
-from ...common.models import Event
+from ...cases.models import Case, EventHistory
 from ..models import Task
 from ..views import (
     CommentsMarkAsReadView,
@@ -365,10 +364,10 @@ def test_reminder_task_create_redirects_to_case(rf):
     assert task.date == TODAY
     assert task.description == DESCRIPTION
 
-    event: Event = Event.objects.all().first()
+    event_history: EventHistory = EventHistory.objects.all().first()
 
-    assert event is not None
-    assert event.type == Event.Type.CREATE
+    assert event_history is not None
+    assert event_history.event_type == EventHistory.Type.CREATE
 
 
 @pytest.mark.django_db
@@ -409,10 +408,10 @@ def test_reminder_task_update_redirects_to_self(rf):
     assert task_from_db is not None
     assert task_from_db.description == DESCRIPTION
 
-    event: Event = Event.objects.all().first()
+    event_history: EventHistory = EventHistory.objects.all().first()
 
-    assert event is not None
-    assert event.type == Event.Type.UPDATE
+    assert event_history is not None
+    assert event_history.event_type == EventHistory.Type.UPDATE
 
 
 @pytest.mark.django_db
@@ -453,10 +452,10 @@ def test_reminder_task_delete_redirects_to_create(rf):
     assert task_from_db is not None
     assert task_from_db.read is True
 
-    event: Event = Event.objects.all().first()
+    event_history: EventHistory = EventHistory.objects.all().first()
 
-    assert event is not None
-    assert event.type == Event.Type.UPDATE
+    assert event_history is not None
+    assert event_history.event_type == EventHistory.Type.UPDATE
 
 
 @pytest.mark.django_db

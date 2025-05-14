@@ -10,7 +10,6 @@ from django.http import HttpResponse
 from .models import (
     ChangeToPlatform,
     EmailTemplate,
-    Event,
     FooterLink,
     FrequentlyUsedLink,
     IssueReport,
@@ -39,45 +38,6 @@ class ExportCsvMixin:
         return response
 
     export_as_csv.short_description = "Export Selected"
-
-
-class EventAdmin(admin.ModelAdmin):
-    """Django admin configuration for Event model"""
-
-    readonly_fields = [
-        "content_type",
-        "object_id",
-        "value",
-        "created",
-        "created_by",
-    ]
-    search_fields = ["value", "created_by__username", "object_id"]
-    list_display = [
-        "content_type",
-        "object_id",
-        "type",
-        "created",
-        "created_by",
-        "value",
-    ]
-    list_filter = [
-        "type",
-        ("content_type", admin.RelatedOnlyFieldListFilter),
-        ("created_by", admin.RelatedOnlyFieldListFilter),
-    ]
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    ("content_type", "object_id"),
-                    ("created_by", "created"),
-                    ("value",),
-                )
-            },
-        ),
-    )
-    show_facets = admin.ShowFacets.ALWAYS
 
 
 class EmailTemplateAdmin(admin.ModelAdmin):
@@ -192,7 +152,6 @@ class SubCategorysAdmin(admin.ModelAdmin):
     list_display = ["name"]
 
 
-admin.site.register(Event, EventAdmin)
 admin.site.register(EmailTemplate, EmailTemplateAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)

@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from ..cases.models import Case
 from ..common.models import Link
+from ..common.templatetags.common_tags import amp_date
 
 
 class Task(models.Model):
@@ -26,6 +27,9 @@ class Task(models.Model):
     read = models.BooleanField(default=False)
     action = models.TextField(default="N/A")
     updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.get_type_display()} {amp_date(self.date)}"
 
     class Meta:
         ordering: list[str] = ["-id"]

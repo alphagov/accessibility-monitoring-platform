@@ -54,6 +54,8 @@
             <li>
                 <a href="{% url 'common:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
                     Issue reports</a>
+                (<a href="{% url 'admin:common_issuereport_changelist' %}?complete__exact=0" class="govuk-link govuk-link--no-visited-state"
+                    >admin</a>)
             </li>
             <li>
                 <a href="{% url 'common:platform-checking' %}" class="govuk-link govuk-link--no-visited-state">
@@ -67,8 +69,24 @@
             <li>
                 <a href="{% url 'common:platform-history' %}" class="govuk-link govuk-link--no-visited-state">
                     Versions</a>
-                (<a href="{% url 'admin:common_changetoplatform_changelist' %}?complete__exact=0" class="govuk-link govuk-link--no-visited-state"
+                (<a href="{% url 'admin:common_changetoplatform_changelist' %}" class="govuk-link govuk-link--no-visited-state"
                     >admin</a>)
+            </li>
+        </ul>
+        <h2 class="govuk-heading-m">Case history</h2>
+        <ul class="govuk-list">
+            <li>
+                {% if django_settings.AMP_PROTOTYPE_NAME == 'TEST' %}
+                    <a href="{% url 'cases:case-history' 1170 %}" class="govuk-link govuk-link--no-visited-state">
+                        #1170 NHS Highland</a>
+                    (<a href="{% url 'admin:cases_eventhistory_changelist' %}?q=1170" class="govuk-link govuk-link--no-visited-state"
+                        >admin</a>)
+                {% else %}
+                    <a href="{% url 'cases:case-history' 2413 %}" class="govuk-link govuk-link--no-visited-state">
+                        #1936 Preston college</a>
+                    (<a href="{% url 'admin:cases_eventhistory_changelist' %}?q=1936" class="govuk-link govuk-link--no-visited-state"
+                        >admin</a>)
+                {% endif %}
             </li>
         </ul>
     </div>
