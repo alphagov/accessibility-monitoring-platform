@@ -1243,6 +1243,7 @@ class CaseHistoryDetailView(DetailView):
             case=case
         ).prefetch_related("parent")
         context["event_history"] = event_history
+        context["all_users"] = User.objects.all().order_by("id")
         return context
 
 

@@ -74,7 +74,7 @@ class Comment(models.Model):
         ordering: list[str] = ["created_date"]
 
     def __str__(self) -> str:
-        return f"Comment {self.body} by {self.user}"
+        return f"Comment {self.id} by {self.user}"
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
