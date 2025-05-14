@@ -1517,7 +1517,28 @@ class EventHistory(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"#{self.case} {self.content_type} {self.object_id} {self.event_type}"
+        return f"{self.case} {self.content_type} {self.object_id} {self.event_type} (#{self.id})"
 
     class Meta:
         ordering = ["-created"]
+        verbose_name_plural = "Case histories"
+
+    @property
+    def variables(self):
+        differences: dict[str, str] = json.loads(self.difference)
+
+        variable_list: list[dict[str, int | str]] = []
+        for key, value in differences.items():
+            if self.event_type == EventHistory.Type.CREATE:
+                old_value: str = ""
+                new_value: str | int = value
+            else:
+                old_value, new_value = value.split(" -> ")
+            variable_list.append(
+                {
+                    "name": key,
+                    "old_value": old_value,
+                    "new_value": new_value,
+                }
+            )
+        return variable_list
