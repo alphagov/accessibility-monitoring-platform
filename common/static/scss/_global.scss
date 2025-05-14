@@ -721,6 +721,39 @@ svg {
     }
 }
 
+.amp-nav-details__text_selected {
+    border-left: 2px solid govuk-colour("blue");
+    padding-left: 12px;
+    padding-top: 4px;
+    margin-bottom: 10px;
+    ul {
+        font-size: 1rem;
+
+        .amp-nav-list-subpages {
+            list-style-type: disc;
+            margin-left: -11px;
+            li:first-of-type {
+                margin-top: 12px;
+            }
+        }
+    }
+
+    li {
+        padding-bottom: 4px;
+
+        a {
+            padding-bottom: 4px;
+        }
+    }
+
+    a[disabled] {
+        pointer-events: none;
+        color: govuk-colour("mid-grey");
+        text-decoration: none;
+    }
+}
+
+
 .amp_case_search_contents {
     li {
         padding-bottom: 4px;
