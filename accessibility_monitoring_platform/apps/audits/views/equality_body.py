@@ -12,14 +12,11 @@ from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
 from ...cases.models import Case
+from ...cases.utils import record_model_create_event, record_model_update_event
+from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.models import Boolean
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
-from ...common.utils import (
-    list_to_dictionary_of_lists,
-    mark_object_as_deleted,
-    record_model_create_event,
-    record_model_update_event,
-)
+from ...common.utils import list_to_dictionary_of_lists
 from ...common.views import NextPlatformPageMixin
 from ..forms import (
     RetestCheckResultFormset,
@@ -71,7 +68,7 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
     if id_within_case == 0:
         id_within_case = 1
     retest: Retest = Retest.objects.create(case=case, id_within_case=id_within_case)
-    record_model_create_event(user=request.user, model_object=retest)
+    record_model_create_event(user=request.user, model_object=retest, case=case)
     create_checkresults_for_retest(retest=retest)
     return redirect(reverse("audits:retest-metadata-update", kwargs={"pk": retest.id}))
 
@@ -80,7 +77,7 @@ def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
     """Set Retest.is_deleted to True"""
     retest: Retest = get_object_or_404(Retest, id=pk)
     retest.is_deleted = True
-    record_model_update_event(user=request.user, model_object=retest)
+    record_model_update_event(user=request.user, model_object=retest, case=retest.case)
     retest.save()
     return redirect(
         reverse("cases:edit-retest-overview", kwargs={"pk": retest.case.id})
@@ -104,7 +101,9 @@ class RetestMetadataUpdateView(NextPlatformPageMixin, UpdateView):
         """Add record event on change"""
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)
+            record_model_update_event(
+                user=self.request.user, model_object=self.object, case=self.object.case
+            )
         return super().form_valid(form)
 
 
@@ -206,7 +205,9 @@ class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):
         """Add record event on change"""
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)
+            record_model_update_event(
+                user=self.request.user, model_object=self.object, case=self.object.case
+            )
         return super().form_valid(form)
 
 
@@ -224,7 +225,9 @@ class RetestComplianceUpdateView(NextPlatformPageMixin, UpdateView):
         """Add record event on change"""
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)
+            record_model_update_event(
+                user=self.request.user, model_object=self.object, case=self.object.case
+            )
         return super().form_valid(form)
 
 
@@ -274,11 +277,15 @@ class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
                     statement_page.audit = retest.case.audit
                     statement_page.save()
                     record_model_create_event(
-                        user=self.request.user, model_object=statement_page
+                        user=self.request.user,
+                        model_object=statement_page,
+                        case=retest.case,
                     )
                 else:
                     record_model_update_event(
-                        user=self.request.user, model_object=statement_page
+                        user=self.request.user,
+                        model_object=statement_page,
+                        case=retest.case,
                     )
                     statement_page.save()
         else:
@@ -314,7 +321,9 @@ class RetestUpdateView(NextPlatformPageMixin, UpdateView):
         """Add event on change of retest"""
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)
+            record_model_update_event(
+                user=self.request.user, model_object=self.object, case=self.object.case
+            )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -362,7 +371,9 @@ class RetestStatementCheckingView(RetestUpdateView):
                     retest_statement_check_results_form.save(commit=False)
                 )
                 record_model_update_event(
-                    user=self.request.user, model_object=retest_statement_check_result
+                    user=self.request.user,
+                    model_object=retest_statement_check_result,
+                    case=retest_statement_check_result.retest.case,
                 )
                 retest_statement_check_result.save()
         else:
@@ -540,11 +551,13 @@ class RetestStatementCustomFormView(RetestUpdateView):
                     record_model_create_event(
                         user=self.request.user,
                         model_object=retest_statement_check_result,
+                        case=retest_statement_check_result.retest.case,
                     )
                 else:
                     record_model_update_event(
                         user=self.request.user,
                         model_object=retest_statement_check_result,
+                        case=retest_statement_check_result.retest.case,
                     )
                     retest_statement_check_result.save()
         else:

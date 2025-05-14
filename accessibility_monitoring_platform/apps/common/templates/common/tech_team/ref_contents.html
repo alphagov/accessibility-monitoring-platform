@@ -71,6 +71,15 @@
                     >admin</a>)
             </li>
         </ul>
+        <h2 class="govuk-heading-m">Case history</h2>
+        <ul class="govuk-list">
+            <li>
+                <a href="{% url 'cases:case-history' 2413 %}" class="govuk-link govuk-link--no-visited-state">
+                    #1936 Preston college</a>
+                (<a href="{% url 'admin:cases_eventhistory_changelist' %}?q=1936" class="govuk-link govuk-link--no-visited-state"
+                    >admin</a>)
+            </li>
+        </ul>
     </div>
 </div>
 <div class="govuk-grid-row">

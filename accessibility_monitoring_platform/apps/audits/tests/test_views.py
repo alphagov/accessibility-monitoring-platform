@@ -14,8 +14,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
-from ...cases.models import Case, CaseCompliance, CaseEvent
-from ...common.models import Event
+from ...cases.models import Case, CaseCompliance, CaseEvent, EventHistory
 from ...reports.models import Report
 from ..models import (
     Audit,
@@ -1812,17 +1811,17 @@ def test_page_checks_edit_saves_results(admin_client):
     assert updated_page.complete_date
     assert updated_page.no_errors_date
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 3
     assert events[0].parent == check_result_pdf
-    assert events[0].type == Event.Type.CREATE
+    assert events[0].event_type == EventHistory.Type.CREATE
     assert events[1].parent == check_result_axe
-    assert events[1].type == Event.Type.CREATE
+    assert events[1].event_type == EventHistory.Type.CREATE
     assert events[2].parent == page
-    assert events[2].type == Event.Type.UPDATE
+    assert events[2].event_type == EventHistory.Type.UPDATE
     assert (
-        events[2].value
+        events[2].difference
         == f"""{{"complete_date": "None -> {TODAY}", "no_errors_date": "None -> {TODAY}"}}"""
     )
 
@@ -2223,17 +2222,17 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     assert updated_page.retest_page_missing_date
     assert updated_page.retest_notes == PAGE_RETEST_NOTES
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 3
     assert events[0].parent == check_result_pdf
-    assert events[0].type == Event.Type.UPDATE
+    assert events[0].event_type == EventHistory.Type.UPDATE
     assert events[1].parent == check_result_axe
-    assert events[1].type == Event.Type.UPDATE
+    assert events[1].event_type == EventHistory.Type.UPDATE
     assert events[2].parent == page
-    assert events[2].type == Event.Type.UPDATE
+    assert events[2].event_type == EventHistory.Type.UPDATE
     assert (
-        events[2].value
+        events[2].difference
         == f'{{"retest_complete_date": "None -> {TODAY}", "retest_page_missing_date": "None -> {TODAY}", "retest_notes": " -> Retest notes"}}'
     )
 
@@ -3134,12 +3133,12 @@ def test_delete_retest(admin_client):
     retest_from_db: Retest = Retest.objects.get(id=retest.id)
     assert retest_from_db.is_deleted is True
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 1
     assert events[0].parent == retest
-    assert events[0].type == Event.Type.UPDATE
-    assert events[0].value == '{"is_deleted": "False -> True"}'
+    assert events[0].event_type == EventHistory.Type.UPDATE
+    assert events[0].difference == '{"is_deleted": "False -> True"}'
 
 
 @pytest.mark.parametrize(
@@ -3767,11 +3766,11 @@ def test_create_initial_custom_issue_redirects(admin_client):
 
     assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 1
     assert events[0].parent == custom_issue
-    assert events[0].type == Event.Type.CREATE
+    assert events[0].event_type == EventHistory.Type.CREATE
 
 
 def test_update_initial_custom_issue_redirects(admin_client):
@@ -3799,11 +3798,11 @@ def test_update_initial_custom_issue_redirects(admin_client):
 
     assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 1
     assert events[0].parent == custom_issue
-    assert events[0].type == Event.Type.UPDATE
+    assert events[0].event_type == EventHistory.Type.UPDATE
 
 
 def test_delete_initial_custom_issue_redirects(admin_client):
@@ -3828,11 +3827,11 @@ def test_delete_initial_custom_issue_redirects(admin_client):
         "audits:edit-statement-custom", kwargs={"pk": audit.id}
     )
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 1
     assert events[0].parent == custom_issue
-    assert events[0].type == Event.Type.UPDATE
+    assert events[0].event_type == EventHistory.Type.UPDATE
 
 
 def test_update_at_12_week_initial_custom_issue_redirects(admin_client):
@@ -3866,11 +3865,11 @@ def test_update_at_12_week_initial_custom_issue_redirects(admin_client):
 
     assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 1
     assert events[0].parent == custom_issue
-    assert events[0].type == Event.Type.UPDATE
+    assert events[0].event_type == EventHistory.Type.UPDATE
 
 
 def test_create_new_12_week_custom_issue_redirects(admin_client):
@@ -3900,11 +3899,11 @@ def test_create_new_12_week_custom_issue_redirects(admin_client):
 
     assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 1
     assert events[0].parent == custom_issue
-    assert events[0].type == Event.Type.CREATE
+    assert events[0].event_type == EventHistory.Type.CREATE
 
 
 def test_update_new_12_week_custom_issue_redirects(admin_client):
@@ -3937,11 +3936,11 @@ def test_update_new_12_week_custom_issue_redirects(admin_client):
 
     assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 1
     assert events[0].parent == custom_issue
-    assert events[0].type == Event.Type.UPDATE
+    assert events[0].event_type == EventHistory.Type.UPDATE
 
 
 def test_delete_new_12_week_custom_issue_redirects(admin_client):
@@ -3969,8 +3968,8 @@ def test_delete_new_12_week_custom_issue_redirects(admin_client):
         "audits:edit-retest-statement-custom", kwargs={"pk": audit.id}
     )
 
-    events: QuerySet[Event] = Event.objects.all()
+    events: QuerySet[EventHistory] = EventHistory.objects.all()
 
     assert events.count() == 1
     assert events[0].parent == custom_issue
-    assert events[0].type == Event.Type.UPDATE
+    assert events[0].event_type == EventHistory.Type.UPDATE

@@ -11,7 +11,9 @@
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
-            <li class="govuk-breadcrumbs__list-item">Tech team</li>
+            {% if sitemap.current_platform_page.platform_page_group_name %}
+                <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group_name }}</li>
+            {% endif %}
             <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
     </div>
@@ -125,18 +127,6 @@
                                 value="500"
                                 name="raise_500"
                                 class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                        </div>
-                    </div>
-                    <h3 id="id_housekeeping" class="govuk-heading-m">Housekeeping</h3>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Delete {{ number_of_old_events|intcomma }} old events"
-                                name="delete_old_events"
-                                class="govuk-button govuk-button--warning"
                                 data-module="govuk-button"
                             />
                         </div>

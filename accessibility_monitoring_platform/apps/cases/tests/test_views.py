@@ -25,8 +25,9 @@ from ...audits.models import (
     WcagDefinition,
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
+from ...cases.models import EventHistory
 from ...comments.models import Comment
-from ...common.models import Boolean, EmailTemplate, Event, Sector
+from ...common.models import Boolean, EmailTemplate, Sector
 from ...common.utils import amp_format_date
 from ...exports.csv_export_utils import (
     CASE_COLUMNS_FOR_EXPORT,
@@ -979,11 +980,11 @@ def test_create_zendesk_ticket_view(admin_client):
     assert zendesk_ticket.summary == ZENDESK_SUMMARY
 
     content_type: ContentType = ContentType.objects.get_for_model(ZendeskTicket)
-    event: Event = Event.objects.get(
+    event_history: EventHistory = EventHistory.objects.get(
         content_type=content_type, object_id=zendesk_ticket.id
     )
 
-    assert event.type == Event.Type.CREATE
+    assert event_history.event_type == EventHistory.Type.CREATE
 
 
 def test_update_zendesk_ticket_view(admin_client):
@@ -1009,11 +1010,11 @@ def test_update_zendesk_ticket_view(admin_client):
     assert zendesk_ticket.summary == ZENDESK_SUMMARY
 
     content_type: ContentType = ContentType.objects.get_for_model(ZendeskTicket)
-    event: Event = Event.objects.get(
+    event_history: EventHistory = EventHistory.objects.get(
         content_type=content_type, object_id=zendesk_ticket.id
     )
 
-    assert event.type == Event.Type.UPDATE
+    assert event_history.event_type == EventHistory.Type.UPDATE
 
 
 def test_confirm_delete_zendesk_ticket_view(admin_client):
@@ -1040,11 +1041,11 @@ def test_confirm_delete_zendesk_ticket_view(admin_client):
     assert zendesk_ticket_from_db.is_deleted is True
 
     content_type: ContentType = ContentType.objects.get_for_model(ZendeskTicket)
-    event: Event = Event.objects.get(
+    event_history: EventHistory = EventHistory.objects.get(
         content_type=content_type, object_id=zendesk_ticket.id
     )
 
-    assert event.type == Event.Type.UPDATE
+    assert event_history.event_type == EventHistory.Type.UPDATE
 
 
 def test_create_case_shows_error_messages(admin_client):
@@ -1506,9 +1507,11 @@ def test_qa_comments_creates_comment(admin_client, admin_user):
     assert comment.user == admin_user
 
     content_type: ContentType = ContentType.objects.get_for_model(Comment)
-    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
+    event_history: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=comment.id
+    )
 
-    assert event.type == Event.Type.CREATE
+    assert event_history.event_type == EventHistory.Type.CREATE
 
 
 def test_qa_comments_does_not_create_comment(admin_client, admin_user):
@@ -2606,9 +2609,11 @@ def test_report_approved_notifies_auditor(rf):
     assert task.description == f"{request_user.get_full_name()} QA approved Case {case}"
 
     content_type: ContentType = ContentType.objects.get_for_model(Task)
-    event: Event = Event.objects.get(content_type=content_type, object_id=task.id)
+    event_history: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=task.id
+    )
 
-    assert event.type == Event.Type.CREATE
+    assert event_history.event_type == EventHistory.Type.CREATE
 
 
 @pytest.mark.django_db
@@ -2782,9 +2787,11 @@ def test_updating_case_create_event(admin_client):
     assert response.status_code == 302
 
     content_type: ContentType = ContentType.objects.get_for_model(Case)
-    event: Event = Event.objects.get(content_type=content_type, object_id=case.id)
+    event_history: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=case.id
+    )
 
-    assert event.type == Event.Type.UPDATE
+    assert event_history.event_type == EventHistory.Type.UPDATE
 
 
 def test_update_case_checks_version(admin_client):

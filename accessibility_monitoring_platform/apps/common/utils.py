@@ -1,7 +1,5 @@
 """Common utility functions"""
 
-import copy
-import json
 import re
 import urllib
 from collections.abc import Iterable
@@ -12,14 +10,12 @@ from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from .models import ChangeToPlatform, Event, Platform
+from .models import ChangeToPlatform, Platform
 
 SESSION_EXPIRY_WARNING_WINDOW: timedelta = timedelta(hours=12)
 
@@ -70,39 +66,6 @@ def sanitise_domain(domain: str) -> str:
         if domain.endswith(suffix):
             domain = domain[: -len(suffix)]
     return domain
-
-
-def get_id_from_button_name(
-    button_name_prefix: str, querydict: QueryDict
-) -> int | None:
-    """
-    Given a button name in the form: prefix_[id] extract and return the id value.
-    """
-    key_names: list[str] = [
-        key for key in querydict.keys() if key.startswith(button_name_prefix)
-    ]
-    object_id: int | None = None
-    if len(key_names) == 1:
-        id_string: str = key_names[0].replace(button_name_prefix, "")
-        object_id: int | None = int(id_string) if id_string.isdigit() else None
-    return object_id
-
-
-def mark_object_as_deleted(
-    request: HttpRequest, delete_button_prefix: str, object_to_delete_model
-) -> None:
-    """
-    Check for delete/remove button in request. Mark object as deleted.
-    """
-    object_id_to_delete: int | None = get_id_from_button_name(
-        button_name_prefix=delete_button_prefix,
-        querydict=request.POST,
-    )
-    if object_id_to_delete is not None:
-        object_to_delete = object_to_delete_model.objects.get(id=object_id_to_delete)
-        object_to_delete.is_deleted = True
-        record_model_update_event(user=request.user, model_object=object_to_delete)
-        object_to_delete.save()
 
 
 def build_filters(
@@ -190,36 +153,6 @@ def diff_model_fields(
         if key not in new_fields:
             diff_fields[key] = f"{old_fields[key]} ->"
     return diff_fields
-
-
-def record_model_update_event(user: User, model_object: models.Model) -> None:
-    """Record model update event"""
-    previous_object = model_object.__class__.objects.get(pk=model_object.id)
-    previous_object_fields = copy.copy(vars(previous_object))
-    del previous_object_fields["_state"]
-    model_object_fields = copy.copy(vars(model_object))
-    del model_object_fields["_state"]
-    diff_fields: dict[str, Any] = diff_model_fields(
-        old_fields=previous_object_fields, new_fields=model_object_fields
-    )
-    if diff_fields:
-        Event.objects.create(
-            created_by=user,
-            parent=model_object,
-            value=json.dumps(diff_fields, default=str),
-        )
-
-
-def record_model_create_event(user: User, model_object: models.Model) -> None:
-    """Record model create event"""
-    model_object_fields = copy.copy(vars(model_object))
-    del model_object_fields["_state"]
-    Event.objects.create(
-        created_by=user,
-        parent=model_object,
-        type=Event.Type.CREATE,
-        value=json.dumps(model_object_fields, default=str),
-    )
 
 
 def list_to_dictionary_of_lists(items: list, group_by_attr: str) -> dict[Any, list]:
@@ -334,17 +267,6 @@ def get_first_of_this_month_last_year() -> datetime:
     """Calculate and return the first of this month last year"""
     now: datetime = timezone.now()
     return datetime(now.year - 1, now.month, 1, tzinfo=datetime_timezone.utc)
-
-
-def get_one_year_ago():
-    """Calculate and return timestamp of midnight one year ago"""
-    today: date = date.today()
-    if today.month == 2 and today.day == 29:
-        today -= timedelta(days=1)
-    one_year_ago: datetime = datetime(
-        today.year - 1, today.month, today.day, 0, 0, tzinfo=datetime_timezone.utc
-    )
-    return one_year_ago
 
 
 def replace_whole_words(old_word: str, replacement: str, string: str):

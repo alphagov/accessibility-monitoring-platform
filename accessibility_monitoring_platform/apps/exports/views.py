@@ -16,7 +16,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
-from ..common.utils import record_model_create_event, record_model_update_event
+from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.views import HideCaseNavigationMixin
 from .csv_export_utils import (
     download_equality_body_cases,
@@ -137,7 +137,7 @@ class ConfirmExportUpdateView(UpdateView):
         user: User = self.request.user
         for case in export.ready_cases:
             case.sent_to_enforcement_body_sent_date = today
-            record_model_update_event(user=user, model_object=case)
+            record_model_update_event(user=user, model_object=case, case=case)
             case.save()
         export.status = Export.Status.EXPORTED
         export.export_date = today

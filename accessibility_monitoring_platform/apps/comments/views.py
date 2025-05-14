@@ -6,7 +6,7 @@ from django.forms.models import ModelForm
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
-from ..common.utils import record_model_update_event
+from ..cases.utils import record_model_update_event
 from .forms import CommentUpdateForm
 from .models import Comment
 
@@ -27,7 +27,9 @@ class QACommentUpdateView(UpdateView):
         if "remove_comment" in self.request.POST:
             if comment.user.id == self.request.user.id:  # type: ignore
                 comment.hidden = True
-        record_model_update_event(user=self.request.user, model_object=comment)
+        record_model_update_event(
+            user=self.request.user, model_object=comment, case=comment.case
+        )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
