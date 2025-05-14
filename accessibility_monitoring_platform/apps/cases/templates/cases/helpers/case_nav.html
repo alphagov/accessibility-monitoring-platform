@@ -7,7 +7,7 @@
                     ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
                 {% endif %}
             </p>
-            {% include 'cases/helpers/case_nav_group_pages.html' %}
+            {% include 'cases/helpers/case_nav_group_pages.html' with section_selected=True %}
        {% else %}
             <details class="amp-nav-details"{% if platform_page_group.name == section_name %} open{% endif %}{% if platform_page_group.disabled %} disabled{% endif %}>
                 <summary class="amp-nav-details__summary">
