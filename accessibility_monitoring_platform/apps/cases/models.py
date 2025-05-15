@@ -47,6 +47,8 @@ COMPLIANCE_FIELDS: list[str] = [
     "statement_compliance_notes_12_week",
 ]
 
+UPDATE_SEPARATOR: str = " -> "
+
 
 class Sort(models.TextChoices):
     NEWEST = "", "Newest, Unassigned first"
@@ -1521,19 +1523,19 @@ class EventHistory(models.Model):
 
     class Meta:
         ordering = ["-created"]
-        verbose_name_plural = "Case histories"
+        verbose_name_plural = "Event histories"
 
     @property
     def variables(self):
-        differences: dict[str, str] = json.loads(self.difference)
+        differences: dict[str, int | str] = json.loads(self.difference)
 
         variable_list: list[dict[str, int | str]] = []
         for key, value in differences.items():
             if self.event_type == EventHistory.Type.CREATE:
                 old_value: str = ""
-                new_value: str | int = value
+                new_value: int | str = value
             else:
-                old_value, new_value = value.split(" -> ")
+                old_value, new_value = value.split(UPDATE_SEPARATOR, maxsplit=1)
             variable_list.append(
                 {
                     "name": key,
