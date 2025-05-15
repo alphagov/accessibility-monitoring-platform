@@ -32,6 +32,7 @@ from ..models import (
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
+    EventHistory,
     ZendeskTicket,
 )
 from ..utils import create_case_and_compliance
@@ -1701,3 +1702,46 @@ def test_case_reminder_history():
 
     assert case.reminder_history.count() == 1
     assert case.reminder_history.first() == reminder
+
+
+@pytest.mark.django_db
+def test_event_history_history_update():
+    """Test EventHistory.variables contains expected values for update"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create()
+    event_history: EventHistory = EventHistory.objects.create(
+        case=case,
+        created_by=user,
+        parent=case,
+        difference=json.dumps({"notes": "Old note -> New note"}),
+    )
+
+    assert event_history.variables == [
+        {
+            "name": "notes",
+            "old_value": "Old note",
+            "new_value": "New note",
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_event_history_history_create():
+    """Test EventHistory.variables contains expected values for create"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create()
+    event_history: EventHistory = EventHistory.objects.create(
+        case=case,
+        created_by=user,
+        parent=case,
+        event_type=EventHistory.Type.CREATE,
+        difference=json.dumps({"notes": "Old note -> New note"}),
+    )
+
+    assert event_history.variables == [
+        {
+            "name": "notes",
+            "old_value": "",
+            "new_value": "Old note -> New note",
+        }
+    ]
