@@ -2319,7 +2319,7 @@ def test_add_contact_page_in_case_nav_when_current_page(
     assertContains(
         response,
         """<li>
-            <a href="/cases/1/manage-contact-details/" class="govuk-link govuk-link--no-visited-state">Manage contact details</a>
+            <a href="/cases/1/manage-contact-details/" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Manage contact details</a>
             <ul class="amp-nav-list-subpages">
                 <li class="amp-nav-list-subpages amp-margin-top-5"><b>Add contact</b></li>
             </ul>
@@ -3103,7 +3103,7 @@ def test_navigation_links_shown(
 
     assertContains(
         response,
-        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
+        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">{nav_link_label}</a>""",
         html=True,
     )
 
@@ -3152,7 +3152,7 @@ def test_navigation_links_shown_for_report_pages(
 
     assertContains(
         response,
-        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
+        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">{nav_link_label}</a>""",
         html=True,
     )
 
@@ -3980,7 +3980,7 @@ def test_enabling_correspondence_process(admin_client):
         assertNotContains(
             response,
             f"""<a href="/cases/1/{url}/"
-                class="govuk-link govuk-link--no-visited-state">
+                class="govuk-link govuk-link--no-visited-state govuk-link--no-underline govuk-link--no-underline">
                 {label}</a>""",
             html=True,
         )
@@ -4001,7 +4001,7 @@ def test_enabling_correspondence_process(admin_client):
         assertContains(
             response,
             f"""<a href="/cases/1/{url}/"
-                class="govuk-link govuk-link--no-visited-state">
+                class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
                 {label}</a>""",
             html=True,
         )

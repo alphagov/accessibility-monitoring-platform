@@ -1,4 +1,4 @@
-<div class="amp-nav-details__text">
+<div class="{% if section_selected %} amp-nav-details__text_selected {% else %} amp-nav-details__text {% endif %}">
     <ul class="govuk-list amp-margin-bottom-5">
         {% for platform_page in platform_page_group.pages %}
             {% if platform_page.show %}

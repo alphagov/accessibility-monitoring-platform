@@ -3581,7 +3581,7 @@ def test_nav_details_page_renders(admin_client):
             <div class="amp-nav-details__text">
                 <ul class="govuk-list amp-margin-bottom-5">
                     <li>
-                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state">
+                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
                             Case metadata</a>
                     </li>
                 </ul>
@@ -3605,7 +3605,7 @@ def test_nav_details_page_renders(admin_client):
         response,
         """<ul class="amp-nav-list-subpages">
             <li class="amp-nav-list-subpages amp-margin-top-5">
-                <a href="/audits/pages/6/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state">
+                <a href="/audits/pages/6/edit-audit-page-checks/" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
                     Additional page test</a>
             </li>
         </ul>""",
@@ -3636,7 +3636,7 @@ def test_nav_details_subpage_renders(admin_client):
             <div class="amp-nav-details__text">
                 <ul class="govuk-list amp-margin-bottom-5">
                     <li>
-                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state">
+                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
                             Case metadata</a>
                     </li>
                 </ul>
@@ -3653,7 +3653,7 @@ def test_nav_details_subpage_renders(admin_client):
     )
     assertContains(
         response,
-        """<a href="/audits/1/edit-audit-pages/" class="govuk-link govuk-link--no-visited-state">
+        """<a href="/audits/1/edit-audit-pages/" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
             Add or remove pages</a>""",
         html=True,
     )
