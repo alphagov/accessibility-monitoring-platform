@@ -1745,3 +1745,27 @@ def test_event_history_history_create():
             "new_value": "Old note -> New note",
         }
     ]
+
+
+@pytest.mark.django_db
+def test_event_history_history_update_separator_in_text():
+    """
+    Test EventHistory.variables contains expected values for update
+    when the separator (" -> ") appears in the data.
+    """
+    user: User = User.objects.create()
+    case: Case = Case.objects.create()
+    event_history: EventHistory = EventHistory.objects.create(
+        case=case,
+        created_by=user,
+        parent=case,
+        difference=json.dumps({"notes": "Old note -> New note -> separator"}),
+    )
+
+    assert event_history.variables == [
+        {
+            "name": "notes",
+            "old_value": "Old note",
+            "new_value": "New note -> separator",
+        }
+    ]
