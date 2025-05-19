@@ -12,25 +12,7 @@
             <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl">{{ sitemap.current_platform_page.get_name }}</h1>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                <div class="govuk-button-group amp-flex-end">
-                    <a
-                        href="{% url 'cases:case-create' %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary float-right"
-                        data-module="govuk-button"
-                    >
-                        Create case
-                    </a>
-                </div>
-            </div>
-        </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-20">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 <div class="govuk-grid-row">
@@ -72,9 +54,16 @@
                                 </a>
                             </div>
                         </form>
-                        <hr class="amp-width-100" />
-                        <p class="govuk-body-m govuk-!-font-weight-bold amp-margin-bottom-5">Export CSV</p>
+                        <hr class="amp-width-100 amp-margin-bottom-25" />
                         <ul class="govuk-list">
+                            <li>
+                                <a
+                                    href="{% url 'cases:case-create' %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Create case
+                                </a>
+                            </li>
                             <li>
                                 <a
                                     href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
@@ -108,12 +97,11 @@
                                 </a>
                             </li>
                         </ul>
-                        <hr class="amp-width-100" />
                     </div>
                 </div>
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <p class="govuk-body-m govuk-!-font-weight-bold">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</p>
+                <h1 class="govuk-heading-l">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</h1>
                 {% if cases %}
                     {% include "common/pagination_controls.html" %}
                     <table class="govuk-table">

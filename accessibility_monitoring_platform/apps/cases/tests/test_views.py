@@ -412,7 +412,7 @@ def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -429,7 +429,7 @@ def test_case_list_view_filters_by_case_number(admin_client):
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -448,7 +448,7 @@ def test_case_list_view_filters_by_psb_location(admin_client):
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -466,7 +466,7 @@ def test_case_list_view_filters_by_sector_name(admin_client):
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -495,7 +495,7 @@ def test_case_list_view_string_filters(
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -525,7 +525,7 @@ def test_case_list_view_user_filters(field_name, url_parameter_name, admin_clien
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -555,7 +555,7 @@ def test_case_list_view_user_unassigned_filters(
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -591,7 +591,7 @@ def test_case_list_view_date_filters(filter_field_name, admin_client):
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -620,7 +620,7 @@ def test_case_list_view_audit_date_of_test_filters(admin_client):
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -642,7 +642,7 @@ def test_case_list_view_sector_filter(admin_client):
 
     assert response.status_code == 200
     assertContains(
-        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+        response, '<h1 class="govuk-heading-l">1 case found</h1>'
     )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
@@ -753,7 +753,7 @@ def test_reactivate_case_view(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
-        ("cases:case-list", '<h1 class="govuk-heading-xl">Search</h1>'),
+        ("cases:case-list", '<h1 class="govuk-heading-l">0 cases found</h1>'),
         ("cases:case-create", '<h1 class="govuk-heading-xl">Create case</h1>'),
     ],
 )
