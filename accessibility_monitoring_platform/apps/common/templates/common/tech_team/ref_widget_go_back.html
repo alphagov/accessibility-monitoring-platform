@@ -1,0 +1,16 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h3 id="id_go_back" class="govuk-heading-s">Go back</h3>
+        <p class="govuk-body">
+            Go back one step in browser history.
+            The UI is in <code class="amp-code">case_form.html</code> and script in <code class="amp-code">base.html</code>.
+            Both are present on page when <code class="amp-code">amp_show_go_back</code> is true in context.
+            Do so in the view by subclassing the <code class="amp-code">ShowGoBackJSWidgetMixin</code>.
+        </p>
+        <p class="govuk-body">
+            Example:
+            <a href="{% url 'cases:outstanding-issues' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Outstanding issues</a>
+        </p>
+    </div>
+</div>
