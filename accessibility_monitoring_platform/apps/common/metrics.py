@@ -290,7 +290,7 @@ def get_policy_total_metrics() -> list[TotalMetric]:
         TotalMetric(
             label="Total cases closed",
             total=Case.objects.filter(
-                status__status__in=CaseStatus.CLOSED_CASE_STATUSES
+                casestatus__status__in=CaseStatus.CLOSED_CASE_STATUSES
             ).count(),
         ),
         TotalMetric(

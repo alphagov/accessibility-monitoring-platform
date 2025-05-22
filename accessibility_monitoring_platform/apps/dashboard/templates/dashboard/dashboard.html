@@ -43,26 +43,50 @@
                 <h1 class="govuk-heading-xl amp-margin-bottom-10">{{ sitemap.current_platform_page.get_name }}</h1>
             </div>
             <div class="govuk-grid-column-full govuk-button-group">
+                <a
+                    href="{% url 'cases:case-create' %}"
+                    class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
+                >
+                    Create simplified case
+                </a>
+                <a
+                    href="{% url 'detailed:case-create' %}"
+                    class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
+                >
+                    Create detailed case
+                </a>
+            </div>
+            <div class="govuk-grid-column-full govuk-button-group">
                 {% if show_all_cases %}
                     <a
                         href="{% url 'dashboard:home' %}?view=View your cases"
-                        class="govuk-link govuk-link--no-visited-state"
+                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
                     >
-                        View your cases
+                        View your simplified cases
                     </a>
+                    <span class="govuk-body amp-margin-bottom-0">View all simplified cases</span>
                 {% else %}
+                    <span class="govuk-body amp-margin-bottom-0">View your simplified cases</span>
                     <a
                         href="{% url 'dashboard:home' %}?view=View all cases"
-                        class="govuk-link govuk-link--no-visited-state"
+                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0 amp-padding-left-10"
                     >
-                        View all cases
+                        View all simplified cases
                     </a>
                 {% endif %}
+            </div>
+            <div class="govuk-grid-column-full govuk-button-group">
                 <a
-                    href="{% url 'cases:case-create' %}"
+                    href="{% url 'cases:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >
-                    Create case
+                    Search simplified cases
+                </a>
+                <a
+                    href="{% url 'detailed:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Search detailed cases
                 </a>
             </div>
         </div>

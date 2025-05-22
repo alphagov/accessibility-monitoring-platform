@@ -164,7 +164,7 @@ def test_case_renders_as_organisation_name_bar_id():
     """Test the Case string is organisation_name | id"""
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
 
-    assert str(case) == f"{case.organisation_name} | #{case.case_number}"
+    assert str(case) == f"{case.organisation_name} | {case.case_identifier}"
 
 
 @pytest.mark.django_db

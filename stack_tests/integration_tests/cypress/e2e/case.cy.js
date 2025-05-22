@@ -38,7 +38,7 @@ describe('Case overview', () => {
     cy.get('[name="notes"]').clear().type(caseDetailsNote)
     cy.get('[name="case_details_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Case$/).click()
+    cy.contains(/^Simplified case$/).click()
     cy.title().should('eq', `${organisationName} | Case overview`)
     cy.contains(caseDetailsNote)
   })
@@ -63,7 +63,7 @@ describe('Case overview', () => {
     cy.contains(/^Comments \(0\)$/).click()
     cy.get('[name="body"]').clear().type(qaComment)
     cy.contains('Save').click()
-    cy.contains(/^Case$/).click()
+    cy.contains(/^Simplified case$/).click()
     cy.contains(qaComment)
   })
 
@@ -83,7 +83,7 @@ describe('Case overview', () => {
     cy.contains('Save and return').click()
     cy.get('[name="manage_contact_details_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Case$/).click()
+    cy.contains(/^Simplified case$/).click()
     cy.contains(contactName)
     cy.contains(contactEmail)
   })
@@ -103,7 +103,7 @@ describe('Case overview', () => {
     cy.get('[name="is_ready_for_final_decision"]').check('yes')
     cy.get('[name="review_changes_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Case$/).click()
+    cy.contains(/^Simplified case$/).click()
     cy.contains(psbProgressNote)
   })
 
@@ -115,7 +115,7 @@ describe('Case overview', () => {
     cy.get('[name="recommendation_notes"]').clear().type(recommendationNote)
     cy.get('[name="enforcement_recommendation_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Case$/).click()
+    cy.contains(/^Simplified case$/).click()
     cy.contains(recommendationNote)
   })
 
@@ -125,7 +125,7 @@ describe('Case overview', () => {
     cy.get('[name="case_completed"]').check('complete-send')
     cy.get('[name="case_close_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Case$/).click()
+    cy.contains(/^Simplified case$/).click()
     cy.contains(recommendationNote)
   })
 

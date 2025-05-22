@@ -1,0 +1,51 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-l">
+            <a href="{{ case.get_absolute_url }}"
+                class="govuk-link govuk-link--no-visited-state">
+                {% if case.website_name %}{{ case.website_name }} |{% endif %}
+                {{ case.organisation_name }}
+            </a>
+        </p>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+        <p class="govuk-body amp-margin-bottom-5"><b>Case ID</b></p>
+        <p class="govuk-body">{{ case.case_identifier }}</p>
+    </div>
+    <div class="govuk-grid-column-one-third">
+        <p class="govuk-body amp-margin-bottom-5"><b>Domain</b></p>
+        <p class="govuk-body">{{ case.domain }}</p>
+    </div>
+    <div class="govuk-grid-column-one-third">
+        <p class="govuk-body amp-margin-bottom-5"><b>Date created</b></p>
+        <p class="govuk-body">{{ case.created|amp_date }}</p>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+        <p class="govuk-body amp-margin-bottom-5"><b>Status</b></p>
+        <p class="govuk-body">{{ case.get_status_display }}</p>
+    </div>
+    <div class="govuk-grid-column-one-third">
+        <p class="govuk-body amp-margin-bottom-5"><b>Auditor</b></p>
+        <p class="govuk-body-m">
+            {% if case.auditor.get_full_name %}
+                {{ case.auditor.get_full_name }}
+            {% else %}
+                No auditor
+            {% endif %}
+        </p>
+    </div>
+    <div class="govuk-grid-column-one-third">
+        <p class="govuk-body amp-margin-bottom-5"><b>QA auditor</b></p>
+        <p class="govuk-body-m">
+            {% if case.reviewer.get_full_name %}
+                {{ case.reviewer.get_full_name }}
+            {% else %}
+                No QA auditor
+            {% endif %}
+        </p>
+    </div>
+</div>

@@ -12,6 +12,6 @@ describe('Login', () => {
     cy.getCookie('sessionid').should('exist')
     cy.getCookie('csrftoken').should('exist')
     cy.visit('/')
-    cy.title().should('eq', 'Home | Your cases')
+    cy.title().should('eq', 'Home | Your simplified cases')
   })
 })

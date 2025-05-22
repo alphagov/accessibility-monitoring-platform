@@ -1,6 +1,6 @@
 <h3 class="govuk-heading-s">
-    {% if case_detail_page.page.platform_page_group_name %}
-        {{ case_detail_page.page.platform_page_group_name }} |
+    {% if case_detail_page.page.platform_page_group.name %}
+        {{ case_detail_page.page.platform_page_group.name }} |
     {% endif %}
     <a href="{% url 'cases:zendesk-tickets' case.id %}" class="govuk-link govuk-link--no-visited-state">PSB Zendesk tickets</a>
 </h3>

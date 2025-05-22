@@ -458,7 +458,7 @@ class Case(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return f"{self.organisation_name} | #{self.case_number}"
+        return f"{self.organisation_name} | {self.case_identifier}"
 
     def get_absolute_url(self) -> str:
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
@@ -487,6 +487,17 @@ class Case(VersionModel):
             CaseStatus.objects.create(case=self)
         else:
             self.status.calculate_and_save_status()
+
+    @property
+    def status(self) -> str:
+        return self.casestatus
+
+    def get_status_display(self) -> str:
+        return self.casestatus.get_status_display()
+
+    @property
+    def case_identifier(self) -> str:
+        return f"#S-{self.case_number}"
 
     @property
     def formatted_home_page_url(self) -> str:
@@ -1182,7 +1193,7 @@ class CaseStatus(models.Model):
         Status.DEACTIVATED,
     ]
 
-    case = models.OneToOneField(Case, on_delete=models.PROTECT, related_name="status")
+    case = models.OneToOneField(Case, on_delete=models.PROTECT)
     status = models.CharField(
         max_length=200, choices=Status.choices, default=Status.UNASSIGNED
     )

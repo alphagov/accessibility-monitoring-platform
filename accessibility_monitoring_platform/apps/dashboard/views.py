@@ -31,7 +31,7 @@ class DashboardView(TemplateView):
         user: User = get_object_or_404(User, id=self.request.user.id)  # type: ignore
         all_cases: list[Case] = list(
             Case.objects.all()
-            .prefetch_related("status")
+            .prefetch_related("casestatus")
             .select_related("auditor", "reviewer")
             .all()
         )
@@ -55,14 +55,14 @@ class DashboardView(TemplateView):
             case
             for case in all_cases
             if (
-                case.status.status != "complete"
-                and case.status.status != "case-closed-sent-to-equalities-body"
-                and case.status.status != "deleted"
-                and case.status.status != "deactivated"
+                case.casestatus.status != "complete"
+                and case.casestatus.status != "case-closed-sent-to-equalities-body"
+                and case.casestatus.status != "deleted"
+                and case.casestatus.status != "deactivated"
             )
         ]
         unassigned_cases: list[Case] = sorted(
-            [case for case in all_cases if case.status.status == "unassigned-case"],
+            [case for case in all_cases if case.casestatus.status == "unassigned-case"],
             key=lambda case: (case.created),  # type: ignore
         )
         cases_by_status["unassigned_cases"] = unassigned_cases

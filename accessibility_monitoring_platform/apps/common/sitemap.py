@@ -6,7 +6,7 @@ import copy
 import logging
 from dataclasses import dataclass
 from enum import StrEnum, auto
-from typing import ClassVar
+from typing import ClassVar, Optional
 
 from django import forms
 from django.contrib.auth.models import User
@@ -46,6 +46,8 @@ from ..cases.forms import (
 )
 from ..cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
 from ..comments.models import Comment
+from ..detailed.forms import DetailedCaseMetadataUpdateForm
+from ..detailed.models import DetailedCase
 from ..exports.models import Export
 from ..notifications.models import Task
 from ..reports.models import Report
@@ -84,7 +86,7 @@ class Sitemap:
 
 class PlatformPage:
     name: str
-    platform_page_group_name: str = ""
+    platform_page_group: Optional["PlatformPageGroup"] = None
     url_name: str | None = None
     url_kwarg_key: str | None = None
     instance_class: type[models.Model] | None = None
@@ -102,7 +104,7 @@ class PlatformPage:
     def __init__(
         self,
         name: str,
-        platform_page_group_name: str = "",
+        platform_page_group: Optional["PlatformPageGroup"] = None,
         url_name: str | None = None,
         url_kwarg_key: str | None = None,
         instance_class: type[models.Model] | None = None,
@@ -117,7 +119,7 @@ class PlatformPage:
         next_page_url_name: str | None = None,
     ):
         self.name = name
-        self.platform_page_group_name = platform_page_group_name
+        self.platform_page_group = platform_page_group
         self.url_name = url_name
         if url_kwarg_key is None and instance_class is not None:
             self.url_kwarg_key = "pk"
@@ -228,8 +230,12 @@ class PlatformPage:
 class HomePlatformPage(PlatformPage):
     def populate_from_request(self, request: HttpRequest):
         """Set get name from parameters"""
-        view_param: str = request.GET.get("view", "View your cases")
-        self.name: str = "All cases" if view_param == "View all cases" else "Your cases"
+        view_param: str = request.GET.get("view", "View your simplified cases")
+        self.name: str = (
+            "All simplified cases"
+            if view_param == "View all cases"
+            else "Your simplified cases"
+        )
 
 
 class ExportPlatformPage(PlatformPage):
@@ -257,6 +263,20 @@ class CasePlatformPage(PlatformPage):
     def populate_from_case(self, case: Case):
         self.set_instance(instance=case)
         super().populate_from_case(case=case)
+
+
+class DetailedCasePlatformPage(CasePlatformPage):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.instance_class: ClassVar[DetailedCase] = DetailedCase
+
+    def get_case(self) -> DetailedCase | None:
+        if self.instance is not None:
+            if isinstance(self.instance, DetailedCase):
+                return self.instance
+
+    def populate_from_case(self, case: DetailedCase):
+        self.set_instance(instance=case)
 
 
 class CaseContactsPlatformPage(CasePlatformPage):
@@ -432,18 +452,20 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
 @dataclass
 class PlatformPageGroup:
     class Type(StrEnum):
-        CASE_NAV: str = auto()
+        SIMPLIFIED_CASE_NAV: str = auto()
+        DETAILED_CASE_NAV: str = auto()
         CASE_TOOLS: str = auto()
         DEFAULT: str = auto()
 
     name: str
     type: Type = Type.DEFAULT
     show_flag_name: str | None = None
+    case_nav_group: bool = True
     pages: list[PlatformPage] | None = None
 
     @property
     def show(self):
-        return True
+        return self.case_nav_group
 
     def populate_from_case(self, case: Case):
         for page in self.pages:
@@ -501,7 +523,7 @@ class PlatformPageGroup:
 
 
 class CasePlatformPageGroup(PlatformPageGroup):
-    def __init__(self, type=PlatformPageGroup.Type.CASE_NAV, **kwargs):
+    def __init__(self, type=PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
         self.case: Case | None = None
@@ -510,11 +532,18 @@ class CasePlatformPageGroup(PlatformPageGroup):
     def show(self):
         if self.case is not None and self.show_flag_name is not None:
             return getattr(self.case, self.show_flag_name)
-        return True
+        return self.case_nav_group
 
     def populate_from_case(self, case: Case):
         self.case = case
         super().populate_from_case(case=case)
+
+
+class DetailedCasePlatformPageGroup(CasePlatformPageGroup):
+    def __init__(self, type=PlatformPageGroup.Type.DETAILED_CASE_NAV, **kwargs):
+        super().__init__(**kwargs)
+        self.type: PlatformPageGroup.Type = type
+        self.case: DetailedCase | None = None
 
 
 SITE_MAP: list[PlatformPageGroup] = [
@@ -1311,8 +1340,9 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    PlatformPageGroup(
-        name="Case other",
+    CasePlatformPageGroup(
+        name="Simplified testing case",
+        case_nav_group=False,
         pages=[
             CasePlatformPage(name="Case overview", url_name="cases:case-detail"),
             CasePlatformPage(
@@ -1426,18 +1456,42 @@ SITE_MAP: list[PlatformPageGroup] = [
             PlatformPage(name="Bulk URL search", url_name="common:bulk-url-search"),
         ],
     ),
+    DetailedCasePlatformPageGroup(
+        name="Detailed testing case",
+        case_nav_group=False,
+        pages=[
+            DetailedCasePlatformPage(
+                name="Case overview", url_name="detailed:case-detail"
+            ),
+        ],
+    ),
+    DetailedCasePlatformPageGroup(
+        name="Case details",
+        pages=[
+            DetailedCasePlatformPage(
+                name="Case metadata",
+                url_name="detailed:edit-case-metadata",
+                complete_flag_name="case_metadata_complete_date",
+                case_details_form_class=DetailedCaseMetadataUpdateForm,
+                # case_details_template_name="cases/details/details_case_metadata.html",
+            )
+        ],
+    ),
     PlatformPageGroup(
         name="Non-Case other",
         pages=[
-            PlatformPage(name="Create case", url_name="cases:case-create"),
-            PlatformPage(name="Search", url_name="cases:case-list"),
+            PlatformPage(name="Create case", url_name="cases:pick-test-type"),
+            PlatformPage(name="Create simplified case", url_name="cases:case-create"),
+            PlatformPage(name="Create detailed case", url_name="detailed:case-create"),
+            PlatformPage(name="Search detailed cases", url_name="detailed:case-list"),
+            PlatformPage(name="Search simplified cases", url_name="cases:case-list"),
             PlatformPage(
                 name="Accessibility statement",
                 url_name="common:accessibility-statement",
             ),
             PlatformPage(name="Report an issue", url_name="common:issue-report"),
             PlatformPage(name="Contact admin", url_name="common:contact-admin"),
-            HomePlatformPage(name="Your cases", url_name="dashboard:home"),
+            HomePlatformPage(name="Your simplified cases", url_name="dashboard:home"),
             PlatformPage(name="Tasks", url_name="notifications:task-list"),
             PlatformPage(
                 name="Reminder",
@@ -1475,7 +1529,7 @@ def build_sitemap_by_url_name(
     def add_pages(pages: list[PlatformPage], platform_page_group: PlatformPageGroup):
         """Iterate through pages list adding to sitemap dictionary"""
         for page in pages:
-            page.platform_page_group_name: str = platform_page_group.name
+            page.platform_page_group: PlatformPageGroup = platform_page_group
             if page.url_name:
                 if page.url_name in sitemap_by_url_name:
                     logger.warning(
@@ -1531,7 +1585,7 @@ def build_sitemap_for_current_page(
     Return the case navigation subset of the sitemap if the current
     page is case-related, otherwise return the entire sitemap.
     """
-    case: Case | None = current_platform_page.get_case()
+    case: Case | DetailedCase | None = current_platform_page.get_case()
     if current_platform_page.next_page_url_name is not None:
         current_platform_page.next_page = get_platform_page_by_url_name(
             url_name=current_platform_page.next_page_url_name, instance=case
@@ -1542,7 +1596,10 @@ def build_sitemap_for_current_page(
             platform_page_group
             for platform_page_group in site_map
             if platform_page_group.type
-            in [PlatformPageGroup.Type.CASE_NAV, PlatformPageGroup.Type.CASE_TOOLS]
+            in [
+                current_platform_page.platform_page_group.type,
+                PlatformPageGroup.Type.CASE_TOOLS,
+            ]
         ]
         for platform_page_group in case_navigation:
             platform_page_group.populate_from_case(case=case)

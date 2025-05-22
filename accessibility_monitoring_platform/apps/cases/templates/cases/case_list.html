@@ -12,7 +12,12 @@
             <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-20">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl">{{ sitemap.current_platform_page.get_name }}</h1>
+            </div>
+        </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 <div class="govuk-grid-row">
@@ -58,10 +63,26 @@
                         <ul class="govuk-list">
                             <li>
                                 <a
+                                    href="{% url 'detailed:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Search detailed cases
+                                </a>
+                            </li>
+                            <li>
+                                <a
                                     href="{% url 'cases:case-create' %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
-                                    Create case
+                                    Create simplified case
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'detailed:case-create' %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Create detailed case
                                 </a>
                             </li>
                             <li>
@@ -108,51 +129,8 @@
                         <tbody class="govuk-table__body">
                         {% for case in cases %}
                             <tr class="govuk-table__row">
-                                <td class="govuk-table__cell amp-padding-top-25">
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-full">
-                                            <p class="govuk-body-l amp-margin-bottom-0">
-                                                <a href="{{ case.get_absolute_url }}"
-                                                    class="govuk-link govuk-link--no-visited-state">
-                                                    {% if case.website_name %}{{ case.website_name }} |{% endif %}
-                                                    {{ case.organisation_name }}
-                                                </a>
-                                            </p>
-                                            <p class="govuk-body-m">{{ case.formatted_home_page_url }} | #{{ case.case_number }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-one-half">
-                                            <p class="govuk-body-m amp-label">Date created</p>
-                                            <p class="govuk-body-m">{{ case.created|amp_date }}</p>
-                                        </div>
-                                        <div class="govuk-grid-column-one-half">
-                                            <p class="govuk-body-m amp-label">Auditor</p>
-                                            <p class="govuk-body-m">
-                                                {% if case.auditor.get_full_name %}
-                                                    {{ case.auditor.get_full_name }}
-                                                {% else %}
-                                                    No auditor
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-one-half">
-                                            <p class="govuk-body-m amp-label">Status</p>
-                                            <p class="govuk-body-m">{{ case.status.get_status_display }}</p>
-                                        </div>
-                                        <div class="govuk-grid-column-one-half">
-                                            <p class="govuk-body-m amp-label">QA auditor</p>
-                                            <p class="govuk-body-m">
-                                                {% if case.reviewer.get_full_name %}
-                                                    {{ case.reviewer.get_full_name }}
-                                                {% else %}
-                                                    No QA auditor
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                    </div>
+                                <td class="govuk-table__cell">
+                                    {% include "cases/helpers/case_list_card.html" %}
                                     <div class="govuk-grid-row">
                                         <div class="govuk-grid-column-full">
                                             <div class="govuk-button-group amp-margin-bottom-0">

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' %}
+        </div>
+    </div>
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{{ detailed_case.get_absolute_url }}">Detailed case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group.name }}</li>
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-quarter amp-padding-left-0">
+                {% include "cases/helpers/case_nav.html" with case_nav_type='detailed_case_nav' %}
+            </div>
+            <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
+                {% include "cases/helpers/edit_header.html" %}
+                {% include 'common/error_summary.html' %}
+                {% block preform %}{% endblock %}
+                {% block form %}
+                <form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">
+                    {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% block formfields %}
+                            {% include 'common/amp_form_snippet.html' %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                    {% block formbuttons %}
+                        {% include 'cases/helpers/save_continue_cancel.html' %}
+                    {% endblock %}
+                </form>
+                {% endblock %}
+                {% block postform %}{% endblock %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

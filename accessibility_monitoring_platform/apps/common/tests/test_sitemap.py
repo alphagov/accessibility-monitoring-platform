@@ -283,19 +283,19 @@ def test_home_platform_page():
 
     home_platform_page.populate_from_request(request=mock_request)
 
-    assert home_platform_page.get_name() == "Your cases"
+    assert home_platform_page.get_name() == "Your simplified cases"
 
     mock_request: MockRequest = MockRequest({"view": "View all cases"})
 
     home_platform_page.populate_from_request(request=mock_request)
 
-    assert home_platform_page.get_name() == "All cases"
+    assert home_platform_page.get_name() == "All simplified cases"
 
     mock_request: MockRequest = MockRequest({"view": "View your cases"})
 
     home_platform_page.populate_from_request(request=mock_request)
 
-    assert home_platform_page.get_name() == "Your cases"
+    assert home_platform_page.get_name() == "Your simplified cases"
 
 
 def test_export_platform_page():
@@ -781,8 +781,8 @@ def test_build_sitemap_for_non_case_current_page():
 def test_build_sitemap_for_case_related_current_page():
     """Test build_sitemap_for_current_page when current page is Case-related"""
     case: Case = Case.objects.create()
-    platform_page: PlatformPage = PlatformPage(
-        name="Test", url_name="cases:case-metadata", instance_class=Case, instance=case
+    platform_page: PlatformPage = get_platform_page_by_url_name(
+        url_name="cases:edit-case-metadata", instance=case
     )
     platform_page_groups: list[PlatformPageGroup] = build_sitemap_for_current_page(
         current_platform_page=platform_page
@@ -830,7 +830,7 @@ def test_case_sitemap(rf):
 @pytest.mark.parametrize(
     "url, expected_page_name",
     [
-        ("/", "Your cases"),
+        ("/", "Your simplified cases"),
         ("/cases/1/edit-case-metadata/", "Case metadata"),
         ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
         ("/audits/pages/1/edit-audit-page-checks/", "Pagename page test"),

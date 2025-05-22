@@ -19,14 +19,6 @@
                 {% include 'common/error_summary.html' %}
                 {% if duplicate_cases %}
                     <p class="govuk-body-l">We have found {{ duplicate_cases.count|localize}} cases matching the details you have given</p>
-                {% else %}
-                    <div class="govuk-warning-text">
-                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                        <strong class="govuk-warning-text__text">
-                            <span class="govuk-warning-text__assistive">Warning</span>
-                            The accessibility monitoring platform currently does not support detailed or mobile testing.
-                        </strong>
-                    </div>
                 {% endif %}
             </div>
         </div>
