@@ -513,7 +513,7 @@ class Case(VersionModel):
         title: str = ""
         if self.website_name:
             title += f"{self.website_name} &nbsp;|&nbsp; "
-        title += f"{self.organisation_name} &nbsp;|&nbsp; #{self.case_number}"
+        title += f"{self.organisation_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
 
     @property

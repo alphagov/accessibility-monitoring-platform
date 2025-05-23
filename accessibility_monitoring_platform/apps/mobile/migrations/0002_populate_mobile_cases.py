@@ -7,7 +7,7 @@ from typing import Match
 
 from django.db import migrations
 
-INPUT_FILE_NAME = "../detailed_cases.csv"
+INPUT_FILE_NAME = "../mobile_cases.csv"
 
 
 def get_datetime_from_string(date: str) -> datetime:
@@ -30,7 +30,7 @@ def extract_domain_from_url(url: str) -> str:
     return domain_match.group(1) if domain_match else ""
 
 
-def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argument
+def populate_mobile_cases(apps, schema_editor):  # pylint: disable=unused-argument
     User = apps.get_model("auth", "User")
     try:
         paul = User.objects.get(first_name="Paul")
@@ -40,10 +40,10 @@ def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argu
         }
     except User.DoesNotExist:  # Automated tests
         return
-    EventHistory = apps.get_model("detailed", "EventHistory")
+    EventHistory = apps.get_model("mobile", "EventHistory")
     EventHistory.objects.all().delete()
-    DetailedCase = apps.get_model("detailed", "DetailedCase")
-    DetailedCase.objects.all().delete()
+    MobileCase = apps.get_model("mobile", "MobileCase")
+    MobileCase.objects.all().delete()
     try:
         with open(INPUT_FILE_NAME) as csvfile:
             reader = csv.DictReader(csvfile)
@@ -51,10 +51,11 @@ def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argu
                 if row["Enforcement body"] == "":
                     continue
                 case_number: int = int(row["Record "][1:])
-                first_contact_date: str = row["First Contact Date"]  # dd/mm/yyyy
+                app_os: str = row["Type"].lower()
+                first_contact_date: str = row["First contact date"]  # dd/mm/yyyy
                 created: datetime = get_datetime_from_string(first_contact_date)
                 last_date: str = row["Date decision email sent"]  # dd/mm/yyyy
-                if len(last_date) > 4:
+                if len(last_date) > 3:
                     updated: datetime = get_datetime_from_string(last_date)
                 else:
                     updated: datetime = created
@@ -62,15 +63,16 @@ def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argu
                 url: str = row["URL"]
                 enforcement_body: str = row["Enforcement body"].lower()
                 is_complaint: str = row["Is it a complaint?"].lower()
-                DetailedCase.objects.create(
+                MobileCase.objects.create(
                     case_number=case_number,
                     created_by=paul,
                     created=created,
                     updated=updated,
                     auditor=auditor,
-                    home_page_url=url,
-                    domain=extract_domain_from_url(url=url),
-                    organisation_name=row["Website"],
+                    app_name=row["App name"],
+                    app_store_url=url,
+                    domain=extract_domain_from_url(url),
+                    app_os=app_os,
                     enforcement_body=enforcement_body,
                     is_complaint=is_complaint,
                     notes=row["Summary of progress made / response from PSB"],
@@ -80,18 +82,18 @@ def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argu
 
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
-    EventHistory = apps.get_model("detailed", "EventHistory")
+    EventHistory = apps.get_model("mobile", "EventHistory")
     EventHistory.objects.all().delete()
-    DetailedCase = apps.get_model("detailed", "DetailedCase")
-    DetailedCase.objects.all().delete()
+    MobileCase = apps.get_model("mobile", "MobileCase")
+    MobileCase.objects.all().delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("detailed", "0001_initial"),
+        ("mobile", "0001_initial"),
     ]
 
     operations = [
-        migrations.RunPython(populate_detailed_cases, reverse_code=reverse_code),
+        migrations.RunPython(populate_mobile_cases, reverse_code=reverse_code),
     ]

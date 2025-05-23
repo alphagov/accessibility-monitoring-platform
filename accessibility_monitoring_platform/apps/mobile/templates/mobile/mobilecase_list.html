@@ -52,10 +52,10 @@
                             </li>
                             <li>
                                 <a
-                                    href="{% url 'mobile:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    href="{% url 'detailed:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
-                                    Search mobile cases
+                                    Search detailed cases
                                 </a>
                             </li>
                             <li>
@@ -88,11 +88,11 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <p class="govuk-body-m govuk-!-font-weight-bold">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</p>
-                {% if detailed_cases %}
+                {% if mobile_cases %}
                     {% include "common/pagination_controls.html" %}
                     <table class="govuk-table">
                         <tbody class="govuk-table__body">
-                        {% for case in detailed_cases %}
+                        {% for case in mobile_cases %}
                             <tr class="govuk-table__row">
                                 <td class="govuk-table__cell">
                                     {% include "cases/helpers/case_list_card.html" %}

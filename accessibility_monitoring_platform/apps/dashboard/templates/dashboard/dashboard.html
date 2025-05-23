@@ -55,38 +55,52 @@
                 >
                     Create detailed case
                 </a>
+                <a
+                    href="{% url 'mobile:case-create' %}"
+                    class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
+                >
+                    Create mobile case
+                </a>
             </div>
             <div class="govuk-grid-column-full govuk-button-group">
+                <span class="govuk-body amp-margin-bottom-0">Simplified:</span>
                 {% if show_all_cases %}
                     <a
                         href="{% url 'dashboard:home' %}?view=View your cases"
-                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
+                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0 amp-padding-left-10"
                     >
-                        View your simplified cases
+                        Your cases
                     </a>
-                    <span class="govuk-body amp-margin-bottom-0">View all simplified cases</span>
+                    <span class="govuk-body amp-margin-bottom-0"><b>All cases</b></span>
                 {% else %}
-                    <span class="govuk-body amp-margin-bottom-0">View your simplified cases</span>
+                    <span class="govuk-body amp-margin-bottom-0 amp-padding-left-10"><b>Your cases</b></span>
                     <a
                         href="{% url 'dashboard:home' %}?view=View all cases"
                         class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0 amp-padding-left-10"
                     >
-                        View all simplified cases
+                        All cases
                     </a>
                 {% endif %}
             </div>
             <div class="govuk-grid-column-full govuk-button-group">
+                <span class="govuk-body amp-margin-bottom-0">Search:</span>
                 <a
                     href="{% url 'cases:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                    class="govuk-link govuk-link--no-visited-state"
+                    class="govuk-link govuk-link--no-visited-state amp-padding-left-10"
                 >
-                    Search simplified cases
+                    Simplified cases
                 </a>
                 <a
                     href="{% url 'detailed:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >
-                    Search detailed cases
+                    Detailed cases
+                </a>
+                <a
+                    href="{% url 'mobile:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Mobile cases
                 </a>
             </div>
         </div>

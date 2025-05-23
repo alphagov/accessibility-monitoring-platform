@@ -71,6 +71,14 @@
                             </li>
                             <li>
                                 <a
+                                    href="{% url 'mobile:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Search mobile cases
+                                </a>
+                            </li>
+                            <li>
+                                <a
                                     href="{% url 'cases:case-create' %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
@@ -83,6 +91,14 @@
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
                                     Create detailed case
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'mobile:case-create' %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Create mobile case
                                 </a>
                             </li>
                             <li>

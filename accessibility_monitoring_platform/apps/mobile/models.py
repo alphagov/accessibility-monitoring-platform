@@ -1,5 +1,5 @@
 """
-Models - detailed cases
+Models - mobile cases
 """
 
 import json
@@ -18,10 +18,14 @@ from ..common.models import Boolean, Sector, SubCategory, VersionModel
 from ..common.utils import extract_domain_from_url
 
 
-class DetailedCase(VersionModel):
+class MobileCase(VersionModel):
     """
-    Model for DetailedCase
+    Model for MobileCase
     """
+
+    class AppOS(models.TextChoices):
+        ANDROID = "android", "Android"
+        IOS = "ios", "iOS"
 
     class PsbLocation(models.TextChoices):
         ENGLAND = "england", "England"
@@ -50,7 +54,7 @@ class DetailedCase(VersionModel):
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        related_name="detailed_case_created_by",
+        related_name="mobile_case_created_by",
         blank=True,
         null=True,
     )
@@ -60,45 +64,51 @@ class DetailedCase(VersionModel):
     auditor = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        related_name="detailed_case_auditor",
+        related_name="mobile_case_auditor",
         blank=True,
         null=True,
     )
     reviewer = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        related_name="detailed_case_reviewer",
+        related_name="mobile_case_reviewer",
         blank=True,
         null=True,
     )
-    home_page_url = models.TextField(default="", blank=True)
-    domain = models.TextField(default="", blank=True)
     organisation_name = models.TextField(default="", blank=True)
-    psb_location = models.CharField(
+    parental_organisation_name = models.TextField(default="", blank=True)
+    app_name = models.TextField(default="", blank=True)
+    app_store_url = models.TextField(default="", blank=True)
+    domain = models.TextField(default="", blank=True)
+    app_os = models.CharField(
         max_length=20,
-        choices=PsbLocation.choices,
-        default=PsbLocation.UNKNOWN,
+        choices=AppOS.choices,
+        default=AppOS.IOS,
     )
     sector = models.ForeignKey(Sector, on_delete=models.PROTECT, null=True, blank=True)
-    enforcement_body = models.CharField(
-        max_length=20,
-        choices=EnforcementBody.choices,
-        default=EnforcementBody.EHRC,
-    )
-    is_complaint = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
-    previous_case_url = models.TextField(default="", blank=True)
-    trello_url = models.TextField(default="", blank=True)
-    notes = models.TextField(default="", blank=True)
-    parental_organisation_name = models.TextField(default="", blank=True)
-    website_name = models.TextField(default="", blank=True)
     subcategory = models.ForeignKey(
         SubCategory,
         on_delete=models.PROTECT,
         blank=True,
         null=True,
     )
+    enforcement_body = models.CharField(
+        max_length=20,
+        choices=EnforcementBody.choices,
+        default=EnforcementBody.EHRC,
+    )
+    psb_location = models.CharField(
+        max_length=20,
+        choices=PsbLocation.choices,
+        default=PsbLocation.UNKNOWN,
+    )
+    is_complaint = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    notes = models.TextField(default="", blank=True)
+    previous_case_url = models.TextField(default="", blank=True)
+    trello_url = models.TextField(default="", blank=True)
+    website_name = models.TextField(default="", blank=True)
     is_feedback_requested = models.CharField(
         max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
@@ -117,14 +127,14 @@ class DetailedCase(VersionModel):
         return f"{self.organisation_name} | {self.case_identifier}"
 
     def get_absolute_url(self) -> str:
-        return reverse("detailed:case-detail", kwargs={"pk": self.pk})
+        return reverse("mobile:case-detail", kwargs={"pk": self.pk})
 
     def save(self, *args, **kwargs) -> None:
         now: datetime = timezone.now()
         if not self.created:
             self.created = now
-            self.domain = extract_domain_from_url(self.home_page_url)
-            max_case_number = DetailedCase.objects.aggregate(
+            self.domain = extract_domain_from_url(self.app_store_url)
+            max_case_number = MobileCase.objects.aggregate(
                 models.Max("case_number")
             ).get("case_number__max")
             if max_case_number is not None:
@@ -134,15 +144,12 @@ class DetailedCase(VersionModel):
 
     @property
     def title(self) -> str:
-        title: str = ""
-        if self.website_name:
-            title += f"{self.website_name} &nbsp;|&nbsp; "
-        title += f"{self.organisation_name} &nbsp;|&nbsp; {self.case_identifier}"
+        title = f"{self.app_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
 
     @property
     def case_identifier(self) -> str:
-        return f"#D-{self.case_number}"
+        return f"#M-{self.case_number}"
 
 
 class EventHistory(models.Model):
@@ -152,13 +159,13 @@ class EventHistory(models.Model):
         UPDATE = "model_update", "Model update"
         CREATE = "model_create", "Model create"
 
-    detailed_case = models.ForeignKey(
-        DetailedCase, on_delete=models.PROTECT, null=True, blank=True
+    mobile_case = models.ForeignKey(
+        MobileCase, on_delete=models.PROTECT, null=True, blank=True
     )
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.PROTECT,
-        related_name="detailed_case_event_content_type",
+        related_name="mobile_case_event_content_type",
     )
     object_id = models.PositiveIntegerField()
     parent = GenericForeignKey("content_type", "object_id")
@@ -169,7 +176,7 @@ class EventHistory(models.Model):
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        related_name="detailed_case_event_created_by_user",
+        related_name="mobile_case_event_created_by_user",
     )
     created = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)

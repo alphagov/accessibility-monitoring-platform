@@ -49,6 +49,8 @@ from ..comments.models import Comment
 from ..detailed.forms import DetailedCaseMetadataUpdateForm
 from ..detailed.models import DetailedCase
 from ..exports.models import Export
+from ..mobile.forms import MobileCaseMetadataUpdateForm
+from ..mobile.models import MobileCase
 from ..notifications.models import Task
 from ..reports.models import Report
 from .models import EmailTemplate
@@ -279,6 +281,20 @@ class DetailedCasePlatformPage(CasePlatformPage):
         self.set_instance(instance=case)
 
 
+class MobileCasePlatformPage(CasePlatformPage):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.instance_class: ClassVar[MobileCase] = MobileCase
+
+    def get_case(self) -> MobileCase | None:
+        if self.instance is not None:
+            if isinstance(self.instance, MobileCase):
+                return self.instance
+
+    def populate_from_case(self, case: MobileCase):
+        self.set_instance(instance=case)
+
+
 class CaseContactsPlatformPage(CasePlatformPage):
     def populate_from_case(self, case: Case):
         if case is not None:
@@ -454,6 +470,7 @@ class PlatformPageGroup:
     class Type(StrEnum):
         SIMPLIFIED_CASE_NAV: str = auto()
         DETAILED_CASE_NAV: str = auto()
+        MOBILE_CASE_NAV: str = auto()
         CASE_TOOLS: str = auto()
         DEFAULT: str = auto()
 
@@ -544,6 +561,13 @@ class DetailedCasePlatformPageGroup(CasePlatformPageGroup):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
         self.case: DetailedCase | None = None
+
+
+class MobileCasePlatformPageGroup(CasePlatformPageGroup):
+    def __init__(self, type=PlatformPageGroup.Type.MOBILE_CASE_NAV, **kwargs):
+        super().__init__(**kwargs)
+        self.type: PlatformPageGroup.Type = type
+        self.case: MobileCase | None = None
 
 
 SITE_MAP: list[PlatformPageGroup] = [
@@ -1477,14 +1501,35 @@ SITE_MAP: list[PlatformPageGroup] = [
             )
         ],
     ),
+    MobileCasePlatformPageGroup(
+        name="Mobile testing case",
+        case_nav_group=False,
+        pages=[
+            MobileCasePlatformPage(name="Case overview", url_name="mobile:case-detail"),
+        ],
+    ),
+    MobileCasePlatformPageGroup(
+        name="Case details",
+        pages=[
+            MobileCasePlatformPage(
+                name="Case metadata",
+                url_name="mobile:edit-case-metadata",
+                complete_flag_name="case_metadata_complete_date",
+                case_details_form_class=MobileCaseMetadataUpdateForm,
+                # case_details_template_name="cases/details/details_case_metadata.html",
+            )
+        ],
+    ),
     PlatformPageGroup(
         name="Non-Case other",
         pages=[
             PlatformPage(name="Create case", url_name="cases:pick-test-type"),
             PlatformPage(name="Create simplified case", url_name="cases:case-create"),
+            PlatformPage(name="Search simplified cases", url_name="cases:case-list"),
             PlatformPage(name="Create detailed case", url_name="detailed:case-create"),
             PlatformPage(name="Search detailed cases", url_name="detailed:case-list"),
-            PlatformPage(name="Search simplified cases", url_name="cases:case-list"),
+            PlatformPage(name="Create mobile case", url_name="mobile:case-create"),
+            PlatformPage(name="Search mobile cases", url_name="mobile:case-list"),
             PlatformPage(
                 name="Accessibility statement",
                 url_name="common:accessibility-statement",
