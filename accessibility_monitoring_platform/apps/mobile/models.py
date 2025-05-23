@@ -40,14 +40,15 @@ class MobileCase(VersionModel):
         ECNI = "ecni", "Equality Commission Northern Ireland"
 
     class Status(models.TextChoices):
-        CONTACTING = "010_contacting", "Seeking to contact"
-        AUDITING = "020_auditing", "Testing"
-        REPORTING = "030_reporting", "Writing report"
-        QA_REPORT = "040_qa_report", "QA in progress"
-        AWAIT_RESPONSE = "050_await_response", "Awaiting response"
-        REVIEWING_UPDATE = "060_reviewing_update", "Reviewing update"
-        REQUIRES_DECISION = "070_requires_decision", "Requires decision"
-        WAITING_12_WEEKS = "080_waiting_12_weeks", "Waiting for 12-weeks"
+        INITIAL = "010_initial", "Initial"
+        CONTACTING = "020_contacting", "Seeking to contact"
+        AUDITING = "030_auditing", "Testing"
+        REPORTING = "040_reporting", "Writing report"
+        QA_REPORT = "050_qa_report", "QA in progress"
+        AWAIT_RESPONSE = "060_await_response", "Awaiting response"
+        REVIEWING_UPDATE = "070_reviewing_update", "Reviewing update"
+        REQUIRES_DECISION = "080_requires_decision", "Requires decision"
+        WAITING_12_WEEKS = "090_waiting_12_weeks", "Waiting for 12-weeks"
 
     case_number = models.IntegerField(default=1)
     created = models.DateTimeField(blank=True)
@@ -117,7 +118,7 @@ class MobileCase(VersionModel):
     status = models.CharField(
         max_length=30,
         choices=Status.choices,
-        default=Status.CONTACTING,
+        default=Status.INITIAL,
     )
 
     class Meta:
