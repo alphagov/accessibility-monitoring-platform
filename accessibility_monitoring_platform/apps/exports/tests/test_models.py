@@ -195,5 +195,5 @@ def test_export_case_str():
 
     assert (
         str(export_case)
-        == f"EHRC CSV export 29 February 2024: {ORGANISATION_NAME} | #1"
+        == f"EHRC CSV export 29 February 2024: {ORGANISATION_NAME} | #S-1"
     )

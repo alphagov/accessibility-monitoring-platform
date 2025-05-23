@@ -1,6 +1,6 @@
 {% for platform_page_group in sitemap.platform_page_groups %}
-    {% if platform_page_group.type == 'case_nav' and platform_page_group.show %}
-        {% if platform_page_group.name == sitemap.current_platform_page.platform_page_group_name or case.archive %}
+    {% if platform_page_group.type == case_nav_type and platform_page_group.show %}
+        {% if platform_page_group.name == sitemap.current_platform_page.platform_page_group.name or case.archive %}
             <p class="govuk-body-s amp-margin-bottom-5">
                 {{ platform_page_group.name }}
                 {% if platform_page_group.number_pages_and_subpages > 0 %}
@@ -21,4 +21,6 @@
         {% endif %}
     {% endif %}
 {% endfor %}
-{% include 'common/frequently_used_links.html' %}
+{% if sitemap.current_platform_page.platform_page_group.type == 'simplified_case_nav' %}
+    {% include 'common/frequently_used_links.html' %}
+{% endif %}

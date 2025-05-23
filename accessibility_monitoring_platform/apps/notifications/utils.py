@@ -116,7 +116,7 @@ def get_overdue_cases(user_request: User | None) -> list[Case]:
     seven_days_ago = date.today() - timedelta(days=7)
 
     seven_day_no_contact: QuerySet[Case] = cases.filter(
-        Q(status__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND),
+        Q(casestatus__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND),
         Q(enable_correspondence_process=True),
         Q(
             Q(
@@ -139,7 +139,7 @@ def get_overdue_cases(user_request: User | None) -> list[Case]:
     )
 
     in_report_correspondence: QuerySet[Case] = cases.filter(
-        Q(status__status=CaseStatus.Status.IN_REPORT_CORES),
+        Q(casestatus__status=CaseStatus.Status.IN_REPORT_CORES),
         Q(
             Q(  # pylint: disable=unsupported-binary-operation
                 report_followup_week_1_due_date__range=[start_date, end_date],
@@ -154,12 +154,12 @@ def get_overdue_cases(user_request: User | None) -> list[Case]:
     )
 
     in_probation_period: QuerySet[Case] = cases.filter(
-        status__status__icontains=CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
+        casestatus__status__icontains=CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
         report_followup_week_12_due_date__range=[start_date, end_date],
     )
 
     in_12_week_correspondence: QuerySet[Case] = cases.filter(
-        Q(status__status__icontains=CaseStatus.Status.IN_12_WEEK_CORES),
+        Q(casestatus__status__icontains=CaseStatus.Status.IN_12_WEEK_CORES),
         Q(
             Q(
                 twelve_week_1_week_chaser_due_date__range=[start_date, end_date],
@@ -293,7 +293,7 @@ def build_task_list(user: User | None, **kwargs: dict[str, str]) -> list[Task]:
                 type=Task.Type.OVERDUE,
                 date=overdue_case.next_action_due_date,
                 case=overdue_case,
-                description=overdue_case.status.get_status_display(),
+                description=overdue_case.get_status_display(),
                 action="Chase overdue response",
             )
             task.options = [overdue_case.overdue_link]

@@ -30,7 +30,7 @@ from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, EventHistory
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
     ("reviewer", "reviewer_id"),
-    ("status", "status"),
+    ("status", "casestatus__status"),
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
@@ -155,12 +155,12 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
             if filter_value != "":
                 filters[filter_name] = filter_value
 
-    if str(filters.get("status", "")) == CaseStatus.Status.READY_TO_QA:
+    if str(filters.get("casestatus__status", "")) == CaseStatus.Status.READY_TO_QA:
         filters["qa_status"] = Case.QAStatus.UNASSIGNED
-        del filters["status"]
+        del filters["casestatus__status"]
 
     if "status" in filters:
-        filters["status__status"] = filters["status"]
+        filters["casestatus__status"] = filters["status"]
         del filters["status"]
 
     # Auditor and reviewer may be filtered by unassigned
@@ -174,7 +174,8 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
             Case.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
-                    When(status__status=CaseStatus.Status.UNASSIGNED, then=0), default=1
+                    When(casestatus__status=CaseStatus.Status.UNASSIGNED, then=0),
+                    default=1,
                 )
             )
             .order_by("position_unassigned_first", "-id")

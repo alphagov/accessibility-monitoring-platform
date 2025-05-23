@@ -5,7 +5,7 @@
             {% if next_platform_pages %}
                 {% for next_platform_page in next_platform_pages %}
                     {% if forloop.counter > 1 %}<br>or{% endif %}
-                    <b>{{ next_platform_page.platform_page_group_name }} |
+                    <b>{{ next_platform_page.platform_page_group.name }} |
                     {{ next_platform_page.get_name }}</b>
                 {% endfor %}
             {% else %}

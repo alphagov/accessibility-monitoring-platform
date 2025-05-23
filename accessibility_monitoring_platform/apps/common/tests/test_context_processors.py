@@ -152,4 +152,4 @@ def test_platform_page_non_case_sitemap_template_context():
 
     current_platform_page: PlatformPage = sitemap.current_platform_page
 
-    assert current_platform_page.get_name() == "Your cases"
+    assert current_platform_page.get_name() == "Your simplified cases"
