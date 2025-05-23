@@ -268,7 +268,7 @@ class CaseListView(ListView):
         return context
 
 
-class CaseCreateView(CreateView):
+class CaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     """
     View to create a case
     """

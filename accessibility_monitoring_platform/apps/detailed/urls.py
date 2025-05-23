@@ -11,6 +11,7 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     DetailedCaseDetailView,
     DetailedCaseListView,
     DetailedCaseMetadataUpdateView,
+    DetailedCaseStatusUpdateView,
 )
 
 app_name: str = "detailed"
@@ -34,5 +35,10 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/case-metadata/",
         login_required(DetailedCaseMetadataUpdateView.as_view()),
         name="edit-case-metadata",
+    ),
+    path(
+        "<int:pk>/case-status/",
+        login_required(DetailedCaseStatusUpdateView.as_view()),
+        name="edit-case-status",
     ),
 ]

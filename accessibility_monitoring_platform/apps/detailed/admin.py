@@ -4,7 +4,7 @@ Admin for cases
 
 from django.contrib import admin
 
-from .models import DetailedCase
+from .models import DetailedCase, DetailedCaseStatusHistory
 
 
 class DetailedCaseAdmin(admin.ModelAdmin):
@@ -26,3 +26,4 @@ class DetailedCaseAdmin(admin.ModelAdmin):
 
 
 admin.site.register(DetailedCase, DetailedCaseAdmin)
+admin.site.register(DetailedCaseStatusHistory)

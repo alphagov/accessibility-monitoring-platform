@@ -9,6 +9,7 @@
             {% include 'common/case_banner.html' %}
         </div>
     </div>
+    {% block breadcrumbs %}
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
@@ -19,12 +20,16 @@
             <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
     </div>
+    {% endblock %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-quarter amp-padding-left-0">
+            {% if amp_hide_case_nav %}
+            {% else %}
+            <div class="govuk-grid-column-one-quarter">
                 {% include "cases/helpers/case_nav.html" with case_nav_type='detailed_case_nav' %}
             </div>
-            <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
+            {% endif %}
+            <div class="govuk-grid-column-{% if amp_hide_case_nav %}full{% else %}three-quarters amp-padding-vertical-30{% endif %}">
                 {% include "cases/helpers/edit_header.html" %}
                 {% include 'common/error_summary.html' %}
                 {% block preform %}{% endblock %}

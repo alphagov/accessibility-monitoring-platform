@@ -135,12 +135,7 @@
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
-                            <a
-                                href="{% url 'cases:case-list' %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel
-                            </a>
+                            {% include "common/amp_control_go_back.html" with go_back_label='Cancel' %}
                         </div>
                     </div>
                 </div>

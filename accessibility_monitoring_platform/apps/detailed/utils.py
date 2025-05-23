@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from ..common.utils import diff_model_fields
-from .models import DetailedCase, EventHistory
+from .models import DetailedCase, DetailedCaseStatusHistory, EventHistory
 
 
 def record_model_create_event(
@@ -47,3 +47,14 @@ def record_model_update_event(
             parent=model_object,
             difference=json.dumps(diff_fields, default=str),
         )
+
+
+def add_to_detailed_case_status_history(
+    detailed_case: DetailedCase, user: User
+) -> None:
+    """Add latest change to DetailedCase.status history"""
+    DetailedCaseStatusHistory.objects.create(
+        detailed_case=detailed_case,
+        created_by=user,
+        status=detailed_case.status,
+    )

@@ -15,6 +15,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..common.utils import extract_domain_from_url, get_url_parameters_for_pagination
+from ..common.views import ShowGoBackJSWidgetMixin
 from .forms import (
     MobileCaseCreateForm,
     MobileCaseMetadataUpdateForm,
@@ -29,7 +30,7 @@ def find_duplicate_cases(organisation_name: str = "") -> QuerySet[MobileCase]:
     return MobileCase.objects.filter(organisation_name__icontains=organisation_name)
 
 
-class MobileCaseCreateView(CreateView):
+class MobileCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     """
     View to create a case
     """

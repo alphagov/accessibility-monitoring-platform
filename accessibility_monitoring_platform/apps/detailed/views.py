@@ -15,13 +15,19 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..common.utils import extract_domain_from_url, get_url_parameters_for_pagination
+from ..common.views import HideCaseNavigationMixin, ShowGoBackJSWidgetMixin
 from .forms import (
     DetailedCaseCreateForm,
     DetailedCaseMetadataUpdateForm,
     DetailedCaseSearchForm,
+    DetailedCaseStatusUpdateForm,
 )
 from .models import DetailedCase
-from .utils import record_model_create_event, record_model_update_event
+from .utils import (
+    add_to_detailed_case_status_history,
+    record_model_create_event,
+    record_model_update_event,
+)
 
 
 def find_duplicate_cases(
@@ -34,7 +40,7 @@ def find_duplicate_cases(
     )
 
 
-class DetailedCaseCreateView(CreateView):
+class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     """
     View to create a case
     """
@@ -161,4 +167,30 @@ class DetailedCaseMetadataUpdateView(UpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             return self.object.get_absolute_url()
+        return self.request.path
+
+
+class DetailedCaseStatusUpdateView(HideCaseNavigationMixin, UpdateView):
+    """View to update detailed case status"""
+
+    model: type[DetailedCase] = DetailedCase
+    form_class: type[DetailedCaseStatusUpdateForm] = DetailedCaseStatusUpdateForm
+    context_object_name: str = "detailed_case"
+    template_name: str = "detailed/forms/detailedcase_status.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add message on change of case"""
+        if form.changed_data:
+            self.object: DetailedCase = form.save(commit=False)
+            user: User = self.request.user
+            record_model_update_event(
+                user=user, model_object=self.object, detailed_case=self.object
+            )
+            self.object.save()
+            add_to_detailed_case_status_history(detailed_case=self.object, user=user)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Stay on page"""
         return self.request.path

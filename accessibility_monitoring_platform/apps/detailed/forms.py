@@ -12,6 +12,7 @@ from ..common.forms import (
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
+    AMPChoiceField,
     AMPChoiceRadioField,
     AMPDatePageCompleteField,
     AMPModelChoiceField,
@@ -147,3 +148,14 @@ class DetailedCaseSearchForm(forms.Form):
     """Form for searching for detailed cases"""
 
     case_search = AMPCharFieldWide(label="Search")
+
+
+class DetailedCaseStatusUpdateForm(VersionForm):
+    status = AMPChoiceField(label="Status", choices=DetailedCase.Status)
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "status",
+        ]

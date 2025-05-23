@@ -44,6 +44,8 @@ def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argu
     EventHistory.objects.all().delete()
     DetailedCase = apps.get_model("detailed", "DetailedCase")
     DetailedCase.objects.all().delete()
+    DetailedCaseStatusHistory = apps.get_model("detailed", "DetailedCaseStatusHistory")
+    DetailedCaseStatusHistory.objects.all().delete()
     try:
         with open(INPUT_FILE_NAME) as csvfile:
             reader = csv.DictReader(csvfile)
@@ -62,7 +64,7 @@ def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argu
                 url: str = row["URL"]
                 enforcement_body: str = row["Enforcement body"].lower()
                 is_complaint: str = row["Is it a complaint?"].lower()
-                DetailedCase.objects.create(
+                detailed_case: DetailedCase = DetailedCase.objects.create(
                     case_number=case_number,
                     created_by=paul,
                     created=created,
@@ -75,6 +77,14 @@ def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argu
                     is_complaint=is_complaint,
                     notes=row["Summary of progress made / response from PSB"],
                 )
+                detailedcase_status_history: DetailedCaseStatusHistory = (
+                    DetailedCaseStatusHistory.objects.create(
+                        detailed_case=detailed_case,
+                        created_by=auditor,
+                    )
+                )
+                detailedcase_status_history.created = updated
+                detailedcase_status_history.save()
     except FileNotFoundError:
         pass
 

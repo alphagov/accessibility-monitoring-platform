@@ -1,0 +1,57 @@
+{% extends 'detailed/forms/detailedcase_form.html' %}
+
+{% block breadcrumbs %}
+<div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        <li class="govuk-breadcrumbs__list-item">
+            <a class="govuk-breadcrumbs__link" href="{{ detailed_case.get_absolute_url }}">Detailed case</a>
+        </li>
+        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+    </ol>
+</div>
+{% endblock %}
+
+{% block formbuttons %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <input
+            type="submit"
+            value="Save"
+            name="save"
+            class="govuk-button"
+            data-module="govuk-button"
+        />
+        <a
+            href="{{ case.get_absolute_url }}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Return to overview
+        </a>
+    </div>
+</div>
+{% include 'common/next_platform_page.html' %}
+{% endblock %}
+
+{% block postform %}
+<table class="govuk-table">
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header amp-width-one-half">Date time</th>
+            <th scope="col" class="govuk-table__header amp-width-one-half">New status</th>
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        {% for detailedcase_status_history in detailed_case.detailedcasestatushistory_set.all %}
+            <tr class="govuk-table__row ">
+                <td scope="row" class="govuk-table__cell amp-width-one-half">
+                    {{ detailedcase_status_history.created|amp_datetime }}
+                </td>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {{ detailedcase_status_history.get_status_display }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

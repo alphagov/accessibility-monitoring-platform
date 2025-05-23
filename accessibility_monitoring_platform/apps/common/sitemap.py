@@ -1487,6 +1487,9 @@ SITE_MAP: list[PlatformPageGroup] = [
             DetailedCasePlatformPage(
                 name="Case overview", url_name="detailed:case-detail"
             ),
+            DetailedCasePlatformPage(
+                name="Change status", url_name="detailed:edit-case-status"
+            ),
         ],
     ),
     DetailedCasePlatformPageGroup(

@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}{{ mobile_case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+{% block title %}{{ mobile_case.app_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -29,7 +29,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 {% include 'cases/details/search_in_case.html' %}
-                <span class="amp-code">TODO search</span>
+                <span class="amp-todo">TODO search</span>
                 <hr class="amp-width-100 amp-margin-bottom-30" />
                 {% include 'cases/helpers/case_nav.html' with case_nav_type='mobile_case_nav' %}
             </div>

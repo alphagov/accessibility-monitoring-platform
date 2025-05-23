@@ -24,9 +24,14 @@
             &nbsp
         </div>
         <p>
-            {% if detailed_case or mobile_case %}
+            {% if mobile_case %}
                 {{ case.get_status_display }}
-                <span class="amp-code">TODO update status</span>
+                <span class="amp-todo">TODO update status</span>
+            {% elif detailed_case %}
+                {{ case.get_status_display }}
+                <a href="{% url 'detailed:edit-case-status' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Change
+                </a>
             {% else %}
                 <a href="{% url 'cases:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     {{ case.status.get_status_display }}
@@ -38,7 +43,7 @@
         </div>
         <p>
             {% if detailed_case or mobile_case %}
-                <span class="amp-code">TODO reminder</span>
+                <span class="amp-todo">TODO reminder</span>
             {% else %}
                 {% if case.reminder %}
                     Reminder:
@@ -57,7 +62,7 @@
         </div>
         <p>
             {% if detailed_case or mobile_case %}
-                <span class="amp-code">TODO detailed report</span>
+                <span class="amp-todo">TODO detailed report</span>
             {% else %}
                 {% if case.report.latest_s3_report %}
                     <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
@@ -73,7 +78,7 @@
         </div>
         <p>
             {% if mobile_case %}
-                <span class="amp-code">TODO link to app?</span>
+                <span class="amp-todo">TODO link to app?</span>
             {% else %}
                 <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     View website
