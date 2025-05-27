@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -18,11 +19,12 @@ from ..common.utils import extract_domain_from_url, get_url_parameters_for_pagin
 from ..common.views import HideCaseNavigationMixin, ShowGoBackJSWidgetMixin
 from .forms import (
     DetailedCaseCreateForm,
+    DetailedCaseHistoryCreateForm,
     DetailedCaseMetadataUpdateForm,
     DetailedCaseSearchForm,
     DetailedCaseStatusUpdateForm,
 )
-from .models import DetailedCase
+from .models import DetailedCase, DetailedCaseHistory
 from .utils import (
     add_to_detailed_case_status_history,
     record_model_create_event,
@@ -145,7 +147,7 @@ class DetailedCaseMetadataUpdateView(UpdateView):
     model: type[DetailedCase] = DetailedCase
     form_class: type[DetailedCaseMetadataUpdateForm] = DetailedCaseMetadataUpdateForm
     context_object_name: str = "detailed_case"
-    template_name: str = "detailed/forms/detailedcase_form.html"
+    template_name: str = "detailed/forms/case_form.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
@@ -176,7 +178,7 @@ class DetailedCaseStatusUpdateView(HideCaseNavigationMixin, UpdateView):
     model: type[DetailedCase] = DetailedCase
     form_class: type[DetailedCaseStatusUpdateForm] = DetailedCaseStatusUpdateForm
     context_object_name: str = "detailed_case"
-    template_name: str = "detailed/forms/detailedcase_status.html"
+    template_name: str = "detailed/forms/case_status.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
@@ -194,3 +196,46 @@ class DetailedCaseStatusUpdateView(HideCaseNavigationMixin, UpdateView):
     def get_success_url(self) -> str:
         """Stay on page"""
         return self.request.path
+
+
+class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
+    """View to add a note to the DetailedCaseHistory"""
+
+    model: type[DetailedCaseHistory] = DetailedCaseHistory
+    form_class: type[DetailedCaseHistoryCreateForm] = DetailedCaseHistoryCreateForm
+    context_object_name: str = "detailed_case_history"
+    template_name: str = "detailed/forms/note_create.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add field values into context"""
+        detailed_case: DetailedCase = get_object_or_404(
+            DetailedCase, id=self.kwargs.get("case_id")
+        )
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["detailed_case"] = detailed_case
+        context["detailed_case_history"] = detailed_case.detailedcasehistory_set.all()
+        return context
+
+    def form_valid(self, form: DetailedCaseCreateForm):
+        """Process contents of valid form"""
+        detailed_case: DetailedCase = get_object_or_404(
+            DetailedCase, id=self.kwargs.get("case_id")
+        )
+        detailed_case_history: DetailedCaseHistory = form.save(commit=False)
+        detailed_case_history.detailed_case = detailed_case
+        detailed_case_history.created_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        detailed_case_history: DetailedCaseHistory = self.object
+        detailed_case: DetailedCase = detailed_case_history.detailed_case
+        user: User = self.request.user
+        record_model_create_event(
+            user=user,
+            model_object=detailed_case_history,
+            detailed_case=detailed_case,
+        )
+        return reverse(
+            "detailed:create-case-note", kwargs={"case_id": detailed_case.id}
+        )

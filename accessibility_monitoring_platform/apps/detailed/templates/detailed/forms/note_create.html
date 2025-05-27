@@ -1,0 +1,71 @@
+{% extends 'detailed/forms/case_form.html' %}
+
+{% load static %}
+
+{% block breadcrumbs %}
+<div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        <li class="govuk-breadcrumbs__list-item">
+            <a class="govuk-breadcrumbs__link" href="{{ detailed_case.get_absolute_url }}">Detailed testing case</a>
+        </li>
+        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+    </ol>
+</div>
+{% endblock %}
+
+{% block form %}
+<form method="post" action="{% url sitemap.current_platform_page.url_name case.id %}">
+    {% csrf_token %}
+    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% block formfields %}
+            {% include 'common/amp_form_snippet.html' %}
+            {% endblock %}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full govuk-button-group">
+            <input
+                type="submit"
+                value="Save"
+                name="save"
+                class="govuk-button"
+                data-module="govuk-button"
+            />
+            <a
+                href="{{ case.get_absolute_url }}"
+                class="govuk-link govuk-link--no-visited-state"
+            >
+                Return to overview
+            </a>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block postform %}
+{% include 'common/amp_search_widget.html' with search_label='Search notes' %}
+{% for detailed_case_event in case.detailedcasehistory_set.all %}
+    <div class="govuk-grid-row amp-searchable">
+        <div class="govuk-grid-column-one-quarter">
+            <p class="govuk-body amp-margin-bottom-5"><b>{{ detailed_case_event.get_event_type_display }}</b></p>
+            <p class="govuk-body amp-margin-bottom-5">{{ detailed_case_event.created_by.get_full_name }}</p>
+            <p class="govuk-body">{{ detailed_case_event.created|amp_datetime }}</p>
+        </div>
+        <div class="govuk-grid-column-three-quarters govuk-body amp-notes">
+            {{ detailed_case_event.value|markdown_to_html }}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <hr class="amp-width-100" />
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/search_page.js' %}"></script>
+{% endblock %}

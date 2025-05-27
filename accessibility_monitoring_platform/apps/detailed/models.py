@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -48,6 +49,7 @@ class DetailedCase(VersionModel):
 
     case_number = models.IntegerField(default=1)
     created = models.DateTimeField(blank=True)
+    is_deleted = models.BooleanField(default=False)
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -145,6 +147,11 @@ class DetailedCase(VersionModel):
     def case_identifier(self) -> str:
         return f"#D-{self.case_number}"
 
+    def status_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.filter(
+            event_type=DetailedCaseHistory.EventType.STATUS
+        )
+
 
 class EventHistory(models.Model):
     """Model to record events on platform"""
@@ -203,21 +210,28 @@ class EventHistory(models.Model):
         return variable_list
 
 
-class DetailedCaseStatusHistory(models.Model):
-    """Model to record history of changes to DetailedCase.status notes"""
+class DetailedCaseHistory(models.Model):
+    """Model to record history of changes to DetailedCase"""
+
+    class EventType(models.TextChoices):
+        NOTE = "note", "Entered note"
+        REMINDER = "reminder", "Reminder set"
+        STATUS = "status", "Changed status"
 
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
-    status = models.CharField(
-        max_length=30,
-        choices=DetailedCase.Status.choices,
-        default=DetailedCase.Status.INITIAL,
+    event_type = models.CharField(
+        max_length=100, choices=EventType.choices, default=EventType.NOTE
     )
+    value = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.detailed_case} {self.status} {self.created} {self.created_by}"
+        return (
+            f"{self.detailed_case} {self.event_type} {self.created} {self.created_by}"
+        )
 
     class Meta:
         ordering = ["-created"]
-        verbose_name_plural = "Detailed Case status histories"
+        verbose_name_plural = "Detailed Case history"

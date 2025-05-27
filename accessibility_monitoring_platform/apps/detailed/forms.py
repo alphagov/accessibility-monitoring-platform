@@ -21,7 +21,7 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Sector, SubCategory
-from .models import Boolean, DetailedCase
+from .models import Boolean, DetailedCase, DetailedCaseHistory
 
 
 class DetailedCaseCreateForm(forms.ModelForm):
@@ -158,4 +158,14 @@ class DetailedCaseStatusUpdateForm(VersionForm):
         fields = [
             "version",
             "status",
+        ]
+
+
+class DetailedCaseHistoryCreateForm(forms.ModelForm):
+    value = AMPTextField(label="New note")
+
+    class Meta:
+        model = DetailedCaseHistory
+        fields = [
+            "value",
         ]

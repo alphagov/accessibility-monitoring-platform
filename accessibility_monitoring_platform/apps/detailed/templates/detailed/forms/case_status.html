@@ -1,11 +1,11 @@
-{% extends 'detailed/forms/detailedcase_form.html' %}
+{% extends 'detailed/forms/case_form.html' %}
 
 {% block breadcrumbs %}
 <div class="govuk-breadcrumbs">
     <ol class="govuk-breadcrumbs__list">
         {% include 'common/breadcrumb_home.html' %}
         <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="{{ detailed_case.get_absolute_url }}">Detailed case</a>
+            <a class="govuk-breadcrumbs__link" href="{{ detailed_case.get_absolute_url }}">Detailed testing case</a>
         </li>
         <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
     </ol>
@@ -30,7 +30,6 @@
         </a>
     </div>
 </div>
-{% include 'common/next_platform_page.html' %}
 {% endblock %}
 
 {% block postform %}
@@ -42,13 +41,13 @@
         </tr>
     </thead>
     <tbody class="govuk-table__body">
-        {% for detailedcase_status_history in detailed_case.detailedcasestatushistory_set.all %}
+        {% for detailed_case_status_event in detailed_case.status_history %}
             <tr class="govuk-table__row ">
                 <td scope="row" class="govuk-table__cell amp-width-one-half">
-                    {{ detailedcase_status_history.created|amp_datetime }}
+                    {{ detailed_case_status_event.created|amp_datetime }}
                 </td>
                 <td class="govuk-table__cell amp-width-one-half">
-                    {{ detailedcase_status_history.get_status_display }}
+                    {{ detailed_case_status_event.value }}
                 </td>
             </tr>
         {% endfor %}

@@ -23,4 +23,14 @@
 {% endfor %}
 {% if sitemap.current_platform_page.platform_page_group.type == 'simplified_case_nav' %}
     {% include 'common/frequently_used_links.html' %}
+{% elif sitemap.current_platform_page.platform_page_group.type == 'detailed_case_nav' %}
+    <div class="amp-nav-steps">
+        <ul class="govuk-list">
+            <li>
+                <a href="{% url 'detailed:create-case-note' case.id %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                    Open case notes</a>
+                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+            </li>
+        </ul>
+    </div>
 {% endif %}
