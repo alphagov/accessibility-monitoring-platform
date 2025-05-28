@@ -7,12 +7,18 @@ from django.urls import path
 from django.urls.resolvers import URLPattern
 
 from accessibility_monitoring_platform.apps.detailed.views import (
+    ContactChasingRecordUpdateView,
+    ContactCreateView,
+    ContactInformationDeliveredUpdateView,
+    ContactInformationRequestUpdateView,
+    ContactUpdateView,
     DetailedCaseCreateView,
     DetailedCaseDetailView,
     DetailedCaseListView,
     DetailedCaseMetadataUpdateView,
     DetailedCaseNoteCreateView,
     DetailedCaseStatusUpdateView,
+    ManageContactDetailsUpdateView,
 )
 
 app_name: str = "detailed"
@@ -46,5 +52,35 @@ urlpatterns: list[URLPattern] = [
         "<int:case_id>/case-note-create/",
         login_required(DetailedCaseNoteCreateView.as_view()),
         name="create-case-note",
+    ),
+    path(
+        "<int:pk>/manage-contact-details/",
+        login_required(ManageContactDetailsUpdateView.as_view()),
+        name="manage-contact-details",
+    ),
+    path(
+        "<int:case_id>/edit-contact-create/",
+        login_required(ContactCreateView.as_view()),
+        name="edit-contact-create",
+    ),
+    path(
+        "<int:pk>/edit-contact-update/",
+        login_required(ContactUpdateView.as_view()),
+        name="edit-contact-update",
+    ),
+    path(
+        "<int:pk>/edit-request-contact-details/",
+        login_required(ContactInformationRequestUpdateView.as_view()),
+        name="edit-request-contact-details",
+    ),
+    path(
+        "<int:pk>/edit-chasing-record/",
+        login_required(ContactChasingRecordUpdateView.as_view()),
+        name="edit-chasing-record",
+    ),
+    path(
+        "<int:pk>/edit-information-delivered/",
+        login_required(ContactInformationDeliveredUpdateView.as_view()),
+        name="edit-information-delivered",
     ),
 ]

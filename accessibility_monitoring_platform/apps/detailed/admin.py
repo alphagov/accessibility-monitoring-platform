@@ -4,7 +4,25 @@ Admin for cases
 
 from django.contrib import admin
 
-from .models import DetailedCase, DetailedCaseHistory
+from .models import Contact, DetailedCase, DetailedCaseHistory
+
+
+class ContactAdmin(admin.ModelAdmin):
+    search_fields = [
+        "name",
+        "contact_point",
+        "detailed_case__organisation_name",
+        "detailed_case__case_number",
+    ]
+    list_display = [
+        "__str__",
+        "name",
+        "contact_point",
+        "detailed_case",
+        "is_deleted",
+    ]
+    list_filter = ["is_deleted"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class DetailedCaseAdmin(admin.ModelAdmin):
@@ -47,5 +65,6 @@ class DetailedCaseHistoryAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
+admin.site.register(Contact, ContactAdmin)
 admin.site.register(DetailedCase, DetailedCaseAdmin)
 admin.site.register(DetailedCaseHistory, DetailedCaseHistoryAdmin)

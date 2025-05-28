@@ -16,17 +16,27 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..common.utils import extract_domain_from_url, get_url_parameters_for_pagination
-from ..common.views import HideCaseNavigationMixin, ShowGoBackJSWidgetMixin
+from ..common.views import (
+    HideCaseNavigationMixin,
+    NextPlatformPageMixin,
+    ShowGoBackJSWidgetMixin,
+)
 from .forms import (
+    ContactChasingRecordUpdateForm,
+    ContactCreateForm,
+    ContactInformationDeliveredUpdateForm,
+    ContactInformationRequestUpdateForm,
+    ContactUpdateForm,
     DetailedCaseCreateForm,
     DetailedCaseHistoryCreateForm,
     DetailedCaseMetadataUpdateForm,
     DetailedCaseSearchForm,
     DetailedCaseStatusUpdateForm,
+    ManageContactsUpdateForm,
 )
-from .models import DetailedCase, DetailedCaseHistory
+from .models import Contact, DetailedCase, DetailedCaseHistory
 from .utils import (
-    add_to_detailed_case_status_history,
+    add_to_detailed_case_history,
     record_model_create_event,
     record_model_update_event,
 )
@@ -40,6 +50,17 @@ def find_duplicate_cases(
     return DetailedCase.objects.filter(
         Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
     )
+
+
+class AddDetailedCaseToContextMixin:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add detailed case into context"""
+        detailed_case: DetailedCase = get_object_or_404(
+            DetailedCase, id=self.kwargs.get("case_id")
+        )
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["detailed_case"] = detailed_case
+        return context
 
 
 class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
@@ -141,13 +162,30 @@ class DetailedCaseListView(ListView):
         return context
 
 
-class DetailedCaseMetadataUpdateView(UpdateView):
-    """View to update detailed case metadata"""
+class DetailedCaseUpdateView(NextPlatformPageMixin, UpdateView):
+    """View to update DetailedCase"""
 
     model: type[DetailedCase] = DetailedCase
-    form_class: type[DetailedCaseMetadataUpdateForm] = DetailedCaseMetadataUpdateForm
     context_object_name: str = "detailed_case"
     template_name: str = "detailed/forms/case_form.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add message on change of detailed case"""
+        if form.changed_data:
+            self.object: DetailedCase = form.save(commit=False)
+            user: User = self.request.user
+            record_model_update_event(
+                user=user, model_object=self.object, detailed_case=self.object
+            )
+            self.object.save()
+
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class DetailedCaseMetadataUpdateView(DetailedCaseUpdateView):
+    """View to update detailed case metadata"""
+
+    form_class: type[DetailedCaseMetadataUpdateForm] = DetailedCaseMetadataUpdateForm
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
@@ -155,21 +193,7 @@ class DetailedCaseMetadataUpdateView(UpdateView):
             self.object: DetailedCase = form.save(commit=False)
             if "home_page_url" in form.changed_data:
                 self.object.domain = extract_domain_from_url(self.object.home_page_url)
-
-            user: User = self.request.user
-            record_model_update_event(
-                user=user, model_object=self.object, detailed_case=self.object
-            )
-
-            self.object.save()
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            return self.object.get_absolute_url()
-        return self.request.path
+        return super().form_valid(form)
 
 
 class DetailedCaseStatusUpdateView(HideCaseNavigationMixin, UpdateView):
@@ -189,7 +213,12 @@ class DetailedCaseStatusUpdateView(HideCaseNavigationMixin, UpdateView):
                 user=user, model_object=self.object, detailed_case=self.object
             )
             self.object.save()
-            add_to_detailed_case_status_history(detailed_case=self.object, user=user)
+            add_to_detailed_case_history(
+                detailed_case=self.object,
+                user=user,
+                value=self.object.get_status_display(),
+                event_type=DetailedCaseHistory.EventType.STATUS,
+            )
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -239,3 +268,120 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         return reverse(
             "detailed:create-case-note", kwargs={"case_id": detailed_case.id}
         )
+
+
+class ManageContactDetailsUpdateView(DetailedCaseUpdateView):
+    """View to list detailed case contacts"""
+
+    form_class: type[ManageContactsUpdateForm] = ManageContactsUpdateForm
+    template_name: str = "detailed/forms/manage_contacts.html"
+
+
+class ContactCreateView(AddDetailedCaseToContextMixin, CreateView):
+    """View to create detailed case contact"""
+
+    model: type[Contact] = Contact
+    context_object_name: str = "contact"
+    form_class: type[ContactCreateForm] = ContactCreateForm
+    template_name: str = "detailed/forms/contact_create.html"
+
+    def form_valid(self, form: ContactCreateForm):
+        """Populate case of contact"""
+        detailed_case: DetailedCase = get_object_or_404(
+            DetailedCase, id=self.kwargs.get("case_id")
+        )
+        contact: Contact = form.save(commit=False)
+        contact.detailed_case = detailed_case
+        contact.created_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Return to the list of contact details"""
+        record_model_create_event(
+            user=self.request.user,
+            model_object=self.object,
+            detailed_case=self.object.detailed_case,
+        )
+        return reverse(
+            "detailed:manage-contact-details",
+            kwargs={"pk": self.object.detailed_case.id},
+        )
+
+
+class ContactUpdateView(UpdateView):
+    """View to update detailed case contact"""
+
+    model: type[Contact] = Contact
+    context_object_name: str = "contact"
+    form_class: type[ContactUpdateForm] = ContactUpdateForm
+    template_name: str = "detailed/forms/contact_update.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add detailed case into context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["detailed_case"] = self.object.detailed_case
+        return context
+
+    def form_valid(self, form: ContactUpdateForm):
+        """Mark contact as deleted if button is pressed"""
+        contact: Contact = form.save(commit=False)
+        if "delete_contact" in self.request.POST:
+            contact.is_deleted = True
+        record_model_update_event(
+            user=self.request.user,
+            model_object=contact,
+            detailed_case=contact.detailed_case,
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Return to the list of contact details"""
+        return reverse(
+            "detailed:manage-contact-details",
+            kwargs={"pk": self.object.detailed_case.id},
+        )
+
+
+class ContactInformationRequestUpdateView(DetailedCaseUpdateView):
+    """View to update request information for contact"""
+
+    form_class: type[ContactInformationRequestUpdateForm] = (
+        ContactInformationRequestUpdateForm
+    )
+    template_name: str = "detailed/forms/contact_request.html"
+
+
+class ContactChasingRecordUpdateView(DetailedCaseUpdateView):
+    """View to update chasing record for contact"""
+
+    form_class: type[ContactChasingRecordUpdateForm] = ContactChasingRecordUpdateForm
+    template_name: str = "detailed/forms/contact_notes.html"
+
+    def form_valid(self, form: ContactUpdateForm):
+        """Mark store notes in history not in DetailedCase"""
+        if form.cleaned_data["notes"]:
+            add_to_detailed_case_history(
+                detailed_case=self.object,
+                user=self.request.user,
+                value=form.cleaned_data["notes"],
+                event_type=DetailedCaseHistory.EventType.CONTACT_NOTE,
+            )
+        if form.changed_data:
+            self.object: DetailedCase = form.save(commit=False)
+            self.object.notes = ""
+            user: User = self.request.user
+            record_model_update_event(
+                user=user, model_object=self.object, detailed_case=self.object
+            )
+            self.object.save()
+
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class ContactInformationDeliveredUpdateView(DetailedCaseUpdateView):
+    """View to update information delivered for contact"""
+
+    form_class: type[ContactInformationDeliveredUpdateForm] = (
+        ContactInformationDeliveredUpdateForm
+    )
+    template_name: str = "detailed/forms/contact_request.html"

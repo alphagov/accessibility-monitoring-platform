@@ -14,14 +14,15 @@ from ..common.forms import (
     AMPChoiceCheckboxWidget,
     AMPChoiceField,
     AMPChoiceRadioField,
+    AMPDateField,
     AMPDatePageCompleteField,
     AMPModelChoiceField,
     AMPTextField,
     AMPURLField,
     VersionForm,
 )
-from ..common.models import Sector, SubCategory
-from .models import Boolean, DetailedCase, DetailedCaseHistory
+from ..common.models import Boolean, Sector, SubCategory
+from .models import Contact, DetailedCase, DetailedCaseHistory
 
 
 class DetailedCaseCreateForm(forms.ModelForm):
@@ -59,7 +60,6 @@ class DetailedCaseCreateForm(forms.ModelForm):
             attrs={"label": "Did this case originate from a complaint?"}
         ),
     )
-    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = DetailedCase
@@ -74,7 +74,6 @@ class DetailedCaseCreateForm(forms.ModelForm):
             "psb_location",
             "previous_case_url",
             "is_complaint",
-            "notes",
         ]
 
     def clean_home_page_url(self):
@@ -139,7 +138,6 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
             "psb_location",
             "previous_case_url",
             "is_complaint",
-            "notes",
             "case_metadata_complete_date",
         ]
 
@@ -168,4 +166,106 @@ class DetailedCaseHistoryCreateForm(forms.ModelForm):
         model = DetailedCaseHistory
         fields = [
             "value",
+        ]
+
+
+class ManageContactsUpdateForm(VersionForm):
+    """Form for updating contacts list page"""
+
+    manage_contacts_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "manage_contacts_complete_date",
+        ]
+
+
+class ContactCreateForm(forms.ModelForm):
+    """Form for creating a contact"""
+
+    name = AMPCharFieldWide(label="Name")
+    job_title = AMPCharFieldWide(label="Job title")
+    contact_point = AMPCharFieldWide(label="Contact point")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact", choices=Contact.Preferred.choices
+    )
+    type = AMPChoiceRadioField(label="Type of contact", choices=Contact.Type.choices)
+
+    class Meta:
+        model = Contact
+        fields = ["name", "job_title", "contact_point", "preferred", "type"]
+
+
+class ContactUpdateForm(VersionForm):
+    """Form for updating a contact"""
+
+    name = AMPCharFieldWide(label="Name")
+    job_title = AMPCharFieldWide(label="Job title")
+    contact_point = AMPCharFieldWide(label="Email")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=Contact.Preferred.choices
+    )
+    type = AMPChoiceRadioField(label="Type of contact", choices=Contact.Type.choices)
+
+    class Meta:
+        model = Contact
+        fields = ["version", "name", "job_title", "contact_point", "preferred", "type"]
+
+
+class ContactInformationRequestUpdateForm(VersionForm):
+    """Form for updating contact information request page"""
+
+    first_contact_date = AMPDateField(label="First contact sent date")
+    first_contact_sent_to = AMPCharFieldWide(label="First contact sent to")
+    request_contact_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "first_contact_date",
+            "first_contact_sent_to",
+            "request_contact_details_complete_date",
+        ]
+
+
+class ContactChasingRecordUpdateForm(VersionForm):
+    """Form for updating chasing record for contact page"""
+
+    notes = AMPTextField(label="Chasing record")
+    chasing_record_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "notes",
+            "chasing_record_complete_date",
+        ]
+
+
+class ContactInformationDeliveredUpdateForm(VersionForm):
+    """Form for updating contact information delivered page"""
+
+    contact_acknowledged_date = AMPDateField(label="Request acknowledged")
+    contact_acknowledged_by = AMPCharFieldWide(label="Acknowledged by")
+    saved_to_google_drive = AMPChoiceCheckboxField(
+        label="Information saved to Google drive?",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Information saved to Google drive"}
+        ),
+    )
+    information_delivered_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "contact_acknowledged_date",
+            "contact_acknowledged_by",
+            "saved_to_google_drive",
+            "information_delivered_complete_date",
         ]

@@ -49,13 +49,16 @@ def record_model_update_event(
         )
 
 
-def add_to_detailed_case_status_history(
-    detailed_case: DetailedCase, user: User
+def add_to_detailed_case_history(
+    detailed_case: DetailedCase,
+    user: User,
+    value: str,
+    event_type: DetailedCaseHistory.EventType = DetailedCaseHistory.EventType.NOTE,
 ) -> None:
     """Add latest change of DetailedCase.status to history"""
     DetailedCaseHistory.objects.create(
         detailed_case=detailed_case,
-        event_type=DetailedCaseHistory.EventType.STATUS,
+        event_type=event_type,
         created_by=user,
-        value=detailed_case.get_status_display(),
+        value=value,
     )

@@ -58,8 +58,6 @@ class DetailedCase(VersionModel):
         null=True,
     )
     updated = models.DateTimeField(null=True, blank=True)
-
-    # Case metadata page
     auditor = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -74,6 +72,13 @@ class DetailedCase(VersionModel):
         blank=True,
         null=True,
     )
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.INITIAL,
+    )
+
+    # Case metadata page
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
     organisation_name = models.TextField(default="", blank=True)
@@ -107,11 +112,24 @@ class DetailedCase(VersionModel):
     )
     case_metadata_complete_date = models.DateField(null=True, blank=True)
 
-    status = models.CharField(
-        max_length=30,
-        choices=Status.choices,
-        default=Status.INITIAL,
+    # Manage contact details
+    manage_contacts_complete_date = models.DateField(null=True, blank=True)
+
+    # Request contact details
+    first_contact_date = models.DateField(null=True, blank=True)
+    first_contact_sent_to = models.CharField(max_length=200, default="", blank=True)
+    request_contact_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Chasing contact record
+    chasing_record_complete_date = models.DateField(null=True, blank=True)
+
+    # Information delivered
+    contact_acknowledged_date = models.DateField(null=True, blank=True)
+    contact_acknowledged_by = models.CharField(max_length=200, default="", blank=True)
+    saved_to_google_drive = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
+    information_delivered_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]
@@ -151,6 +169,15 @@ class DetailedCase(VersionModel):
         return self.detailedcasehistory_set.filter(
             event_type=DetailedCaseHistory.EventType.STATUS
         )
+
+    def contact_notes_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.filter(
+            event_type=DetailedCaseHistory.EventType.CONTACT_NOTE
+        )
+
+    @property
+    def contacts(self) -> QuerySet["Contact"]:
+        return self.contact_set.filter(is_deleted=False)
 
 
 class EventHistory(models.Model):
@@ -217,10 +244,11 @@ class DetailedCaseHistory(models.Model):
         NOTE = "note", "Entered note"
         REMINDER = "reminder", "Reminder set"
         STATUS = "status", "Changed status"
+        CONTACT_NOTE = "contact_note", "Entered contact note"
 
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     event_type = models.CharField(
-        max_length=100, choices=EventType.choices, default=EventType.NOTE
+        max_length=20, choices=EventType.choices, default=EventType.NOTE
     )
     value = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -235,3 +263,46 @@ class DetailedCaseHistory(models.Model):
     class Meta:
         ordering = ["-created"]
         verbose_name_plural = "Detailed Case history"
+
+
+class Contact(VersionModel):
+    """Model for detailed Contact"""
+
+    class Preferred(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        UNKNOWN = "unknown", "Not known"
+
+    class Type(models.TextChoices):
+        ORGANISATION = "organisation", "Organisation"
+        CONTRACTOR = "contractor", "Contractor"
+
+    detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
+    name = models.TextField(default="", blank=True)
+    job_title = models.CharField(max_length=200, default="", blank=True)
+    contact_point = models.CharField(max_length=200, default="", blank=True)
+    preferred = models.CharField(
+        max_length=20, choices=Preferred.choices, default=Preferred.UNKNOWN
+    )
+    type = models.CharField(
+        max_length=20, choices=Type.choices, default=Type.ORGANISATION
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-preferred", "-id"]
+
+    def __str__(self) -> str:
+        string: str = ""
+        if self.name:
+            string = self.name
+        if self.contact_point:
+            string += f" {self.contact_point}"
+        return string
+
+    def get_absolute_url(self) -> str:
+        return reverse(
+            "detailed:manage-contact-details", kwargs={"pk": self.detailed_case.id}
+        )

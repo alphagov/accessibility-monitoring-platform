@@ -1,0 +1,33 @@
+{% extends 'detailed/forms/case_form.html' %}
+
+{% block preform %}
+    {% include 'detailed/helpers/contacts_list.html' %}
+{% endblock %}
+
+{% block postform %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <hr class="amp-width-100" />
+    </div>
+</div>
+{% for detailed_case_event in detailed_case.contact_notes_history %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p class="govuk-body amp-margin-bottom-5">
+                <b>{{ detailed_case_event.created_by.get_full_name }}</b> |
+                {{ detailed_case_event.created|amp_datetime }}
+            </p>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full govuk-body amp-notes">
+            {{ detailed_case_event.value|markdown_to_html }}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <hr class="amp-width-100" />
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}

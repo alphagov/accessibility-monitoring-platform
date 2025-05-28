@@ -47,6 +47,7 @@ from ..cases.forms import (
 from ..cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
 from ..comments.models import Comment
 from ..detailed.forms import DetailedCaseMetadataUpdateForm
+from ..detailed.models import Contact as DetailedCaseContact
 from ..detailed.models import DetailedCase
 from ..exports.models import Export
 from ..mobile.forms import MobileCaseMetadataUpdateForm
@@ -227,6 +228,10 @@ class PlatformPage:
                 return self.instance.audit.case
             if hasattr(self.instance, "retest"):
                 return self.instance.retest.case
+            if isinstance(self.instance, DetailedCase):
+                return self.instance
+            if hasattr(self.instance, "detailed_case"):
+                return self.instance.detailed_case
 
 
 class HomePlatformPage(PlatformPage):
@@ -297,6 +302,21 @@ class MobileCasePlatformPage(CasePlatformPage):
 
 class CaseContactsPlatformPage(CasePlatformPage):
     def populate_from_case(self, case: Case):
+        if case is not None:
+            self.set_instance(instance=case)
+            if self.subpages is not None:
+                bound_subpages: list[PlatformPage] = populate_subpages_with_instance(
+                    platform_page=self, instance=case
+                )
+                for contact in case.contacts:
+                    bound_subpages += populate_subpages_with_instance(
+                        platform_page=self, instance=contact
+                    )
+                self.subpages = bound_subpages
+
+
+class DetailedCaseContactsPlatformPage(DetailedCasePlatformPage):
+    def populate_from_case(self, case: DetailedCase):
         if case is not None:
             self.set_instance(instance=case)
             if self.subpages is not None:
@@ -1506,7 +1526,54 @@ SITE_MAP: list[PlatformPageGroup] = [
                 complete_flag_name="case_metadata_complete_date",
                 case_details_form_class=DetailedCaseMetadataUpdateForm,
                 # case_details_template_name="cases/details/details_case_metadata.html",
+                next_page_url_name="detailed:manage-contact-details",
             )
+        ],
+    ),
+    DetailedCasePlatformPageGroup(
+        name="Initial contact",
+        pages=[
+            DetailedCaseContactsPlatformPage(
+                name="Contact details",
+                url_name="detailed:manage-contact-details",
+                complete_flag_name="manage_contacts_complete_date",
+                subpages=[
+                    DetailedCasePlatformPage(
+                        name="Add contact",
+                        url_name="detailed:edit-contact-create",
+                        url_kwarg_key="case_id",
+                        visible_only_when_current=True,
+                    ),
+                    PlatformPage(
+                        name="Edit contact {instance}",
+                        url_name="detailed:edit-contact-update",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_required_for_url=True,
+                        instance_class=DetailedCaseContact,
+                    ),
+                ],
+                # case_details_form_class=ManageContactDetailsUpdateForm,
+                # case_details_template_name="cases/details/details_manage_contact_details.html",
+                next_page_url_name="detailed:edit-request-contact-details",
+            ),
+            DetailedCasePlatformPage(
+                name="Information request",
+                url_name="detailed:edit-request-contact-details",
+                complete_flag_name="request_contact_details_complete_date",
+                next_page_url_name="detailed:edit-chasing-record",
+            ),
+            DetailedCasePlatformPage(
+                name="Chasing record",
+                url_name="detailed:edit-chasing-record",
+                complete_flag_name="chasing_record_complete_date",
+                next_page_url_name="detailed:edit-information-delivered",
+            ),
+            DetailedCasePlatformPage(
+                name="Information delivered",
+                url_name="detailed:edit-information-delivered",
+                complete_flag_name="information_delivered_complete_date",
+            ),
         ],
     ),
     MobileCasePlatformPageGroup(
