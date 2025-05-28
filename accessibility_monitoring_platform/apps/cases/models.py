@@ -1234,15 +1234,24 @@ class CaseStatus(models.Model):
             return CaseStatus.Status.UNASSIGNED
         elif (
             compliance is None
-            or self.case.compliance.website_compliance_state_initial
+            or compliance.website_compliance_state_initial
             == CaseCompliance.WebsiteCompliance.UNKNOWN
-            or self.case.statement_checks_still_initial
+            or bool(
+                self.case.statement_checks_still_initial
+                and self.case.compliance.statement_compliance_state_initial
+                == CaseCompliance.StatementCompliance.UNKNOWN
+            )
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            self.case.compliance.website_compliance_state_initial
+            compliance
+            and compliance.website_compliance_state_initial
             != CaseCompliance.WebsiteCompliance.UNKNOWN
-            and not self.case.statement_checks_still_initial
+            and (
+                not self.case.statement_checks_still_initial
+                or self.case.compliance.statement_compliance_state_initial
+                != CaseCompliance.StatementCompliance.UNKNOWN
+            )
             and self.case.report_review_status != Boolean.YES
         ):
             return CaseStatus.Status.REPORT_IN_PROGRESS
