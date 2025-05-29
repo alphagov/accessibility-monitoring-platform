@@ -1,7 +1,7 @@
-{% extends 'detailed/forms/case_form.html' %}
+{% extends 'detailed/base.html' %}
 
 {% block form %}
-<form method="post" action="{% url sitemap.current_platform_page.url_name detailed_case.id %}">
+<form method="post" action="{% url sitemap.current_platform_page.url_name case.id %}">
     {% csrf_token %}
     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
     <div class="govuk-grid-row">
@@ -17,7 +17,7 @@
                 data-module="govuk-button"
             />
             <a
-                href="{% url 'detailed:manage-contact-details' detailed_case.id %}"
+                href="{% url 'detailed:manage-contact-details' case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
             >
                 Cancel

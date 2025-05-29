@@ -167,7 +167,7 @@ class DetailedCaseUpdateView(NextPlatformPageMixin, UpdateView):
 
     model: type[DetailedCase] = DetailedCase
     context_object_name: str = "detailed_case"
-    template_name: str = "detailed/forms/case_form.html"
+    template_name: str = "detailed/base.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of detailed case"""
@@ -286,7 +286,7 @@ class ContactCreateView(AddDetailedCaseToContextMixin, CreateView):
     template_name: str = "detailed/forms/contact_create.html"
 
     def form_valid(self, form: ContactCreateForm):
-        """Populate case of contact"""
+        """Populate detailed case of contact"""
         detailed_case: DetailedCase = get_object_or_404(
             DetailedCase, id=self.kwargs.get("case_id")
         )

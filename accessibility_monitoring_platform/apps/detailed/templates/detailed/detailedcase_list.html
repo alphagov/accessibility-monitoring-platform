@@ -1,112 +1,113 @@
-{% extends 'base.html' %}
+{% extends 'detailed/base.html' %}
 
 {% load humanize %}
 
 {% block title %}{{ sitemap.current_platform_page.get_name }}{% endblock %}
 
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-            {% include 'common/breadcrumb_home.html' %}
-            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
-        </ol>
+{% block casebanner %}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+    </ol>
+</div>
+{% endblock %}
+
+{% block maincontent %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-xl">{{ sitemap.current_platform_page.get_name }}</h1>
     </div>
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">{{ sitemap.current_platform_page.get_name }}</h1>
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-full">
-                        <form method="get" action="{% url sitemap.current_platform_page.url_name %}">
-                            <div class="govuk-grid-row">
-                                <div class="govuk-grid-column-full">
-                                    {% include 'common/amp_field.html' with field=form.case_search %}
-                                </div>
-                            </div>
-                            <div class="govuk-button-group">
-                                <input
-                                    type="submit"
-                                    value="Search"
-                                    class="govuk-button"
-                                    data-module="govuk-button"
-                                />
-                                <a href="{% url sitemap.current_platform_page.url_name %}" class="govuk-button govuk-button--secondary">
-                                    Clear search
-                                </a>
-                            </div>
-                        </form>
-                        <hr class="amp-width-100" />
-                        <ul class="govuk-list">
-                            <li>
-                                <a
-                                    href="{% url 'cases:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Search simplified cases
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="{% url 'mobile:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Search mobile cases
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="{% url 'cases:case-create' %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Create simplified case
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="{% url 'detailed:case-create' %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Create detailed case
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="{% url 'mobile:case-create' %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Create mobile case
-                                </a>
-                            </li>
-                        </ul>
+                <form method="get" action="{% url sitemap.current_platform_page.url_name %}">
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.case_search %}
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                <p class="govuk-body-m govuk-!-font-weight-bold">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</p>
-                {% if detailed_cases %}
-                    {% include "common/pagination_controls.html" %}
-                    <table class="govuk-table">
-                        <tbody class="govuk-table__body">
-                        {% for case in detailed_cases %}
-                            <tr class="govuk-table__row">
-                                <td class="govuk-table__cell">
-                                    {% include "cases/helpers/case_list_card.html" %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    {% include "common/pagination_controls.html" %}
-                {% else %}
-                    &nbsp;
-                {% endif %}
+                    <div class="govuk-button-group">
+                        <input
+                            type="submit"
+                            value="Search"
+                            class="govuk-button"
+                            data-module="govuk-button"
+                        />
+                        <a href="{% url sitemap.current_platform_page.url_name %}" class="govuk-button govuk-button--secondary">
+                            Clear search
+                        </a>
+                    </div>
+                </form>
+                <hr class="amp-width-100" />
+                <ul class="govuk-list">
+                    <li>
+                        <a
+                            href="{% url 'cases:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            Search simplified cases
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="{% url 'mobile:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            Search mobile cases
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="{% url 'cases:case-create' %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            Create simplified case
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="{% url 'detailed:case-create' %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            Create detailed case
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="{% url 'mobile:case-create' %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            Create mobile case
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
-    </main>
+    </div>
+    <div class="govuk-grid-column-two-thirds">
+        <p class="govuk-body-m govuk-!-font-weight-bold">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</p>
+        {% if detailed_cases %}
+            {% include "common/pagination_controls.html" %}
+            <table class="govuk-table">
+                <tbody class="govuk-table__body">
+                {% for case in detailed_cases %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">
+                            {% include "cases/helpers/case_list_card.html" %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include "common/pagination_controls.html" %}
+        {% else %}
+            &nbsp;
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
