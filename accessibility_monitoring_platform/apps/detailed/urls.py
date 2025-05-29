@@ -18,6 +18,11 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     DetailedCaseMetadataUpdateView,
     DetailedCaseNoteCreateView,
     DetailedCaseStatusUpdateView,
+    InitialDisproportionateBurdenUpdateView,
+    InitialStatementComplianceUpdateView,
+    InitialTestingDetailsUpdateView,
+    InitialTestingOutcomeUpdateView,
+    InitialWebsiteComplianceUpdateView,
     ManageContactDetailsUpdateView,
 )
 
@@ -82,5 +87,30 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-information-delivered/",
         login_required(ContactInformationDeliveredUpdateView.as_view()),
         name="edit-information-delivered",
+    ),
+    path(
+        "<int:pk>/edit-initial-testing-details/",
+        login_required(InitialTestingDetailsUpdateView.as_view()),
+        name="edit-initial-testing-details",
+    ),
+    path(
+        "<int:pk>/edit-initial-testing-outcome/",
+        login_required(InitialTestingOutcomeUpdateView.as_view()),
+        name="edit-initial-testing-outcome",
+    ),
+    path(
+        "<int:pk>/edit-initial-website-compliance/",
+        login_required(InitialWebsiteComplianceUpdateView.as_view()),
+        name="edit-initial-website-compliance",
+    ),
+    path(
+        "<int:pk>/edit-disproportionate-burden-compliance/",
+        login_required(InitialDisproportionateBurdenUpdateView.as_view()),
+        name="edit-disproportionate-burden-compliance",
+    ),
+    path(
+        "<int:pk>/edit-initial-statement-compliance/",
+        login_required(InitialStatementComplianceUpdateView.as_view()),
+        name="edit-initial-statement-compliance",
     ),
 ]

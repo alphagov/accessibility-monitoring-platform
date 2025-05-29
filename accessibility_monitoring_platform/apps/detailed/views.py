@@ -32,6 +32,11 @@ from .forms import (
     DetailedCaseMetadataUpdateForm,
     DetailedCaseSearchForm,
     DetailedCaseStatusUpdateForm,
+    InitialDisproportionateBurdenUpdateForm,
+    InitialStatementComplianceUpdateForm,
+    InitialTestingDetailsUpdateForm,
+    InitialTestingOutcomeUpdateForm,
+    InitialWebsiteComplianceUpdateForm,
     ManageContactsUpdateForm,
 )
 from .models import Contact, DetailedCase, DetailedCaseHistory
@@ -385,3 +390,39 @@ class ContactInformationDeliveredUpdateView(DetailedCaseUpdateView):
         ContactInformationDeliveredUpdateForm
     )
     template_name: str = "detailed/forms/contact_request.html"
+
+
+class InitialTestingDetailsUpdateView(DetailedCaseUpdateView):
+    """View to update initial testing details"""
+
+    form_class: type[InitialTestingDetailsUpdateForm] = InitialTestingDetailsUpdateForm
+
+
+class InitialTestingOutcomeUpdateView(DetailedCaseUpdateView):
+    """View to update initial testing outcome"""
+
+    form_class: type[InitialTestingOutcomeUpdateForm] = InitialTestingOutcomeUpdateForm
+
+
+class InitialWebsiteComplianceUpdateView(DetailedCaseUpdateView):
+    """View to update initial testing outcome"""
+
+    form_class: type[InitialWebsiteComplianceUpdateForm] = (
+        InitialWebsiteComplianceUpdateForm
+    )
+
+
+class InitialDisproportionateBurdenUpdateView(DetailedCaseUpdateView):
+    """View to update initial testing outcome"""
+
+    form_class: type[InitialDisproportionateBurdenUpdateForm] = (
+        InitialDisproportionateBurdenUpdateForm
+    )
+
+
+class InitialStatementComplianceUpdateView(DetailedCaseUpdateView):
+    """View to update initial testing outcome"""
+
+    form_class: type[InitialStatementComplianceUpdateForm] = (
+        InitialStatementComplianceUpdateForm
+    )

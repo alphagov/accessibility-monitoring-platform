@@ -1573,6 +1573,41 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Information delivered",
                 url_name="detailed:edit-information-delivered",
                 complete_flag_name="information_delivered_complete_date",
+                next_page_url_name="detailed:edit-initial-testing-details",
+            ),
+        ],
+    ),
+    DetailedCasePlatformPageGroup(
+        name="Initial test",
+        pages=[
+            DetailedCasePlatformPage(
+                name="Testing details",
+                url_name="detailed:edit-initial-testing-details",
+                complete_flag_name="initial_testing_details_complete_date",
+                next_page_url_name="detailed:edit-initial-testing-outcome",
+            ),
+            DetailedCasePlatformPage(
+                name="Testing outcome",
+                url_name="detailed:edit-initial-testing-outcome",
+                complete_flag_name="initial_testing_outcome_complete_date",
+                next_page_url_name="detailed:edit-initial-website-compliance",
+            ),
+            DetailedCasePlatformPage(
+                name="Website compliance",
+                url_name="detailed:edit-initial-website-compliance",
+                complete_flag_name="initial_website_compliance_complete_date",
+                next_page_url_name="detailed:edit-disproportionate-burden-compliance",
+            ),
+            DetailedCasePlatformPage(
+                name="Disproportionate burden",
+                url_name="detailed:edit-disproportionate-burden-compliance",
+                complete_flag_name="initial_disproportionate_burden_complete_date",
+                next_page_url_name="detailed:edit-initial-statement-compliance",
+            ),
+            DetailedCasePlatformPage(
+                name="Statement compliance",
+                url_name="detailed:edit-initial-statement-compliance",
+                complete_flag_name="initial_statement_compliance_complete_date",
             ),
         ],
     ),

@@ -47,6 +47,23 @@ class DetailedCase(VersionModel):
         REQUIRES_DECISION = "080_requires_decision", "Requires decision"
         WAITING_12_WEEKS = "090_waiting_12_weeks", "Waiting for 12-weeks"
 
+    class WebsiteCompliance(models.TextChoices):
+        COMPLIANT = "compliant", "Fully compliant"
+        PARTIALLY = "partially-compliant", "Partially compliant"
+        UNKNOWN = "not-known", "Not known"
+
+    class DisproportionateBurden(models.TextChoices):
+        NO_ASSESSMENT = "no-assessment", "Claim with no assessment"
+        ASSESSMENT = "assessment", "Claim with assessment"
+        NO_CLAIM = "no-claim", "No claim"
+        NO_STATEMENT = "no-statement", "No statement"
+        NOT_CHECKED = "not-checked", "Not checked"
+
+    class StatementCompliance(models.TextChoices):
+        COMPLIANT = "compliant", "Compliant"
+        NOT_COMPLIANT = "not-compliant", "Not compliant or no statement"
+        UNKNOWN = "unknown", "Not assessed"
+
     case_number = models.IntegerField(default=1)
     created = models.DateTimeField(blank=True)
     is_deleted = models.BooleanField(default=False)
@@ -58,13 +75,6 @@ class DetailedCase(VersionModel):
         null=True,
     )
     updated = models.DateTimeField(null=True, blank=True)
-    auditor = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="detailed_case_auditor",
-        blank=True,
-        null=True,
-    )
     reviewer = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -78,7 +88,7 @@ class DetailedCase(VersionModel):
         default=Status.INITIAL,
     )
 
-    # Case metadata page
+    # Case details - Case metadata
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
     organisation_name = models.TextField(default="", blank=True)
@@ -112,24 +122,66 @@ class DetailedCase(VersionModel):
     )
     case_metadata_complete_date = models.DateField(null=True, blank=True)
 
-    # Manage contact details
+    # Initial contact - Manage contact details
     manage_contacts_complete_date = models.DateField(null=True, blank=True)
 
-    # Request contact details
+    # Initial contact - Request contact details
     first_contact_date = models.DateField(null=True, blank=True)
     first_contact_sent_to = models.CharField(max_length=200, default="", blank=True)
     request_contact_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Chasing contact record
+    # Initial contact - Chasing contact record
     chasing_record_complete_date = models.DateField(null=True, blank=True)
 
-    # Information delivered
+    # Initial contact - Information delivered
     contact_acknowledged_date = models.DateField(null=True, blank=True)
     contact_acknowledged_by = models.CharField(max_length=200, default="", blank=True)
     saved_to_google_drive = models.CharField(
         max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     information_delivered_complete_date = models.DateField(null=True, blank=True)
+
+    # Initial test - Testing details
+    auditor = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="detailed_case_auditor",
+        blank=True,
+        null=True,
+    )
+    monitor_folder_url = models.TextField(default="", blank=True)
+    initial_testing_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Initial test - Testing outcome
+    initial_test_date = models.DateField(null=True, blank=True)
+    initial_total_number_of_issues = models.IntegerField(null=True, blank=True)
+    initial_testing_outcome_complete_date = models.DateField(null=True, blank=True)
+
+    # Initial test - Website compliance
+    initial_website_compliance_state = models.CharField(
+        max_length=20,
+        choices=WebsiteCompliance.choices,
+        default=WebsiteCompliance.UNKNOWN,
+    )
+    initial_website_compliance_complete_date = models.DateField(null=True, blank=True)
+
+    # Initial test - disproportionate burden
+    initial_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    initial_disproportionate_burden_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Initial test - Statement compliance
+    initial_statement_compliance_state = models.CharField(
+        max_length=200,
+        choices=StatementCompliance.choices,
+        default=StatementCompliance.UNKNOWN,
+    )
+    initial_statement_compliance_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]

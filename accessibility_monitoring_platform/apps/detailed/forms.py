@@ -9,6 +9,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from ..common.forms import (
+    AMPAuditorModelChoiceField,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
@@ -16,6 +17,7 @@ from ..common.forms import (
     AMPChoiceRadioField,
     AMPDateField,
     AMPDatePageCompleteField,
+    AMPIntegerField,
     AMPModelChoiceField,
     AMPTextField,
     AMPURLField,
@@ -268,4 +270,93 @@ class ContactInformationDeliveredUpdateForm(VersionForm):
             "contact_acknowledged_by",
             "saved_to_google_drive",
             "information_delivered_complete_date",
+        ]
+
+
+class InitialTestingDetailsUpdateForm(VersionForm):
+    """Form for updating initial testing details page"""
+
+    auditor = AMPChoiceField(label="Auditor")
+    auditor = AMPAuditorModelChoiceField(label="Auditor")
+    monitor_folder_url = AMPURLField(label="Link to monitor folder")
+    initial_testing_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "auditor",
+            "monitor_folder_url",
+            "initial_testing_details_complete_date",
+        ]
+
+
+class InitialTestingOutcomeUpdateForm(VersionForm):
+    """Form for updating initial testing outcome page"""
+
+    initial_test_date = AMPDateField(label="Test date")
+    initial_total_number_of_issues = AMPIntegerField(label="Total number of issues")
+    initial_testing_outcome_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "initial_test_date",
+            "initial_total_number_of_issues",
+            "initial_testing_outcome_complete_date",
+        ]
+
+
+class InitialWebsiteComplianceUpdateForm(VersionForm):
+    """Form for updating initial website compliance page"""
+
+    initial_website_compliance_state = AMPChoiceRadioField(
+        label="Initial compliance decision",
+        choices=DetailedCase.WebsiteCompliance.choices,
+    )
+    initial_website_compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "initial_website_compliance_state",
+            "initial_website_compliance_complete_date",
+        ]
+
+
+class InitialDisproportionateBurdenUpdateForm(VersionForm):
+    """Form for updating initial disproportionate burden page"""
+
+    initial_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Initial disproportionate burden claim",
+        choices=DetailedCase.DisproportionateBurden.choices,
+    )
+    initial_disproportionate_burden_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "initial_disproportionate_burden_claim",
+            "initial_disproportionate_burden_complete_date",
+        ]
+
+
+class InitialStatementComplianceUpdateForm(VersionForm):
+    """Form for updating initial statement compliance page"""
+
+    initial_statement_compliance_state = AMPChoiceRadioField(
+        label="Initial compliance decision",
+        choices=DetailedCase.StatementCompliance.choices,
+    )
+    initial_statement_compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "initial_statement_compliance_state",
+            "initial_statement_compliance_complete_date",
         ]
