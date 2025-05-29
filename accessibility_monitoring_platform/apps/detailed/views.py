@@ -40,7 +40,12 @@ from .forms import (
     ManageContactsUpdateForm,
     PublishReportUpdateForm,
     QAApprovalUpdateForm,
+    ReportAcknowledgedUpdateForm,
     ReportDraftUpdateForm,
+    ReportSentUpdateForm,
+    TwelveWeekAcknowledgedUpdateForm,
+    TwelveWeekDeadlineUpdateForm,
+    TwelveWeekRequestUpdateForm,
 )
 from .models import Contact, DetailedCase, DetailedCaseHistory
 from .utils import (
@@ -350,13 +355,18 @@ class ContactUpdateView(UpdateView):
         )
 
 
-class ContactInformationRequestUpdateView(DetailedCaseUpdateView):
+class CorrespondenceUpdateView(DetailedCaseUpdateView):
+    """View to update correspondence"""
+
+    template_name: str = "detailed/forms/correspondence.html"
+
+
+class ContactInformationRequestUpdateView(CorrespondenceUpdateView):
     """View to update request information for contact"""
 
     form_class: type[ContactInformationRequestUpdateForm] = (
         ContactInformationRequestUpdateForm
     )
-    template_name: str = "detailed/forms/contact_request.html"
 
 
 class ContactChasingRecordUpdateView(DetailedCaseUpdateView):
@@ -386,13 +396,12 @@ class ContactChasingRecordUpdateView(DetailedCaseUpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ContactInformationDeliveredUpdateView(DetailedCaseUpdateView):
+class ContactInformationDeliveredUpdateView(CorrespondenceUpdateView):
     """View to update information delivered for contact"""
 
     form_class: type[ContactInformationDeliveredUpdateForm] = (
         ContactInformationDeliveredUpdateForm
     )
-    template_name: str = "detailed/forms/contact_request.html"
 
 
 class InitialTestingDetailsUpdateView(DetailedCaseUpdateView):
@@ -447,3 +456,35 @@ class PublishReportUpdateView(DetailedCaseUpdateView):
     """View to update publish report"""
 
     form_class: type[PublishReportUpdateForm] = PublishReportUpdateForm
+
+
+class CorrespondenceReportSentUpdateView(CorrespondenceUpdateView):
+    """View to update correspondence report sent"""
+
+    form_class: type[ReportSentUpdateForm] = ReportSentUpdateForm
+
+
+class CorrespondenceReportAcknowledgedUpdateView(CorrespondenceUpdateView):
+    """View to update correspondence report acknowledged"""
+
+    form_class: type[ReportAcknowledgedUpdateForm] = ReportAcknowledgedUpdateForm
+
+
+class CorrespondenceTwelveWeekDeadlineUpdateView(CorrespondenceUpdateView):
+    """View to update correspondence 12-week deadline"""
+
+    form_class: type[TwelveWeekDeadlineUpdateForm] = TwelveWeekDeadlineUpdateForm
+
+
+class CorrespondenceTwelveWeekRequestUpdateView(CorrespondenceUpdateView):
+    """View to update correspondence 12-week update request"""
+
+    form_class: type[TwelveWeekRequestUpdateForm] = TwelveWeekRequestUpdateForm
+
+
+class CorrespondenceTwelveWeekAcknowledgedUpdateView(CorrespondenceUpdateView):
+    """View to update correspondence 12-week acknowledged"""
+
+    form_class: type[TwelveWeekAcknowledgedUpdateForm] = (
+        TwelveWeekAcknowledgedUpdateForm
+    )

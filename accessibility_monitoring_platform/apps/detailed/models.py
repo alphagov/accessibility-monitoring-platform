@@ -210,6 +210,32 @@ class DetailedCase(VersionModel):
     public_report_url = models.TextField(default="", blank=True)
     publish_report_complete_date = models.DateField(null=True, blank=True)
 
+    # Correspondence - Report sent
+    report_sent_date = models.DateField(null=True, blank=True)
+    report_sent_to = models.CharField(max_length=200, default="", blank=True)
+    report_sent_complete_date = models.DateField(null=True, blank=True)
+
+    # Correspondence - Report acknowledged
+    report_acknowledged_date = models.DateField(null=True, blank=True)
+    report_acknowledged_by = models.CharField(max_length=200, default="", blank=True)
+    report_acknowledged_complete_date = models.DateField(null=True, blank=True)
+
+    # Correspondence - 12-week deadline
+    twelve_week_deadline_date = models.DateField(null=True, blank=True)
+    twelve_week_deadline_complete_date = models.DateField(null=True, blank=True)
+
+    # Correspondence - 12-week update request
+    twelve_week_update_date = models.DateField(null=True, blank=True)
+    twelve_week_update_to = models.CharField(max_length=200, default="", blank=True)
+    twelve_week_update_complete_date = models.DateField(null=True, blank=True)
+
+    # Correspondence - Report acknowledged
+    twelve_week_acknowledged_date = models.DateField(null=True, blank=True)
+    twelve_week_acknowledged_by = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    twelve_week_acknowledged_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
 

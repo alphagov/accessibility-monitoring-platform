@@ -12,6 +12,11 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     ContactInformationDeliveredUpdateView,
     ContactInformationRequestUpdateView,
     ContactUpdateView,
+    CorrespondenceReportAcknowledgedUpdateView,
+    CorrespondenceReportSentUpdateView,
+    CorrespondenceTwelveWeekAcknowledgedUpdateView,
+    CorrespondenceTwelveWeekDeadlineUpdateView,
+    CorrespondenceTwelveWeekRequestUpdateView,
     DetailedCaseCreateView,
     DetailedCaseDetailView,
     DetailedCaseListView,
@@ -130,5 +135,30 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-publish-report/",
         login_required(PublishReportUpdateView.as_view()),
         name="edit-publish-report",
+    ),
+    path(
+        "<int:pk>/edit-report-sent/",
+        login_required(CorrespondenceReportSentUpdateView.as_view()),
+        name="edit-report-sent",
+    ),
+    path(
+        "<int:pk>/edit-report-acknowledged/",
+        login_required(CorrespondenceReportAcknowledgedUpdateView.as_view()),
+        name="edit-report-acknowledged",
+    ),
+    path(
+        "<int:pk>/edit-12-week-deadline/",
+        login_required(CorrespondenceTwelveWeekDeadlineUpdateView.as_view()),
+        name="edit-12-week-deadline",
+    ),
+    path(
+        "<int:pk>/edit-12-week-request-update/",
+        login_required(CorrespondenceTwelveWeekRequestUpdateView.as_view()),
+        name="edit-12-week-request-update",
+    ),
+    path(
+        "<int:pk>/edit-12-week-acknowledged/",
+        login_required(CorrespondenceTwelveWeekAcknowledgedUpdateView.as_view()),
+        name="edit-12-week-acknowledged",
     ),
 ]

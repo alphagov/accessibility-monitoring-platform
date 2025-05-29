@@ -416,3 +416,86 @@ class PublishReportUpdateForm(VersionForm):
             "public_report_url",
             "publish_report_complete_date",
         ]
+
+
+class ReportSentUpdateForm(VersionForm):
+    """Form for updating correspondence report sent page"""
+
+    report_sent_date = AMPDateField(label="Report sent on")
+    report_sent_to = AMPCharFieldWide(label="Report sent to")
+    report_sent_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "report_sent_date",
+            "report_sent_to",
+            "report_sent_complete_date",
+        ]
+
+
+class ReportAcknowledgedUpdateForm(VersionForm):
+    """Form for updating correspondence report acknowledged page"""
+
+    report_acknowledged_date = AMPDateField(label="Report acknowledged on")
+    report_acknowledged_by = AMPCharFieldWide(label="Report acknowledged by")
+    report_acknowledged_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "report_acknowledged_date",
+            "report_acknowledged_by",
+            "report_acknowledged_complete_date",
+        ]
+
+
+class TwelveWeekDeadlineUpdateForm(VersionForm):
+    """Form for updating correspondence 12-week deadline page"""
+
+    twelve_week_deadline_date = AMPDateField(label="12-week deadline")
+    twelve_week_deadline_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "twelve_week_deadline_date",
+            "twelve_week_deadline_complete_date",
+        ]
+
+
+class TwelveWeekRequestUpdateForm(VersionForm):
+    """Form for updating correspondence 12-week update request page"""
+
+    twelve_week_update_date = AMPDateField(label="12-week update requested")
+    twelve_week_update_to = AMPCharFieldWide(label="Request sent to")
+    twelve_week_update_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "twelve_week_update_date",
+            "twelve_week_update_to",
+            "twelve_week_update_complete_date",
+        ]
+
+
+class TwelveWeekAcknowledgedUpdateForm(VersionForm):
+    """Form for updating correspondence 12-week acknowledged page"""
+
+    twelve_week_acknowledged_date = AMPDateField(label="12-week update acknowledged")
+    twelve_week_acknowledged_by = AMPCharFieldWide(label="Acknowledged by")
+    twelve_week_acknowledged_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "twelve_week_acknowledged_date",
+            "twelve_week_acknowledged_by",
+            "twelve_week_acknowledged_complete_date",
+        ]

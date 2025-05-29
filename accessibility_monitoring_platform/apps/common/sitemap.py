@@ -1631,6 +1631,41 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Publish report",
                 url_name="detailed:edit-publish-report",
                 complete_flag_name="initial_statement_compliance_complete_date",
+                next_page_url_name="detailed:edit-report-sent",
+            ),
+        ],
+    ),
+    DetailedCasePlatformPageGroup(
+        name="Correspondence",
+        pages=[
+            DetailedCasePlatformPage(
+                name="Report sent",
+                url_name="detailed:edit-report-sent",
+                complete_flag_name="report_sent_complete_date",
+                next_page_url_name="detailed:edit-report-acknowledged",
+            ),
+            DetailedCasePlatformPage(
+                name="Report acknowledged",
+                url_name="detailed:edit-report-acknowledged",
+                complete_flag_name="report_acknowledged_complete_date",
+                next_page_url_name="detailed:edit-12-week-deadline",
+            ),
+            DetailedCasePlatformPage(
+                name="12-week deadline",
+                url_name="detailed:edit-12-week-deadline",
+                complete_flag_name="twelve_week_deadline_complete_date",
+                next_page_url_name="detailed:edit-12-week-request-update",
+            ),
+            DetailedCasePlatformPage(
+                name="12-week update request",
+                url_name="detailed:edit-12-week-request-update",
+                complete_flag_name="twelve_week_update_complete_date",
+                next_page_url_name="detailed:edit-12-week-acknowledged",
+            ),
+            DetailedCasePlatformPage(
+                name="12-week acknowledged",
+                url_name="detailed:edit-12-week-acknowledged",
+                complete_flag_name="twelve_week_acknowledged_complete_date",
                 next_page_url_name="detailed:case-detail",
             ),
         ],
