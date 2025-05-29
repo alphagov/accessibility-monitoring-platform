@@ -24,6 +24,9 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     InitialTestingOutcomeUpdateView,
     InitialWebsiteComplianceUpdateView,
     ManageContactDetailsUpdateView,
+    PublishReportUpdateView,
+    QAApprovalUpdateView,
+    ReportDraftUpdateView,
 )
 
 app_name: str = "detailed"
@@ -112,5 +115,20 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-initial-statement-compliance/",
         login_required(InitialStatementComplianceUpdateView.as_view()),
         name="edit-initial-statement-compliance",
+    ),
+    path(
+        "<int:pk>/edit-report-draft/",
+        login_required(ReportDraftUpdateView.as_view()),
+        name="edit-report-draft",
+    ),
+    path(
+        "<int:pk>/edit-qa-approval/",
+        login_required(QAApprovalUpdateView.as_view()),
+        name="edit-qa-approval",
+    ),
+    path(
+        "<int:pk>/edit-publish-report/",
+        login_required(PublishReportUpdateView.as_view()),
+        name="edit-publish-report",
     ),
 ]

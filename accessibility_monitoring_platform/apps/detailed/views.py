@@ -38,6 +38,9 @@ from .forms import (
     InitialTestingOutcomeUpdateForm,
     InitialWebsiteComplianceUpdateForm,
     ManageContactsUpdateForm,
+    PublishReportUpdateForm,
+    QAApprovalUpdateForm,
+    ReportDraftUpdateForm,
 )
 from .models import Contact, DetailedCase, DetailedCaseHistory
 from .utils import (
@@ -426,3 +429,21 @@ class InitialStatementComplianceUpdateView(DetailedCaseUpdateView):
     form_class: type[InitialStatementComplianceUpdateForm] = (
         InitialStatementComplianceUpdateForm
     )
+
+
+class ReportDraftUpdateView(DetailedCaseUpdateView):
+    """View to update report draft"""
+
+    form_class: type[ReportDraftUpdateForm] = ReportDraftUpdateForm
+
+
+class QAApprovalUpdateView(DetailedCaseUpdateView):
+    """View to update report QA approval"""
+
+    form_class: type[QAApprovalUpdateForm] = QAApprovalUpdateForm
+
+
+class PublishReportUpdateView(DetailedCaseUpdateView):
+    """View to update publish report"""
+
+    form_class: type[PublishReportUpdateForm] = PublishReportUpdateForm

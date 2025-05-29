@@ -64,6 +64,11 @@ class DetailedCase(VersionModel):
         NOT_COMPLIANT = "not-compliant", "Not compliant or no statement"
         UNKNOWN = "unknown", "Not assessed"
 
+    class ReportApprovedStatus(models.TextChoices):
+        APPROVED = "yes", "Yes"
+        IN_PROGRESS = "in-progress", "Further work is needed"
+        NOT_STARTED = "not-started", "Not started"
+
     case_number = models.IntegerField(default=1)
     created = models.DateTimeField(blank=True)
     is_deleted = models.BooleanField(default=False)
@@ -75,13 +80,6 @@ class DetailedCase(VersionModel):
         null=True,
     )
     updated = models.DateTimeField(null=True, blank=True)
-    reviewer = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="detailed_case_reviewer",
-        blank=True,
-        null=True,
-    )
     status = models.CharField(
         max_length=30,
         choices=Status.choices,
@@ -182,6 +180,35 @@ class DetailedCase(VersionModel):
         default=StatementCompliance.UNKNOWN,
     )
     initial_statement_compliance_complete_date = models.DateField(null=True, blank=True)
+
+    # Report - Report draft
+    report_draft_url = models.TextField(default="", blank=True)
+    report_ready_for_qa = models.CharField(
+        max_length=20,
+        choices=Boolean.choices,
+        default=Boolean.NO,
+    )
+    report_draft_complete_date = models.DateField(null=True, blank=True)
+
+    # Report - QA approval
+    reviewer = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="detailed_case_reviewer",
+        blank=True,
+        null=True,
+    )
+    report_approved_status = models.CharField(
+        max_length=200,
+        choices=ReportApprovedStatus.choices,
+        default=ReportApprovedStatus.NOT_STARTED,
+    )
+    qa_approval_complete_date = models.DateField(null=True, blank=True)
+
+    # Report - Publish report
+    equality_body_report_url = models.TextField(default="", blank=True)
+    public_report_url = models.TextField(default="", blank=True)
+    publish_report_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]

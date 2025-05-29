@@ -1608,6 +1608,30 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Statement compliance",
                 url_name="detailed:edit-initial-statement-compliance",
                 complete_flag_name="initial_statement_compliance_complete_date",
+                next_page_url_name="detailed:edit-report-draft",
+            ),
+        ],
+    ),
+    DetailedCasePlatformPageGroup(
+        name="Report",
+        pages=[
+            DetailedCasePlatformPage(
+                name="Report draft",
+                url_name="detailed:edit-report-draft",
+                complete_flag_name="initial_website_compliance_complete_date",
+                next_page_url_name="detailed:edit-qa-approval",
+            ),
+            DetailedCasePlatformPage(
+                name="QA approval",
+                url_name="detailed:edit-qa-approval",
+                complete_flag_name="initial_disproportionate_burden_complete_date",
+                next_page_url_name="detailed:edit-publish-report",
+            ),
+            DetailedCasePlatformPage(
+                name="Publish report",
+                url_name="detailed:edit-publish-report",
+                complete_flag_name="initial_statement_compliance_complete_date",
+                next_page_url_name="detailed:case-detail",
             ),
         ],
     ),

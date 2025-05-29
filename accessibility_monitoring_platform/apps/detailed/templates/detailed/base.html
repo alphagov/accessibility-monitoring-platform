@@ -9,16 +9,7 @@
 {% endblock casebanner %}
 
 {% block breadcrumbs %}
-<div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-        {% include 'common/breadcrumb_home.html' %}
-        <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="{{ case.get_absolute_url }}">Detailed testing case</a>
-        </li>
-        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group.name }}</li>
-        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
-    </ol>
-</div>
+{% include 'detailed/helpers/breadcrumbs.html' with show_platform_page_group_name=True %}
 {% endblock %}
 
 {% block maincontent %}
@@ -27,7 +18,7 @@
         <div class="govuk-grid-column-full">
     {% else %}
         <div class="govuk-grid-column-one-quarter">
-            {% include "cases/helpers/case_nav.html" with case_nav_type='detailed_case_nav' %}
+            {% include "detailed/helpers/case_nav.html" %}
         </div>
         <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
     {% endif %}

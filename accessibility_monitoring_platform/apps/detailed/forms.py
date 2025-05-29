@@ -276,7 +276,6 @@ class ContactInformationDeliveredUpdateForm(VersionForm):
 class InitialTestingDetailsUpdateForm(VersionForm):
     """Form for updating initial testing details page"""
 
-    auditor = AMPChoiceField(label="Auditor")
     auditor = AMPAuditorModelChoiceField(label="Auditor")
     monitor_folder_url = AMPURLField(label="Link to monitor folder")
     initial_testing_details_complete_date = AMPDatePageCompleteField()
@@ -359,4 +358,61 @@ class InitialStatementComplianceUpdateForm(VersionForm):
             "version",
             "initial_statement_compliance_state",
             "initial_statement_compliance_complete_date",
+        ]
+
+
+class ReportDraftUpdateForm(VersionForm):
+    """Form for updating report draft page"""
+
+    report_draft_url = AMPURLField(label="Link to report draft")
+    report_ready_for_qa = AMPChoiceRadioField(
+        label="Report ready for QA process?",
+        choices=Boolean.choices,
+    )
+    report_draft_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "report_draft_url",
+            "report_ready_for_qa",
+            "report_draft_complete_date",
+        ]
+
+
+class QAApprovalUpdateForm(VersionForm):
+    """Form for updating report QA approval page"""
+
+    reviewer = AMPAuditorModelChoiceField(label="QA auditor")
+    report_approved_status = AMPChoiceRadioField(
+        label="Report approved?",
+        choices=DetailedCase.ReportApprovedStatus.choices,
+    )
+    qa_approval_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "reviewer",
+            "report_approved_status",
+            "qa_approval_complete_date",
+        ]
+
+
+class PublishReportUpdateForm(VersionForm):
+    """Form for updating publish report page"""
+
+    equality_body_report_url = AMPURLField(label="Link to equality body PDF report")
+    public_report_url = AMPURLField(label="Link to public report")
+    publish_report_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "equality_body_report_url",
+            "public_report_url",
+            "publish_report_complete_date",
         ]
