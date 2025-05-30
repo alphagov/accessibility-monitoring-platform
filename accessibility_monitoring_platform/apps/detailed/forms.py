@@ -499,3 +499,138 @@ class TwelveWeekAcknowledgedUpdateForm(VersionForm):
             "twelve_week_acknowledged_by",
             "twelve_week_acknowledged_complete_date",
         ]
+
+
+class RetestResultUpdateForm(VersionForm):
+    """Form for updating reviewing changes retest result page"""
+
+    retest_date = AMPDateField(label="Retest date")
+    retest_total_number_of_issues = AMPIntegerField(
+        label="Total number of remaining issues"
+    )
+    retest_result_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "retest_date",
+            "retest_total_number_of_issues",
+            "retest_result_complete_date",
+        ]
+
+
+class RetestSummaryUpdateForm(VersionForm):
+    """Form for updating reviewing changes summary of changes page"""
+
+    summary_of_changes_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "summary_of_changes_complete_date",
+        ]
+
+
+class RetestWebsiteComplianceUpdateForm(VersionForm):
+    """Form for updating reviewing changes website compliance page"""
+
+    retest_website_compliance_state = AMPChoiceRadioField(
+        label="Retest compliance decision",
+        choices=DetailedCase.WebsiteCompliance.choices,
+    )
+    retest_website_compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "retest_website_compliance_state",
+            "retest_website_compliance_complete_date",
+        ]
+
+
+class RetestDisproportionateBurdenUpdateForm(VersionForm):
+    """Form for updating reviewing changes disproportionate burden page"""
+
+    retest_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Retest disproportionate burden claim",
+        choices=DetailedCase.DisproportionateBurden.choices,
+    )
+    retest_disproportionate_burden_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "retest_disproportionate_burden_claim",
+            "retest_disproportionate_burden_complete_date",
+        ]
+
+
+class RetestStatementComplianceUpdateForm(VersionForm):
+    """Form for updating reviewing changes statement compliance page"""
+
+    retest_statement_backup_url = AMPURLField(label="Link to backup of statement")
+    retest_statement_compliance_state = AMPChoiceRadioField(
+        label="Retest compliance decision",
+        choices=DetailedCase.StatementCompliance.choices,
+    )
+    retest_statement_compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "retest_statement_backup_url",
+            "retest_statement_compliance_state",
+            "retest_statement_compliance_complete_date",
+        ]
+
+
+class RetestMetricsUpdateForm(VersionForm):
+    """Form for updating reviewing changes final metrics page"""
+
+    number_of_days_to_retest = AMPIntegerField(label="Days taken to retest")
+    retest_metrics_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "number_of_days_to_retest",
+            "retest_metrics_complete_date",
+        ]
+
+
+class CaseCloseUpdateForm(VersionForm):
+    """Form for updating closing the case page"""
+
+    case_close_decision_state = AMPChoiceRadioField(
+        label="Enforcement recommendation",
+        choices=DetailedCase.CaseCloseDecision.choices,
+    )
+    case_close_decision_notes = AMPTextField(label="Enforcement recommendation details")
+    case_close_decision_sent_date = AMPDateField(label="Date decision email sent")
+    case_close_decision_sent_to = AMPCharFieldWide(label="Decision sent to")
+    is_feedback_survey_sent = AMPChoiceCheckboxField(
+        label="Feedback survey sent",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
+    case_close_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "case_close_decision_state",
+            "case_close_decision_notes",
+            "case_close_decision_sent_date",
+            "case_close_decision_sent_to",
+            "is_feedback_survey_sent",
+            "case_close_complete_date",
+        ]

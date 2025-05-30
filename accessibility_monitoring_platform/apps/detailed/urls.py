@@ -7,6 +7,7 @@ from django.urls import path
 from django.urls.resolvers import URLPattern
 
 from accessibility_monitoring_platform.apps.detailed.views import (
+    CaseCloseUpdateView,
     ContactChasingRecordUpdateView,
     ContactCreateView,
     ContactInformationDeliveredUpdateView,
@@ -32,6 +33,12 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     PublishReportUpdateView,
     QAApprovalUpdateView,
     ReportDraftUpdateView,
+    RetestDisproportionateBurdenUpdateView,
+    RetestMetricsUpdateView,
+    RetestResultUpdateView,
+    RetestStatementComplianceUpdateView,
+    RetestSummaryUpdateView,
+    RetestWebsiteComplianceUpdateView,
 )
 
 app_name: str = "detailed"
@@ -160,5 +167,40 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-12-week-acknowledged/",
         login_required(CorrespondenceTwelveWeekAcknowledgedUpdateView.as_view()),
         name="edit-12-week-acknowledged",
+    ),
+    path(
+        "<int:pk>/edit-retest-result/",
+        login_required(RetestResultUpdateView.as_view()),
+        name="edit-retest-result",
+    ),
+    path(
+        "<int:pk>/edit-retest-summary/",
+        login_required(RetestSummaryUpdateView.as_view()),
+        name="edit-retest-summary",
+    ),
+    path(
+        "<int:pk>/edit-retest-website-compliance/",
+        login_required(RetestWebsiteComplianceUpdateView.as_view()),
+        name="edit-retest-website-compliance",
+    ),
+    path(
+        "<int:pk>/edit-retest-disproportionate-burden/",
+        login_required(RetestDisproportionateBurdenUpdateView.as_view()),
+        name="edit-retest-disproportionate-burden",
+    ),
+    path(
+        "<int:pk>/edit-retest-statement-compliance/",
+        login_required(RetestStatementComplianceUpdateView.as_view()),
+        name="edit-retest-statement-compliance",
+    ),
+    path(
+        "<int:pk>/edit-retest-metrics/",
+        login_required(RetestMetricsUpdateView.as_view()),
+        name="edit-retest-metrics",
+    ),
+    path(
+        "<int:pk>/edit-case-close/",
+        login_required(CaseCloseUpdateView.as_view()),
+        name="edit-case-close",
     ),
 ]

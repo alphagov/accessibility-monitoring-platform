@@ -69,6 +69,17 @@ class DetailedCase(VersionModel):
         IN_PROGRESS = "in-progress", "Further work is needed"
         NOT_STARTED = "not-started", "Not started"
 
+    class CaseCloseDecision(models.TextChoices):
+        COMPLETE_SEND = (
+            "complete-send",
+            "Case is complete and is ready to send to the equality body",
+        )
+        COMPLETE_NO_SEND = (
+            "complete-no-send",
+            "Case should not be sent to the equality body",
+        )
+        NO_DECISION = "no-decision", "Case still in progress"
+
     case_number = models.IntegerField(default=1)
     created = models.DateTimeField(blank=True)
     is_deleted = models.BooleanField(default=False)
@@ -163,7 +174,7 @@ class DetailedCase(VersionModel):
     )
     initial_website_compliance_complete_date = models.DateField(null=True, blank=True)
 
-    # Initial test - disproportionate burden
+    # Initial test - Disproportionate burden
     initial_disproportionate_burden_claim = models.CharField(
         max_length=20,
         choices=DisproportionateBurden.choices,
@@ -235,6 +246,61 @@ class DetailedCase(VersionModel):
         max_length=200, default="", blank=True
     )
     twelve_week_acknowledged_complete_date = models.DateField(null=True, blank=True)
+
+    # Reviewing changes - Retest result
+    retest_date = models.DateField(null=True, blank=True)
+    retest_total_number_of_issues = models.IntegerField(null=True, blank=True)
+    retest_result_complete_date = models.DateField(null=True, blank=True)
+
+    # Reviewing changes - Summary of changes
+    summary_of_changes_complete_date = models.DateField(null=True, blank=True)
+
+    # Reviewing changes - Website compliance decision
+    retest_website_compliance_state = models.CharField(
+        max_length=20,
+        choices=WebsiteCompliance.choices,
+        default=WebsiteCompliance.UNKNOWN,
+    )
+    retest_website_compliance_complete_date = models.DateField(null=True, blank=True)
+
+    # Reviewing changes - Disproportionate burden
+    retest_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    retest_disproportionate_burden_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Reviewing changes - Statement compliance
+    retest_statement_backup_url = models.TextField(default="", blank=True)
+    retest_statement_compliance_state = models.CharField(
+        max_length=200,
+        choices=StatementCompliance.choices,
+        default=StatementCompliance.UNKNOWN,
+    )
+    retest_statement_compliance_complete_date = models.DateField(null=True, blank=True)
+
+    # Reviewing changes - Final metrics
+    number_of_days_to_retest = models.IntegerField(null=True, blank=True)
+    retest_metrics_complete_date = models.DateField(null=True, blank=True)
+
+    # Closing the case - Closing the case
+    case_close_decision_state = models.CharField(
+        max_length=30,
+        choices=CaseCloseDecision.choices,
+        default=CaseCloseDecision.NO_DECISION,
+    )
+    case_close_decision_notes = models.TextField(default="", blank=True)
+    case_close_decision_sent_date = models.DateField(null=True, blank=True)
+    case_close_decision_sent_to = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    is_feedback_survey_sent = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    case_close_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]

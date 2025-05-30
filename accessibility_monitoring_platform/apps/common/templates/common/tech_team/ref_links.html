@@ -14,17 +14,21 @@ class="govuk-link govuk-link--no-visited-state">Case metadata&lt;/a></code>
                 To platform page (in new tab):
                 <a href="{% url 'reports:report-preview' case.report.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
                     Report preview</a>
+                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
                 <br>
                 <code class="amp-code">&lt;a href="&#123;% url 'reports:report-preview' case.report.id %}"
-class="govuk-link govuk-link--no-visited-state" target="_blank">Report preview&lt;/a></code>
+class="govuk-link govuk-link--no-visited-state" target="_blank">Report preview&lt;/a>
+&lt;span class="amp-new-window">& nbsp;& nbsp;& nbsp;&lt;/span></code>
             </li>
             <li>
                 To external page (in new tab):
                 <a href="{{ case.audit.latest_statement_link }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     View latest accessibility statement</a>
+                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
                 <br>
                 <code class="amp-code">&lt;a href="&#123;{ case.audit.latest_statement_link }}" rel="noreferrer noopener"
-target="_blank" class="govuk-link">View latest accessibility statement&lt;/a></code>
+target="_blank" class="govuk-link">View latest accessibility statement&lt;/a>
+&lt;span class="amp-new-window">& nbsp;& nbsp;& nbsp;&lt;/span></code>
             </li>
             <li>
                 On current page:
