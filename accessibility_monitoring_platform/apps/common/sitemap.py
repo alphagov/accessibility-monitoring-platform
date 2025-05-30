@@ -1718,6 +1718,17 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Closing the case",
                 url_name="detailed:edit-case-close",
                 complete_flag_name="case_close_complete_date",
+                next_page_url_name="detailed:edit-equality-body-metadata",
+            ),
+        ],
+    ),
+    DetailedCasePlatformPageGroup(
+        name="Post case",
+        pages=[
+            DetailedCasePlatformPage(
+                name="Equality body metadata",
+                url_name="detailed:edit-equality-body-metadata",
+                complete_flag_name="enforcement_body_metadata_complete_date",
                 next_page_url_name="detailed:case-detail",
             ),
         ],
@@ -1782,6 +1793,9 @@ SITE_MAP: list[PlatformPageGroup] = [
                 url_name="common:reference-implementation",
             ),
             PlatformPage(name="Tools and sitemap", url_name="common:platform-checking"),
+            PlatformPage(
+                name="Reset detailed or mobile case data", url_name="common:import-csv"
+            ),
         ],
     ),
 ]

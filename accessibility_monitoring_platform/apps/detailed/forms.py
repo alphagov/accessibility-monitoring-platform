@@ -634,3 +634,41 @@ class CaseCloseUpdateForm(VersionForm):
             "is_feedback_survey_sent",
             "case_close_complete_date",
         ]
+
+
+class EnforcementBodyMetadataUpdateForm(VersionForm):
+    """Form for updating closing the case page"""
+
+    enforcement_body_sent_date = AMPDateField(label="Date sent to equality body")
+    enforcement_body_started_date = AMPDateField(
+        label="Date equality body started the case"
+    )
+    enforcement_body_case_owner = AMPCharFieldWide(
+        label="Equality body case owner (first name only)"
+    )
+    enforcement_body_closed_case_state = AMPChoiceRadioField(
+        label="Equality body has officially closed the case?",
+        choices=DetailedCase.EnforcementBodyClosedCase.choices,
+    )
+    enforcement_body_completed_case_date = AMPDateField(
+        label="Date equality body completed the case"
+    )
+    is_case_added_to_stats = AMPChoiceCheckboxField(
+        label="Case stats",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Case added to stats tab?"}),
+    )
+    enforcement_body_metadata_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "enforcement_body_sent_date",
+            "enforcement_body_started_date",
+            "enforcement_body_case_owner",
+            "enforcement_body_closed_case_state",
+            "enforcement_body_completed_case_date",
+            "is_case_added_to_stats",
+            "enforcement_body_metadata_complete_date",
+        ]

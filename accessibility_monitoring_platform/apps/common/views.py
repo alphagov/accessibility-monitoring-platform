@@ -22,6 +22,8 @@ from django.views.generic.list import ListView
 from ..cases.models import Case
 from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.sitemap import PlatformPage, Sitemap
+from ..detailed.utils import import_detailed_cases_csv
+from ..mobile.utils import import_mobile_cases_csv
 from .forms import (
     ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
@@ -31,6 +33,7 @@ from .forms import (
     FooterLinkOneExtraFormset,
     FrequentlyUsedLinkFormset,
     FrequentlyUsedLinkOneExtraFormset,
+    ImportCSVForm,
     PlatformCheckingForm,
 )
 from .mark_deleted_util import mark_object_as_deleted
@@ -505,3 +508,26 @@ class BulkURLSearchView(FormView):
                 self.get_context_data(bulk_search_results=bulk_search_results)
             )
         return self.render_to_response()
+
+
+class ImportCSV(FormView):
+    """
+    Bulk search for cases matching URLs
+    """
+
+    form_class = ImportCSVForm
+    template_name: str = "common/import_csv.html"
+    success_url: str = reverse_lazy("common:import-csv")
+
+    def post(
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect:
+        context: dict[str, Any] = self.get_context_data()
+        form = context["form"]
+        if form.is_valid():
+            csv_data: str = form.cleaned_data["data"]
+            if form.cleaned_data["model"] == "detailed":
+                import_detailed_cases_csv(csv_data)
+            elif form.cleaned_data["model"] == "mobile":
+                import_mobile_cases_csv(csv_data)
+        return self.render_to_response(self.get_context_data())

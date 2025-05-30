@@ -24,6 +24,7 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     DetailedCaseMetadataUpdateView,
     DetailedCaseNoteCreateView,
     DetailedCaseStatusUpdateView,
+    EnforcementBodyMetadataUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementComplianceUpdateView,
     InitialTestingDetailsUpdateView,
@@ -202,5 +203,10 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-case-close/",
         login_required(CaseCloseUpdateView.as_view()),
         name="edit-case-close",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-metadata/",
+        login_required(EnforcementBodyMetadataUpdateView.as_view()),
+        name="edit-equality-body-metadata",
     ),
 ]

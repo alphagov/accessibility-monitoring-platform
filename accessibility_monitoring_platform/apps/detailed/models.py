@@ -80,6 +80,11 @@ class DetailedCase(VersionModel):
         )
         NO_DECISION = "no-decision", "Case still in progress"
 
+    class EnforcementBodyClosedCase(models.TextChoices):
+        YES = "yes", "Yes"
+        IN_PROGRESS = "in-progress", "Case in progress"
+        NO = "no", "No (or holding)"
+
     case_number = models.IntegerField(default=1)
     created = models.DateTimeField(blank=True)
     is_deleted = models.BooleanField(default=False)
@@ -301,6 +306,23 @@ class DetailedCase(VersionModel):
         max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     case_close_complete_date = models.DateField(null=True, blank=True)
+
+    # Post case - Equality body metadata
+    enforcement_body_sent_date = models.DateField(null=True, blank=True)
+    enforcement_body_started_date = models.DateField(null=True, blank=True)
+    enforcement_body_case_owner = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    enforcement_body_closed_case_state = models.CharField(
+        max_length=20,
+        choices=EnforcementBodyClosedCase.choices,
+        default=EnforcementBodyClosedCase.NO,
+    )
+    enforcement_body_completed_case_date = models.DateField(null=True, blank=True)
+    is_case_added_to_stats = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    enforcement_body_metadata_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]

@@ -33,6 +33,7 @@ from .forms import (
     DetailedCaseMetadataUpdateForm,
     DetailedCaseSearchForm,
     DetailedCaseStatusUpdateForm,
+    EnforcementBodyMetadataUpdateForm,
     InitialDisproportionateBurdenUpdateForm,
     InitialStatementComplianceUpdateForm,
     InitialTestingDetailsUpdateForm,
@@ -545,3 +546,11 @@ class CaseCloseUpdateView(DetailedCaseUpdateView):
     """View to update closing the case"""
 
     form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+
+
+class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):
+    """View to update post case equality body metadata"""
+
+    form_class: type[EnforcementBodyMetadataUpdateForm] = (
+        EnforcementBodyMetadataUpdateForm
+    )

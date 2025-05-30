@@ -23,6 +23,10 @@ LOG_LEVEL_CHOICES: list[tuple[int, str]] = [
     (logging.ERROR, "Error"),
     (logging.CRITICAL, "Critical"),
 ]
+IMPORT_MODEL_CHOICES: list[tuple[int, str]] = [
+    ("detailed", "Detailed testing case"),
+    ("mobile", "Mobile testing case"),
+]
 
 logger = logging.getLogger(__name__)
 
@@ -510,3 +514,8 @@ FooterLinkOneExtraFormset: Any = forms.modelformset_factory(
 
 class BulkURLSearchForm(forms.Form):
     urls = AMPTextField(label="URLs")
+
+
+class ImportCSVForm(forms.Form):
+    model = AMPChoiceField(label="Model", choices=IMPORT_MODEL_CHOICES)
+    data = AMPTextField(label="CSV data")
