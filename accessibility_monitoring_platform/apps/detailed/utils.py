@@ -77,9 +77,50 @@ def get_datetime_from_string(date: str) -> datetime:
     return datetime(year, month, day, tzinfo=timezone.utc)
 
 
+def create_detailed_case_from_dict(
+    row: dict[str, Any], default_user: User, auditors: dict[str, User]
+) -> None:
+    case_number: int = int(row["Record "][1:])
+    first_contact_date: str = row["First Contact Date"]  # dd/mm/yyyy
+    created: datetime = get_datetime_from_string(first_contact_date)
+    last_date: str = row["Date decision email sent"]  # dd/mm/yyyy
+    if len(last_date) > 4:
+        updated: datetime = get_datetime_from_string(last_date)
+    else:
+        updated: datetime = created
+    auditor: User = auditors.get(row["Auditor"], default_user)
+    url: str = row["URL"]
+    enforcement_body: str = row["Enforcement body"].lower()
+    is_complaint: str = row["Is it a complaint?"].lower()
+
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        case_number=case_number,
+        created_by_id=default_user.id,
+        created=created,
+        updated=updated,
+        auditor_id=auditor.id,
+        home_page_url=url,
+        domain=extract_domain_from_url(url=url),
+        organisation_name=row["Website"],
+        enforcement_body=enforcement_body,
+        is_complaint=is_complaint,
+        notes=row["Summary of progress made / response from PSB"],
+    )
+    detailed_case_status_history: DetailedCaseHistory = (
+        DetailedCaseHistory.objects.create(
+            detailed_case_id=detailed_case.id,
+            event_type="status",
+            value="Initial",
+            created_by_id=auditor.id,
+        )
+    )
+    detailed_case_status_history.created = updated
+    detailed_case_status_history.save()
+
+
 def import_detailed_cases_csv(csv_data: str) -> None:
     try:
-        paul = User.objects.get(first_name="Paul")
+        default_user = User.objects.get(first_name="Paul")
         auditors: dict[str, User] = {
             first_name: User.objects.get(first_name=first_name)
             for first_name in ["Andrew", "Katherine", "Kelly"]
@@ -95,41 +136,9 @@ def import_detailed_cases_csv(csv_data: str) -> None:
     for row in reader:
         if row["Enforcement body"] == "":
             continue
-        case_number: int = int(row["Record "][1:])
-        first_contact_date: str = row["First Contact Date"]  # dd/mm/yyyy
-        created: datetime = get_datetime_from_string(first_contact_date)
-        last_date: str = row["Date decision email sent"]  # dd/mm/yyyy
-        if len(last_date) > 4:
-            updated: datetime = get_datetime_from_string(last_date)
-        else:
-            updated: datetime = created
-        auditor: User = auditors.get(row["Auditor"], paul)
-        url: str = row["URL"]
-        enforcement_body: str = row["Enforcement body"].lower()
-        is_complaint: str = row["Is it a complaint?"].lower()
-        detailed_case: DetailedCase = DetailedCase.objects.create(
-            case_number=case_number,
-            created_by=paul,
-            created=created,
-            updated=updated,
-            auditor=auditor,
-            home_page_url=url,
-            domain=extract_domain_from_url(url=url),
-            organisation_name=row["Website"],
-            enforcement_body=enforcement_body,
-            is_complaint=is_complaint,
-            notes=row["Summary of progress made / response from PSB"],
+        create_detailed_case_from_dict(
+            row=row, default_user=default_user, auditors=auditors
         )
-        detailed_case_status_history: DetailedCaseHistory = (
-            DetailedCaseHistory.objects.create(
-                detailed_case=detailed_case,
-                event_type="status",
-                value="Initial",
-                created_by=auditor,
-            )
-        )
-        detailed_case_status_history.created = updated
-        detailed_case_status_history.save()
 
 
 def import_mobile_cases_csv(data: str) -> None:

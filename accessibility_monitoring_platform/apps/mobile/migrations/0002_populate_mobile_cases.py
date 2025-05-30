@@ -7,6 +7,8 @@ from typing import Match
 
 from django.db import migrations
 
+from ..utils import create_mobile_case_from_dict
+
 INPUT_FILE_NAME = "../mobile_cases.csv"
 
 
@@ -33,7 +35,7 @@ def extract_domain_from_url(url: str) -> str:
 def populate_mobile_cases(apps, schema_editor):  # pylint: disable=unused-argument
     User = apps.get_model("auth", "User")
     try:
-        paul = User.objects.get(first_name="Paul")
+        default_user = User.objects.get(first_name="Paul")
         auditors: dict[str, User] = {
             first_name: User.objects.get(first_name=first_name)
             for first_name in ["Andrew", "Katherine", "Kelly"]
@@ -50,32 +52,8 @@ def populate_mobile_cases(apps, schema_editor):  # pylint: disable=unused-argume
             for row in reader:
                 if row["Enforcement body"] == "":
                     continue
-                case_number: int = int(row["Record "][1:])
-                app_os: str = row["Type"].lower()
-                first_contact_date: str = row["First contact date"]  # dd/mm/yyyy
-                created: datetime = get_datetime_from_string(first_contact_date)
-                last_date: str = row["Date decision email sent"]  # dd/mm/yyyy
-                if len(last_date) > 3:
-                    updated: datetime = get_datetime_from_string(last_date)
-                else:
-                    updated: datetime = created
-                auditor: User = auditors.get(row["Auditor"], paul)
-                url: str = row["URL"]
-                enforcement_body: str = row["Enforcement body"].lower()
-                is_complaint: str = row["Is it a complaint?"].lower()
-                MobileCase.objects.create(
-                    case_number=case_number,
-                    created_by=paul,
-                    created=created,
-                    updated=updated,
-                    auditor=auditor,
-                    app_name=row["App name"],
-                    app_store_url=url,
-                    domain=extract_domain_from_url(url),
-                    app_os=app_os,
-                    enforcement_body=enforcement_body,
-                    is_complaint=is_complaint,
-                    notes=row["Summary of progress made / response from PSB"],
+                create_mobile_case_from_dict(
+                    row=row, default_user=default_user, auditors=auditors
                 )
     except FileNotFoundError:
         pass
