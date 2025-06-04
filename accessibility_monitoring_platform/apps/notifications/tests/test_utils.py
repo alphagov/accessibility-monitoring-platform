@@ -264,6 +264,7 @@ def test_report_ready_to_send_seven_day_no_contact():
 
     case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.no_contact_one_week_chaser_due_date = YESTERDAY
     case.save()
 
     assert len(get_overdue_cases(user)) == 1
@@ -284,9 +285,11 @@ def test_report_ready_to_send_seven_day_no_contact_for_all_users():
 
     case_1.enable_correspondence_process = True
     case_1.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case_1.no_contact_one_week_chaser_due_date = YESTERDAY
     case_1.save()
     case_2.enable_correspondence_process = True
     case_2.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case_2.no_contact_one_week_chaser_due_date = YESTERDAY
     case_2.save()
 
     assert len(get_overdue_cases(None)) == 2
@@ -309,7 +312,7 @@ def test_report_ready_to_send_no_contact_one_week_chaser_due():
     assert len(get_overdue_cases(user)) == 0
 
     case.no_contact_one_week_chaser_sent_date = None
-    case.no_contact_one_week_chaser_due_date = TODAY
+    case.no_contact_one_week_chaser_due_date = YESTERDAY
     case.save()
 
     assert len(get_overdue_cases(user)) == 1
@@ -580,6 +583,7 @@ def test_pending_reminder_removes_overdue():
     case: Case = create_case(user)
     case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.no_contact_one_week_chaser_due_date = YESTERDAY
     case.save()
 
     tasks: list[Task] = build_task_list(user=user)
@@ -683,6 +687,7 @@ def test_build_task_list_overdue():
     case: Case = create_case(user)
     case.enable_correspondence_process = True
     case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    case.no_contact_one_week_chaser_due_date = YESTERDAY
     case.save()
 
     tasks: list[Task] = build_task_list(user=user)
