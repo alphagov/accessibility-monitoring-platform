@@ -44,6 +44,7 @@ def robots_txt(request):  # pylint: disable=unused-argument
 
 app_name = "apps"
 urlpatterns = [
+    path("__reload__/", include("django_browser_reload.urls")),
     path("", RedirectView.as_view(url=ROOT_REDIRECT_DESTINATION)),
     path("reports/", include("report_viewer.apps.viewer.urls")),
     path("404/", custom_page_not_found),

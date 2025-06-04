@@ -4,10 +4,22 @@
     <main id="main-content" class="govuk-main-wrapper amp-report-wrapper no-padding-on-main">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <img src="{% static 'img/gds-co-logo.png' %}" width="369" height="100"
-                    class="gds-co-image"
-                    alt="Logos of Government Digital Service and Cabinet Office"
-                />
+                <div class="amp-logo-dsit-container">
+                    <span>
+                        Department for
+                        <br>
+                        Science, Innovation
+                        <br>
+                        & Technology
+                    </span>
+                </div>
+                <div class="amp-logo-gds-container">
+                    <span>
+                        Government
+                        <br>
+                        Digital Service
+                    </span>
+                </div>
             </div>
         </div>
         {% if s3_report and s3_report.guid != report.latest_s3_report.guid %}
@@ -58,10 +70,10 @@
                     {{ html_report|safe }}
                 </div>
             </div>
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-one-third amp-no-bullet-points no-print">
+            <div class="govuk-grid-row amp-margin-bottom-25">
+                <div class="govuk-grid-column-one-half amp-no-bullet-points no-print">
                     <div class="related-content-wrapper">
-                        <h2 id="related-content">Related content</h2>
+                        <h2>Related content</h2>
                     </div>
                     <nav aria-label="Related content">
                         {{ report.wrapper.related_content|markdown_to_html }}
