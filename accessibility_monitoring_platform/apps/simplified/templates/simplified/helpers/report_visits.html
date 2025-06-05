@@ -1,0 +1,19 @@
+{% load humanize %}
+<div class="govuk-grid-row amp-margin-bottom-25">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m amp-margin-bottom-5"><b>Report visits</b></p>
+        <p class="govuk-body-m">
+            {{ case.report_number_of_visits|intcomma }}
+            {% if case.report %}
+                (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+            {% endif %}
+        </p>
+        <p class="govuk-body-m amp-margin-bottom-5"><b>Unique visitors</b></p>
+        <p class="govuk-body-m">
+            {{ case.report_number_of_unique_visitors|intcomma }}
+            {% if case.report %}
+                (<a href="{% url 'reports:report-metrics-view' case.report.id %}?showing=unique-visitors" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+            {% endif %}
+        </p>
+    </div>
+</div>

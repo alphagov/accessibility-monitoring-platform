@@ -1,0 +1,5 @@
+<li>
+    <a href="#{{ section.name|slugify }}" class="govuk-link govuk-link--no-visited-state">
+        {{ section.name }}{% if section.complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+    {% if section.complete %}&check;{% endif %}
+</li>

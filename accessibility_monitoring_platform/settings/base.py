@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "accessibility_monitoring_platform.apps.audits",
     "accessibility_monitoring_platform.apps.common",
     "accessibility_monitoring_platform.apps.dashboard",
+    "accessibility_monitoring_platform.apps.simplified",
     "accessibility_monitoring_platform.apps.detailed",
     "accessibility_monitoring_platform.apps.mobile",
     "accessibility_monitoring_platform.apps.users",

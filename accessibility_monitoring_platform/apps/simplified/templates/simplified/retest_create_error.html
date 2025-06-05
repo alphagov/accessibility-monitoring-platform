@@ -1,0 +1,31 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p class="govuk-body">
+                A new retest can not start until the most recent retest has completed.
+            </p>
+        </div>
+        <div class="govuk-grid-column-full govuk-button-group">
+            <a
+                href="{% url 'audits:retest-compliance-update' case.latest_retest.id %}"
+                role="button"
+                draggable="false"
+                class="govuk-button"
+                data-module="govuk-button"
+            >
+                Continue retest
+            </a>
+            <a
+                href="{% url 'cases:edit-retest-overview' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+            >
+                Return to retest overview
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block form %}
+{% endblock %}

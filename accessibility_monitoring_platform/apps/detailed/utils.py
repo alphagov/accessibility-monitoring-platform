@@ -94,6 +94,7 @@ def create_detailed_case_from_dict(
     is_complaint: str = row["Is it a complaint?"].lower()
 
     detailed_case: DetailedCase = DetailedCase.objects.create(
+        test_type=DetailedCase.TestType.DETAILED,
         case_number=case_number,
         created_by_id=default_user.id,
         created=created,

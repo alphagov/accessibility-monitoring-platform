@@ -1,0 +1,50 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'cases/helpers/qa_links.html' %}
+            {% if case.published_report_url %}
+                <p class="govuk-body">
+                    The report is now published and available on the
+                    <a href="{{ case.published_report_url }}" class="govuk-link" target="_blank">viewer</a>.
+                </p>
+                <p class="govuk-body">
+                    If you have made changes to the case metadata or the tests,
+                    navigate to the
+                    <a href="{% url 'reports:report-republish' case.report.id %}" class="govuk-link govuk-link--no-visited-state">republish report page</a>.
+                </p>
+            {% elif case.report and case.report_review_status == 'yes' and case.report_approved_status == 'yes' %}
+                <p class="govuk-body">The report is <b>approved</b> and <b>ready for publication</b>.</p>
+                <p class="govuk-body">When a report is published, it will:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>Create a <b>publicly accessible</b> version of the report</li>
+                    <li>Store a permanent copy of the report</li>
+                </ul>
+                <p class="govuk-body">Would you like to proceed?</p>
+            {% else %}
+                <p class="govuk-body">To publish this report, you need to:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>
+                        Set the report status to <b>Ready to Review</b> in
+                        <a href="{% url 'cases:edit-report-ready-for-qa' case.id %}" class="govuk-link govuk-link--no-visited-state">Report Ready for QA process</a>
+                    </li>
+                    <li>Get <a href="{% url 'cases:edit-qa-approval' case.id %}" class="govuk-link govuk-link--no-visited-state">approval from another auditor</a></li>
+                </ul>
+                <p class="govuk-body">When these steps are finished, the report can be published.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block formbuttons %}
+    {% if case.published_report_url %}
+        {% include 'cases/helpers/save_continue_cancel.html' %}
+    {% elif case.report and case.report_review_status == 'yes' and case.report_approved_status == 'yes' %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <input type="submit" value="Publish report" name="create_html_report" class="govuk-button" data-module="govuk-button" />
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

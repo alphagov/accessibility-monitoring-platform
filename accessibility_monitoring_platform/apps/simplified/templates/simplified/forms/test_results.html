@@ -1,0 +1,25 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body">
+            This case does not have a test. Click Start test to begin.
+        </p>
+        <div class="govuk-button-group">
+            <a
+                href="{% url 'audits:audit-create' case.id %}"
+                role="button"
+                draggable="false"
+                class="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+            >
+                Start test
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block form %}
+{% endblock %}

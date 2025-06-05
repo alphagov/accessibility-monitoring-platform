@@ -1,0 +1,49 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% if case.audit %}
+                {% if case.report %}
+                    <div class="govuk-button-group">
+                        <a
+                            href="{% url 'cases:edit-report-ready-for-qa' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            Go to Report ready for QA
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="govuk-body">
+                        This case currently does not have a report.
+                    </p>
+                    <div class="govuk-button-group">
+                        <a
+                            href="{% url 'reports:report-create' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        >
+                            Start report
+                        </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-warning-text__assistive">Warning</span>
+                        This case does not have a test. Complete a test in
+                        <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                            Case > Testing details</a>
+                        before starting the report.
+                    </strong>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block form %}
+{% endblock %}

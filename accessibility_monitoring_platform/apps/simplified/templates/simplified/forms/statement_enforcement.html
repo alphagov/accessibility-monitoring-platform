@@ -1,0 +1,25 @@
+{% extends 'common/case_form.html' %}
+
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+<div class="govuk-form-group">
+    <label class="govuk-label"><b>Statement issues</b></label>
+    <div class="govuk-hint">
+        <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_statement|safe }}</p>
+    </div>
+</div>
+<div class="govuk-form-group">
+    <label class="govuk-label"><b>Case completed</b></label>
+    <div class="govuk-hint">
+        <p class="govuk-body-m amp-margin-bottom-10">{{ case.completed_date|amp_date }}</p>
+    </div>
+</div>
+{% include 'common/amp_field.html' with field=form.post_case_notes %}
+<div class="govuk-form-group">
+    <label class="govuk-label"><b>Public sector body statement appeal deadline</b></label>
+    <div class="govuk-hint">
+        <p class="govuk-body-m amp-margin-bottom-10">{{ case.psb_appeal_deadline }}</p>
+    </div>
+</div>
+{% include 'common/amp_field.html' with field=form.psb_appeal_notes %}
+{% endblock %}

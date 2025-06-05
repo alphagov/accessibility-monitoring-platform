@@ -1,0 +1,19 @@
+{% extends 'common/case_form.html' %}
+
+{% load static %}
+
+{% block preform %}
+{% include 'cases/helpers/correspondence.html' %}
+{% endblock %}
+
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'cases/helpers/amp_due_date_field.html' with field=form.no_contact_one_week_chaser_sent_date due_date=case.no_contact_one_week_chaser_due_date due_date_field=form.no_contact_one_week_chaser_due_date %}
+{% include 'cases/helpers/amp_email_field.html' with field=form.no_contact_one_week_chaser_sent_to %}
+{% include 'common/amp_field.html' with field=form.correspondence_notes %}
+{% include 'common/amp_field.html' with field=form.one_week_contact_details_complete_date %}
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/cases_copy_text.js' %}"></script>
+{% endblock %}

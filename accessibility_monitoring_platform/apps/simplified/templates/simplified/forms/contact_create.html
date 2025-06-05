@@ -1,0 +1,32 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+{% include 'cases/helpers/correspondence.html' %}
+{% endblock %}
+
+{% block form %}
+<form method="post" action="{% url sitemap.current_platform_page.url_name case.id %}">
+    {% csrf_token %}
+    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/amp_form_snippet.html' %}
+        </div>
+        <div class="govuk-grid-column-full govuk-button-group">
+            <input
+                type="submit"
+                value="Save and return"
+                name="save"
+                class="govuk-button"
+                data-module="govuk-button"
+            />
+            <a
+                href="{% url 'cases:manage-contact-details' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+            >
+                Cancel
+            </a>
+        </div>
+    </div>
+</form>
+{% endblock %}

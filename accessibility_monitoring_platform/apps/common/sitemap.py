@@ -44,7 +44,6 @@ from ..cases.forms import (
     CaseTwelveWeekUpdateRequestedUpdateForm,
     ManageContactDetailsUpdateForm,
 )
-from ..cases.models import Case, Contact, EqualityBodyCorrespondence, ZendeskTicket
 from ..comments.models import Comment
 from ..detailed.forms import DetailedCaseMetadataUpdateForm
 from ..detailed.models import Contact as DetailedCaseContact
@@ -54,6 +53,12 @@ from ..mobile.forms import MobileCaseMetadataUpdateForm
 from ..mobile.models import MobileCase
 from ..notifications.models import Task
 from ..reports.models import Report
+from ..simplified.models import (
+    Contact,
+    EqualityBodyCorrespondence,
+    SimplifiedCase,
+    ZendeskTicket,
+)
 from .models import EmailTemplate
 
 logger = logging.getLogger(__name__)
@@ -194,7 +199,7 @@ class PlatformPage:
                     subpage_instances.append(subpage_instance)
                 self.subpages = subpage_instances
 
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         if self.subpages is not None:
             for subpage in self.subpages:
                 subpage.populate_from_case(case=case)
@@ -218,9 +223,9 @@ class PlatformPage:
             return self.name
         return self.name.format(instance=self.instance)
 
-    def get_case(self) -> Case | None:
+    def get_case(self) -> SimplifiedCase | None:
         if self.instance is not None:
-            if isinstance(self.instance, Case):
+            if isinstance(self.instance, SimplifiedCase):
                 return self.instance
             if hasattr(self.instance, "case"):
                 return self.instance.case
@@ -237,12 +242,8 @@ class PlatformPage:
 class HomePlatformPage(PlatformPage):
     def populate_from_request(self, request: HttpRequest):
         """Set get name from parameters"""
-        view_param: str = request.GET.get("view", "View your simplified cases")
-        self.name: str = (
-            "All simplified cases"
-            if view_param == "View all cases"
-            else "Your simplified cases"
-        )
+        view_param: str = request.GET.get("view", "View your cases")
+        self.name: str = "All cases" if view_param == "View all cases" else "Your cases"
 
 
 class ExportPlatformPage(PlatformPage):
@@ -259,20 +260,20 @@ class ExportPlatformPage(PlatformPage):
         return self.name.format(enforcement_body=self.enforcement_body)
 
 
-class CasePlatformPage(PlatformPage):
+class SimplifiedCasePlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_required_for_url = True
-        self.instance_class: ClassVar[Case] = Case
+        self.instance_class: ClassVar[SimplifiedCase] = SimplifiedCase
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         self.set_instance(instance=case)
         super().populate_from_case(case=case)
 
 
-class DetailedCasePlatformPage(CasePlatformPage):
+class DetailedCasePlatformPage(SimplifiedCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[DetailedCase] = DetailedCase
@@ -286,7 +287,7 @@ class DetailedCasePlatformPage(CasePlatformPage):
         self.set_instance(instance=case)
 
 
-class MobileCasePlatformPage(CasePlatformPage):
+class MobileCasePlatformPage(SimplifiedCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[MobileCase] = MobileCase
@@ -300,8 +301,8 @@ class MobileCasePlatformPage(CasePlatformPage):
         self.set_instance(instance=case)
 
 
-class CaseContactsPlatformPage(CasePlatformPage):
-    def populate_from_case(self, case: Case):
+class CaseContactsPlatformPage(SimplifiedCasePlatformPage):
+    def populate_from_case(self, case: SimplifiedCase):
         if case is not None:
             self.set_instance(instance=case)
             if self.subpages is not None:
@@ -330,8 +331,8 @@ class DetailedCaseContactsPlatformPage(DetailedCasePlatformPage):
                 self.subpages = bound_subpages
 
 
-class CaseCommentsPlatformPage(CasePlatformPage):
-    def populate_from_case(self, case: Case):
+class CaseCommentsPlatformPage(SimplifiedCasePlatformPage):
+    def populate_from_case(self, case: SimplifiedCase):
         if case is not None:
             self.set_instance(instance=case)
             if self.subpages is not None:
@@ -352,18 +353,18 @@ class AuditPlatformPage(PlatformPage):
             self.url_kwarg_key: str = "pk"
 
     def set_instance(self, instance: models.Model):
-        if isinstance(instance, Case) and instance.audit is not None:
+        if isinstance(instance, SimplifiedCase) and instance.audit is not None:
             self.instance = instance.audit
         else:
             super().set_instance(instance=instance)
 
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         self.set_instance(instance=case.audit)
         super().populate_from_case(case=case)
 
 
 class AuditPagesPlatformPage(AuditPlatformPage):
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         if case.audit is not None:
             self.set_instance(instance=case.audit)
             if self.subpages is not None:
@@ -376,7 +377,7 @@ class AuditPagesPlatformPage(AuditPlatformPage):
 
 
 class AuditCustomIssuesPlatformPage(AuditPlatformPage):
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         if case.audit is not None:
             self.set_instance(instance=case.audit)
             if self.subpages is not None:
@@ -404,14 +405,14 @@ class ReportPlatformPage(PlatformPage):
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         if case.report is not None:
             self.set_instance(instance=case.report)
         super().populate_from_case(case=case)
 
 
 class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
-    case: Case | None = None
+    case: SimplifiedCase | None = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -429,13 +430,13 @@ class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
             kwargs={"case_id": self.case.id, self.url_kwarg_key: self.instance.id},
         )
 
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         self.case = case
         super().populate_from_case(case=case)
 
 
 class AuditRetestPagesPlatformPage(AuditPlatformPage):
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         if case.audit is not None:
             self.set_instance(instance=case.audit)
             if self.subpages is not None:
@@ -461,8 +462,8 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
         return False
 
 
-class RetestOverviewPlatformPage(CasePlatformPage):
-    def populate_from_case(self, case: Case):
+class RetestOverviewPlatformPage(SimplifiedCasePlatformPage):
+    def populate_from_case(self, case: SimplifiedCase):
         self.set_instance(instance=case)
         if self.subpages is not None:
             bound_subpages: list[PlatformPage] = []
@@ -504,7 +505,7 @@ class PlatformPageGroup:
     def show(self):
         return self.case_nav_group
 
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         for page in self.pages:
             page.populate_from_case(case=case)
 
@@ -559,11 +560,11 @@ class PlatformPageGroup:
         return 0
 
 
-class CasePlatformPageGroup(PlatformPageGroup):
+class SimplifiedCasePlatformPageGroup(PlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
-        self.case: Case | None = None
+        self.case: SimplifiedCase | None = None
 
     @property
     def show(self):
@@ -571,19 +572,19 @@ class CasePlatformPageGroup(PlatformPageGroup):
             return getattr(self.case, self.show_flag_name)
         return self.case_nav_group
 
-    def populate_from_case(self, case: Case):
+    def populate_from_case(self, case: SimplifiedCase):
         self.case = case
         super().populate_from_case(case=case)
 
 
-class DetailedCasePlatformPageGroup(CasePlatformPageGroup):
+class DetailedCasePlatformPageGroup(SimplifiedCasePlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.DETAILED_CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
         self.case: DetailedCase | None = None
 
 
-class MobileCasePlatformPageGroup(CasePlatformPageGroup):
+class MobileCasePlatformPageGroup(SimplifiedCasePlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.MOBILE_CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
@@ -591,31 +592,31 @@ class MobileCasePlatformPageGroup(CasePlatformPageGroup):
 
 
 SITE_MAP: list[PlatformPageGroup] = [
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Case details",
         show_flag_name="not_archived",
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Case metadata",
-                url_name="cases:edit-case-metadata",
+                url_name="simplified:edit-case-metadata",
                 complete_flag_name="case_details_complete_date",
                 case_details_form_class=CaseMetadataUpdateForm,
                 case_details_template_name="cases/details/details_case_metadata.html",
             )
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Initial test",
         show_flag_name="show_start_test",
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Testing details",
-                url_name="cases:edit-test-results",
+                url_name="simplified:edit-test-results",
                 next_page_url_name="audits:edit-audit-metadata",
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Initial WCAG test",
         show_flag_name="not_archived_has_audit",
         pages=[
@@ -637,6 +638,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="audits:edit-audit-page-checks",
                         url_kwarg_key="pk",
                         instance_class=Page,
+                        instance_required_for_url=True,
                         complete_flag_name="complete_date",
                         case_details_template_name="cases/details/details_initial_page_wcag_results.html",
                     )
@@ -658,7 +660,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Initial statement",
         show_flag_name="not_archived_has_audit",
         pages=[
@@ -770,39 +772,39 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Start report",
         show_flag_name="show_create_report",
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Start report",
-                url_name="cases:edit-create-report",
+                url_name="simplified:edit-create-report",
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Report QA",
         show_flag_name="not_archived_has_report",
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Report ready for QA",
-                url_name="cases:edit-report-ready-for-qa",
+                url_name="simplified:edit-report-ready-for-qa",
                 complete_flag_name="reporting_details_complete_date",
                 case_details_form_class=CaseReportReadyForQAUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-qa-auditor",
+                next_page_url_name="simplified:edit-qa-auditor",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="QA auditor",
-                url_name="cases:edit-qa-auditor",
+                url_name="simplified:edit-qa-auditor",
                 complete_flag_name="qa_auditor_complete_date",
                 case_details_form_class=CaseQAAuditorUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-qa-comments",
+                next_page_url_name="simplified:edit-qa-comments",
             ),
             CaseCommentsPlatformPage(
                 name="Comments ({instance.qa_comments_count})",
-                url_name="cases:edit-qa-comments",
+                url_name="simplified:edit-qa-comments",
                 subpages=[
                     PlatformPage(
                         name="Edit or delete comment",
@@ -813,19 +815,19 @@ SITE_MAP: list[PlatformPageGroup] = [
                     ),
                 ],
                 case_details_template_name="cases/details/details_qa_comments.html",
-                next_page_url_name="cases:edit-qa-approval",
+                next_page_url_name="simplified:edit-qa-approval",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="QA approval",
-                url_name="cases:edit-qa-approval",
+                url_name="simplified:edit-qa-approval",
                 complete_flag_name="qa_approval_complete_date",
                 case_details_form_class=CaseQAApprovalUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-publish-report",
+                next_page_url_name="simplified:edit-publish-report",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Publish report",
-                url_name="cases:edit-publish-report",
+                url_name="simplified:edit-publish-report",
                 complete_flag_name="publish_report_complete_date",
                 subpages=[
                     ReportPlatformPage(
@@ -835,7 +837,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                         visible_only_when_current=True,
                     ),
                 ],
-                next_page_url_name="cases:manage-contact-details",
+                next_page_url_name="simplified:manage-contact-details",
             ),
         ],
     ),
@@ -855,24 +857,24 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Contact details",
         show_flag_name="not_archived",
         pages=[
             CaseContactsPlatformPage(
                 name="Manage contact details",
-                url_name="cases:manage-contact-details",
+                url_name="simplified:manage-contact-details",
                 complete_flag_name="manage_contact_details_complete_date",
                 subpages=[
-                    CasePlatformPage(
+                    SimplifiedCasePlatformPage(
                         name="Add contact",
-                        url_name="cases:edit-contact-create",
+                        url_name="simplified:edit-contact-create",
                         url_kwarg_key="case_id",
                         visible_only_when_current=True,
                     ),
                     PlatformPage(
                         name="Edit contact {instance}",
-                        url_name="cases:edit-contact-update",
+                        url_name="simplified:edit-contact-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
                         instance_required_for_url=True,
@@ -882,114 +884,114 @@ SITE_MAP: list[PlatformPageGroup] = [
                 case_details_form_class=ManageContactDetailsUpdateForm,
                 case_details_template_name="cases/details/details_manage_contact_details.html",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Request contact details",
-                url_name="cases:edit-request-contact-details",
+                url_name="simplified:edit-request-contact-details",
                 complete_flag_name="request_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
                 case_details_form_class=CaseRequestContactDetailsUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-one-week-contact-details",
+                next_page_url_name="simplified:edit-one-week-contact-details",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="One-week follow-up",
-                url_name="cases:edit-one-week-contact-details",
+                url_name="simplified:edit-one-week-contact-details",
                 complete_flag_name="one_week_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
                 case_details_form_class=CaseOneWeekContactDetailsUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-four-week-contact-details",
+                next_page_url_name="simplified:edit-four-week-contact-details",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Four-week follow-up",
-                url_name="cases:edit-four-week-contact-details",
+                url_name="simplified:edit-four-week-contact-details",
                 complete_flag_name="four_week_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
                 case_details_form_class=CaseFourWeekContactDetailsUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-report-sent-on",
+                next_page_url_name="simplified:edit-report-sent-on",
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Report correspondence",
         show_flag_name="not_archived",
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Report sent on",
-                url_name="cases:edit-report-sent-on",
+                url_name="simplified:edit-report-sent-on",
                 complete_flag_name="report_sent_on_complete_date",
                 case_details_form_class=CaseReportSentOnUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-report-one-week-followup",
+                next_page_url_name="simplified:edit-report-one-week-followup",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="One week follow-up",
-                url_name="cases:edit-report-one-week-followup",
+                url_name="simplified:edit-report-one-week-followup",
                 complete_flag_name="one_week_followup_complete_date",
                 case_details_form_class=CaseReportOneWeekFollowupUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-report-four-week-followup",
+                next_page_url_name="simplified:edit-report-four-week-followup",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Four week follow-up",
-                url_name="cases:edit-report-four-week-followup",
+                url_name="simplified:edit-report-four-week-followup",
                 complete_flag_name="four_week_followup_complete_date",
                 case_details_form_class=CaseReportFourWeekFollowupUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-report-acknowledged",
+                next_page_url_name="simplified:edit-report-acknowledged",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Report acknowledged",
-                url_name="cases:edit-report-acknowledged",
+                url_name="simplified:edit-report-acknowledged",
                 complete_flag_name="report_acknowledged_complete_date",
                 case_details_form_class=CaseReportAcknowledgedUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-12-week-update-requested",
+                next_page_url_name="simplified:edit-12-week-update-requested",
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="12-week correspondence",
         show_flag_name="not_archived",
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="12-week update requested",
-                url_name="cases:edit-12-week-update-requested",
+                url_name="simplified:edit-12-week-update-requested",
                 complete_flag_name="twelve_week_update_requested_complete_date",
                 case_details_form_class=CaseTwelveWeekUpdateRequestedUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-12-week-one-week-followup-final",
+                next_page_url_name="simplified:edit-12-week-one-week-followup-final",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="One week follow-up for final update",
-                url_name="cases:edit-12-week-one-week-followup-final",
+                url_name="simplified:edit-12-week-one-week-followup-final",
                 complete_flag_name="one_week_followup_final_complete_date",
                 case_details_form_class=CaseOneWeekFollowupFinalUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-12-week-update-request-ack",
+                next_page_url_name="simplified:edit-12-week-update-request-ack",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="12-week update request acknowledged",
-                url_name="cases:edit-12-week-update-request-ack",
+                url_name="simplified:edit-12-week-update-request-ack",
                 complete_flag_name="twelve_week_update_request_ack_complete_date",
                 case_details_form_class=CaseTwelveWeekUpdateAcknowledgedUpdateForm,
                 case_details_template_name="cases/details/details.html",
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Start 12-week retest",
         show_flag_name="show_start_12_week_retest",
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Start 12-week retest",
-                url_name="cases:edit-twelve-week-retest",
+                url_name="simplified:edit-twelve-week-retest",
                 next_page_url_name="audits:edit-audit-retest-metadata",
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="12-week WCAG test",
         show_flag_name="show_12_week_retest",
         pages=[
@@ -1010,6 +1012,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="audits:edit-audit-retest-page-checks",
                         url_kwarg_key="pk",
                         instance_class=Page,
+                        instance_required_for_url=True,
                         complete_flag_name="retest_complete_date",
                         case_details_template_name="cases/details/details_twelve_week_page_wcag_results.html",
                     )
@@ -1031,7 +1034,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="12-week statement",
         show_flag_name="show_12_week_retest",
         pages=[
@@ -1147,70 +1150,70 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Statement summary",
                 url_name="audits:edit-audit-retest-statement-summary",
                 complete_flag_name="audit_retest_statement_summary_complete_date",
-                next_page_url_name="cases:edit-review-changes",
+                next_page_url_name="simplified:edit-review-changes",
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Closing the case",
         show_flag_name="not_archived",
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Reviewing changes",
-                url_name="cases:edit-review-changes",
+                url_name="simplified:edit-review-changes",
                 complete_flag_name="review_changes_complete_date",
                 case_details_form_class=CaseReviewChangesUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-enforcement-recommendation",
+                next_page_url_name="simplified:edit-enforcement-recommendation",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Recommendation",
-                url_name="cases:edit-enforcement-recommendation",
+                url_name="simplified:edit-enforcement-recommendation",
                 complete_flag_name="enforcement_recommendation_complete_date",
                 case_details_form_class=CaseEnforcementRecommendationUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-case-close",
+                next_page_url_name="simplified:edit-case-close",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Closing the case",
-                url_name="cases:edit-case-close",
+                url_name="simplified:edit-case-close",
                 complete_flag_name="case_close_complete_date",
                 case_details_form_class=CaseCloseUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-statement-enforcement",
+                next_page_url_name="simplified:edit-statement-enforcement",
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Post case",
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Statement enforcement",
-                url_name="cases:edit-statement-enforcement",
+                url_name="simplified:edit-statement-enforcement",
                 case_details_form_class=CaseStatementEnforcementUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-equality-body-metadata",
+                next_page_url_name="simplified:edit-equality-body-metadata",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Equality body metadata",
-                url_name="cases:edit-equality-body-metadata",
+                url_name="simplified:edit-equality-body-metadata",
                 case_details_form_class=CaseEqualityBodyMetadataUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:list-equality-body-correspondence",
+                next_page_url_name="simplified:list-equality-body-correspondence",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Equality body correspondence",
-                url_name="cases:list-equality-body-correspondence",
+                url_name="simplified:list-equality-body-correspondence",
                 subpages=[
-                    CasePlatformPage(
+                    SimplifiedCasePlatformPage(
                         name="Add Zendesk ticket",
-                        url_name="cases:create-equality-body-correspondence",
+                        url_name="simplified:create-equality-body-correspondence",
                         url_kwarg_key="case_id",
                         visible_only_when_current=True,
                     ),
                     PlatformPage(
                         name="Edit Zendesk ticket",
-                        url_name="cases:edit-equality-body-correspondence",
+                        url_name="simplified:edit-equality-body-correspondence",
                         instance_class=EqualityBodyCorrespondence,
                         visible_only_when_current=True,
                     ),
@@ -1219,7 +1222,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
             RetestOverviewPlatformPage(
                 name="Retest overview",
-                url_name="cases:edit-retest-overview",
+                url_name="simplified:edit-retest-overview",
                 subpages=[
                     EqualityBodyRetestPlatformPage(
                         name="Retest #{instance.id_within_case}",
@@ -1317,7 +1320,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                                 name="Statement decision",
                                 url_name="audits:edit-equality-body-statement-decision",
                                 complete_flag_name="statement_decision_complete_date",
-                                next_page_url_name="cases:edit-retest-overview",
+                                next_page_url_name="simplified:edit-retest-overview",
                             ),
                         ],
                     )
@@ -1326,81 +1329,92 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    CasePlatformPageGroup(
+    SimplifiedCasePlatformPageGroup(
         name="Case tools",
         type=PlatformPageGroup.Type.CASE_TOOLS,
         pages=[
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="View and search all case data",
-                url_name="cases:case-view-and-search",
+                url_name="simplified:case-view-and-search",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Outstanding issues",
                 show_flag_name="not_archived",
-                url_name="cases:outstanding-issues",
+                url_name="simplified:outstanding-issues",
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Email templates",
                 show_flag_name="not_archived",
-                url_name="cases:email-template-list",
+                url_name="simplified:email-template-list",
                 url_kwarg_key="case_id",
                 subpages=[
                     CaseEmailTemplatePreviewPlatformPage(
                         name="{instance.name}",
                         show_flag_name="not_archived",
-                        url_name="cases:email-template-preview",
+                        url_name="simplified:email-template-preview",
                     ),
                 ],
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="PSB Zendesk tickets",
-                url_name="cases:zendesk-tickets",
+                url_name="simplified:zendesk-tickets",
                 case_details_template_name="cases/details/details_psb_zendesk_tickets.html",
                 subpages=[
-                    CasePlatformPage(
+                    SimplifiedCasePlatformPage(
                         name="Add PSB Zendesk ticket",
-                        url_name="cases:create-zendesk-ticket",
+                        url_name="simplified:create-zendesk-ticket",
                         url_kwarg_key="case_id",
                     ),
                     PlatformPage(
                         name="Edit PSB Zendesk ticket #{instance.id_within_case}",
-                        url_name="cases:update-zendesk-ticket",
+                        url_name="simplified:update-zendesk-ticket",
                         instance_class=ZendeskTicket,
                     ),
                     PlatformPage(
                         name="Remove PSB Zendesk ticket #{instance.id_within_case}",
-                        url_name="cases:confirm-delete-zendesk-ticket",
+                        url_name="simplified:confirm-delete-zendesk-ticket",
                         instance_class=ZendeskTicket,
                     ),
                 ],
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Unresponsive PSB",
                 show_flag_name="not_archived",
-                url_name="cases:edit-no-psb-response",
+                url_name="simplified:edit-no-psb-response",
                 case_details_form_class=CaseNoPSBContactUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="cases:edit-enforcement-recommendation",
+                next_page_url_name="simplified:edit-enforcement-recommendation",
             ),
         ],
     ),
-    CasePlatformPageGroup(
-        name="Simplified testing case",
+    SimplifiedCasePlatformPageGroup(
+        name="Simplified case",
         case_nav_group=False,
         pages=[
-            CasePlatformPage(name="Case overview", url_name="cases:case-detail"),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
+                name="Simplified case overview", url_name="simplified:case-detail"
+            ),
+            SimplifiedCasePlatformPage(
                 name="Create reminder",
                 url_name="notifications:reminder-create",
                 url_kwarg_key="case_id",
             ),
-            CasePlatformPage(name="Deactivate case", url_name="cases:deactivate-case"),
-            CasePlatformPage(name="Post case summary", url_name="cases:edit-post-case"),
-            CasePlatformPage(name="Reactivate case", url_name="cases:reactivate-case"),
-            CasePlatformPage(
-                name="Cannot start new retest", url_name="cases:retest-create-error"
+            SimplifiedCasePlatformPage(
+                name="Deactivate case", url_name="simplified:deactivate-case"
             ),
-            CasePlatformPage(name="Status workflow", url_name="cases:status-workflow"),
+            SimplifiedCasePlatformPage(
+                name="Post case summary", url_name="simplified:edit-post-case"
+            ),
+            SimplifiedCasePlatformPage(
+                name="Reactivate case", url_name="simplified:reactivate-case"
+            ),
+            SimplifiedCasePlatformPage(
+                name="Cannot start new retest",
+                url_name="simplified:retest-create-error",
+            ),
+            SimplifiedCasePlatformPage(
+                name="Status workflow", url_name="simplified:status-workflow"
+            ),
         ],
     ),
     PlatformPageGroup(
@@ -1432,7 +1446,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 instance_required_for_url=True,
                 instance_class=Export,
             ),
-            CasePlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Export Case as email for #{instance.case_number}",
                 url_name="exports:export-case-as-email",
             ),
@@ -1756,19 +1770,20 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Non-Case other",
         pages=[
             PlatformPage(name="Create case", url_name="cases:pick-test-type"),
-            PlatformPage(name="Create simplified case", url_name="cases:case-create"),
-            PlatformPage(name="Search simplified cases", url_name="cases:case-list"),
+            PlatformPage(name="Create case", url_name="cases:case-create"),
+            PlatformPage(name="Search cases", url_name="cases:case-list"),
+            PlatformPage(
+                name="Create simplified case", url_name="simplified:case-create"
+            ),
             PlatformPage(name="Create detailed case", url_name="detailed:case-create"),
-            PlatformPage(name="Search detailed cases", url_name="detailed:case-list"),
             PlatformPage(name="Create mobile case", url_name="mobile:case-create"),
-            PlatformPage(name="Search mobile cases", url_name="mobile:case-list"),
             PlatformPage(
                 name="Accessibility statement",
                 url_name="common:accessibility-statement",
             ),
             PlatformPage(name="Report an issue", url_name="common:issue-report"),
             PlatformPage(name="Contact admin", url_name="common:contact-admin"),
-            HomePlatformPage(name="Your simplified cases", url_name="dashboard:home"),
+            HomePlatformPage(name="Your cases", url_name="dashboard:home"),
             PlatformPage(name="Tasks", url_name="notifications:task-list"),
             PlatformPage(
                 name="Reminder",
@@ -1786,7 +1801,9 @@ SITE_MAP: list[PlatformPageGroup] = [
     PlatformPageGroup(
         name="Tech team",
         pages=[
-            CasePlatformPage(name="Case history", url_name="cases:case-history"),
+            SimplifiedCasePlatformPage(
+                name="Case history", url_name="simplified:case-history"
+            ),
             PlatformPage(name="Issue reports", url_name="common:issue-reports-list"),
             PlatformPage(
                 name="Reference implementations",
@@ -1865,7 +1882,7 @@ def build_sitemap_for_current_page(
     Return the case navigation subset of the sitemap if the current
     page is case-related, otherwise return the entire sitemap.
     """
-    case: Case | DetailedCase | None = current_platform_page.get_case()
+    case: SimplifiedCase | DetailedCase | None = current_platform_page.get_case()
     if current_platform_page.next_page_url_name is not None:
         current_platform_page.next_page = get_platform_page_by_url_name(
             url_name=current_platform_page.next_page_url_name, instance=case

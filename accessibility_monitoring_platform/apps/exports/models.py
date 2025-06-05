@@ -3,7 +3,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from ..cases.models import Case
+from ..cases.models import BaseCase, Case
 from ..common.utils import amp_format_date
 from .utils import get_exportable_cases
 
@@ -85,6 +85,12 @@ class ExportCase(models.Model):
 
     export = models.ForeignKey(Export, on_delete=models.PROTECT)
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    base_case = models.ForeignKey(
+        BaseCase,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
     status = models.CharField(max_length=20, choices=Status, default=Status.UNREADY)
 
     class Meta:

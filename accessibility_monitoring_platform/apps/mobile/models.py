@@ -9,16 +9,14 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import UPDATE_SEPARATOR
-from ..common.models import Boolean, Sector, SubCategory, VersionModel
+from ..cases.models import UPDATE_SEPARATOR, BaseCase
 from ..common.utils import extract_domain_from_url
 
 
-class MobileCase(VersionModel):
+class MobileCase(BaseCase):
     """
     Model for MobileCase
     """
@@ -27,108 +25,39 @@ class MobileCase(VersionModel):
         ANDROID = "android", "Android"
         IOS = "ios", "iOS"
 
-    class PsbLocation(models.TextChoices):
-        ENGLAND = "england", "England"
-        SCOTLAND = "scotland", "Scotland"
-        WALES = "wales", "Wales"
-        NI = "northern_ireland", "Northern Ireland"
-        UK = "uk_wide", "UK-wide"
-        UNKNOWN = "unknown", "Unknown"
-
-    class EnforcementBody(models.TextChoices):
-        EHRC = "ehrc", "Equality and Human Rights Commission"
-        ECNI = "ecni", "Equality Commission Northern Ireland"
-
-    class Status(models.TextChoices):
-        INITIAL = "010_initial", "Initial"
-        CONTACTING = "020_contacting", "Seeking to contact"
-        AUDITING = "030_auditing", "Testing"
-        REPORTING = "040_reporting", "Writing report"
-        QA_REPORT = "050_qa_report", "QA in progress"
-        AWAIT_RESPONSE = "060_await_response", "Awaiting response"
-        REVIEWING_UPDATE = "070_reviewing_update", "Reviewing update"
-        REQUIRES_DECISION = "080_requires_decision", "Requires decision"
-        WAITING_12_WEEKS = "090_waiting_12_weeks", "Waiting for 12-weeks"
-
-    case_number = models.IntegerField(default=1)
-    created = models.DateTimeField(blank=True)
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="mobile_case_created_by",
-        blank=True,
-        null=True,
-    )
-    updated = models.DateTimeField(null=True, blank=True)
+    # class Status(models.TextChoices):
+    #     INITIAL = "010_initial", "Initial"
+    #     CONTACTING = "020_contacting", "Seeking to contact"
+    #     AUDITING = "030_auditing", "Testing"
+    #     REPORTING = "040_reporting", "Writing report"
+    #     QA_REPORT = "050_qa_report", "QA in progress"
+    #     AWAIT_RESPONSE = "060_await_response", "Awaiting response"
+    #     REVIEWING_UPDATE = "070_reviewing_update", "Reviewing update"
+    #     REQUIRES_DECISION = "080_requires_decision", "Requires decision"
+    #     WAITING_12_WEEKS = "090_waiting_12_weeks", "Waiting for 12-weeks"
 
     # Case metadata page
-    auditor = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="mobile_case_auditor",
-        blank=True,
-        null=True,
-    )
-    reviewer = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="mobile_case_reviewer",
-        blank=True,
-        null=True,
-    )
-    organisation_name = models.TextField(default="", blank=True)
-    parental_organisation_name = models.TextField(default="", blank=True)
     app_name = models.TextField(default="", blank=True)
     app_store_url = models.TextField(default="", blank=True)
-    domain = models.TextField(default="", blank=True)
     app_os = models.CharField(
         max_length=20,
         choices=AppOS.choices,
         default=AppOS.IOS,
     )
-    sector = models.ForeignKey(Sector, on_delete=models.PROTECT, null=True, blank=True)
-    subcategory = models.ForeignKey(
-        SubCategory,
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True,
-    )
-    enforcement_body = models.CharField(
-        max_length=20,
-        choices=EnforcementBody.choices,
-        default=EnforcementBody.EHRC,
-    )
-    psb_location = models.CharField(
-        max_length=20,
-        choices=PsbLocation.choices,
-        default=PsbLocation.UNKNOWN,
-    )
-    is_complaint = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
     notes = models.TextField(default="", blank=True)
-    previous_case_url = models.TextField(default="", blank=True)
-    trello_url = models.TextField(default="", blank=True)
-    website_name = models.TextField(default="", blank=True)
-    is_feedback_requested = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
     case_metadata_complete_date = models.DateField(null=True, blank=True)
 
-    status = models.CharField(
-        max_length=30,
-        choices=Status.choices,
-        default=Status.INITIAL,
-    )
+    # status = models.CharField(
+    #     max_length=30,
+    #     choices=Status.choices,
+    #     default=Status.INITIAL,
+    # )
 
     class Meta:
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return f"{self.organisation_name} | {self.case_identifier}"
-
-    def get_absolute_url(self) -> str:
-        return reverse("mobile:case-detail", kwargs={"pk": self.pk})
+        return f"{self.app_name} | {self.case_identifier}"
 
     def save(self, *args, **kwargs) -> None:
         now: datetime = timezone.now()

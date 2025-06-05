@@ -1,0 +1,31 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    <table class="govuk-table">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header amp-width-two-thirds">Name</th>
+                <th scope="col" class="govuk-table__header amp-width-one-third">View</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for email_template in email_templates %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-two-thirds">
+                        {{ email_template.name }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-third">
+                        <a
+                            href="{% url 'cases:email-template-preview' case.id email_template.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            View email template
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block form %}{% endblock %}

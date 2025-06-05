@@ -14,38 +14,26 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import UPDATE_SEPARATOR
-from ..common.models import Boolean, Sector, SubCategory, VersionModel
+from ..cases.models import UPDATE_SEPARATOR, BaseCase
+from ..common.models import Boolean, VersionModel
 from ..common.utils import extract_domain_from_url
 
 
-class DetailedCase(VersionModel):
+class DetailedCase(BaseCase):
     """
     Model for DetailedCase
     """
 
-    class PsbLocation(models.TextChoices):
-        ENGLAND = "england", "England"
-        SCOTLAND = "scotland", "Scotland"
-        WALES = "wales", "Wales"
-        NI = "northern_ireland", "Northern Ireland"
-        UK = "uk_wide", "UK-wide"
-        UNKNOWN = "unknown", "Unknown"
-
-    class EnforcementBody(models.TextChoices):
-        EHRC = "ehrc", "Equality and Human Rights Commission"
-        ECNI = "ecni", "Equality Commission Northern Ireland"
-
-    class Status(models.TextChoices):
-        INITIAL = "010_initial", "Initial"
-        CONTACTING = "020_contacting", "Seeking to contact"
-        AUDITING = "030_auditing", "Testing"
-        REPORTING = "040_reporting", "Writing report"
-        QA_REPORT = "050_qa_report", "QA in progress"
-        AWAIT_RESPONSE = "060_await_response", "Awaiting response"
-        REVIEWING_UPDATE = "070_reviewing_update", "Reviewing update"
-        REQUIRES_DECISION = "080_requires_decision", "Requires decision"
-        WAITING_12_WEEKS = "090_waiting_12_weeks", "Waiting for 12-weeks"
+    # class Status(models.TextChoices):
+    #     INITIAL = "010_initial", "Initial"
+    #     CONTACTING = "020_contacting", "Seeking to contact"
+    #     AUDITING = "030_auditing", "Testing"
+    #     REPORTING = "040_reporting", "Writing report"
+    #     QA_REPORT = "050_qa_report", "QA in progress"
+    #     AWAIT_RESPONSE = "060_await_response", "Awaiting response"
+    #     REVIEWING_UPDATE = "070_reviewing_update", "Reviewing update"
+    #     REQUIRES_DECISION = "080_requires_decision", "Requires decision"
+    #     WAITING_12_WEEKS = "090_waiting_12_weeks", "Waiting for 12-weeks"
 
     class WebsiteCompliance(models.TextChoices):
         COMPLIANT = "compliant", "Fully compliant"
@@ -85,55 +73,16 @@ class DetailedCase(VersionModel):
         IN_PROGRESS = "in-progress", "Case in progress"
         NO = "no", "No (or holding)"
 
-    case_number = models.IntegerField(default=1)
-    created = models.DateTimeField(blank=True)
-    is_deleted = models.BooleanField(default=False)
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="detailed_case_created_by",
-        blank=True,
-        null=True,
-    )
-    updated = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(
-        max_length=30,
-        choices=Status.choices,
-        default=Status.INITIAL,
-    )
+    # status = models.CharField(
+    #     max_length=30,
+    #     choices=Status.choices,
+    #     default=Status.INITIAL,
+    # )
 
     # Case details - Case metadata
-    home_page_url = models.TextField(default="", blank=True)
-    domain = models.TextField(default="", blank=True)
-    organisation_name = models.TextField(default="", blank=True)
-    psb_location = models.CharField(
-        max_length=20,
-        choices=PsbLocation.choices,
-        default=PsbLocation.UNKNOWN,
-    )
-    sector = models.ForeignKey(Sector, on_delete=models.PROTECT, null=True, blank=True)
-    enforcement_body = models.CharField(
-        max_length=20,
-        choices=EnforcementBody.choices,
-        default=EnforcementBody.EHRC,
-    )
-    is_complaint = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
-    parental_organisation_name = models.TextField(default="", blank=True)
-    website_name = models.TextField(default="", blank=True)
-    subcategory = models.ForeignKey(
-        SubCategory,
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True,
-    )
-    is_feedback_requested = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
     case_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Initial contact - Manage contact details
@@ -156,13 +105,6 @@ class DetailedCase(VersionModel):
     information_delivered_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - Testing details
-    auditor = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="detailed_case_auditor",
-        blank=True,
-        null=True,
-    )
     monitor_folder_url = models.TextField(default="", blank=True)
     initial_testing_details_complete_date = models.DateField(null=True, blank=True)
 
@@ -207,13 +149,6 @@ class DetailedCase(VersionModel):
     report_draft_complete_date = models.DateField(null=True, blank=True)
 
     # Report - QA approval
-    reviewer = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="detailed_case_reviewer",
-        blank=True,
-        null=True,
-    )
     report_approved_status = models.CharField(
         max_length=200,
         choices=ReportApprovedStatus.choices,
@@ -329,9 +264,6 @@ class DetailedCase(VersionModel):
 
     def __str__(self) -> str:
         return f"{self.organisation_name} | {self.case_identifier}"
-
-    def get_absolute_url(self) -> str:
-        return reverse("detailed:case-detail", kwargs={"pk": self.pk})
 
     def save(self, *args, **kwargs) -> None:
         now: datetime = timezone.now()

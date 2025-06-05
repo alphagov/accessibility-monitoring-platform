@@ -1,0 +1,61 @@
+<h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Up next</h2>
+<ul class="govuk-list amp-margin-bottom-10 govuk-!-font-size-16">
+    <li>{{ case.status.get_status_display }}</li>
+    <li>
+        {% if case.archive %}
+            Archived
+        {% elif case.status.status == 'unassigned-case' %}
+            <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to case metadata
+            </a>
+        {% elif case.status.status == 'test-in-progress' %}
+            <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to testing details
+            </a>
+        {% elif case.status.status == 'report-in-progress' %}
+            <a href="{% url 'cases:edit-report-ready-for-qa' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to report ready for QA
+            </a>
+        {% elif case.status.status == 'unassigned-qa-case' or case.status.status == 'qa-in-progress' %}
+            <a href="{% url 'cases:edit-qa-approval' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to QA approval
+            </a>
+        {% elif case.status.status == 'report-ready-to-send' %}
+            <a href="{% url 'cases:edit-report-sent-on' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to Report sent on
+            </a>
+        {% elif case.status.status == 'in-report-correspondence' %}
+            <a href="{{ case.in_report_correspondence_progress.url }}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.in_report_correspondence_progress.label }}
+            </a>
+        {% elif case.status.status == 'in-probation-period' %}
+            <a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to 12-week update requested
+            </a>
+        {% elif case.status.status == 'in-12-week-correspondence' %}
+            <a href="{{ case.twelve_week_correspondence_progress.url }}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.twelve_week_correspondence_progress.url }}
+            </a>
+        {% elif case.status.status == 'reviewing-changes' %}
+            <a href="{% url 'cases:edit-review-changes' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to reviewing changes
+            </a>
+        {% elif case.status.status == 'final-decision-due' or case.status.status == 'case-closed-waiting-to-be-sent' %}
+            <a href="{% url 'cases:edit-case-close' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to closing the case
+            </a>
+        {% elif case.status.status == 'case-closed-sent-to-equalities-body' or case.status.status == 'in-correspondence-with-equalities-body' %}
+            <a href="{% url 'cases:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to equality body metadata
+            </a>
+        {% elif case.status.status == 'complete' %}
+            <a href="{% url 'cases:edit-post-case' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to post case summary
+            </a>
+        {% else %}
+            <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to case metadata
+            </a>
+        {% endif %}
+    </li>
+</ul>

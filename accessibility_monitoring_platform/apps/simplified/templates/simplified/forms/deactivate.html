@@ -1,0 +1,30 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+<div class="govuk-body">
+    <p class="govuk-body-m">
+        {{ sitemap.current_platform_page.get_name }} removes the case from the dashboard, platform metrics,
+        and will be given an inactive status.
+    </p>
+</div>
+{% endblock %}
+
+{% block formbuttons %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <input
+            type="submit"
+            value="{{ sitemap.current_platform_page.get_name }}"
+            name="deactivate"
+            class="govuk-button"
+            data-module="govuk-button"
+        />
+        <a
+            href="{{ case.get_absolute_url }}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Cancel and return to case view
+        </a>
+    </div>
+</div>
+{% endblock %}

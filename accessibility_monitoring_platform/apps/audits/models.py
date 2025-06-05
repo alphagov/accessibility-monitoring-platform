@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import Case, CaseCompliance
+from ..cases.models import BaseCase, Case, CaseCompliance
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date, calculate_percentage
 
@@ -68,6 +68,13 @@ class Audit(VersionModel):
 
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="audit_case"
+    )
+    base_case = models.OneToOneField(
+        BaseCase,
+        on_delete=models.PROTECT,
+        related_name="audit_basecase",
+        blank=True,
+        null=True,
     )
     published_report_data_updated_time = models.DateTimeField(null=True, blank=True)
     updated = models.DateTimeField(null=True, blank=True)
@@ -967,6 +974,12 @@ class Retest(VersionModel):
         NOT_KNOWN = "not-known", "Not known"
 
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    base_case = models.ForeignKey(
+        BaseCase,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
     id_within_case = models.IntegerField(default=1, blank=True)
     date_of_retest = models.DateField(default=date.today)
     retest_notes = models.TextField(default="", blank=True)

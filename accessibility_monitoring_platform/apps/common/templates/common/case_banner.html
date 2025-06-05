@@ -33,8 +33,8 @@
                     Change
                 </a>
             {% else %}
-                <a href="{% url 'cases:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                    {{ case.status.get_status_display }}
+                <a href="{% url 'simplified:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    {{ case.get_status_display }}
                 </a>
             {% endif %}
         </p>

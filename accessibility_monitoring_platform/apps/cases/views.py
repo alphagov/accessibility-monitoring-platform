@@ -90,6 +90,7 @@ from .forms import (
 )
 from .models import (
     ONE_WEEK_IN_DAYS,
+    BaseCase,
     Case,
     Contact,
     EqualityBodyCorrespondence,
@@ -231,7 +232,7 @@ class CaseListView(ListView):
     View of list of cases
     """
 
-    model: type[Case] = Case
+    model: type[BaseCase] = BaseCase
     context_object_name: str = "cases"
     paginate_by: int = 10
 
@@ -249,7 +250,7 @@ class CaseListView(ListView):
     def get_queryset(self) -> QuerySet[Case]:
         """Add filters to queryset"""
         if self.form.errors:
-            return Case.objects.none()
+            return BaseCase.objects.none()
 
         return filter_cases(self.form)
 

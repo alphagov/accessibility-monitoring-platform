@@ -1,0 +1,33 @@
+{% extends 'cases/details/details.html' %}
+
+{% block table %}
+    {% if case_detail_page.page.instance.failed_check_results %}
+        <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group.name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-width-one-third">WCAG issue</th>
+                    <th scope="row" class="govuk-table__header amp-width-one-third">Initial</th>
+                    <th scope="row" class="govuk-table__header amp-width-one-third">12-week</th>
+                </tr>
+                {% for check_result in case_detail_page.page.instance.failed_check_results %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell amp-width-one-third">
+                            <label class="govuk-label">{{ check_result.wcag_definition }}</label>
+                            {% include 'audits/helpers/issue_identifier.html' with issue=check_result %}
+                        </td>
+                        <td class="govuk-table__cell amp-width-one-third">
+                            <label class="govuk-label">{{ check_result.get_check_result_state_display }}</label>
+                            <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
+                        </td>
+                        <td class="govuk-table__cell amp-width-one-third">
+                            <label class="govuk-label">{{ check_result.get_retest_state_display }}</label>
+                            <div class="govuk-hint">{{ check_result.retest_notes|markdown_to_html }}</div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="govuk-body-m">No errors found</p>
+    {% endif %}
+{% endblock %}

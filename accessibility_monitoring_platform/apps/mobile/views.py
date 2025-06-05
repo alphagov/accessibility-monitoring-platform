@@ -5,22 +5,16 @@ Views for cases app
 from typing import Any
 
 from django.contrib.auth.models import User
-from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
-from django.views.generic.list import ListView
 
-from ..common.utils import extract_domain_from_url, get_url_parameters_for_pagination
+from ..common.utils import extract_domain_from_url
 from ..common.views import ShowGoBackJSWidgetMixin
-from .forms import (
-    MobileCaseCreateForm,
-    MobileCaseMetadataUpdateForm,
-    MobileCaseSearchForm,
-)
+from .forms import MobileCaseCreateForm, MobileCaseMetadataUpdateForm
 from .models import MobileCase
 from .utils import record_model_create_event, record_model_update_event
 
@@ -45,6 +39,7 @@ class MobileCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
         if "allow_duplicate_cases" in self.request.GET:
             mobile_case: MobileCase = form.save(commit=False)
             mobile_case.created_by = self.request.user
+            mobile_case.test_type = MobileCase.TestType.MOBILE
             return super().form_valid(form)
 
         context: dict[str, Any] = self.get_context_data()
@@ -59,6 +54,7 @@ class MobileCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
 
         mobile_case: MobileCase = form.save(commit=False)
         mobile_case.created_by = self.request.user
+        mobile_case.test_type = MobileCase.TestType.MOBILE
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -74,7 +70,7 @@ class MobileCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
         elif "save_new_case" in self.request.POST:
             url: str = reverse("mobile:case-create")
         else:
-            url: str = reverse("mobile:case-list")
+            url: str = reverse("cases:case-list")
         return url
 
 
@@ -83,49 +79,6 @@ class MobileCaseDetailView(DetailView):
 
     model: type[MobileCase] = MobileCase
     context_object_name: str = "mobile_case"
-
-
-class MobileCaseListView(ListView):
-    """
-    View of list of cases
-    """
-
-    model: type[MobileCase] = MobileCase
-    context_object_name: str = "mobile_cases"
-    paginate_by: int = 10
-
-    def get(self, request, *args, **kwargs):
-        """Populate filter form"""
-        if self.request.GET:
-            self.form: MobileCaseSearchForm = MobileCaseSearchForm(self.request.GET)
-            self.form.is_valid()
-        else:
-            self.form = MobileCaseSearchForm()
-        return super().get(request, *args, **kwargs)
-
-    def get_queryset(self) -> QuerySet[MobileCase]:
-        """Add filters to queryset"""
-        if self.form.errors:
-            return MobileCase.objects.none()
-        if hasattr(self.form, "cleaned_data"):
-            search: str = self.form.cleaned_data.get("case_search", "")
-            case_number: int = int(search) if search.isnumeric() else 0
-            if search:
-                return MobileCase.objects.filter(
-                    Q(organisation_name__icontains=search)
-                    | Q(domain__icontains=search)
-                    | Q(case_number=case_number)
-                )
-        return MobileCase.objects.all()
-
-    def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add field values into context"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["form"] = self.form
-        context["url_parameters"] = get_url_parameters_for_pagination(
-            request=self.request
-        )
-        return context
 
 
 class MobileCaseMetadataUpdateView(UpdateView):

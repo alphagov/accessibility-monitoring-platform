@@ -25,12 +25,20 @@ from ..common.form_extract_utils import (
 )
 from ..common.sitemap import PlatformPage, Sitemap
 from ..common.utils import build_filters, diff_model_fields
-from .models import COMPLIANCE_FIELDS, Case, CaseEvent, CaseStatus, EventHistory, Sort
+from .models import (
+    COMPLIANCE_FIELDS,
+    BaseCase,
+    Case,
+    CaseEvent,
+    CaseStatus,
+    EventHistory,
+    Sort,
+)
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
     ("reviewer", "reviewer_id"),
-    ("status", "casestatus__status"),
+    ("status", "status"),
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
@@ -59,7 +67,8 @@ def get_case_detail_sections(case: Case, sitemap: Sitemap) -> list[CaseDetailSec
         if page_group.show:
             case_detail_pages: list[CaseDetailPage] = []
             for page in page_group.pages:
-                if page.show:
+                if page.show and page.instance is not None:
+                    print("Page.instance", page.instance)
                     display_fields: list[FieldLabelAndValue] = []
                     if page.case_details_form_class:
                         if page.case_details_form_class._meta.model == Case:
@@ -109,8 +118,8 @@ def get_sent_date(
     return date_on_db if date_on_db else date_on_form
 
 
-def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
-    """Return a queryset of Cases filtered by the values in CaseSearchForm"""
+def filter_cases(form) -> QuerySet[BaseCase]:  # noqa: C901
+    """Return a queryset of BaseCases filtered by the values in CaseSearchForm"""
     filters: dict = {}
     search_query = Q()
     sort_by: str = Sort.NEWEST
@@ -155,13 +164,9 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
             if filter_value != "":
                 filters[filter_name] = filter_value
 
-    if str(filters.get("casestatus__status", "")) == CaseStatus.Status.READY_TO_QA:
-        filters["qa_status"] = Case.QAStatus.UNASSIGNED
-        del filters["casestatus__status"]
-
-    if "status" in filters:
-        filters["casestatus__status"] = filters["status"]
-        del filters["status"]
+    # if str(filters.get("casestatus__status", "")) == CaseStatus.Status.READY_TO_QA:
+    #     filters["qa_status"] = Case.QAStatus.UNASSIGNED
+    #     del filters["casestatus__status"]
 
     # Auditor and reviewer may be filtered by unassigned
     if "auditor_id" in filters and filters["auditor_id"] == "none":
@@ -171,10 +176,10 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
 
     if not sort_by:
         return (
-            Case.objects.filter(search_query, **filters)
+            BaseCase.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
-                    When(casestatus__status=CaseStatus.Status.UNASSIGNED, then=0),
+                    When(status=BaseCase.Status.UNASSIGNED, then=0),
                     default=1,
                 )
             )
@@ -182,7 +187,7 @@ def filter_cases(form) -> QuerySet[Case]:  # noqa: C901
             .select_related("auditor", "reviewer")
         )
     return (
-        Case.objects.filter(search_query, **filters)
+        BaseCase.objects.filter(search_query, **filters)
         .order_by(sort_by)
         .select_related("auditor", "reviewer")
     )

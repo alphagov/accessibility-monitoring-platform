@@ -80,6 +80,7 @@ def create_mobile_case_from_dict(
     enforcement_body: str = row["Enforcement body"].lower()
     is_complaint: str = row["Is it a complaint?"].lower()
     MobileCase.objects.create(
+        test_type=MobileCase.TestType.MOBILE,
         case_number=case_number,
         created_by_id=default_user.id,
         created=created,

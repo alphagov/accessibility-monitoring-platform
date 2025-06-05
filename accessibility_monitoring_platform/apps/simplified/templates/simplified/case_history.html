@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' %}
+        </div>
+    </div>
+    {% include 'cases/helpers/breadcrumbs.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" %}
+                {% include 'common/messages.html' %}
+                {% if event_history %}
+                    {% for event in event_history %}
+                        <h2 id="id_event-{{ event.id }}" class="govuk-heading-m">
+                            {{ event.created|amp_datetime }} by {{ event.created_by.get_full_name }}
+                            {% if event.event_type == 'model_create' %}[CREATE]{% endif %}
+                        </h2>
+                        <p class="govuk-body">
+                            {{ event.parent }}
+                            ({{ event.content_type }} #{{ event.object_id }})
+                        </p>
+                        {% if event.event_type == 'model_create' %}
+                            <table class="govuk-table">
+                                <thead class="govuk-table__head">
+                                    <tr class="govuk-table__row">
+                                        <th scope="col" class="govuk-table__header amp-width-one-half">Variable</th>
+                                        <th scope="col" class="govuk-table__header amp-width-one-half">New value</th>
+                                </thead>
+                                <tbody class="govuk-table__body">
+                                    {% for variable in event.variables %}
+                                        <tr class="govuk-table__row">
+                                            <td class="govuk-table__cell amp-width-one-half">{{ variable.name }}</td>
+                                            <td class="govuk-table__cell amp-width-one-half">{{ variable.new_value }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <table class="govuk-table">
+                                <thead class="govuk-table__head">
+                                    <tr class="govuk-table__row">
+                                        <th scope="col" class="govuk-table__header amp-width-one-third">Variable</th>
+                                        <th scope="col" class="govuk-table__header amp-width-one-third">Previous value</th>
+                                        <th scope="col" class="govuk-table__header amp-width-one-third">New value</th>
+                                </thead>
+                                <tbody class="govuk-table__body">
+                                    {% for variable in event.variables %}
+                                        <tr class="govuk-table__row">
+                                            <td class="govuk-table__cell amp-width-one-third">{{ variable.name }}</td>
+                                            <td class="govuk-table__cell amp-width-one-third">{{ variable.old_value }}</td>
+                                            <td class="govuk-table__cell amp-width-one-third">{{ variable.new_value }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="govuk-body">No history found for this case.</p>
+                {% endif %}
+                <h2 id="id_all_users" class="govuk-heading-m">All user ids</h2>
+                <ul class="govuk-list govuk-list--bullet">
+                    {% for user in all_users %}
+                        <li>{{ user.id }}: {{ user.get_full_name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

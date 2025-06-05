@@ -20,7 +20,6 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     CorrespondenceTwelveWeekRequestUpdateView,
     DetailedCaseCreateView,
     DetailedCaseDetailView,
-    DetailedCaseListView,
     DetailedCaseMetadataUpdateView,
     DetailedCaseNoteCreateView,
     DetailedCaseStatusUpdateView,
@@ -53,11 +52,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/case-detail/",
         login_required(DetailedCaseDetailView.as_view()),
         name="case-detail",
-    ),
-    path(
-        "case-list/",
-        login_required(DetailedCaseListView.as_view()),
-        name="case-list",
     ),
     path(
         "<int:pk>/case-metadata/",

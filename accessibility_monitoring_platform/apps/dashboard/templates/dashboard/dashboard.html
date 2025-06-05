@@ -44,7 +44,7 @@
             </div>
             <div class="govuk-grid-column-full govuk-button-group">
                 <a
-                    href="{% url 'cases:case-create' %}"
+                    href="{% url 'simplified:case-create' %}"
                     class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
                 >
                     Create simplified case
@@ -81,27 +81,6 @@
                         All cases
                     </a>
                 {% endif %}
-            </div>
-            <div class="govuk-grid-column-full govuk-button-group">
-                <span class="govuk-body amp-margin-bottom-0">Search:</span>
-                <a
-                    href="{% url 'cases:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                    class="govuk-link govuk-link--no-visited-state amp-padding-left-10"
-                >
-                    Simplified cases
-                </a>
-                <a
-                    href="{% url 'detailed:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                >
-                    Detailed cases
-                </a>
-                <a
-                    href="{% url 'mobile:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                >
-                    Mobile cases
-                </a>
             </div>
         </div>
         <div class="govuk-grid-row amp-margin-bottom-30">

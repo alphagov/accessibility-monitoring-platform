@@ -36,6 +36,9 @@ urlpatterns = [
     path("common/", include("accessibility_monitoring_platform.apps.common.urls")),
     path("reports/", include("accessibility_monitoring_platform.apps.reports.urls")),
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
+    path(
+        "simplified/", include("accessibility_monitoring_platform.apps.simplified.urls")
+    ),
     path("detailed/", include("accessibility_monitoring_platform.apps.detailed.urls")),
     path("mobile/", include("accessibility_monitoring_platform.apps.mobile.urls")),
     path("exports/", include("accessibility_monitoring_platform.apps.exports.urls")),

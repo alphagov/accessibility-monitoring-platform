@@ -1,0 +1,12 @@
+{% extends 'cases/details/details.html' %}
+
+{% block prefixrows %}
+    <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial statement compliance decision (included in equality body export)</th>
+        <td class="govuk-table__cell amp-width-one-half">{{ case.compliance.get_statement_compliance_state_initial_display }}</td>
+    </tr>
+    <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial statement compliance notes</th>
+        <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.compliance.statement_compliance_notes_initial|markdown_to_html }}</td>
+    </tr>
+{% endblock %}

@@ -63,22 +63,6 @@
                         <ul class="govuk-list">
                             <li>
                                 <a
-                                    href="{% url 'detailed:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Search detailed cases
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="{% url 'mobile:case-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Search mobile cases
-                                </a>
-                            </li>
-                            <li>
-                                <a
                                     href="{% url 'cases:case-create' %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >

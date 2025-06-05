@@ -1,0 +1,38 @@
+<div class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %} amp-margin-bottom-40">
+    <label id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}">
+        <b>{{ field.label }}</b>
+    </label>
+    {% if case %}
+        <details class="govuk-details amp-margin-bottom-5" data-module="govuk-details">
+            <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">Contact details</span>
+            </summary>
+            <div class="govuk-details__text">
+                <ul class="govuk-list">
+                    {% if case.contact_exists %}
+                        {% for contact in case.contacts %}
+                            <li>
+                                {{ contact.email }} |
+                                <span
+                                    tabIndex="0"
+                                    class="amp-control amp-copy-text"
+                                    sourceText="{{ contact.email }}"
+                                    targetId="{{ field.auto_id }}">
+                                    Copy below</span>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li>None</li>
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'cases:manage-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                            Edit contact details</a>
+                    </li>
+                </ul>
+            </div>
+        </details>
+    {% endif %}
+    {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
+    {% include 'common/field_errors.html' with errors=field.errors %}
+    {{ field }}
+</div>

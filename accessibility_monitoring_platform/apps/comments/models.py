@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from ..audits.models import CheckResult, StatementCheck, StatementCheckResult
-from ..cases.models import Case
+from ..cases.models import BaseCase, Case
 from ..common.utils import replace_whole_words, undo_double_escapes
 
 
@@ -55,6 +55,13 @@ class Comment(models.Model):
         Case,
         on_delete=models.PROTECT,
         related_name="comment_case",
+        blank=True,
+        null=True,
+    )
+    base_case = models.ForeignKey(
+        BaseCase,
+        on_delete=models.PROTECT,
+        related_name="comment_basecase",
         blank=True,
         null=True,
     )

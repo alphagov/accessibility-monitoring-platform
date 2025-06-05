@@ -2,9 +2,6 @@
 Forms - mobile
 """
 
-import re
-
-import requests
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -19,8 +16,8 @@ from ..common.forms import (
     AMPURLField,
     VersionForm,
 )
-from ..common.models import Sector, SubCategory
-from .models import Boolean, MobileCase
+from ..common.models import Boolean, Sector, SubCategory
+from .models import MobileCase
 
 
 class MobileCaseCreateForm(forms.ModelForm):
@@ -115,9 +112,3 @@ class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
             "notes",
             "case_metadata_complete_date",
         ]
-
-
-class MobileCaseSearchForm(forms.Form):
-    """Form for searching for mobile cases"""
-
-    case_search = AMPCharFieldWide(label="Search")

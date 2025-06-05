@@ -10,7 +10,7 @@ from django.template import Context, Template
 from django.urls import reverse
 from django.utils import timezone
 
-from ..cases.models import Case
+from ..cases.models import BaseCase, Case
 from ..common.models import VersionModel
 from ..common.utils import amp_format_datetime
 from ..s3_read_write.models import S3Report
@@ -56,6 +56,13 @@ class Report(VersionModel):
 
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="report_case"
+    )
+    base_case = models.ForeignKey(
+        BaseCase,
+        on_delete=models.PROTECT,
+        related_name="report_basecase",
+        blank=True,
+        null=True,
     )
     created = models.DateTimeField()
     created_by = models.ForeignKey(
@@ -131,6 +138,12 @@ class ReportVisitsMetrics(models.Model):
     case = models.ForeignKey(
         Case,
         on_delete=models.SET_NULL,
+        null=True,
+    )
+    base_case = models.ForeignKey(
+        BaseCase,
+        on_delete=models.SET_NULL,
+        blank=True,
         null=True,
     )
     guid = models.TextField(default="", blank=True)

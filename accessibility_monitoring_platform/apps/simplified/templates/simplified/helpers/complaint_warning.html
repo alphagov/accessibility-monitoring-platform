@@ -1,0 +1,9 @@
+{% if case.is_complaint == 'yes' %}
+    <div class="govuk-warning-text">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+            <span class="govuk-warning-text__assistive govuk-visually-hidden">Warning</span>
+            This case originated from a complaint
+        </strong>
+    </div>
+{% endif %}

@@ -4,7 +4,7 @@
             <a href="{{ case.get_absolute_url }}"
                 class="govuk-link govuk-link--no-visited-state">
                 {% if case.website_name %}{{ case.website_name }} |{% endif %}
-                {% if case.organisation_name %}{{ case.organisation_name }}{% else %}{{ case.app_name }}{% endif %}
+                {% if case.organisation_name %}{{ case.organisation_name }}{% elif case.test_type == 'mobile' %}{{ case.mobilecase.app_name }}{% endif %}
             </a>
         </p>
     </div>
