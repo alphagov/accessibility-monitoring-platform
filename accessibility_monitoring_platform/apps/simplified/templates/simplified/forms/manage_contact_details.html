@@ -4,11 +4,11 @@
 {% include 'cases/helpers/correspondence.html' %}
 <p class="govuk-body amp-margin-bottom-30">
     {% if case.enable_correspondence_process %}
-        <a href="{% url 'cases:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        <a href="{% url 'simplified:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
             + Add contact</a>
     {% else %}
-        <a href="{% url 'cases:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Add contact</a> or
-        <a href="{% url 'cases:enable-correspondence-process' case.id %}" class="govuk-link govuk-link--no-visited-state">start correspondence process</a>
+        <a href="{% url 'simplified:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Add contact</a> or
+        <a href="{% url 'simplified:enable-correspondence-process' case.id %}" class="govuk-link govuk-link--no-visited-state">start correspondence process</a>
         if you’re unable to find sufficient contact details
     {% endif %}
 </p>
@@ -19,7 +19,7 @@
         </div>
         <div class="govuk-grid-column-two-thirds">
             <p class="govuk-body amp-margin-bottom-5">
-                <a href="{% url 'cases:edit-contact-update' contact.id %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'simplified:edit-contact-update' contact.id %}" class="govuk-link govuk-link--no-visited-state">
                     Edit or remove</a>
             </p>
         </div>

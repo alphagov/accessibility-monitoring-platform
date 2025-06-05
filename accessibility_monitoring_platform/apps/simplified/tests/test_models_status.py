@@ -18,7 +18,7 @@ def check_for_status_specific_link(
     admin_client, case: SimplifiedCase, expected_link_label: str
 ):
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
+        reverse("simplified:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(response, expected_link_label)

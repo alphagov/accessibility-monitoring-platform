@@ -324,7 +324,7 @@ class CaseMetadataUpdateView(CaseUpdateView):
         next_page_url_name: str = (
             "audits:edit-audit-metadata"
             if case.audit is not None
-            else "cases:edit-test-results"
+            else "simplified:edit-test-results"
         )
         return get_platform_page_by_url_name(url_name=next_page_url_name, instance=case)
 
@@ -460,9 +460,9 @@ class ManageContactDetailsUpdateView(CaseUpdateView):
     def get_next_platform_page(self) -> PlatformPage:
         case: SimplifiedCase = self.object
         next_page_url_name: str = (
-            "cases:edit-request-contact-details"
+            "simplified:edit-request-contact-details"
             if case.enable_correspondence_process is True
-            else "cases:edit-report-sent-on"
+            else "simplified:edit-report-sent-on"
         )
         return get_platform_page_by_url_name(url_name=next_page_url_name, instance=case)
 
@@ -492,7 +492,7 @@ class ContactCreateView(CreateView):
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
         case_pk: dict[str, int] = {"pk": case.id}
-        return reverse("cases:manage-contact-details", kwargs=case_pk)
+        return reverse("simplified:manage-contact-details", kwargs=case_pk)
 
 
 class ContactUpdateView(UpdateView):
@@ -518,7 +518,7 @@ class ContactUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Return to the list of contact details"""
         case_pk: dict[str, int] = {"pk": self.object.case.id}
-        return reverse("cases:manage-contact-details", kwargs=case_pk)
+        return reverse("simplified:manage-contact-details", kwargs=case_pk)
 
 
 class CaseRequestContactDetailsUpdateView(CaseUpdateView):
@@ -686,7 +686,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
         if case.audit:
             if case.show_start_12_week_retest:
                 return get_platform_page_by_url_name(
-                    url_name="cases:edit-twelve-week-retest", instance=case
+                    url_name="simplified:edit-twelve-week-retest", instance=case
                 )
             else:
                 return get_platform_page_by_url_name(
@@ -694,7 +694,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
                     instance=case.audit,
                 )
         return get_platform_page_by_url_name(
-            url_name="cases:edit-review-changes", instance=case
+            url_name="simplified:edit-review-changes", instance=case
         )
 
 
@@ -796,7 +796,7 @@ class PostCaseUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             case_pk: dict[str, int] = {"pk": self.object.id}
-            return reverse("cases:case-detail", kwargs=case_pk)
+            return reverse("simplified:case-detail", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -997,11 +997,12 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
         )
         if "save_return" in self.request.POST:
             return reverse(
-                "cases:list-equality-body-correspondence",
+                "simplified:list-equality-body-correspondence",
                 kwargs={"pk": self.object.case.id},
             )
         return reverse(
-            "cases:edit-equality-body-correspondence", kwargs={"pk": self.object.id}
+            "simplified:edit-equality-body-correspondence",
+            kwargs={"pk": self.object.id},
         )
 
 
@@ -1030,12 +1031,13 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
         equality_body_correspondence.save()
         if "save_return" in self.request.POST:
             url: str = reverse(
-                "cases:list-equality-body-correspondence",
+                "simplified:list-equality-body-correspondence",
                 kwargs={"pk": self.object.case.id},
             )
         else:
             url: str = reverse(
-                "cases:edit-equality-body-correspondence", kwargs={"pk": self.object.id}
+                "simplified:edit-equality-body-correspondence",
+                kwargs={"pk": self.object.id},
             )
         return HttpResponseRedirect(url)
 
@@ -1110,7 +1112,7 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
             user=user, model_object=zendesk_ticket, case=zendesk_ticket.case
         )
         case_pk: dict[str, int] = {"pk": zendesk_ticket.case.id}
-        return reverse("cases:zendesk-tickets", kwargs=case_pk)
+        return reverse("simplified:zendesk-tickets", kwargs=case_pk)
 
 
 class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
@@ -1138,7 +1140,7 @@ class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
         """Return to zendesk tickets page on save"""
         zendesk_ticket: ZendeskTicket = self.object
         case_pk: dict[str, int] = {"pk": zendesk_ticket.case.id}
-        return reverse("cases:zendesk-tickets", kwargs=case_pk)
+        return reverse("simplified:zendesk-tickets", kwargs=case_pk)
 
 
 class ZendeskTicketConfirmDeleteUpdateView(ZendeskTicketUpdateView):
@@ -1228,7 +1230,7 @@ def enable_correspondence_process(
     case.enable_correspondence_process = True
     case.save()
     return redirect(
-        reverse("cases:edit-request-contact-details", kwargs={"pk": case.id})
+        reverse("simplified:edit-request-contact-details", kwargs={"pk": case.id})
     )
 
 
@@ -1238,4 +1240,4 @@ def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedir
     mark_tasks_as_read(user=request.user, case=case, type=Task.Type.QA_COMMENT)
     mark_tasks_as_read(user=request.user, case=case, type=Task.Type.REPORT_APPROVED)
     messages.success(request, f"{case} comments marked as read")
-    return redirect(reverse("cases:edit-qa-comments", kwargs={"pk": case.id}))
+    return redirect(reverse("simplified:edit-qa-comments", kwargs={"pk": case.id}))

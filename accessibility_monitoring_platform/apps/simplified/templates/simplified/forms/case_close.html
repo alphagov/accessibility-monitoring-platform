@@ -77,7 +77,7 @@
             {% if not case.audit %}
                 <p class="govuk-body-m">
                     There isn't an initial test
-                    (<a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to testing details</a>)
+                    (<a href="{% url 'simplified:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to testing details</a>)
                 </p>
             {% endif %}
             <p class="govuk-body-m">

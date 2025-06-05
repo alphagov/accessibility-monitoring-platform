@@ -9,7 +9,7 @@
             {% include 'common/breadcrumb_home.html' %}
             {% include 'cases/helpers/breadcrumb_case.html' %}
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:email-template-list' case.id %}">Email templates</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'simplified:email-template-list' case.id %}">Email templates</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>

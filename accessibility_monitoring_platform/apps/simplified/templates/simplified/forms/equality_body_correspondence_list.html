@@ -16,7 +16,7 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full govuk-button-group">
         <a
-            href="{% url 'cases:list-equality-body-correspondence' case.id %}{% if not show_unresolved %}?view=unresolved{% endif %}"
+            href="{% url 'simplified:list-equality-body-correspondence' case.id %}{% if not show_unresolved %}?view=unresolved{% endif %}"
             role="button"
             draggable="false"
             class="govuk-button govuk-button--secondary"
@@ -25,7 +25,7 @@
         Filter {% if show_unresolved %}all{% else %}unresolved{% endif %} correspondence
         </a>
         <a
-            href="{% url 'cases:create-equality-body-correspondence' case.id %}"
+            href="{% url 'simplified:create-equality-body-correspondence' case.id %}"
             class="govuk-link govuk-link--no-visited-state"
         >
             Add Zendesk ticket
@@ -39,7 +39,7 @@
                 ({{ equality_body_correspondence.get_status_display }})
             </h2>
             <p class="govuk-body-m">
-                <a href="{% url 'cases:edit-equality-body-correspondence' equality_body_correspondence.id %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'simplified:edit-equality-body-correspondence' equality_body_correspondence.id %}" class="govuk-link govuk-link--no-visited-state">
                     Edit ticket</a>
             </p>
             <p class="govuk-body-m amp-margin-bottom-5"><b>Time added to platform</b></p>
@@ -85,13 +85,13 @@
     </div>
     <div class="govuk-grid-column-full govuk-button-group">
         <a
-            href="{% url 'cases:edit-retest-overview' case.id %}"
+            href="{% url 'simplified:edit-retest-overview' case.id %}"
             class="govuk-link govuk-link--no-visited-state"
         >
             Continue to retest overview
         </a>
         <a
-            href="{% url 'cases:case-detail' case.id %}"
+            href="{% url 'simplified:case-detail' case.id %}"
             class="govuk-link govuk-link--no-visited-state"
         >
             Return to view case

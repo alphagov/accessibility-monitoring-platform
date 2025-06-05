@@ -7,7 +7,7 @@
             <p class="govuk-body-m">
                 {{ email_template.name }} |
                 <a
-                    href="{% url 'cases:email-template-preview' case.id email_template.id %}"
+                    href="{% url 'simplified:email-template-preview' case.id email_template.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >View</a>
         {% endfor %}

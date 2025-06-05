@@ -12,7 +12,7 @@
                   {{ contact.name }}
                   {{ contact.job_title }}
                   {{ contact.email }}
-                  (<a href="{% url 'cases:manage-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+                  (<a href="{% url 'simplified:manage-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
               </p>
           </div>
       {% endfor %}
@@ -49,7 +49,7 @@
                       <b>#{{ zendesk_ticket.id_within_case }}</b>
                       {{ zendesk_ticket.created|amp_date }}
                       (<a href="{{ zendesk_ticket.url }}" class="govuk-link" target="_blank">View on zendesk</a> |
-                      <a href="{% url 'cases:update-zendesk-ticket' zendesk_ticket.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+                      <a href="{% url 'simplified:update-zendesk-ticket' zendesk_ticket.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
                   </p>
                   <p class="govuk-body-m">{{ zendesk_ticket.summary }}</p>
               {% endfor %}
@@ -67,7 +67,7 @@
                   {% else %}
                       Not sent
                   {% endif %}
-                  (<a href="{% url 'cases:edit-request-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+                  (<a href="{% url 'simplified:edit-request-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
               </p>
           </div>
 
@@ -79,7 +79,7 @@
                   {% else %}
                       Not sent
                   {% endif %}
-                  (<a href="{% url 'cases:edit-one-week-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+                  (<a href="{% url 'simplified:edit-one-week-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
               </p>
           </div>
 
@@ -91,7 +91,7 @@
                   {% else %}
                       Not sent
                   {% endif %}
-                  (<a href="{% url 'cases:edit-four-week-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+                  (<a href="{% url 'simplified:edit-four-week-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
               </p>
           </div>
       {% endif %}
@@ -107,7 +107,7 @@
               {% else %}
                   Not sent
               {% endif %}
-              (<a href="{% url 'cases:edit-report-sent-on' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              (<a href="{% url 'simplified:edit-report-sent-on' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
           </p>
       </div>
 
@@ -122,7 +122,7 @@
               {% else %}
                   Not sent
               {% endif %}
-              (<a href="{% url 'cases:edit-report-one-week-followup' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              (<a href="{% url 'simplified:edit-report-one-week-followup' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
           </p>
       </div>
 
@@ -137,7 +137,7 @@
               {% else %}
                   Not sent
               {% endif %}
-              (<a href="{% url 'cases:edit-report-four-week-followup' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              (<a href="{% url 'simplified:edit-report-four-week-followup' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
           </p>
       </div>
 
@@ -152,7 +152,7 @@
               {% else %}
                   Not sent
               {% endif %}
-              (<a href="{% url 'cases:edit-report-acknowledged' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              (<a href="{% url 'simplified:edit-report-acknowledged' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
           </p>
       </div>
 
@@ -164,7 +164,7 @@
               {% else %}
                   None
               {% endif %}
-              (<a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              (<a href="{% url 'simplified:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
           </p>
       </div>
 
@@ -179,7 +179,7 @@
               {% else %}
                   Not sent
               {% endif %}
-              (<a href="{% url 'cases:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              (<a href="{% url 'simplified:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
           </p>
       </div>
 
@@ -194,7 +194,7 @@
               {% else %}
                   Not sent
               {% endif %}
-              (<a href="{% url 'cases:edit-12-week-one-week-followup-final' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              (<a href="{% url 'simplified:edit-12-week-one-week-followup-final' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
           </p>
       </div>
 
@@ -209,7 +209,7 @@
               {% else %}
                   Not received
               {% endif %}
-              (<a href="{% url 'cases:edit-12-week-update-request-ack' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
+              (<a href="{% url 'simplified:edit-12-week-update-request-ack' case.id %}" class="govuk-link govuk-link--no-visited-state">View page</a>)
           </p>
       </div>
     </div>

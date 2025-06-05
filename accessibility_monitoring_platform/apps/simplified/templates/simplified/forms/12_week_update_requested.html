@@ -9,14 +9,14 @@
         The public sector body has been as unresponsive to this case.
         Progress to
         <a
-            href="{% url 'cases:edit-twelve-week-retest' case.id %}"
+            href="{% url 'simplified:edit-twelve-week-retest' case.id %}"
             class="govuk-link govuk-link--no-visited-state">Case > 12-week retest</a>.
     </p>
     <p class="govuk-body-m">
         If the PSB has since responded, untick Mark the PSB as unresponsive
         to this case in
         <a
-            href="{% url 'cases:edit-no-psb-response' case.id %}"
+            href="{% url 'simplified:edit-no-psb-response' case.id %}"
             class="govuk-link govuk-link--no-visited-state">Case > Report correspondence > Public sector body is unresponsive</a>.
     </p>
 {% endif %}

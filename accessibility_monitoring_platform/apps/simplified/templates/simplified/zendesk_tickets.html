@@ -2,7 +2,7 @@
 
 {% block preform %}
     <div class="govuk-button-group">
-        <a href="{% url 'cases:create-zendesk-ticket' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        <a href="{% url 'simplified:create-zendesk-ticket' case.id %}" class="govuk-link govuk-link--no-visited-state">
             + Add PSB Zendesk ticket</a>
     </div>
     {% if case.zendesk_tickets %}
@@ -26,10 +26,10 @@
                                 Ticket #{{ zendesk_ticket.id_within_case }}</a>
                         </td>
                         <td scope="row" class="govuk-table__cell">
-                            <a href="{% url 'cases:update-zendesk-ticket' zendesk_ticket.id %}"
+                            <a href="{% url 'simplified:update-zendesk-ticket' zendesk_ticket.id %}"
                                 class="govuk-link govuk-link--no-visited-state">
                                 Edit</a>
-                            <a href="{% url 'cases:confirm-delete-zendesk-ticket' zendesk_ticket.id %}"
+                            <a href="{% url 'simplified:confirm-delete-zendesk-ticket' zendesk_ticket.id %}"
                                 class="govuk-link govuk-link--no-visited-state">
                                 Remove</a>
                         </td>

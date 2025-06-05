@@ -16,7 +16,7 @@
             {% if case.archive %}
                 {{ case.qa_comments_count }} comment{% if case.qa_comments_count != 1 %}s{% endif %} on QA
             {% else %}
-                <a href="{% url 'cases:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'simplified:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     {{ case.qa_comments_count }} comment{% if case.qa_comments_count != 1 %}s{% endif %} on QA
                 </a>
             {% endif %}
@@ -43,7 +43,7 @@
     {% endif %}
     <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Post case</h2>
     <p class="govuk-body-s amp-margin-bottom-10">
-        <a href="{% url 'cases:list-equality-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        <a href="{% url 'simplified:list-equality-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
             {{ case.equality_body_correspondences_unresolved_count }} unresolved equality body correspondence{% if case.equality_body_correspondences_unresolved_count != 1 %}s{% endif %}
         </a>
     </p>

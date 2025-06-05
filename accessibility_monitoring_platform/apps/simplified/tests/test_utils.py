@@ -418,7 +418,7 @@ def test_build_edit_link_html():
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert (
-        build_edit_link_html(case=case, url_name="cases:edit-test-results")
+        build_edit_link_html(case=case, url_name="simplified:edit-test-results")
         == "<a href='/cases/1/edit-test-results/' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
     )
 

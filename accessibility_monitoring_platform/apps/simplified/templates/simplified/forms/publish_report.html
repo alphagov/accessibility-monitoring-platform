@@ -27,9 +27,9 @@
                 <ul class="govuk-list govuk-list--bullet">
                     <li>
                         Set the report status to <b>Ready to Review</b> in
-                        <a href="{% url 'cases:edit-report-ready-for-qa' case.id %}" class="govuk-link govuk-link--no-visited-state">Report Ready for QA process</a>
+                        <a href="{% url 'simplified:edit-report-ready-for-qa' case.id %}" class="govuk-link govuk-link--no-visited-state">Report Ready for QA process</a>
                     </li>
-                    <li>Get <a href="{% url 'cases:edit-qa-approval' case.id %}" class="govuk-link govuk-link--no-visited-state">approval from another auditor</a></li>
+                    <li>Get <a href="{% url 'simplified:edit-qa-approval' case.id %}" class="govuk-link govuk-link--no-visited-state">approval from another auditor</a></li>
                 </ul>
                 <p class="govuk-body">When these steps are finished, the report can be published.</p>
             {% endif %}

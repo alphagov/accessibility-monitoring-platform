@@ -513,7 +513,7 @@ class SimplifiedCase(BaseCase):
             return Link(
                 label="1-week follow-up to report coming up",
                 url=reverse(
-                    "cases:edit-report-one-week-followup", kwargs={"pk": self.id}
+                    "simplified:edit-report-one-week-followup", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -524,7 +524,7 @@ class SimplifiedCase(BaseCase):
             return Link(
                 label="1-week follow-up to report due",
                 url=reverse(
-                    "cases:edit-report-one-week-followup", kwargs={"pk": self.id}
+                    "simplified:edit-report-one-week-followup", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -536,7 +536,7 @@ class SimplifiedCase(BaseCase):
             return Link(
                 label="4-week follow-up to report coming up",
                 url=reverse(
-                    "cases:edit-report-four-week-followup", kwargs={"pk": self.id}
+                    "simplified:edit-report-four-week-followup", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -548,7 +548,7 @@ class SimplifiedCase(BaseCase):
             return Link(
                 label="4-week follow-up to report due",
                 url=reverse(
-                    "cases:edit-report-four-week-followup", kwargs={"pk": self.id}
+                    "simplified:edit-report-four-week-followup", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -557,7 +557,9 @@ class SimplifiedCase(BaseCase):
         ):
             return Link(
                 label="4-week follow-up to report sent, waiting seven days for response",
-                url=reverse("cases:edit-report-acknowledged", kwargs={"pk": self.id}),
+                url=reverse(
+                    "simplified:edit-report-acknowledged", kwargs={"pk": self.id}
+                ),
             )
         elif (
             self.report_followup_week_4_sent_date is not None
@@ -565,11 +567,13 @@ class SimplifiedCase(BaseCase):
         ):
             return Link(
                 label="4-week follow-up to report sent, case needs to progress",
-                url=reverse("cases:edit-report-acknowledged", kwargs={"pk": self.id}),
+                url=reverse(
+                    "simplified:edit-report-acknowledged", kwargs={"pk": self.id}
+                ),
             )
         return Link(
             label="Unknown",
-            url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+            url=reverse("simplified:manage-contact-details", kwargs={"pk": self.id}),
         )
 
     @property
@@ -584,7 +588,8 @@ class SimplifiedCase(BaseCase):
             return Link(
                 label="1-week follow-up coming up",
                 url=reverse(
-                    "cases:edit-12-week-one-week-followup-final", kwargs={"pk": self.id}
+                    "simplified:edit-12-week-one-week-followup-final",
+                    kwargs={"pk": self.id},
                 ),
             )
         elif (
@@ -595,7 +600,8 @@ class SimplifiedCase(BaseCase):
             return Link(
                 label="1-week follow-up due",
                 url=reverse(
-                    "cases:edit-12-week-one-week-followup-final", kwargs={"pk": self.id}
+                    "simplified:edit-12-week-one-week-followup-final",
+                    kwargs={"pk": self.id},
                 ),
             )
         elif (
@@ -605,7 +611,7 @@ class SimplifiedCase(BaseCase):
             return Link(
                 label="1-week follow-up sent, waiting seven days for response",
                 url=reverse(
-                    "cases:edit-12-week-update-request-ack", kwargs={"pk": self.id}
+                    "simplified:edit-12-week-update-request-ack", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -615,12 +621,12 @@ class SimplifiedCase(BaseCase):
             return Link(
                 label="1-week follow-up sent, case needs to progress",
                 url=reverse(
-                    "cases:edit-12-week-update-request-ack", kwargs={"pk": self.id}
+                    "simplified:edit-12-week-update-request-ack", kwargs={"pk": self.id}
                 ),
             )
         return Link(
             label="Unknown",
-            url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+            url=reverse("simplified:manage-contact-details", kwargs={"pk": self.id}),
         )
 
     @property
@@ -965,7 +971,7 @@ class SimplifiedCase(BaseCase):
                 return Link(
                     label="No contact details response overdue",
                     url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                        "simplified:edit-request-contact-details", kwargs=kwargs_case_pk
                     ),
                 )
             if (
@@ -977,7 +983,7 @@ class SimplifiedCase(BaseCase):
                 return Link(
                     label="No contact details response overdue",
                     url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                        "simplified:edit-request-contact-details", kwargs=kwargs_case_pk
                     ),
                 )
             if (
@@ -989,7 +995,7 @@ class SimplifiedCase(BaseCase):
                 return Link(
                     label="No contact details response overdue",
                     url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                        "simplified:edit-request-contact-details", kwargs=kwargs_case_pk
                     ),
                 )
 
@@ -1024,7 +1030,8 @@ class SimplifiedCase(BaseCase):
                 return Link(
                     label="12-week update due",
                     url=reverse(
-                        "cases:edit-12-week-update-requested", kwargs=kwargs_case_pk
+                        "simplified:edit-12-week-update-requested",
+                        kwargs=kwargs_case_pk,
                     ),
                 )
 
@@ -1043,7 +1050,8 @@ class SimplifiedCase(BaseCase):
             ):
                 return self.twelve_week_correspondence_progress
         return Link(
-            label="Go to case", url=reverse("cases:case-detail", kwargs=kwargs_case_pk)
+            label="Go to case",
+            url=reverse("simplified:case-detail", kwargs=kwargs_case_pk),
         )
 
 
@@ -1282,7 +1290,7 @@ class Contact(VersionModel):
         return string
 
     def get_absolute_url(self) -> str:
-        return reverse("cases:manage-contact-details", kwargs={"pk": self.case.id})
+        return reverse("simplified:manage-contact-details", kwargs={"pk": self.case.id})
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
@@ -1366,7 +1374,7 @@ class EqualityBodyCorrespondence(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse(
-            "cases:list-equality-body-correspondence", kwargs={"pk": self.case.id}
+            "simplified:list-equality-body-correspondence", kwargs={"pk": self.case.id}
         )
 
     def save(self, *args, **kwargs) -> None:
@@ -1398,7 +1406,7 @@ class ZendeskTicket(models.Model):
         return self.url
 
     def get_absolute_url(self) -> str:
-        return reverse("cases:update-zendesk-ticket", kwargs={"pk": self.id})
+        return reverse("simplified:update-zendesk-ticket", kwargs={"pk": self.id})
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:

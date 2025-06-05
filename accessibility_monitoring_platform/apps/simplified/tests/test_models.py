@@ -1506,7 +1506,7 @@ def test_overdue_link_seven_day_no_contact():
     assert case.overdue_link is not None
     assert case.overdue_link.label == "No contact details response overdue"
     assert case.overdue_link.url == reverse(
-        "cases:edit-request-contact-details", kwargs={"pk": case.id}
+        "simplified:edit-request-contact-details", kwargs={"pk": case.id}
     )
 
 
@@ -1527,7 +1527,7 @@ def test_overdue_link_no_contact_one_week_chaser():
     assert case.overdue_link is not None
     assert case.overdue_link.label == "No contact details response overdue"
     assert case.overdue_link.url == reverse(
-        "cases:edit-request-contact-details", kwargs={"pk": case.id}
+        "simplified:edit-request-contact-details", kwargs={"pk": case.id}
     )
 
 
@@ -1548,7 +1548,7 @@ def test_overdue_link_no_contact_four_week_chaser():
     assert case.overdue_link is not None
     assert case.overdue_link.label == "No contact details response overdue"
     assert case.overdue_link.url == reverse(
-        "cases:edit-request-contact-details", kwargs={"pk": case.id}
+        "simplified:edit-request-contact-details", kwargs={"pk": case.id}
     )
 
 
@@ -1567,7 +1567,7 @@ def test_overdue_link_report_one_week_followup():
     assert case.overdue_link is not None
     assert case.overdue_link.label == "1-week follow-up to report due"
     assert case.overdue_link.url == reverse(
-        "cases:edit-report-one-week-followup", kwargs={"pk": case.id}
+        "simplified:edit-report-one-week-followup", kwargs={"pk": case.id}
     )
 
 
@@ -1587,7 +1587,7 @@ def test_overdue_link_report_four_week_followup():
     assert case.overdue_link is not None
     assert case.overdue_link.label == "4-week follow-up to report due"
     assert case.overdue_link.url == reverse(
-        "cases:edit-report-four-week-followup", kwargs={"pk": case.id}
+        "simplified:edit-report-four-week-followup", kwargs={"pk": case.id}
     )
 
 
@@ -1611,7 +1611,7 @@ def test_overdue_link_report_four_week_followup_sent_one_week_ago():
         == "4-week follow-up to report sent, case needs to progress"
     )
     assert case.overdue_link.url == reverse(
-        "cases:edit-report-acknowledged", kwargs={"pk": case.id}
+        "simplified:edit-report-acknowledged", kwargs={"pk": case.id}
     )
 
 
@@ -1630,7 +1630,7 @@ def test_overdue_link_12_week_deadline_due():
     assert case.overdue_link is not None
     assert case.overdue_link.label == "12-week update due"
     assert case.overdue_link.url == reverse(
-        "cases:edit-12-week-update-requested", kwargs={"pk": case.id}
+        "simplified:edit-12-week-update-requested", kwargs={"pk": case.id}
     )
 
 
@@ -1650,7 +1650,7 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_due():
     assert case.overdue_link is not None
     assert case.overdue_link.label == "1-week follow-up due"
     assert case.overdue_link.url == reverse(
-        "cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
+        "simplified:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
     )
 
 
@@ -1671,7 +1671,7 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
     assert case.overdue_link is not None
     assert case.overdue_link.label == "1-week follow-up sent, case needs to progress"
     assert case.overdue_link.url == reverse(
-        "cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}
+        "simplified:edit-12-week-update-request-ack", kwargs={"pk": case.id}
     )
 
 

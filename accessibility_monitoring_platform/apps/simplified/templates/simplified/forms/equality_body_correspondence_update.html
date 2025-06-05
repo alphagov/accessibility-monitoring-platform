@@ -6,7 +6,7 @@
         {% include 'common/breadcrumb_home.html' %}
         {% include 'cases/helpers/breadcrumb_case.html' %}
         <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="{% url 'cases:list-equality-body-correspondence' equality_body_correspondence.case.id %}">
+            <a class="govuk-breadcrumbs__link" href="{% url 'simplified:list-equality-body-correspondence' equality_body_correspondence.case.id %}">
                 All equality body correspondence</a>
         </li>
         <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
@@ -32,7 +32,7 @@
             data-module="govuk-button"
         />
         <a
-            href="{% url 'cases:list-equality-body-correspondence' equality_body_correspondence.case.id %}"
+            href="{% url 'simplified:list-equality-body-correspondence' equality_body_correspondence.case.id %}"
             class="govuk-link govuk-link--no-visited-state"
         >
             cancel

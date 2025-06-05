@@ -35,7 +35,7 @@
                 <div class="govuk-button-group amp-flex-end">
                     {% if case.is_deactivated %}
                         <a
-                            href="{% url 'cases:reactivate-case' case.id %}"
+                            href="{% url 'simplified:reactivate-case' case.id %}"
                             role="button"
                             draggable="false"
                             class="govuk-link govuk-link--no-visited-state"
@@ -45,7 +45,7 @@
                         </a>
                     {% else %}
                         <a
-                            href="{% url 'cases:deactivate-case' case.id %}"
+                            href="{% url 'simplified:deactivate-case' case.id %}"
                             role="button"
                             draggable="false"
                             class="govuk-link govuk-link--no-visited-state"

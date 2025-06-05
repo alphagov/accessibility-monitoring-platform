@@ -213,7 +213,7 @@ def test_archived_case_view_case_includes_contents(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-view-and-search", kwargs={"pk": case.id}),
+        reverse("simplified:case-view-and-search", kwargs={"pk": case.id}),
     )
 
     assertContains(
@@ -240,7 +240,7 @@ def test_archived_case_view_case_includes_sections(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
+        reverse("simplified:case-detail", kwargs={"pk": case.id}),
     )
 
     assertContains(
@@ -275,7 +275,7 @@ def test_archived_case_view_case_includes_fields(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
+        reverse("simplified:case-detail", kwargs={"pk": case.id}),
     )
 
     assertContains(
@@ -336,7 +336,7 @@ def test_archived_case_view_case_includes_post_case_sections(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
+        reverse("simplified:case-detail", kwargs={"pk": case.id}),
     )
 
     assertContains(response, "Statement enforcement")
@@ -353,7 +353,7 @@ def test_view_case_includes_tests(admin_client):
     Audit.objects.create(case=case, retest_date=TODAY)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
+        reverse("simplified:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -377,7 +377,7 @@ def test_view_case_includes_zendesk_tickets(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
+        reverse("simplified:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -400,7 +400,7 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id})
+        reverse("simplified:case-detail", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -408,257 +408,10 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
     assertNotContains(response, "Deleted Contact")
 
 
-def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
-    """Test that Cases where Report is ready to QA can be filtered by status"""
-    SimplifiedCase.objects.create(organisation_name="Excluded")
-    SimplifiedCase.objects.create(
-        organisation_name="Included", report_review_status="yes"
-    )
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("cases:case-list")}?status=unassigned-qa-case'
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
-def test_case_list_view_filters_by_case_number(admin_client):
-    """Test that the case list view page can be filtered by case number"""
-    included_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Included"
-    )
-    SimplifiedCase.objects.create(organisation_name="Excluded")
-
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?search={included_case.id}"
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
-def test_case_list_view_filters_by_psb_location(admin_client):
-    """Test that the case list view page can be filtered by case number"""
-    SimplifiedCase.objects.create(
-        organisation_name="Included", psb_location=SimplifiedCase.PsbLocation.SCOTLAND
-    )
-    SimplifiedCase.objects.create(organisation_name="Excluded")
-
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?search=scot"
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
-def test_case_list_view_filters_by_sector_name(admin_client):
-    """Test that the case list view page can be filtered by sector name"""
-    sector: Sector = Sector.objects.create(name="Defence")
-    SimplifiedCase.objects.create(organisation_name="Included", sector=sector)
-    SimplifiedCase.objects.create(organisation_name="Excluded")
-
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?search=fence"
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
-@pytest.mark.parametrize(
-    "field_name,value,url_parameter_name",
-    [
-        ("home_page_url", "included.com", "case_search"),
-        ("organisation_name", "IncludedOrg", "case_search"),
-    ],
-)
-def test_case_list_view_string_filters(
-    field_name, value, url_parameter_name, admin_client
-):
-    """Test that the case list view page can be filtered by string"""
-    included_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Included"
-    )
-    setattr(included_case, field_name, value)
-    included_case.save()
-
-    SimplifiedCase.objects.create(organisation_name="Excluded")
-
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?{url_parameter_name}={value}"
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
-@pytest.mark.parametrize(
-    "field_name,url_parameter_name",
-    [
-        ("auditor", "auditor"),
-        ("reviewer", "reviewer"),
-    ],
-)
-def test_case_list_view_user_filters(field_name, url_parameter_name, admin_client):
-    """Test that the case list view page can be filtered by user"""
-    user: User = User.objects.create()
-    add_user_to_auditor_groups(user)
-
-    included_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Included"
-    )
-    setattr(included_case, field_name, user)
-    included_case.save()
-
-    SimplifiedCase.objects.create(organisation_name="Excluded")
-
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?{url_parameter_name}={user.id}"
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
-@pytest.mark.parametrize(
-    "field_name,url_parameter_name",
-    [
-        ("auditor", "auditor"),
-        ("reviewer", "reviewer"),
-    ],
-)
-def test_case_list_view_user_unassigned_filters(
-    field_name, url_parameter_name, admin_client
-):
-    """Test that the case list view page can be filtered by unassigned user values"""
-    SimplifiedCase.objects.create(organisation_name="Included")
-
-    user = User.objects.create()
-    excluded_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Excluded"
-    )
-    setattr(excluded_case, field_name, user)
-    excluded_case.save()
-
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?{url_parameter_name}=none"
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
-@pytest.mark.parametrize(
-    "filter_field_name",
-    ["sent_to_enforcement_body_sent_date", "case_updated_date"],
-)
-def test_case_list_view_date_filters(filter_field_name, admin_client):
-    """
-    Test that the case list view page can be filtered by date range on a field.
-    """
-    included_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Included"
-    )
-    setattr(
-        included_case,
-        filter_field_name,
-        datetime(year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")),
-    )
-    included_case.save()
-    excluded_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Excluded"
-    )
-    setattr(
-        excluded_case,
-        filter_field_name,
-        datetime(year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")),
-    )
-    excluded_case.save()
-
-    url_parameters = f"date_type={filter_field_name}&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?{url_parameters}"
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
-def test_case_list_view_audit_date_of_test_filters(admin_client):
-    """
-    Test that the case list view page can be filtered by date range on audit
-    date of test.
-    """
-    included_audit_date_of_test: datetime = datetime(
-        year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
-    )
-    excluded_audit_date_of_test: datetime = datetime(
-        year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
-    )
-    included_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Included"
-    )
-    excluded_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Excluded"
-    )
-    Audit.objects.create(case=included_case, date_of_test=included_audit_date_of_test)
-    Audit.objects.create(case=excluded_case, date_of_test=excluded_audit_date_of_test)
-
-    url_parameters = "date_type=audit_basecase__date_of_test&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?{url_parameters}"
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
-def test_case_list_view_sector_filter(admin_client):
-    """Test that the case list view page can be filtered by sector"""
-    sector: Sector = Sector.objects.create(name="test sector")
-
-    included_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Included"
-    )
-    included_case.sector = sector
-    included_case.save()
-
-    SimplifiedCase.objects.create(organisation_name="Excluded")
-
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?sector={sector.id}"
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-l">1 case found</h1>')
-    assertContains(response, "Included")
-    assertNotContains(response, "Excluded")
-
-
 def test_case_feedback_survey_export_list_view(admin_client):
     """Test that the case feedback survey export list view returns csv data"""
     response: HttpResponse = admin_client.get(
-        reverse("cases:export-feedback-survey-cases")
+        reverse("simplified:export-feedback-survey-cases")
     )
 
     assert response.status_code == 200
@@ -667,7 +420,7 @@ def test_case_feedback_survey_export_list_view(admin_client):
 
 def test_case_export_list_view(admin_client):
     """Test that the case export list view returns csv data"""
-    response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
+    response: HttpResponse = admin_client.get(reverse("simplified:case-export-list"))
 
     assert response.status_code == 200
     assertContains(response, case_columns_to_export_str)
@@ -676,8 +429,8 @@ def test_case_export_list_view(admin_client):
 @pytest.mark.parametrize(
     "export_view_name",
     [
-        "cases:case-export-list",
-        "cases:export-feedback-survey-cases",
+        "simplified:case-export-list",
+        "simplified:export-feedback-survey-cases",
     ],
 )
 def test_case_export_view_filters_by_search(export_view_name, admin_client):
@@ -707,7 +460,7 @@ def test_case_export_list_view_respects_filters(admin_client):
     SimplifiedCase.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-export-list')}?auditor={user.id}"
+        f"{reverse('simplified:case-export-list')}?auditor={user.id}"
     )
 
     assert response.status_code == 200
@@ -721,7 +474,7 @@ def test_deactivate_case_view(admin_client):
     case_pk: dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:deactivate-case", kwargs=case_pk),
+        reverse("simplified:deactivate-case", kwargs=case_pk),
         {
             "version": case.version,
             "deactivate_notes": DEACTIVATE_NOTES,
@@ -729,7 +482,7 @@ def test_deactivate_case_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
+    assert response.url == reverse("simplified:case-detail", kwargs=case_pk)
 
     case_from_db: SimplifiedCase = SimplifiedCase.objects.get(pk=case.id)
 
@@ -744,14 +497,14 @@ def test_reactivate_case_view(admin_client):
     case_pk: dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:reactivate-case", kwargs=case_pk),
+        reverse("simplified:reactivate-case", kwargs=case_pk),
         {
             "version": case.version,
         },
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
+    assert response.url == reverse("simplified:case-detail", kwargs=case_pk)
 
     case_from_db: SimplifiedCase = SimplifiedCase.objects.get(pk=case.id)
 
@@ -762,11 +515,7 @@ def test_reactivate_case_view(admin_client):
     "path_name, expected_content",
     [
         (
-            "cases:case-list",
-            '<h1 class="govuk-heading-xl">Search simplified cases</h1>',
-        ),
-        (
-            "cases:case-create",
+            "simplified:case-create",
             '<h1 class="govuk-heading-xl">Create simplified case</h1>',
         ),
     ],
@@ -785,7 +534,7 @@ def test_case_page_with_case_nav_and_form_without_go_back(admin_client):
     and without the go back to previous page in browser history widget.
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    url: str = reverse("cases:edit-case-metadata", kwargs={"pk": case.id})
+    url: str = reverse("simplified:edit-case-metadata", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(url)
 
@@ -806,7 +555,7 @@ def test_case_page_with_form_and_go_back_without_case_nav(admin_client):
     the go back to previous page in browser history widget.
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    url: str = reverse("cases:edit-no-psb-response", kwargs={"pk": case.id})
+    url: str = reverse("simplified:edit-no-psb-response", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(url)
 
@@ -826,7 +575,7 @@ def test_case_page_with_go_back_without_form_or_case_nav(admin_client):
     the go back to previous page in browser history widget.
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    url: str = reverse("cases:email-template-list", kwargs={"case_id": case.id})
+    url: str = reverse("simplified:email-template-list", kwargs={"case_id": case.id})
 
     response: HttpResponse = admin_client.get(url)
 
@@ -846,7 +595,7 @@ def test_case_page_with_case_nav_no_form_and_no_go_back(admin_client):
     go back to previous page in browser history widget.
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    url: str = reverse("cases:edit-retest-overview", kwargs={"pk": case.id})
+    url: str = reverse("simplified:edit-retest-overview", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(url)
 
@@ -864,23 +613,23 @@ def test_case_page_with_case_nav_no_form_and_no_go_back(admin_client):
     "path_name, expected_content",
     [
         (
-            "cases:edit-report-ready-for-qa",
+            "simplified:edit-report-ready-for-qa",
             "<b>Report ready for QA</b>",
         ),
         (
-            "cases:edit-qa-auditor",
+            "simplified:edit-qa-auditor",
             "<b>QA auditor</b>",
         ),
         (
-            "cases:edit-qa-comments",
+            "simplified:edit-qa-comments",
             "<b>Comments (0)</b>",
         ),
         (
-            "cases:edit-qa-approval",
+            "simplified:edit-qa-approval",
             "<b>QA approval</b>",
         ),
         (
-            "cases:edit-publish-report",
+            "simplified:edit-publish-report",
             "<b>Publish report</b>",
         ),
     ],
@@ -906,7 +655,7 @@ def test_create_contact_page_loads(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-create", kwargs={"case_id": case.id})
+        reverse("simplified:edit-contact-create", kwargs={"case_id": case.id})
     )
 
     assert response.status_code == 200
@@ -926,7 +675,7 @@ def test_update_contact_page_loads(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-update", kwargs={"pk": contact.id})
+        reverse("simplified:edit-contact-update", kwargs={"pk": contact.id})
     )
 
     assert response.status_code == 200
@@ -943,7 +692,7 @@ def test_create_zendesk_ticket_page_loads(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:create-zendesk-ticket", kwargs={"case_id": case.id})
+        reverse("simplified:create-zendesk-ticket", kwargs={"case_id": case.id})
     )
 
     assert response.status_code == 200
@@ -961,7 +710,7 @@ def test_update_zendesk_ticket_page_loads(admin_client):
     zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:update-zendesk-ticket", kwargs={"pk": zendesk_ticket.id})
+        reverse("simplified:update-zendesk-ticket", kwargs={"pk": zendesk_ticket.id})
     )
 
     assert response.status_code == 200
@@ -978,7 +727,7 @@ def test_create_zendesk_ticket_view(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:create-zendesk-ticket", kwargs={"case_id": case.id}),
+        reverse("simplified:create-zendesk-ticket", kwargs={"case_id": case.id}),
         {
             "url": ZENDESK_URL,
             "summary": ZENDESK_SUMMARY,
@@ -1008,7 +757,7 @@ def test_update_zendesk_ticket_view(admin_client):
     zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:update-zendesk-ticket", kwargs={"pk": zendesk_ticket.id}),
+        reverse("simplified:update-zendesk-ticket", kwargs={"pk": zendesk_ticket.id}),
         {
             "url": ZENDESK_URL,
             "summary": ZENDESK_SUMMARY,
@@ -1041,7 +790,7 @@ def test_confirm_delete_zendesk_ticket_view(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "cases:confirm-delete-zendesk-ticket", kwargs={"pk": zendesk_ticket.id}
+            "simplified:confirm-delete-zendesk-ticket", kwargs={"pk": zendesk_ticket.id}
         ),
         {"is_deleted": True, "delete": "Remove ticket"},
     )
@@ -1068,7 +817,7 @@ def test_create_case_shows_error_messages(admin_client):
     Test that the create case page shows the expected error messages
     """
     response: HttpResponse = admin_client.post(
-        reverse("cases:case-create"),
+        reverse("simplified:case-create"),
         {
             "home_page_url": "gov.uk",
             "save_exit": "Save and exit",
@@ -1097,8 +846,11 @@ def test_create_case_shows_error_messages(admin_client):
 @pytest.mark.parametrize(
     "button_name, expected_redirect_url",
     [
-        ("save_continue_case", reverse("cases:edit-case-metadata", kwargs={"pk": 1})),
-        ("save_new_case", reverse("cases:case-create")),
+        (
+            "save_continue_case",
+            reverse("simplified:edit-case-metadata", kwargs={"pk": 1}),
+        ),
+        ("save_new_case", reverse("simplified:case-create")),
         ("save_exit", reverse("cases:case-list")),
     ],
 )
@@ -1107,7 +859,7 @@ def test_create_case_redirects_based_on_button_pressed(
 ):
     """Test that a successful case create redirects based on the button pressed"""
     response: HttpResponse = admin_client.post(
-        reverse("cases:case-create"),
+        reverse("simplified:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
@@ -1134,7 +886,7 @@ def test_create_case_shows_duplicate_cases(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:case-create"),
+        reverse("simplified:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
@@ -1150,8 +902,11 @@ def test_create_case_shows_duplicate_cases(admin_client):
 @pytest.mark.parametrize(
     "button_name, expected_redirect_url",
     [
-        ("save_continue_case", reverse("cases:edit-case-metadata", kwargs={"pk": 3})),
-        ("save_new_case", reverse("cases:case-create")),
+        (
+            "save_continue_case",
+            reverse("simplified:edit-case-metadata", kwargs={"pk": 3}),
+        ),
+        ("save_new_case", reverse("simplified:case-create")),
         ("save_exit", reverse("cases:case-list")),
     ],
 )
@@ -1164,7 +919,7 @@ def test_create_case_can_create_duplicate_cases(
     SimplifiedCase.objects.create(organisation_name=ORGANISATION_NAME)
 
     response: HttpResponse = admin_client.post(
-        f"{reverse('cases:case-create')}?allow_duplicate_cases=True",
+        f"{reverse('simplified:case-create')}?allow_duplicate_cases=True",
         {
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
@@ -1180,7 +935,7 @@ def test_create_case_can_create_duplicate_cases(
 def test_create_case_creates_case_event(admin_client):
     """Test that a successful case create also creates a case event"""
     response: HttpResponse = admin_client.post(
-        reverse("cases:case-create"),
+        reverse("simplified:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
@@ -1206,7 +961,7 @@ def test_updating_case_creates_case_event(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-review-changes", kwargs={"pk": case.id}),
+        reverse("simplified:edit-review-changes", kwargs={"pk": case.id}),
         {
             "is_ready_for_final_decision": "yes",
             "version": case.version,
@@ -1228,160 +983,192 @@ def test_updating_case_creates_case_event(admin_client):
 @pytest.mark.parametrize(
     "case_edit_path, button_name, expected_redirect_path",
     [
-        ("cases:edit-case-metadata", "save", "cases:edit-case-metadata"),
-        ("cases:edit-case-metadata", "save_continue", "cases:edit-test-results"),
-        ("cases:edit-test-results", "save", "cases:edit-test-results"),
-        ("cases:edit-report-ready-for-qa", "save", "cases:edit-report-ready-for-qa"),
-        ("cases:edit-report-ready-for-qa", "save_continue", "cases:edit-qa-auditor"),
-        ("cases:edit-qa-auditor", "save", "cases:edit-qa-auditor"),
-        ("cases:edit-qa-auditor", "save_continue", "cases:edit-qa-comments"),
-        ("cases:edit-qa-comments", "save", "cases:edit-qa-comments"),
-        ("cases:edit-qa-comments", "save_continue", "cases:edit-qa-approval"),
-        ("cases:edit-qa-approval", "save", "cases:edit-qa-approval"),
-        ("cases:edit-qa-approval", "save_continue", "cases:edit-publish-report"),
-        ("cases:edit-qa-approval", "save_continue", "cases:edit-publish-report"),
-        ("cases:edit-publish-report", "save", "cases:edit-publish-report"),
+        ("simplified:edit-case-metadata", "save", "simplified:edit-case-metadata"),
         (
-            "cases:edit-publish-report",
+            "simplified:edit-case-metadata",
             "save_continue",
-            "cases:manage-contact-details",
+            "simplified:edit-test-results",
         ),
-        ("cases:manage-contact-details", "save", "cases:manage-contact-details"),
+        ("simplified:edit-test-results", "save", "simplified:edit-test-results"),
         (
-            "cases:manage-contact-details",
-            "save_continue",
-            "cases:edit-report-sent-on",
-        ),
-        (
-            "cases:edit-request-contact-details",
+            "simplified:edit-report-ready-for-qa",
             "save",
-            "cases:edit-request-contact-details",
+            "simplified:edit-report-ready-for-qa",
         ),
         (
-            "cases:edit-request-contact-details",
+            "simplified:edit-report-ready-for-qa",
             "save_continue",
-            "cases:edit-one-week-contact-details",
+            "simplified:edit-qa-auditor",
+        ),
+        ("simplified:edit-qa-auditor", "save", "simplified:edit-qa-auditor"),
+        ("simplified:edit-qa-auditor", "save_continue", "simplified:edit-qa-comments"),
+        ("simplified:edit-qa-comments", "save", "simplified:edit-qa-comments"),
+        ("simplified:edit-qa-comments", "save_continue", "simplified:edit-qa-approval"),
+        ("simplified:edit-qa-approval", "save", "simplified:edit-qa-approval"),
+        (
+            "simplified:edit-qa-approval",
+            "save_continue",
+            "simplified:edit-publish-report",
         ),
         (
-            "cases:edit-one-week-contact-details",
+            "simplified:edit-qa-approval",
+            "save_continue",
+            "simplified:edit-publish-report",
+        ),
+        ("simplified:edit-publish-report", "save", "simplified:edit-publish-report"),
+        (
+            "simplified:edit-publish-report",
+            "save_continue",
+            "simplified:manage-contact-details",
+        ),
+        (
+            "simplified:manage-contact-details",
             "save",
-            "cases:edit-one-week-contact-details",
+            "simplified:manage-contact-details",
         ),
         (
-            "cases:edit-one-week-contact-details",
+            "simplified:manage-contact-details",
             "save_continue",
-            "cases:edit-four-week-contact-details",
+            "simplified:edit-report-sent-on",
         ),
         (
-            "cases:edit-four-week-contact-details",
+            "simplified:edit-request-contact-details",
             "save",
-            "cases:edit-four-week-contact-details",
+            "simplified:edit-request-contact-details",
         ),
         (
-            "cases:edit-four-week-contact-details",
+            "simplified:edit-request-contact-details",
             "save_continue",
-            "cases:edit-report-sent-on",
-        ),
-        ("cases:edit-no-psb-response", "save", "cases:edit-no-psb-response"),
-        (
-            "cases:edit-no-psb-response",
-            "save_continue",
-            "cases:edit-enforcement-recommendation",
-        ),
-        ("cases:edit-report-sent-on", "save", "cases:edit-report-sent-on"),
-        (
-            "cases:edit-report-sent-on",
-            "save_continue",
-            "cases:edit-report-one-week-followup",
+            "simplified:edit-one-week-contact-details",
         ),
         (
-            "cases:edit-report-one-week-followup",
+            "simplified:edit-one-week-contact-details",
             "save",
-            "cases:edit-report-one-week-followup",
+            "simplified:edit-one-week-contact-details",
         ),
         (
-            "cases:edit-report-one-week-followup",
+            "simplified:edit-one-week-contact-details",
             "save_continue",
-            "cases:edit-report-four-week-followup",
+            "simplified:edit-four-week-contact-details",
         ),
         (
-            "cases:edit-report-four-week-followup",
+            "simplified:edit-four-week-contact-details",
             "save",
-            "cases:edit-report-four-week-followup",
+            "simplified:edit-four-week-contact-details",
         ),
         (
-            "cases:edit-report-four-week-followup",
+            "simplified:edit-four-week-contact-details",
             "save_continue",
-            "cases:edit-report-acknowledged",
+            "simplified:edit-report-sent-on",
         ),
-        ("cases:edit-report-acknowledged", "save", "cases:edit-report-acknowledged"),
+        ("simplified:edit-no-psb-response", "save", "simplified:edit-no-psb-response"),
         (
-            "cases:edit-report-acknowledged",
+            "simplified:edit-no-psb-response",
             "save_continue",
-            "cases:edit-12-week-update-requested",
+            "simplified:edit-enforcement-recommendation",
+        ),
+        ("simplified:edit-report-sent-on", "save", "simplified:edit-report-sent-on"),
+        (
+            "simplified:edit-report-sent-on",
+            "save_continue",
+            "simplified:edit-report-one-week-followup",
         ),
         (
-            "cases:edit-12-week-update-requested",
+            "simplified:edit-report-one-week-followup",
             "save",
-            "cases:edit-12-week-update-requested",
+            "simplified:edit-report-one-week-followup",
         ),
         (
-            "cases:edit-12-week-update-requested",
+            "simplified:edit-report-one-week-followup",
             "save_continue",
-            "cases:edit-12-week-one-week-followup-final",
+            "simplified:edit-report-four-week-followup",
         ),
         (
-            "cases:edit-12-week-one-week-followup-final",
+            "simplified:edit-report-four-week-followup",
             "save",
-            "cases:edit-12-week-one-week-followup-final",
+            "simplified:edit-report-four-week-followup",
         ),
         (
-            "cases:edit-12-week-one-week-followup-final",
+            "simplified:edit-report-four-week-followup",
             "save_continue",
-            "cases:edit-12-week-update-request-ack",
-        ),
-        ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
-        ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
-        (
-            "cases:edit-review-changes",
-            "save_continue",
-            "cases:edit-enforcement-recommendation",
+            "simplified:edit-report-acknowledged",
         ),
         (
-            "cases:edit-enforcement-recommendation",
+            "simplified:edit-report-acknowledged",
             "save",
-            "cases:edit-enforcement-recommendation",
+            "simplified:edit-report-acknowledged",
         ),
         (
-            "cases:edit-enforcement-recommendation",
+            "simplified:edit-report-acknowledged",
             "save_continue",
-            "cases:edit-case-close",
-        ),
-        ("cases:edit-case-close", "save", "cases:edit-case-close"),
-        (
-            "cases:edit-case-close",
-            "save_continue",
-            "cases:edit-statement-enforcement",
+            "simplified:edit-12-week-update-requested",
         ),
         (
-            "cases:edit-statement-enforcement",
+            "simplified:edit-12-week-update-requested",
             "save",
-            "cases:edit-statement-enforcement",
+            "simplified:edit-12-week-update-requested",
         ),
         (
-            "cases:edit-statement-enforcement",
+            "simplified:edit-12-week-update-requested",
             "save_continue",
-            "cases:edit-equality-body-metadata",
+            "simplified:edit-12-week-one-week-followup-final",
         ),
         (
-            "cases:edit-equality-body-metadata",
+            "simplified:edit-12-week-one-week-followup-final",
             "save",
-            "cases:edit-equality-body-metadata",
+            "simplified:edit-12-week-one-week-followup-final",
         ),
         (
-            "cases:edit-equality-body-metadata",
+            "simplified:edit-12-week-one-week-followup-final",
             "save_continue",
-            "cases:list-equality-body-correspondence",
+            "simplified:edit-12-week-update-request-ack",
+        ),
+        (
+            "simplified:edit-twelve-week-retest",
+            "save",
+            "simplified:edit-twelve-week-retest",
+        ),
+        ("simplified:edit-review-changes", "save", "simplified:edit-review-changes"),
+        (
+            "simplified:edit-review-changes",
+            "save_continue",
+            "simplified:edit-enforcement-recommendation",
+        ),
+        (
+            "simplified:edit-enforcement-recommendation",
+            "save",
+            "simplified:edit-enforcement-recommendation",
+        ),
+        (
+            "simplified:edit-enforcement-recommendation",
+            "save_continue",
+            "simplified:edit-case-close",
+        ),
+        ("simplified:edit-case-close", "save", "simplified:edit-case-close"),
+        (
+            "simplified:edit-case-close",
+            "save_continue",
+            "simplified:edit-statement-enforcement",
+        ),
+        (
+            "simplified:edit-statement-enforcement",
+            "save",
+            "simplified:edit-statement-enforcement",
+        ),
+        (
+            "simplified:edit-statement-enforcement",
+            "save_continue",
+            "simplified:edit-equality-body-metadata",
+        ),
+        (
+            "simplified:edit-equality-body-metadata",
+            "save",
+            "simplified:edit-equality-body-metadata",
+        ),
+        (
+            "simplified:edit-equality-body-metadata",
+            "save_continue",
+            "simplified:list-equality-body-correspondence",
         ),
     ],
 )
@@ -1418,12 +1205,12 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     "case_edit_path, button_name, expected_redirect_path",
     [
         (
-            "cases:edit-12-week-update-request-ack",
+            "simplified:edit-12-week-update-request-ack",
             "save",
-            "cases:edit-12-week-update-request-ack",
+            "simplified:edit-12-week-update-request-ack",
         ),
         (
-            "cases:edit-12-week-update-request-ack",
+            "simplified:edit-12-week-update-request-ack",
             "save_continue",
             "audits:edit-audit-retest-metadata",
         ),
@@ -1467,7 +1254,7 @@ def test_update_request_ack_redirects_when_no_audit(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}),
+        reverse("simplified:edit-12-week-update-request-ack", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "save_continue": "Button value",
@@ -1476,7 +1263,7 @@ def test_update_request_ack_redirects_when_no_audit(admin_client):
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("cases:edit-review-changes", kwargs={"pk": case.id})}'
+        == f'{reverse("simplified:edit-review-changes", kwargs={"pk": case.id})}'
     )
 
 
@@ -1489,7 +1276,7 @@ def test_update_request_ack_redirects_when_audit_but_no_retest_date(admin_client
     Audit.objects.create(case=case)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-12-week-update-request-ack", kwargs={"pk": case.id}),
+        reverse("simplified:edit-12-week-update-request-ack", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "save_continue": "Button value",
@@ -1498,7 +1285,7 @@ def test_update_request_ack_redirects_when_audit_but_no_retest_date(admin_client
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id})}'
+        == f'{reverse("simplified:edit-twelve-week-retest", kwargs={"pk": case.id})}'
     )
 
 
@@ -1507,7 +1294,7 @@ def test_qa_comments_creates_comment(admin_client, admin_user):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-qa-comments", kwargs={"pk": case.id}),
+        reverse("simplified:edit-qa-comments", kwargs={"pk": case.id}),
         {
             "save": "Button value",
             "version": case.version,
@@ -1534,7 +1321,7 @@ def test_qa_comments_does_not_create_comment(admin_client, admin_user):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-qa-comments", kwargs={"pk": case.id}),
+        reverse("simplified:edit-qa-comments", kwargs={"pk": case.id}),
         {
             "save": "Button value",
             "version": case.version,
@@ -1564,7 +1351,7 @@ def test_mark_qa_comments_as_read(rf):
         username="johnsmith", first_name="John", last_name="Smith"
     )
     request = rf.get(
-        reverse("cases:mark-qa-comments-as-read", kwargs={"pk": case.id}),
+        reverse("simplified:mark-qa-comments-as-read", kwargs={"pk": case.id}),
     )
     request.user = request_user
     request._messages = MockMessages()
@@ -1602,7 +1389,7 @@ def test_no_contact_chaser_dates_set(
     assert case.no_contact_four_week_chaser_due_date is None
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-request-contact-details", kwargs={"pk": case.id}),
+        reverse("simplified:edit-request-contact-details", kwargs={"pk": case.id}),
         {
             "seven_day_no_contact_email_sent_date_0": TODAY.day,
             "seven_day_no_contact_email_sent_date_1": TODAY.month,
@@ -1630,7 +1417,7 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
+        reverse("simplified:manage-contact-details", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(
@@ -1658,7 +1445,7 @@ def test_statement_page_location_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
+        reverse("simplified:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1680,7 +1467,7 @@ def test_contact_page_location_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
+        reverse("simplified:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1696,7 +1483,7 @@ def test_link_to_accessibility_statement_not_displayed(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
+        reverse("simplified:manage-contact-details", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(response, "No accessibility statement")
@@ -1707,7 +1494,7 @@ def test_updating_report_sent_date(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
+        reverse("simplified:edit-report-sent-on", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -1732,7 +1519,7 @@ def test_report_sent_on_warning(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
+        reverse("simplified:edit-report-sent-on", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1742,7 +1529,7 @@ def test_report_sent_on_warning(admin_client):
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
+        reverse("simplified:edit-report-sent-on", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1760,7 +1547,7 @@ def test_report_followup_due_dates_changed(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
+        reverse("simplified:edit-report-sent-on", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -1787,7 +1574,7 @@ def test_report_followup_due_dates_not_changed_if_report_sent_date_already_set(
     case: SimplifiedCase = SimplifiedCase.objects.create(report_sent_date=OTHER_DATE)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-sent-on", kwargs={"pk": case.id}),
+        reverse("simplified:edit-report-sent-on", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -1815,7 +1602,7 @@ def test_twelve_week_1_week_chaser_due_date_updated(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-12-week-update-requested", kwargs={"pk": case.id}),
+        reverse("simplified:edit-12-week-update-requested", kwargs={"pk": case.id}),
         {
             "twelve_week_update_requested_date_0": UPDATE_REQUESTED_DATE.day,
             "twelve_week_update_requested_date_1": UPDATE_REQUESTED_DATE.month,
@@ -1841,7 +1628,7 @@ def test_case_report_one_week_followup_contains_followup_due_date(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-one-week-followup", kwargs={"pk": case.id})
+        reverse("simplified:edit-report-one-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1860,7 +1647,7 @@ def test_case_report_one_week_followup_shows_warning_if_report_ack(admin_client)
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-one-week-followup", kwargs={"pk": case.id})
+        reverse("simplified:edit-report-one-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1871,7 +1658,7 @@ def test_case_report_one_week_followup_shows_warning_if_report_ack(admin_client)
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-one-week-followup", kwargs={"pk": case.id})
+        reverse("simplified:edit-report-one-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1886,7 +1673,7 @@ def test_case_report_four_week_followup_contains_followup_due_date(admin_client)
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-four-week-followup", kwargs={"pk": case.id})
+        reverse("simplified:edit-report-four-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1905,7 +1692,7 @@ def test_case_report_four_week_followup_shows_warning_if_report_ack(admin_client
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-four-week-followup", kwargs={"pk": case.id})
+        reverse("simplified:edit-report-four-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1916,7 +1703,7 @@ def test_case_report_four_week_followup_shows_warning_if_report_ack(admin_client
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-four-week-followup", kwargs={"pk": case.id})
+        reverse("simplified:edit-report-four-week-followup", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1933,7 +1720,9 @@ def test_case_report_twelve_week_1_week_chaser_contains_followup_due_date(admin_
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id})
+        reverse(
+            "simplified:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
+        )
     )
 
     assert response.status_code == 200
@@ -1954,7 +1743,9 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id})
+        reverse(
+            "simplified:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
+        )
     )
 
     assert response.status_code == 200
@@ -1965,7 +1756,9 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-12-week-one-week-followup-final", kwargs={"pk": case.id})
+        reverse(
+            "simplified:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
+        )
     )
 
     assert response.status_code == 200
@@ -1980,7 +1773,7 @@ def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-no-psb-response", kwargs={"pk": case.id}),
+        reverse("simplified:edit-no-psb-response", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "no_psb_contact": "on",
@@ -1991,7 +1784,7 @@ def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("cases:edit-enforcement-recommendation", kwargs={"pk": case.id})}'
+        == f'{reverse("simplified:edit-enforcement-recommendation", kwargs={"pk": case.id})}'
     )
 
 
@@ -2028,34 +1821,34 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
 @pytest.mark.parametrize(
     "case_page_url",
     [
-        "cases:edit-case-metadata",
-        "cases:edit-test-results",
-        "cases:edit-qa-comments",
-        "cases:edit-qa-approval",
-        "cases:edit-publish-report",
-        "cases:manage-contact-details",
-        "cases:edit-contact-create",
-        "cases:edit-request-contact-details",
-        "cases:edit-one-week-contact-details",
-        "cases:edit-four-week-contact-details",
-        "cases:edit-report-sent-on",
-        "cases:edit-report-one-week-followup",
-        "cases:edit-report-four-week-followup",
-        "cases:edit-report-acknowledged",
-        "cases:edit-12-week-update-requested",
-        "cases:edit-12-week-one-week-followup-final",
-        "cases:edit-12-week-update-request-ack",
-        "cases:edit-twelve-week-retest",
-        "cases:edit-review-changes",
-        "cases:edit-enforcement-recommendation",
-        "cases:edit-case-close",
-        "cases:edit-post-case",
-        "cases:status-workflow",
-        "cases:edit-statement-enforcement",
-        "cases:edit-equality-body-metadata",
-        "cases:list-equality-body-correspondence",
-        "cases:create-equality-body-correspondence",
-        "cases:edit-retest-overview",
+        "simplified:edit-case-metadata",
+        "simplified:edit-test-results",
+        "simplified:edit-qa-comments",
+        "simplified:edit-qa-approval",
+        "simplified:edit-publish-report",
+        "simplified:manage-contact-details",
+        "simplified:edit-contact-create",
+        "simplified:edit-request-contact-details",
+        "simplified:edit-one-week-contact-details",
+        "simplified:edit-four-week-contact-details",
+        "simplified:edit-report-sent-on",
+        "simplified:edit-report-one-week-followup",
+        "simplified:edit-report-four-week-followup",
+        "simplified:edit-report-acknowledged",
+        "simplified:edit-12-week-update-requested",
+        "simplified:edit-12-week-one-week-followup-final",
+        "simplified:edit-12-week-update-request-ack",
+        "simplified:edit-twelve-week-retest",
+        "simplified:edit-review-changes",
+        "simplified:edit-enforcement-recommendation",
+        "simplified:edit-case-close",
+        "simplified:edit-post-case",
+        "simplified:status-workflow",
+        "simplified:edit-statement-enforcement",
+        "simplified:edit-equality-body-metadata",
+        "simplified:list-equality-body-correspondence",
+        "simplified:create-equality-body-correspondence",
+        "simplified:edit-retest-overview",
     ],
 )
 def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
@@ -2070,9 +1863,9 @@ def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
         "case_id"
         if case_page_url
         in [
-            "cases:create-equality-body-correspondence",
-            "cases:create-zendesk-ticket",
-            "cases:edit-contact-create",
+            "simplified:create-equality-body-correspondence",
+            "simplified:create-zendesk-ticket",
+            "simplified:edit-contact-create",
         ]
         else "pk"
     )
@@ -2104,7 +1897,7 @@ def test_case_navigation_shown_on_edit_equality_body_cores_page(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:edit-equality-body-correspondence",
+            "simplified:edit-equality-body-correspondence",
             kwargs={"pk": equality_body_correspondence.id},
         ),
     )
@@ -2129,7 +1922,7 @@ def test_case_navigation_shown_on_edit_contact_page(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:edit-contact-update",
+            "simplified:edit-contact-update",
             kwargs={"pk": contact.id},
         ),
     )
@@ -2146,64 +1939,72 @@ def test_case_navigation_shown_on_edit_contact_page(admin_client):
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-case-metadata", "case_details_complete_date", "Case metadata"),
         (
-            "cases:edit-request-contact-details",
+            "simplified:edit-case-metadata",
+            "case_details_complete_date",
+            "Case metadata",
+        ),
+        (
+            "simplified:edit-request-contact-details",
             "request_contact_details_complete_date",
             "Request contact details",
         ),
         (
-            "cases:edit-one-week-contact-details",
+            "simplified:edit-one-week-contact-details",
             "one_week_contact_details_complete_date",
             "One-week follow-up",
         ),
         (
-            "cases:edit-four-week-contact-details",
+            "simplified:edit-four-week-contact-details",
             "four_week_contact_details_complete_date",
             "Four-week follow-up",
         ),
-        ("cases:edit-report-sent-on", "report_sent_on_complete_date", "Report sent on"),
         (
-            "cases:edit-report-one-week-followup",
+            "simplified:edit-report-sent-on",
+            "report_sent_on_complete_date",
+            "Report sent on",
+        ),
+        (
+            "simplified:edit-report-one-week-followup",
             "one_week_followup_complete_date",
             "One week follow-up",
         ),
         (
-            "cases:edit-report-four-week-followup",
+            "simplified:edit-report-four-week-followup",
             "four_week_followup_complete_date",
             "Four week follow-up",
         ),
         (
-            "cases:edit-report-acknowledged",
+            "simplified:edit-report-acknowledged",
             "report_acknowledged_complete_date",
             "Report acknowledged",
         ),
         (
-            "cases:edit-12-week-update-requested",
+            "simplified:edit-12-week-update-requested",
             "twelve_week_update_requested_complete_date",
             "12-week update requested",
         ),
         (
-            "cases:edit-12-week-one-week-followup-final",
+            "simplified:edit-12-week-one-week-followup-final",
             "one_week_followup_final_complete_date",
             "One week follow-up for final update",
         ),
         (
-            "cases:edit-12-week-update-request-ack",
+            "simplified:edit-12-week-update-request-ack",
             "twelve_week_update_request_ack_complete_date",
             "12-week update request acknowledged",
         ),
         (
-            "cases:edit-review-changes",
+            "simplified:edit-review-changes",
             "review_changes_complete_date",
             "Reviewing changes",
         ),
         (
-            "cases:edit-enforcement-recommendation",
+            "simplified:edit-enforcement-recommendation",
             "enforcement_recommendation_complete_date",
             "Recommendation",
         ),
-        ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
+        ("simplified:edit-case-close", "case_close_complete_date", "Closing the case"),
     ],
 )
 def test_section_complete_check_displayed_in_nav_details(
@@ -2237,8 +2038,8 @@ def test_section_complete_check_displayed_in_nav_details(
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-qa-auditor", "qa_auditor_complete_date", "QA auditor"),
-        ("cases:edit-qa-approval", "qa_approval_complete_date", "QA approval"),
+        ("simplified:edit-qa-auditor", "qa_auditor_complete_date", "QA auditor"),
+        ("simplified:edit-qa-approval", "qa_approval_complete_date", "QA approval"),
     ],
 )
 def test_report_section_complete_check_displayed_in_nav_details(
@@ -2273,7 +2074,11 @@ def test_report_section_complete_check_displayed_in_nav_details(
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-publish-report", "publish_report_complete_date", "Publish report"),
+        (
+            "simplified:edit-publish-report",
+            "publish_report_complete_date",
+            "Publish report",
+        ),
     ],
 )
 def test_report_with_hidden_subpages_section_complete_check_displayed_in_nav_details(
@@ -2317,7 +2122,7 @@ def test_manage_contact_details_page_complete_check_displayed_in_nav_details(
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:manage-contact-details", kwargs={"pk": case.id}),
+        reverse("simplified:manage-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2344,7 +2149,7 @@ def test_add_contact_page_in_case_nav_when_current_page(
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-create", kwargs={"case_id": case.id}),
+        reverse("simplified:edit-contact-create", kwargs={"case_id": case.id}),
     )
 
     assert response.status_code == 200
@@ -2371,7 +2176,7 @@ def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
+        reverse("simplified:edit-twelve-week-retest", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2379,7 +2184,7 @@ def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
     assertContains(response, "This case does not have a test.")
 
     edit_test_results_url: str = reverse(
-        "cases:edit-test-results", kwargs={"pk": case.id}
+        "simplified:edit-test-results", kwargs={"pk": case.id}
     )
     assertContains(
         response,
@@ -2402,7 +2207,7 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     audit: Audit = Audit.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
+        reverse("simplified:edit-twelve-week-retest", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2434,7 +2239,7 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
     audit: Audit = Audit.objects.create(case=case, retest_date=date.today())
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
+        reverse("simplified:edit-twelve-week-retest", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2453,7 +2258,7 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
+        reverse("simplified:edit-twelve-week-retest", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2478,7 +2283,7 @@ def test_case_review_changes_view_contains_no_mention_of_spreadsheet_if_platform
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-review-changes", kwargs={"pk": case.id})
+        reverse("simplified:edit-review-changes", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -2574,7 +2379,7 @@ def test_case_details_shows_edit_links(
     Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
+        reverse("simplified:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -2589,7 +2394,7 @@ def test_status_change_message_shown(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "auditor": user.id,
             "home_page_url": HOME_PAGE_URL,
@@ -2625,7 +2430,7 @@ def test_report_approved_notifies_auditor(rf):
         username="johnsmith", first_name="John", last_name="Smith"
     )
     request = rf.post(
-        reverse("cases:edit-qa-approval", kwargs={"pk": case.id}),
+        reverse("simplified:edit-qa-approval", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "report_approved_status": SimplifiedCase.ReportApprovedStatus.APPROVED,
@@ -2659,7 +2464,7 @@ def test_publish_report_no_report(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+        reverse("simplified:edit-publish-report", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2688,7 +2493,7 @@ def test_publish_report_first_time(admin_client):
     Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+        reverse("simplified:edit-publish-report", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2715,7 +2520,7 @@ def test_publish_report(admin_client):
     Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+        reverse("simplified:edit-publish-report", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "create_html_report": "Create HTML report",
@@ -2742,7 +2547,7 @@ def test_publish_report_already_published(admin_client):
     S3Report.objects.create(case=case, version=0, latest_published=True)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-publish-report", kwargs={"pk": case.id}),
+        reverse("simplified:edit-publish-report", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2768,7 +2573,7 @@ def test_frequently_used_links_displays_trello_url(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-retest-overview", kwargs={"pk": case.id}),
+        reverse("simplified:edit-retest-overview", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2791,7 +2596,7 @@ def test_create_case_with_duplicates_shows_previous_url_field(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:case-create"),
+        reverse("simplified:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
@@ -2811,7 +2616,7 @@ def test_updating_case_create_event(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-close", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "case_completed": "no-decision",
@@ -2836,7 +2641,7 @@ def test_update_case_checks_version(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:deactivate-case", kwargs={"pk": case.id}),
+        reverse("simplified:deactivate-case", kwargs={"pk": case.id}),
         {
             "version": case.version - 1,
             "save": "Button value",
@@ -2886,7 +2691,7 @@ def test_platform_shows_notification_if_fully_compliant(
     )
 
     response: HttpResponse = admin_client.get(
-        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),
+        reverse(f"simplified:{edit_url_name}", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -2908,7 +2713,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     case_pk_kwargs: dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+        reverse("simplified:status-workflow", kwargs=case_pk_kwargs),
     )
 
     assert response.status_code == 200
@@ -2916,7 +2721,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     assertContains(
         response,
         f"""<li>
-            <a href="{reverse('cases:edit-case-metadata', kwargs=case_pk_kwargs)}"
+            <a href="{reverse('simplified:edit-case-metadata', kwargs=case_pk_kwargs)}"
                 class="govuk-link govuk-link--no-visited-state">
                 Assign an auditor</a></li>""",
         html=True,
@@ -2926,7 +2731,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+        reverse("simplified:status-workflow", kwargs=case_pk_kwargs),
     )
 
     assert response.status_code == 200
@@ -2934,7 +2739,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     assertContains(
         response,
         f"""<li>
-            <a href="{reverse('cases:edit-case-metadata', kwargs=case_pk_kwargs)}"
+            <a href="{reverse('simplified:edit-case-metadata', kwargs=case_pk_kwargs)}"
                 class="govuk-link govuk-link--no-visited-state">
                 Assign an auditor</a>&check;</li>""",
         html=True,
@@ -2945,19 +2750,19 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     "path_name,label,field_name,field_value",
     [
         (
-            "cases:edit-no-psb-response",
+            "simplified:edit-no-psb-response",
             "No response from PSB",
             "no_psb_contact",
             Boolean.YES,
         ),
         (
-            "cases:edit-review-changes",
+            "simplified:edit-review-changes",
             "Is this case ready for final decision? needs to be Yes",
             "is_ready_for_final_decision",
             Boolean.YES,
         ),
         (
-            "cases:edit-case-close",
+            "simplified:edit-case-close",
             "Case completed requires a decision",
             "case_completed",
             SimplifiedCase.CaseCompleted.COMPLETE_SEND,
@@ -2974,7 +2779,7 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
     link_url: str = reverse(path_name, kwargs=case_pk_kwargs)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+        reverse("simplified:status-workflow", kwargs=case_pk_kwargs),
     )
 
     assert response.status_code == 200
@@ -2996,7 +2801,7 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+        reverse("simplified:status-workflow", kwargs=case_pk_kwargs),
     )
 
     assert response.status_code == 200
@@ -3034,7 +2839,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+        reverse("simplified:status-workflow", kwargs=case_pk_kwargs),
     )
 
     assert response.status_code == 200
@@ -3056,7 +2861,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         statement_check_result.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+        reverse("simplified:status-workflow", kwargs=case_pk_kwargs),
     )
 
     assert response.status_code == 200
@@ -3075,49 +2880,49 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     "nav_link_name,nav_link_label",
     [
         (
-            "cases:edit-test-results",
+            "simplified:edit-test-results",
             "Testing details",
         ),
-        ("cases:manage-contact-details", "Manage contact details"),
+        ("simplified:manage-contact-details", "Manage contact details"),
         (
-            "cases:edit-request-contact-details",
+            "simplified:edit-request-contact-details",
             "Request contact details",
         ),
         (
-            "cases:edit-one-week-contact-details",
+            "simplified:edit-one-week-contact-details",
             "One-week follow-up",
         ),
         (
-            "cases:edit-four-week-contact-details",
+            "simplified:edit-four-week-contact-details",
             "Four-week follow-up",
         ),
-        ("cases:edit-report-sent-on", "Report sent on"),
+        ("simplified:edit-report-sent-on", "Report sent on"),
         (
-            "cases:edit-report-one-week-followup",
+            "simplified:edit-report-one-week-followup",
             "One week follow-up",
         ),
         (
-            "cases:edit-report-four-week-followup",
+            "simplified:edit-report-four-week-followup",
             "Four week follow-up",
         ),
         (
-            "cases:edit-report-acknowledged",
+            "simplified:edit-report-acknowledged",
             "Report acknowledged",
         ),
         (
-            "cases:edit-12-week-update-requested",
+            "simplified:edit-12-week-update-requested",
             "12-week update requested",
         ),
         (
-            "cases:edit-12-week-one-week-followup-final",
+            "simplified:edit-12-week-one-week-followup-final",
             "One week follow-up for final update",
         ),
         (
-            "cases:edit-12-week-update-request-ack",
+            "simplified:edit-12-week-update-request-ack",
             "12-week update request acknowledged",
         ),
         (
-            "cases:edit-review-changes",
+            "simplified:edit-review-changes",
             "Reviewing changes",
         ),
     ],
@@ -3136,7 +2941,7 @@ def test_navigation_links_shown(
     nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-metadata", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -3151,23 +2956,23 @@ def test_navigation_links_shown(
     "nav_link_name,nav_link_label",
     [
         (
-            "cases:edit-report-ready-for-qa",
+            "simplified:edit-report-ready-for-qa",
             "Report ready for QA",
         ),
         (
-            "cases:edit-qa-auditor",
+            "simplified:edit-qa-auditor",
             "QA auditor",
         ),
         (
-            "cases:edit-qa-comments",
+            "simplified:edit-qa-comments",
             "Comments (0)",
         ),
         (
-            "cases:edit-qa-approval",
+            "simplified:edit-qa-approval",
             "QA approval",
         ),
         (
-            "cases:edit-publish-report",
+            "simplified:edit-publish-report",
             "Publish report",
         ),
     ],
@@ -3187,7 +2992,7 @@ def test_navigation_links_shown_for_report_pages(
     nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-metadata", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -3203,7 +3008,7 @@ def test_outstanding_issues(admin_client):
     Test out standing issues page renders according to URL parameters.
     """
     audit: Audit = create_audit_and_check_results()
-    url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
+    url: str = reverse("simplified:outstanding-issues", kwargs={"pk": audit.case.id})
 
     response: HttpResponse = admin_client.get(url)
 
@@ -3262,7 +3067,7 @@ def test_outstanding_issues_new_case(admin_client):
     Test out standing issues page shows placeholder text for case without audit
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
+    url: str = reverse("simplified:outstanding-issues", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(url)
 
@@ -3273,7 +3078,7 @@ def test_outstanding_issues_new_case(admin_client):
 
 @pytest.mark.parametrize(
     "url_name",
-    ["cases:case-detail", "cases:edit-case-metadata"],
+    ["simplified:case-detail", "simplified:edit-case-metadata"],
 )
 def test_frequently_used_links_displayed(url_name, admin_client):
     """
@@ -3304,7 +3109,7 @@ def test_twelve_week_email_template_contains_issues(admin_client):
         template_name="4-12-week-update-request"
     )
     url: str = reverse(
-        "cases:email-template-preview",
+        "simplified:email-template-preview",
         kwargs={"case_id": audit.case.id, "pk": email_template.id},
     )
 
@@ -3325,7 +3130,7 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
         template_name="4-12-week-update-request"
     )
     url: str = reverse(
-        "cases:email-template-preview",
+        "simplified:email-template-preview",
         kwargs={"case_id": audit.case.id, "pk": email_template.id},
     )
 
@@ -3356,7 +3161,7 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
         template_name="5a-outstanding-issues-initial-test-notes"
     )
     url: str = reverse(
-        "cases:email-template-preview",
+        "simplified:email-template-preview",
         kwargs={"case_id": audit.case.id, "pk": email_template.id},
     )
 
@@ -3393,7 +3198,7 @@ def test_equality_body_correspondence(admin_client):
         notes=UNRESOLVED_EQUALITY_BODY_NOTES,
     )
     url: str = reverse(
-        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+        "simplified:list-equality-body-correspondence", kwargs={"pk": case.id}
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3422,7 +3227,7 @@ def test_equality_body_correspondence_nav_links(admin_client):
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
     url: str = reverse(
-        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+        "simplified:list-equality-body-correspondence", kwargs={"pk": case.id}
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3430,9 +3235,9 @@ def test_equality_body_correspondence_nav_links(admin_client):
     assert response.status_code == 200
 
     retest_overview_url: str = reverse(
-        "cases:edit-retest-overview", kwargs={"pk": case.id}
+        "simplified:edit-retest-overview", kwargs={"pk": case.id}
     )
-    case_detail_url: str = reverse("cases:case-detail", kwargs={"pk": case.id})
+    case_detail_url: str = reverse("simplified:case-detail", kwargs={"pk": case.id})
 
     assertContains(
         response,
@@ -3469,7 +3274,7 @@ def test_equality_body_correspondence_status_toggle(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:list-equality-body-correspondence", kwargs={"pk": case.id}),
+        reverse("simplified:list-equality-body-correspondence", kwargs={"pk": case.id}),
         {
             "version": case.version,
             f"toggle_status_{equality_body_correspondence.id}": "Mark as resolved",
@@ -3488,7 +3293,7 @@ def test_equality_body_correspondence_status_toggle(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:list-equality-body-correspondence", kwargs={"pk": case.id}),
+        reverse("simplified:list-equality-body-correspondence", kwargs={"pk": case.id}),
         {
             "version": case.version,
             f"toggle_status_{equality_body_correspondence.id}": "Mark as resolved",
@@ -3516,7 +3321,8 @@ def test_create_equality_body_correspondence_save_return_redirects(admin_client)
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "cases:create-equality-body-correspondence", kwargs={"case_id": case.id}
+            "simplified:create-equality-body-correspondence",
+            kwargs={"case_id": case.id},
         ),
         {
             "save_return": "Button value",
@@ -3525,7 +3331,7 @@ def test_create_equality_body_correspondence_save_return_redirects(admin_client)
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+        "simplified:list-equality-body-correspondence", kwargs={"pk": case.id}
     )
 
 
@@ -3538,7 +3344,8 @@ def test_create_equality_body_correspondence_save_redirects(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "cases:create-equality-body-correspondence", kwargs={"case_id": case.id}
+            "simplified:create-equality-body-correspondence",
+            kwargs={"case_id": case.id},
         ),
         {
             "save": "Button value",
@@ -3552,7 +3359,7 @@ def test_create_equality_body_correspondence_save_redirects(admin_client):
     )
 
     assert response.url == reverse(
-        "cases:edit-equality-body-correspondence",
+        "simplified:edit-equality-body-correspondence",
         kwargs={"pk": equality_body_correspondence.id},
     )
 
@@ -3569,7 +3376,7 @@ def test_update_equality_body_correspondence_save_return_redirects(admin_client)
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "cases:edit-equality-body-correspondence",
+            "simplified:edit-equality-body-correspondence",
             kwargs={"pk": equality_body_correspondence.id},
         ),
         {
@@ -3579,7 +3386,7 @@ def test_update_equality_body_correspondence_save_return_redirects(admin_client)
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "cases:list-equality-body-correspondence", kwargs={"pk": case.id}
+        "simplified:list-equality-body-correspondence", kwargs={"pk": case.id}
     )
 
 
@@ -3595,7 +3402,7 @@ def test_update_equality_body_correspondence_save_redirects(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "cases:edit-equality-body-correspondence",
+            "simplified:edit-equality-body-correspondence",
             kwargs={"pk": equality_body_correspondence.id},
         ),
         {
@@ -3605,7 +3412,7 @@ def test_update_equality_body_correspondence_save_redirects(admin_client):
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "cases:edit-equality-body-correspondence",
+        "simplified:edit-equality-body-correspondence",
         kwargs={"pk": equality_body_correspondence.id},
     )
 
@@ -3627,7 +3434,7 @@ def test_updating_equality_body_updates_published_report_data_updated_time(
     assert audit.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "enforcement_body": SimplifiedCase.EnforcementBody.ECNI,
             "version": case.version,
@@ -3659,7 +3466,7 @@ def test_updating_home_page_url_updates_published_report_data_updated_time(
     assert audit.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "home_page_url": "https://example.com/updated",
             "version": case.version,
@@ -3691,7 +3498,7 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
     assert audit.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-metadata", kwargs={"pk": case.id}),
         {
             "organisation_name": "New name",
             "version": case.version,
@@ -3717,7 +3524,7 @@ def test_case_close(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-close", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -3764,7 +3571,7 @@ def test_case_close_missing_data(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-close", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -3848,7 +3655,7 @@ def test_case_close_no_missing_data(admin_client):
     S3Report.objects.create(case=case, version=0, latest_published=True)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-close", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -3875,7 +3682,7 @@ def test_case_overview(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": audit.case.id})
+        reverse("simplified:case-detail", kwargs={"pk": audit.case.id})
     )
 
     assert response.status_code == 200
@@ -3907,7 +3714,7 @@ def test_case_email_template_list_view(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:email-template-list", kwargs={"case_id": case.id})
+        reverse("simplified:email-template-list", kwargs={"case_id": case.id})
     )
 
     assert response.status_code == 200
@@ -3926,7 +3733,7 @@ def test_case_email_template_list_view_hides_deleted(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:email-template-list", kwargs={"case_id": case.id})
+        reverse("simplified:email-template-list", kwargs={"case_id": case.id})
     )
 
     assert response.status_code == 200
@@ -3937,7 +3744,7 @@ def test_case_email_template_list_view_hides_deleted(admin_client):
     email_template.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:email-template-list", kwargs={"case_id": case.id})
+        reverse("simplified:email-template-list", kwargs={"case_id": case.id})
     )
 
     assert response.status_code == 200
@@ -3954,7 +3761,7 @@ def test_case_email_template_preview_view(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:email-template-preview",
+            "simplified:email-template-preview",
             kwargs={"case_id": case.id, "pk": email_template.id},
         )
     )
@@ -3973,7 +3780,7 @@ def test_zendesk_tickets_shown(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:edit-request-contact-details",
+            "simplified:edit-request-contact-details",
             kwargs={"pk": case.id},
         )
     )
@@ -3991,7 +3798,7 @@ def test_enable_correspondence_process(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:enable-correspondence-process",
+            "simplified:enable-correspondence-process",
             kwargs={"pk": case.id},
         )
     )
@@ -3999,7 +3806,7 @@ def test_enable_correspondence_process(admin_client):
     assert response.status_code == 302
 
     assert response.url == reverse(
-        "cases:edit-request-contact-details",
+        "simplified:edit-request-contact-details",
         kwargs={"pk": case.id},
     )
 
@@ -4016,7 +3823,7 @@ def test_enabling_correspondence_process(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:manage-contact-details",
+            "simplified:manage-contact-details",
             kwargs={"pk": case.id},
         )
     )
@@ -4037,7 +3844,7 @@ def test_enabling_correspondence_process(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "cases:manage-contact-details",
+            "simplified:manage-contact-details",
             kwargs={"pk": case.id},
         )
     )
@@ -4065,7 +3872,7 @@ def test_add_contact_details_redirects_correctly(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "cases:manage-contact-details",
+            "simplified:manage-contact-details",
             kwargs={"pk": case.id},
         ),
         {
@@ -4077,7 +3884,7 @@ def test_add_contact_details_redirects_correctly(admin_client):
     assert response.status_code == 302
 
     assert response.url == reverse(
-        "cases:edit-report-sent-on",
+        "simplified:edit-report-sent-on",
         kwargs={"pk": case.id},
     )
 
@@ -4086,7 +3893,7 @@ def test_add_contact_details_redirects_correctly(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "cases:manage-contact-details",
+            "simplified:manage-contact-details",
             kwargs={"pk": case.id},
         ),
         {
@@ -4098,7 +3905,7 @@ def test_add_contact_details_redirects_correctly(admin_client):
     assert response.status_code == 302
 
     assert response.url == reverse(
-        "cases:edit-request-contact-details",
+        "simplified:edit-request-contact-details",
         kwargs={"pk": case.id},
     )
 
@@ -4118,7 +3925,7 @@ def test_next_page_name(path_name, expected_next_page, admin_client):
     Test next page shown for when Save and continue button pressed
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    url: str = reverse(f"cases:{path_name}", kwargs={"pk": case.id})
+    url: str = reverse(f"simplified:{path_name}", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(url)
 
@@ -4143,7 +3950,7 @@ def test_next_page_name_with_audit(path_name, expected_next_page, admin_client):
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
     Audit.objects.create(case=case, retest_date=TODAY)
-    url: str = reverse(f"cases:{path_name}", kwargs={"pk": case.id})
+    url: str = reverse(f"simplified:{path_name}", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(url)
 

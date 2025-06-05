@@ -6,7 +6,7 @@
     <div class="govuk-grid-column-full govuk-button-group">
         <a
             {% if case.latest_retest.is_incomplete %}
-                href="{% url 'cases:retest-create-error' case.id %}"
+                href="{% url 'simplified:retest-create-error' case.id %}"
             {% else %}
                 href="{% url 'audits:create-equality-body-retest' case.id %}"
             {% endif %}
