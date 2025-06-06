@@ -3,7 +3,7 @@
 {% block preform %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'cases/helpers/qa_links.html' %}
+            {% include 'simplified/helpers/qa_links.html' %}
             <p class="govuk-body">When a report is republished, it will:</p>
             <ul class="govuk-list govuk-list--bullet">
                 <li>Create a new publicly accessible version of the report</li>
@@ -26,7 +26,7 @@
                 </a>
             {% endif %}
             <a
-                href="{% url 'cases:edit-publish-report' report.case.id %}"
+                href="{% url 'simplified:edit-publish-report' report.case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
             >
                 Return to publish report

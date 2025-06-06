@@ -106,7 +106,7 @@ def test_platform_page_url():
     assert (
         PlatformPage(
             name="Case metadata",
-            url_name="cases:edit-case-metadata",
+            url_name="simplified:edit-case-metadata",
             instance_class=Case,
             instance=case,
         ).url
@@ -219,13 +219,13 @@ def test_populate_from_request(rf):
         username="johnsmith", first_name="John", last_name="Smith"
     )
     request = rf.get(
-        reverse("cases:edit-contact-update", kwargs={"pk": contact.id}),
+        reverse("simplified:edit-contact-update", kwargs={"pk": contact.id}),
     )
     request.user = request_user
 
     platform_page: PlatformPage = PlatformPage(
         name="Edit contact {instance}",
-        url_name="cases:edit-contact-update",
+        url_name="simplified:edit-contact-update",
         instance_required_for_url=True,
         instance_class=Contact,
     )
@@ -342,7 +342,7 @@ def test_case_platform_page():
 def test_case_comments_platform_page():
     """Test CaseCommentsPlatformPage"""
     case_comments_platform_page: CaseCommentsPlatformPage = (
-        get_platform_page_by_url_name(url_name="cases:edit-qa-comments")
+        get_platform_page_by_url_name(url_name="simplified:edit-qa-comments")
     )
 
     assert isinstance(case_comments_platform_page, CaseCommentsPlatformPage)
@@ -371,7 +371,7 @@ def test_case_comments_platform_page():
 def test_case_contacts_platform_page():
     """Test CaseContactsPlatformPage"""
     case_contacts_platform_page: CaseContactsPlatformPage = (
-        get_platform_page_by_url_name(url_name="cases:manage-contact-details")
+        get_platform_page_by_url_name(url_name="simplified:manage-contact-details")
     )
 
     assert isinstance(case_contacts_platform_page, CaseContactsPlatformPage)
@@ -521,7 +521,7 @@ def test_retest_overview_platform_page():
     """Test RetestOverviewPlatformPage"""
     retest_overview_platform_page: RetestOverviewPlatformPage = (
         get_platform_page_by_url_name(
-            url_name="cases:edit-retest-overview",
+            url_name="simplified:edit-retest-overview",
         )
     )
 
@@ -598,7 +598,7 @@ def test_retest_overview_platform_page_populates_subpages():
 
     retest_overview_platform_page: RetestOverviewPlatformPage = (
         get_platform_page_by_url_name(
-            url_name="cases:edit-retest-overview",
+            url_name="simplified:edit-retest-overview",
         )
     )
     retest_overview_platform_page.populate_from_case(case=case)
@@ -629,14 +629,14 @@ def test_get_requested_platform_page_for_case(rf):
         username="johnsmith", first_name="John", last_name="Smith"
     )
     request = rf.get(
-        reverse("cases:edit-case-metadata", kwargs={"pk": case.id}),
+        reverse("simplified:edit-case-metadata", kwargs={"pk": case.id}),
     )
     request.user = request_user
 
     current_platform_page: PlatformPage = get_requested_platform_page(request)
 
     assert current_platform_page.get_name() == "Case metadata"
-    assert current_platform_page.url_name == "cases:edit-case-metadata"
+    assert current_platform_page.url_name == "simplified:edit-case-metadata"
 
 
 @pytest.mark.django_db
@@ -696,7 +696,7 @@ def test_get_requested_platform_page_for_email_template(rf):
     )
     request = rf.get(
         reverse(
-            "cases:email-template-preview",
+            "simplified:email-template-preview",
             kwargs={"pk": email_template.id, "case_id": case.id},
         ),
     )
@@ -705,7 +705,7 @@ def test_get_requested_platform_page_for_email_template(rf):
     current_platform_page: PlatformPage = get_requested_platform_page(request)
 
     assert current_platform_page.get_name() == EMAIL_TEMPLATE_NAME
-    assert current_platform_page.url_name == "cases:email-template-preview"
+    assert current_platform_page.url_name == "simplified:email-template-preview"
 
 
 @pytest.mark.django_db
@@ -738,8 +738,11 @@ def test_sitemap_by_url_name():
     """Test SITEMAP_BY_URL_NAME has been built correctly"""
     assert isinstance(SITEMAP_BY_URL_NAME, dict) is True
 
-    assert "cases:edit-case-metadata" in SITEMAP_BY_URL_NAME
-    assert SITEMAP_BY_URL_NAME["cases:edit-case-metadata"].get_name() == "Case metadata"
+    assert "simplified:edit-case-metadata" in SITEMAP_BY_URL_NAME
+    assert (
+        SITEMAP_BY_URL_NAME["simplified:edit-case-metadata"].get_name()
+        == "Case metadata"
+    )
 
 
 def test_build_sitemap_by_url_name():
@@ -782,7 +785,7 @@ def test_build_sitemap_for_case_related_current_page():
     """Test build_sitemap_for_current_page when current page is Case-related"""
     case: Case = Case.objects.create()
     platform_page: PlatformPage = get_platform_page_by_url_name(
-        url_name="cases:edit-case-metadata", instance=case
+        url_name="simplified:edit-case-metadata", instance=case
     )
     platform_page_groups: list[PlatformPageGroup] = build_sitemap_for_current_page(
         current_platform_page=platform_page

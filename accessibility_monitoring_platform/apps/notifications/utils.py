@@ -13,7 +13,7 @@ from django.template.loader import get_template
 from django.urls import reverse
 
 from ..audits.models import Retest
-from ..cases.models import Case, CaseStatus, EqualityBodyCorrespondence
+from ..simplified.models import CaseStatus, EqualityBodyCorrespondence, SimplifiedCase
 from .models import Link, NotificationSetting, Task
 
 TASK_LIST_PARAMS: list[str] = ["type", "read", "deleted", "future"]
@@ -30,7 +30,7 @@ class EmailContextType(TypedDict):
 
 def add_task(
     user: User,
-    case: Case,
+    case: SimplifiedCase,
     type: Task.Type,
     description: str,
     list_description: str,
@@ -54,9 +54,9 @@ def add_task(
         email_settings.save()
 
     if type == Task.Type.QA_COMMENT:
-        path: str = reverse("cases:edit-qa-comments", kwargs={"pk": case.id})
+        path: str = reverse("simplified:edit-qa-comments", kwargs={"pk": case.id})
     else:
-        path: str = reverse("cases:edit-qa-approval", kwargs={"pk": case.id})
+        path: str = reverse("simplified:edit-qa-approval", kwargs={"pk": case.id})
 
     if email_settings.email_notifications_enabled:
         context: EmailContextType = {
@@ -79,7 +79,7 @@ def add_task(
     return task
 
 
-def mark_tasks_as_read(user: User, case: Case, type: Task.Type) -> None:
+def mark_tasks_as_read(user: User, case: SimplifiedCase, type: Task.Type) -> None:
     """Mark tasks as read"""
     tasks: QuerySet[Task] = Task.objects.filter(
         user=user, case=case, type=type, read=False
@@ -89,14 +89,16 @@ def mark_tasks_as_read(user: User, case: Case, type: Task.Type) -> None:
         task.save()
 
 
-def exclude_cases_with_pending_reminders(cases: QuerySet[Case]) -> list[Case]:
+def exclude_cases_with_pending_reminders(
+    cases: QuerySet[SimplifiedCase],
+) -> list[SimplifiedCase]:
     """Return only cases without pending reminders"""
     today: date = date.today()
-    cases_without_pending_reminders: list[Case] = []
+    cases_without_pending_reminders: list[SimplifiedCase] = []
     for case in cases:
         if (
             Task.objects.filter(
-                case=case, type=Task.Type.REMINDER, date__gte=today
+                base_case=case, type=Task.Type.REMINDER, date__gte=today
             ).first()
             is None
         ):
@@ -104,18 +106,18 @@ def exclude_cases_with_pending_reminders(cases: QuerySet[Case]) -> list[Case]:
     return cases_without_pending_reminders
 
 
-def get_overdue_cases(user_request: User | None) -> list[Case]:
+def get_overdue_cases(user_request: User | None) -> list[SimplifiedCase]:
     """Return cases with overdue correspondence actions"""
     if user_request is not None:
         user: User = get_object_or_404(User, id=user_request.id)
-        cases: QuerySet[Case] = Case.objects.filter(auditor=user)
+        cases: QuerySet[SimplifiedCase] = SimplifiedCase.objects.filter(auditor=user)
     else:
-        cases: QuerySet[Case] = Case.objects.filter(archive="")
+        cases: QuerySet[SimplifiedCase] = SimplifiedCase.objects.filter(archive="")
     start_date: datetime = datetime(2020, 1, 1)
     end_date: datetime = datetime.now()
     seven_days_ago = date.today() - timedelta(days=7)
 
-    seven_day_no_contact: QuerySet[Case] = cases.filter(
+    seven_day_no_contact: QuerySet[SimplifiedCase] = cases.filter(
         Q(casestatus__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND),
         Q(enable_correspondence_process=True),
         Q(
@@ -138,7 +140,7 @@ def get_overdue_cases(user_request: User | None) -> list[Case]:
         ),
     )
 
-    in_report_correspondence: QuerySet[Case] = cases.filter(
+    in_report_correspondence: QuerySet[SimplifiedCase] = cases.filter(
         Q(casestatus__status=CaseStatus.Status.IN_REPORT_CORES),
         Q(
             Q(  # pylint: disable=unsupported-binary-operation
@@ -153,12 +155,12 @@ def get_overdue_cases(user_request: User | None) -> list[Case]:
         ),
     )
 
-    in_probation_period: QuerySet[Case] = cases.filter(
+    in_probation_period: QuerySet[SimplifiedCase] = cases.filter(
         casestatus__status__icontains=CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
         report_followup_week_12_due_date__range=[start_date, end_date],
     )
 
-    in_12_week_correspondence: QuerySet[Case] = cases.filter(
+    in_12_week_correspondence: QuerySet[SimplifiedCase] = cases.filter(
         Q(casestatus__status__icontains=CaseStatus.Status.IN_12_WEEK_CORES),
         Q(
             Q(
@@ -174,18 +176,18 @@ def get_overdue_cases(user_request: User | None) -> list[Case]:
         ),
     )
 
-    in_correspondence: QuerySet[Case] = (
+    in_correspondence: QuerySet[SimplifiedCase] = (
         seven_day_no_contact
         | in_report_correspondence
         | in_probation_period
         | in_12_week_correspondence
     )
 
-    overdue_cases: list[Case] = exclude_cases_with_pending_reminders(
+    overdue_cases: list[SimplifiedCase] = exclude_cases_with_pending_reminders(
         cases=in_correspondence
     )
 
-    sorted_overdue_cases: list[Case] = sorted(
+    sorted_overdue_cases: list[SimplifiedCase] = sorted(
         overdue_cases, key=lambda t: t.next_action_due_date  # type: ignore
     )
 
@@ -287,12 +289,12 @@ def build_task_list(user: User | None, **kwargs: dict[str, str]) -> list[Task]:
     tasks: list[Task] = list(Task.objects.filter(**task_filter))
 
     if type is None or type == Task.Type.OVERDUE:
-        overdue_cases: QuerySet[Case] = get_overdue_cases(user_request=user)
+        overdue_cases: QuerySet[SimplifiedCase] = get_overdue_cases(user_request=user)
         for overdue_case in overdue_cases:
             task: Task = Task(
                 type=Task.Type.OVERDUE,
                 date=overdue_case.next_action_due_date,
-                case=overdue_case,
+                base_case=overdue_case,
                 description=overdue_case.get_status_display(),
                 action="Chase overdue response",
             )

@@ -10,12 +10,12 @@
         <div class="amp-left-border">
             <ul class="govuk-list amp-margin-bottom-5">
                 {% for subsection in archived_section.subsections %}
-                    {% include 'cases/details/archive_section_link.html' with section=subsection %}
+                    {% include 'simplified/details/archive_section_link.html' with section=subsection %}
                     {% if subsection.subsections %}
                         <li>
                             <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                                 {% for subsubsection in subsection.subsections %}
-                                    {% include 'cases/details/archive_section_link.html' with section=subsubsection %}
+                                    {% include 'simplified/details/archive_section_link.html' with section=subsubsection %}
                                 {% endfor %}
                             </ul>
                         </li>
@@ -24,11 +24,11 @@
             </ul>
         </div>
     {% endif %}
-    {% include 'cases/details/archive_section_content.html' with section=archived_section top_section=True %}
+    {% include 'simplified/details/archive_section_content.html' with section=archived_section top_section=True %}
     {% for subsection in archived_section.subsections %}
-        {% include 'cases/details/archive_section_content.html' with section=subsection %}
+        {% include 'simplified/details/archive_section_content.html' with section=subsection %}
         {% for subsubsection in subsection.subsections %}
-            {% include 'cases/details/archive_section_content.html' with section=subsubsection %}
+            {% include 'simplified/details/archive_section_content.html' with section=subsubsection %}
         {% endfor %}
     {% endfor %}
 {% endfor %}

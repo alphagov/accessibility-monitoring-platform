@@ -11,13 +11,13 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
-from ...cases.models import Case
-from ...cases.utils import record_model_create_event, record_model_update_event
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.models import Boolean
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ...common.utils import list_to_dictionary_of_lists
 from ...common.views import NextPlatformPageMixin
+from ...simplified.models import SimplifiedCase
+from ...simplified.utils import record_model_create_event, record_model_update_event
 from ..forms import (
     RetestCheckResultFormset,
     RetestComparisonUpdateForm,
@@ -63,7 +63,7 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case: Case = get_object_or_404(Case, id=case_id)
+    case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
     id_within_case: int = case.retests.count()
     if id_within_case == 0:
         id_within_case = 1
@@ -80,7 +80,7 @@ def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
     record_model_update_event(user=request.user, model_object=retest, case=retest.case)
     retest.save()
     return redirect(
-        reverse("cases:edit-retest-overview", kwargs={"pk": retest.case.id})
+        reverse("simplified:edit-retest-overview", kwargs={"pk": retest.case.id})
     )
 
 

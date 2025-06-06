@@ -1,4 +1,4 @@
-{% extends 'cases/details/details.html' %}
+{% extends 'simplified/details/details.html' %}
 
 {% block prefixrows %}
     <tr class="govuk-table__row">
@@ -7,6 +7,6 @@
     </tr>
     <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Status</th>
-        <td class="govuk-table__cell amp-width-one-half">{{ case.status.get_status_display }}</td>
+        <td class="govuk-table__cell amp-width-one-half">{{ case.get_status_display }}</td>
     </tr>
 {% endblock %}

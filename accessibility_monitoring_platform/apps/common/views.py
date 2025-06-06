@@ -19,11 +19,11 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
-from ..cases.models import Case
-from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.sitemap import PlatformPage, Sitemap
 from ..detailed.utils import import_detailed_cases_csv
 from ..mobile.utils import import_mobile_cases_csv
+from ..simplified.models import SimplifiedCase
+from ..simplified.utils import record_model_create_event, record_model_update_event
 from .forms import (
     ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
@@ -444,11 +444,11 @@ class ReferenceImplementaionView(TemplateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case | None = Case.objects.filter(
+        case: SimplifiedCase | None = SimplifiedCase.objects.filter(
             id=REFERENCE_IMPLEMENTATION_CASE_ID
         ).first()
         if case is None:  # In test environment
-            case: Case | None = Case.objects.all().first()
+            case: SimplifiedCase | None = SimplifiedCase.objects.all().first()
         context["case"] = case
         return context
 
@@ -487,12 +487,12 @@ class BulkURLSearchView(FormView):
                 sanitised_domain: str = sanitise_domain(domain)
 
                 if sanitised_domain:
-                    cases: QuerySet[Case] = Case.objects.filter(
+                    cases: QuerySet[SimplifiedCase] = SimplifiedCase.objects.filter(
                         home_page_url__icontains=sanitised_domain
                     )
                     search_term: str = sanitised_domain
                 else:
-                    cases: QuerySet[Case] = Case.objects.filter(
+                    cases: QuerySet[SimplifiedCase] = SimplifiedCase.objects.filter(
                         home_page_url__icontains=url
                     )
                     search_term: str = url

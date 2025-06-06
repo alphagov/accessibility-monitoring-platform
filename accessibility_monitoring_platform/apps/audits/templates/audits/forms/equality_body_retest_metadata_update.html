@@ -15,7 +15,7 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with retest_header=True %}
+                {% include "simplified/helpers/edit_header.html" with retest_header=True %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -102,7 +102,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'cases:edit-retest-overview' retest.case.id %}"
+                                href="{% url 'simplified:edit-retest-overview' retest.case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel and return to retest overview

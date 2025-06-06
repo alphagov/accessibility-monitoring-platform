@@ -11,9 +11,9 @@ from django.db.models.query import QuerySet
 from django.http import Http404, HttpRequest
 from django.utils import timezone
 
-from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ..common.utils import list_to_dictionary_of_lists
+from ..simplified.utils import record_model_create_event, record_model_update_event
 from .forms import CheckResultForm
 from .models import (
     Audit,

@@ -3,7 +3,7 @@
 {% block preform %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'cases/helpers/qa_links.html' %}
+            {% include 'simplified/helpers/qa_links.html' %}
             {% if case.published_report_url %}
                 <p class="govuk-body">
                     The report is now published and available on the
@@ -39,7 +39,7 @@
 
 {% block formbuttons %}
     {% if case.published_report_url %}
-        {% include 'cases/helpers/save_continue_cancel.html' %}
+        {% include 'simplified/helpers/save_continue_cancel.html' %}
     {% elif case.report and case.report_review_status == 'yes' and case.report_approved_status == 'yes' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full govuk-button-group">

@@ -9,8 +9,8 @@ import pytest
 from django.db.models.query import QuerySet
 from pytest_django.asserts import assertQuerySetEqual
 
-from ...cases.models import Case
 from ...common.models import Boolean
+from ...simplified.models import SimplifiedCase
 from ..models import (
     Audit,
     CheckResult,
@@ -46,13 +46,13 @@ ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID: int = 1
 REPORT_COMMENT: str = "Report comment"
 
 
-def create_retest_and_retest_check_results(case: Case | None = None):
+def create_retest_and_retest_check_results(case: SimplifiedCase | None = None):
     """Create retest and associated data"""
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     if case is None:
-        case: Case = Case.objects.create()
+        case: SimplifiedCase = SimplifiedCase.objects.create()
         audit: Audit = Audit.objects.create(case=case)
         home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
         statement_page: Page = Page.objects.create(
@@ -117,7 +117,7 @@ def create_retest_and_retest_check_results(case: Case | None = None):
 
 def create_audit_and_pages() -> Audit:
     """Create an audit with all types of page"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     for page_type in [
         Page.Type.EXTRA,
@@ -134,7 +134,7 @@ def create_audit_and_pages() -> Audit:
 
 def create_audit_and_statement_check_results() -> Audit:
     """Create an audit with all types of statement checks"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     for count, statement_check in enumerate(StatementCheck.objects.all()):
         check_result_state: str = (
@@ -157,7 +157,7 @@ def create_audit_and_statement_check_results() -> Audit:
 
 def create_retest_and_statement_check_results() -> Retest:
     """Create a retest with all types of statement checks"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     retest: Retest = Retest.objects.create(case=case)
     for count, statement_check in enumerate(StatementCheck.objects.all()):
         check_result_state: str = (
@@ -226,7 +226,7 @@ def create_audit_and_check_results() -> Audit:
 @pytest.mark.django_db
 def test_audit_absolute_url():
     """Test Audit.get_absolute_url()"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     assert audit.get_absolute_url() == "/audits/1/edit-audit-metadata/"
@@ -595,7 +595,7 @@ def test_accessibility_statement_initially_found():
     """
     Test that an accessibility statement was initially found.
     """
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     # No page
@@ -634,7 +634,7 @@ def test_accessibility_statement_found():
 @pytest.mark.django_db
 def test_audit_updated_updated():
     """Test the audit updated field is updated"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
@@ -646,7 +646,7 @@ def test_audit_updated_updated():
 @pytest.mark.django_db
 def test_page_updated_updated():
     """Test the page updated field is updated"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
 
@@ -659,7 +659,7 @@ def test_page_updated_updated():
 @pytest.mark.django_db
 def test_check_result_updated_updated():
     """Test the check result updated field is updated"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
@@ -735,7 +735,7 @@ def test_statement_check_result_edit_initial_url_name():
     """
     Tests an StatementCheckResult edit_initial_url_name contains the expected string
     """
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     statement_check: StatementCheck = StatementCheck.objects.create(
         type=StatementCheck.Type.COMPLIANCE
@@ -755,7 +755,7 @@ def test_statement_check_edit_12_week_url_name():
     """
     Tests an StatementCheckResult edit_12_week_url_name contains the expected string
     """
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     statement_check: StatementCheck = StatementCheck.objects.create(
         type=StatementCheck.Type.COMPLIANCE
@@ -839,7 +839,7 @@ def test_audit_specific_statement_check_results(type, attr):
 @pytest.mark.django_db
 def test_audit_statement_found_check():
     """Tests audit statement_found_check property"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     statement_found_check: StatementCheck = StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
@@ -858,7 +858,7 @@ def test_audit_statement_found_check():
 @pytest.mark.django_db
 def test_audit_statement_structure_check():
     """Tests audit statement_structure_check property"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     statement_structure_check: StatementCheck = StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
@@ -1069,7 +1069,7 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
     Tests specific audit outstanding_statement_check_results property contains
     the expected statement check results.
     """
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
     statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
@@ -1102,7 +1102,7 @@ def test_audit_specific_outstanding_custom_statement_check_results():
     Tests specific audit custom_outstanding_statement_check_results property contains
     the expected statement check results.
     """
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     assert audit.custom_outstanding_statement_check_results.exists() is False
@@ -1250,7 +1250,7 @@ def test_retest_is_incomplete():
 @pytest.mark.django_db
 def test_returning_original_retest():
     """Test original retest contains the retest with id_within_case of 0"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     first_retest: Retest = Retest.objects.create(case=case, id_within_case=0)
     second_retest: Retest = Retest.objects.create(case=case, id_within_case=1)
 
@@ -1263,7 +1263,7 @@ def test_returning_previous_retest():
     """
     Test previous retest contains the retest with next lowest id_within_case
     """
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     retest_0: Retest = Retest.objects.create(case=case, id_within_case=0)
     retest_1: Retest = Retest.objects.create(case=case, id_within_case=1)
     retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
@@ -1278,7 +1278,7 @@ def test_returning_latest_retest():
     """
     Test latest retest contains the most recent retest
     """
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     Retest.objects.create(case=case, id_within_case=0)
     retest_1: Retest = Retest.objects.create(case=case, id_within_case=1)
 
@@ -1451,7 +1451,7 @@ def test_retest_check_result_all_retest_check_result():
 @pytest.mark.django_db
 def test_audit_statement_pages():
     """Test audit statement pages"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     assert not audit.statement_pages
@@ -1470,7 +1470,7 @@ def test_audit_statement_pages():
 @pytest.mark.django_db
 def test_audit_accessibility_statement_initially_found():
     """Test audit statement initially found"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     assert audit.accessibility_statement_initially_found is False
@@ -1488,7 +1488,7 @@ def test_audit_accessibility_statement_initially_found():
 @pytest.mark.django_db
 def test_audit_twelve_week_accessibility_statement_found():
     """Test audit statement found at twelve-week retest"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     assert audit.twelve_week_accessibility_statement_found is False
@@ -1508,7 +1508,7 @@ def test_audit_twelve_week_accessibility_statement_found():
 @pytest.mark.django_db
 def test_audit_accessibility_statement_found():
     """Test audit statement found"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     assert audit.accessibility_statement_found is False
@@ -1549,7 +1549,7 @@ def test_latest_statement_link_found():
     Test that the latest statement link is returned even when
     it is not on the latest statement page.
     """
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     early_statement_page: StatementPage = StatementPage.objects.create(audit=audit)
     StatementPage.objects.create(audit=audit)
@@ -1766,7 +1766,7 @@ def test_retest_custom_statement_check_results():
 @pytest.mark.django_db
 def test_retest_statement_check_results_str():
     """Test RetestStatementCheckResult.__str__()"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     retest: Retest = Retest.objects.create(case=case)
     retest_statement_check_result: RetestStatementCheckResult = (
         RetestStatementCheckResult.objects.create(retest=retest)
@@ -1792,7 +1792,7 @@ def test_retest_statement_check_results_str():
 @pytest.mark.django_db
 def test_retest_statement_check_results_label():
     """Test RetestStatementCheckResult.label"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     retest: Retest = Retest.objects.create(case=case)
     retest_statement_check_result: RetestStatementCheckResult = (
         RetestStatementCheckResult.objects.create(retest=retest)
@@ -1818,7 +1818,7 @@ def test_check_result_matching_wcag_with_retest_notes_check_results():
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     contact_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.CONTACT)
@@ -1873,7 +1873,7 @@ def test_retest_check_result_matching_wcag_retest_check_results():
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     contact_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.CONTACT)
@@ -1967,7 +1967,7 @@ def test_check_result_issue_identifier():
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
-    case_1: Case = Case.objects.create()
+    case_1: SimplifiedCase = SimplifiedCase.objects.create()
     audit_1: Audit = Audit.objects.create(case=case_1)
     page_1: Page = Page.objects.create(audit=audit_1, page_type=Page.Type.HOME)
     check_result_1a: CheckResult = CheckResult.objects.create(
@@ -1992,7 +1992,7 @@ def test_check_result_issue_identifier():
 
     assert check_result_1b.issue_identifier == "1-A-2"
 
-    case_2: Case = Case.objects.create()
+    case_2: SimplifiedCase = SimplifiedCase.objects.create()
     audit_2: Audit = Audit.objects.create(case=case_2)
     page_2: Page = Page.objects.create(audit=audit_2, page_type=Page.Type.HOME)
     check_result_2a: CheckResult = CheckResult.objects.create(
@@ -2014,7 +2014,7 @@ def test_issue_identifier():
     RetestCheckResult and RetestStatementCheckResult creation.
     """
 
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
@@ -2106,7 +2106,7 @@ def test_build_issue_identifier():
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = CheckResult.objects.create(
@@ -2186,7 +2186,7 @@ def test_build_issue_identifier():
 @pytest.mark.django_db
 def test_audit_new_12_week_custom_statement_check_results():
     """Test statement custom check result found"""
-    case: Case = Case.objects.create()
+    case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     new_12_week_custom_check_result: StatementCheckResult = (
         StatementCheckResult.objects.create(

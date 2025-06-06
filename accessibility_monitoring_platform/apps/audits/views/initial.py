@@ -11,11 +11,11 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from ...cases.models import Case
-from ...cases.utils import record_model_create_event, record_model_update_event
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
+from ...simplified.models import SimplifiedCase
+from ...simplified.utils import record_model_create_event, record_model_update_event
 from ..forms import (
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
@@ -87,7 +87,7 @@ def clear_published_report_data_updated_time(
     audit.save()
     redirect_destination: str = request.GET.get(
         "redirect_destination",
-        reverse("cases:case-detail", kwargs={"pk": audit.case.id}),
+        reverse("simplified:case-detail", kwargs={"pk": audit.case.id}),
     )
     return redirect(redirect_destination)
 
@@ -616,10 +616,10 @@ class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
     template_name: str = "audits/forms/test_summary_statement.html"
 
     def get_next_platform_page(self) -> PlatformPage:
-        case: Case = self.object.case
+        case: SimplifiedCase = self.object.case
         next_page_url_name: str = (
-            "cases:edit-create-report"
+            "simplified:edit-create-report"
             if case.report is None
-            else "cases:edit-report-ready-for-qa"
+            else "simplified:edit-report-ready-for-qa"
         )
         return get_platform_page_by_url_name(url_name=next_page_url_name, instance=case)

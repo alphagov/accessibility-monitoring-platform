@@ -17,8 +17,8 @@ from ..models import Comment
 @pytest.mark.parametrize(
     "comment_edit_path, button_name, expected_redirect_path",
     [
-        ("comments:edit-qa-comment", "save_return", "cases:edit-qa-comments"),
-        ("comments:edit-qa-comment", "remove_comment", "cases:edit-qa-comments"),
+        ("comments:edit-qa-comment", "save_return", "simplified:edit-qa-comments"),
+        ("comments:edit-qa-comment", "remove_comment", "simplified:edit-qa-comments"),
     ],
 )
 def test_edit_qa_comment_redirects_based_on_button_pressed(

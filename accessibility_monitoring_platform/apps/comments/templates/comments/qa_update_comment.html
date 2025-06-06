@@ -1,7 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-    {% include 'cases/helpers/qa_links.html' %}
+    {% include 'simplified/helpers/qa_links.html' %}
 {% endblock %}
 
 {% block formbuttons %}
@@ -15,7 +15,7 @@
                 data-module="govuk-button"
             />
             <a
-                href="{% url 'cases:edit-qa-comments' comment.case.id %}?#qa-discussion"
+                href="{% url 'simplified:edit-qa-comments' comment.case.id %}?#qa-discussion"
                 class="govuk-link govuk-link--no-visited-state"
             >
                 Cancel

@@ -69,7 +69,9 @@ def test_create_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("cases:edit-report-ready-for-qa", kwargs={"pk": 1})
+    assert response.url == reverse(
+        "simplified:edit-report-ready-for-qa", kwargs={"pk": 1}
+    )
 
 
 def test_create_report_does_not_create_duplicate(admin_client):
@@ -222,7 +224,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-publish-report", kwargs=case_pk_kwargs)
+        reverse("simplified:edit-publish-report", kwargs=case_pk_kwargs)
     )
 
     assert response.status_code == 200

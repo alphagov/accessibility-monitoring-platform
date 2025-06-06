@@ -4,7 +4,7 @@
     {% include 'audits/helpers/statement_pages_twelve_week.html' with small_margin_bottom=True %}
     {% include 'common/error_summary.html' with form=case_compliance_form %}
     {% if audit.accessibility_statement_initially_found %}
-        {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
+        {% include 'simplified/helpers/view_initial_decision.html' with case=audit.case %}
     {% else %}
         <p class="govuk-body-m">Statement missing during initial test</p>
     {% endif %}

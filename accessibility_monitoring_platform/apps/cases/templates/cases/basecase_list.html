@@ -87,7 +87,7 @@
                             </li>
                             <li>
                                 <a
-                                    href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    href="{% url 'simplified:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
                                     Export to CSV
@@ -95,7 +95,7 @@
                             </li>
                             <li>
                                 <a
-                                    href="{% url 'cases:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    href="{% url 'simplified:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
                                     Export to feedback survey CSV

@@ -1,7 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-{% include 'cases/helpers/correspondence.html' %}
+{% include 'simplified/helpers/correspondence.html' %}
 <p class="govuk-body amp-margin-bottom-30">
     {% if case.enable_correspondence_process %}
         <a href="{% url 'simplified:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
@@ -60,5 +60,5 @@
 {% endblock %}
 
 {% block formbuttons %}
-    {% include 'cases/helpers/save_continue_cancel.html' %}
+    {% include 'simplified/helpers/save_continue_cancel.html' %}
 {% endblock %}

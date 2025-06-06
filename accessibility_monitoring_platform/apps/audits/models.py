@@ -15,16 +15,17 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import BaseCase, Case, CaseCompliance
+from ..cases.models import Case
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date, calculate_percentage
+from ..simplified.models import CaseCompliance, SimplifiedCase
 
 ISSUE_IDENTIFIER_WCAG: str = "A"
 ISSUE_IDENTIFIER_STATEMENT: str = "S"
 
 
 def build_issue_identifier(
-    case: Case,
+    case: SimplifiedCase,
     issue: (
         CheckResult
         | StatementCheckResult
@@ -67,12 +68,16 @@ class Audit(VersionModel):
         NOT_CHECKED = "not-checked", "Not checked"
 
     case = models.OneToOneField(
-        Case, on_delete=models.PROTECT, related_name="audit_case"
-    )
-    base_case = models.OneToOneField(
-        BaseCase,
+        Case,
         on_delete=models.PROTECT,
-        related_name="audit_basecase",
+        related_name="audit_case",
+        blank=True,
+        null=True,
+    )
+    simplified_case = models.OneToOneField(
+        SimplifiedCase,
+        on_delete=models.PROTECT,
+        related_name="audit_simplifiedcase",
         blank=True,
         null=True,
     )
@@ -974,9 +979,10 @@ class Retest(VersionModel):
         NOT_KNOWN = "not-known", "Not known"
 
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
-    base_case = models.ForeignKey(
-        BaseCase,
+    simplified_case = models.ForeignKey(
+        SimplifiedCase,
         on_delete=models.PROTECT,
+        related_name="retest_simplifiedcase",
         blank=True,
         null=True,
     )

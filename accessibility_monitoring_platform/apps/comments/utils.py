@@ -3,11 +3,11 @@
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 
-from ..cases.utils import record_model_create_event
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
 from ..notifications.models import Task
 from ..notifications.utils import add_task
+from ..simplified.utils import record_model_create_event
 from .models import Comment
 
 

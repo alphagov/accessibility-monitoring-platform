@@ -3,7 +3,7 @@
 {% endif %}
 <div class="amp-left-border">
     {% if not case.archive %}
-        {% include 'cases/helpers/overview_status.html' %}
+        {% include 'simplified/helpers/overview_status.html' %}
     {% endif %}
     <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Date created</h2>
     <p class="govuk-body-s amp-margin-bottom-10">{{ case.created|amp_date }}</p>

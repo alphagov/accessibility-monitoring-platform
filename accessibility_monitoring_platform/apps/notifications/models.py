@@ -47,7 +47,7 @@ class Task(models.Model):
                 Link(
                     label="Go to QA comment",
                     url=reverse(
-                        "cases:edit-qa-comments",
+                        "simplified:edit-qa-comments",
                         kwargs={"pk": self.case.id},
                     ),
                 ),
@@ -57,7 +57,7 @@ class Task(models.Model):
                 Link(
                     label="Go to Report approved",
                     url=reverse(
-                        "cases:edit-qa-approval",
+                        "simplified:edit-qa-approval",
                         kwargs={"pk": self.case.id},
                     ),
                 ),

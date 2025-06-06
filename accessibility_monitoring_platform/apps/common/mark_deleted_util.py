@@ -3,7 +3,7 @@
 from django.http import HttpRequest
 from django.http.request import QueryDict
 
-from ..cases.utils import record_model_update_event
+from ..simplified.utils import record_model_update_event
 
 
 def get_id_from_button_name(

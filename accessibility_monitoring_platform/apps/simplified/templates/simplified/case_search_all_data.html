@@ -11,12 +11,12 @@
             {% include 'common/case_banner.html' %}
         </div>
     </div>
-    {% include 'cases/helpers/breadcrumbs.html' %}
+    {% include 'simplified/helpers/breadcrumbs.html' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        {% include 'cases/helpers/compliant_website_notification.html' %}
+        {% include 'simplified/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" %}
+                {% include "simplified/helpers/edit_header.html" %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
                         <p class="govuk-body-m">
@@ -31,7 +31,7 @@
                             <ul class="govuk-list amp_case_search_contents">
                                 {% if case.archive %}
                                     {% for archived_section in case.archived_sections %}
-                                        {% include 'cases/details/archive_section_link.html' with section=archived_section %}
+                                        {% include 'simplified/details/archive_section_link.html' with section=archived_section %}
                                     {% endfor %}
                                 {% endif %}
                                 {% for case_detail_section in case_detail_sections %}
@@ -61,7 +61,7 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% if case.archive %}
-                                {% include 'cases/details/archive.html' %}
+                                {% include 'simplified/details/archive.html' %}
                             {% endif %}
                             {% for case_detail_section in case_detail_sections %}
                                 <div class="amp_case_search_list_header">

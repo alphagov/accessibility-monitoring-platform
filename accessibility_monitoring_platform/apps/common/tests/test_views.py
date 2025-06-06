@@ -941,7 +941,7 @@ def test_frequently_used_link_shown(admin_client):
     FrequentlyUsedLink.objects.create(label=LINK_LABEL, url=LINK_URL)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id})
+        reverse("simplified:case-detail", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1023,7 +1023,7 @@ def test_footer_link_shown(admin_client):
     FooterLink.objects.create(label=FOOTER_LINK_LABEL, url=FOOTER_LINK_URL)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id})
+        reverse("simplified:case-detail", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1149,7 +1149,7 @@ def test_latest_statement_frequently_used_link(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id})
+        reverse("simplified:case-detail", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1161,7 +1161,7 @@ def test_latest_statement_frequently_used_link(admin_client):
     StatementPage.objects.create(audit=audit, url="https://example.com/statement")
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id})
+        reverse("simplified:case-detail", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200

@@ -22,10 +22,10 @@
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-quarter amp-padding-left-0">
-                {% include "cases/helpers/case_nav.html" with case_nav_type='mobile_case_nav' %}
+                {% include "simplified/helpers/case_nav.html" with case_nav_type='mobile_case_nav' %}
             </div>
             <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
-                {% include "cases/helpers/edit_header.html" %}
+                {% include "simplified/helpers/edit_header.html" %}
                 {% include 'common/error_summary.html' %}
                 {% block preform %}{% endblock %}
                 {% block form %}
@@ -40,7 +40,7 @@
                         </div>
                     </div>
                     {% block formbuttons %}
-                        {% include 'cases/helpers/save_continue_cancel.html' %}
+                        {% include 'simplified/helpers/save_continue_cancel.html' %}
                     {% endblock %}
                 </form>
                 {% endblock %}

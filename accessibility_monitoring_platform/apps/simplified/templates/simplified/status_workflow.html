@@ -4,7 +4,7 @@
 <h2 class="govuk-heading-s amp-margin-bottom-5">Status summary</h2>
 <ul class="govuk-list govuk-list--bullet">
     <li>
-        Current status: {{ case.status.get_status_display }}
+        Current status: {{ case.get_status_display }}
     </li>
     <li>
         Next required action: {% if case.archive %}

@@ -14,9 +14,9 @@ from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 
-from ..cases.models import Case, CaseEvent
-from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.views import HideCaseNavigationMixin
+from ..simplified.models import CaseEvent, SimplifiedCase
+from ..simplified.utils import record_model_create_event, record_model_update_event
 from .forms import ReportWrapperUpdateForm
 from .models import Report, ReportVisitsMetrics, ReportWrapper
 from .utils import build_report_context, get_report_visits_metrics, publish_report_util
@@ -33,10 +33,10 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case: Case = get_object_or_404(Case, id=case_id)
+    case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
     if case.report:
         return redirect(
-            reverse("cases:edit-report-ready-for-qa", kwargs={"pk": case.id})
+            reverse("simplified:edit-report-ready-for-qa", kwargs={"pk": case.id})
         )
     report: Report = Report.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=report, case=case)
@@ -46,7 +46,9 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
         event_type=CaseEvent.EventType.CREATE_REPORT,
         message="Created report",
     )
-    return redirect(reverse("cases:edit-report-ready-for-qa", kwargs={"pk": case.id}))
+    return redirect(
+        reverse("simplified:edit-report-ready-for-qa", kwargs={"pk": case.id})
+    )
 
 
 class ReportUpdateView(UpdateView):
@@ -127,7 +129,9 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     """
     report: Report = get_object_or_404(Report, id=pk)
     publish_report_util(report=report, request=request)
-    return redirect(reverse("cases:edit-publish-report", kwargs={"pk": report.case.id}))
+    return redirect(
+        reverse("simplified:edit-publish-report", kwargs={"pk": report.case.id})
+    )
 
 
 class ReportWrapperUpdateView(UpdateView):
@@ -156,7 +160,7 @@ class ReportVisitsMetricsView(HideCaseNavigationMixin, ReportTemplateView):
         context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         context["showing"] = self.request.GET.get("showing")
         context["userhash"] = self.request.GET.get("userhash")
-        case: Case = context["report"].case
+        case: SimplifiedCase = context["report"].case
 
         if context["userhash"]:
             context["visit_logs"] = ReportVisitsMetrics.objects.filter(

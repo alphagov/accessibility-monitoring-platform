@@ -3,14 +3,14 @@
 {% load static %}
 
 {% block preform %}
-{% include 'cases/helpers/correspondence.html' %}
-{% include 'cases/helpers/report_visits.html' %}
+{% include 'simplified/helpers/correspondence.html' %}
+{% include 'simplified/helpers/report_visits.html' %}
 {% endblock %}
 
 {% block formfields %}
 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 {% include 'common/amp_field.html' with field=form.report_acknowledged_date %}
-{% include 'cases/helpers/amp_email_field.html' with field=form.report_acknowledged_by_email %}
+{% include 'simplified/helpers/amp_email_field.html' with field=form.report_acknowledged_by_email %}
 {% include 'common/amp_field.html' with field=form.correspondence_notes %}
 {% include 'common/amp_field.html' with field=form.report_acknowledged_complete_date %}
 {% endblock %}

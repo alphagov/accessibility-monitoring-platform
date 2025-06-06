@@ -53,10 +53,10 @@ CSRF_TRUSTED_ORIGINS.append("http://localhost:3000")
 
 INSTALLED_APPS = [
     "accessibility_monitoring_platform.apps.cases",
+    "accessibility_monitoring_platform.apps.simplified",
     "accessibility_monitoring_platform.apps.audits",
     "accessibility_monitoring_platform.apps.common",
     "accessibility_monitoring_platform.apps.dashboard",
-    "accessibility_monitoring_platform.apps.simplified",
     "accessibility_monitoring_platform.apps.detailed",
     "accessibility_monitoring_platform.apps.mobile",
     "accessibility_monitoring_platform.apps.users",

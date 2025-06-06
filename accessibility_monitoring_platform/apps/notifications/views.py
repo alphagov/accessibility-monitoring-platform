@@ -10,8 +10,8 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from ..cases.models import Case
-from ..cases.utils import record_model_create_event, record_model_update_event
+from ..simplified.models import SimplifiedCase
+from ..simplified.utils import record_model_create_event, record_model_update_event
 from .forms import ReminderForm
 from .models import Task
 from .utils import (
@@ -97,7 +97,7 @@ class CommentsMarkAsReadView(ListView):
 
     def get(self, request, case_id):
         """Hides a task"""
-        case: Case = Case.objects.get(id=case_id)
+        case: SimplifiedCase = SimplifiedCase.objects.get(id=case_id)
         mark_tasks_as_read(user=self.request.user, case=case, type=Task.Type.QA_COMMENT)
         mark_tasks_as_read(
             user=self.request.user, case=case, type=Task.Type.REPORT_APPROVED
@@ -118,7 +118,7 @@ class ReminderTaskCreateView(CreateView):
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         if form.changed_data:
-            case: Case = Case.objects.get(pk=self.kwargs["case_id"])
+            case: SimplifiedCase = SimplifiedCase.objects.get(pk=self.kwargs["case_id"])
             user: User = case.auditor if case.auditor else self.request.user
             try:
                 reminder_task: Task = Task.objects.get(
@@ -143,7 +143,7 @@ class ReminderTaskCreateView(CreateView):
                     user=self.request.user, model_object=self.object, case=case
                 )
         return HttpResponseRedirect(
-            reverse_lazy("cases:case-detail", kwargs={"pk": case.id})
+            reverse_lazy("simplified:case-detail", kwargs={"pk": case.id})
         )
 
     def get_success_url(self) -> str:
@@ -151,7 +151,7 @@ class ReminderTaskCreateView(CreateView):
         record_model_create_event(
             user=self.request.user, model_object=self.object, case=self.object.case
         )
-        return reverse("cases:case-detail", kwargs={"pk": self.object.case.id})
+        return reverse("simplified:case-detail", kwargs={"pk": self.object.case.id})
 
 
 class ReminderTaskUpdateView(UpdateView):
@@ -170,7 +170,7 @@ class ReminderTaskUpdateView(UpdateView):
             self.object: Task = form.save(commit=False)
             if "delete" in self.request.POST:
                 self.object.read = True
-            case: Case = self.object.case
+            case: SimplifiedCase = self.object.case
             self.object.user = case.auditor if case.auditor else self.request.user
             record_model_update_event(
                 user=self.request.user, model_object=self.object, case=self.object.case

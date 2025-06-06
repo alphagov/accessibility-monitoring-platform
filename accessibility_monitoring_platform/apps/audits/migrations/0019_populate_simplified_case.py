@@ -3,7 +3,7 @@
 from django.db import migrations
 
 
-def populate_base_case(apps, schema_editor):
+def populate_simplified_case(apps, schema_editor):
     SimplifiedCase = apps.get_model("simplified", "SimplifiedCase")
     Audit = apps.get_model("audits", "Audit")
     Retest = apps.get_model("audits", "Retest")
@@ -14,27 +14,27 @@ def populate_base_case(apps, schema_editor):
             f"{count}: Migrating Audit and Retests Case number {simplified_case.case_number}"
         )
         for audit in Audit.objects.filter(case_id=simplified_case.case_id):
-            audit.base_case_id = simplified_case.basecase_ptr
+            audit.simplified_case_id = simplified_case.id
             audit.save()
         for retest in Retest.objects.filter(case_id=simplified_case.case_id):
-            retest.base_case_id = simplified_case.basecase_ptr
+            retest.simplified_case_id = simplified_case.id
             retest.save()
 
 
 def reverse_code(apps, schema_editor):
     Retest = apps.get_model("audits", "Retest")
-    Retest.objects.all().update(base_case_id=None)
+    Retest.objects.all().update(simplified_case_id=None)
     Audit = apps.get_model("audits", "Audit")
-    Audit.objects.all().update(base_case_id=None)
+    Audit.objects.all().update(simplified_case_id=None)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("audits", "0018_audit_base_case_retest_base_case"),
+        ("audits", "0018_audit_simplified_case_retest_simplified_case_and_more"),
         ("simplified", "0003_populate_simplified_cases"),
     ]
 
     operations = [
-        migrations.RunPython(populate_base_case, reverse_code=reverse_code),
+        migrations.RunPython(populate_simplified_case, reverse_code=reverse_code),
     ]

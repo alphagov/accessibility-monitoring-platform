@@ -13,11 +13,11 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
-from ...cases.models import Case, CaseEvent
-from ...cases.utils import record_model_create_event, record_model_update_event
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.utils import amp_format_date, get_url_parameters_for_pagination
 from ...common.views import NextPlatformPageMixin
+from ...simplified.models import CaseEvent, SimplifiedCase
+from ...simplified.utils import record_model_create_event, record_model_update_event
 from ..forms import (
     StatementCheckCreateUpdateForm,
     StatementCheckResultFormset,
@@ -53,17 +53,21 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case: Case = get_object_or_404(Case, id=case_id)
-    if case.audit:
+    simplified_case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
+    if simplified_case.audit:
         return redirect(
-            reverse("audits:edit-audit-metadata", kwargs={"pk": case.audit.id})
+            reverse(
+                "audits:edit-audit-metadata", kwargs={"pk": simplified_case.audit.id}
+            )
         )
-    audit: Audit = Audit.objects.create(case=case)
-    record_model_create_event(user=request.user, model_object=audit, case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    record_model_create_event(
+        user=request.user, model_object=audit, case=simplified_case
+    )
     create_mandatory_pages_for_new_audit(audit=audit)
     create_statement_checks_for_new_audit(audit=audit)
     CaseEvent.objects.create(
-        case=case,
+        case=simplified_case,
         done_by=request.user,
         event_type=CaseEvent.EventType.CREATE_AUDIT,
         message="Started test",

@@ -10,9 +10,9 @@
                             <a href="{{ platform_page.url }}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                                 {{ platform_page.get_name }}</a>
                         </li>
-                        {% if platform_page.url_name == 'cases:zendesk-tickets' %}
+                        {% if platform_page.url_name == 'simplified:zendesk-tickets' %}
                             <li>
-                                <a href="{% url 'cases:list-equality-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                <a href="{% url 'simplified:list-equality-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
                                     Equality body Zendesk tickets
                                 </a>
                             </li>

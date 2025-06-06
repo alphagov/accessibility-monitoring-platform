@@ -6,7 +6,7 @@ from django.forms.models import ModelForm
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
-from ..cases.utils import record_model_update_event
+from ..simplified.utils import record_model_update_event
 from .forms import CommentUpdateForm
 from .models import Comment
 
@@ -35,4 +35,6 @@ class QACommentUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         case_pk: dict[str, int] = {"pk": self.object.case.id}  # type: ignore
-        return f"{reverse('cases:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
+        return (
+            f"{reverse('simplified:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
+        )

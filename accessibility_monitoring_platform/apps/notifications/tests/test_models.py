@@ -39,7 +39,7 @@ def test_options_qa_comment():
         Link(
             label="Go to QA comment",
             url=reverse(
-                "cases:edit-qa-comments",
+                "simplified:edit-qa-comments",
                 kwargs={"pk": case.id},
             ),
         ),
@@ -76,7 +76,7 @@ def test_options_report_approved():
         Link(
             label="Go to Report approved",
             url=reverse(
-                "cases:edit-qa-approval",
+                "simplified:edit-qa-approval",
                 kwargs={"pk": case.id},
             ),
         ),

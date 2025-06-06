@@ -117,13 +117,13 @@ def test_dashboard_shows_link_to_no_contact_email_sent(admin_client, admin_user)
 
     assertContains(
         response,
-        f"""<a href="{reverse('cases:edit-qa-approval', kwargs={'pk': case.id})}" class="govuk-link">
+        f"""<a href="{reverse('simplified:edit-qa-approval', kwargs={'pk': case.id})}" class="govuk-link">
             QA approval</a>""",
         html=True,
     )
     assertNotContains(
         response,
-        f"""<a href="{reverse('cases:edit-request-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
+        f"""<a href="{reverse('simplified:edit-request-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
             No contact details request sent</a>""",
         html=True,
     )
@@ -137,13 +137,13 @@ def test_dashboard_shows_link_to_no_contact_email_sent(admin_client, admin_user)
 
     assertNotContains(
         response,
-        f"""<a href="{reverse('cases:edit-qa-approval', kwargs={'pk': case.id})}" class="govuk-link">
+        f"""<a href="{reverse('simplified:edit-qa-approval', kwargs={'pk': case.id})}" class="govuk-link">
             Report approved</a>""",
         html=True,
     )
     assertContains(
         response,
-        f"""<a href="{reverse('cases:edit-request-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
+        f"""<a href="{reverse('simplified:edit-request-contact-details', kwargs={'pk': case.id})}" class="govuk-link">
             No contact details request sent</a>""",
         html=True,
     )
@@ -366,7 +366,7 @@ def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
 
     assertContains(
         response,
-        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
+        reverse("simplified:edit-test-results", kwargs={"pk": case.id}),
     )
 
     audit: Audit = Audit.objects.create(case=case)
@@ -377,7 +377,7 @@ def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
 
     assertNotContains(
         response,
-        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
+        reverse("simplified:edit-test-results", kwargs={"pk": case.id}),
     )
     assertContains(
         response,

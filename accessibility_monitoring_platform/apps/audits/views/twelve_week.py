@@ -12,9 +12,9 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from ...cases.models import CaseEvent
-from ...cases.utils import record_model_create_event, record_model_update_event
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
+from ...simplified.models import CaseEvent
+from ...simplified.utils import record_model_create_event, record_model_update_event
 from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditRetestCheckResultFormset,

@@ -1,7 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-{% include 'cases/helpers/email_templates.html' %}
+{% include 'simplified/helpers/email_templates.html' %}
 {% if not required_data_missing_columns %}
     <div class="govuk-grid-row amp-margin-top-30">
         <div class="govuk-grid-column-full">
@@ -97,19 +97,19 @@
 
         <h2 class="govuk-heading-m" id="1-metadata">1. Metadata</h2>
         {% for equality_body_column in equality_body_metadata_columns %}
-            {% include 'cases/helpers/csv_column.html' %}
+            {% include 'simplified/helpers/csv_column.html' %}
         {% endfor %}
         <h2 class="govuk-heading-m" id="2-report-and-recommendation">2. Report and recommendation</h2>
         {% for equality_body_column in equality_body_report_columns %}
-            {% include 'cases/helpers/csv_column.html' %}
+            {% include 'simplified/helpers/csv_column.html' %}
         {% endfor %}
         <h2 class="govuk-heading-m" id="3-correspondence">3. Correspondence</h2>
         {% for equality_body_column in equality_body_correspondence_columns %}
-            {% include 'cases/helpers/csv_column.html' %}
+            {% include 'simplified/helpers/csv_column.html' %}
         {% endfor %}
         <h2 class="govuk-heading-m" id="4-test-summary">4. Test summary</h2>
         {% for equality_body_column in equality_body_test_summary_columns %}
-            {% include 'cases/helpers/csv_column.html' %}
+            {% include 'simplified/helpers/csv_column.html' %}
         {% endfor %}
     </div>
 </div>
