@@ -13,7 +13,12 @@ from django.template.loader import get_template
 from django.urls import reverse
 
 from ..audits.models import Retest
-from ..simplified.models import CaseStatus, EqualityBodyCorrespondence, SimplifiedCase
+from ..simplified.models import (
+    BaseCase,
+    CaseStatus,
+    EqualityBodyCorrespondence,
+    SimplifiedCase,
+)
 from .models import Link, NotificationSetting, Task
 
 TASK_LIST_PARAMS: list[str] = ["type", "read", "deleted", "future"]
@@ -30,7 +35,7 @@ class EmailContextType(TypedDict):
 
 def add_task(
     user: User,
-    case: SimplifiedCase,
+    base_case: BaseCase,
     type: Task.Type,
     description: str,
     list_description: str,
@@ -40,7 +45,7 @@ def add_task(
     task: Task = Task.objects.create(
         type=type,
         date=date.today(),
-        case=case,
+        base_case=base_case,
         user=user,
         description=description,
     )
@@ -54,9 +59,9 @@ def add_task(
         email_settings.save()
 
     if type == Task.Type.QA_COMMENT:
-        path: str = reverse("simplified:edit-qa-comments", kwargs={"pk": case.id})
+        path: str = reverse("simplified:edit-qa-comments", kwargs={"pk": base_case.id})
     else:
-        path: str = reverse("simplified:edit-qa-approval", kwargs={"pk": case.id})
+        path: str = reverse("simplified:edit-qa-approval", kwargs={"pk": base_case.id})
 
     if email_settings.email_notifications_enabled:
         context: EmailContextType = {
@@ -79,7 +84,7 @@ def add_task(
     return task
 
 
-def mark_tasks_as_read(user: User, case: SimplifiedCase, type: Task.Type) -> None:
+def mark_tasks_as_read(user: User, case: BaseCase, type: Task.Type) -> None:
     """Mark tasks as read"""
     tasks: QuerySet[Task] = Task.objects.filter(
         user=user, case=case, type=type, read=False
@@ -90,11 +95,11 @@ def mark_tasks_as_read(user: User, case: SimplifiedCase, type: Task.Type) -> Non
 
 
 def exclude_cases_with_pending_reminders(
-    cases: QuerySet[SimplifiedCase],
-) -> list[SimplifiedCase]:
+    cases: QuerySet[BaseCase],
+) -> list[BaseCase]:
     """Return only cases without pending reminders"""
     today: date = date.today()
-    cases_without_pending_reminders: list[SimplifiedCase] = []
+    cases_without_pending_reminders: list[BaseCase] = []
     for case in cases:
         if (
             Task.objects.filter(
@@ -118,7 +123,7 @@ def get_overdue_cases(user_request: User | None) -> list[SimplifiedCase]:
     seven_days_ago = date.today() - timedelta(days=7)
 
     seven_day_no_contact: QuerySet[SimplifiedCase] = cases.filter(
-        Q(casestatus__status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND),
+        Q(status__icontains=CaseStatus.Status.REPORT_READY_TO_SEND),
         Q(enable_correspondence_process=True),
         Q(
             Q(
@@ -130,41 +135,61 @@ def get_overdue_cases(user_request: User | None) -> list[SimplifiedCase]:
                 no_contact_four_week_chaser_sent_date=None,
             )
             | Q(
-                no_contact_one_week_chaser_due_date__range=[start_date, end_date],
+                no_contact_one_week_chaser_due_date__range=[
+                    start_date,
+                    end_date,
+                ],
                 no_contact_one_week_chaser_sent_date=None,
             )
             | Q(
-                no_contact_four_week_chaser_due_date__range=[start_date, end_date],
+                no_contact_four_week_chaser_due_date__range=[
+                    start_date,
+                    end_date,
+                ],
                 no_contact_four_week_chaser_sent_date=None,
             )
         ),
     )
 
     in_report_correspondence: QuerySet[SimplifiedCase] = cases.filter(
-        Q(casestatus__status=CaseStatus.Status.IN_REPORT_CORES),
+        Q(status=CaseStatus.Status.IN_REPORT_CORES),
         Q(
             Q(  # pylint: disable=unsupported-binary-operation
-                report_followup_week_1_due_date__range=[start_date, end_date],
+                report_followup_week_1_due_date__range=[
+                    start_date,
+                    end_date,
+                ],
                 report_followup_week_1_sent_date=None,
             )
             | Q(
-                report_followup_week_4_due_date__range=[start_date, end_date],
+                report_followup_week_4_due_date__range=[
+                    start_date,
+                    end_date,
+                ],
                 report_followup_week_4_sent_date=None,
             )
-            | Q(report_followup_week_4_sent_date__range=[start_date, seven_days_ago])
+            | Q(
+                report_followup_week_4_sent_date__range=[
+                    start_date,
+                    seven_days_ago,
+                ]
+            )
         ),
     )
 
     in_probation_period: QuerySet[SimplifiedCase] = cases.filter(
-        casestatus__status__icontains=CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
+        status__icontains=CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
         report_followup_week_12_due_date__range=[start_date, end_date],
     )
 
     in_12_week_correspondence: QuerySet[SimplifiedCase] = cases.filter(
-        Q(casestatus__status__icontains=CaseStatus.Status.IN_12_WEEK_CORES),
+        Q(status__icontains=CaseStatus.Status.IN_12_WEEK_CORES),
         Q(
             Q(
-                twelve_week_1_week_chaser_due_date__range=[start_date, end_date],
+                twelve_week_1_week_chaser_due_date__range=[
+                    start_date,
+                    end_date,
+                ],
                 twelve_week_1_week_chaser_sent_date=None,
             )
             | Q(
@@ -203,7 +228,7 @@ def get_post_case_tasks(user: User) -> list[Task]:
 
     equality_body_correspondences: QuerySet[EqualityBodyCorrespondence] = (
         EqualityBodyCorrespondence.objects.filter(
-            case__auditor=user,
+            simplified_case__auditor=user,
             status=EqualityBodyCorrespondence.Status.UNRESOLVED,
         )
     )

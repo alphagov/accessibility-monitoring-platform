@@ -34,7 +34,7 @@ class QACommentUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        case_pk: dict[str, int] = {"pk": self.object.case.id}  # type: ignore
+        case_pk: dict[str, int] = {"pk": self.object.base_case.simplifiedcase.id}  # type: ignore
         return (
             f"{reverse('simplified:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
         )

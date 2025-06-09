@@ -449,7 +449,7 @@ class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
             return ""
         return reverse(
             self.url_name,
-            kwargs={"case_id": self.case.id, self.url_kwarg_key: self.instance.id},
+            kwargs={"case_id": self.base_case.id, self.url_kwarg_key: self.instance.id},
         )
 
     def populate_from_case(self, case: SimplifiedCase):
@@ -482,6 +482,15 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
     @property
     def show(self):
         return False
+
+    def get_case(self) -> SimplifiedCase | None:
+        if self.instance is not None:
+            if isinstance(self.instance, SimplifiedCase):
+                return self.instance
+            if hasattr(self.instance, "base_case"):
+                return self.instance.base_case.simplifiedcase
+            if hasattr(self.instance, "simplified_case"):
+                return self.instance.simplified_case
 
 
 class RetestOverviewPlatformPage(SimplifiedCasePlatformPage):
@@ -1798,7 +1807,6 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Non-Case other",
         pages=[
             PlatformPage(name="Create case", url_name="simplified:pick-test-type"),
-            PlatformPage(name="Create case", url_name="simplified:case-create"),
             PlatformPage(name="Search cases", url_name="cases:case-list"),
             PlatformPage(
                 name="Create simplified case", url_name="simplified:case-create"
@@ -1910,7 +1918,11 @@ def build_sitemap_for_current_page(
     Return the case navigation subset of the sitemap if the current
     page is case-related, otherwise return the entire sitemap.
     """
-    case: SimplifiedCase | DetailedCase | None = current_platform_page.get_case()
+    case: SimplifiedCase | DetailedCase | BaseCase | None = (
+        current_platform_page.get_case()
+    )
+    if case is not None and case.test_type == BaseCase.TestType.SIMPLIFIED:
+        case: SimplifiedCase = case.simplifiedcase
     case_nav_type: PlatformPageGroup.Type | None = (
         TEST_TYPE_TO_CASE_NAV.get(case.test_type) if case is not None else None
     )

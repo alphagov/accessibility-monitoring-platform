@@ -125,15 +125,15 @@
                         {% if show_all_users %}
                             {% if task.user %}
                                 ({{ task.user.get_full_name }})
-                            {% elif task.case.auditor %}
-                                ({{ task.case.auditor.get_full_name }})
+                            {% elif task.base_case.auditor %}
+                                ({{ task.base_case.auditor.get_full_name }})
                             {% endif %}
                         {% endif %}
                     </h2>
                     <p class="govuk-body amp-margin-bottom-5"><b>Date</b> {{ task.date|amp_date }}</p>
                     <p class="govuk-body amp-margin-bottom-5">
                         <b>Case</b>
-                        <a href="{% url 'simplified:case-detail' task.case.id %}" class="govuk-link govuk-link--no-visited-state">{{ task.case }}</a>
+                        <a href="{% url 'simplified:case-detail' task.base_case.id %}" class="govuk-link govuk-link--no-visited-state">{{ task.case }}</a>
                     </p>
                     <p class="govuk-body amp-margin-bottom-5"><b>Description</b> {{ task.description }}</p>
                     <p class="govuk-body amp-margin-bottom-5">

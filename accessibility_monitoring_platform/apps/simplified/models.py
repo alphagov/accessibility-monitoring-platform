@@ -389,8 +389,8 @@ class SimplifiedCase(BaseCase):
         self.qa_status = self.calulate_qa_status()
         super().save(*args, **kwargs)
         if new_case:
-            CaseCompliance.objects.create(case=self)
-            CaseStatus.objects.create(case=self)
+            CaseCompliance.objects.create(simplified_case=self)
+            CaseStatus.objects.create(simplified_case=self)
         else:
             self.casestatus.calculate_and_save_status()
 
@@ -1099,7 +1099,7 @@ class CaseStatus(models.Model):
         Status.DEACTIVATED,
     ]
 
-    case = models.OneToOneField(SimplifiedCase, on_delete=models.PROTECT)
+    simplified_case = models.OneToOneField(SimplifiedCase, on_delete=models.PROTECT)
     status = models.CharField(
         max_length=200, choices=Status.choices, default=Status.UNASSIGNED
     )
@@ -1109,9 +1109,9 @@ class CaseStatus(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         self.status = self.calculate_status()
-        if self.status != self.case.status:
-            self.case.status = self.status
-            self.case.save()
+        if self.status != self.simplified_case.status:
+            self.simplified_case.status = self.status
+            self.simplified_case.save()
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
@@ -1123,83 +1123,92 @@ class CaseStatus(models.Model):
 
     def calculate_status(self) -> str:  # noqa: C901
         try:
-            compliance: CaseCompliance = self.case.compliance
+            compliance: CaseCompliance = self.simplified_case.compliance
         except CaseCompliance.DoesNotExist:
             compliance = None
 
-        if self.case.is_deactivated:
+        if self.simplified_case.is_deactivated:
             return CaseStatus.Status.DEACTIVATED
         elif (
-            self.case.case_completed == SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
-            or self.case.enforcement_body_pursuing
+            self.simplified_case.case_completed
+            == SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
+            or self.simplified_case.enforcement_body_pursuing
             == SimplifiedCase.EnforcementBodyPursuing.YES_COMPLETED
-            or self.case.enforcement_body_closed_case
+            or self.simplified_case.enforcement_body_closed_case
             == SimplifiedCase.EnforcementBodyClosedCase.YES
         ):
             return CaseStatus.Status.COMPLETE
         elif (
-            self.case.enforcement_body_pursuing
+            self.simplified_case.enforcement_body_pursuing
             == SimplifiedCase.EnforcementBodyPursuing.YES_IN_PROGRESS
-            or self.case.enforcement_body_closed_case
+            or self.simplified_case.enforcement_body_closed_case
             == SimplifiedCase.EnforcementBodyClosedCase.IN_PROGRESS
         ):
             return CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
-        elif self.case.sent_to_enforcement_body_sent_date is not None:
+        elif self.simplified_case.sent_to_enforcement_body_sent_date is not None:
             return CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
-        elif self.case.case_completed == SimplifiedCase.CaseCompleted.COMPLETE_SEND:
+        elif (
+            self.simplified_case.case_completed
+            == SimplifiedCase.CaseCompleted.COMPLETE_SEND
+        ):
             return CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
-        elif self.case.no_psb_contact == Boolean.YES:
+        elif self.simplified_case.no_psb_contact == Boolean.YES:
             return CaseStatus.Status.FINAL_DECISION_DUE
-        elif self.case.auditor is None:
+        elif self.simplified_case.auditor is None:
             return CaseStatus.Status.UNASSIGNED
         elif (
             compliance is None
-            or self.case.compliance.website_compliance_state_initial
+            or self.simplified_case.compliance.website_compliance_state_initial
             == CaseCompliance.WebsiteCompliance.UNKNOWN
-            or self.case.statement_checks_still_initial
+            or self.simplified_case.statement_checks_still_initial
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            self.case.compliance.website_compliance_state_initial
+            self.simplified_case.compliance.website_compliance_state_initial
             != CaseCompliance.WebsiteCompliance.UNKNOWN
-            and not self.case.statement_checks_still_initial
-            and self.case.report_review_status != Boolean.YES
+            and not self.simplified_case.statement_checks_still_initial
+            and self.simplified_case.report_review_status != Boolean.YES
         ):
             return CaseStatus.Status.REPORT_IN_PROGRESS
         elif (
-            self.case.report_review_status == Boolean.YES
-            and self.case.report_approved_status
+            self.simplified_case.report_review_status == Boolean.YES
+            and self.simplified_case.report_approved_status
             != SimplifiedCase.ReportApprovedStatus.APPROVED
         ):
             return CaseStatus.Status.QA_IN_PROGRESS
         elif (
-            self.case.report_approved_status
+            self.simplified_case.report_approved_status
             == SimplifiedCase.ReportApprovedStatus.APPROVED
-            and self.case.report_sent_date is None
+            and self.simplified_case.report_sent_date is None
         ):
             return CaseStatus.Status.REPORT_READY_TO_SEND
-        elif self.case.report_sent_date and self.case.report_acknowledged_date is None:
+        elif (
+            self.simplified_case.report_sent_date
+            and self.simplified_case.report_acknowledged_date is None
+        ):
             return CaseStatus.Status.IN_REPORT_CORES
-        elif self.case.report_acknowledged_date and (
-            self.case.twelve_week_update_requested_date is None
-            and self.case.twelve_week_correspondence_acknowledged_date is None
+        elif self.simplified_case.report_acknowledged_date and (
+            self.simplified_case.twelve_week_update_requested_date is None
+            and self.simplified_case.twelve_week_correspondence_acknowledged_date
+            is None
         ):
             return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
-        elif self.case.twelve_week_update_requested_date and (
-            self.case.twelve_week_correspondence_acknowledged_date is None
-            and self.case.organisation_response
+        elif self.simplified_case.twelve_week_update_requested_date and (
+            self.simplified_case.twelve_week_correspondence_acknowledged_date is None
+            and self.simplified_case.organisation_response
             == SimplifiedCase.OrganisationResponse.NOT_APPLICABLE
         ):
             return CaseStatus.Status.IN_12_WEEK_CORES
         elif (
-            self.case.twelve_week_correspondence_acknowledged_date
-            or self.case.organisation_response
+            self.simplified_case.twelve_week_correspondence_acknowledged_date
+            or self.simplified_case.organisation_response
             != SimplifiedCase.OrganisationResponse.NOT_APPLICABLE
-        ) and self.case.is_ready_for_final_decision == Boolean.NO:
+        ) and self.simplified_case.is_ready_for_final_decision == Boolean.NO:
             return CaseStatus.Status.REVIEWING_CHANGES
         elif (
-            self.case.is_ready_for_final_decision == Boolean.YES
-            and self.case.case_completed == SimplifiedCase.CaseCompleted.NO_DECISION
+            self.simplified_case.is_ready_for_final_decision == Boolean.YES
+            and self.simplified_case.case_completed
+            == SimplifiedCase.CaseCompleted.NO_DECISION
         ):
             return CaseStatus.Status.FINAL_DECISION_DUE
         return CaseStatus.Status.UNKNOWN
@@ -1220,7 +1229,7 @@ class CaseCompliance(VersionModel):
         NOT_COMPLIANT = "not-compliant", "Not compliant or no statement"
         UNKNOWN = "unknown", "Not assessed"
 
-    case = models.OneToOneField(
+    simplified_case = models.OneToOneField(
         SimplifiedCase, on_delete=models.PROTECT, related_name="compliance"
     )
     website_compliance_state_initial = models.CharField(
@@ -1267,7 +1276,7 @@ class Contact(VersionModel):
         NO = "no", "No"
         UNKNOWN = "unknown", "Not known"
 
-    case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
+    simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
     name = models.TextField(default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
     email = models.CharField(max_length=200, default="", blank=True)
@@ -1290,7 +1299,9 @@ class Contact(VersionModel):
         return string
 
     def get_absolute_url(self) -> str:
-        return reverse("simplified:manage-contact-details", kwargs={"pk": self.case.id})
+        return reverse(
+            "simplified:manage-contact-details", kwargs={"pk": self.simplified_case.id}
+        )
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
@@ -1316,7 +1327,7 @@ class CaseEvent(models.Model):
         READY_FOR_FINAL_DECISION = "read_for_final_decision", "Ready for final decision"
         CASE_COMPLETED = "completed", "Completed"
 
-    case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
+    simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
     event_type = models.CharField(
         max_length=100, choices=EventType.choices, default=EventType.CREATE
     )
@@ -1331,7 +1342,7 @@ class CaseEvent(models.Model):
         ordering = ["event_time"]
 
     def __str__(self) -> str:
-        return f"{self.case.organisation_name}: {self.message}"
+        return f"{self.simplified_case.organisation_name}: {self.message}"
 
 
 class EqualityBodyCorrespondence(models.Model):
@@ -1347,7 +1358,7 @@ class EqualityBodyCorrespondence(models.Model):
         UNRESOLVED = "outstanding", "Unresolved"
         RESOLVED = "resolved", "Resolved"
 
-    case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
+    simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
     id_within_case = models.IntegerField(default=1, blank=True)
     type = models.CharField(
         max_length=20,
@@ -1374,7 +1385,8 @@ class EqualityBodyCorrespondence(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse(
-            "simplified:list-equality-body-correspondence", kwargs={"pk": self.case.id}
+            "simplified:list-equality-body-correspondence",
+            kwargs={"pk": self.simplified_case.id},
         )
 
     def save(self, *args, **kwargs) -> None:
@@ -1382,7 +1394,7 @@ class EqualityBodyCorrespondence(models.Model):
         if not self.id:
             self.created = timezone.now()
             self.id_within_case = (
-                self.case.equalitybodycorrespondence_set.all().count() + 1
+                self.simplified_case.equalitybodycorrespondence_set.all().count() + 1
             )
         super().save(*args, **kwargs)
 
@@ -1392,7 +1404,7 @@ class ZendeskTicket(models.Model):
     Model for cases ZendeskTicket
     """
 
-    case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
+    simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
     id_within_case = models.IntegerField(default=1, blank=True)
     url = models.TextField(default="", blank=True)
     summary = models.TextField(default="", blank=True)
@@ -1410,7 +1422,9 @@ class ZendeskTicket(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
-            self.id_within_case = self.case.zendeskticket_set.all().count() + 1
+            self.id_within_case = (
+                self.simplified_case.zendeskticket_set.all().count() + 1
+            )
         super().save(*args, **kwargs)
 
 
@@ -1421,7 +1435,7 @@ class SimplifiedEventHistory(models.Model):
         UPDATE = "model_update", "Model update"
         CREATE = "model_create", "Model create"
 
-    case = models.ForeignKey(
+    simplified_case = models.ForeignKey(
         SimplifiedCase, on_delete=models.PROTECT, null=True, blank=True
     )
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
@@ -1439,7 +1453,7 @@ class SimplifiedEventHistory(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.case} {self.content_type} {self.object_id} {self.event_type} (#{self.id})"
+        return f"{self.simplified_case} {self.content_type} {self.object_id} {self.event_type} (#{self.id})"
 
     class Meta:
         ordering = ["-created"]

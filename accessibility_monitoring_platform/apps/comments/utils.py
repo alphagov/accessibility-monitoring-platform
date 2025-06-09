@@ -36,14 +36,14 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     # If commentor is not auditor, then it add auditor to list of ids
     if (
         comment.case is not None
-        and comment.case.auditor is not None
-        and request.user != comment.case.auditor
+        and comment.base_case.auditor is not None
+        and request.user != comment.base_case.auditor
     ):
-        user_ids.add(comment.case.auditor.id)
+        user_ids.add(comment.base_case.auditor.id)
 
     # Find the QA and add them to the set of ids
-    if comment.case and comment.case.reviewer:
-        user_ids.add(comment.case.reviewer.id)
+    if comment.case and comment.base_case.reviewer:
+        user_ids.add(comment.base_case.reviewer.id)
 
     # Add the on-call QA to the set of ids
     platform: Platform = get_platform_settings()
@@ -60,7 +60,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
         f"{first_name} {last_name} left a message in discussion:\n\n{comment.body}"
     )
     organisation_name: str = (
-        comment.case.organisation_name if comment.case is not None else ""
+        comment.base_case.organisation_name if comment.case is not None else ""
     )
     list_description: str = f"{organisation_name} | COMMENT"
 
@@ -68,7 +68,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
         target_user = User.objects.get(id=target_user_id)
         task: Task = add_task(
             user=target_user,
-            case=comment.case,
+            base_case=comment.base_case,
             type=Task.Type.QA_COMMENT,
             description=description,
             list_description=list_description,

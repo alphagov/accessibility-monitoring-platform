@@ -393,7 +393,9 @@ class CaseQACommentsUpdateView(CaseUpdateView):
         body: str = form.cleaned_data.get("body")
         if body:
             comment: Comment = Comment.objects.create(
-                case=case, user=self.request.user, body=form.cleaned_data.get("body")
+                base_case=case,
+                user=self.request.user,
+                body=form.cleaned_data.get("body"),
             )
             record_model_create_event(
                 user=self.request.user, model_object=comment, case=case
@@ -421,7 +423,7 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
                 if case.auditor:
                     task: Task = add_task(
                         user=case.auditor,
-                        case=case,
+                        base_case=case,
                         type=Task.Type.REPORT_APPROVED,
                         description=f"{self.request.user.get_full_name()} QA approved Case {case}",
                         list_description=f"{case} - Report approved",
@@ -483,7 +485,7 @@ class ContactCreateView(CreateView):
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
         contact: Contact = form.save(commit=False)
-        contact.case = case
+        contact.simplified_case = case
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -511,7 +513,7 @@ class ContactUpdateView(UpdateView):
         if "delete_contact" in self.request.POST:
             contact.is_deleted = True
         record_model_update_event(
-            user=self.request.user, model_object=contact, case=contact.case
+            user=self.request.user, model_object=contact, case=contact.simplified_case
         )
         return super().form_valid(form)
 
@@ -1101,7 +1103,7 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
         zendesk_ticket: ZendeskTicket = form.save(commit=False)
-        zendesk_ticket.case = case
+        zendesk_ticket.simplified_case = case
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -1109,9 +1111,9 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
         zendesk_ticket: ZendeskTicket = self.object
         user: User = self.request.user
         record_model_create_event(
-            user=user, model_object=zendesk_ticket, case=zendesk_ticket.case
+            user=user, model_object=zendesk_ticket, case=zendesk_ticket.simplified_case
         )
-        case_pk: dict[str, int] = {"pk": zendesk_ticket.case.id}
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.base_case.id}
         return reverse("simplified:zendesk-tickets", kwargs=case_pk)
 
 
@@ -1131,7 +1133,9 @@ class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
             zendesk_ticket: ZendeskTicket = form.save(commit=False)
             user: User = self.request.user
             record_model_update_event(
-                user=user, model_object=zendesk_ticket, case=zendesk_ticket.case
+                user=user,
+                model_object=zendesk_ticket,
+                case=zendesk_ticket.simplified_case,
             )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -1139,7 +1143,7 @@ class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
     def get_success_url(self) -> str:
         """Return to zendesk tickets page on save"""
         zendesk_ticket: ZendeskTicket = self.object
-        case_pk: dict[str, int] = {"pk": zendesk_ticket.case.id}
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.base_case.id}
         return reverse("simplified:zendesk-tickets", kwargs=case_pk)
 
 
@@ -1215,7 +1219,7 @@ class CaseHistoryDetailView(DetailView):
         context: dict[str, Any] = super().get_context_data(**kwargs)
         case: SimplifiedCase = self.object
         event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.filter(
-            case=case
+            simplified_case=case
         ).prefetch_related("parent")
         context["event_history"] = event_history
         context["all_users"] = User.objects.all().order_by("id")

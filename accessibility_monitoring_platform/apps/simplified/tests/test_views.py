@@ -371,7 +371,7 @@ def test_view_case_includes_zendesk_tickets(admin_client):
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
     ZendeskTicket.objects.create(
-        case=case,
+        simplified_case=case,
         url=ZENDESK_URL,
         summary=ZENDESK_SUMMARY,
     )
@@ -390,11 +390,11 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
     """Test that deleted Contacts are not included in context"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
     Contact.objects.create(
-        case=case,
+        simplified_case=case,
         name="Undeleted Contact",
     )
     Contact.objects.create(
-        case=case,
+        simplified_case=case,
         name="Deleted Contact",
         is_deleted=True,
     )
@@ -671,7 +671,7 @@ def test_update_contact_page_loads(admin_client):
     """Test that the update Contact page loads"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
     contact: Contact = Contact.objects.create(
-        case=case, name=CONTACT_NAME, email=CONTACT_EMAIL
+        simplified_case=case, name=CONTACT_NAME, email=CONTACT_EMAIL
     )
 
     response: HttpResponse = admin_client.get(
@@ -707,7 +707,7 @@ def test_create_zendesk_ticket_page_loads(admin_client):
 def test_update_zendesk_ticket_page_loads(admin_client):
     """Test that the update Zendesk ticket page loads"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(simplified_case=case)
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:update-zendesk-ticket", kwargs={"pk": zendesk_ticket.id})
@@ -737,7 +737,9 @@ def test_create_zendesk_ticket_view(admin_client):
     assert response.status_code == 302
     assert response.url == "/cases/1/zendesk-tickets/"
 
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.filter(case=case).first()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.filter(
+        simplified_case=case
+    ).first()
 
     assert zendesk_ticket is not None
     assert zendesk_ticket.url == ZENDESK_URL
@@ -754,7 +756,7 @@ def test_create_zendesk_ticket_view(admin_client):
 def test_update_zendesk_ticket_view(admin_client):
     """Test that the update Zendesk ticket view works"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(simplified_case=case)
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:update-zendesk-ticket", kwargs={"pk": zendesk_ticket.id}),
@@ -767,7 +769,9 @@ def test_update_zendesk_ticket_view(admin_client):
     assert response.status_code == 302
     assert response.url == "/cases/1/zendesk-tickets/"
 
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.filter(case=case).first()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.filter(
+        simplified_case=case
+    ).first()
 
     assert zendesk_ticket is not None
     assert zendesk_ticket.url == ZENDESK_URL
@@ -784,7 +788,7 @@ def test_update_zendesk_ticket_view(admin_client):
 def test_confirm_delete_zendesk_ticket_view(admin_client):
     """Test that the confirm delete Zendesk ticket view works"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(simplified_case=case)
 
     assert zendesk_ticket.is_deleted is False
 
@@ -946,7 +950,7 @@ def test_create_case_creates_case_event(admin_client):
     assert response.status_code == 302
 
     case: SimplifiedCase = SimplifiedCase.objects.get(home_page_url=HOME_PAGE_URL)
-    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(simplified_case=case)
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
@@ -970,7 +974,7 @@ def test_updating_case_creates_case_event(admin_client):
     )
     assert response.status_code == 302
 
-    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(simplified_case=case)
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
@@ -1918,7 +1922,7 @@ def test_case_navigation_shown_on_edit_contact_page(admin_client):
     case: SimplifiedCase = SimplifiedCase.objects.create(
         enable_correspondence_process=True
     )
-    contact: Contact = Contact.objects.create(case=case)
+    contact: Contact = Contact.objects.create(simplified_case=case)
 
     response: HttpResponse = admin_client.get(
         reverse(
@@ -3778,7 +3782,7 @@ def test_zendesk_tickets_shown(admin_client):
     Test Zendesk tickets shown in correspondence overview.
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    ZendeskTicket.objects.create(case=case, summary=ZENDESK_SUMMARY)
+    ZendeskTicket.objects.create(simplified_case=case, summary=ZENDESK_SUMMARY)
 
     response: HttpResponse = admin_client.get(
         reverse(

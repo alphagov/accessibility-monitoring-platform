@@ -151,7 +151,9 @@ class ReminderTaskCreateView(CreateView):
         record_model_create_event(
             user=self.request.user, model_object=self.object, case=self.object.case
         )
-        return reverse("simplified:case-detail", kwargs={"pk": self.object.case.id})
+        return reverse(
+            "simplified:case-detail", kwargs={"pk": self.object.base_case.id}
+        )
 
 
 class ReminderTaskUpdateView(UpdateView):
@@ -182,7 +184,8 @@ class ReminderTaskUpdateView(UpdateView):
         """Redirect to reminder create page if current reminder deleted"""
         if "delete" in self.request.POST:
             return reverse(
-                "notifications:reminder-create", kwargs={"case_id": self.object.case.id}
+                "notifications:reminder-create",
+                kwargs={"case_id": self.object.base_case.id},
             )
         return reverse(
             "notifications:edit-reminder-task", kwargs={"pk": self.object.id}

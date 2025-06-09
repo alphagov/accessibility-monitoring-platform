@@ -63,12 +63,16 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
-    id_within_case: int = case.retests.count()
+    simplified_case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
+    id_within_case: int = simplified_case.retests.count()
     if id_within_case == 0:
         id_within_case = 1
-    retest: Retest = Retest.objects.create(case=case, id_within_case=id_within_case)
-    record_model_create_event(user=request.user, model_object=retest, case=case)
+    retest: Retest = Retest.objects.create(
+        simplified_case=simplified_case, id_within_case=id_within_case
+    )
+    record_model_create_event(
+        user=request.user, model_object=retest, case=simplified_case
+    )
     create_checkresults_for_retest(retest=retest)
     return redirect(reverse("audits:retest-metadata-update", kwargs={"pk": retest.id}))
 
@@ -80,7 +84,9 @@ def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
     record_model_update_event(user=request.user, model_object=retest, case=retest.case)
     retest.save()
     return redirect(
-        reverse("simplified:edit-retest-overview", kwargs={"pk": retest.case.id})
+        reverse(
+            "simplified:edit-retest-overview", kwargs={"pk": retest.simplified_case.id}
+        )
     )
 
 
@@ -280,7 +286,7 @@ class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
             )
             for statement_page in statement_pages:
                 if not statement_page.audit_id:
-                    statement_page.audit = retest.case.audit
+                    statement_page.audit = retest.simplified_case.audit
                     statement_page.save()
                     record_model_create_event(
                         user=self.request.user,

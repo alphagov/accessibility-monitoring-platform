@@ -214,7 +214,9 @@ def record_case_event(
     """Create a case event based on the changes between the old and new cases"""
     if old_case is None:
         CaseEvent.objects.create(
-            case=new_case, done_by=user, event_type=CaseEvent.EventType.CREATE
+            simplified_case=new_case,
+            done_by=user,
+            event_type=CaseEvent.EventType.CREATE,
         )
         return
     if old_case.auditor != new_case.auditor:
@@ -225,14 +227,14 @@ def record_case_event(
             new_case.auditor.get_full_name() if new_case.auditor is not None else "none"
         )
         CaseEvent.objects.create(
-            case=old_case,
+            simplified_case=old_case,
             done_by=user,
             event_type=CaseEvent.EventType.AUDITOR,
             message=f"Auditor changed from {old_user_name} to {new_user_name}",
         )
     if old_case.audit is None and new_case.audit is not None:
         CaseEvent.objects.create(
-            case=old_case,
+            simplified_case=old_case,
             done_by=user,
             event_type=CaseEvent.EventType.CREATE_AUDIT,
             message="Start of test",
@@ -241,7 +243,7 @@ def record_case_event(
         old_status: str = old_case.get_report_review_status_display()
         new_status: str = new_case.get_report_review_status_display()
         CaseEvent.objects.create(
-            case=old_case,
+            simplified_case=old_case,
             done_by=user,
             event_type=CaseEvent.EventType.READY_FOR_QA,
             message=f"Report ready to be reviewed changed from '{old_status}' to '{new_status}'",
@@ -258,7 +260,7 @@ def record_case_event(
             else "none"
         )
         CaseEvent.objects.create(
-            case=old_case,
+            simplified_case=old_case,
             done_by=user,
             event_type=CaseEvent.EventType.QA_AUDITOR,
             message=f"QA auditor changed from {old_user_name} to {new_user_name}",
@@ -267,7 +269,7 @@ def record_case_event(
         old_status: str = old_case.get_report_approved_status_display()
         new_status: str = new_case.get_report_approved_status_display()
         CaseEvent.objects.create(
-            case=old_case,
+            simplified_case=old_case,
             done_by=user,
             event_type=CaseEvent.EventType.APPROVE_REPORT,
             message=f"QA approval changed from '{old_status}' to '{new_status}'",
@@ -276,7 +278,7 @@ def record_case_event(
         old_status: str = old_case.get_is_ready_for_final_decision_display()
         new_status: str = new_case.get_is_ready_for_final_decision_display()
         CaseEvent.objects.create(
-            case=old_case,
+            simplified_case=old_case,
             done_by=user,
             event_type=CaseEvent.EventType.READY_FOR_FINAL_DECISION,
             message=f"Case ready for final decision changed from '{old_status}' to '{new_status}'",
@@ -285,7 +287,7 @@ def record_case_event(
         old_status: str = old_case.get_case_completed_display()
         new_status: str = new_case.get_case_completed_display()
         CaseEvent.objects.create(
-            case=old_case,
+            simplified_case=old_case,
             done_by=user,
             event_type=CaseEvent.EventType.CASE_COMPLETED,
             message=f"Case completed changed from '{old_status}' to '{new_status}'",
@@ -332,7 +334,7 @@ def record_model_update_event(
     )
     if diff_fields:
         SimplifiedEventHistory.objects.create(
-            case=case,
+            simplified_case=case,
             created_by=user,
             parent=model_object,
             difference=json.dumps(diff_fields, default=str),
@@ -346,7 +348,7 @@ def record_model_create_event(
     model_object_fields = copy.copy(vars(model_object))
     del model_object_fields["_state"]
     SimplifiedEventHistory.objects.create(
-        case=case,
+        simplified_case=case,
         created_by=user,
         parent=model_object,
         event_type=SimplifiedEventHistory.Type.CREATE,

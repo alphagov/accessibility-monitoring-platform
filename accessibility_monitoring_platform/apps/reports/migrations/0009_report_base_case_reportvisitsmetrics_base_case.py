@@ -23,6 +23,17 @@ class Migration(migrations.Migration):
                 to="cases.basecase",
             ),
         ),
+        migrations.AlterField(
+            model_name="report",
+            name="case",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="report_case",
+                to="cases.case",
+            ),
+        ),
         migrations.AddField(
             model_name="reportvisitsmetrics",
             name="base_case",

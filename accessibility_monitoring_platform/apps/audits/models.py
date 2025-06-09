@@ -25,7 +25,7 @@ ISSUE_IDENTIFIER_STATEMENT: str = "S"
 
 
 def build_issue_identifier(
-    case: SimplifiedCase,
+    simplified_case: SimplifiedCase,
     issue: (
         CheckResult
         | StatementCheckResult
@@ -42,7 +42,7 @@ def build_issue_identifier(
     )
     if custom_issue:
         issue_type += "C"
-    return f"{case.case_number}-{issue_type}-{issue.id_within_case}"
+    return f"{simplified_case.case_number}-{issue_type}-{issue.id_within_case}"
 
 
 class Audit(VersionModel):
@@ -782,7 +782,7 @@ class CheckResult(models.Model):
         if not self.id:
             self.id_within_case = self.audit.checkresult_audit.all().count() + 1
             self.issue_identifier = build_issue_identifier(
-                case=self.audit.simplified_case, issue=self
+                simplified_case=self.audit.simplified_case, issue=self
             )
         super().save(*args, **kwargs)
 
@@ -938,7 +938,7 @@ class StatementCheckResult(models.Model):
             else:
                 self.id_within_case = self.audit.statement_check_results.count() + 1
             self.issue_identifier = build_issue_identifier(
-                case=self.audit.simplified_case,
+                simplified_case=self.audit.simplified_case,
                 issue=self,
                 custom_issue=self.statement_check is None,
             )
@@ -978,7 +978,7 @@ class Retest(VersionModel):
         PARTIAL = "partially-compliant", "Partially compliant"
         NOT_KNOWN = "not-known", "Not known"
 
-    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    case = models.ForeignKey(Case, on_delete=models.PROTECT, blank=True, null=True)
     simplified_case = models.ForeignKey(
         SimplifiedCase,
         on_delete=models.PROTECT,
@@ -1048,12 +1048,12 @@ class Retest(VersionModel):
         body requested retests up to this one.
         """
         fixed_checks_count: int = (
-            CheckResult.objects.filter(audit=self.case.audit)
+            CheckResult.objects.filter(audit=self.base_case.audit)
             .filter(retest_state=CheckResult.RetestResult.FIXED)
             .exclude(page__not_found="yes")
             .count()
         )
-        for retest in self.case.retests.exclude(
+        for retest in self.base_case.retests.exclude(
             id_within_case__gt=self.id_within_case
         ).exclude(id_within_case=0):
             fixed_checks_count += (
@@ -1067,13 +1067,13 @@ class Retest(VersionModel):
     @property
     def original_retest(self):
         """Copy of 12-week retest results"""
-        return self.case.retests.filter(id_within_case=0).first()
+        return self.base_case.retests.filter(id_within_case=0).first()
 
     @property
     def previous_retest(self):
         """Return previous retest"""
         if self.id_within_case > 0:
-            return self.case.retests.filter(
+            return self.simplified_case.retests.filter(
                 id_within_case=self.id_within_case - 1
             ).first()
         return None
@@ -1081,7 +1081,7 @@ class Retest(VersionModel):
     @property
     def latest_retest(self):
         """Return latest retest"""
-        return self.case.retests.first()
+        return self.base_case.retests.first()
 
     @property
     def check_results(self):
@@ -1250,8 +1250,11 @@ class RetestCheckResult(models.Model):
         if not self.id:
             if self.id_within_case == 0:
                 self.id_within_case = self.check_result.id_within_case
+            import pdb
+
+            pdb.set_trace()
             self.issue_identifier = build_issue_identifier(
-                case=self.retest.simplified_case, issue=self
+                simplified_case=self.retest.simplified_case, issue=self
             )
         super().save(*args, **kwargs)
 
@@ -1335,7 +1338,7 @@ class RetestStatementCheckResult(models.Model):
                     + 1
                 )
             self.issue_identifier = build_issue_identifier(
-                case=self.retest.simplified_case,
+                simplified_case=self.retest.simplified_case,
                 issue=self,
                 custom_issue=self.statement_check is None,
             )

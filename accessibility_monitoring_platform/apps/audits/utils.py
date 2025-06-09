@@ -299,7 +299,7 @@ def create_checkresults_for_retest(retest: Retest) -> None:
     Create pages and checkresults for restest from outstanding issues of previous test.
     """
 
-    audit: Audit = retest.case.audit
+    audit: Audit = retest.simplified_case.audit
     if retest.id_within_case == 1:
         # Create fake retest from 12-week results for first retest to compare itself to
         retest_0: Retest = Retest.objects.create(case=retest.case, id_within_case=0)
@@ -319,7 +319,7 @@ def create_checkresults_for_retest(retest: Retest) -> None:
                         retest_notes=check_result.retest_notes,
                     )
 
-    previous_retest: Retest = retest.case.retests.filter(
+    previous_retest: Retest = retest.simplified_case.retests.filter(
         id_within_case=retest.id_within_case - 1
     ).first()
 

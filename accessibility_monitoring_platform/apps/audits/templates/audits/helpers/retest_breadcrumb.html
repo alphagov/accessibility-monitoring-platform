@@ -3,7 +3,7 @@
         {% include 'common/breadcrumb_home.html' %}
         {% include 'simplified/helpers/breadcrumb_case.html' with case=retest.case %}
         <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="{% url 'simplified:edit-retest-overview' retest.case.id %}">Retest overview</a>
+            <a class="govuk-breadcrumbs__link" href="{% url 'simplified:edit-retest-overview' retest.simplified_case.id %}">Retest overview</a>
         </li>
         <li class="govuk-breadcrumbs__list-item">{{ retest }}</li>
         <li class="govuk-breadcrumbs__list-item">{{ page_heading }}</li>

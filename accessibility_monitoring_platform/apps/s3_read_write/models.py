@@ -14,7 +14,7 @@ class S3Report(models.Model):
     Model for Case
     """
 
-    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    case = models.ForeignKey(Case, on_delete=models.PROTECT, blank=True, null=True)
     base_case = models.ForeignKey(
         BaseCase,
         on_delete=models.PROTECT,

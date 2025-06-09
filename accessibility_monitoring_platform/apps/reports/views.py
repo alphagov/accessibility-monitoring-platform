@@ -38,7 +38,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
         return redirect(
             reverse("simplified:edit-report-ready-for-qa", kwargs={"pk": case.id})
         )
-    report: Report = Report.objects.create(case=case)
+    report: Report = Report.objects.create(base_case=case)
     record_model_create_event(user=request.user, model_object=report, case=case)
     CaseEvent.objects.create(
         case=case,
@@ -97,7 +97,7 @@ class ReportPreviewTemplateView(ReportTemplateView):
         context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         report: Report = context["report"]
         template: Template = loader.get_template(report.template_path)
-        context.update(get_report_visits_metrics(report.case))
+        context.update(get_report_visits_metrics(report.base_case))
 
         context["s3_report"] = report.latest_s3_report
         report_context: dict[str, Any] = build_report_context(report=report)
@@ -130,7 +130,10 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     report: Report = get_object_or_404(Report, id=pk)
     publish_report_util(report=report, request=request)
     return redirect(
-        reverse("simplified:edit-publish-report", kwargs={"pk": report.case.id})
+        reverse(
+            "simplified:edit-publish-report",
+            kwargs={"pk": report.base_case.simplifiedcase.id},
+        )
     )
 
 

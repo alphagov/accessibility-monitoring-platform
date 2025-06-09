@@ -200,7 +200,7 @@ def test_case_completed_timestamp_is_updated_on_completion():
 def test_contact_created_timestamp_is_populated():
     """Test the created field is populated the first time the Contact is saved"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
+    contact: Contact = Contact.objects.create(simplified_case=case)
 
     assert contact.created is not None
     assert isinstance(contact.created, datetime)
@@ -210,7 +210,7 @@ def test_contact_created_timestamp_is_populated():
 def test_contact_created_timestamp_is_not_updated():
     """Test the created field is not updated on subsequent save"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
+    contact: Contact = Contact.objects.create(simplified_case=case)
 
     original_created_timestamp: datetime = contact.created
     updated_name: str = "updated name"
@@ -226,8 +226,8 @@ def test_contact_created_timestamp_is_not_updated():
 def test_most_recently_created_contact_returned_first():
     """Test the contacts are returned in most recently created order"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact1: Contact = Contact.objects.create(case=case)
-    contact2: Contact = Contact.objects.create(case=case)
+    contact1: Contact = Contact.objects.create(simplified_case=case)
+    contact2: Contact = Contact.objects.create(simplified_case=case)
 
     contacts: list[Contact] = list(case.contacts)
 
@@ -239,8 +239,8 @@ def test_most_recently_created_contact_returned_first():
 def test_deleted_contacts_not_returned():
     """Test that deleted contacts are not returned"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact1: Contact = Contact.objects.create(case=case)
-    contact2: Contact = Contact.objects.create(case=case)
+    contact1: Contact = Contact.objects.create(simplified_case=case)
+    contact2: Contact = Contact.objects.create(simplified_case=case)
 
     contacts: list[Contact] = list(case.contacts)
 
@@ -261,9 +261,11 @@ def test_preferred_contact_returned_first():
     Test the contacts are returned in most recently created order with preferred contact first
     """
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    preferred_contact: Contact = Contact.objects.create(case=case, preferred="yes")
-    contact1: Contact = Contact.objects.create(case=case)
-    contact2: Contact = Contact.objects.create(case=case)
+    preferred_contact: Contact = Contact.objects.create(
+        simplified_case=case, preferred="yes"
+    )
+    contact1: Contact = Contact.objects.create(simplified_case=case)
+    contact2: Contact = Contact.objects.create(simplified_case=case)
 
     contacts: list[Contact] = list(case.contacts)
 
@@ -279,7 +281,7 @@ def test_contact_exists():
 
     assert case.contact_exists is False
 
-    Contact.objects.create(case=case)
+    Contact.objects.create(simplified_case=case)
 
     assert case.contact_exists is True
 
@@ -536,7 +538,7 @@ def test_case_last_edited_from_contact(last_edited_case: SimplifiedCase):
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_CREATED)
     ):
-        contact: Contact = Contact.objects.create(case=last_edited_case)
+        contact: Contact = Contact.objects.create(simplified_case=last_edited_case)
 
     assert last_edited_case.last_edited == DATETIME_CONTACT_CREATED
 
@@ -703,7 +705,7 @@ def test_case_statement_checks_still_initial():
 def test_contact_updated_updated():
     """Test the contact updated field is updated"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
+    contact: Contact = Contact.objects.create(simplified_case=case)
 
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_UPDATED)
@@ -1266,7 +1268,7 @@ def test_case_latest_psb_zendesk_url():
 
     assert case.latest_psb_zendesk_url == "first"
 
-    ZendeskTicket.objects.create(case=case, url="second")
+    ZendeskTicket.objects.create(simplified_case=case, url="second")
 
     assert case.latest_psb_zendesk_url == "second"
 
@@ -1275,7 +1277,7 @@ def test_case_latest_psb_zendesk_url():
 def test_case_zendesk_tickets():
     """Test Case.zendesk_tickets"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(simplified_case=case)
 
     assert case.zendesk_tickets.count() == 1
     assert case.zendesk_tickets.first() == zendesk_ticket
@@ -1290,7 +1292,7 @@ def test_case_zendesk_tickets():
 def test_zendesk_ticket_get_absolute_url():
     """Test ZendeskTickets.get_absolute_url"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(simplified_case=case)
 
     assert zendesk_ticket.get_absolute_url() == "/cases/1/update-zendesk-ticket/"
 
@@ -1299,11 +1301,15 @@ def test_zendesk_ticket_get_absolute_url():
 def test_zendesk_ticket_id_within_case():
     """Test ZendeskTicket.id_within_case"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
-    first_zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+    first_zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(
+        simplified_case=case
+    )
 
     assert first_zendesk_ticket.id_within_case == 1
 
-    second_zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(case=case)
+    second_zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(
+        simplified_case=case
+    )
 
     assert second_zendesk_ticket.id_within_case == 2
 
@@ -1722,7 +1728,7 @@ def test_event_history_history_update():
     user: User = User.objects.create()
     case: SimplifiedCase = SimplifiedCase.objects.create()
     event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.create(
-        case=case,
+        simplified_case=case,
         created_by=user,
         parent=case,
         difference=json.dumps({"notes": "Old note -> New note"}),
@@ -1743,7 +1749,7 @@ def test_event_history_history_create():
     user: User = User.objects.create()
     case: SimplifiedCase = SimplifiedCase.objects.create()
     event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.create(
-        case=case,
+        simplified_case=case,
         created_by=user,
         parent=case,
         event_type=SimplifiedEventHistory.Type.CREATE,
@@ -1768,7 +1774,7 @@ def test_event_history_history_update_separator_in_text():
     user: User = User.objects.create()
     case: SimplifiedCase = SimplifiedCase.objects.create()
     event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.create(
-        case=case,
+        simplified_case=case,
         created_by=user,
         parent=case,
         difference=json.dumps({"notes": "Old note -> New note -> separator"}),

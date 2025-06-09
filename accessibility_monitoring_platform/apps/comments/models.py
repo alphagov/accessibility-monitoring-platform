@@ -94,15 +94,15 @@ class Comment(models.Model):
             extensions=settings.MARKDOWN_EXTENSIONS,
         )
         issue_identifiers = set(
-            re.findall(f"{self.case.case_number}-(?:A|S|SC)-[0-9]+", html)
+            re.findall(f"{self.base_case.case_number}-(?:A|S|SC)-[0-9]+", html)
         )
         for issue_identifier in issue_identifiers:
             url: str = ""
-            if issue_identifier.startswith(f"{self.case.case_number}-A-"):
+            if issue_identifier.startswith(f"{self.base_case.case_number}-A-"):
                 url: str = get_initial_check_result_url_from_issue_identifier(
                     issue_identifier=issue_identifier
                 )
-            elif issue_identifier.startswith(f"{self.case.case_number}-S"):
+            elif issue_identifier.startswith(f"{self.base_case.case_number}-S"):
                 url: str = get_initial_statement_check_result_url_from_issue_identifier(
                     issue_identifier=issue_identifier
                 )

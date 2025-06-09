@@ -12,6 +12,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name="s3report",
+            name="case",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="cases.case",
+            ),
+        ),
         migrations.AddField(
             model_name="s3report",
             name="base_case",

@@ -55,7 +55,11 @@ class Report(VersionModel):
     """
 
     case = models.OneToOneField(
-        Case, on_delete=models.PROTECT, related_name="report_case"
+        Case,
+        on_delete=models.PROTECT,
+        related_name="report_case",
+        blank=True,
+        null=True,
     )
     base_case = models.ForeignKey(
         BaseCase,
@@ -119,13 +123,13 @@ class Report(VersionModel):
     @property
     def latest_s3_report(self) -> S3Report | None:
         """The most recently published report"""
-        return self.case.s3report_set.filter(latest_published=True).last()
+        return self.base_case.s3report_set.filter(latest_published=True).last()
 
     @property
     def visits_metrics(self) -> dict[str, int]:
         return {
-            "number_of_visits": self.case.reportvisitsmetrics_set.all().count(),
-            "number_of_unique_visitors": self.case.reportvisitsmetrics_set.values_list(
+            "number_of_visits": self.base_case.reportvisitsmetrics_set.all().count(),
+            "number_of_unique_visitors": self.base_case.reportvisitsmetrics_set.values_list(
                 "fingerprint_hash"
             )
             .distinct()
@@ -152,5 +156,5 @@ class ReportVisitsMetrics(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse(
-            "reports:report-metrics-view", kwargs={"pk": self.case.report.id}  # type: ignore
+            "reports:report-metrics-view", kwargs={"pk": self.base_case.report.id}  # type: ignore
         )

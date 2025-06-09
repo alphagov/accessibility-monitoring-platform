@@ -77,7 +77,7 @@ def test_create_report_redirects(admin_client):
 def test_create_report_does_not_create_duplicate(admin_client):
     """Test that report create does not create a duplicate report"""
     report: Report = create_report()
-    path_kwargs: dict[str, int] = {"case_id": report.case.id}
+    path_kwargs: dict[str, int] = {"case_id": report.base_case.id}
 
     assert Report.objects.filter(case=report.case).count() == 1
 
@@ -113,7 +113,7 @@ def test_report_includes_page_location(admin_client):
     Test that report contains the page location
     """
     report: Report = create_report()
-    audit: Audit = report.case.audit
+    audit: Audit = report.base_case.audit
     Page.objects.create(
         audit=audit, page_type=Page.Type.HOME, url=HOME_PAGE_URL, location=PAGE_LOCATION
     )
@@ -326,7 +326,7 @@ def test_report_includes_statement_custom_issue(admin_client):
     Test that report contains the page location
     """
     report: Report = create_report()
-    audit: Audit = report.case.audit
+    audit: Audit = report.base_case.audit
     StatementPage.objects.create(audit=audit, url="https://example.com")
 
     report_pk_kwargs: dict[str, int] = {"pk": report.id}

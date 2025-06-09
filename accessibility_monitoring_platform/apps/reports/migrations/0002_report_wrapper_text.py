@@ -3,7 +3,7 @@
 from django.db import migrations
 
 REPORT_WRAPPER_TEXT = {
-    "title": "Accessibility report for {{ report.case.domain }}",
+    "title": "Accessibility report for {{ report.base_case.domain }}",
     "sent_by": "[Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service)",
     "contact": "[accessibility-monitoring@digital.cabinet-office.gov.uk](mailto:accessibility-monitoring@digital.cabinet-office.gov.uk)",
     "related_content": """

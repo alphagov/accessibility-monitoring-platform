@@ -1012,7 +1012,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     assert response.status_code == 302
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
-    assert audit_from_db.case.status.status == "report-in-progress"
+    assert audit_from_db.base_case.status.status == "report-in-progress"
 
     statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
         id=1
@@ -3481,7 +3481,7 @@ def test_equality_body_retest_statement_compliance_update_redirects_to_retest_ov
     """
     retest: Retest = create_equality_body_retest()
     retest_pk: dict[str, int] = {"pk": retest.id}
-    case_pk: dict[str, int] = {"pk": retest.case.id}
+    case_pk: dict[str, int] = {"pk": retest.simplified_case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-equality-body-statement-decision", kwargs=retest_pk),

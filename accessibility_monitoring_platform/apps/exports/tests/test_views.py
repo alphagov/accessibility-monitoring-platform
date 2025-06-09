@@ -305,7 +305,7 @@ def test_confirm_export(admin_client):
     export_case.status = ExportCase.Status.READY
     export_case.save()
 
-    assert export_case.case.sent_to_enforcement_body_sent_date is None
+    assert export_case.base_case.sent_to_enforcement_body_sent_date is None
 
     response: HttpResponse = admin_client.post(
         reverse("exports:export-confirm-export", kwargs={"pk": export.id}),
@@ -320,7 +320,7 @@ def test_confirm_export(admin_client):
         "exports:export-ready-cases", kwargs={"pk": export.id}
     )
 
-    case: Case = Case.objects.get(id=export_case.case.id)
+    case: Case = Case.objects.get(id=export_case.base_case.id)
 
     assert case.sent_to_enforcement_body_sent_date == date.today()
 

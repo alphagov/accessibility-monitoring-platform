@@ -46,4 +46,14 @@ class Migration(migrations.Migration):
                 to="cases.case",
             ),
         ),
+        migrations.AlterField(
+            model_name="retest",
+            name="case",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="cases.case",
+            ),
+        ),
     ]

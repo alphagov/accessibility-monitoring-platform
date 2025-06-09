@@ -30,7 +30,7 @@ def populate_id_within_case(apps, schema_editor):  # pylint: disable=unused-argu
     for audit in Audit.objects.all():
         for check_result in CheckResult.objects.filter(audit=audit):
             check_result.issue_identifier = build_issue_identifier(
-                case=audit.simplified_case,
+                case=audit.case,
                 issue=check_result,
                 issue_type=ISSUE_IDENTIFIER_WCAG,
             )
@@ -44,7 +44,7 @@ def populate_id_within_case(apps, schema_editor):  # pylint: disable=unused-argu
             if statement_check_result.statement_check is None:
                 issue_type += CUSTOM_ISSUE
             statement_check_result.issue_identifier = build_issue_identifier(
-                case=audit.simplified_case,
+                case=audit.case,
                 issue=statement_check_result,
                 issue_type=issue_type,
             )
@@ -56,7 +56,7 @@ def populate_id_within_case(apps, schema_editor):  # pylint: disable=unused-argu
                 retest_check_result.check_result.id_within_case
             )
             retest_check_result.issue_identifier = build_issue_identifier(
-                case=audit.simplified_case,
+                case=audit.case,
                 issue=retest_check_result,
                 issue_type=ISSUE_IDENTIFIER_WCAG,
             )

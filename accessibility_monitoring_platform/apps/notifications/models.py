@@ -48,7 +48,7 @@ class Task(models.Model):
                     label="Go to QA comment",
                     url=reverse(
                         "simplified:edit-qa-comments",
-                        kwargs={"pk": self.case.id},
+                        kwargs={"pk": self.base_case.id},
                     ),
                 ),
             )
@@ -58,7 +58,7 @@ class Task(models.Model):
                     label="Go to Report approved",
                     url=reverse(
                         "simplified:edit-qa-approval",
-                        kwargs={"pk": self.case.id},
+                        kwargs={"pk": self.base_case.id},
                     ),
                 ),
             )
@@ -69,7 +69,7 @@ class Task(models.Model):
                         label="Create new",
                         url=reverse(
                             "notifications:reminder-create",
-                            kwargs={"case_id": self.case.id},
+                            kwargs={"case_id": self.base_case.id},
                         ),
                     )
                 )
@@ -107,7 +107,7 @@ class Task(models.Model):
                     label="Mark case tasks as seen",
                     url=reverse(
                         "notifications:mark-case-comments-read",
-                        kwargs={"case_id": self.case.id},
+                        kwargs={"case_id": self.base_case.id},
                     ),
                 ),
             )

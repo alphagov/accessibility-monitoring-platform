@@ -6,10 +6,8 @@ import re
 
 import requests
 from django import forms
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import QuerySet
 from django.utils.safestring import mark_safe
 
 from ..common.forms import (
@@ -18,11 +16,9 @@ from ..common.forms import (
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
-    AMPChoiceField,
     AMPChoiceRadioField,
     AMPDateField,
     AMPDatePageCompleteField,
-    AMPDateRangeForm,
     AMPModelChoiceField,
     AMPTextField,
     AMPURLField,
@@ -36,11 +32,9 @@ from ..exports.csv_export_utils import (
 from .models import (
     Boolean,
     CaseStatus,
-    Complaint,
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
-    Sort,
     ZendeskTicket,
 )
 
