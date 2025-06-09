@@ -1188,7 +1188,7 @@ def test_retest_str():
 def test_fixed_checks_count_at_12_week():
     """Test fixed checks count at 12-week retest"""
     audit: Audit = create_audit_and_check_results()
-    retest: Retest = Retest.objects.create(case=audit.case)
+    retest: Retest = Retest.objects.create(case=audit.simplified_case)
 
     assert retest.fixed_checks_count == 0
 
@@ -1209,7 +1209,7 @@ def test_fixed_checks_count_in_retests():
     """Test fixed checks count at equality body restart"""
     audit: Audit = create_audit_and_check_results()
     page: Page = audit.page_audit.all().first()
-    retest: Retest = Retest.objects.create(case=audit.case)
+    retest: Retest = Retest.objects.create(case=audit.simplified_case)
     retest_page: RetestPage = RetestPage.objects.create(
         retest=retest,
         page=page,
@@ -1238,7 +1238,7 @@ def test_fixed_checks_count_in_retests():
 def test_retest_is_incomplete():
     """Test retest compliance status is still default"""
     audit: Audit = create_audit_and_check_results()
-    retest: Retest = Retest.objects.create(case=audit.case)
+    retest: Retest = Retest.objects.create(case=audit.simplified_case)
 
     assert retest.is_incomplete is True
 

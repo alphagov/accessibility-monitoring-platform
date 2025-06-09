@@ -218,9 +218,9 @@ def test_create_audit_redirects(admin_client):
 def test_create_audit_does_not_create_a_duplicate(admin_client):
     """Test that audit create does not create a duplicate audit"""
     audit: Audit = create_audit()
-    path_kwargs: dict[str, int] = {"case_id": audit.case.id}
+    path_kwargs: dict[str, int] = {"case_id": audit.simplified_case.id}
 
-    assert Audit.objects.filter(case=audit.case).count() == 1
+    assert Audit.objects.filter(case=audit.simplified_case).count() == 1
 
     response: HttpResponse = admin_client.post(
         reverse("audits:audit-create", kwargs=path_kwargs),
@@ -230,7 +230,7 @@ def test_create_audit_does_not_create_a_duplicate(admin_client):
     )
 
     assert response.status_code == 302
-    assert Audit.objects.filter(case=audit.case).count() == 1
+    assert Audit.objects.filter(case=audit.simplified_case).count() == 1
 
 
 def test_create_audit_creates_case_event(admin_client):
@@ -413,7 +413,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         {
             "version": audit.version,
             button_name: "Button value",
-            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-version": audit.simplified_case.compliance.version,
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
             "form-MIN_NUM_FORMS": "0",
@@ -481,7 +481,7 @@ def test_audit_compliance_edit_redirects_based_on_button_pressed(
         {
             "version": audit.version,
             button_name: "Button value",
-            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-version": audit.simplified_case.compliance.version,
         },
     )
 
@@ -616,7 +616,7 @@ def test_delete_statement_page_on_retest(admin_client):
     """Test deleting a statement page"""
     case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    retest: Retest = Retest.objects.create(case=audit.case)
+    retest: Retest = Retest.objects.create(case=audit.simplified_case)
     statement_page: StatementPage = StatementPage.objects.create(audit=audit)
 
     response: HttpResponse = admin_client.post(
@@ -890,7 +890,7 @@ def test_audit_statement_edit_redirects_based_on_button_pressed(
         reverse(path_name, kwargs=audit_pk),
         {
             "version": audit.version,
-            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-version": audit.simplified_case.compliance.version,
             button_name: "Button value",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -978,7 +978,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: dict[str, int] = {"pk": audit.id}
 
-    case: SimplifiedCase = audit.case
+    case: SimplifiedCase = audit.simplified_case
     case.home_page_url = "https://www.website.com"
     case.organisation_name = "org name"
     user: User = User.objects.create()
@@ -989,7 +989,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     )
     case.compliance.save()
 
-    assert audit.case.status.status == "test-in-progress"
+    assert audit.simplified_case.status.status == "test-in-progress"
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-statement-overview", kwargs=audit_pk),
@@ -1095,7 +1095,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
         audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
     )
 
-    case: SimplifiedCase = audit.case
+    case: SimplifiedCase = audit.simplified_case
     case.home_page_url = "https://www.website.com"
     case.organisation_name = "org name"
     user: User = User.objects.create()
@@ -1151,7 +1151,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
         url="https://www.website.com/statement",
     )
 
-    case: SimplifiedCase = audit.case
+    case: SimplifiedCase = audit.simplified_case
     case.home_page_url = "https://www.website.com"
     case.organisation_name = "org name"
     user: User = User.objects.create()
@@ -1209,7 +1209,9 @@ def test_retest_date_change_creates_case_event(admin_client):
 
     assert response.status_code == 302
 
-    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=audit.case)
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
+        case=audit.simplified_case
+    )
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
@@ -1224,7 +1226,7 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     """
     audit: Audit = create_audit_and_wcag()
     audit_pk: dict[str, int] = {"pk": audit.id}
-    case: SimplifiedCase = audit.case
+    case: SimplifiedCase = audit.simplified_case
     case.no_psb_contact = Boolean.YES
     case.save()
 
@@ -1233,7 +1235,7 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
         {
             "version": audit.version,
             "save_continue": "Button value",
-            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-version": audit.simplified_case.compliance.version,
         },
     )
 
@@ -1873,7 +1875,7 @@ def test_website_decision_saved_on_case(admin_client):
         {
             "version": audit.version,
             "save": "Button value",
-            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-website_compliance_state_initial": WEBSITE_COMPLIANCE_STATE,
             "case-compliance-website_compliance_notes_initial": WEBSITE_COMPLIANCE_NOTES,
         },
@@ -1881,7 +1883,9 @@ def test_website_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: SimplifiedCase = SimplifiedCase.objects.get(id=audit.case.id)
+    updated_case: SimplifiedCase = SimplifiedCase.objects.get(
+        id=audit.simplified_case.id
+    )
 
     assert (
         updated_case.compliance.website_compliance_state_initial
@@ -1918,8 +1922,8 @@ def test_website_decision_field_updates_report_content(
     assert audit.published_report_data_updated_time is None
     context: dict[str, str | int] = {
         "version": audit.version,
-        "case-compliance-version": audit.case.compliance.version,
-        "case-compliance-website_compliance_state_initial": audit.case.compliance.website_compliance_state_initial,
+        "case-compliance-version": audit.simplified_case.compliance.version,
+        "case-compliance-website_compliance_state_initial": audit.simplified_case.compliance.website_compliance_state_initial,
         "save": "Button value",
     }
     context[field_name] = new_value
@@ -2025,7 +2029,7 @@ def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
     Test that pressing the remove issue button deletes the custom statement issue
     """
     audit: Audit = create_audit_and_statement_check_results()
-    retest: Retest = Retest.objects.create(case=audit.case)
+    retest: Retest = Retest.objects.create(case=audit.simplified_case)
     custom_retest_statement_check_result: StatementCheckResult = (
         RetestStatementCheckResult.objects.create(retest=retest)
     )
@@ -2065,7 +2069,7 @@ def test_statement_decision_saved_on_case(admin_client):
         {
             "version": audit.version,
             "save": "Button value",
-            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-statement_compliance_state_initial": STATEMENT_COMPLIANCE_STATE,
             "case-compliance-statement_compliance_notes_initial": STATEMENT_COMPLIANCE_NOTES,
         },
@@ -2073,7 +2077,9 @@ def test_statement_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: SimplifiedCase = SimplifiedCase.objects.get(id=audit.case.id)
+    updated_case: SimplifiedCase = SimplifiedCase.objects.get(
+        id=audit.simplified_case.id
+    )
 
     assert (
         updated_case.compliance.statement_compliance_state_initial
@@ -2114,7 +2120,9 @@ def test_start_retest_creates_case_event(admin_client):
 
     assert response.status_code == 302
 
-    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=audit.case)
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
+        case=audit.simplified_case
+    )
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
@@ -2404,7 +2412,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
         {
             "version": audit.version,
             "save": "Button value",
-            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-website_compliance_state_12_week": WEBSITE_COMPLIANCE_STATE,
             "case-compliance-website_compliance_notes_12_week": WEBSITE_COMPLIANCE_NOTES,
         },
@@ -2412,7 +2420,9 @@ def test_retest_website_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: SimplifiedCase = SimplifiedCase.objects.get(id=audit.case.id)
+    updated_case: SimplifiedCase = SimplifiedCase.objects.get(
+        id=audit.simplified_case.id
+    )
 
     assert (
         updated_case.compliance.website_compliance_state_12_week
@@ -2434,7 +2444,7 @@ def test_retest_statement_decision_saved_on_case(admin_client):
         {
             "version": audit.version,
             "save": "Button value",
-            "case-compliance-version": audit.case.compliance.version,
+            "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-statement_compliance_state_12_week": STATEMENT_COMPLIANCE_STATE,
             "case-compliance-statement_compliance_notes_12_week": STATEMENT_COMPLIANCE_NOTES,
         },
@@ -2442,7 +2452,9 @@ def test_retest_statement_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: SimplifiedCase = SimplifiedCase.objects.get(id=audit.case.id)
+    updated_case: SimplifiedCase = SimplifiedCase.objects.get(
+        id=audit.simplified_case.id
+    )
 
     assert (
         updated_case.compliance.statement_compliance_state_12_week
@@ -2617,7 +2629,7 @@ def test_clear_published_report_data_updated_time_view(admin_client):
 def test_update_audit_checks_version(admin_client):
     """Test that updating an audit shows an error if the version of the audit has changed"""
     audit: Audit = create_audit()
-    case: SimplifiedCase = audit.case
+    case: SimplifiedCase = audit.simplified_case
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),
@@ -2656,7 +2668,7 @@ def test_update_audit_checks_case_version(url_name, admin_client):
     Test that updating a case shows an error if the version of the case compliance has changed
     """
     audit: Audit = create_audit()
-    case: SimplifiedCase = audit.case
+    case: SimplifiedCase = audit.simplified_case
 
     response: HttpResponse = admin_client.post(
         reverse(url_name, kwargs={"pk": audit.id}),
@@ -3052,10 +3064,10 @@ def test_test_statement_summary_page_summary(url_name, admin_client):
         Audit.DisproportionateBurden.ASSESSMENT
     )
     audit.save()
-    audit.case.compliance.statement_compliance_state_12_week = (
+    audit.simplified_case.compliance.statement_compliance_state_12_week = (
         CaseCompliance.StatementCompliance.COMPLIANT
     )
-    audit.case.compliance.save()
+    audit.simplified_case.compliance.save()
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
 

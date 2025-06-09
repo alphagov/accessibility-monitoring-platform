@@ -254,8 +254,8 @@ def create_audit_and_user() -> tuple[Audit, User]:
     user: User = User.objects.create(
         first_name=USER_FIRST_NAME, last_name=USER_LAST_NAME
     )
-    audit.case.auditor = user
-    audit.case.save()
+    audit.simplified_case.auditor = user
+    audit.simplified_case.save()
     return audit, user
 
 
@@ -340,7 +340,7 @@ def test_update_check_results_for_page():
     assert audit.published_report_data_updated_time is None
 
     create_or_update_check_results_for_page(
-        user=audit.case.auditor,
+        user=audit.simplified_case.auditor,
         page=page_home,
         check_result_forms=check_results_formset.forms,
     )
@@ -393,7 +393,7 @@ def test_create_check_results_for_page():
     assert audit.published_report_data_updated_time is None
 
     create_or_update_check_results_for_page(
-        user=audit.case.auditor,
+        user=audit.simplified_case.auditor,
         page=page_home,
         check_result_forms=check_results_formset.forms,
     )

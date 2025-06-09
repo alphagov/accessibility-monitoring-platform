@@ -224,20 +224,22 @@ class PlatformPage:
             return self.name
         return self.name.format(instance=self.instance)
 
-    def get_case(self) -> SimplifiedCase | None:
+    def get_case(self) -> BaseCase | None:
         if self.instance is not None:
-            if isinstance(self.instance, SimplifiedCase):
+            if isinstance(self.instance, BaseCase):
                 return self.instance
+            if hasattr(self.instance, "base_case"):
+                return self.instance.base_case
             if hasattr(self.instance, "case"):
                 return self.instance.case
+            if hasattr(self.instance, "simplified_case"):
+                return self.instance.simplified_case
             if hasattr(self.instance, "audit"):
-                return self.instance.audit.case
+                return self.instance.audit.simplified_case
             if hasattr(self.instance, "retest"):
-                return self.instance.retest.case
-            if isinstance(self.instance, DetailedCase):
-                return self.instance
-            if hasattr(self.instance, "detailed_case"):
-                return self.instance.detailed_case
+                return self.instance.retest.simplified_case
+            if hasattr(self.instance, "case"):
+                return self.instance.case
 
 
 class HomePlatformPage(PlatformPage):
@@ -273,6 +275,19 @@ class SimplifiedCasePlatformPage(PlatformPage):
         self.set_instance(instance=case)
         super().populate_from_case(case=case)
 
+    def get_case(self) -> SimplifiedCase | None:
+        if self.instance is not None:
+            if isinstance(self.instance, SimplifiedCase):
+                return self.instance
+            if hasattr(self.instance, "simplified_case"):
+                return self.instance.simplified_case
+            if hasattr(self.instance, "audit"):
+                return self.instance.audit.simplified_case
+            if hasattr(self.instance, "retest"):
+                return self.instance.retest.simplified_case
+            if hasattr(self.instance, "case"):
+                return self.instance.case
+
 
 class DetailedCasePlatformPage(SimplifiedCasePlatformPage):
     def __init__(self, **kwargs):
@@ -283,6 +298,8 @@ class DetailedCasePlatformPage(SimplifiedCasePlatformPage):
         if self.instance is not None:
             if isinstance(self.instance, DetailedCase):
                 return self.instance
+            if hasattr(self.instance, "detailed_case"):
+                return self.instance.detailed_case
 
     def populate_from_case(self, case: DetailedCase):
         self.set_instance(instance=case)
@@ -352,6 +369,10 @@ class AuditPlatformPage(PlatformPage):
         self.instance_class: ClassVar[Audit] = Audit
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
+
+    def get_case(self) -> MobileCase | None:
+        if self.instance is not None:
+            return self.instance.simplified_case
 
     def set_instance(self, instance: models.Model):
         if isinstance(instance, SimplifiedCase) and instance.audit is not None:

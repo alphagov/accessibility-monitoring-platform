@@ -74,7 +74,7 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
 
     def get_next_platform_page(self):
         audit: Audit = self.object
-        if not audit.case.psb_response:
+        if not audit.simplified_case.psb_response:
             return get_platform_page_by_url_name(
                 url_name="audits:edit-audit-retest-statement-pages", instance=audit
             )
@@ -119,7 +119,9 @@ class AuditRetestPagesView(AuditUpdateView):
             pages: list[Page] = audit_retest_pages_formset.save(commit=False)
             for page in pages:
                 record_model_update_event(
-                    user=self.request.user, model_object=page, case=page.audit.case
+                    user=self.request.user,
+                    model_object=page,
+                    case=page.audit.simplified_case,
                 )
                 page.save()
         else:
@@ -199,7 +201,9 @@ class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
             ]
             page.retest_notes = form.cleaned_data["retest_notes"]
             record_model_update_event(
-                user=self.request.user, model_object=page, case=page.audit.case
+                user=self.request.user,
+                model_object=page,
+                case=page.audit.simplified_case,
             )
             page.save()
 
@@ -220,7 +224,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
                     record_model_update_event(
                         user=self.request.user,
                         model_object=check_result,
-                        case=check_result.audit.case,
+                        case=check_result.audit.simplified_case,
                     )
                     check_result.save()
         else:
@@ -349,7 +353,7 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
                     record_model_update_event(
                         user=self.request.user,
                         model_object=statement_check_result,
-                        case=statement_check_result.audit.case,
+                        case=statement_check_result.audit.simplified_case,
                     )
                     statement_check_result.save()
             else:
@@ -480,7 +484,7 @@ class AuditRetestInitialCustomIssueUpdateView(UpdateView):
         record_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
-            case=custom_issue.audit.case,
+            case=custom_issue.audit.simplified_case,
         )
         return super().form_valid(form)
 
@@ -524,7 +528,7 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
         record_model_create_event(
             user=self.request.user,
             model_object=custom_issue,
-            case=custom_issue.audit.case,
+            case=custom_issue.audit.simplified_case,
         )
         url: str = reverse(
             "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
@@ -550,7 +554,7 @@ class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
         record_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
-            case=custom_issue.audit.case,
+            case=custom_issue.audit.simplified_case,
         )
         return super().form_valid(form)
 
@@ -584,7 +588,9 @@ def delete_new_12_week_custom_issue(request: HttpRequest, pk: int) -> HttpRespon
         )
         custom_issue.is_deleted = True
         record_model_update_event(
-            user=request.user, model_object=custom_issue, case=custom_issue.audit.case
+            user=request.user,
+            model_object=custom_issue,
+            case=custom_issue.audit.simplified_case,
         )
         custom_issue.save()
     return redirect(
@@ -645,10 +651,12 @@ def start_retest(
     """
     audit: Audit = get_object_or_404(Audit, id=pk)
     audit.retest_date = date.today()
-    record_model_update_event(user=request.user, model_object=audit, case=audit.case)
+    record_model_update_event(
+        user=request.user, model_object=audit, case=audit.simplified_case
+    )
     audit.save()
     CaseEvent.objects.create(
-        case=audit.case,
+        case=audit.simplified_case,
         done_by=request.user,
         event_type=CaseEvent.EventType.START_RETEST,
         message="Started retest",

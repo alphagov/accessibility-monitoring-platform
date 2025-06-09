@@ -89,7 +89,7 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     page: Page = get_object_or_404(Page, id=pk)
     page.is_deleted = False
     record_model_update_event(
-        user=request.user, model_object=page, case=page.audit.case
+        user=request.user, model_object=page, case=page.audit.simplified_case
     )
     page.save()
     return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))
@@ -108,12 +108,14 @@ class AuditUpdateView(NextPlatformPageMixin, UpdateView):
         if form.changed_data:
             self.object: Audit = form.save(commit=False)
             record_model_update_event(
-                user=self.request.user, model_object=self.object, case=self.object.case
+                user=self.request.user,
+                model_object=self.object,
+                case=self.object.simplified_case,
             )
             old_audit: Audit = Audit.objects.get(id=self.object.id)
             if old_audit.retest_date != self.object.retest_date:
                 CaseEvent.objects.create(
-                    case=self.object.case,
+                    case=self.object.simplified_case,
                     done_by=self.request.user,
                     event_type=CaseEvent.EventType.START_RETEST,
                     message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",
@@ -148,12 +150,13 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
             if self.request.POST:
                 case_compliance_form: Form = self.case_compliance_form_class(
                     self.request.POST,
-                    instance=self.object.case.compliance,
+                    instance=self.object.simplified_case.compliance,
                     prefix="case-compliance",
                 )
             else:
                 case_compliance_form: Form = self.case_compliance_form_class(
-                    instance=self.object.case.compliance, prefix="case-compliance"
+                    instance=self.object.simplified_case.compliance,
+                    prefix="case-compliance",
                 )
             context["case_compliance_form"] = case_compliance_form
         return context
@@ -165,7 +168,9 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
         self.object: Audit = self.get_object()
         form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
         case_compliance_form: Form = self.case_compliance_form_class(
-            request.POST, instance=self.object.case.compliance, prefix="case-compliance"
+            request.POST,
+            instance=self.object.simplified_case.compliance,
+            prefix="case-compliance",
         )
         if form.is_valid() and case_compliance_form.is_valid():
             form.save()
@@ -219,7 +224,7 @@ class AuditStatementCheckingView(AuditUpdateView):
                 record_model_update_event(
                     user=self.request.user,
                     model_object=statement_check_results_form.instance,
-                    case=statement_check_results_form.instance.audit.case,
+                    case=statement_check_results_form.instance.audit.simplified_case,
                 )
                 statement_check_results_form.save()
         else:
@@ -443,13 +448,13 @@ class StatementPageFormsetUpdateView(AuditUpdateView):
                     record_model_create_event(
                         user=self.request.user,
                         model_object=statement_page,
-                        case=statement_page.audit.case,
+                        case=statement_page.audit.simplified_case,
                     )
                 else:
                     record_model_update_event(
                         user=self.request.user,
                         model_object=statement_page,
-                        case=statement_page.audit.case,
+                        case=statement_page.audit.simplified_case,
                     )
                     statement_page.save()
         else:

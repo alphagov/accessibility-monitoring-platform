@@ -97,7 +97,9 @@ def create_or_update_check_results_for_page(
                 check_result.check_result_state = check_result_state
                 check_result.notes = notes
                 record_model_update_event(
-                    user=user, model_object=check_result, case=check_result.audit.case
+                    user=user,
+                    model_object=check_result,
+                    case=check_result.audit.simplified_case,
                 )
                 add_to_check_result_notes_history(check_result=check_result, user=user)
                 report_data_updated(audit=check_result.audit)
@@ -112,7 +114,9 @@ def create_or_update_check_results_for_page(
                 notes=notes,
             )
             record_model_create_event(
-                user=user, model_object=check_result, case=check_result.audit.case
+                user=user,
+                model_object=check_result,
+                case=check_result.audit.simplified_case,
             )
             add_to_check_result_notes_history(
                 check_result=check_result, user=user, new_check_result=True
@@ -168,7 +172,9 @@ def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
     for page_type in Page.MANDATORY_PAGE_TYPES:
         if page_type == Page.Type.HOME:
             Page.objects.create(
-                audit=audit, page_type=page_type, url=audit.case.home_page_url
+                audit=audit,
+                page_type=page_type,
+                url=audit.simplified_case.home_page_url,
             )
         else:
             Page.objects.create(audit=audit, page_type=page_type)

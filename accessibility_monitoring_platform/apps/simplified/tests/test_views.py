@@ -3008,7 +3008,9 @@ def test_outstanding_issues(admin_client):
     Test out standing issues page renders according to URL parameters.
     """
     audit: Audit = create_audit_and_check_results()
-    url: str = reverse("simplified:outstanding-issues", kwargs={"pk": audit.case.id})
+    url: str = reverse(
+        "simplified:outstanding-issues", kwargs={"pk": audit.simplified_case.id}
+    )
 
     response: HttpResponse = admin_client.get(url)
 
@@ -3104,13 +3106,13 @@ def test_twelve_week_email_template_contains_issues(admin_client):
     page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     page.url = "https://example.com"
     page.save()
-    Report.objects.create(case=audit.case)
+    Report.objects.create(case=audit.simplified_case)
     email_template: EmailTemplate = EmailTemplate.objects.create(
         template_name="4-12-week-update-request"
     )
     url: str = reverse(
         "simplified:email-template-preview",
-        kwargs={"case_id": audit.case.id, "pk": email_template.id},
+        kwargs={"case_id": audit.simplified_case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3131,7 +3133,7 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
     )
     url: str = reverse(
         "simplified:email-template-preview",
-        kwargs={"case_id": audit.case.id, "pk": email_template.id},
+        kwargs={"case_id": audit.simplified_case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3162,7 +3164,7 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
     )
     url: str = reverse(
         "simplified:email-template-preview",
-        kwargs={"case_id": audit.case.id, "pk": email_template.id},
+        kwargs={"case_id": audit.simplified_case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3682,7 +3684,7 @@ def test_case_overview(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("simplified:case-detail", kwargs={"pk": audit.case.id})
+        reverse("simplified:case-detail", kwargs={"pk": audit.simplified_case.id})
     )
 
     assert response.status_code == 200

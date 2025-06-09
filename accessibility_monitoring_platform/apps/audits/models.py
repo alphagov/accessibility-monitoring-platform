@@ -782,7 +782,7 @@ class CheckResult(models.Model):
         if not self.id:
             self.id_within_case = self.audit.checkresult_audit.all().count() + 1
             self.issue_identifier = build_issue_identifier(
-                case=self.audit.case, issue=self
+                case=self.audit.simplified_case, issue=self
             )
         super().save(*args, **kwargs)
 
@@ -938,7 +938,7 @@ class StatementCheckResult(models.Model):
             else:
                 self.id_within_case = self.audit.statement_check_results.count() + 1
             self.issue_identifier = build_issue_identifier(
-                case=self.audit.case,
+                case=self.audit.simplified_case,
                 issue=self,
                 custom_issue=self.statement_check is None,
             )
@@ -1251,7 +1251,7 @@ class RetestCheckResult(models.Model):
             if self.id_within_case == 0:
                 self.id_within_case = self.check_result.id_within_case
             self.issue_identifier = build_issue_identifier(
-                case=self.retest.case, issue=self
+                case=self.retest.simplified_case, issue=self
             )
         super().save(*args, **kwargs)
 
@@ -1335,7 +1335,7 @@ class RetestStatementCheckResult(models.Model):
                     + 1
                 )
             self.issue_identifier = build_issue_identifier(
-                case=self.retest.case,
+                case=self.retest.simplified_case,
                 issue=self,
                 custom_issue=self.statement_check is None,
             )

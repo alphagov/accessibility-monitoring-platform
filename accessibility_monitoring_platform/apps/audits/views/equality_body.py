@@ -102,7 +102,9 @@ class RetestMetadataUpdateView(NextPlatformPageMixin, UpdateView):
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
             record_model_update_event(
-                user=self.request.user, model_object=self.object, case=self.object.case
+                user=self.request.user,
+                model_object=self.object,
+                case=self.object.simplified_case,
             )
         return super().form_valid(form)
 
@@ -206,7 +208,9 @@ class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
             record_model_update_event(
-                user=self.request.user, model_object=self.object, case=self.object.case
+                user=self.request.user,
+                model_object=self.object,
+                case=self.object.simplified_case,
             )
         return super().form_valid(form)
 
@@ -226,7 +230,9 @@ class RetestComplianceUpdateView(NextPlatformPageMixin, UpdateView):
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
             record_model_update_event(
-                user=self.request.user, model_object=self.object, case=self.object.case
+                user=self.request.user,
+                model_object=self.object,
+                case=self.object.simplified_case,
             )
         return super().form_valid(form)
 
@@ -249,7 +255,7 @@ class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
             statement_pages_formset = StatementPageFormset(self.request.POST)
         else:
             statement_pages: QuerySet[StatementPage] = (
-                self.object.case.audit.statement_pages
+                self.object.simplified_case.audit.statement_pages
             )
             if "add_extra" in self.request.GET:
                 statement_pages_formset = StatementPageFormsetOneExtra(
@@ -322,7 +328,9 @@ class RetestUpdateView(NextPlatformPageMixin, UpdateView):
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
             record_model_update_event(
-                user=self.request.user, model_object=self.object, case=self.object.case
+                user=self.request.user,
+                model_object=self.object,
+                case=self.object.simplified_case,
             )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())

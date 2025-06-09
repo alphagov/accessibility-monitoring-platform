@@ -1,7 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-    {% include 'simplified/helpers/view_initial_decision.html' with case=audit.case %}
+    {% include 'simplified/helpers/view_initial_decision.html' with case=audit.simplified_case %}
     {% include 'common/error_summary.html' with form=case_compliance_form %}
 {% endblock %}
 
