@@ -101,24 +101,6 @@ from .utils import (
 
 FOUR_WEEKS_IN_DAYS: int = 4 * ONE_WEEK_IN_DAYS
 TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
-TRUTHY_SEARCH_FIELDS: list[str] = [
-    "sort_by",
-    "status",
-    "recommendation_for_enforcement",
-    "auditor",
-    "reviewer",
-    "date_start_0",
-    "date_start_1",
-    "date_start_2",
-    "date_end_0",
-    "date_end_1",
-    "date_end_2",
-    "sector",
-    "is_complaint",
-    "enforcement_body",
-    "subcategory",
-]
-REMOVE_CONTACT_BUTTON_PREFIX: str = "remove_contact_"
 
 
 def find_duplicate_cases(
@@ -203,13 +185,13 @@ class CaseDetailView(DetailView):
         """Add case detail sections to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
 
-        case: SimplifiedCase = self.object
+        simplified_case: SimplifiedCase = self.object
         sitemap: Sitemap = Sitemap(request=self.request)
 
         return {
             **{
                 "case_detail_sections": get_case_detail_sections(
-                    case=case, sitemap=sitemap
+                    case=simplified_case, sitemap=sitemap
                 )
             },
             **context,
@@ -260,10 +242,12 @@ class CaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        case: SimplifiedCase = self.object
+        simplified_case: SimplifiedCase = self.object
         user: User = self.request.user
-        record_model_create_event(user=user, model_object=case, case=case)
-        record_case_event(user=user, new_case=case)
+        record_model_create_event(
+            user=user, model_object=simplified_case, case=simplified_case
+        )
+        record_case_event(user=user, new_case=simplified_case)
         case_pk: dict[str, int] = {"pk": self.object.id}
         if "save_continue_case" in self.request.POST:
             url: str = reverse("simplified:edit-case-metadata", kwargs=case_pk)
@@ -320,24 +304,26 @@ class CaseMetadataUpdateView(CaseUpdateView):
     form_class: type[CaseMetadataUpdateForm] = CaseMetadataUpdateForm
 
     def get_next_platform_page(self) -> PlatformPage:
-        case: SimplifiedCase = self.object
+        simplified_case: SimplifiedCase = self.object
         next_page_url_name: str = (
             "audits:edit-audit-metadata"
-            if case.audit is not None
+            if simplified_case.audit is not None
             else "simplified:edit-test-results"
         )
-        return get_platform_page_by_url_name(url_name=next_page_url_name, instance=case)
+        return get_platform_page_by_url_name(
+            url_name=next_page_url_name, instance=simplified_case
+        )
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        case: SimplifiedCase = self.object
-        if case.published_report_url:
+        simplified_case: SimplifiedCase = self.object
+        if simplified_case.published_report_url:
             if (
                 "enforcement_body" in form.changed_data
                 or "home_page_url" in form.changed_data
                 or "organisation_name" in form.changed_data
             ):
-                report_data_updated(audit=case.audit)
+                report_data_updated(audit=simplified_case.audit)
         return super().form_valid(form=form)
 
 
@@ -389,16 +375,16 @@ class CaseQACommentsUpdateView(CaseUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        case: SimplifiedCase = self.object
+        simplified_case: SimplifiedCase = self.object
         body: str = form.cleaned_data.get("body")
         if body:
             comment: Comment = Comment.objects.create(
-                base_case=case,
+                base_case=simplified_case,
                 user=self.request.user,
                 body=form.cleaned_data.get("body"),
             )
             record_model_create_event(
-                user=self.request.user, model_object=comment, case=case
+                user=self.request.user, model_object=comment, case=simplified_case
             )
             add_comment_notification(self.request, comment)
         return HttpResponseRedirect(self.get_success_url())
@@ -419,18 +405,18 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
                 self.object.report_approved_status
                 == SimplifiedCase.ReportApprovedStatus.APPROVED
             ):
-                case: SimplifiedCase = self.object
-                if case.auditor:
+                simplified_case: SimplifiedCase = self.object
+                if simplified_case.auditor:
                     task: Task = add_task(
-                        user=case.auditor,
-                        base_case=case,
+                        user=simplified_case.auditor,
+                        base_case=simplified_case,
                         type=Task.Type.REPORT_APPROVED,
-                        description=f"{self.request.user.get_full_name()} QA approved Case {case}",
-                        list_description=f"{case} - Report approved",
+                        description=f"{self.request.user.get_full_name()} QA approved Case {simplified_case}",
+                        list_description=f"{simplified_case} - Report approved",
                         request=self.request,
                     )
                     record_model_create_event(
-                        user=self.request.user, model_object=task, case=case
+                        user=self.request.user, model_object=task, case=simplified_case
                     )
         return super().form_valid(form=form)
 
@@ -445,9 +431,9 @@ class CasePublishReportUpdateView(CaseUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Publish report if requested"""
-        case: SimplifiedCase = self.object
+        simplified_case: SimplifiedCase = self.object
         if "create_html_report" in self.request.POST:
-            publish_report_util(report=case.report, request=self.request)
+            publish_report_util(report=simplified_case.report, request=self.request)
         return super().form_valid(form)
 
 
@@ -460,13 +446,15 @@ class ManageContactDetailsUpdateView(CaseUpdateView):
     template_name: str = "simplified/forms/manage_contact_details.html"
 
     def get_next_platform_page(self) -> PlatformPage:
-        case: SimplifiedCase = self.object
+        simplified_case: SimplifiedCase = self.object
         next_page_url_name: str = (
             "simplified:edit-request-contact-details"
-            if case.enable_correspondence_process is True
+            if simplified_case.enable_correspondence_process is True
             else "simplified:edit-report-sent-on"
         )
-        return get_platform_page_by_url_name(url_name=next_page_url_name, instance=case)
+        return get_platform_page_by_url_name(
+            url_name=next_page_url_name, instance=simplified_case
+        )
 
 
 class ContactCreateView(CreateView):
@@ -481,19 +469,19 @@ class ContactCreateView(CreateView):
 
     def form_valid(self, form: ContactCreateForm):
         """Populate case of contact"""
-        case: SimplifiedCase = get_object_or_404(
+        simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
         contact: Contact = form.save(commit=False)
-        contact.simplified_case = case
+        contact.simplified_case = simplified_case
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to the list of contact details"""
-        case: SimplifiedCase = get_object_or_404(
+        simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
-        case_pk: dict[str, int] = {"pk": case.id}
+        case_pk: dict[str, int] = {"pk": simplified_case.id}
         return reverse("simplified:manage-contact-details", kwargs=case_pk)
 
 
@@ -519,7 +507,7 @@ class ContactUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Return to the list of contact details"""
-        case_pk: dict[str, int] = {"pk": self.object.case.id}
+        case_pk: dict[str, int] = {"pk": self.object.simplified_case.id}
         return reverse("simplified:manage-contact-details", kwargs=case_pk)
 
 
@@ -684,19 +672,20 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
     template_name: str = "simplified/forms/12_week_update_request_ack.html"
 
     def get_next_platform_page(self) -> PlatformPage:
-        case: SimplifiedCase = self.object
-        if case.audit:
-            if case.show_start_12_week_retest:
+        simplified_case: SimplifiedCase = self.object
+        if simplified_case.audit:
+            if simplified_case.show_start_12_week_retest:
                 return get_platform_page_by_url_name(
-                    url_name="simplified:edit-twelve-week-retest", instance=case
+                    url_name="simplified:edit-twelve-week-retest",
+                    instance=simplified_case,
                 )
             else:
                 return get_platform_page_by_url_name(
                     url_name="audits:edit-audit-retest-metadata",
-                    instance=case.audit,
+                    instance=simplified_case.audit,
                 )
         return get_platform_page_by_url_name(
-            url_name="simplified:edit-review-changes", instance=case
+            url_name="simplified:edit-review-changes", instance=simplified_case
         )
 
 
@@ -740,26 +729,28 @@ class CaseCloseUpdateView(CaseUpdateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: SimplifiedCase = self.object
+        simplified_case: SimplifiedCase = self.object
         equality_body_metadata_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                case=case, column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
+                case=simplified_case,
+                column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_report_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                case=case, column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
+                case=simplified_case,
+                column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_correspondence_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                case=case,
+                case=simplified_case,
                 column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_test_summary_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                case=case,
+                case=simplified_case,
                 column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
             )
         )
@@ -812,12 +803,14 @@ class CaseDeactivateUpdateView(CaseUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        case: SimplifiedCase = form.save(commit=False)
-        case.is_deactivated = True
-        case.deactivate_date = date.today()
-        record_model_update_event(user=self.request.user, model_object=case, case=case)
-        case.save()
-        return HttpResponseRedirect(case.get_absolute_url())
+        simplified_case: SimplifiedCase = form.save(commit=False)
+        simplified_case.is_deactivated = True
+        simplified_case.deactivate_date = date.today()
+        record_model_update_event(
+            user=self.request.user, model_object=simplified_case, case=simplified_case
+        )
+        simplified_case.save()
+        return HttpResponseRedirect(simplified_case.get_absolute_url())
 
 
 class CaseReactivateUpdateView(CaseUpdateView):
@@ -830,11 +823,13 @@ class CaseReactivateUpdateView(CaseUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        case: SimplifiedCase = form.save(commit=False)
-        case.is_deactivated = False
-        record_model_update_event(user=self.request.user, model_object=case, case=case)
-        case.save()
-        return HttpResponseRedirect(case.get_absolute_url())
+        simplified_case: SimplifiedCase = form.save(commit=False)
+        simplified_case.is_deactivated = False
+        record_model_update_event(
+            user=self.request.user, model_object=simplified_case, case=simplified_case
+        )
+        simplified_case.save()
+        return HttpResponseRedirect(simplified_case.get_absolute_url())
 
 
 class CaseStatusWorkflowDetailView(DetailView):
@@ -853,11 +848,13 @@ class CaseOutstandingIssuesDetailView(
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: SimplifiedCase = self.object
-        if case.audit is not None:
+        simplified_case: SimplifiedCase = self.object
+        if simplified_case.audit is not None:
             return {
                 **context,
-                **get_audit_summary_context(request=self.request, audit=case.audit),
+                **get_audit_summary_context(
+                    request=self.request, audit=simplified_case.audit
+                ),
             }
         return context
 
@@ -914,20 +911,20 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add case to context"""
-        case: SimplifiedCase = self.object
+        simplified_case: SimplifiedCase = self.object
         context: dict[str, Any] = super().get_context_data(**kwargs)
         view_url_param: str | None = self.request.GET.get("view")
         show_unresolved = view_url_param == "unresolved"
         context["show_unresolved"] = show_unresolved
         if show_unresolved:
             context["equality_body_correspondences"] = (
-                case.equalitybodycorrespondence_set.filter(
+                simplified_case.equalitybodycorrespondence_set.filter(
                     status=EqualityBodyCorrespondence.Status.UNRESOLVED
                 )
             )
         else:
             context["equality_body_correspondences"] = (
-                case.equalitybodycorrespondence_set.all()
+                simplified_case.equalitybodycorrespondence_set.all()
             )
         return context
 
@@ -957,7 +954,7 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
             record_model_update_event(
                 user=self.request.user,
                 model_object=equality_body_correspondence,
-                case=equality_body_correspondence.case,
+                case=equality_body_correspondence.simplified_case,
             )
             equality_body_correspondence.save()
         return super().form_valid(form)
@@ -975,12 +972,12 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
     template_name: str = "simplified/forms/equality_body_correspondence_create.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add case to context as object"""
+        """Add simplified case to context as object for use in form action url"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: SimplifiedCase = get_object_or_404(
+        simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
-        context["object"] = case
+        context["object"] = simplified_case
         return context
 
     def form_valid(self, form: ModelForm):
@@ -988,19 +985,23 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
         equality_body_correspondence: EqualityBodyCorrespondence = form.save(
             commit=False
         )
-        case: SimplifiedCase = SimplifiedCase.objects.get(pk=self.kwargs["case_id"])
-        equality_body_correspondence.case = case
+        simplified_case: SimplifiedCase = SimplifiedCase.objects.get(
+            pk=self.kwargs["case_id"]
+        )
+        equality_body_correspondence.simplified_case = simplified_case
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Record creation of object and return to equality body correspondence page"""
         record_model_create_event(
-            user=self.request.user, model_object=self.object, case=self.object.case
+            user=self.request.user,
+            model_object=self.object,
+            case=self.object.simplified_case,
         )
         if "save_return" in self.request.POST:
             return reverse(
                 "simplified:list-equality-body-correspondence",
-                kwargs={"pk": self.object.case.id},
+                kwargs={"pk": self.object.simplified_case.id},
             )
         return reverse(
             "simplified:edit-equality-body-correspondence",
@@ -1028,13 +1029,13 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
         record_model_update_event(
             user=self.request.user,
             model_object=equality_body_correspondence,
-            case=equality_body_correspondence.case,
+            case=equality_body_correspondence.simplified_case,
         )
         equality_body_correspondence.save()
         if "save_return" in self.request.POST:
             url: str = reverse(
                 "simplified:list-equality-body-correspondence",
-                kwargs={"pk": self.object.case.id},
+                kwargs={"pk": self.object.simplified_case.id},
             )
         else:
             url: str = reverse(
@@ -1051,8 +1052,10 @@ class CaseRetestOverviewTemplateView(CaseUpdateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add platform settings to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: SimplifiedCase = self.object
-        context["equality_body_retests"] = case.retests.filter(id_within_case__gt=0)
+        simplified_case: SimplifiedCase = self.object
+        context["equality_body_retests"] = simplified_case.retests.filter(
+            id_within_case__gt=0
+        )
         return context
 
 
@@ -1062,8 +1065,10 @@ class CaseRetestCreateErrorTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add platform settings to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=kwargs.get("pk"))
-        context["case"] = case
+        simplified_case: SimplifiedCase = get_object_or_404(
+            SimplifiedCase, id=kwargs.get("pk")
+        )
+        context["case"] = simplified_case
         return context
 
 
@@ -1091,19 +1096,19 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add case to context as object"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: SimplifiedCase = get_object_or_404(
+        simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
-        context["object"] = case
+        context["object"] = simplified_case
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        case: SimplifiedCase = get_object_or_404(
+        simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
         zendesk_ticket: ZendeskTicket = form.save(commit=False)
-        zendesk_ticket.simplified_case = case
+        zendesk_ticket.simplified_case = simplified_case
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -1113,7 +1118,7 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
         record_model_create_event(
             user=user, model_object=zendesk_ticket, case=zendesk_ticket.simplified_case
         )
-        case_pk: dict[str, int] = {"pk": zendesk_ticket.base_case.id}
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.simplified_case.id}
         return reverse("simplified:zendesk-tickets", kwargs=case_pk)
 
 
@@ -1143,7 +1148,7 @@ class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
     def get_success_url(self) -> str:
         """Return to zendesk tickets page on save"""
         zendesk_ticket: ZendeskTicket = self.object
-        case_pk: dict[str, int] = {"pk": zendesk_ticket.base_case.id}
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.simplified_case.id}
         return reverse("simplified:zendesk-tickets", kwargs=case_pk)
 
 
@@ -1172,8 +1177,10 @@ class CaseEmailTemplateListView(
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add current case to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        self.case = get_object_or_404(SimplifiedCase, id=self.kwargs.get("case_id"))
-        context["case"] = self.case
+        self.simplified_case = get_object_or_404(
+            SimplifiedCase, id=self.kwargs.get("case_id")
+        )
+        context["case"] = self.simplified_case
         return context
 
     def get_queryset(self) -> QuerySet[SimplifiedCase]:
@@ -1195,10 +1202,10 @@ class CaseEmailTemplatePreviewDetailView(
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add case and email template to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: SimplifiedCase = get_object_or_404(
+        simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
-        extra_context: dict[str, Any] = get_email_template_context(case=case)
+        extra_context: dict[str, Any] = get_email_template_context(case=simplified_case)
         context["email_template_name"] = (
             f"common/emails/templates/{self.object.template_name}.html"
         )
@@ -1217,9 +1224,9 @@ class CaseHistoryDetailView(DetailView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add current case to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: SimplifiedCase = self.object
+        simplified_case: SimplifiedCase = self.object
         event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.filter(
-            simplified_case=case
+            simplified_case=simplified_case
         ).prefetch_related("parent")
         context["event_history"] = event_history
         context["all_users"] = User.objects.all().order_by("id")
@@ -1230,18 +1237,26 @@ def enable_correspondence_process(
     request: HttpRequest, pk: int
 ) -> HttpResponseRedirect:
     """Mark correspondence process as enabled in Case"""
-    case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=pk)
-    case.enable_correspondence_process = True
-    case.save()
+    simplified_case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=pk)
+    simplified_case.enable_correspondence_process = True
+    simplified_case.save()
     return redirect(
-        reverse("simplified:edit-request-contact-details", kwargs={"pk": case.id})
+        reverse(
+            "simplified:edit-request-contact-details", kwargs={"pk": simplified_case.id}
+        )
     )
 
 
 def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedirect:
     """Mark QA comment reminders as read for the current user"""
-    case: SimplifiedCase = SimplifiedCase.objects.get(id=pk)
-    mark_tasks_as_read(user=request.user, case=case, type=Task.Type.QA_COMMENT)
-    mark_tasks_as_read(user=request.user, case=case, type=Task.Type.REPORT_APPROVED)
-    messages.success(request, f"{case} comments marked as read")
-    return redirect(reverse("simplified:edit-qa-comments", kwargs={"pk": case.id}))
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.get(id=pk)
+    mark_tasks_as_read(
+        user=request.user, case=simplified_case, type=Task.Type.QA_COMMENT
+    )
+    mark_tasks_as_read(
+        user=request.user, case=simplified_case, type=Task.Type.REPORT_APPROVED
+    )
+    messages.success(request, f"{simplified_case} comments marked as read")
+    return redirect(
+        reverse("simplified:edit-qa-comments", kwargs={"pk": simplified_case.id})
+    )

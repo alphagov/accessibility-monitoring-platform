@@ -229,7 +229,12 @@ class PlatformPage:
             if isinstance(self.instance, BaseCase):
                 return self.instance
             if hasattr(self.instance, "base_case"):
-                return self.instance.base_case
+                if hasattr(self.instance.base_case, "simplifiedcase"):
+                    return self.instance.base_case.simplifiedcase
+                if hasattr(self.instance.base_case, "detailedcase"):
+                    return self.instance.base_case.detailedcase
+                if hasattr(self.instance.base_case, "mobilecase"):
+                    return self.instance.base_case.mobilecase
             if hasattr(self.instance, "case"):
                 return self.instance.case
             if hasattr(self.instance, "simplified_case"):
@@ -245,8 +250,12 @@ class PlatformPage:
 class HomePlatformPage(PlatformPage):
     def populate_from_request(self, request: HttpRequest):
         """Set get name from parameters"""
-        view_param: str = request.GET.get("view", "View your cases")
-        self.name: str = "All cases" if view_param == "View all cases" else "Your cases"
+        view_param: str = request.GET.get("view", "View your simplified cases")
+        self.name: str = (
+            "All simplified cases"
+            if view_param == "View all cases"
+            else "Your simplified cases"
+        )
 
 
 class ExportPlatformPage(PlatformPage):
@@ -488,9 +497,9 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
             if isinstance(self.instance, SimplifiedCase):
                 return self.instance
             if hasattr(self.instance, "base_case"):
-                return self.instance.base_case.simplifiedcase
-            if hasattr(self.instance, "simplified_case"):
-                return self.instance.simplified_case
+                if hasattr(self.instance.base_case, "simplifiedcase"):
+                    return self.instance.base_case.simplifiedcase
+            return self.instance.simplified_case
 
 
 class RetestOverviewPlatformPage(SimplifiedCasePlatformPage):
@@ -1806,7 +1815,6 @@ SITE_MAP: list[PlatformPageGroup] = [
     PlatformPageGroup(
         name="Non-Case other",
         pages=[
-            PlatformPage(name="Create case", url_name="simplified:pick-test-type"),
             PlatformPage(name="Search cases", url_name="cases:case-list"),
             PlatformPage(
                 name="Create simplified case", url_name="simplified:case-create"

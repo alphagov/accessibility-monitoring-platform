@@ -31,18 +31,11 @@ from ..exports.csv_export_utils import (
 )
 from .models import (
     Boolean,
-    CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
     ZendeskTicket,
 )
-
-ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + SimplifiedCase.EnforcementBody.choices
-STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + CaseStatus.Status.choices
-RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
-    ("", "All")
-] + SimplifiedCase.RecommendationForEnforcement.choices
 
 
 class DateType(models.TextChoices):

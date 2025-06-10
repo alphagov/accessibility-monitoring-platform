@@ -67,7 +67,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     create_mandatory_pages_for_new_audit(audit=audit)
     create_statement_checks_for_new_audit(audit=audit)
     CaseEvent.objects.create(
-        case=simplified_case,
+        simplified_case=simplified_case,
         done_by=request.user,
         event_type=CaseEvent.EventType.CREATE_AUDIT,
         message="Started test",
@@ -115,7 +115,7 @@ class AuditUpdateView(NextPlatformPageMixin, UpdateView):
             old_audit: Audit = Audit.objects.get(id=self.object.id)
             if old_audit.retest_date != self.object.retest_date:
                 CaseEvent.objects.create(
-                    case=self.object.simplified_case,
+                    simplified_case=self.object.simplified_case,
                     done_by=self.request.user,
                     event_type=CaseEvent.EventType.START_RETEST,
                     message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",

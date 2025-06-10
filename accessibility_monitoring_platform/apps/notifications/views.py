@@ -118,32 +118,42 @@ class ReminderTaskCreateView(CreateView):
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         if form.changed_data:
-            case: SimplifiedCase = SimplifiedCase.objects.get(pk=self.kwargs["case_id"])
-            user: User = case.auditor if case.auditor else self.request.user
+            simplified_case: SimplifiedCase = SimplifiedCase.objects.get(
+                pk=self.kwargs["case_id"]
+            )
+            user: User = (
+                simplified_case.auditor
+                if simplified_case.auditor
+                else self.request.user
+            )
             try:
                 reminder_task: Task = Task.objects.get(
-                    case=case, type=Task.Type.REMINDER, read=False
+                    base_case=simplified_case, type=Task.Type.REMINDER, read=False
                 )
                 reminder_task.date = form.cleaned_data["date"]
                 reminder_task.user = user
                 reminder_task.description = form.cleaned_data["description"]
                 record_model_update_event(
-                    user=self.request.user, model_object=reminder_task, case=case
+                    user=self.request.user,
+                    model_object=reminder_task,
+                    case=simplified_case,
                 )
                 reminder_task.save()
             except Task.DoesNotExist:
                 self.object: Task = Task.objects.create(
                     date=form.cleaned_data["date"],
                     type=Task.Type.REMINDER,
-                    case=case,
+                    base_case=simplified_case,
                     user=user,
                     description=form.cleaned_data["description"],
                 )
                 record_model_create_event(
-                    user=self.request.user, model_object=self.object, case=case
+                    user=self.request.user,
+                    model_object=self.object,
+                    case=simplified_case,
                 )
         return HttpResponseRedirect(
-            reverse_lazy("simplified:case-detail", kwargs={"pk": case.id})
+            reverse_lazy("simplified:case-detail", kwargs={"pk": simplified_case.id})
         )
 
     def get_success_url(self) -> str:
@@ -172,7 +182,7 @@ class ReminderTaskUpdateView(UpdateView):
             self.object: Task = form.save(commit=False)
             if "delete" in self.request.POST:
                 self.object.read = True
-            case: SimplifiedCase = self.object.case
+            case: SimplifiedCase = self.object.base_case
             self.object.user = case.auditor if case.auditor else self.request.user
             record_model_update_event(
                 user=self.request.user, model_object=self.object, case=self.object.case

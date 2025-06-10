@@ -1048,12 +1048,12 @@ class Retest(VersionModel):
         body requested retests up to this one.
         """
         fixed_checks_count: int = (
-            CheckResult.objects.filter(audit=self.base_case.audit)
+            CheckResult.objects.filter(audit=self.simplified_case.audit)
             .filter(retest_state=CheckResult.RetestResult.FIXED)
             .exclude(page__not_found="yes")
             .count()
         )
-        for retest in self.base_case.retests.exclude(
+        for retest in self.simplified_case.retests.exclude(
             id_within_case__gt=self.id_within_case
         ).exclude(id_within_case=0):
             fixed_checks_count += (
@@ -1067,7 +1067,7 @@ class Retest(VersionModel):
     @property
     def original_retest(self):
         """Copy of 12-week retest results"""
-        return self.base_case.retests.filter(id_within_case=0).first()
+        return self.simplified_case.retests.filter(id_within_case=0).first()
 
     @property
     def previous_retest(self):
@@ -1081,7 +1081,7 @@ class Retest(VersionModel):
     @property
     def latest_retest(self):
         """Return latest retest"""
-        return self.base_case.retests.first()
+        return self.simplified_case.retests.first()
 
     @property
     def check_results(self):
@@ -1333,7 +1333,7 @@ class RetestStatementCheckResult(models.Model):
             if self.id_within_case == 0:
                 self.id_within_case = (
                     RetestStatementCheckResult.objects.filter(
-                        retest__case=self.retest.case
+                        retest__case=self.retest.simplified_case
                     ).aggregate(Max("id_within_case", default=0))["id_within_case__max"]
                     + 1
                 )

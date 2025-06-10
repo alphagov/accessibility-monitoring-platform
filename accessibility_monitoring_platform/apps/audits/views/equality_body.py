@@ -81,7 +81,9 @@ def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
     """Set Retest.is_deleted to True"""
     retest: Retest = get_object_or_404(Retest, id=pk)
     retest.is_deleted = True
-    record_model_update_event(user=request.user, model_object=retest, case=retest.case)
+    record_model_update_event(
+        user=request.user, model_object=retest, case=retest.simplified_case
+    )
     retest.save()
     return redirect(
         reverse(
@@ -291,13 +293,13 @@ class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
                     record_model_create_event(
                         user=self.request.user,
                         model_object=statement_page,
-                        case=retest.case,
+                        case=retest.simplified_case,
                     )
                 else:
                     record_model_update_event(
                         user=self.request.user,
                         model_object=statement_page,
-                        case=retest.case,
+                        case=retest.simplified_case,
                     )
                     statement_page.save()
         else:
@@ -387,7 +389,7 @@ class RetestStatementCheckingView(RetestUpdateView):
                 record_model_update_event(
                     user=self.request.user,
                     model_object=retest_statement_check_result,
-                    case=retest_statement_check_result.retest.case,
+                    case=retest_statement_check_result.retest.simplified_case,
                 )
                 retest_statement_check_result.save()
         else:
@@ -565,13 +567,13 @@ class RetestStatementCustomFormView(RetestUpdateView):
                     record_model_create_event(
                         user=self.request.user,
                         model_object=retest_statement_check_result,
-                        case=retest_statement_check_result.retest.case,
+                        case=retest_statement_check_result.retest.simplified_case,
                     )
                 else:
                     record_model_update_event(
                         user=self.request.user,
                         model_object=retest_statement_check_result,
-                        case=retest_statement_check_result.retest.case,
+                        case=retest_statement_check_result.retest.simplified_case,
                     )
                     retest_statement_check_result.save()
         else:

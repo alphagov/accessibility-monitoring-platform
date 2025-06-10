@@ -656,7 +656,7 @@ def start_retest(
     )
     audit.save()
     CaseEvent.objects.create(
-        case=audit.simplified_case,
+        simplified_case=audit.simplified_case,
         done_by=request.user,
         event_type=CaseEvent.EventType.START_RETEST,
         message="Started retest",

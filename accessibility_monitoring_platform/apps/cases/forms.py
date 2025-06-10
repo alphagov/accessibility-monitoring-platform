@@ -16,6 +16,7 @@ from ..common.forms import (
 from ..common.models import Sector, SubCategory
 from ..simplified.models import BaseCase, Complaint, Sort
 
+TEST_TYPE_CHOICES: list[tuple[str, str]] = [("", "All")] + BaseCase.TestType.choices
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + BaseCase.EnforcementBody.choices
 STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + BaseCase.Status.choices
 RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
@@ -41,9 +42,7 @@ def get_search_user_choices(user_query: QuerySet[User]) -> list[tuple[str, str]]
 
 
 class CaseSearchForm(AMPDateRangeForm):
-    """
-    Form for searching for cases
-    """
+    """Form for searching for cases"""
 
     sort_by = AMPChoiceField(label="Sort by", choices=Sort.choices)
     case_search = AMPCharFieldWide(label="Search")
@@ -63,6 +62,11 @@ class CaseSearchForm(AMPDateRangeForm):
     )
     subcategory = AMPModelChoiceField(
         label="Sub-category", queryset=SubCategory.objects.all()
+    )
+    test_type = AMPChoiceField(
+        label="Testing type",
+        choices=TEST_TYPE_CHOICES,
+        initial=BaseCase.TestType.SIMPLIFIED,
     )
 
     def __init__(self, *args, **kwargs):

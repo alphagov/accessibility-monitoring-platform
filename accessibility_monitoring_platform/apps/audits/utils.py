@@ -302,7 +302,9 @@ def create_checkresults_for_retest(retest: Retest) -> None:
     audit: Audit = retest.simplified_case.audit
     if retest.id_within_case == 1:
         # Create fake retest from 12-week results for first retest to compare itself to
-        retest_0: Retest = Retest.objects.create(case=retest.case, id_within_case=0)
+        retest_0: Retest = Retest.objects.create(
+            simplified_case=retest.simplified_case, id_within_case=0
+        )
         for page in audit.testable_pages:
             if page.unfixed_check_results:
                 retest_page: RetestPage = RetestPage.objects.create(

@@ -238,7 +238,7 @@ def get_post_case_tasks(user: User) -> list[Task]:
     for equality_body_correspondence in equality_body_correspondences:
         if (
             Task.objects.filter(
-                case=equality_body_correspondence.case,
+                case=equality_body_correspondence.simplified_case,
                 type=Task.Type.REMINDER,
                 date__gte=today,
             ).first()
@@ -247,7 +247,7 @@ def get_post_case_tasks(user: User) -> list[Task]:
             task: Task = Task(
                 type=Task.Type.POSTCASE,
                 date=equality_body_correspondence.created.date(),
-                case=equality_body_correspondence.case,
+                case=equality_body_correspondence.simplified_case,
                 description="Unresolved correspondence",
                 action="View correspondence",
             )
@@ -269,14 +269,14 @@ def get_post_case_tasks(user: User) -> list[Task]:
     for retest in retests:
         if (
             Task.objects.filter(
-                case=retest.case, type=Task.Type.REMINDER, date__gte=today
+                case=retest.simplified_case, type=Task.Type.REMINDER, date__gte=today
             ).first()
             is None
         ):
             task: Task = Task(
                 type=Task.Type.POSTCASE,
                 date=retest.date_of_retest,
-                case=retest.case,
+                case=retest.simplified_case,
                 description="Incomplete retest",
                 action="View retest",
             )

@@ -9,6 +9,7 @@ from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
 
 from ..common.utils import build_filters
+from ..simplified.models import SimplifiedCase
 from .models import BaseCase, Sort
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
@@ -17,6 +18,7 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("status", "status"),
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
+    ("test_type", "test_type"),
 ]
 
 
@@ -65,10 +67,13 @@ def filter_cases(form) -> QuerySet[BaseCase]:  # noqa: C901
             filter_value: str = form.cleaned_data.get(filter_name, "")
             if filter_value != "":
                 filters[filter_name] = filter_value
+    else:
+        filters["test_type"] = BaseCase.TestType.SIMPLIFIED
 
-    # if str(filters.get("casestatus__status", "")) == CaseStatus.Status.READY_TO_QA:
-    #     filters["qa_status"] = Case.QAStatus.UNASSIGNED
-    #     del filters["casestatus__status"]
+    if str(filters.get("status", "")) == BaseCase.Status.READY_TO_QA:
+        filters["test_type"] = BaseCase.TestType.SIMPLIFIED
+        filters["status"] = BaseCase.Status.QA_IN_PROGRESS
+        filters["simplifiedcase__qa_status"] = SimplifiedCase.QAStatus.UNASSIGNED
 
     # Auditor and reviewer may be filtered by unassigned
     if "auditor_id" in filters and filters["auditor_id"] == "none":

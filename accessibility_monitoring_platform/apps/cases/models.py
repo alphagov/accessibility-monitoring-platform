@@ -1698,7 +1698,7 @@ class BaseCase(VersionModel):
     def __str__(self) -> str:
         if self.organisation_name:
             return f"{self.organisation_name} | {self.case_identifier}"
-        return f"{self.app_name} | {self.case_identifier}"
+        return self.case_identifier
 
     def save(self, *args, **kwargs) -> None:
         now: datetime = timezone.now()

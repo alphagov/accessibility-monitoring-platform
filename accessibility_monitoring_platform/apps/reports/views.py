@@ -41,7 +41,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     report: Report = Report.objects.create(base_case=case)
     record_model_create_event(user=request.user, model_object=report, case=case)
     CaseEvent.objects.create(
-        case=case,
+        simplified_case=case,
         done_by=request.user,
         event_type=CaseEvent.EventType.CREATE_REPORT,
         message="Created report",

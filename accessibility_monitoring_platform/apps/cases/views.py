@@ -71,6 +71,9 @@ class CaseListView(ListView):
             dictionary=get_dict_without_page_items(self.request.GET.items()),
             keys_to_check=TRUTHY_SEARCH_FIELDS,
         )
+        test_type: str = self.request.GET.get("test_type", BaseCase.TestType.SIMPLIFIED)
+        if test_type != BaseCase.TestType.SIMPLIFIED:
+            context["advanced_search_open"] = True
         context["form"] = self.form
         context["url_parameters"] = get_url_parameters_for_pagination(
             request=self.request
