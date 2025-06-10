@@ -895,3 +895,41 @@ svg {
         height: 1rem;
     }
 }
+
+.amp-logo-gds-container {
+    background-image: url('/static/img/gds_crest_18px_x2.png');
+    background-repeat: no-repeat;
+    background-position: 8px 0;
+    background-size: auto 32px;
+    border-left: 2px solid #00f8f8;
+    padding-top: 35px;
+    padding-left: 8px;
+    display: inline-block;
+    margin-right: 16px;
+    margin-bottom: 16px;
+    font-family: HelveticaNeue, "Helvetica Neue", Arial, Helvetica, sans-serif !important; 
+    font-weight: 400;
+    font-size: 1.1875rem;
+    line-height: 1.3157894737;
+    direction: ltr;
+    vertical-align: top;
+}
+
+.amp-logo-dsit-container {
+    background-image: url('/static/img/org_crest_18px.png');
+    background-repeat: no-repeat;
+    background-position: 8px 0;
+    background-size: auto 32px;
+    border-left: 2px solid #00f8f8;
+    padding-top: 35px;
+    padding-left: 8px;
+    display: inline-block;
+    margin-right: 16px;
+    margin-bottom: 16px;
+    font-family: HelveticaNeue, "Helvetica Neue", Arial, Helvetica, sans-serif !important; 
+    font-weight: 400;
+    font-size: 1.1875rem;
+    line-height: 1.3157894737;
+    direction: ltr;
+    vertical-align: top;
+}
