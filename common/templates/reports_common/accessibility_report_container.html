@@ -1,87 +1,86 @@
 {% load static %}
 
-<div class="govuk-width-container">
-    <main id="main-content" class="govuk-main-wrapper amp-report-wrapper no-padding-on-main">
+<main id="main-content" class="govuk-main-wrapper amp-report-wrapper no-padding-on-main">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="amp-logo-dsit-container">
+                <span>
+                    Department for
+                    <br>
+                    Science, Innovation
+                    <br>
+                    & Technology
+                </span>
+            </div>
+            <div class="amp-logo-gds-container">
+                <span>
+                    Government
+                    <br>
+                    Digital Service
+                </span>
+            </div>
+        </div>
+    </div>
+    {% if s3_report and s3_report.guid != report.latest_s3_report.guid %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <div class="amp-logo-dsit-container">
-                    <span>
-                        Department for
-                        <br>
-                        Science, Innovation
-                        <br>
-                        & Technology
-                    </span>
-                </div>
-                <div class="amp-logo-gds-container">
-                    <span>
-                        Government
-                        <br>
-                        Digital Service
-                    </span>
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-warning-text__assistive">Warning</span>
+                            A newer version of this report is available.
+                            The most up to date version of the report can be viewed
+                            <a href="{{ report.latest_s3_report.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">
+                                here</a>
+                    </strong>
                 </div>
             </div>
         </div>
-        {% if s3_report and s3_report.guid != report.latest_s3_report.guid %}
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-full">
-                    <div class="govuk-warning-text">
-                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                        <strong class="govuk-warning-text__text">
-                            <span class="govuk-warning-text__assistive">Warning</span>
-                                A newer version of this report is available.
-                                The most up to date version of the report can be viewed
-                                <a href="{{ report.latest_s3_report.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">
-                                    here</a>
-                        </strong>
-                    </div>
+    {% else %}
+        <div class="govuk-grid-row border-bottom-report">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-!-margin-top-8 govuk-!-margin-bottom-8">
+                    <h1 class="govuk-heading-xl">{{ report.wrapper.title }}</h1>
                 </div>
             </div>
-        {% else %}
-            <div class="govuk-grid-row border-bottom-report">
-                <div class="govuk-grid-column-full">
-                    <div class="govuk-!-margin-top-8 govuk-!-margin-bottom-8">
-                        <h1 class="govuk-heading-xl">{{ report.wrapper.title }}</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-two-thirds metadata-container">
-                    <dl>
-                        <dt class="amp-margin-bottom-0">From</dt>
-                        <dd class="amp-margin-left-0">{{ report.wrapper.sent_by|markdown_to_html }}</dd>
-
-                        <dt class="amp-margin-bottom-0">Contact</dt>
-                        <dd class="amp-margin-left-0">{{ report.wrapper.contact|markdown_to_html }}</dd>
-
-                        {% if s3_report %}
-                            <dt class="metadata-term">Published</dt><dd>{{ s3_report.created|amp_date }}</dd>
-                        {% else %}
-                            <dt class="metadata-term">Report last updated</dt><dd>{{ report.report_rebuilt|amp_datetime }}</dd>
-                        {% endif %}
-                    </dl>
-                    <span class="no-print">
-                        <button id="print-button" class="govuk-link print-button">Print this page</button>
-                    </span>
-                </div>
-            </div>
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-full amp-margin-bottom-25">
-                    {{ html_report|safe }}
-                </div>
-            </div>
-            <div class="govuk-grid-row amp-margin-bottom-25">
-                <div class="govuk-grid-column-one-half amp-no-bullet-points no-print">
-                    <div class="related-content-wrapper">
-                        <h2>Related content</h2>
-                    </div>
-                    <nav aria-label="Related content">
-                        {{ report.wrapper.related_content|markdown_to_html }}
-                    </nav>
-                </div>
-            </div>
-        {% endif %}
         </div>
-    </main>
-    <script src="{% static 'js/print-button.js' %}"></script>
-</div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds metadata-container">
+                <dl>
+                    <dt class="amp-margin-bottom-0">From</dt>
+                    <dd class="amp-margin-left-0">{{ report.wrapper.sent_by|markdown_to_html }}</dd>
+
+                    <dt class="amp-margin-bottom-0">Contact</dt>
+                    <dd class="amp-margin-left-0">{{ report.wrapper.contact|markdown_to_html }}</dd>
+
+                    {% if s3_report %}
+                        <dt class="metadata-term">Published</dt><dd>{{ s3_report.created|amp_date }}</dd>
+                    {% else %}
+                        <dt class="metadata-term">Report last updated</dt><dd>{{ report.report_rebuilt|amp_datetime }}</dd>
+                    {% endif %}
+                </dl>
+                <span class="no-print">
+                    <button id="print-button" class="govuk-link print-button">Print this page</button>
+                </span>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full amp-margin-bottom-25">
+                {{ html_report|safe }}
+            </div>
+        </div>
+        <div class="govuk-grid-row amp-margin-bottom-25">
+            <div class="govuk-grid-column-one-half amp-no-bullet-points no-print">
+                <div class="related-content-wrapper">
+                    <h2>Related content</h2>
+                </div>
+                <nav aria-label="Related content">
+                    {{ report.wrapper.related_content|markdown_to_html }}
+                </nav>
+            </div>
+        </div>
+    {% endif %}
+    </div>
+</main>
+<script src="{% static 'js/print-button.js' %}"></script>
+

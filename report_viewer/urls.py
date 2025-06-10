@@ -20,7 +20,7 @@ from django.urls import path
 from django.views.defaults import page_not_found
 from django.views.generic.base import RedirectView
 
-ROOT_REDIRECT_DESTINATION: str = "https://www.accessibility-monitoring.service.gov.uk/"
+ROOT_REDIRECT_DESTINATION: str = "https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring/"
 
 
 def custom_page_not_found(request):
