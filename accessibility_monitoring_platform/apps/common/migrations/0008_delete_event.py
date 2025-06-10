@@ -6,7 +6,6 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("cases", "0010_populate_events"),
         ("common", "0007_populate_template_name"),
     ]
 
