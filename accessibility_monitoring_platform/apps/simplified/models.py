@@ -1158,9 +1158,13 @@ class CaseStatus(models.Model):
             return CaseStatus.Status.UNASSIGNED
         elif (
             compliance is None
-            or self.simplified_case.compliance.website_compliance_state_initial
+            or compliance.website_compliance_state_initial
             == CaseCompliance.WebsiteCompliance.UNKNOWN
-            or self.simplified_case.statement_checks_still_initial
+            or bool(
+                self.base_case.statement_checks_still_initial
+                and self.base_case.compliance.statement_compliance_state_initial
+                == CaseCompliance.StatementCompliance.UNKNOWN
+            )
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (

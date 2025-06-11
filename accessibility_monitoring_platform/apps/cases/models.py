@@ -1222,85 +1222,85 @@ class CaseStatus(models.Model):
 
     def calculate_status(self) -> str:  # noqa: C901
         try:
-            compliance: CaseCompliance = self.base_case.compliance
+            compliance: CaseCompliance = self.case.compliance
         except CaseCompliance.DoesNotExist:
             compliance = None
 
-        if self.base_case.is_deactivated:
+        if self.case.is_deactivated:
             return CaseStatus.Status.DEACTIVATED
         elif (
-            self.base_case.case_completed == Case.CaseCompleted.COMPLETE_NO_SEND
-            or self.base_case.enforcement_body_pursuing
+            self.case.case_completed == Case.CaseCompleted.COMPLETE_NO_SEND
+            or self.case.enforcement_body_pursuing
             == Case.EnforcementBodyPursuing.YES_COMPLETED
-            or self.base_case.enforcement_body_closed_case
+            or self.case.enforcement_body_closed_case
             == Case.EnforcementBodyClosedCase.YES
         ):
             return CaseStatus.Status.COMPLETE
         elif (
-            self.base_case.enforcement_body_pursuing
+            self.case.enforcement_body_pursuing
             == Case.EnforcementBodyPursuing.YES_IN_PROGRESS
-            or self.base_case.enforcement_body_closed_case
+            or self.case.enforcement_body_closed_case
             == Case.EnforcementBodyClosedCase.IN_PROGRESS
         ):
             return CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
-        elif self.base_case.sent_to_enforcement_body_sent_date is not None:
+        elif self.case.sent_to_enforcement_body_sent_date is not None:
             return CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
-        elif self.base_case.case_completed == Case.CaseCompleted.COMPLETE_SEND:
+        elif self.case.case_completed == Case.CaseCompleted.COMPLETE_SEND:
             return CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
-        elif self.base_case.no_psb_contact == Boolean.YES:
+        elif self.case.no_psb_contact == Boolean.YES:
             return CaseStatus.Status.FINAL_DECISION_DUE
-        elif self.base_case.auditor is None:
+        elif self.case.auditor is None:
             return CaseStatus.Status.UNASSIGNED
         elif (
             compliance is None
-            or self.base_case.compliance.website_compliance_state_initial
+            or compliance.website_compliance_state_initial
             == CaseCompliance.WebsiteCompliance.UNKNOWN
-            or self.base_case.statement_checks_still_initial
+            or bool(
+                self.case.statement_checks_still_initial
+                and self.case.compliance.statement_compliance_state_initial
+                == CaseCompliance.StatementCompliance.UNKNOWN
+            )
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            self.base_case.compliance.website_compliance_state_initial
+            self.case.compliance.website_compliance_state_initial
             != CaseCompliance.WebsiteCompliance.UNKNOWN
-            and not self.base_case.statement_checks_still_initial
-            and self.base_case.report_review_status != Boolean.YES
+            and not self.case.statement_checks_still_initial
+            and self.case.report_review_status != Boolean.YES
         ):
             return CaseStatus.Status.REPORT_IN_PROGRESS
         elif (
-            self.base_case.report_review_status == Boolean.YES
-            and self.base_case.report_approved_status
-            != Case.ReportApprovedStatus.APPROVED
+            self.case.report_review_status == Boolean.YES
+            and self.case.report_approved_status != Case.ReportApprovedStatus.APPROVED
         ):
             return CaseStatus.Status.QA_IN_PROGRESS
         elif (
-            self.base_case.report_approved_status == Case.ReportApprovedStatus.APPROVED
-            and self.base_case.report_sent_date is None
+            self.case.report_approved_status == Case.ReportApprovedStatus.APPROVED
+            and self.case.report_sent_date is None
         ):
             return CaseStatus.Status.REPORT_READY_TO_SEND
-        elif (
-            self.base_case.report_sent_date
-            and self.base_case.report_acknowledged_date is None
-        ):
+        elif self.case.report_sent_date and self.case.report_acknowledged_date is None:
             return CaseStatus.Status.IN_REPORT_CORES
-        elif self.base_case.report_acknowledged_date and (
-            self.base_case.twelve_week_update_requested_date is None
-            and self.base_case.twelve_week_correspondence_acknowledged_date is None
+        elif self.case.report_acknowledged_date and (
+            self.case.twelve_week_update_requested_date is None
+            and self.case.twelve_week_correspondence_acknowledged_date is None
         ):
             return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
-        elif self.base_case.twelve_week_update_requested_date and (
-            self.base_case.twelve_week_correspondence_acknowledged_date is None
-            and self.base_case.organisation_response
+        elif self.case.twelve_week_update_requested_date and (
+            self.case.twelve_week_correspondence_acknowledged_date is None
+            and self.case.organisation_response
             == Case.OrganisationResponse.NOT_APPLICABLE
         ):
             return CaseStatus.Status.IN_12_WEEK_CORES
         elif (
-            self.base_case.twelve_week_correspondence_acknowledged_date
-            or self.base_case.organisation_response
+            self.case.twelve_week_correspondence_acknowledged_date
+            or self.case.organisation_response
             != Case.OrganisationResponse.NOT_APPLICABLE
-        ) and self.base_case.is_ready_for_final_decision == Boolean.NO:
+        ) and self.case.is_ready_for_final_decision == Boolean.NO:
             return CaseStatus.Status.REVIEWING_CHANGES
         elif (
-            self.base_case.is_ready_for_final_decision == Boolean.YES
-            and self.base_case.case_completed == Case.CaseCompleted.NO_DECISION
+            self.case.is_ready_for_final_decision == Boolean.YES
+            and self.case.case_completed == Case.CaseCompleted.NO_DECISION
         ):
             return CaseStatus.Status.FINAL_DECISION_DUE
         return CaseStatus.Status.UNKNOWN

@@ -175,13 +175,16 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
         if form.is_valid() and case_compliance_form.is_valid():
             form.save()
             case_compliance_form.save()
+            audit: Audit = self.object
+            audit.case.status.calculate_and_save_status()
             if "website_compliance_state_initial" in case_compliance_form.changed_data:
                 report_data_updated(audit=self.object)
             return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(
                 self.get_context_data(
-                    form=form, case_compliance_form=case_compliance_form
+                    form=form,
+                    case_compliance_form=case_compliance_form,
                 )
             )
 

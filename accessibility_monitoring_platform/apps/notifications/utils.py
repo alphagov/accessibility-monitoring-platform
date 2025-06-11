@@ -133,6 +133,7 @@ def get_overdue_cases(user_request: User | None) -> list[SimplifiedCase]:
                 ],
                 no_contact_one_week_chaser_sent_date=None,
                 no_contact_four_week_chaser_sent_date=None,
+                no_contact_one_week_chaser_due_date__range=[start_date, end_date],
             )
             | Q(
                 no_contact_one_week_chaser_due_date__range=[
