@@ -104,7 +104,8 @@ def import_mobile_cases_csv(csv_data: str) -> None:
             for first_name in ["Andrew", "Katherine", "Kelly"]
         }
     except User.DoesNotExist:  # Automated tests
-        return
+        default_user = None
+        auditors = {}
 
     EventHistory.objects.all().delete()
     MobileCase.objects.all().delete()
