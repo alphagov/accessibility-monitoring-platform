@@ -2,10 +2,10 @@
 
 from django.core.management.base import BaseCommand
 
-from ...models import Case
+from ...models import SimplifiedCase
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):  # pylint: disable=unused-argument
-        for case in Case.objects.all():
-            case.status.calculate_and_save_status()
+        for simplified_case in SimplifiedCase.objects.all():
+            simplified_case.casestatus.calculate_and_save_status()
