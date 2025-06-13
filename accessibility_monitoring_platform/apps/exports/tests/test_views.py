@@ -6,13 +6,12 @@ from datetime import date
 
 import pytest
 from django.contrib.auth.models import User
-from django.db import connection
 from django.db.models.query import QuerySet
 from django.http import HttpResponse, StreamingHttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...cases.models import Case, CaseStatus, EventHistory
+from ...simplified.models import CaseCompliance, SimplifiedCase, SimplifiedEventHistory
 from ..models import Export, ExportCase
 from .test_forms import CUTOFF_DATE, create_exportable_case
 
@@ -33,26 +32,23 @@ def get_csv_streaming_content(
 
 
 def create_cases_and_export(
-    enforcement_body: Case.EnforcementBody = Case.EnforcementBody.EHRC,
+    enforcement_body: SimplifiedCase.EnforcementBody = SimplifiedCase.EnforcementBody.EHRC,
 ) -> Export:
     """Creates cases and export"""
-    case_1: Case = Case.objects.create(
+    simplified_case_1: SimplifiedCase = SimplifiedCase.objects.create(
         organisation_name=ORGANISATION_NAME,
         compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE,
         enforcement_body=enforcement_body,
+        status=SimplifiedCase.Status.CASE_CLOSED_WAITING_TO_SEND,
     )
-    case_2: Case = Case.objects.create(
+    CaseCompliance.objects.create(simplified_case=simplified_case_1)
+    simplified_case_2: SimplifiedCase = SimplifiedCase.objects.create(
         organisation_name="Other Org Name",
         compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE,
         enforcement_body=enforcement_body,
+        status=SimplifiedCase.Status.CASE_CLOSED_WAITING_TO_SEND,
     )
-    with connection.cursor() as cursor:
-        cursor.execute(
-            f"UPDATE cases_casestatus SET status = '{CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND}' WHERE id = {case_1.status.id}"
-        )
-        cursor.execute(
-            f"UPDATE cases_casestatus SET status = '{CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND}' WHERE id = {case_2.status.id}"
-        )
+    CaseCompliance.objects.create(simplified_case=simplified_case_2)
 
     user: User = User.objects.create()
     export: Export = Export.objects.create(
@@ -140,7 +136,9 @@ def test_ehrc_export_page_loads(path_name, expected_content, admin_client):
 )
 def test_ecni_export_page_loads(path_name, expected_content, admin_client):
     """Test that ECNI export-specific page view loads"""
-    export: Export = create_cases_and_export(enforcement_body=Case.EnforcementBody.ECNI)
+    export: Export = create_cases_and_export(
+        enforcement_body=SimplifiedCase.EnforcementBody.ECNI
+    )
 
     response: HttpResponse = admin_client.get(
         reverse(path_name, kwargs={"pk": export.id})
@@ -271,7 +269,7 @@ def test_create_export(admin_client, admin_user):
     response: HttpResponse = admin_client.post(
         reverse("exports:export-create"),
         {
-            "enforcement_body": Case.EnforcementBody.EHRC,
+            "enforcement_body": SimplifiedCase.EnforcementBody.EHRC,
             "cutoff_date_0": CUTOFF_DATE.day,
             "cutoff_date_1": CUTOFF_DATE.month,
             "cutoff_date_2": CUTOFF_DATE.year,
@@ -288,7 +286,7 @@ def test_create_export(admin_client, admin_user):
     assert export.exporter is not None
     assert export.exporter == admin_user
 
-    event_history: EventHistory = EventHistory.objects.all().first()
+    event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.all().first()
 
     assert event_history is not None
     assert event_history.parent == export
@@ -305,7 +303,7 @@ def test_confirm_export(admin_client):
     export_case.status = ExportCase.Status.READY
     export_case.save()
 
-    assert export_case.base_case.sent_to_enforcement_body_sent_date is None
+    assert export_case.simplified_case.sent_to_enforcement_body_sent_date is None
 
     response: HttpResponse = admin_client.post(
         reverse("exports:export-confirm-export", kwargs={"pk": export.id}),
@@ -320,11 +318,13 @@ def test_confirm_export(admin_client):
         "exports:export-ready-cases", kwargs={"pk": export.id}
     )
 
-    case: Case = Case.objects.get(id=export_case.base_case.id)
+    case: SimplifiedCase = SimplifiedCase.objects.get(id=export_case.simplified_case.id)
 
     assert case.sent_to_enforcement_body_sent_date == date.today()
 
-    event_history: QuerySet[EventHistory] = EventHistory.objects.all()
+    event_history: QuerySet[SimplifiedEventHistory] = (
+        SimplifiedEventHistory.objects.all()
+    )
 
     assert len(event_history) == 2
     assert event_history[0].parent == export
@@ -354,7 +354,7 @@ def test_confirm_delete_export(admin_client):
 
     assert export_from_db.is_deleted is True
 
-    event: EventHistory = EventHistory.objects.all().first()
+    event: SimplifiedEventHistory = SimplifiedEventHistory.objects.all().first()
 
     assert event is not None
     assert event.parent == export
@@ -362,10 +362,12 @@ def test_confirm_delete_export(admin_client):
 
 def test_export_case_as_email(admin_client):
     """
-    Test that Case export can be rendered as a HTML table which can be copied into an
+    Test that SimplifiedCase export can be rendered as a HTML table which can be copied into an
     email.
     """
-    export: Export = create_cases_and_export(enforcement_body=Case.EnforcementBody.ECNI)
+    export: Export = create_cases_and_export(
+        enforcement_body=SimplifiedCase.EnforcementBody.ECNI
+    )
     case: ExportCase = export.exportcase_set.first()
 
     response: HttpResponse = admin_client.get(

@@ -1250,9 +1250,6 @@ class RetestCheckResult(models.Model):
         if not self.id:
             if self.id_within_case == 0:
                 self.id_within_case = self.check_result.id_within_case
-            import pdb
-
-            pdb.set_trace()
             self.issue_identifier = build_issue_identifier(
                 simplified_case=self.retest.simplified_case, issue=self
             )
@@ -1333,7 +1330,7 @@ class RetestStatementCheckResult(models.Model):
             if self.id_within_case == 0:
                 self.id_within_case = (
                     RetestStatementCheckResult.objects.filter(
-                        retest__case=self.retest.simplified_case
+                        retest__simplified_case=self.retest.simplified_case
                     ).aggregate(Max("id_within_case", default=0))["id_within_case__max"]
                     + 1
                 )

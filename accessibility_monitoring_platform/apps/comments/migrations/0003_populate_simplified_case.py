@@ -11,19 +11,19 @@ def populate_base_case(apps, schema_editor):
     ):
         print(f"{count}: Migrating Comments Case number {simplified_case.case_number}")
         for comment in Comment.objects.filter(case_id=simplified_case.case_id):
-            comment.base_case_id = simplified_case.basecase_ptr
+            comment.simplified_case_id = simplified_case.id
             comment.save()
 
 
 def reverse_code(apps, schema_editor):
     Comment = apps.get_model("comments", "Comment")
-    Comment.objects.all().update(base_case_id=None)
+    Comment.objects.all().update(simplified_case_id=None)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("comments", "0002_comment_base_case"),
+        ("comments", "0002_comment_simplified_case"),
         ("simplified", "0003_populate_simplified_cases"),
     ]
 

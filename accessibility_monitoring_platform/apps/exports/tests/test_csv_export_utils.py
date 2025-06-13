@@ -436,7 +436,7 @@ def test_populate_equality_body_columns():
 
     assert contact_details_cell.formatted_data == f"{CONTACT_EMAIL}\n"
     assert contact_details_cell.edit_url_name == "simplified:manage-contact-details"
-    assert contact_details_cell.edit_url == "/cases/1/manage-contact-details/"
+    assert contact_details_cell.edit_url == "/simplified/1/manage-contact-details/"
 
     organisation_responded: list[EqualityBodyCSVColumn] = [
         cell
@@ -455,7 +455,7 @@ def test_populate_equality_body_columns():
     )
     assert (
         organisation_responded_cell.edit_url
-        == "/cases/1/edit-report-acknowledged/#id_report_acknowledged_date-label"
+        == "/simplified/1/edit-report-acknowledged/#id_report_acknowledged_date-label"
     )
 
 

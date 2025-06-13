@@ -3,8 +3,9 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from ..cases.models import BaseCase, Case
+from ..cases.models import Case
 from ..common.utils import amp_format_date
+from ..simplified.models import SimplifiedCase
 from .utils import get_exportable_cases
 
 
@@ -24,8 +25,8 @@ class Export(models.Model):
     )
     enforcement_body = models.CharField(
         max_length=20,
-        choices=Case.EnforcementBody.choices,
-        default=Case.EnforcementBody.EHRC,
+        choices=SimplifiedCase.EnforcementBody.choices,
+        default=SimplifiedCase.EnforcementBody.EHRC,
     )
     export_date = models.DateField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -41,22 +42,24 @@ class Export(models.Model):
         new_export: bool = not self.id
         super().save(*args, **kwargs)
         if new_export:
-            for case in get_exportable_cases(
+            for simplified_case in get_exportable_cases(
                 cutoff_date=self.cutoff_date, enforcement_body=self.enforcement_body
             ):
                 ExportCase.objects.create(
                     export=self,
-                    case=case,
+                    simplified_case=simplified_case,
                 )
 
     @property
-    def all_cases(self) -> list[Case]:
-        return [export_case.case for export_case in self.exportcase_set.all()]
+    def all_cases(self) -> list[SimplifiedCase]:
+        return [
+            export_case.simplified_case for export_case in self.exportcase_set.all()
+        ]
 
     @property
     def ready_cases(self):
         return [
-            export_case.case
+            export_case.simplified_case
             for export_case in self.exportcase_set.filter(
                 status=ExportCase.Status.READY
             )
@@ -84,9 +87,9 @@ class ExportCase(models.Model):
         EXCLUDED = "excluded", "Excluded"
 
     export = models.ForeignKey(Export, on_delete=models.PROTECT)
-    case = models.ForeignKey(Case, on_delete=models.PROTECT)
-    base_case = models.ForeignKey(
-        BaseCase,
+    case = models.ForeignKey(Case, on_delete=models.PROTECT, blank=True, null=True)
+    simplified_case = models.ForeignKey(
+        SimplifiedCase,
         on_delete=models.PROTECT,
         blank=True,
         null=True,
@@ -97,4 +100,4 @@ class ExportCase(models.Model):
         ordering: list[str] = ["id"]
 
     def __str__(self) -> str:
-        return f"{self.export}: {self.case}"
+        return f"{self.export}: {self.simplified_case}"

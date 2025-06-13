@@ -3,7 +3,7 @@ Utility functions for cases app
 """
 
 import copy
-from typing import Any
+from typing import Any, ClassVar
 
 from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
@@ -22,8 +22,8 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
 ]
 
 
-def filter_cases(form) -> QuerySet[BaseCase]:  # noqa: C901
-    """Return a queryset of BaseCases filtered by the values in CaseSearchForm"""
+def filter_cases(form) -> QuerySet[BaseCase] | QuerySet[SimplifiedCase]:
+    """Return a queryset of Cases filtered by the values in CaseSearchForm"""
     filters: dict = {}
     search_query = Q()
     sort_by: str = Sort.NEWEST
@@ -81,9 +81,14 @@ def filter_cases(form) -> QuerySet[BaseCase]:  # noqa: C901
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
 
+    if "recommendation_for_enforcement" in filters:
+        search_model: ClassVar[SimplifiedCase] = SimplifiedCase
+    else:
+        search_model: ClassVar[BaseCase] = BaseCase
+
     if not sort_by:
         return (
-            BaseCase.objects.filter(search_query, **filters)
+            search_model.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
                     When(status=BaseCase.Status.UNASSIGNED, then=0),
@@ -94,7 +99,7 @@ def filter_cases(form) -> QuerySet[BaseCase]:  # noqa: C901
             .select_related("auditor", "reviewer")
         )
     return (
-        BaseCase.objects.filter(search_query, **filters)
+        search_model.objects.filter(search_query, **filters)
         .order_by(sort_by)
         .select_related("auditor", "reviewer")
     )

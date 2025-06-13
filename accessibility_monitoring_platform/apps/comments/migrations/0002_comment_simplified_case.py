@@ -7,20 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("cases", "0013_basecase"),
+        ("simplified", "0001_initial"),
         ("comments", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
             model_name="comment",
-            name="base_case",
+            name="simplified_case",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
-                related_name="comment_basecase",
-                to="cases.basecase",
+                related_name="comment_simplifiedcase",
+                to="simplified.simplifiedcase",
             ),
         ),
     ]

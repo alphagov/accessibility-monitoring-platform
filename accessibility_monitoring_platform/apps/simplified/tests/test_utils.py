@@ -21,8 +21,8 @@ from ..utils import (
     filter_cases,
     get_sent_date,
     record_case_event,
-    record_model_create_event,
-    record_model_update_event,
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
     replace_search_key_with_case_search,
 )
 
@@ -448,7 +448,7 @@ def test_create_case_and_compliance():
 def test_record_model_create_event():
     """Test creation of model create event"""
     user: User = User.objects.create()
-    record_model_create_event(user=user, model_object=user)
+    record_simplified_model_create_event(user=user, model_object=user)
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: SimplifiedEventHistory = SimplifiedEventHistory.objects.get(
@@ -472,7 +472,7 @@ def test_record_model_update_event():
     """Test creation of model update event"""
     user: User = User.objects.create()
     user.first_name = "Changed"
-    record_model_update_event(user=user, model_object=user)
+    record_simplified_model_update_event(user=user, model_object=user)
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: SimplifiedEventHistory = SimplifiedEventHistory.objects.get(

@@ -97,14 +97,13 @@ def create_mobile_case_from_dict(
 
 
 def import_mobile_cases_csv(csv_data: str) -> None:
+    default_user = User.objects.filter(first_name="Paul").first()
     try:
-        default_user = User.objects.get(first_name="Paul")
         auditors: dict[str, User] = {
             first_name: User.objects.get(first_name=first_name)
             for first_name in ["Andrew", "Katherine", "Kelly"]
         }
     except User.DoesNotExist:  # Automated tests
-        default_user = None
         auditors = {}
 
     EventHistory.objects.all().delete()

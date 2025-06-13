@@ -7,19 +7,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("cases", "0013_basecase"),
+        ("simplified", "0001_initial"),
         ("exports", "0001_initial"),
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.AlterField(
             model_name="exportcase",
-            name="base_case",
+            name="case",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
-                to="cases.basecase",
+                to="cases.case",
+            ),
+        ),
+        migrations.AddField(
+            model_name="exportcase",
+            name="simplified_case",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="simplified.simplifiedcase",
             ),
         ),
     ]

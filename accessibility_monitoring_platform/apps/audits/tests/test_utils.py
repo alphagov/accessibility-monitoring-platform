@@ -236,8 +236,8 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: list[FieldLabelAndValue] = [
 
 def create_audit_and_wcag() -> Audit:
     """Create an audit and WcagDefinitions"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     WcagDefinition.objects.create(
         id=1, type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
@@ -295,8 +295,10 @@ def create_audit_and_check_results() -> Audit:
 @pytest.mark.django_db
 def test_create_mandatory_pages_for_new_audit():
     """Test that the mandatory pages are created for a new audit"""
-    case: SimplifiedCase = SimplifiedCase.objects.create(home_page_url=HOME_PAGE_URL)
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        home_page_url=HOME_PAGE_URL
+    )
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     create_mandatory_pages_for_new_audit(audit=audit)
 
     assert audit.page_audit.count() == len(Page.MANDATORY_PAGE_TYPES)
@@ -606,8 +608,8 @@ def test_other_page_failed_check_results():
 @pytest.mark.django_db
 def test_report_data_updated():
     """Test report data updated fields are populated"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     assert audit.published_report_data_updated_time is None
 
@@ -619,8 +621,8 @@ def test_report_data_updated():
 @pytest.mark.django_db
 def test_create_statement_checks_for_new_audit():
     """Test creation of statement check results for audit"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     assert StatementCheckResult.objects.filter(audit=audit).count() == 0
 
@@ -640,8 +642,8 @@ def test_create_skips_future_statement_checks():
     Test creation of statement check results for audit skips future
     statement checks.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     future_statement_check: StatementCheck = StatementCheck.objects.all().first()
     future_statement_check.date_start = date.today() + timedelta(days=10)
     future_statement_check.save()
@@ -662,8 +664,8 @@ def test_create_skips_past_statement_checks():
     Test creation of statement check results for audit skips past
     statement checks.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     past_statement_check: StatementCheck = StatementCheck.objects.all().first()
     past_statement_check.date_end = date.today() - timedelta(days=10)
     past_statement_check.save()
@@ -690,8 +692,8 @@ def test_create_checkresults_for_retest():
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(
         audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
@@ -713,7 +715,7 @@ def test_create_checkresults_for_retest():
 
     assert Retest.objects.all().count() == 0
 
-    retest_1: Retest = Retest.objects.create(case=case)
+    retest_1: Retest = Retest.objects.create(simplified_case=simplified_case)
 
     create_checkresults_for_retest(retest=retest_1)
 
@@ -742,7 +744,9 @@ def test_create_checkresults_for_retest():
 
     assert retest_checkresult_1.check_result == unfixed_page_check_result
 
-    retest_2: Retest = Retest.objects.create(case=case, id_within_case=2)
+    retest_2: Retest = Retest.objects.create(
+        simplified_case=simplified_case, id_within_case=2
+    )
 
     create_checkresults_for_retest(retest=retest_2)
 
@@ -766,9 +770,9 @@ def test_create_checkresults_for_retest_creates_statement_checks():
     """
     RetestStatementCheckResults are created for each new retest.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(case=case)
-    retest: Retest = Retest.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
     assert RetestStatementCheckResult.objects.all().count() == 0
 
@@ -783,8 +787,8 @@ def test_get_next_platform_page_equality_body_with_no_pages():
     Test get_next_platform_page_equality_body returns platform page for retest
     comparison update when retest has no retest pages.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    retest: Retest = Retest.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
     platform_page: PlatformPage = get_next_platform_page_equality_body(retest=retest)
     assert platform_page.url == reverse(
         "audits:retest-comparison-update", kwargs={"pk": retest.id}
@@ -797,12 +801,12 @@ def test_get_next_platform_page_equality_body_with_pages():
     Test get_next_platform_page_equality_bodyreturns patform pages
     for each retest page in retest in in turn.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(
         audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
-    retest: Retest = Retest.objects.create(case=case)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
     first_retest_page: RetestPage = RetestPage.objects.create(
         retest=retest,
@@ -829,8 +833,8 @@ def test_get_next_platform_page_equality_body_with_pages():
 @pytest.mark.django_db
 def test_get_other_pages_with_retest_notes():
     """Test get_other_pages_with_retest_notes returns only other pages with retest notes"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(
         audit=audit,
         page_type=Page.Type.HOME,
@@ -860,8 +864,8 @@ def test_get_other_pages_with_retest_notes():
 def test_get_audit_summary_context(rf):
     """Test get_audit_summary_context returned"""
     request: HttpRequest = rf.get("/")
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
 
@@ -880,8 +884,8 @@ def test_get_audit_summary_context(rf):
 def test_get_audit_summary_enable_12_week_ui(rf):
     """Test enable_12_week_ui set as expected"""
     request: HttpRequest = rf.get("/")
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
 
@@ -900,8 +904,8 @@ def test_get_audit_summary_enable_12_week_ui(rf):
 def test_get_audit_summary_show_failures_by_page(rf):
     """Test show_failures_by_page set as expected"""
     request: HttpRequest = rf.get("/")
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
 
@@ -920,8 +924,8 @@ def test_get_audit_summary_show_failures_by_page(rf):
 def test_get_audit_summary_audit_failures_by_page(rf):
     """Test audit_failures_by_page set as expected"""
     request: HttpRequest = rf.get("/")
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
 
@@ -957,8 +961,8 @@ def test_get_audit_summary_audit_failures_by_page(rf):
 def test_get_audit_summary_pages_with_retest_notes(rf):
     """Test pages_with_retest_notes set as expected"""
     request: HttpRequest = rf.get("/")
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(
         audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
@@ -982,8 +986,8 @@ def test_get_audit_summary_pages_with_retest_notes(rf):
 def test_get_audit_summary_audit_failures_by_wcag(rf):
     """Test audit_failures_by_wcag set as expected"""
     request: HttpRequest = rf.get("/")
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
 
@@ -1022,8 +1026,8 @@ def test_get_audit_summary_unfixed_audit_failures(rf):
     not set.
     """
     request: HttpRequest = rf.get("/")
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(
         audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
@@ -1076,8 +1080,8 @@ def test_get_audit_summary_issue_counts(rf):
     """Test counting of issues for Test summary page"""
     request: HttpRequest = rf.get("/")
     request.GET = {"show-all": "true"}
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(
         audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
@@ -1118,8 +1122,8 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
     """Test statement check results grouped by type"""
     request: HttpRequest = rf.get("/")
     request.GET = {"show-all": "true"}
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     create_statement_checks_for_new_audit(audit=audit)
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
@@ -1175,8 +1179,8 @@ def test_add_check_result_notes_history():
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
@@ -1213,8 +1217,8 @@ def test_check_result_notes_history_changed():
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
@@ -1250,8 +1254,8 @@ def test_add_check_result_restest_notes_history():
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
@@ -1292,8 +1296,8 @@ def test_check_result_restest_notes_history_changed():
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME

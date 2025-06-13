@@ -8,4 +8,4 @@ from ...models import SimplifiedCase
 class Command(BaseCommand):
     def handle(self, *args, **options):  # pylint: disable=unused-argument
         for simplified_case in SimplifiedCase.objects.all():
-            simplified_case.casestatus.calculate_and_save_status()
+            simplified_case.update_case_status()

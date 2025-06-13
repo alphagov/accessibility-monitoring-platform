@@ -69,7 +69,7 @@ FOUR_WEEKS_AGO = TODAY - timedelta(days=28)
 
 def create_case_for_overdue_link() -> SimplifiedCase:
     user: User = User.objects.create()
-    case: SimplifiedCase = create_case_and_compliance(
+    simplified_case: SimplifiedCase = create_case_and_compliance(
         created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
@@ -80,7 +80,9 @@ def create_case_for_overdue_link() -> SimplifiedCase:
         reviewer=user,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
     )
-    return case
+    CaseStatus.objects.create(simplified_case=simplified_case)
+    simplified_case.update_case_status()
+    return simplified_case
 
 
 @pytest.fixture
@@ -95,57 +97,57 @@ def last_edited_audit(last_edited_case: SimplifiedCase) -> Audit:
     """Pytest fixture audit for testing last edited timestamp values"""
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
         return Audit.objects.create(
-            case=last_edited_case, date_of_test=DATE_AUDIT_CREATED
+            simplified_case=last_edited_case, date_of_test=DATE_AUDIT_CREATED
         )
 
 
 @pytest.mark.django_db
 def test_case_number_incremented_on_creation():
     """Test that each new case gets the next case_number"""
-    case_one: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case_one: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case_one.case_number == 1
+    assert simplified_case_one.simplified_case_number == 1
 
-    case_two: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case_two: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case_two.case_number == 2
+    assert simplified_case_two.simplified_case_number == 2
 
 
 @pytest.mark.django_db
 def test_case_creation_also_creates_compliance():
     """Test that creating a case also creates a CaseCompliance"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.compliance is not None
-    assert case.compliance.website_compliance_state_initial is not None
-    assert case.compliance.website_compliance_notes_initial is not None
-    assert case.compliance.statement_compliance_state_initial is not None
-    assert case.compliance.statement_compliance_notes_initial is not None
-    assert case.compliance.website_compliance_state_12_week is not None
-    assert case.compliance.website_compliance_notes_12_week is not None
-    assert case.compliance.statement_compliance_state_12_week is not None
-    assert case.compliance.statement_compliance_notes_12_week is not None
+    assert simplified_case.compliance is not None
+    assert simplified_case.compliance.website_compliance_state_initial is not None
+    assert simplified_case.compliance.website_compliance_notes_initial is not None
+    assert simplified_case.compliance.statement_compliance_state_initial is not None
+    assert simplified_case.compliance.statement_compliance_notes_initial is not None
+    assert simplified_case.compliance.website_compliance_state_12_week is not None
+    assert simplified_case.compliance.website_compliance_notes_12_week is not None
+    assert simplified_case.compliance.statement_compliance_state_12_week is not None
+    assert simplified_case.compliance.statement_compliance_notes_12_week is not None
 
 
 @pytest.mark.django_db
 def test_case_created_timestamp_is_populated():
     """Test the Case created field is populated the first time the Case is saved"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.created is not None
-    assert isinstance(case.created, datetime)
+    assert simplified_case.created is not None
+    assert isinstance(simplified_case.created, datetime)
 
 
 @pytest.mark.django_db
 def test_case_created_timestamp_is_not_updated():
     """Test the Case created field is not updated on subsequent saves"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    original_created_timestamp: datetime = case.created
+    original_created_timestamp: datetime = simplified_case.created
     updated_organisation_name: str = "updated organisation name"
-    case.organisation_name = updated_organisation_name
-    case.save()
-    updated_case: SimplifiedCase = SimplifiedCase.objects.get(pk=case.id)
+    simplified_case.organisation_name = updated_organisation_name
+    simplified_case.save()
+    updated_case: SimplifiedCase = SimplifiedCase.objects.get(pk=simplified_case.id)
 
     assert updated_case.organisation_name == updated_organisation_name
     assert updated_case.created == original_created_timestamp
@@ -154,43 +156,49 @@ def test_case_created_timestamp_is_not_updated():
 @pytest.mark.django_db
 def test_case_domain_is_populated_from_home_page_url():
     """Test the Case domain field is populated from the home_page_url"""
-    case: SimplifiedCase = SimplifiedCase.objects.create(home_page_url=HOME_PAGE_URL)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        home_page_url=HOME_PAGE_URL
+    )
 
-    assert case.domain == DOMAIN
+    assert simplified_case.domain == DOMAIN
 
 
 @pytest.mark.django_db
 def test_case_renders_as_organisation_name_bar_id():
     """Test the Case string is organisation_name | id"""
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         organisation_name=ORGANISATION_NAME
     )
 
-    assert str(case) == f"{case.organisation_name} | {case.case_identifier}"
+    assert (
+        str(simplified_case)
+        == f"{simplified_case.organisation_name} | {simplified_case.case_identifier}"
+    )
 
 
 @pytest.mark.django_db
 def test_case_title_is_organisation_name_bar_id():
     """Test the Case title string is organisation_name | id"""
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
     )
 
     assert (
-        case.title == f"{case.organisation_name} &nbsp;|&nbsp; {case.case_identifier}"
+        simplified_case.title
+        == f"{simplified_case.organisation_name} &nbsp;|&nbsp; {simplified_case.case_identifier}"
     )
 
 
 @pytest.mark.django_db
 def test_case_completed_timestamp_is_updated_on_completion():
     """Test the Case completed date field is updated when case_completed is set"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.completed_date is None
+    assert simplified_case.completed_date is None
 
-    case.case_completed = "no-action"
-    case.save()
-    updated_case: SimplifiedCase = SimplifiedCase.objects.get(pk=case.id)
+    simplified_case.case_completed = "no-action"
+    simplified_case.save()
+    updated_case: SimplifiedCase = SimplifiedCase.objects.get(pk=simplified_case.id)
 
     assert updated_case.completed_date is not None
     assert isinstance(updated_case.completed_date, datetime)
@@ -199,8 +207,8 @@ def test_case_completed_timestamp_is_updated_on_completion():
 @pytest.mark.django_db
 def test_contact_created_timestamp_is_populated():
     """Test the created field is populated the first time the Contact is saved"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact: Contact = Contact.objects.create(simplified_case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    contact: Contact = Contact.objects.create(simplified_case=simplified_case)
 
     assert contact.created is not None
     assert isinstance(contact.created, datetime)
@@ -209,8 +217,8 @@ def test_contact_created_timestamp_is_populated():
 @pytest.mark.django_db
 def test_contact_created_timestamp_is_not_updated():
     """Test the created field is not updated on subsequent save"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact: Contact = Contact.objects.create(simplified_case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    contact: Contact = Contact.objects.create(simplified_case=simplified_case)
 
     original_created_timestamp: datetime = contact.created
     updated_name: str = "updated name"
@@ -225,11 +233,11 @@ def test_contact_created_timestamp_is_not_updated():
 @pytest.mark.django_db
 def test_most_recently_created_contact_returned_first():
     """Test the contacts are returned in most recently created order"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact1: Contact = Contact.objects.create(simplified_case=case)
-    contact2: Contact = Contact.objects.create(simplified_case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    contact1: Contact = Contact.objects.create(simplified_case=simplified_case)
+    contact2: Contact = Contact.objects.create(simplified_case=simplified_case)
 
-    contacts: list[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(simplified_case.contacts)
 
     assert contacts[0].id == contact2.id
     assert contacts[1].id == contact1.id
@@ -238,18 +246,18 @@ def test_most_recently_created_contact_returned_first():
 @pytest.mark.django_db
 def test_deleted_contacts_not_returned():
     """Test that deleted contacts are not returned"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact1: Contact = Contact.objects.create(simplified_case=case)
-    contact2: Contact = Contact.objects.create(simplified_case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    contact1: Contact = Contact.objects.create(simplified_case=simplified_case)
+    contact2: Contact = Contact.objects.create(simplified_case=simplified_case)
 
-    contacts: list[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(simplified_case.contacts)
 
     assert len(contacts) == 2
 
     contact1.is_deleted = True
     contact1.save()
 
-    contacts: list[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(simplified_case.contacts)
 
     assert len(contacts) == 1
     assert contacts[0].id == contact2.id
@@ -260,14 +268,14 @@ def test_preferred_contact_returned_first():
     """
     Test the contacts are returned in most recently created order with preferred contact first
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     preferred_contact: Contact = Contact.objects.create(
-        simplified_case=case, preferred="yes"
+        simplified_case=simplified_case, preferred="yes"
     )
-    contact1: Contact = Contact.objects.create(simplified_case=case)
-    contact2: Contact = Contact.objects.create(simplified_case=case)
+    contact1: Contact = Contact.objects.create(simplified_case=simplified_case)
+    contact2: Contact = Contact.objects.create(simplified_case=simplified_case)
 
-    contacts: list[Contact] = list(case.contacts)
+    contacts: list[Contact] = list(simplified_case.contacts)
 
     assert contacts[0].id == preferred_contact.id
     assert contacts[1].id == contact2.id
@@ -277,13 +285,13 @@ def test_preferred_contact_returned_first():
 @pytest.mark.django_db
 def test_contact_exists():
     """Test the contacts exists"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.contact_exists is False
+    assert simplified_case.contact_exists is False
 
-    Contact.objects.create(simplified_case=case)
+    Contact.objects.create(simplified_case=simplified_case)
 
-    assert case.contact_exists is True
+    assert simplified_case.contact_exists is True
 
 
 @pytest.mark.parametrize(
@@ -294,11 +302,11 @@ def test_contact_exists():
     ],
 )
 def test_psb_appeal_deadline(compliance_email_sent_date, expected_psb_appeal_deadline):
-    case: SimplifiedCase = SimplifiedCase(
+    simplified_case: SimplifiedCase = SimplifiedCase(
         compliance_email_sent_date=compliance_email_sent_date
     )
 
-    assert case.psb_appeal_deadline == expected_psb_appeal_deadline
+    assert simplified_case.psb_appeal_deadline == expected_psb_appeal_deadline
 
 
 @pytest.mark.parametrize(
@@ -315,8 +323,8 @@ def test_psb_appeal_deadline(compliance_email_sent_date, expected_psb_appeal_dea
     ],
 )
 def test_formatted_home_page_url(url, expected_formatted_url):
-    case: SimplifiedCase = SimplifiedCase(home_page_url=url)
-    assert case.formatted_home_page_url == expected_formatted_url
+    simplified_case: SimplifiedCase = SimplifiedCase(home_page_url=url)
+    assert simplified_case.formatted_home_page_url == expected_formatted_url
 
 
 @pytest.mark.django_db
@@ -329,25 +337,27 @@ def test_next_action_due_date_for_report_ready_to_send():
     no_contact_one_week_chaser_due_date: date = NO_CONTACT_ONE_WEEK
     no_contact_four_week_chaser_due_date: date = NO_CONTACT_FOUR_WEEKS
 
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         seven_day_no_contact_email_sent_date=seven_day_no_contact_email_sent_date,
         no_contact_one_week_chaser_due_date=no_contact_one_week_chaser_due_date,
         no_contact_four_week_chaser_due_date=no_contact_four_week_chaser_due_date,
     )
-    case.status.status = "report-ready-to-send"
+    simplified_case.status.status = "report-ready-to-send"
 
     # Initial no countact details request sent
-    assert case.next_action_due_date == no_contact_one_week_chaser_due_date
+    assert simplified_case.next_action_due_date == no_contact_one_week_chaser_due_date
 
-    case.no_contact_one_week_chaser_sent_date = NO_CONTACT_ONE_WEEK
+    simplified_case.no_contact_one_week_chaser_sent_date = NO_CONTACT_ONE_WEEK
 
     # No contact details 1-week chaser sent
-    assert case.next_action_due_date == no_contact_four_week_chaser_due_date
+    assert simplified_case.next_action_due_date == no_contact_four_week_chaser_due_date
 
-    case.no_contact_four_week_chaser_sent_date = NO_CONTACT_FOUR_WEEKS
+    simplified_case.no_contact_four_week_chaser_sent_date = NO_CONTACT_FOUR_WEEKS
 
     # No contact details 4-week chaser sent
-    assert case.next_action_due_date == NO_CONTACT_FOUR_WEEKS + timedelta(days=7)
+    assert simplified_case.next_action_due_date == NO_CONTACT_FOUR_WEEKS + timedelta(
+        days=7
+    )
 
 
 @pytest.mark.django_db
@@ -361,20 +371,20 @@ def test_next_action_due_date_for_in_report_correspondence():
     report_followup_week_4_due_date: date = date(2020, 1, 4)
     report_followup_week_12_due_date: date = date(2020, 1, 12)
 
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_followup_week_1_sent_date=any_old_date,
         report_followup_week_4_sent_date=any_old_date,
         report_followup_week_1_due_date=report_followup_week_1_due_date,
         report_followup_week_4_due_date=report_followup_week_4_due_date,
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
-    case.status.status = "in-report-correspondence"
+    simplified_case.status.status = "in-report-correspondence"
 
-    case.report_followup_week_4_sent_date = None
-    assert case.next_action_due_date == report_followup_week_4_due_date
+    simplified_case.report_followup_week_4_sent_date = None
+    assert simplified_case.next_action_due_date == report_followup_week_4_due_date
 
-    case.report_followup_week_1_sent_date = None
-    assert case.next_action_due_date == report_followup_week_1_due_date
+    simplified_case.report_followup_week_1_sent_date = None
+    assert simplified_case.next_action_due_date == report_followup_week_1_due_date
 
 
 @pytest.mark.django_db
@@ -385,12 +395,12 @@ def test_next_action_due_date_for_in_probation_period():
     """
     report_followup_week_12_due_date: date = date(2020, 1, 12)
 
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
-    case.status.status = "in-probation-period"
+    simplified_case.status.status = "in-probation-period"
 
-    assert case.next_action_due_date == report_followup_week_12_due_date
+    assert simplified_case.next_action_due_date == report_followup_week_12_due_date
 
 
 @pytest.mark.django_db
@@ -401,18 +411,21 @@ def test_next_action_due_date_for_in_12_week_correspondence():
     """
     twelve_week_1_week_chaser_due_date: date = date(2020, 1, 1)
 
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
-    case.status.status = "in-12-week-correspondence"
+    simplified_case.status.status = "in-12-week-correspondence"
 
-    assert case.next_action_due_date == twelve_week_1_week_chaser_due_date
+    assert simplified_case.next_action_due_date == twelve_week_1_week_chaser_due_date
 
     twelve_week_1_week_chaser_sent_date: date = date(2020, 1, 1)
-    case.twelve_week_1_week_chaser_sent_date = twelve_week_1_week_chaser_sent_date
+    simplified_case.twelve_week_1_week_chaser_sent_date = (
+        twelve_week_1_week_chaser_sent_date
+    )
 
-    assert case.next_action_due_date == twelve_week_1_week_chaser_sent_date + timedelta(
-        days=7
+    assert (
+        simplified_case.next_action_due_date
+        == twelve_week_1_week_chaser_sent_date + timedelta(days=7)
     )
 
 
@@ -440,13 +453,13 @@ def test_next_action_due_date_not_set(status):
     twelve_week_1_week_chaser_due_date: date = date(2020, 1, 1)
     report_followup_week_12_due_date: date = date(2020, 1, 12)
 
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
-    case.status.status = status
+    simplified_case.status.status = status
 
-    assert case.next_action_due_date == date(1970, 1, 1)
+    assert simplified_case.next_action_due_date == date(1970, 1, 1)
 
 
 @pytest.mark.parametrize(
@@ -460,22 +473,22 @@ def test_next_action_due_date_not_set(status):
 @pytest.mark.django_db
 def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_tense):
     """Check that the calculated next_action_due_date is correctly reported"""
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
-    case.status.status = "in-probation-period"
+    simplified_case.status.status = "in-probation-period"
 
-    assert case.next_action_due_date_tense == expected_tense
+    assert simplified_case.next_action_due_date_tense == expected_tense
 
 
 @pytest.mark.django_db
 def test_case_save_increments_version():
     """Test that saving a Case increments its version"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    old_version: int = case.version
-    case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    old_version: int = simplified_case.version
+    simplified_case.save()
 
-    assert case.version == old_version + 1
+    assert simplified_case.version == old_version + 1
 
 
 @pytest.mark.django_db
@@ -483,12 +496,12 @@ def test_qa_comments():
     """
     Test the QA comments are returned in most recently created order
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(case=case, hidden=True)
-    comment1: Comment = Comment.objects.create(case=case)
-    comment2: Comment = Comment.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Comment.objects.create(case=simplified_case, hidden=True)
+    comment1: Comment = Comment.objects.create(case=simplified_case)
+    comment2: Comment = Comment.objects.create(case=simplified_case)
 
-    comments: list[Contact] = case.qa_comments
+    comments: list[Contact] = simplified_case.qa_comments
 
     assert len(comments) == 2
     assert comments[0].id == comment2.id
@@ -498,12 +511,12 @@ def test_qa_comments():
 @pytest.mark.django_db
 def test_qa_comments_count():
     """Test the QA comments count"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(case=case, hidden=True)
-    Comment.objects.create(case=case)
-    Comment.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Comment.objects.create(case=simplified_case, hidden=True)
+    Comment.objects.create(case=simplified_case)
+    Comment.objects.create(case=simplified_case)
 
-    assert case.qa_comments_count == 2
+    assert simplified_case.qa_comments_count == 2
 
 
 @pytest.mark.parametrize(
@@ -516,9 +529,11 @@ def test_qa_comments_count():
 )
 def test_previous_case_number(previous_case_url, previous_case_number):
     """Test previous case number derived from url"""
-    case: SimplifiedCase = SimplifiedCase(previous_case_url=previous_case_url)
+    simplified_case: SimplifiedCase = SimplifiedCase(
+        previous_case_url=previous_case_url
+    )
 
-    assert case.previous_case_number == previous_case_number
+    assert simplified_case.previous_case_number == previous_case_number
 
 
 @pytest.mark.django_db
@@ -672,17 +687,17 @@ def test_case_statement_checks_still_initial():
     state is still the default or, if statement checks exist, one of the
     overview checks is still not tested.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.statement_checks_still_initial is True
+    assert simplified_case.statement_checks_still_initial is True
 
-    case.compliance.statement_compliance_state_initial = (
+    simplified_case.compliance.statement_compliance_state_initial = (
         CaseCompliance.StatementCompliance.COMPLIANT
     )
 
-    assert case.statement_checks_still_initial is False
+    assert simplified_case.statement_checks_still_initial is False
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     for statement_check in StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ):
@@ -692,20 +707,20 @@ def test_case_statement_checks_still_initial():
             statement_check=statement_check,
         )
 
-    assert case.statement_checks_still_initial is True
+    assert simplified_case.statement_checks_still_initial is True
 
     for statement_check_result in audit.overview_statement_check_results:
         statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
-    assert case.statement_checks_still_initial is False
+    assert simplified_case.statement_checks_still_initial is False
 
 
 @pytest.mark.django_db
 def test_contact_updated_updated():
     """Test the contact updated field is updated"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact: Contact = Contact.objects.create(simplified_case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    contact: Contact = Contact.objects.create(simplified_case=simplified_case)
 
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_UPDATED)
@@ -746,36 +761,36 @@ def test_website_compliance_display(
     website_compliance_state_initial, website_compliance_state_12_week, expected_result
 ):
     """Test website compliance is derived correctly"""
-    case: SimplifiedCase = create_case_and_compliance(
+    simplified_case: SimplifiedCase = create_case_and_compliance(
         website_compliance_state_initial=website_compliance_state_initial,
         website_compliance_state_12_week=website_compliance_state_12_week,
     )
 
-    assert case.website_compliance_display == expected_result
+    assert simplified_case.website_compliance_display == expected_result
 
 
 @pytest.mark.django_db
 def test_percentage_website_issues_fixed_no_audit():
     """Test that cases without audits return n/a"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.percentage_website_issues_fixed == "n/a"
+    assert simplified_case.percentage_website_issues_fixed == "n/a"
 
 
 @pytest.mark.django_db
 def test_overview_issues_website_with_audit_no_issues():
     """Test that case with audit but no issues returns n/a"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
 
-    assert case.percentage_website_issues_fixed == "n/a"
+    assert simplified_case.percentage_website_issues_fixed == "n/a"
 
 
 @pytest.mark.django_db
 def test_percentage_website_issues_fixed_with_audit_and_issues():
     """Test that case with audit and issues returns percentage"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE
@@ -788,37 +803,37 @@ def test_percentage_website_issues_fixed_with_audit_and_issues():
         check_result_state=CheckResult.Result.ERROR,
     )
 
-    assert case.percentage_website_issues_fixed == 0
+    assert simplified_case.percentage_website_issues_fixed == 0
 
     check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
-    assert case.percentage_website_issues_fixed == 100
+    assert simplified_case.percentage_website_issues_fixed == 100
 
 
 @pytest.mark.django_db
 def test_overview_issues_website_no_audit():
     """Test that cases without audits return no test exists"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.overview_issues_website == "No test exists"
+    assert simplified_case.overview_issues_website == "No test exists"
 
 
 @pytest.mark.django_db
 def test_overview_issues_statement_no_audit():
     """Test that cases without audits return no test exists"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.overview_issues_statement == "No test exists"
+    assert simplified_case.overview_issues_statement == "No test exists"
 
 
 @pytest.mark.django_db
 def test_overview_issues_website_with_audit():
     """Test that case with audit returns overview"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
-    assert case.overview_issues_website == "0 of 0 fixed"
+    assert simplified_case.overview_issues_website == "0 of 0 fixed"
 
     page: Page = Page.objects.create(audit=audit)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
@@ -832,19 +847,19 @@ def test_overview_issues_website_with_audit():
         check_result_state=CheckResult.Result.ERROR,
     )
 
-    assert case.overview_issues_website == "0 of 1 fixed (0%)"
+    assert simplified_case.overview_issues_website == "0 of 1 fixed (0%)"
 
     check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
-    assert case.overview_issues_website == "1 of 1 fixed (100%)"
+    assert simplified_case.overview_issues_website == "1 of 1 fixed (100%)"
 
 
 @pytest.mark.django_db
 def test_overview_issues_statement_with_statement_checks():
     """Test that case with audit returns overview"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     for count, statement_check in enumerate(StatementCheck.objects.all()):
         check_result_state: str = (
             StatementCheckResult.Result.NO
@@ -858,7 +873,7 @@ def test_overview_issues_statement_with_statement_checks():
             check_result_state=check_result_state,
         )
 
-    assert case.overview_issues_statement == "21 checks failed on test"
+    assert simplified_case.overview_issues_statement == "21 checks failed on test"
 
     for count, statement_check_result in enumerate(
         audit.failed_statement_check_results
@@ -867,34 +882,34 @@ def test_overview_issues_statement_with_statement_checks():
             statement_check_result.check_result_state = StatementCheckResult.Result.YES
             statement_check_result.save()
 
-    assert case.overview_issues_statement == "10 checks failed on test"
+    assert simplified_case.overview_issues_statement == "10 checks failed on test"
 
 
 def test_archived_sections():
     """Test archived sections"""
-    case: SimplifiedCase = SimplifiedCase()
+    simplified_case: SimplifiedCase = SimplifiedCase()
 
-    assert case.archived_sections is None
+    assert simplified_case.archived_sections is None
 
-    case.archive = json.dumps({"sections": ["section_one"]})
+    simplified_case.archive = json.dumps({"sections": ["section_one"]})
 
-    assert len(case.archived_sections) == 1
-    assert case.archived_sections[0] == "section_one"
+    assert len(simplified_case.archived_sections) == 1
+    assert simplified_case.archived_sections[0] == "section_one"
 
 
 @pytest.mark.django_db
 def test_equality_body_correspondence_sets_id_within_case():
     """Test EqualityBodyCorrespondence sets id_within_case on save"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     first_equality_body_correspondence: EqualityBodyCorrespondence = (
-        EqualityBodyCorrespondence.objects.create(case=case)
+        EqualityBodyCorrespondence.objects.create(case=simplified_case)
     )
 
     assert first_equality_body_correspondence.id_within_case == 1
 
     second_equality_body_correspondence: EqualityBodyCorrespondence = (
-        EqualityBodyCorrespondence.objects.create(case=case)
+        EqualityBodyCorrespondence.objects.create(case=simplified_case)
     )
 
     assert second_equality_body_correspondence.id_within_case == 2
@@ -903,16 +918,16 @@ def test_equality_body_correspondence_sets_id_within_case():
 @pytest.mark.django_db
 def test_case_retests_returns_undeleted_retests():
     """Test Case.retests returns undeleted retests"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    retest: Retest = Retest.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
-    assert len(case.retests) == 1
-    assert case.retests[0] == retest
+    assert len(simplified_case.retests) == 1
+    assert simplified_case.retests[0] == retest
 
     retest.is_deleted = True
     retest.save()
 
-    assert len(case.retests) == 0
+    assert len(simplified_case.retests) == 0
 
 
 @pytest.mark.django_db
@@ -921,62 +936,66 @@ def test_case_number_retests():
     Test Case.number_retests returns number of retests not counting
     Retest #0.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    Retest.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Retest.objects.create(simplified_case=simplified_case)
 
-    assert case.number_retests == 1
+    assert simplified_case.number_retests == 1
 
-    Retest.objects.create(case=case, id_within_case=0)
+    Retest.objects.create(simplified_case=simplified_case, id_within_case=0)
 
-    assert case.number_retests == 1
+    assert simplified_case.number_retests == 1
 
 
 @pytest.mark.django_db
 def test_case_latest_retest_returns_most_recent():
     """Test Case.latest_retest returns most recent"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.latest_retest is None
+    assert simplified_case.latest_retest is None
 
-    first_retest: Retest = Retest.objects.create(case=case)
+    first_retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
-    assert case.latest_retest == first_retest
+    assert simplified_case.latest_retest == first_retest
 
-    second_retest: Retest = Retest.objects.create(case=case, id_within_case=2)
+    second_retest: Retest = Retest.objects.create(
+        simplified_case=simplified_case, id_within_case=2
+    )
 
-    assert case.latest_retest == second_retest
+    assert simplified_case.latest_retest == second_retest
 
 
 @pytest.mark.django_db
 def test_case_incomplete_retests_returns_incomplete_retests():
     """Test Case.incomplete_retests returns retests with the default state"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    incomplete_retest: Retest = Retest.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    incomplete_retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
-    assert len(case.incomplete_retests) == 1
-    assert case.incomplete_retests[0] == incomplete_retest
+    assert len(simplified_case.incomplete_retests) == 1
+    assert simplified_case.incomplete_retests[0] == incomplete_retest
 
     incomplete_retest.retest_compliance_state = Retest.Compliance.COMPLIANT
     incomplete_retest.save()
 
-    assert len(case.incomplete_retests) == 0
+    assert len(simplified_case.incomplete_retests) == 0
 
 
 @pytest.mark.django_db
 def test_case_equality_body_correspondences_returns_undeleted_equality_body_correspondences():
     """Test Case.equality_body_correspondences returns undeleted equality_body_correspondences"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_correspondence: EqualityBodyCorrespondence = (
-        EqualityBodyCorrespondence.objects.create(case=case)
+        EqualityBodyCorrespondence.objects.create(case=simplified_case)
     )
 
-    assert len(case.equality_body_correspondences) == 1
-    assert case.equality_body_correspondences[0] == equality_body_correspondence
+    assert len(simplified_case.equality_body_correspondences) == 1
+    assert (
+        simplified_case.equality_body_correspondences[0] == equality_body_correspondence
+    )
 
     equality_body_correspondence.is_deleted = True
     equality_body_correspondence.save()
 
-    assert len(case.equality_body_questions) == 0
+    assert len(simplified_case.equality_body_questions) == 0
 
 
 @pytest.mark.django_db
@@ -985,128 +1004,133 @@ def test_equality_body_correspondences_unresolved_count():
     Test Case.equality_body_correspondences_unresolved_count returns number of
     unresolved equality_body_correspondences.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_correspondence: EqualityBodyCorrespondence = (
-        EqualityBodyCorrespondence.objects.create(case=case)
+        EqualityBodyCorrespondence.objects.create(case=simplified_case)
     )
 
-    assert case.equality_body_correspondences_unresolved_count == 1
+    assert simplified_case.equality_body_correspondences_unresolved_count == 1
 
     equality_body_correspondence.status = EqualityBodyCorrespondence.Status.RESOLVED
     equality_body_correspondence.save()
 
-    assert case.equality_body_correspondences_unresolved_count == 0
+    assert simplified_case.equality_body_correspondences_unresolved_count == 0
 
 
 @pytest.mark.django_db
 def test_case_equality_body_questions_returns_equality_body_questions():
     """Test Case.equality_body_questions returns equality_body_questions"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EqualityBodyCorrespondence.Type.QUESTION
+            case=simplified_case, type=EqualityBodyCorrespondence.Type.QUESTION
         )
     )
 
-    assert len(case.equality_body_questions) == 1
-    assert case.equality_body_questions[0] == equality_body_question
+    assert len(simplified_case.equality_body_questions) == 1
+    assert simplified_case.equality_body_questions[0] == equality_body_question
 
 
 @pytest.mark.django_db
 def test_case_equality_body_questions_unresolved_returns_unresolved():
     """Test Case.equality_body_questions_unresolved returns questions with the default state"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     unresolved_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EqualityBodyCorrespondence.Type.QUESTION
+            case=simplified_case, type=EqualityBodyCorrespondence.Type.QUESTION
         )
     )
 
-    assert len(case.equality_body_questions_unresolved) == 1
-    assert case.equality_body_questions_unresolved[0] == unresolved_question
+    assert len(simplified_case.equality_body_questions_unresolved) == 1
+    assert simplified_case.equality_body_questions_unresolved[0] == unresolved_question
 
     unresolved_question.status = EqualityBodyCorrespondence.Status.RESOLVED
     unresolved_question.save()
 
-    assert len(case.equality_body_questions_unresolved) == 0
+    assert len(simplified_case.equality_body_questions_unresolved) == 0
 
 
 @pytest.mark.django_db
 def test_case_equality_body_correspondence_retests_returns_equality_body_correspondence_retests():
     """Test Case.equality_body_correspondence_retests returns equality_body_correspondence_retests"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EqualityBodyCorrespondence.Type.RETEST
+            case=simplified_case, type=EqualityBodyCorrespondence.Type.RETEST
         )
     )
 
-    assert len(case.equality_body_correspondence_retests) == 1
-    assert case.equality_body_correspondence_retests[0] == equality_body_retest
+    assert len(simplified_case.equality_body_correspondence_retests) == 1
+    assert (
+        simplified_case.equality_body_correspondence_retests[0] == equality_body_retest
+    )
 
 
 @pytest.mark.django_db
 def test_case_equality_body_correspondence_retests_unresolved_returns_unresolved():
     """Test Case.equality_body_correspondence_retests_unresolved returns retests with the default state"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     unresolved_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=case, type=EqualityBodyCorrespondence.Type.RETEST
+            case=simplified_case, type=EqualityBodyCorrespondence.Type.RETEST
         )
     )
 
-    assert len(case.equality_body_correspondence_retests_unresolved) == 1
-    assert case.equality_body_correspondence_retests_unresolved[0] == unresolved_retest
+    assert len(simplified_case.equality_body_correspondence_retests_unresolved) == 1
+    assert (
+        simplified_case.equality_body_correspondence_retests_unresolved[0]
+        == unresolved_retest
+    )
 
     unresolved_retest.status = EqualityBodyCorrespondence.Status.RESOLVED
     unresolved_retest.save()
 
-    assert len(case.equality_body_correspondence_retests_unresolved) == 0
+    assert len(simplified_case.equality_body_correspondence_retests_unresolved) == 0
 
 
 @pytest.mark.django_db
 def test_calulate_qa_status_unassigned():
     """Test Case calulate_qa_status correctly returns unassigned"""
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_review_status=Boolean.YES
     )
 
-    assert case.calulate_qa_status() == SimplifiedCase.QAStatus.UNASSIGNED
+    assert simplified_case.calulate_qa_status() == SimplifiedCase.QAStatus.UNASSIGNED
 
 
 @pytest.mark.django_db
 def test_calulate_qa_status_in_qa():
     """Test Case calulate_qa_status correctly returns In-QA"""
     user: User = User.objects.create()
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         reviewer=user,
         report_review_status=Boolean.YES,
     )
 
-    assert case.calulate_qa_status() == SimplifiedCase.QAStatus.IN_QA
+    assert simplified_case.calulate_qa_status() == SimplifiedCase.QAStatus.IN_QA
 
 
 @pytest.mark.django_db
 def test_calulate_qa_status_approved():
     """Test Case calulate_qa_status correctly returns approved"""
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_review_status=Boolean.YES,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
     )
 
-    assert case.calulate_qa_status() == SimplifiedCase.QAStatus.APPROVED
+    assert simplified_case.calulate_qa_status() == SimplifiedCase.QAStatus.APPROVED
 
 
 @pytest.mark.django_db
 def test_total_website_issues():
     """Test Case total_website_issues returns number found or n/a if none"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.total_website_issues == 0
+    assert simplified_case.total_website_issues == 0
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
-    assert case.total_website_issues == 0
+    assert simplified_case.total_website_issues == 0
 
     home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
@@ -1127,19 +1151,19 @@ def test_total_website_issues():
         wcag_definition=wcag_definition,
     )
 
-    assert case.total_website_issues == 2
+    assert simplified_case.total_website_issues == 2
 
 
 @pytest.mark.django_db
 def test_total_website_issues_fixed():
     """Test Case total_website_issues_fixed returns number found or n/a if none"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.total_website_issues_fixed == 0
+    assert simplified_case.total_website_issues_fixed == 0
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
-    assert case.total_website_issues_fixed == 0
+    assert simplified_case.total_website_issues_fixed == 0
 
     home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
@@ -1160,19 +1184,19 @@ def test_total_website_issues_fixed():
         wcag_definition=wcag_definition,
     )
 
-    assert case.total_website_issues_fixed == 1
+    assert simplified_case.total_website_issues_fixed == 1
 
 
 @pytest.mark.django_db
 def test_total_website_issues_unfixed():
     """Test Case total_website_issues_unfixed returns number found or n/a if none"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.total_website_issues_unfixed == 0
+    assert simplified_case.total_website_issues_unfixed == 0
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
-    assert case.total_website_issues_unfixed == 0
+    assert simplified_case.total_website_issues_unfixed == 0
 
     home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
@@ -1193,17 +1217,17 @@ def test_total_website_issues_unfixed():
         wcag_definition=wcag_definition,
     )
 
-    assert case.total_website_issues_unfixed == 1
+    assert simplified_case.total_website_issues_unfixed == 1
 
 
 @pytest.mark.django_db
 def test_csv_export_statement_initially_found():
     """Test Case csv_export_statement_initially_found"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.csv_export_statement_initially_found == "unknown"
+    assert simplified_case.csv_export_statement_initially_found == "unknown"
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     for statement_check in StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
@@ -1215,7 +1239,7 @@ def test_csv_export_statement_initially_found():
             check_result_state=StatementCheckResult.Result.NO,
         )
 
-    assert case.csv_export_statement_initially_found == "No"
+    assert simplified_case.csv_export_statement_initially_found == "No"
 
     for statement_check_result in StatementCheckResult.objects.filter(
         type=StatementCheck.Type.OVERVIEW
@@ -1223,17 +1247,17 @@ def test_csv_export_statement_initially_found():
         statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
-    assert case.csv_export_statement_initially_found == "Yes"
+    assert simplified_case.csv_export_statement_initially_found == "Yes"
 
 
 @pytest.mark.django_db
 def test_csv_export_statement_found_at_12_week_retest():
     """Test Case csv_export_statement_found_at_12_week_retest"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.csv_export_statement_found_at_12_week_retest == "unknown"
+    assert simplified_case.csv_export_statement_found_at_12_week_retest == "unknown"
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     for statement_check in StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
@@ -1245,7 +1269,7 @@ def test_csv_export_statement_found_at_12_week_retest():
             retest_state=StatementCheckResult.Result.NO,
         )
 
-    assert case.csv_export_statement_found_at_12_week_retest == "No"
+    assert simplified_case.csv_export_statement_found_at_12_week_retest == "No"
 
     for statement_check_result in StatementCheckResult.objects.filter(
         type=StatementCheck.Type.OVERVIEW
@@ -1253,46 +1277,50 @@ def test_csv_export_statement_found_at_12_week_retest():
         statement_check_result.retest_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
-    assert case.csv_export_statement_found_at_12_week_retest == "Yes"
+    assert simplified_case.csv_export_statement_found_at_12_week_retest == "Yes"
 
 
 @pytest.mark.django_db
 def test_case_latest_psb_zendesk_url():
     """Test Case.latest_psb_zendesk_url"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.latest_psb_zendesk_url == ""
+    assert simplified_case.latest_psb_zendesk_url == ""
 
-    case.zendesk_url = "first"
-    case.save()
+    simplified_case.zendesk_url = "first"
+    simplified_case.save()
 
-    assert case.latest_psb_zendesk_url == "first"
+    assert simplified_case.latest_psb_zendesk_url == "first"
 
-    ZendeskTicket.objects.create(simplified_case=case, url="second")
+    ZendeskTicket.objects.create(simplified_case=simplified_case, url="second")
 
-    assert case.latest_psb_zendesk_url == "second"
+    assert simplified_case.latest_psb_zendesk_url == "second"
 
 
 @pytest.mark.django_db
 def test_case_zendesk_tickets():
     """Test Case.zendesk_tickets"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(simplified_case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(
+        simplified_case=simplified_case
+    )
 
-    assert case.zendesk_tickets.count() == 1
-    assert case.zendesk_tickets.first() == zendesk_ticket
+    assert simplified_case.zendesk_tickets.count() == 1
+    assert simplified_case.zendesk_tickets.first() == zendesk_ticket
 
     zendesk_ticket.is_deleted = True
     zendesk_ticket.save()
 
-    assert case.zendesk_tickets.count() == 0
+    assert simplified_case.zendesk_tickets.count() == 0
 
 
 @pytest.mark.django_db
 def test_zendesk_ticket_get_absolute_url():
     """Test ZendeskTickets.get_absolute_url"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(simplified_case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(
+        simplified_case=simplified_case
+    )
 
     assert zendesk_ticket.get_absolute_url() == "/cases/1/update-zendesk-ticket/"
 
@@ -1300,15 +1328,15 @@ def test_zendesk_ticket_get_absolute_url():
 @pytest.mark.django_db
 def test_zendesk_ticket_id_within_case():
     """Test ZendeskTicket.id_within_case"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     first_zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(
-        simplified_case=case
+        simplified_case=simplified_case
     )
 
     assert first_zendesk_ticket.id_within_case == 1
 
     second_zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(
-        simplified_case=case
+        simplified_case=simplified_case
     )
 
     assert second_zendesk_ticket.id_within_case == 2
@@ -1328,58 +1356,58 @@ def test_case_email_tmplates():
 @pytest.mark.django_db
 def test_case_report_number_of_visits():
     """Test Case.report_number_of_visits returns expected data"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.report_number_of_visits == 0
+    assert simplified_case.report_number_of_visits == 0
 
-    ReportVisitsMetrics.objects.create(case=case)
-    ReportVisitsMetrics.objects.create(case=case)
+    ReportVisitsMetrics.objects.create(case=simplified_case)
+    ReportVisitsMetrics.objects.create(case=simplified_case)
 
-    assert case.report_number_of_visits == 2
+    assert simplified_case.report_number_of_visits == 2
 
 
 @pytest.mark.django_db
 def test_case_report_number_of_unique_visitors():
     """Test Case.report_number_of_unique_visitors returns expected data"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.report_number_of_unique_visitors == 0
+    assert simplified_case.report_number_of_unique_visitors == 0
 
-    ReportVisitsMetrics.objects.create(case=case)
-    ReportVisitsMetrics.objects.create(case=case)
+    ReportVisitsMetrics.objects.create(case=simplified_case)
+    ReportVisitsMetrics.objects.create(case=simplified_case)
 
-    assert case.report_number_of_unique_visitors == 1
+    assert simplified_case.report_number_of_unique_visitors == 1
 
 
 @pytest.mark.django_db
 def test_case_website_contact_links_count():
     """Test Case.website_contact_links_count returns expected data"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.website_contact_links_count == 0
+    assert simplified_case.website_contact_links_count == 0
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
-    assert case.website_contact_links_count == 0
+    assert simplified_case.website_contact_links_count == 0
 
     Page.objects.create(audit=audit, page_type=Page.Type.CONTACT, url="url")
 
-    assert case.website_contact_links_count == 1
+    assert simplified_case.website_contact_links_count == 1
 
     Page.objects.create(audit=audit, page_type=Page.Type.STATEMENT, url="url")
 
-    assert case.website_contact_links_count == 2
+    assert simplified_case.website_contact_links_count == 2
 
 
 def test_case_not_archived():
     """Test that Case.not_archived is true if Case.archived is empty"""
-    case: SimplifiedCase = SimplifiedCase()
+    simplified_case: SimplifiedCase = SimplifiedCase()
 
-    assert case.not_archived is True
+    assert simplified_case.not_archived is True
 
-    case.archive = "archive"
+    simplified_case.archive = "archive"
 
-    assert case.not_archived is False
+    assert simplified_case.not_archived is False
 
 
 @pytest.mark.django_db
@@ -1388,21 +1416,21 @@ def test_case_show_start_tests():
     Test that Case.show_start_tests is true when no audit exists and
     the case is not archived
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.show_start_test is True
+    assert simplified_case.show_start_test is True
 
-    case.archive = "archive"
+    simplified_case.archive = "archive"
 
-    assert case.show_start_test is False
+    assert simplified_case.show_start_test is False
 
-    case.archive = ""
+    simplified_case.archive = ""
 
-    assert case.show_start_test is True
+    assert simplified_case.show_start_test is True
 
-    Audit.objects.create(case=case)
+    Audit.objects.create(simplified_case=simplified_case)
 
-    assert case.show_start_test is False
+    assert simplified_case.show_start_test is False
 
 
 @pytest.mark.django_db
@@ -1411,51 +1439,53 @@ def test_case_not_archived_has_audit():
     Test that Case.not_archived_has_audit is true when audit exists and
     the case is not archived
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.not_archived_has_audit is False
+    assert simplified_case.not_archived_has_audit is False
 
-    Audit.objects.create(case=case)
+    Audit.objects.create(simplified_case=simplified_case)
 
-    case: SimplifiedCase = SimplifiedCase.objects.get(id=case.id)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.get(id=simplified_case.id)
 
-    assert case.not_archived_has_audit is True
+    assert simplified_case.not_archived_has_audit is True
 
-    case.archive = "archive"
+    simplified_case.archive = "archive"
 
-    assert case.not_archived_has_audit is False
+    assert simplified_case.not_archived_has_audit is False
 
 
+@pytest.mark.django_db
 def test_case_show_create_report_true():
     """Test that Case.show_create_report is true if Case has no report"""
-    case: SimplifiedCase = SimplifiedCase()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.show_create_report is True
+    assert simplified_case.show_create_report is True
 
 
 @pytest.mark.django_db
 def test_case_show_create_report_false():
     """Test that Case.show_create_report is false if Case has a report"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    Report.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Report.objects.create(case=simplified_case)
 
-    assert case.show_create_report is False
+    assert simplified_case.show_create_report is False
 
 
+@pytest.mark.django_db
 def test_case_not_archived_has_report_true():
     """Test that Case.not_archived_has_report is false if Case has no report"""
-    case: SimplifiedCase = SimplifiedCase()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.not_archived_has_report is False
+    assert simplified_case.not_archived_has_report is False
 
 
 @pytest.mark.django_db
 def test_case_not_archived_has_report_false():
     """Test that Case.not_archived_has_report is true if Case has a report"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    Report.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Report.objects.create(case=simplified_case)
 
-    assert case.not_archived_has_report is True
+    assert simplified_case.not_archived_has_report is True
 
 
 @pytest.mark.django_db
@@ -1464,17 +1494,17 @@ def test_show_start_12_week_retest():
     Test Case.show_start_12_week_retest true when Case is not achived,
     has an audit and the retest_date is not set.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.show_start_12_week_retest is False
+    assert simplified_case.show_start_12_week_retest is False
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
-    assert case.show_start_12_week_retest is True
+    assert simplified_case.show_start_12_week_retest is True
 
     audit.retest_date = TODAY
 
-    assert case.show_start_12_week_retest is False
+    assert simplified_case.show_start_12_week_retest is False
 
 
 @pytest.mark.django_db
@@ -1483,17 +1513,17 @@ def test_show_12_week_retest():
     Test Case.show_12_week_retest true when Case is not achived,
     has an audit and the retest_date is set.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert case.show_12_week_retest is False
+    assert simplified_case.show_12_week_retest is False
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
-    assert case.show_12_week_retest is False
+    assert simplified_case.show_12_week_retest is False
 
     audit.retest_date = TODAY
 
-    assert case.show_12_week_retest is True
+    assert simplified_case.show_12_week_retest is True
 
 
 @pytest.mark.django_db
@@ -1503,16 +1533,16 @@ def test_overdue_link_seven_day_no_contact():
     contact email sent date is more than seven days ago and no
     chaser emails have been sent.
     """
-    case: SimplifiedCase = create_case_for_overdue_link()
+    simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
-    case.enable_correspondence_process = True
-    case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    case.save()
+    simplified_case.enable_correspondence_process = True
+    simplified_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case.save()
 
-    assert case.overdue_link is not None
-    assert case.overdue_link.label == "No contact details response overdue"
-    assert case.overdue_link.url == reverse(
-        "simplified:edit-request-contact-details", kwargs={"pk": case.id}
+    assert simplified_case.overdue_link is not None
+    assert simplified_case.overdue_link.label == "No contact details response overdue"
+    assert simplified_case.overdue_link.url == reverse(
+        "simplified:edit-request-contact-details", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -1523,17 +1553,17 @@ def test_overdue_link_no_contact_one_week_chaser():
     contact email sent date is more than seven days ago and only the
     one week chaser email has been sent.
     """
-    case: SimplifiedCase = create_case_for_overdue_link()
+    simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
-    case.enable_correspondence_process = True
-    case.seven_day_no_contact_email_sent_date = TWO_WEEKS_AGO
-    case.no_contact_one_week_chaser_due_date = TODAY
-    case.save()
+    simplified_case.enable_correspondence_process = True
+    simplified_case.seven_day_no_contact_email_sent_date = TWO_WEEKS_AGO
+    simplified_case.no_contact_one_week_chaser_due_date = TODAY
+    simplified_case.save()
 
-    assert case.overdue_link is not None
-    assert case.overdue_link.label == "No contact details response overdue"
-    assert case.overdue_link.url == reverse(
-        "simplified:edit-request-contact-details", kwargs={"pk": case.id}
+    assert simplified_case.overdue_link is not None
+    assert simplified_case.overdue_link.label == "No contact details response overdue"
+    assert simplified_case.overdue_link.url == reverse(
+        "simplified:edit-request-contact-details", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -1544,17 +1574,17 @@ def test_overdue_link_no_contact_four_week_chaser():
     contact email sent date is more than seven days ago and only the
     four week chaser email has been sent.
     """
-    case: SimplifiedCase = create_case_for_overdue_link()
+    simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
-    case.enable_correspondence_process = True
-    case.seven_day_no_contact_email_sent_date = TWO_WEEKS_AGO
-    case.no_contact_four_week_chaser_due_date = TODAY
-    case.save()
+    simplified_case.enable_correspondence_process = True
+    simplified_case.seven_day_no_contact_email_sent_date = TWO_WEEKS_AGO
+    simplified_case.no_contact_four_week_chaser_due_date = TODAY
+    simplified_case.save()
 
-    assert case.overdue_link is not None
-    assert case.overdue_link.label == "No contact details response overdue"
-    assert case.overdue_link.url == reverse(
-        "simplified:edit-request-contact-details", kwargs={"pk": case.id}
+    assert simplified_case.overdue_link is not None
+    assert simplified_case.overdue_link.label == "No contact details response overdue"
+    assert simplified_case.overdue_link.url == reverse(
+        "simplified:edit-request-contact-details", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -1564,16 +1594,16 @@ def test_overdue_link_report_one_week_followup():
     Check overdue link if case is in report correspondence,
     the one week followup is due but not sent.
     """
-    case: SimplifiedCase = create_case_for_overdue_link()
+    simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
-    case.report_followup_week_1_due_date = ONE_WEEK_AGO
-    case.save()
-    case.status.status = CaseStatus.Status.IN_REPORT_CORES
+    simplified_case.report_followup_week_1_due_date = ONE_WEEK_AGO
+    simplified_case.save()
+    simplified_case.status.status = CaseStatus.Status.IN_REPORT_CORES
 
-    assert case.overdue_link is not None
-    assert case.overdue_link.label == "1-week follow-up to report due"
-    assert case.overdue_link.url == reverse(
-        "simplified:edit-report-one-week-followup", kwargs={"pk": case.id}
+    assert simplified_case.overdue_link is not None
+    assert simplified_case.overdue_link.label == "1-week follow-up to report due"
+    assert simplified_case.overdue_link.url == reverse(
+        "simplified:edit-report-one-week-followup", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -1583,17 +1613,17 @@ def test_overdue_link_report_four_week_followup():
     Check overdue link if case is in report correspondence,
     the four week followup is due but not sent.
     """
-    case: SimplifiedCase = create_case_for_overdue_link()
+    simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
-    case.report_followup_week_4_due_date = ONE_WEEK_AGO
-    case.report_followup_week_1_sent_date = ONE_WEEK_AGO
-    case.save()
-    case.status.status = CaseStatus.Status.IN_REPORT_CORES
+    simplified_case.report_followup_week_4_due_date = ONE_WEEK_AGO
+    simplified_case.report_followup_week_1_sent_date = ONE_WEEK_AGO
+    simplified_case.save()
+    simplified_case.status.status = CaseStatus.Status.IN_REPORT_CORES
 
-    assert case.overdue_link is not None
-    assert case.overdue_link.label == "4-week follow-up to report due"
-    assert case.overdue_link.url == reverse(
-        "simplified:edit-report-four-week-followup", kwargs={"pk": case.id}
+    assert simplified_case.overdue_link is not None
+    assert simplified_case.overdue_link.label == "4-week follow-up to report due"
+    assert simplified_case.overdue_link.url == reverse(
+        "simplified:edit-report-four-week-followup", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -1603,21 +1633,21 @@ def test_overdue_link_report_four_week_followup_sent_one_week_ago():
     Check overdue link if case is in report correspondence,
     the four week followup was sent over a week ago.
     """
-    case: SimplifiedCase = create_case_for_overdue_link()
+    simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
-    case.report_followup_week_4_due_date = FOUR_WEEKS_AGO
-    case.report_followup_week_1_sent_date = FOUR_WEEKS_AGO
-    case.report_followup_week_4_sent_date = ONE_WEEK_AGO
-    case.save()
-    case.status.status = CaseStatus.Status.IN_REPORT_CORES
+    simplified_case.report_followup_week_4_due_date = FOUR_WEEKS_AGO
+    simplified_case.report_followup_week_1_sent_date = FOUR_WEEKS_AGO
+    simplified_case.report_followup_week_4_sent_date = ONE_WEEK_AGO
+    simplified_case.save()
+    simplified_case.status.status = CaseStatus.Status.IN_REPORT_CORES
 
-    assert case.overdue_link is not None
+    assert simplified_case.overdue_link is not None
     assert (
-        case.overdue_link.label
+        simplified_case.overdue_link.label
         == "4-week follow-up to report sent, case needs to progress"
     )
-    assert case.overdue_link.url == reverse(
-        "simplified:edit-report-acknowledged", kwargs={"pk": case.id}
+    assert simplified_case.overdue_link.url == reverse(
+        "simplified:edit-report-acknowledged", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -1627,16 +1657,16 @@ def test_overdue_link_12_week_deadline_due():
     Check overdue link if case is awaiting 12-week deadline,
     the 12-week due date has passed.
     """
-    case: SimplifiedCase = create_case_for_overdue_link()
+    simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
-    case.report_followup_week_12_due_date = ONE_WEEK_AGO
-    case.save()
-    case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
+    simplified_case.report_followup_week_12_due_date = ONE_WEEK_AGO
+    simplified_case.save()
+    simplified_case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
 
-    assert case.overdue_link is not None
-    assert case.overdue_link.label == "12-week update due"
-    assert case.overdue_link.url == reverse(
-        "simplified:edit-12-week-update-requested", kwargs={"pk": case.id}
+    assert simplified_case.overdue_link is not None
+    assert simplified_case.overdue_link.label == "12-week update due"
+    assert simplified_case.overdue_link.url == reverse(
+        "simplified:edit-12-week-update-requested", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -1646,17 +1676,18 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_due():
     Check overdue link if case is in 12-week correspondence,
     the 1-week chaser due date has passed.
     """
-    case: SimplifiedCase = create_case_for_overdue_link()
+    simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
-    case.twelve_week_update_requested_date = TWO_WEEKS_AGO
-    case.twelve_week_1_week_chaser_due_date = ONE_WEEK_AGO
-    case.save()
-    case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
+    simplified_case.twelve_week_update_requested_date = TWO_WEEKS_AGO
+    simplified_case.twelve_week_1_week_chaser_due_date = ONE_WEEK_AGO
+    simplified_case.save()
+    simplified_case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
 
-    assert case.overdue_link is not None
-    assert case.overdue_link.label == "1-week follow-up due"
-    assert case.overdue_link.url == reverse(
-        "simplified:edit-12-week-one-week-followup-final", kwargs={"pk": case.id}
+    assert simplified_case.overdue_link is not None
+    assert simplified_case.overdue_link.label == "1-week follow-up due"
+    assert simplified_case.overdue_link.url == reverse(
+        "simplified:edit-12-week-one-week-followup-final",
+        kwargs={"pk": simplified_case.id},
     )
 
 
@@ -1666,18 +1697,21 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
     Check overdue link if case is in 12-week correspondence,
     the 1-week chaser was sent a week ago.
     """
-    case: SimplifiedCase = create_case_for_overdue_link()
+    simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
-    case.twelve_week_update_requested_date = TWO_WEEKS_AGO
-    case.twelve_week_1_week_chaser_due_date = ONE_WEEK_AGO
-    case.twelve_week_1_week_chaser_sent_date = ONE_WEEK_AGO
-    case.save()
-    case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
+    simplified_case.twelve_week_update_requested_date = TWO_WEEKS_AGO
+    simplified_case.twelve_week_1_week_chaser_due_date = ONE_WEEK_AGO
+    simplified_case.twelve_week_1_week_chaser_sent_date = ONE_WEEK_AGO
+    simplified_case.status = SimplifiedCase.Status.IN_12_WEEK_CORES
+    simplified_case.save()
 
-    assert case.overdue_link is not None
-    assert case.overdue_link.label == "1-week follow-up sent, case needs to progress"
-    assert case.overdue_link.url == reverse(
-        "simplified:edit-12-week-update-request-ack", kwargs={"pk": case.id}
+    assert simplified_case.overdue_link is not None
+    assert (
+        simplified_case.overdue_link.label
+        == "1-week follow-up sent, case needs to progress"
+    )
+    assert simplified_case.overdue_link.url == reverse(
+        "simplified:edit-12-week-update-request-ack", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -1685,52 +1719,52 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
 def test_case_reminder():
     """Test Case.reminder returns the unread reminder"""
     user: User = User.objects.create()
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     reminder: Task = Task.objects.create(
         type=Task.Type.REMINDER,
-        case=case,
+        base_case=simplified_case,
         user=user,
         date=REMINDER_DUE_DATE,
     )
 
-    assert case.reminder == reminder
+    assert simplified_case.reminder == reminder
 
     reminder.read = True
     reminder.save()
 
-    assert case.reminder is None
+    assert simplified_case.reminder is None
 
 
 @pytest.mark.django_db
 def test_case_reminder_history():
     """Test Case.reminder_history returns the read reminders"""
     user: User = User.objects.create()
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     reminder: Task = Task.objects.create(
         type=Task.Type.REMINDER,
-        case=case,
+        base_case=simplified_case,
         user=user,
         date=REMINDER_DUE_DATE,
     )
 
-    assert case.reminder_history.count() == 0
+    assert simplified_case.reminder_history.count() == 0
 
     reminder.read = True
     reminder.save()
 
-    assert case.reminder_history.count() == 1
-    assert case.reminder_history.first() == reminder
+    assert simplified_case.reminder_history.count() == 1
+    assert simplified_case.reminder_history.first() == reminder
 
 
 @pytest.mark.django_db
 def test_event_history_history_update():
     """Test EventHistory.variables contains expected values for update"""
     user: User = User.objects.create()
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.create(
-        simplified_case=case,
+        simplified_case=simplified_case,
         created_by=user,
-        parent=case,
+        parent=simplified_case,
         difference=json.dumps({"notes": "Old note -> New note"}),
     )
 
@@ -1747,11 +1781,11 @@ def test_event_history_history_update():
 def test_event_history_history_create():
     """Test EventHistory.variables contains expected values for create"""
     user: User = User.objects.create()
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.create(
-        simplified_case=case,
+        simplified_case=simplified_case,
         created_by=user,
-        parent=case,
+        parent=simplified_case,
         event_type=SimplifiedEventHistory.Type.CREATE,
         difference=json.dumps({"notes": "Old note -> New note"}),
     )
@@ -1772,11 +1806,11 @@ def test_event_history_history_update_separator_in_text():
     when the separator (" -> ") appears in the data.
     """
     user: User = User.objects.create()
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.create(
-        simplified_case=case,
+        simplified_case=simplified_case,
         created_by=user,
-        parent=case,
+        parent=simplified_case,
         difference=json.dumps({"notes": "Old note -> New note -> separator"}),
     )
 

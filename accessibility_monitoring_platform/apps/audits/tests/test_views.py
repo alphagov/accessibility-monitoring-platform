@@ -18,6 +18,7 @@ from ...reports.models import Report
 from ...simplified.models import (
     CaseCompliance,
     CaseEvent,
+    CaseStatus,
     SimplifiedCase,
     SimplifiedEventHistory,
 )
@@ -101,10 +102,13 @@ HISTORIC_CHECK_RESULT_NOTES: str = "Historic check result notes"
 
 
 def create_audit() -> Audit:
-    case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         organisation_name=ORGANISATION_NAME
     )
-    audit: Audit = Audit.objects.create(case=case)
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    CaseStatus.objects.create(simplified_case=simplified_case)
+    simplified_case.update_case_status()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     return audit
 
 
@@ -147,8 +151,8 @@ def create_equality_body_retest() -> Retest:
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
@@ -159,7 +163,7 @@ def create_equality_body_retest() -> Retest:
         wcag_definition=wcag_definition,
     )
 
-    retest: Retest = Retest.objects.create(case=case)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
     retest_page: RetestPage = RetestPage.objects.create(
         retest=retest,
         page=page,
@@ -200,8 +204,8 @@ def test_restore_page_view(admin_client):
 
 def test_create_audit_redirects(admin_client):
     """Test that audit create redirects to audit metadata"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    path_kwargs: dict[str, int] = {"case_id": case.id}
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:audit-create", kwargs=path_kwargs),
@@ -220,7 +224,7 @@ def test_create_audit_does_not_create_a_duplicate(admin_client):
     audit: Audit = create_audit()
     path_kwargs: dict[str, int] = {"case_id": audit.simplified_case.id}
 
-    assert Audit.objects.filter(case=audit.simplified_case).count() == 1
+    assert Audit.objects.filter(simplified_case=audit.simplified_case).count() == 1
 
     response: HttpResponse = admin_client.post(
         reverse("audits:audit-create", kwargs=path_kwargs),
@@ -230,13 +234,13 @@ def test_create_audit_does_not_create_a_duplicate(admin_client):
     )
 
     assert response.status_code == 302
-    assert Audit.objects.filter(case=audit.simplified_case).count() == 1
+    assert Audit.objects.filter(simplified_case=audit.simplified_case).count() == 1
 
 
 def test_create_audit_creates_case_event(admin_client):
     """Test that audit create creates a case event"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    path_kwargs: dict[str, int] = {"case_id": case.id}
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("audits:audit-create", kwargs=path_kwargs),
@@ -246,7 +250,9 @@ def test_create_audit_creates_case_event(admin_client):
     )
 
     assert response.status_code == 302
-    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
+        simplified_case=simplified_case
+    )
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
@@ -496,11 +502,11 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
     Test that audit statement summary page redirects to Report ready for QA
     when a report exists
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    case_pk: dict[str, int] = {"pk": case.id}
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    case_pk: dict[str, int] = {"pk": simplified_case.id}
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     audit_pk: dict[str, int] = {"pk": audit.id}
-    Report.objects.create(case=case)
+    Report.objects.create(base_case=simplified_case)
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-statement-summary", kwargs=audit_pk),
@@ -527,8 +533,8 @@ def test_add_statement_page(path_name, admin_client):
     """
     Test pressing add statement page button redirects to page with add_extra parameter
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     url: str = reverse(f"audits:{path_name}", kwargs={"pk": audit.id})
 
     response: HttpResponse = admin_client.post(
@@ -586,8 +592,8 @@ def test_audit_statement_pages_default_added_stage(
 )
 def test_delete_statement_page(path_name, admin_client):
     """Test deleting a statement page"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     statement_page: StatementPage = StatementPage.objects.create(audit=audit)
 
     response: HttpResponse = admin_client.post(
@@ -614,9 +620,9 @@ def test_delete_statement_page(path_name, admin_client):
 
 def test_delete_statement_page_on_retest(admin_client):
     """Test deleting a statement page"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    retest: Retest = Retest.objects.create(case=audit.simplified_case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    retest: Retest = Retest.objects.create(simplified_case=audit.simplified_case)
     statement_page: StatementPage = StatementPage.objects.create(audit=audit)
 
     response: HttpResponse = admin_client.post(
@@ -944,8 +950,8 @@ def test_audit_edit_statement_overview_updates_when_no_statement_exists(
     """
     Test that audit statement overview update updates when no page exists
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
@@ -978,18 +984,19 @@ def test_audit_edit_statement_overview_updates_case_status(
     audit: Audit = create_audit_and_statement_check_results()
     audit_pk: dict[str, int] = {"pk": audit.id}
 
-    case: SimplifiedCase = audit.simplified_case
-    case.home_page_url = "https://www.website.com"
-    case.organisation_name = "org name"
+    simplified_case: SimplifiedCase = audit.simplified_case
+    simplified_case.home_page_url = "https://www.website.com"
+    simplified_case.organisation_name = "org name"
     user: User = User.objects.create()
-    case.auditor = user
-    case.save()
-    case.compliance.website_compliance_state_initial = (
+    simplified_case.auditor = user
+    simplified_case.save()
+    simplified_case.compliance.website_compliance_state_initial = (
         CaseCompliance.WebsiteCompliance.COMPLIANT
     )
-    case.compliance.save()
+    simplified_case.compliance.save()
+    simplified_case.update_case_status()
 
-    assert audit.simplified_case.status.status == "test-in-progress"
+    assert audit.simplified_case.status == "test-in-progress"
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-statement-overview", kwargs=audit_pk),
@@ -1012,7 +1019,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     assert response.status_code == 302
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
-    assert audit_from_db.base_case.status.status == "report-in-progress"
+    assert audit_from_db.simplified_case.status == "report-in-progress"
 
     statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
         id=1
@@ -1033,8 +1040,8 @@ def test_audit_retest_statement_overview_updates_when_no_statement_exists(
     """
     Test that audit retest statement overview update updates when no page exists
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     audit_pk: dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.post(
@@ -1095,12 +1102,12 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
         audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
     )
 
-    case: SimplifiedCase = audit.simplified_case
-    case.home_page_url = "https://www.website.com"
-    case.organisation_name = "org name"
+    simplified_case: SimplifiedCase = audit.simplified_case
+    simplified_case.home_page_url = "https://www.website.com"
+    simplified_case.organisation_name = "org name"
     user: User = User.objects.create()
-    case.auditor = user
-    case.save()
+    simplified_case.auditor = user
+    simplified_case.save()
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-retest-statement-overview", kwargs=audit_pk),
@@ -1151,12 +1158,12 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
         url="https://www.website.com/statement",
     )
 
-    case: SimplifiedCase = audit.simplified_case
-    case.home_page_url = "https://www.website.com"
-    case.organisation_name = "org name"
+    simplified_case: SimplifiedCase = audit.simplified_case
+    simplified_case.home_page_url = "https://www.website.com"
+    simplified_case.organisation_name = "org name"
     user: User = User.objects.create()
-    case.auditor = user
-    case.save()
+    simplified_case.auditor = user
+    simplified_case.save()
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-retest-statement-overview", kwargs=audit_pk),
@@ -1210,7 +1217,7 @@ def test_retest_date_change_creates_case_event(admin_client):
     assert response.status_code == 302
 
     case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
-        case=audit.simplified_case
+        simplified_case=audit.simplified_case
     )
     assert case_events.count() == 1
 
@@ -1226,9 +1233,9 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     """
     audit: Audit = create_audit_and_wcag()
     audit_pk: dict[str, int] = {"pk": audit.id}
-    case: SimplifiedCase = audit.simplified_case
-    case.no_psb_contact = Boolean.YES
-    case.save()
+    simplified_case: SimplifiedCase = audit.simplified_case
+    simplified_case.no_psb_contact = Boolean.YES
+    simplified_case.save()
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-retest-metadata", kwargs=audit_pk),
@@ -2029,7 +2036,7 @@ def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
     Test that pressing the remove issue button deletes the custom statement issue
     """
     audit: Audit = create_audit_and_statement_check_results()
-    retest: Retest = Retest.objects.create(case=audit.simplified_case)
+    retest: Retest = Retest.objects.create(simplified_case=audit.simplified_case)
     custom_retest_statement_check_result: StatementCheckResult = (
         RetestStatementCheckResult.objects.create(retest=retest)
     )
@@ -2121,7 +2128,7 @@ def test_start_retest_creates_case_event(admin_client):
     assert response.status_code == 302
 
     case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
-        case=audit.simplified_case
+        simplified_case=audit.simplified_case
     )
     assert case_events.count() == 1
 
@@ -2629,13 +2636,13 @@ def test_clear_published_report_data_updated_time_view(admin_client):
 def test_update_audit_checks_version(admin_client):
     """Test that updating an audit shows an error if the version of the audit has changed"""
     audit: Audit = create_audit()
-    case: SimplifiedCase = audit.simplified_case
+    simplified_case: SimplifiedCase = audit.simplified_case
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),
         {
             "version": audit.version - 1,
-            "case-compliance-version": case.compliance.version,
+            "case-compliance-version": simplified_case.compliance.version,
             "save": "Button value",
         },
     )
@@ -2668,13 +2675,13 @@ def test_update_audit_checks_case_version(url_name, admin_client):
     Test that updating a case shows an error if the version of the case compliance has changed
     """
     audit: Audit = create_audit()
-    case: SimplifiedCase = audit.simplified_case
+    simplified_case: SimplifiedCase = audit.simplified_case
 
     response: HttpResponse = admin_client.post(
         reverse(url_name, kwargs={"pk": audit.id}),
         {
             "version": audit.version,
-            "case-compliance-version": case.compliance.version - 1,
+            "case-compliance-version": simplified_case.compliance.version - 1,
             "save": "Button value",
         },
     )
@@ -2685,7 +2692,7 @@ def test_update_audit_checks_case_version(url_name, admin_client):
         f"""<div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
                 <li class="govuk-error-message">
-                    {str(case.compliance)} has changed since this page loaded
+                    {str(simplified_case.compliance)} has changed since this page loaded
                 </li>
             </ul>
         </div>""",
@@ -3080,9 +3087,9 @@ def test_test_statement_summary_page_summary(url_name, admin_client):
 
 def test_create_equality_body_retest_redirects(admin_client):
     """Test that equality body retest create redirects to retest metadata"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(case=case)
-    path_kwargs: dict[str, int] = {"case_id": case.id}
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
+    path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:create-equality-body-retest", kwargs=path_kwargs)
@@ -3090,7 +3097,7 @@ def test_create_equality_body_retest_redirects(admin_client):
 
     assert response.status_code == 302
 
-    retest: Retest = Retest.objects.filter(case=case).first()
+    retest: Retest = Retest.objects.filter(simplified_case=simplified_case).first()
     assert response.url == reverse(
         "audits:retest-metadata-update", kwargs={"pk": retest.id}
     )
@@ -3101,9 +3108,9 @@ def test_create_equality_body_retest_creates_retest_0(admin_client):
     Test that equality body retest create creates an extra retest (with
     id_within_case set to zero) the first time only.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(case=case)
-    path_kwargs: dict[str, int] = {"case_id": case.id}
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
+    path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("audits:create-equality-body-retest", kwargs=path_kwargs)
@@ -3111,10 +3118,10 @@ def test_create_equality_body_retest_creates_retest_0(admin_client):
 
     assert response.status_code == 302
 
-    assert Retest.objects.filter(case=case).count() == 2
+    assert Retest.objects.filter(simplified_case=simplified_case).count() == 2
 
-    retest_1: Retest = Retest.objects.filter(case=case).first()
-    retest_0: Retest = Retest.objects.filter(case=case).last()
+    retest_1: Retest = Retest.objects.filter(simplified_case=simplified_case).first()
+    retest_0: Retest = Retest.objects.filter(simplified_case=simplified_case).last()
 
     assert retest_1.id_within_case == 1
     assert retest_0.id_within_case == 0
@@ -3125,9 +3132,9 @@ def test_create_equality_body_retest_creates_retest_0(admin_client):
 
     assert response.status_code == 302
 
-    assert Retest.objects.filter(case=case).count() == 3
+    assert Retest.objects.filter(simplified_case=simplified_case).count() == 3
 
-    retest_2: Retest = Retest.objects.filter(case=case).first()
+    retest_2: Retest = Retest.objects.filter(simplified_case=simplified_case).first()
 
     assert retest_2.id_within_case == 2
 
@@ -3136,9 +3143,9 @@ def test_delete_retest(admin_client):
     """
     Test that equality body retest deletion works
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    # Audit.objects.create(case=case)
-    retest: Retest = Retest.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    # Audit.objects.create(simplified_case=simplified_case)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
     assert retest.is_deleted is False
 
@@ -3147,7 +3154,7 @@ def test_delete_retest(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == "/cases/1/retest-overview/"
+    assert response.url == "/simplified/1/retest-overview/"
 
     retest_from_db: Retest = Retest.objects.get(id=retest.id)
     assert retest_from_db.is_deleted is True
@@ -3595,13 +3602,13 @@ def test_nav_details_page_renders(admin_client):
         response,
         """<details class="amp-nav-details">
             <summary class="amp-nav-details__summary">
-                SimplifiedCase details (0/1)
+                Case details (0/1)
             </summary>
             <div class="amp-nav-details__text">
                 <ul class="govuk-list amp-margin-bottom-5">
                     <li>
-                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
-                            SimplifiedCase metadata</a>
+                        <a href="/simplified/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
+                            Case metadata</a>
                     </li>
                 </ul>
             </div>
@@ -3650,13 +3657,13 @@ def test_nav_details_subpage_renders(admin_client):
         response,
         """<details class="amp-nav-details">
             <summary class="amp-nav-details__summary">
-                SimplifiedCase details (0/1)
+                Case details (0/1)
             </summary>
             <div class="amp-nav-details__text">
                 <ul class="govuk-list amp-margin-bottom-5">
                     <li>
-                        <a href="/cases/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
-                            SimplifiedCase metadata</a>
+                        <a href="/simplified/1/edit-case-metadata/" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
+                            Case metadata</a>
                     </li>
                 </ul>
             </div>
@@ -3694,8 +3701,8 @@ def test_nav_details_subpage_renders(admin_client):
 )
 def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
     """Test that tall pages include a back to top link"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit)
     page_pk: dict[str, int] = {"pk": page.id}
 
@@ -3768,8 +3775,8 @@ def test_create_initial_custom_issue_redirects(admin_client):
     Test that statement initial custom issue create redirects to initial statement
     custom issues page.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-custom-issue-create", kwargs={"audit_id": audit.id}),
@@ -3797,8 +3804,8 @@ def test_update_initial_custom_issue_redirects(admin_client):
     Test that statement initial custom issue update redirects to initial statement
     custom issues page.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit
     )
@@ -3829,8 +3836,8 @@ def test_delete_initial_custom_issue_redirects(admin_client):
     Test that statement initial custom issue delete redirects to initial statement
     custom issues page.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit
     )
@@ -3858,8 +3865,8 @@ def test_update_at_12_week_initial_custom_issue_redirects(admin_client):
     Test that statement initial custom issue update at 12-weeks redirects to 12-week
     statement custom issues page.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit
     )
@@ -3896,8 +3903,8 @@ def test_create_new_12_week_custom_issue_redirects(admin_client):
     Test that statement new 12-week custom issue create redirects to 12-week statement
     custom issues page.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.post(
         reverse(
@@ -3930,8 +3937,8 @@ def test_update_new_12_week_custom_issue_redirects(admin_client):
     Test that statement new 12-week custom issue update redirects to 12-week statement
     custom issues page.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit
     )
@@ -3967,8 +3974,8 @@ def test_delete_new_12_week_custom_issue_redirects(admin_client):
     Test that statement new 12-week custom issue delete redirects to 12-week statement
     custom issues page.
     """
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit
     )

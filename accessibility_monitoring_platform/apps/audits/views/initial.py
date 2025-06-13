@@ -15,7 +15,10 @@ from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ...simplified.models import SimplifiedCase
-from ...simplified.utils import record_model_create_event, record_model_update_event
+from ...simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from ..forms import (
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
@@ -83,8 +86,8 @@ def clear_published_report_data_updated_time(
     """
     audit: Audit = get_object_or_404(Audit, id=pk)
     audit.published_report_data_updated_time = None
-    record_model_update_event(
-        user=request.user, model_object=audit, case=audit.simplified_case
+    record_simplified_model_update_event(
+        user=request.user, model_object=audit, simplified_case=audit.simplified_case
     )
     audit.save()
     redirect_destination: str = request.GET.get(
@@ -176,15 +179,15 @@ class AuditPagesUpdateView(AuditUpdateView):
                             audit=audit,
                             url=page.url,
                         )
-                        record_model_create_event(
+                        record_simplified_model_create_event(
                             user=self.request.user,
                             model_object=statement_page,
-                            case=audit.simplified_case,
+                            simplified_case=audit.simplified_case,
                         )
-                record_model_update_event(
+                record_simplified_model_update_event(
                     user=self.request.user,
                     model_object=page,
-                    case=audit.simplified_case,
+                    simplified_case=audit.simplified_case,
                 )
                 page.save()
         else:
@@ -196,16 +199,16 @@ class AuditPagesUpdateView(AuditUpdateView):
                 if not page.audit_id:
                     page.audit = audit
                     page.save()
-                    record_model_create_event(
+                    record_simplified_model_create_event(
                         user=self.request.user,
                         model_object=page,
-                        case=audit.simplified_case,
+                        simplified_case=audit.simplified_case,
                     )
                 else:
-                    record_model_update_event(
+                    record_simplified_model_update_event(
                         user=self.request.user,
                         model_object=page,
-                        case=audit.simplified_case,
+                        simplified_case=audit.simplified_case,
                     )
                     page.save()
         else:
@@ -300,10 +303,10 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
         if form.changed_data:
             page.complete_date = form.cleaned_data["complete_date"]
             page.no_errors_date = form.cleaned_data["no_errors_date"]
-            record_model_update_event(
+            record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=page,
-                case=page.audit.simplified_case,
+                simplified_case=page.audit.simplified_case,
             )
             page.save()
 
@@ -421,7 +424,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
     def get_success_url(self) -> str:
         """Recalculate Case status"""
         audit: Audit = self.object
-        audit.simplified_case.casestatus.calculate_and_save_status()
+        audit.simplified_case.update_case_status()
         return super().get_success_url()
 
 
@@ -521,10 +524,10 @@ class CustomIssueCreateView(CreateView):
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
         custom_issue: StatementCheckResult = self.object
-        record_model_create_event(
+        record_simplified_model_create_event(
             user=self.request.user,
             model_object=custom_issue,
-            case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.audit.simplified_case,
         )
         url: str = reverse(
             "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
@@ -547,10 +550,10 @@ class InitialCustomIssueUpdateView(UpdateView):
     def form_valid(self, form: InitialCustomIssueCreateUpdateForm):
         """Populate custom issue"""
         custom_issue: StatementCheckResult = form.save(commit=False)
-        record_model_update_event(
+        record_simplified_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
-            case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.audit.simplified_case,
         )
         return super().form_valid(form)
 
@@ -583,10 +586,10 @@ def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
             StatementCheckResult, id=pk
         )
         custom_issue.is_deleted = True
-        record_model_update_event(
+        record_simplified_model_update_event(
             user=request.user,
             model_object=custom_issue,
-            case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.audit.simplified_case,
         )
         custom_issue.save()
     return redirect(

@@ -235,8 +235,6 @@ class PlatformPage:
                     return self.instance.base_case.detailedcase
                 if hasattr(self.instance.base_case, "mobilecase"):
                     return self.instance.base_case.mobilecase
-            if hasattr(self.instance, "case"):
-                return self.instance.case
             if hasattr(self.instance, "simplified_case"):
                 return self.instance.simplified_case
             if hasattr(self.instance, "audit"):

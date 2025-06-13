@@ -81,23 +81,23 @@
                         <tr id="export-case-{{ export_case.id }}" class="govuk-table__row">
                             <td class="govuk-table__cell">
                                 <a
-                                    href="{% url 'simplified:edit-case-close' export_case.base_case.id %}"
+                                    href="{% url 'simplified:edit-case-close' export_case.simplified_case.id %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                     target="_blank"
                                 >
-                                    {{ export_case.base_case.case_number }}</a>
+                                    {{ export_case.simplified_case.case_number }}</a>
                                 {% if export.enforcement_body == 'ecni' %}
                                     (<a
-                                        href="{% url 'exports:export-case-as-email' export.id export_case.base_case.id %}"
+                                        href="{% url 'exports:export-case-as-email' export.id export_case.simplified_case.id %}"
                                         class="govuk-link govuk-link--no-visited-state"
                                     >email</a>)
                                 {% endif %}
                             </td>
                             <td class="govuk-table__cell">
-                                {{ export_case.base_case.organisation_name }}
+                                {{ export_case.simplified_case.organisation_name }}
                             </td>
                             <td class="govuk-table__cell">
-                                {{ export_case.base_case.auditor.get_full_name }}
+                                {{ export_case.simplified_case.auditor.get_full_name }}
                             </td>
                             <td class="govuk-table__cell">
                                 {% if export_case.status == 'unready' %}

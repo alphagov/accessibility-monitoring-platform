@@ -27,6 +27,7 @@ from ..common.sitemap import PlatformPage, PlatformPageGroup, Sitemap
 from ..common.utils import build_filters, diff_model_fields
 from .models import (
     COMPLIANCE_FIELDS,
+    CaseCompliance,
     CaseEvent,
     CaseStatus,
     SimplifiedCase,
@@ -303,7 +304,7 @@ def build_edit_link_html(case: SimplifiedCase, url_name: str) -> str:
     )
 
 
-def create_case_and_compliance(**kwargs):
+def create_case_and_compliance(**kwargs) -> SimplifiedCase:
     """Create case and populate compliance fields from arbitrary arguments"""
     compliance_kwargs: dict[str, Any] = {
         key: value for key, value in kwargs.items() if key in COMPLIANCE_FIELDS
@@ -311,17 +312,22 @@ def create_case_and_compliance(**kwargs):
     non_compliance_args: dict[str, Any] = {
         key: value for key, value in kwargs.items() if key not in COMPLIANCE_FIELDS
     }
-    case: SimplifiedCase = SimplifiedCase.objects.create(**non_compliance_args)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        **non_compliance_args
+    )
+    CaseCompliance.objects.create(simplified_case=simplified_case)
     if compliance_kwargs:
         for key, value in compliance_kwargs.items():
-            setattr(case.compliance, key, value)
-        case.compliance.save()
-        case.save()
-    return case
+            setattr(simplified_case.compliance, key, value)
+        simplified_case.compliance.save()
+        simplified_case.save()
+    return simplified_case
 
 
-def record_model_update_event(
-    user: User, model_object: models.Model, case: SimplifiedCase | None = None
+def record_simplified_model_update_event(
+    user: User,
+    model_object: models.Model,
+    simplified_case: SimplifiedCase | None = None,
 ) -> None:
     """Record model update event"""
     previous_object = model_object.__class__.objects.get(pk=model_object.id)
@@ -334,21 +340,23 @@ def record_model_update_event(
     )
     if diff_fields:
         SimplifiedEventHistory.objects.create(
-            simplified_case=case,
+            simplified_case=simplified_case,
             created_by=user,
             parent=model_object,
             difference=json.dumps(diff_fields, default=str),
         )
 
 
-def record_model_create_event(
-    user: User, model_object: models.Model, case: SimplifiedCase | None = None
+def record_simplified_model_create_event(
+    user: User,
+    model_object: models.Model,
+    simplified_case: SimplifiedCase | None = None,
 ) -> None:
     """Record model create event"""
     model_object_fields = copy.copy(vars(model_object))
     del model_object_fields["_state"]
     SimplifiedEventHistory.objects.create(
-        simplified_case=case,
+        simplified_case=simplified_case,
         created_by=user,
         parent=model_object,
         event_type=SimplifiedEventHistory.Type.CREATE,

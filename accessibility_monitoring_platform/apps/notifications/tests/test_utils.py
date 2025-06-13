@@ -9,12 +9,12 @@ from django.urls import reverse
 
 from ...audits.models import Retest
 from ...cases.models import BaseCase, CaseCompliance, EqualityBodyCorrespondence
-from ...cases.utils import create_case_and_compliance
-from ...cases.views import (
+from ...common.models import Boolean, Link
+from ...simplified.utils import create_case_and_compliance
+from ...simplified.views import (
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
 )
-from ...common.models import Boolean, Link
 from ..models import NotificationSetting, Task
 from ..utils import (
     add_task,

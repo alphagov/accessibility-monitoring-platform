@@ -17,7 +17,10 @@ from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ...common.utils import list_to_dictionary_of_lists
 from ...common.views import NextPlatformPageMixin
 from ...simplified.models import SimplifiedCase
-from ...simplified.utils import record_model_create_event, record_model_update_event
+from ...simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from ..forms import (
     RetestCheckResultFormset,
     RetestComparisonUpdateForm,
@@ -70,8 +73,8 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
     retest: Retest = Retest.objects.create(
         simplified_case=simplified_case, id_within_case=id_within_case
     )
-    record_model_create_event(
-        user=request.user, model_object=retest, case=simplified_case
+    record_simplified_model_create_event(
+        user=request.user, model_object=retest, simplified_case=simplified_case
     )
     create_checkresults_for_retest(retest=retest)
     return redirect(reverse("audits:retest-metadata-update", kwargs={"pk": retest.id}))
@@ -81,8 +84,8 @@ def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
     """Set Retest.is_deleted to True"""
     retest: Retest = get_object_or_404(Retest, id=pk)
     retest.is_deleted = True
-    record_model_update_event(
-        user=request.user, model_object=retest, case=retest.simplified_case
+    record_simplified_model_update_event(
+        user=request.user, model_object=retest, simplified_case=retest.simplified_case
     )
     retest.save()
     return redirect(
@@ -109,10 +112,10 @@ class RetestMetadataUpdateView(NextPlatformPageMixin, UpdateView):
         """Add record event on change"""
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
-            record_model_update_event(
+            record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=self.object,
-                case=self.object.simplified_case,
+                simplified_case=self.object.simplified_case,
             )
         return super().form_valid(form)
 
@@ -215,10 +218,10 @@ class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):
         """Add record event on change"""
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
-            record_model_update_event(
+            record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=self.object,
-                case=self.object.simplified_case,
+                simplified_case=self.object.simplified_case,
             )
         return super().form_valid(form)
 
@@ -237,10 +240,10 @@ class RetestComplianceUpdateView(NextPlatformPageMixin, UpdateView):
         """Add record event on change"""
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
-            record_model_update_event(
+            record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=self.object,
-                case=self.object.simplified_case,
+                simplified_case=self.object.simplified_case,
             )
         return super().form_valid(form)
 
@@ -290,16 +293,16 @@ class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
                 if not statement_page.audit_id:
                     statement_page.audit = retest.simplified_case.audit
                     statement_page.save()
-                    record_model_create_event(
+                    record_simplified_model_create_event(
                         user=self.request.user,
                         model_object=statement_page,
-                        case=retest.simplified_case,
+                        simplified_case=retest.simplified_case,
                     )
                 else:
-                    record_model_update_event(
+                    record_simplified_model_update_event(
                         user=self.request.user,
                         model_object=statement_page,
-                        case=retest.simplified_case,
+                        simplified_case=retest.simplified_case,
                     )
                     statement_page.save()
         else:
@@ -335,10 +338,10 @@ class RetestUpdateView(NextPlatformPageMixin, UpdateView):
         """Add event on change of retest"""
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
-            record_model_update_event(
+            record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=self.object,
-                case=self.object.simplified_case,
+                simplified_case=self.object.simplified_case,
             )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -386,10 +389,10 @@ class RetestStatementCheckingView(RetestUpdateView):
                 retest_statement_check_result: RetestStatementCheckResult = (
                     retest_statement_check_results_form.save(commit=False)
                 )
-                record_model_update_event(
+                record_simplified_model_update_event(
                     user=self.request.user,
                     model_object=retest_statement_check_result,
-                    case=retest_statement_check_result.retest.simplified_case,
+                    simplified_case=retest_statement_check_result.retest.simplified_case,
                 )
                 retest_statement_check_result.save()
         else:
@@ -564,16 +567,16 @@ class RetestStatementCustomFormView(RetestUpdateView):
                         RetestStatementCheckResult.Result.NO
                     )
                     retest_statement_check_result.save()
-                    record_model_create_event(
+                    record_simplified_model_create_event(
                         user=self.request.user,
                         model_object=retest_statement_check_result,
-                        case=retest_statement_check_result.retest.simplified_case,
+                        simplified_case=retest_statement_check_result.retest.simplified_case,
                     )
                 else:
-                    record_model_update_event(
+                    record_simplified_model_update_event(
                         user=self.request.user,
                         model_object=retest_statement_check_result,
-                        case=retest_statement_check_result.retest.simplified_case,
+                        simplified_case=retest_statement_check_result.retest.simplified_case,
                     )
                     retest_statement_check_result.save()
         else:

@@ -4,10 +4,10 @@ import pytest
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 
-from ...cases.models import Case, EventHistory
 from ...common.models import Platform
 from ...common.utils import get_platform_settings
 from ...notifications.models import Task
+from ...simplified.models import SimplifiedCase, SimplifiedEventHistory
 from ..models import Comment
 from ..utils import add_comment_notification
 
@@ -17,7 +17,7 @@ COMMENT_BODY: str = "Comment body"
 @pytest.mark.django_db
 def test_add_comment_notification(rf):
     """Test add comment notification task"""
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     first_user: User = User.objects.create(
         username="first", first_name="First", last_name="User"
@@ -26,7 +26,7 @@ def test_add_comment_notification(rf):
     first_request.user = first_user
 
     comment: Comment = Comment.objects.create(
-        case=case,
+        simplified_case=simplified_case,
         user=first_user,
         body=COMMENT_BODY,
     )
@@ -41,7 +41,7 @@ def test_add_comment_notification(rf):
     second_request.user = second_user
 
     second_comment: Comment = Comment.objects.create(
-        case=case,
+        simplified_case=simplified_case,
         user=second_user,
         body="this is a comment by a second user",
     )
@@ -56,15 +56,17 @@ def test_add_comment_notification(rf):
         == "Second User left a message in discussion:\n\nthis is a comment by a second user"
     )
 
-    event_history: EventHistory = EventHistory.objects.all().first()
+    simplified_event_history: SimplifiedEventHistory = (
+        SimplifiedEventHistory.objects.all().first()
+    )
 
-    assert event_history is not None
+    assert simplified_event_history is not None
 
 
 @pytest.mark.django_db
 def test_add_comment_notification_to_on_call_qa(rf):
     """Test comment notifications are also sent to on-call QA auditor"""
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     first_user: User = User.objects.create(
         username="first", first_name="First", last_name="User"
@@ -80,7 +82,7 @@ def test_add_comment_notification_to_on_call_qa(rf):
     platform.save()
 
     comment: Comment = Comment.objects.create(
-        case=case,
+        simplified_case=simplified_case,
         user=first_user,
         body=COMMENT_BODY,
     )

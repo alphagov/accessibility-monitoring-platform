@@ -9,8 +9,8 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ...cases.models import Case, EventHistory
 from ...reports.models import Report
+from ...simplified.models import SimplifiedCase, SimplifiedEventHistory
 from ..models import Comment
 
 
@@ -31,9 +31,11 @@ def test_edit_qa_comment_redirects_based_on_button_pressed(
     Test that a successful case update redirects based on the button pressed
     when the case testing methodology is platform
     """
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
-    comment: Comment = Comment.objects.create(case=case, user=user)
+    comment: Comment = Comment.objects.create(
+        simplified_case=simplified_case, user=user
+    )
 
     response: HttpResponse = admin_client.post(
         reverse(comment_edit_path, kwargs={"pk": comment.id}),
@@ -45,59 +47,67 @@ def test_edit_qa_comment_redirects_based_on_button_pressed(
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}?#qa-discussion'
+        == f'{reverse(expected_redirect_path, kwargs={"pk": simplified_case.id})}?#qa-discussion'
     )
 
     content_type: ContentType = ContentType.objects.get_for_model(Comment)
-    event_history: EventHistory = EventHistory.objects.get(
-        content_type=content_type, object_id=comment.id
+    simplified_event_history: SimplifiedEventHistory = (
+        SimplifiedEventHistory.objects.get(
+            content_type=content_type, object_id=comment.id
+        )
     )
 
-    assert event_history.event_type == EventHistory.Type.UPDATE
+    assert simplified_event_history.event_type == SimplifiedEventHistory.Type.UPDATE
 
 
 def test_qa_comment_removal(admin_client, admin_user):
     """Test removing QA comment by hiding it"""
-    case: Case = Case.objects.create()
-    comment: Comment = Comment.objects.create(case=case, user=admin_user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    comment: Comment = Comment.objects.create(
+        simplified_case=simplified_case, user=admin_user
+    )
 
     response: HttpResponse = admin_client.post(
-        reverse("comments:edit-qa-comment", kwargs={"pk": case.id}),
+        reverse("comments:edit-qa-comment", kwargs={"pk": simplified_case.id}),
         {
             "remove_comment": "Button value",
         },
     )
     assert response.status_code == 302
 
-    comment: Comment = Comment.objects.get(case=case)
+    comment: Comment = Comment.objects.get(simplified_case=simplified_case)
 
     assert comment.hidden is True
 
 
 def test_qa_comment_removal_not_allowed(admin_client):
     """Test other users cannot hide QA comment"""
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
-    comment: Comment = Comment.objects.create(case=case, user=user)
+    comment: Comment = Comment.objects.create(
+        simplified_case=simplified_case, user=user
+    )
 
     response: HttpResponse = admin_client.post(
-        reverse("comments:edit-qa-comment", kwargs={"pk": case.id}),
+        reverse("comments:edit-qa-comment", kwargs={"pk": simplified_case.id}),
         {
             "remove_comment": "Button value",
         },
     )
     assert response.status_code == 302
 
-    comment: Comment = Comment.objects.get(case=case)
+    comment: Comment = Comment.objects.get(simplified_case=simplified_case)
 
     assert comment.hidden is False
 
 
 def test_edit_qa_comment_appears_in_case_nav(admin_client, admin_user):
     """Test edit or delete comment page appears in case navigation"""
-    case: Case = Case.objects.create()
-    Report.objects.create(case=case)
-    comment: Comment = Comment.objects.create(case=case, user=admin_user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Report.objects.create(base_case=simplified_case)
+    comment: Comment = Comment.objects.create(
+        simplified_case=simplified_case, user=admin_user
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("comments:edit-qa-comment", kwargs={"pk": comment.id}),

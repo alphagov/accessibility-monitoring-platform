@@ -23,11 +23,11 @@ from ...audits.models import (
     StatementPage,
     WcagDefinition,
 )
-from ...cases.models import Case, CaseCompliance
-from ...cases.utils import create_case_and_compliance
 from ...notifications.models import Task
 from ...reports.models import Report, ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
+from ...simplified.models import CaseCompliance, SimplifiedCase
+from ...simplified.utils import create_case_and_compliance
 from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
 from ..models import FooterLink, FrequentlyUsedLink, Platform
 from ..utils import get_platform_settings
@@ -191,7 +191,7 @@ def test_bulk_url_search_works(admin_client):
     Test that submitting the bulk URL search form redisplays page
     with results of search.
     """
-    Case.objects.create(home_page_url=f"https://{FOUND_DOMAIN}.com")
+    SimplifiedCase.objects.create(home_page_url=f"https://{FOUND_DOMAIN}.com")
 
     response: HttpResponse = admin_client.post(
         reverse("common:bulk-url-search"),
@@ -325,10 +325,18 @@ def test_case_progress_metric_over(
     mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
     mock_date.today.return_value = date(2022, 1, 10)
 
-    Case.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2021, 12, 16, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)})
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)}
+    )
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)}
+    )
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2021, 12, 16, tzinfo=timezone.utc)}
+    )
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)}
+    )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
 
@@ -367,10 +375,18 @@ def test_case_progress_metric_under(
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
     mock_date.today.return_value = date(2022, 1, 20)
 
-    Case.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)})
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)}
+    )
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)}
+    )
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)}
+    )
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)}
+    )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
 
@@ -408,10 +424,18 @@ def test_case_yearly_metric(mock_timezone, label, table_id, case_field, admin_cl
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    Case.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)})
-    Case.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)})
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)}
+    )
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)}
+    )
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)}
+    )
+    SimplifiedCase.objects.create(
+        **{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)}
+    )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
 
@@ -430,16 +454,20 @@ def test_policy_progress_metric_website_compliance(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
-    Audit.objects.create(
-        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed="complete-no-send"
     )
-    fixed_case: Case = Case.objects.create(
+    Audit.objects.create(
+        simplified_case=simplified_case,
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed="complete-no-send",
-        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+        simplified_case=fixed_case,
+        retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
@@ -464,16 +492,20 @@ def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
-    Audit.objects.create(
-        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed="complete-no-send"
     )
-    fixed_case: Case = create_case_and_compliance(
+    Audit.objects.create(
+        simplified_case=simplified_case,
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = create_case_and_compliance(
         case_completed="complete-no-send",
         statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+        simplified_case=fixed_case,
+        retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
@@ -498,9 +530,10 @@ def test_policy_progress_metric_website_issues(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(
-        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+        simplified_case=simplified_case,
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
     page: Page = Page.objects.create(audit=audit)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
@@ -541,9 +574,9 @@ def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(
-        case=case,
+        simplified_case=simplified_case,
         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
     statement_check: StatementCheck = StatementCheck.objects.all().first()
@@ -577,15 +610,15 @@ def test_policy_metric_completed_with_equalities_bodies(mock_timezone, admin_cli
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    Case.objects.create(
+    SimplifiedCase.objects.create(
         created=datetime(2021, 11, 12, tzinfo=timezone.utc),
         enforcement_body_pursuing="yes-completed",
     )
-    Case.objects.create(
+    SimplifiedCase.objects.create(
         created=datetime(2021, 5, 12, tzinfo=timezone.utc),
         enforcement_body_pursuing="yes-in-progress",
     )
-    Case.objects.create(
+    SimplifiedCase.objects.create(
         created=datetime(2021, 2, 1, tzinfo=timezone.utc),
         enforcement_body_pursuing="yes-in-progress",
     )
@@ -610,45 +643,55 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed="complete-no-send"
+    )
     Audit.objects.create(
-        case=case,
+        simplified_case=simplified_case,
         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    initially_compliant_website_case: Case = create_case_and_compliance(
+    initially_compliant_website_case: SimplifiedCase = create_case_and_compliance(
         case_completed="complete-no-send",
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
-        case=initially_compliant_website_case,
+        simplified_case=initially_compliant_website_case,
         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
-    Audit.objects.create(
-        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed="complete-no-send"
     )
-    fixed_case: Case = Case.objects.create(
+    Audit.objects.create(
+        simplified_case=simplified_case,
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed="complete-no-send",
-        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+        simplified_case=fixed_case,
+        retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
-    Audit.objects.create(
-        case=case, retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed="complete-no-send"
     )
-    fixed_case: Case = Case.objects.create(
+    Audit.objects.create(
+        simplified_case=simplified_case,
+        retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed="complete-no-send",
-        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc)
+        simplified_case=fixed_case,
+        retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc),
     )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
@@ -668,48 +711,58 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed="complete-no-send"
+    )
     Audit.objects.create(
-        case=case,
+        simplified_case=simplified_case,
         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    initally_compliant_statement_case: Case = create_case_and_compliance(
+    initally_compliant_statement_case: SimplifiedCase = create_case_and_compliance(
         case_completed="complete-no-send",
         statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
-        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
         statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
-        case=initally_compliant_statement_case,
+        simplified_case=initally_compliant_statement_case,
         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
-    Audit.objects.create(
-        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed="complete-no-send"
     )
-    fixed_case: Case = create_case_and_compliance(
+    Audit.objects.create(
+        simplified_case=simplified_case,
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = create_case_and_compliance(
         case_completed="complete-no-send",
-        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
         statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+        simplified_case=fixed_case,
+        retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
-    case: Case = Case.objects.create(case_completed="complete-no-send")
-    Audit.objects.create(
-        case=case, retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed="complete-no-send"
     )
-    fixed_case: Case = create_case_and_compliance(
+    Audit.objects.create(
+        simplified_case=simplified_case,
+        retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = create_case_and_compliance(
         case_completed="complete-no-send",
-        recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
         statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc)
+        simplified_case=fixed_case,
+        retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc),
     )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
@@ -741,8 +794,10 @@ def test_report_published_progress_metric_over(mock_date, mock_timezone, admin_c
             "django.utils.timezone.now",
             Mock(return_value=created_date),
         ):
-            case: Case = Case.objects.create()
-            S3Report.objects.create(case=case, version=1, latest_published=True)
+            simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+            S3Report.objects.create(
+                base_case=simplified_case, version=1, latest_published=True
+            )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -780,8 +835,10 @@ def test_report_published_progress_metric_under(mock_date, mock_timezone, admin_
             "django.utils.timezone.now",
             Mock(return_value=created_date),
         ):
-            case: Case = Case.objects.create()
-            S3Report.objects.create(case=case, version=1, latest_published=True)
+            simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+            S3Report.objects.create(
+                base_case=simplified_case, version=1, latest_published=True
+            )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -809,7 +866,7 @@ def test_report_viewed_progress_metric_under(mock_date, mock_timezone, admin_cli
     mock_timezone.now.return_value = datetime(2022, 1, 29, tzinfo=timezone.utc)
     mock_date.today.return_value = date(2022, 1, 29)
 
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     for created_date in [
         datetime(2021, 12, 5, tzinfo=timezone.utc),
@@ -817,8 +874,8 @@ def test_report_viewed_progress_metric_under(mock_date, mock_timezone, admin_cli
         datetime(2022, 1, 1, tzinfo=timezone.utc),
     ]:
         with patch("django.utils.timezone.now", Mock(return_value=created_date)):
-            case: Case = Case.objects.create()
-            ReportVisitsMetrics.objects.create(case=case)
+            simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+            ReportVisitsMetrics.objects.create(base_case=simplified_case)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -853,7 +910,7 @@ def test_report_acknowledged_progress_metric_under(
         datetime(2021, 12, 6, tzinfo=timezone.utc),
         datetime(2022, 1, 1, tzinfo=timezone.utc),
     ]:
-        Case.objects.create(report_acknowledged_date=acknowledged_date)
+        SimplifiedCase.objects.create(report_acknowledged_date=acknowledged_date)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -878,7 +935,7 @@ def test_report_published_yearly_metric(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     for creation_time in [
         datetime(2021, 11, 5, tzinfo=timezone.utc),
@@ -887,8 +944,10 @@ def test_report_published_yearly_metric(mock_timezone, admin_client):
         datetime(2022, 1, 1, tzinfo=timezone.utc),
     ]:
         with patch("django.utils.timezone.now", Mock(return_value=creation_time)):
-            case: Case = Case.objects.create()
-            S3Report.objects.create(case=case, version=1, latest_published=True)
+            simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+            S3Report.objects.create(
+                base_case=simplified_case, version=1, latest_published=True
+            )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -910,7 +969,7 @@ def test_report_viewed_yearly_metric(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     for creation_time in [
         datetime(2021, 11, 5, tzinfo=timezone.utc),
@@ -919,8 +978,8 @@ def test_report_viewed_yearly_metric(mock_timezone, admin_client):
         datetime(2022, 1, 1, tzinfo=timezone.utc),
     ]:
         with patch("django.utils.timezone.now", Mock(return_value=creation_time)):
-            case: Case = Case.objects.create()
-            ReportVisitsMetrics.objects.create(case=case)
+            simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+            ReportVisitsMetrics.objects.create(base_case=simplified_case)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -937,11 +996,11 @@ def test_report_viewed_yearly_metric(mock_timezone, admin_client):
 @pytest.mark.django_db
 def test_frequently_used_link_shown(admin_client):
     """Test custom frequently used link is displayed"""
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     FrequentlyUsedLink.objects.create(label=LINK_LABEL, url=LINK_URL)
 
     response: HttpResponse = admin_client.get(
-        reverse("simplified:case-detail", kwargs={"pk": case.id})
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
     )
 
     assert response.status_code == 200
@@ -1019,11 +1078,11 @@ def test_delete_frequently_used_link(admin_client):
 @pytest.mark.django_db
 def test_footer_link_shown(admin_client):
     """Test custom footer link is displayed"""
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     FooterLink.objects.create(label=FOOTER_LINK_LABEL, url=FOOTER_LINK_URL)
 
     response: HttpResponse = admin_client.get(
-        reverse("simplified:case-detail", kwargs={"pk": case.id})
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
     )
 
     assert response.status_code == 200
@@ -1146,10 +1205,10 @@ def test_latest_statement_frequently_used_link(admin_client):
     Test latest accessibility statement link in frequently used links
     is displayed only when one has been entered.
     """
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("simplified:case-detail", kwargs={"pk": case.id})
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
     )
 
     assert response.status_code == 200
@@ -1157,11 +1216,11 @@ def test_latest_statement_frequently_used_link(admin_client):
     assertContains(response, "No accessibility statement URL")
     assertNotContains(response, "Latest accessibility statement")
 
-    audit: Audit = Audit.objects.create(case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     StatementPage.objects.create(audit=audit, url="https://example.com/statement")
 
     response: HttpResponse = admin_client.get(
-        reverse("simplified:case-detail", kwargs={"pk": case.id})
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
     )
 
     assert response.status_code == 200
@@ -1189,11 +1248,11 @@ def test_navbar_tasks_emboldened(admin_client, admin_user):
         html=True,
     )
 
-    case: Case = Case.objects.create(auditor=admin_user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=admin_user)
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
-        case=case,
+        base_case=simplified_case,
         user=admin_user,
     )
 
@@ -1226,8 +1285,8 @@ def test_page_name(url, expected_page_name, admin_client):
     Test that the page renders and problem page's url and name are populated
     as expected.
     """
-    case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
         f"/common/report-issue/?page_url={url}&page_title={expected_page_name}"
@@ -1242,9 +1301,9 @@ def test_page_name(url, expected_page_name, admin_client):
 
 def test_reference_implementations_page(admin_client):
     """Test that the reference implementation page renders"""
-    case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
-    Report.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
+    Report.objects.create(base_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
         reverse("common:reference-implementation")

@@ -8,7 +8,7 @@ import pytest
 from django.contrib.auth.models import User
 
 from ...common.models import Sector, SubCategory
-from ...simplified.models import SimplifiedCase
+from ...simplified.models import CaseStatus, SimplifiedCase
 from ..utils import filter_cases
 
 ORGANISATION_NAME: str = "Organisation name one"
@@ -201,9 +201,11 @@ def test_cases_ordered_to_put_unassigned_first():
     first_created: SimplifiedCase = SimplifiedCase.objects.create(
         organisation_name=ORGANISATION_NAME_ECNI, enforcement_body="ecni"
     )
+    CaseStatus.objects.create(simplified_case=first_created)
     second_created: SimplifiedCase = SimplifiedCase.objects.create(
         organisation_name=ORGANISATION_NAME_EHRC, enforcement_body="ehrc"
     )
+    CaseStatus.objects.create(simplified_case=second_created)
     form: MockForm = MockForm(cleaned_data={})
 
     filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
@@ -216,6 +218,7 @@ def test_cases_ordered_to_put_unassigned_first():
     )
     second_created.auditor = auditor
     second_created.save()
+    second_created.update_case_status()
 
     filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
 

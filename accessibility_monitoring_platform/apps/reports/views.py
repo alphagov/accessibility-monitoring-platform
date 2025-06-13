@@ -16,7 +16,10 @@ from django.views.generic.edit import UpdateView
 
 from ..common.views import HideCaseNavigationMixin
 from ..simplified.models import CaseEvent, SimplifiedCase
-from ..simplified.utils import record_model_create_event, record_model_update_event
+from ..simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from .forms import ReportWrapperUpdateForm
 from .models import Report, ReportVisitsMetrics, ReportWrapper
 from .utils import build_report_context, get_report_visits_metrics, publish_report_util
@@ -33,21 +36,27 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
-    if case.report:
+    simplified_case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
+    if simplified_case.report:
         return redirect(
-            reverse("simplified:edit-report-ready-for-qa", kwargs={"pk": case.id})
+            reverse(
+                "simplified:edit-report-ready-for-qa", kwargs={"pk": simplified_case.id}
+            )
         )
-    report: Report = Report.objects.create(base_case=case)
-    record_model_create_event(user=request.user, model_object=report, case=case)
+    report: Report = Report.objects.create(base_case=simplified_case)
+    record_simplified_model_create_event(
+        user=request.user, model_object=report, simplified_case=simplified_case
+    )
     CaseEvent.objects.create(
-        simplified_case=case,
+        simplified_case=simplified_case,
         done_by=request.user,
         event_type=CaseEvent.EventType.CREATE_REPORT,
         message="Created report",
     )
     return redirect(
-        reverse("simplified:edit-report-ready-for-qa", kwargs={"pk": case.id})
+        reverse(
+            "simplified:edit-report-ready-for-qa", kwargs={"pk": simplified_case.id}
+        )
     )
 
 
@@ -64,8 +73,10 @@ class ReportUpdateView(UpdateView):
         if form.changed_data:
             self.object: Report = form.save(commit=False)
             self.object.created_by = self.request.user
-            record_model_update_event(
-                user=self.request.user, model_object=self.object, case=self.object.case
+            record_simplified_model_update_event(
+                user=self.request.user,
+                model_object=self.object,
+                simplified_case=self.object.case,
             )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())

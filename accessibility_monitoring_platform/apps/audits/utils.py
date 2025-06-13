@@ -13,7 +13,10 @@ from django.utils import timezone
 
 from ..common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ..common.utils import list_to_dictionary_of_lists
-from ..simplified.utils import record_model_create_event, record_model_update_event
+from ..simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from .forms import CheckResultForm
 from .models import (
     Audit,
@@ -96,10 +99,10 @@ def create_or_update_check_results_for_page(
             ):
                 check_result.check_result_state = check_result_state
                 check_result.notes = notes
-                record_model_update_event(
+                record_simplified_model_update_event(
                     user=user,
                     model_object=check_result,
-                    case=check_result.audit.simplified_case,
+                    simplified_case=check_result.audit.simplified_case,
                 )
                 add_to_check_result_notes_history(check_result=check_result, user=user)
                 report_data_updated(audit=check_result.audit)
@@ -113,10 +116,10 @@ def create_or_update_check_results_for_page(
                 check_result_state=check_result_state,
                 notes=notes,
             )
-            record_model_create_event(
+            record_simplified_model_create_event(
                 user=user,
                 model_object=check_result,
-                case=check_result.audit.simplified_case,
+                simplified_case=check_result.audit.simplified_case,
             )
             add_to_check_result_notes_history(
                 check_result=check_result, user=user, new_check_result=True

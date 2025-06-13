@@ -14,7 +14,10 @@ from django_otp.plugins.otp_email.models import EmailDevice
 from ..common.models import Boolean
 from ..common.utils import checks_if_2fa_is_enabled
 from ..notifications.models import NotificationSetting
-from ..simplified.utils import record_model_create_event, record_model_update_event
+from ..simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from .forms import UserCreateForm, UserUpdateForm
 
 
@@ -51,7 +54,7 @@ class UserCreateView(CreateView):
         NotificationSetting.objects.create(user=user)
 
         login(self.request, user, backend="django.contrib.auth.backends.ModelBackend")
-        record_model_create_event(user=self.request.user, model_object=user)
+        record_simplified_model_create_event(user=self.request.user, model_object=user)
         return HttpResponseRedirect(reverse("dashboard:home"))
 
 
@@ -94,7 +97,7 @@ class UserUpdateView(SameUserTestMixin, UpdateView):
 
         user.first_name = form.cleaned_data["first_name"]
         user.last_name = form.cleaned_data["last_name"]
-        record_model_update_event(user=self.request.user, model_object=user)
+        record_simplified_model_update_event(user=self.request.user, model_object=user)
         user.save()
 
         notification_setting: NotificationSetting = NotificationSetting.objects.get(

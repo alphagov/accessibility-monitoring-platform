@@ -13,19 +13,19 @@ def populate_base_case(apps, schema_editor):
             f"{count}: Migrating ExportCase Case number {simplified_case.case_number}"
         )
         for export_case in ExportCase.objects.filter(case_id=simplified_case.case_id):
-            export_case.base_case_id = simplified_case.basecase_ptr
+            export_case.simplified_case_id = simplified_case.id
             export_case.save()
 
 
 def reverse_code(apps, schema_editor):
     ExportCase = apps.get_model("exports", "ExportCase")
-    ExportCase.objects.all().update(base_case_id=None)
+    ExportCase.objects.all().update(simplified_case_id=None)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("exports", "0002_exportcase_base_case"),
+        ("exports", "0002_exportcase_simplified_case"),
         ("simplified", "0003_populate_simplified_cases"),
     ]
 

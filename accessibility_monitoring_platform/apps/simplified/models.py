@@ -379,7 +379,6 @@ class SimplifiedCase(BaseCase):
         return f"{self.organisation_name} | {self.case_identifier}"
 
     def save(self, *args, **kwargs) -> None:
-        new_case: bool = not self.id
         now: datetime = timezone.now()
         if (
             self.case_completed != SimplifiedCase.CaseCompleted.NO_DECISION
@@ -388,11 +387,6 @@ class SimplifiedCase(BaseCase):
             self.completed_date = now
         self.qa_status = self.calulate_qa_status()
         super().save(*args, **kwargs)
-        if new_case:
-            CaseCompliance.objects.create(simplified_case=self)
-            CaseStatus.objects.create(simplified_case=self)
-        else:
-            self.casestatus.calculate_and_save_status()
 
     @property
     def formatted_home_page_url(self) -> str:
@@ -473,7 +467,9 @@ class SimplifiedCase(BaseCase):
 
     @property
     def qa_comments(self):
-        return self.comment_basecase.filter(hidden=False).order_by("-created_date")
+        return self.comment_simplifiedcase.filter(hidden=False).order_by(
+            "-created_date"
+        )
 
     @property
     def qa_comments_count(self):
@@ -737,7 +733,7 @@ class SimplifiedCase(BaseCase):
             for check_result in self.audit.checkresult_audit.all():
                 updated_times.append(check_result.updated)
 
-        for comment in self.comment_basecase.all():
+        for comment in self.comment_simplifiedcase.all():
             updated_times.append(comment.created_date)
             updated_times.append(comment.updated)
 
@@ -1054,6 +1050,16 @@ class SimplifiedCase(BaseCase):
             url=reverse("simplified:case-detail", kwargs=kwargs_case_pk),
         )
 
+    def update_case_status(self):
+        if hasattr(self, "casestatus"):
+            status: str = self.casestatus.calculate_status()
+            if self.status != status:
+                self.status = status
+                self.save()
+            if self.casestatus.status != status:
+                self.casestatus.status = status
+                self.casestatus.save()
+
 
 class CaseStatus(models.Model):
     """
@@ -1107,19 +1113,8 @@ class CaseStatus(models.Model):
     class Meta:
         verbose_name_plural = "Case statuses"
 
-    def save(self, *args, **kwargs) -> None:
-        self.status = self.calculate_status()
-        if self.status != self.simplified_case.status:
-            self.simplified_case.status = self.status
-            self.simplified_case.save()
-        super().save(*args, **kwargs)
-
     def __str__(self) -> str:
         return self.status
-
-    def calculate_and_save_status(self) -> None:
-        self.status = self.calculate_status()
-        self.save()
 
     def calculate_status(self) -> str:  # noqa: C901
         try:
@@ -1161,8 +1156,8 @@ class CaseStatus(models.Model):
             or compliance.website_compliance_state_initial
             == CaseCompliance.WebsiteCompliance.UNKNOWN
             or bool(
-                self.base_case.statement_checks_still_initial
-                and self.base_case.compliance.statement_compliance_state_initial
+                self.simplified_case.statement_checks_still_initial
+                and self.simplified_case.compliance.statement_compliance_state_initial
                 == CaseCompliance.StatementCompliance.UNKNOWN
             )
         ):
