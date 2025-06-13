@@ -1,4 +1,4 @@
-""" Common utility functions """
+"""Common utility functions"""
 
 from dataclasses import dataclass
 from datetime import date
@@ -82,6 +82,8 @@ def extract_form_labels_and_values(  # noqa: C901
 ) -> list[FieldLabelAndValue]:
     """Extract field labels from form and values from case for use in html rows"""
     display_rows: list[FieldLabelAndValue] = []
+    if instance is None:
+        return []
     if excluded_fields is None:
         excluded_fields = []
     for field_name, field in form.fields.items():

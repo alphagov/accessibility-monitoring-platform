@@ -7,8 +7,8 @@
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
-            {% if sitemap.current_platform_page.platform_page_group_name %}
-                <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group_name }}</li>
+            {% if sitemap.current_platform_page.platform_page_group.name %}
+                <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group.name }}</li>
             {% endif %}
             <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>

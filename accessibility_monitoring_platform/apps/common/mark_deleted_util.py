@@ -3,7 +3,7 @@
 from django.http import HttpRequest
 from django.http.request import QueryDict
 
-from ..cases.utils import record_model_update_event
+from ..simplified.utils import record_simplified_model_update_event
 
 
 def get_id_from_button_name(
@@ -35,5 +35,7 @@ def mark_object_as_deleted(
     if object_id_to_delete is not None:
         object_to_delete = object_to_delete_model.objects.get(id=object_id_to_delete)
         object_to_delete.is_deleted = True
-        record_model_update_event(user=request.user, model_object=object_to_delete)
+        record_simplified_model_update_event(
+            user=request.user, model_object=object_to_delete
+        )
         object_to_delete.save()

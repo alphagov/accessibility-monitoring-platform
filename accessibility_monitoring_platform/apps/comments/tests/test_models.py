@@ -15,7 +15,7 @@ from ...audits.models import (
     StatementCheckResult,
     WcagDefinition,
 )
-from ...cases.models import Case
+from ...simplified.models import SimplifiedCase
 from ..models import (
     Comment,
     get_initial_check_result_url_from_issue_identifier,
@@ -28,8 +28,8 @@ DATETIME_COMMENT_UPDATED: datetime = datetime(2021, 9, 26, tzinfo=timezone.utc)
 @pytest.mark.django_db
 def test_comment_updated_updated():
     """Test the comment updated field is updated"""
-    case: Case = Case.objects.create()
-    comment: Comment = Comment.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    comment: Comment = Comment.objects.create(simplified_case=simplified_case)
 
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_UPDATED)
@@ -45,9 +45,13 @@ def test_body_html_with_issue_identifier_links_no_matching_issues():
     Test the comment body_html_with_issue_identifier_links does not change issue
     identifiers with no matching issues.
     """
-    case: Case = Case.objects.create()
-    body: str = f"{case.case_number}-A-1 {case.case_number}-S-1 {case.case_number}-SC-1"
-    comment: Comment = Comment.objects.create(case=case, body=body)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    body: str = (
+        f"{simplified_case.case_number}-A-1 {simplified_case.case_number}-S-1 {simplified_case.case_number}-SC-1"
+    )
+    comment: Comment = Comment.objects.create(
+        simplified_case=simplified_case, body=body
+    )
 
     assert comment.body_html_with_issue_identifier_links == f"<p>{body}</p>"
 
@@ -58,8 +62,8 @@ def test_body_html_with_issue_identifier_links_matching_check_result():
     Test the comment body_html_with_issue_identifier_links converts issue identifier
     to link to initial check result page for matching issue.
     """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit, url="https://example.com")
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name="WCAG definition"
@@ -71,9 +75,11 @@ def test_body_html_with_issue_identifier_links_matching_check_result():
         wcag_definition=wcag_definition,
     )
     body: str = (
-        f"{check_result.issue_identifier} {case.case_number}-S-2 {case.case_number}-SC-2"
+        f"{check_result.issue_identifier} {simplified_case.case_number}-S-2 {simplified_case.case_number}-SC-2"
     )
-    comment: Comment = Comment.objects.create(case=case, body=body)
+    comment: Comment = Comment.objects.create(
+        simplified_case=simplified_case, body=body
+    )
 
     assert (
         comment.body_html_with_issue_identifier_links
@@ -87,8 +93,8 @@ def test_body_html_with_issue_identifier_links_longer_issue_identifier():
     Test the comment body_html_with_issue_identifier_links does not convert longer issue
     identifier to link.
     """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit, url="https://example.com")
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name="WCAG definition"
@@ -100,7 +106,9 @@ def test_body_html_with_issue_identifier_links_longer_issue_identifier():
         wcag_definition=wcag_definition,
     )
     body: str = f"{check_result.issue_identifier} {check_result.issue_identifier}1"
-    comment: Comment = Comment.objects.create(case=case, body=body)
+    comment: Comment = Comment.objects.create(
+        simplified_case=simplified_case, body=body
+    )
 
     assert (
         comment.body_html_with_issue_identifier_links
@@ -114,8 +122,8 @@ def test_body_html_with_issue_identifier_links_matching_statement_check_result()
     Test the comment body_html_with_issue_identifier_links converts issue identifier
     to link to initial statement check result page for matching issue.
     """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     statement_check: StatementCheck = StatementCheck.objects.all().first()
     statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit,
@@ -123,9 +131,11 @@ def test_body_html_with_issue_identifier_links_matching_statement_check_result()
         statement_check=statement_check,
     )
     body: str = (
-        f"{case.case_number}-A-2 {statement_check_result.issue_identifier} {case.case_number}-SC-2"
+        f"{simplified_case.case_number}-A-2 {statement_check_result.issue_identifier} {simplified_case.case_number}-SC-2"
     )
-    comment: Comment = Comment.objects.create(case=case, body=body)
+    comment: Comment = Comment.objects.create(
+        simplified_case=simplified_case, body=body
+    )
 
     assert (
         comment.body_html_with_issue_identifier_links
@@ -139,15 +149,17 @@ def test_body_html_with_issue_identifier_links_matching_custom_statement_check_r
     Test the comment body_html_with_issue_identifier_links converts issue identifier
     to link to initial custom statement check result page for matching issue.
     """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit,
     )
     body: str = (
-        f"{case.case_number}-A-2 {case.case_number}-S-2 {statement_check_result.issue_identifier}"
+        f"{simplified_case.case_number}-A-2 {simplified_case.case_number}-S-2 {statement_check_result.issue_identifier}"
     )
-    comment: Comment = Comment.objects.create(case=case, body=body)
+    comment: Comment = Comment.objects.create(
+        simplified_case=simplified_case, body=body
+    )
 
     assert (
         comment.body_html_with_issue_identifier_links
@@ -158,8 +170,8 @@ def test_body_html_with_issue_identifier_links_matching_custom_statement_check_r
 @pytest.mark.django_db
 def test_get_initial_check_result_url_from_issue_identifier():
     """Test expected check result url found from issue identifier"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit, url="https://example.com")
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name="WCAG definition"
@@ -182,8 +194,8 @@ def test_get_initial_check_result_url_from_issue_identifier():
 @pytest.mark.django_db
 def test_get_initial_statement_check_result_url_from_issue_identifier():
     """Test expected statement check result url found from issue identifier"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     for statement_check_type in StatementCheck.Type:
         if statement_check_type == StatementCheck.Type.TWELVE_WEEK:
             continue  # Issues added at 12-weeks don't appear in initial results

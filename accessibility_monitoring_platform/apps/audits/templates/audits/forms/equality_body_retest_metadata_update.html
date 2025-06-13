@@ -8,19 +8,19 @@
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=retest.case %}
+            {% include 'common/case_banner.html' with case=retest.simplified_case %}
         </div>
     </div>
     {% include 'audits/helpers/retest_breadcrumb.html' with page_heading=sitemap.current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with retest_header=True %}
+                {% include "simplified/helpers/edit_header.html" with retest_header=True %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:retest-metadata-update' %}
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-grid-row">
@@ -32,7 +32,7 @@
                                     <a href="{% url 'audits:retest-metadata-update' retest.previous_retest.id %}" class="govuk-link govuk-link--no-visited-state">
                                         {{ retest.previous_retest }}</a>.
                                 {% else %}
-                                    <a href="{% url 'audits:edit-audit-retest-metadata' retest.case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    <a href="{% url 'audits:edit-audit-retest-metadata' retest.simplified_case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
                                         12-week retest</a>.
                                 {% endif %}
                             </p>
@@ -50,21 +50,21 @@
                             {% include 'common/amp_field.html' with field=form.retest_notes %}
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date of test (initial test)</b></label>
-                                <div class="govuk-hint">{{ retest.case.audit.date_of_test|amp_date }}</div>
+                                <div class="govuk-hint">{{ retest.simplified_case.audit.date_of_test|amp_date }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Screen size (initial test)</b></label>
-                                <div class="govuk-hint">{{ retest.case.audit.get_screen_size_display }}</div>
+                                <div class="govuk-hint">{{ retest.simplified_case.audit.get_screen_size_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Exemptions (initial test)</b></label>
-                                <div class="govuk-hint">{{ retest.case.audit.get_exemptions_state_display }}</div>
+                                <div class="govuk-hint">{{ retest.simplified_case.audit.get_exemptions_state_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Notes (initial test)</b></label>
                                 <div class="govuk-hint amp-notes">
-                                    {% if retest.case.audit.exemptions_notes %}
-                                        {{ retest.case.audit.exemptions_notes|markdown_to_html }}
+                                    {% if retest.simplified_case.audit.exemptions_notes %}
+                                        {{ retest.simplified_case.audit.exemptions_notes|markdown_to_html }}
                                     {% else %}
                                         None
                                     {% endif %}
@@ -72,13 +72,13 @@
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date of retest (12-week retest)</b></label>
-                                <div class="govuk-hint">{{ retest.case.audit.date_of_test|amp_date }}</div>
+                                <div class="govuk-hint">{{ retest.simplified_case.audit.date_of_test|amp_date }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Notes (12-week retest)</b></label>
                                 <div class="govuk-hint amp-notes">
-                                    {% if retest.case.audit.audit_retest_metadata_notes %}
-                                        {{ retest.case.audit.audit_retest_metadata_notes|markdown_to_html }}
+                                    {% if retest.simplified_case.audit.audit_retest_metadata_notes %}
+                                        {{ retest.simplified_case.audit.audit_retest_metadata_notes|markdown_to_html }}
                                     {% else %}
                                         None
                                     {% endif %}
@@ -102,7 +102,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'cases:edit-retest-overview' retest.case.id %}"
+                                href="{% url 'simplified:edit-retest-overview' retest.simplified_case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel and return to retest overview

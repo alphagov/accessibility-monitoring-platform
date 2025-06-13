@@ -17,7 +17,7 @@
                         {{ case.created|amp_date_trunc }}
                     </th>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        <a href="{% url 'cases:edit-qa-auditor' case.id %}" class="govuk-link">
+                        <a href="{% url 'simplified:edit-qa-auditor' case.id %}" class="govuk-link">
                             {{ case.organisation_name|truncatechars:25 }}</a>
                     </td>
                     <td class="govuk-table__cell amp-width-one-quarter">{{ case.get_qa_status_display }}</td>

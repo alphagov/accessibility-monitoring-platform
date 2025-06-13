@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}{{ case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/case_banner.html' %}
+        </div>
+    </div>
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group.name }}</li>
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-button-group">
+                    <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">{{ sitemap.current_platform_page.get_name }}</h1>
+                    {% if case.enforcement_body_pursuing == 'yes-completed' %}
+                        <strong class="govuk-tag">
+                            Completed
+                        </strong>
+                    {% endif %}
+                </div>
+            </div>
+            {% if not case.archive %}
+            <div class="govuk-grid-column-one-third">
+                <div class="govuk-button-group amp-flex-end">
+                    {% if case.is_deactivated %}
+                        <a
+                            href="{% url 'simplified:reactivate-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-link govuk-link--no-visited-state"
+                            data-module="govuk-button"
+                        >
+                            Reactivate case
+                        </a>
+                    {% else %}
+                        <a
+                            href="{% url 'simplified:deactivate-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-link govuk-link--no-visited-state"
+                            data-module="govuk-button"
+                        >
+                            Deactivate case
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% include 'common/messages.html' %}
+        {% include 'simplified/details/case_detail_notifications.html' %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                {% if not case.archive %}
+                    {% include 'simplified/details/search_in_case.html' %}
+                    <hr class="amp-width-100 amp-margin-bottom-30" />
+                {% endif %}
+                {% include 'simplified/helpers/case_nav.html' with case_nav_type='simplified_case_nav' %}
+            </div>
+            <div class="govuk-grid-column-one-half">
+                <div class="amp-margin-bottom-30">
+                    {% include 'simplified/helpers/overview.html' %}
+                </div>
+            </div>
+        </div>
+        <div id="search-scope" data-search-target-page-name="{{ sitemap.current_platform_page.get_name }}" data-search-target-label="{{ sitemap.current_platform_page.get_name }}" data-search-target-url="{{ case.get_absolute_url }}" class="amp-hide">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <hr class="amp-width-100 amp-margin-bottom-30" />
+                    {% if case.archive %}
+                        {% include 'simplified/details/archive.html' %}
+                    {% endif %}
+                    {% for case_detail_section in case_detail_sections %}
+                        {% for case_detail_page in case_detail_section.pages %}
+                            {% include case_detail_page.page.case_details_template_name %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+{% if not case.archive %}
+    <script src="{% static 'js/cases_search_in_case.js' %}"></script>
+{% endif %}
+{% endblock %}

@@ -263,7 +263,7 @@ def test_reminder_task_create(admin_client):
 
     assert reminder_task.description == DESCRIPTION
     assert response.url == reverse(
-        "cases:case-detail", kwargs={"pk": reminder_task.case.id}
+        "simplified:case-detail", kwargs={"pk": reminder_task.base_case.id}
     )
 
 
@@ -355,7 +355,7 @@ def test_reminder_task_create_redirects_to_case(rf):
     response: HttpResponse = ReminderTaskCreateView.as_view()(request, case_id=case.id)
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs={"pk": case.id})
+    assert response.url == reverse("simplified:case-detail", kwargs={"pk": case.id})
 
     task: Task = Task.objects.all().first()
 
@@ -444,7 +444,7 @@ def test_reminder_task_delete_redirects_to_create(rf):
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "notifications:reminder-create", kwargs={"case_id": task.case.id}
+        "notifications:reminder-create", kwargs={"case_id": task.base_case.id}
     )
 
     task_from_db: Task = Task.objects.get(id=task.id)

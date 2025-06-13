@@ -23,6 +23,10 @@ LOG_LEVEL_CHOICES: list[tuple[int, str]] = [
     (logging.ERROR, "Error"),
     (logging.CRITICAL, "Critical"),
 ]
+IMPORT_MODEL_CHOICES: list[tuple[int, str]] = [
+    ("detailed", "Detailed testing case"),
+    ("mobile", "Mobile testing case"),
+]
 
 logger = logging.getLogger(__name__)
 
@@ -155,6 +159,18 @@ class AMPDateWidget(forms.MultiWidget):
         if day == "" and month == "" and year == "":
             return ""
         return f"{year}-{month}-{day}"
+
+
+class AMPIntegerField(forms.IntegerField):
+    """Number input field in the style of GDS design system"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.NumberInput(attrs={"class": "govuk-input govuk-input--width-10"}),
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPCharField(forms.CharField):
@@ -498,3 +514,8 @@ FooterLinkOneExtraFormset: Any = forms.modelformset_factory(
 
 class BulkURLSearchForm(forms.Form):
     urls = AMPTextField(label="URLs")
+
+
+class ImportCSVForm(forms.Form):
+    model = AMPChoiceField(label="Model", choices=IMPORT_MODEL_CHOICES)
+    data = AMPTextField(label="CSV data")

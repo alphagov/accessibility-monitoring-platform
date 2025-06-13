@@ -1,6 +1,7 @@
 """
 S3 readwrite utilities
 """
+
 import re
 import uuid
 
@@ -8,7 +9,7 @@ import boto3
 from django.contrib.auth.models import User
 
 from ...settings.base import DATABASES, DEBUG, S3_MOCK_ENDPOINT, UNDER_TEST
-from ..cases.models import Case
+from ..cases.models import BaseCase
 from .models import S3Report
 
 NO_REPORT_HTML: str = "<p>Does not exist</p>"
@@ -48,19 +49,19 @@ class S3ReadWriteReport:
     def upload_string_to_s3_as_html(
         self,
         html_content: str,
-        case: Case,
+        base_case: BaseCase,
         user: User,
         report_version: str,
     ) -> str:
         version = 1
-        if S3Report.objects.filter(case=case).exists():
-            version = len(S3Report.objects.filter(case=case)) + 1
+        if S3Report.objects.filter(base_case=base_case).exists():
+            version = len(S3Report.objects.filter(base_case=base_case)) + 1
 
         guid: str = str(uuid.uuid4())
 
         s3_url_for_report: str = self.url_builder(
-            organisation_name=case.organisation_name,
-            case_id=case.id,
+            organisation_name=base_case.organisation_name,
+            case_id=base_case.id,
             version=version,
             report_version=report_version,
             guid=guid,
@@ -73,7 +74,7 @@ class S3ReadWriteReport:
         )
 
         s3report = S3Report(
-            case=case,
+            base_case=base_case,
             created_by=user,
             s3_directory=s3_url_for_report,
             version=version,

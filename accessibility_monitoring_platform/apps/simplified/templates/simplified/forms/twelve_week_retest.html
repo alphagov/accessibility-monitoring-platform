@@ -1,0 +1,50 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% if not case.audit %}
+                <p class="govuk-body">
+                    This case does not have a test. Start test in
+                    <a
+                        href="{% url 'simplified:edit-test-results' case.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
+                        testing details</a>.
+                </p>
+            {% elif case.audit.retest_date %}
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'audits:edit-audit-retest-metadata' case.audit.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        View retest
+                    </a>
+                </div>
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                        {% include 'simplified/helpers/twelve_week_retest.html' %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="govuk-body">
+                    This case does not have a retest. Click Start retest to move to the testing environment.
+                </p>
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'audits:audit-retest-start' case.audit.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Start retest
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

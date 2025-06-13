@@ -1,0 +1,28 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h3 id="id_go_back" class="govuk-heading-s">Search</h3>
+        <p class="govuk-body">
+            Search elements in current page.
+            Include <code class="amp-code">common/amp_search_widget.html</code> template.
+            Wrap elements containing searchable text with ones with <code class="amp-code">class="amp-searchable"</code>.
+            Example:
+        </p>
+    </div>
+</div>
+<div class="govuk-grid-row amp-margin-bottom-30">
+    <div class="govuk-grid-column-one-third">
+        {% include 'common/amp_search_widget.html' with search_label='Search names' %}
+        <div class="amp-searchable"><p class="govuk-body">Alice Smith</p></div>
+        <div class="amp-searchable"><p class="govuk-body">Bob Smith</p></div>
+        <div class="amp-searchable"><p class="govuk-body">Carol Jones</p></div>
+        <script src="/static/js/search_page.js"></script>
+    </div>
+    <div class="govuk-grid-column-two-thirds">
+        <code class="amp-code">
+&#x007B% include 'common/amp_search_widget.html' with search_label='Search names' %}
+&lt;div class="amp-searchable">&lt;p class="govuk-body">Alice Smith&lt;/p>&lt;/div>
+&lt;div class="amp-searchable">&lt;p class="govuk-body">Bob Smith&lt;/p>&lt;/div>
+&lt;div class="amp-searchable">&lt;p class="govuk-body">Carol Jones&lt;/p>&lt;/div>
+&lt;script src="/static/js/search_page.js">&lt;/script></code>
+    </div>
+</div>

@@ -865,6 +865,12 @@ svg {
     background-color: govuk-colour("yellow");
 }
 
+.amp-todo {
+    padding: 2px;
+    color: govuk-colour("white");
+    background-color: govuk-colour("red");
+}
+
 .amp-new-window {
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==)
          no-repeat center;
@@ -907,7 +913,7 @@ svg {
     display: inline-block;
     margin-right: 16px;
     margin-bottom: 16px;
-    font-family: HelveticaNeue, "Helvetica Neue", Arial, Helvetica, sans-serif !important; 
+    font-family: HelveticaNeue, "Helvetica Neue", Arial, Helvetica, sans-serif !important;
     font-weight: 400;
     font-size: 1.1875rem;
     line-height: 1.3157894737;
@@ -926,7 +932,7 @@ svg {
     display: inline-block;
     margin-right: 16px;
     margin-bottom: 16px;
-    font-family: HelveticaNeue, "Helvetica Neue", Arial, Helvetica, sans-serif !important; 
+    font-family: HelveticaNeue, "Helvetica Neue", Arial, Helvetica, sans-serif !important;
     font-weight: 400;
     font-size: 1.1875rem;
     line-height: 1.3157894737;
