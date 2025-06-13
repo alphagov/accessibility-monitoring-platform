@@ -6,7 +6,7 @@ def test_root_redirect(client):
     response = client.get("/")
 
     assert response.status_code == 302
-    assert response.url == "https://www.accessibility-monitoring.service.gov.uk/"
+    assert response.url == "https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring/"
 
 
 def test_healthcheck_url_works(client):

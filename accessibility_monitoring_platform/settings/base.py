@@ -172,7 +172,7 @@ elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
         "bucket_name": bucket_name,
         "aws_access_key_id": None,
         "aws_secret_access_key": None,
-        "aws_region": None,
+        "aws_region": "us-east-1",
     }
 
 
@@ -302,6 +302,10 @@ if AWS_PROTOTYPE_FILE.exists() and UNDER_TEST is False:
     AMP_PROTOTYPE_NAME = aws_prototype_data["prototype_name"]
     AMP_PROTOCOL: str = aws_prototype_data["amp_protocol"]
     AMP_VIEWER_DOMAIN: str = aws_prototype_data["viewer_domain"]
+elif DEBUG:
+    AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
+    AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
+    AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "127.0.0.1:8082")
 else:
     AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
     AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
