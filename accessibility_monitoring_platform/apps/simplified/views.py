@@ -38,8 +38,8 @@ from ..exports.csv_export_utils import (
     EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
     EqualityBodyCSVColumn,
-    download_cases,
     download_feedback_survey_cases,
+    download_simplified_cases,
     populate_equality_body_columns,
 )
 from ..notifications.models import Task
@@ -744,25 +744,25 @@ class CaseCloseUpdateView(CaseUpdateView):
         simplified_case: SimplifiedCase = self.object
         equality_body_metadata_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                case=simplified_case,
+                simplified_case=simplified_case,
                 column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_report_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                case=simplified_case,
+                simplified_case=simplified_case,
                 column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_correspondence_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                case=simplified_case,
+                simplified_case=simplified_case,
                 column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_test_summary_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                case=simplified_case,
+                simplified_case=simplified_case,
                 column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
             )
         )
@@ -881,7 +881,9 @@ def export_cases(request: HttpRequest) -> HttpResponse:
         replace_search_key_with_case_search(request.GET)
     )
     case_search_form.is_valid()
-    return download_cases(cases=filter_cases(form=case_search_form))
+    return download_simplified_cases(
+        simplified_cases=filter_cases(form=case_search_form)
+    )
 
 
 def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:
@@ -1223,7 +1225,9 @@ class CaseEmailTemplatePreviewDetailView(
         simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
-        extra_context: dict[str, Any] = get_email_template_context(case=simplified_case)
+        extra_context: dict[str, Any] = get_email_template_context(
+            simplified_case=simplified_case
+        )
         context["email_template_name"] = (
             f"common/emails/templates/{self.object.template_name}.html"
         )

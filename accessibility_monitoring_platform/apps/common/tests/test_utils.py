@@ -16,7 +16,7 @@ from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from ...simplified.models import Case, Contact
+from ...simplified.models import Contact, SimplifiedCase
 from ..mark_deleted_util import get_id_from_button_name, mark_object_as_deleted
 from ..models import ChangeToPlatform, Platform
 from ..utils import (
@@ -149,8 +149,8 @@ def test_get_id_from_button_name():
 def test_mark_object_as_deleted():
     """Tests that object is marked as deleted"""
     delete_button_prefix = "delete_button_prefix_"
-    case: Case = Case.objects.create()
-    contact: Contact = Contact.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    contact: Contact = Contact.objects.create(simplified_case=simplified_case)
     user: User = User.objects.create()
     mock_request: MockRequest = MockRequest(
         button=f"{delete_button_prefix}{contact.id}",

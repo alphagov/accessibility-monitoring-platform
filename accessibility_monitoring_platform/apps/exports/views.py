@@ -117,7 +117,9 @@ class ExportCaseAsEmailDetailView(HideCaseNavigationMixin, DetailView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add field values into context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["export_columns"] = populate_equality_body_columns(case=self.object)
+        context["export_columns"] = populate_equality_body_columns(
+            simplified_case=self.object
+        )
         context["export"] = get_object_or_404(Export, pk=self.kwargs["export_id"])
         return context
 

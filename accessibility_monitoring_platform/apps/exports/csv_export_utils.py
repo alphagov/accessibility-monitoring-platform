@@ -336,7 +336,9 @@ CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(
         column_header="Date created", source_class=SimplifiedCase, source_attr="created"
     ),
-    CSVColumn(column_header="Status", source_class=CaseStatus, source_attr="status"),
+    CSVColumn(
+        column_header="Status", source_class=SimplifiedCase, source_attr="status"
+    ),
     CSVColumn(
         column_header="Auditor", source_class=SimplifiedCase, source_attr="auditor"
     ),
@@ -851,18 +853,18 @@ def format_model_field(
 
 
 def populate_equality_body_columns(
-    case: SimplifiedCase,
+    simplified_case: SimplifiedCase,
     column_definitions: list[CSVColumn] = EQUALITY_BODY_COLUMNS_FOR_EXPORT,
 ) -> list[EqualityBodyCSVColumn]:
     """
     Collect data for a case to export to the equality body
     """
-    contact_details: str = format_contacts(contacts=case.contacts)
+    contact_details: str = format_contacts(contacts=simplified_case.contacts)
     source_instances: dict = {
-        SimplifiedCase: case,
-        Audit: case.audit,
-        CaseCompliance: case.compliance,
-        Report: case.report,
+        SimplifiedCase: simplified_case,
+        Audit: simplified_case.audit,
+        CaseCompliance: simplified_case.compliance,
+        Report: simplified_case.report,
     }
     columns: list[EqualityBodyCSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
@@ -876,7 +878,7 @@ def populate_equality_body_columns(
             column.formatted_data = contact_details
         elif column.column_header == ORGANISATION_RESPONDED_COLUMN_HEADER:
             column.formatted_data = format_field_as_yes_no(
-                source_instance=case, column=column
+                source_instance=simplified_case, column=column
             )
         else:
             column.formatted_data = format_model_field(
@@ -892,16 +894,16 @@ def populate_equality_body_columns(
 
 
 def populate_csv_columns(
-    case: SimplifiedCase, column_definitions: list[CSVColumn]
+    simplified_case: SimplifiedCase, column_definitions: list[CSVColumn]
 ) -> list[CSVColumn]:
     """
     Collect data for a case to export
     """
     source_instances: dict = {
-        SimplifiedCase: case,
-        CaseCompliance: case.compliance,
-        CaseStatus: case.status,
-        Contact: case.contact_set.filter(is_deleted=False).first(),
+        SimplifiedCase: simplified_case,
+        CaseCompliance: simplified_case.compliance,
+        CaseStatus: simplified_case.status,
+        Contact: simplified_case.contact_set.filter(is_deleted=False).first(),
     }
     columns: list[CSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
@@ -935,11 +937,11 @@ def csv_output_generator(
     for counter, case in enumerate(cases):
         if equality_body_csv is True:
             case_columns: list[EqualityBodyCSVColumn] = populate_equality_body_columns(
-                case=case
+                simplified_case=case
             )
         else:
             case_columns: list[CSVColumn] = populate_csv_columns(
-                case=case, column_definitions=columns_for_export
+                simplified_case=case, column_definitions=columns_for_export
             )
         row = [column.formatted_data for column in case_columns]
         output += writer.writerow(row)
@@ -967,13 +969,15 @@ def download_equality_body_cases(
     return response
 
 
-def download_cases(
-    cases: QuerySet[SimplifiedCase], filename: str = "cases.csv"
+def download_simplified_cases(
+    simplified_cases: QuerySet[SimplifiedCase], filename: str = "cases.csv"
 ) -> StreamingHttpResponse:
     """Given a Case queryset, download the data in csv format"""
 
     response = StreamingHttpResponse(
-        csv_output_generator(cases=cases, columns_for_export=CASE_COLUMNS_FOR_EXPORT),
+        csv_output_generator(
+            cases=simplified_cases, columns_for_export=CASE_COLUMNS_FOR_EXPORT
+        ),
         content_type="text/csv",
     )
     response["Content-Disposition"] = f"attachment; filename={filename}"

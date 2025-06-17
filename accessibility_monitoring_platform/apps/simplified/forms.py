@@ -830,9 +830,9 @@ class CaseCloseUpdateForm(VersionForm):
     def clean(self):
         case_completed: str = self.cleaned_data["case_completed"]
         if case_completed == SimplifiedCase.CaseCompleted.COMPLETE_SEND:
-            case: SimplifiedCase = self.instance
+            simplified_case: SimplifiedCase = self.instance
             equality_body_columns: list[EqualityBodyCSVColumn] = (
-                populate_equality_body_columns(case=case)
+                populate_equality_body_columns(simplified_case=simplified_case)
             )
             required_data_missing_columns: list[EqualityBodyCSVColumn] = [
                 column

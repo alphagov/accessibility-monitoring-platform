@@ -11,7 +11,7 @@ import pytest
 from django.http import HttpResponse, StreamingHttpResponse
 
 from ...audits.models import Audit
-from ...simplified.models import Case, Contact
+from ...simplified.models import CaseCompliance, CaseStatus, Contact, SimplifiedCase
 from ..csv_export_utils import (
     CASE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_COLUMNS_FOR_EXPORT,
@@ -19,9 +19,9 @@ from ..csv_export_utils import (
     CSVColumn,
     EqualityBodyCSVColumn,
     csv_output_generator,
-    download_cases,
     download_equality_body_cases,
     download_feedback_survey_cases,
+    download_simplified_cases,
     format_contacts,
     format_field_as_yes_no,
     format_model_field,
@@ -95,7 +95,9 @@ def test_format_case_field_with_no_data():
     assert (
         format_model_field(
             source_instance=None,
-            column=CSVColumn(column_header="A", source_class=Case, source_attr="a"),
+            column=CSVColumn(
+                column_header="A", source_class=SimplifiedCase, source_attr="a"
+            ),
         )
         == ""
     )
@@ -106,7 +108,9 @@ def test_format_case_field_with_no_data():
     [
         (
             CSVColumn(
-                column_header="Test type", source_class=Case, source_attr="test_type"
+                column_header="Test type",
+                source_class=SimplifiedCase,
+                source_attr="test_type",
             ),
             "simplified",
             "Simplified",
@@ -114,7 +118,7 @@ def test_format_case_field_with_no_data():
         (
             CSVColumn(
                 column_header="Report sent on",
-                source_class=Case,
+                source_class=SimplifiedCase,
                 source_attr="report_sent_date",
             ),
             date(2020, 12, 31),
@@ -123,7 +127,7 @@ def test_format_case_field_with_no_data():
         (
             CSVColumn(
                 column_header="Enforcement recommendation",
-                source_class=Case,
+                source_class=SimplifiedCase,
                 source_attr="recommendation_for_enforcement",
             ),
             "no-further-action",
@@ -132,7 +136,7 @@ def test_format_case_field_with_no_data():
         (
             CSVColumn(
                 column_header="Which equality body will check the case",
-                source_class=Case,
+                source_class=SimplifiedCase,
                 source_attr="enforcement_body",
             ),
             "ehrc",
@@ -142,23 +146,23 @@ def test_format_case_field_with_no_data():
 )
 def test_format_case_field(column, case_value, expected_formatted_value):
     """Test that case fields are formatted correctly"""
-    case: Case = Case()
-    setattr(case, column.source_attr, case_value)
+    simplified_case: SimplifiedCase = SimplifiedCase()
+    setattr(simplified_case, column.source_attr, case_value)
     assert expected_formatted_value == format_model_field(
-        source_instance=case, column=column
+        source_instance=simplified_case, column=column
     )
 
 
 def test_format_field_as_yes_no():
     """Test field formatted as Yes if it contains a truthy value, otherwise No"""
-    case: Case = Case()
+    simplified_case: SimplifiedCase = SimplifiedCase()
 
     assert (
         format_field_as_yes_no(
-            source_instance=case,
+            source_instance=simplified_case,
             column=CSVColumn(
                 column_header="Falsey field",
-                source_class=Case,
+                source_class=SimplifiedCase,
                 source_attr="report_sent_date",
             ),
         )
@@ -166,9 +170,11 @@ def test_format_field_as_yes_no():
     )
     assert (
         format_field_as_yes_no(
-            source_instance=case,
+            source_instance=simplified_case,
             column=CSVColumn(
-                column_header="Truthy field", source_class=Case, source_attr="test_type"
+                column_header="Truthy field",
+                source_class=SimplifiedCase,
+                source_attr="test_type",
             ),
         )
         == "Yes"
@@ -183,14 +189,15 @@ def test_format_contacts():
 @pytest.mark.django_db
 def test_download_feedback_survey_cases():
     """Test creation of CSV for feedback survey"""
-    case: Case = Case.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         compliance_email_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
         contact_notes=CONTACT_NOTES,
     )
-    cases: list[Case] = [case]
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_cases: list[SimplifiedCase] = [simplified_case]
 
     response: HttpResponse = download_feedback_survey_cases(
-        cases=cases, filename=CSV_EXPORT_FILENAME
+        cases=simplified_cases, filename=CSV_EXPORT_FILENAME
     )
 
     assert response.status_code == 200
@@ -228,12 +235,13 @@ def test_download_feedback_survey_cases():
 @pytest.mark.django_db
 def test_download_equality_body_cases():
     """Test creation of CSV for equality bodies"""
-    case: Case = Case.objects.create()
-    cases: list[Case] = [case]
-    Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_cases: list[SimplifiedCase] = [simplified_case]
+    Audit.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = download_equality_body_cases(
-        cases=cases, filename=CSV_EXPORT_FILENAME
+        cases=simplified_cases, filename=CSV_EXPORT_FILENAME
     )
 
     assert response.status_code == 200
@@ -293,14 +301,19 @@ def test_download_equality_body_cases():
 @pytest.mark.django_db
 def test_download_cases():
     """Test creation of CSV download of cases"""
-    case: Case = Case.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         created=datetime(2022, 12, 16, tzinfo=timezone.utc),
         contact_notes="Contact for CSV export",
     )
-    cases: list[Case] = [case]
-    Contact.objects.create(case=case, email="test@example.com")
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    CaseStatus.objects.create(simplified_case=simplified_case)
+    simplified_case.update_case_status()
+    simplified_cases: list[SimplifiedCase] = [simplified_case]
+    Contact.objects.create(simplified_case=simplified_case, email="test@example.com")
 
-    response: HttpResponse = download_cases(cases=cases, filename=CSV_EXPORT_FILENAME)
+    response: HttpResponse = download_simplified_cases(
+        simplified_cases=simplified_cases, filename=CSV_EXPORT_FILENAME
+    )
 
     assert response.status_code == 200
 
@@ -420,9 +433,12 @@ def test_download_cases():
 @pytest.mark.django_db
 def test_populate_equality_body_columns():
     """Test collection of case data for equality body export"""
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case, email=CONTACT_EMAIL)
-    row: list[CSVColumn] = populate_equality_body_columns(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
+    row: list[CSVColumn] = populate_equality_body_columns(
+        simplified_case=simplified_case
+    )
 
     assert len(row) == 30
 
@@ -462,10 +478,13 @@ def test_populate_equality_body_columns():
 @pytest.mark.django_db
 def test_populate_csv_columns():
     """Test collection of case data for CSV export"""
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case, email=CONTACT_EMAIL)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    CaseStatus.objects.create(simplified_case=simplified_case)
+    simplified_case.update_case_status()
+    Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
     row: list[CSVColumn] = populate_csv_columns(
-        case=case, column_definitions=CASE_COLUMNS_FOR_EXPORT
+        simplified_case=simplified_case, column_definitions=CASE_COLUMNS_FOR_EXPORT
     )
 
     assert len(row) == 91
@@ -484,10 +503,14 @@ def test_populate_csv_columns():
 @pytest.mark.django_db
 def test_populate_feedback_survey_columns():
     """Test collection of case data for feedback survey export"""
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case, email=CONTACT_EMAIL)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    CaseStatus.objects.create(simplified_case=simplified_case)
+    simplified_case.update_case_status()
+    Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
     row: list[CSVColumn] = populate_csv_columns(
-        case=case, column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+        simplified_case=simplified_case,
+        column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     )
 
     assert len(row) == 9
@@ -502,11 +525,12 @@ def test_csv_output_generator():
     2. Next 500 Cases (current DOWNLOAD_CASES_CHUNK_SIZE)
     3. Stops after all Cases returned
     """
-    case: Case = Case.objects.create()
-    cases: list[Case] = [case for _ in range(501)]
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_cases: list[SimplifiedCase] = [simplified_case for _ in range(501)]
 
     generator: Generator[str, None, None] = csv_output_generator(
-        cases=cases, columns_for_export=CASE_COLUMNS_FOR_EXPORT
+        cases=simplified_cases, columns_for_export=CASE_COLUMNS_FOR_EXPORT
     )
 
     first_yield: str = next(generator)

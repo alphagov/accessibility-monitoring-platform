@@ -187,10 +187,12 @@ def test_record_case_event_reviewer_change():
 @pytest.mark.django_db
 def test_build_edit_link_html():
     """Test building of edit link html for a case"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert (
-        build_edit_link_html(case=case, url_name="simplified:edit-test-results")
+        build_edit_link_html(
+            simplified_case=simplified_case, url_name="simplified:edit-test-results"
+        )
         == "<a href='/simplified/1/edit-test-results/' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
     )
 

@@ -279,9 +279,9 @@ def record_case_event(
         )
 
 
-def build_edit_link_html(case: SimplifiedCase, url_name: str) -> str:
+def build_edit_link_html(simplified_case: SimplifiedCase, url_name: str) -> str:
     """Return html of edit link for case"""
-    case_pk: dict[str, int] = {"pk": case.id}
+    case_pk: dict[str, int] = {"pk": simplified_case.id}
     edit_url: str = reverse(url_name, kwargs=case_pk)
     return (
         f"<a href='{edit_url}' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
