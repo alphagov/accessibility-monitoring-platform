@@ -9,7 +9,7 @@ const statementComplianceNote = 'Accessibility statement compliance note'
 describe('12-week retest', () => {
   beforeEach(() => {
     cy.session('login', cy.login, { cacheAcrossSpecs: true })
-    cy.visit('/cases/1/view')
+    cy.visit('/simplified/1/view')
   })
 
   it('can edit 12-week retest metadata', () => {
@@ -20,7 +20,7 @@ describe('12-week retest', () => {
     cy.get('[name="audit_retest_metadata_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains(/^Simplified case$/).click()
-    cy.title().should('eq', 'ExampleCorp | Case overview')
+    cy.title().should('eq', 'ExampleCorp | Simplified case overview')
     cy.contains(retestMetadataNote)
   })
 
@@ -32,7 +32,7 @@ describe('12-week retest', () => {
     cy.get('[name="form-0-retest_notes"]').clear().type(retestErrorText)
     cy.contains('Save').click()
     cy.contains(/^Simplified case$/).click()
-    cy.title().should('eq', 'ExampleCorp | Case overview')
+    cy.title().should('eq', 'ExampleCorp | Simplified case overview')
     cy.contains(retestErrorText)
   })
 })

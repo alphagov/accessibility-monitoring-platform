@@ -12,7 +12,7 @@ describe('Create simplified case, tests and report', () => {
   it('can follow case lifecycle', () => {
     cy.visit('/cases')
 
-    cy.title().should('eq', 'Search simplified cases')
+    cy.title().should('eq', 'Search cases')
     cy.contains('Create simplified case').click()
 
     cy.title().should('eq', 'Create simplified case')

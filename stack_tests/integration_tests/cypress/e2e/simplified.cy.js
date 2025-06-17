@@ -19,7 +19,7 @@ const zenSummary = 'Zendesk ticket summary'
 describe('Case overview', () => {
   beforeEach(() => {
     cy.session('login', cy.login, { cacheAcrossSpecs: true })
-    cy.visit('/cases/1/view')
+    cy.visit('/simplified/1/view')
   })
 
   it('can search within case', () => {
@@ -39,7 +39,7 @@ describe('Case overview', () => {
     cy.get('[name="case_details_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains(/^Simplified case$/).click()
-    cy.title().should('eq', `${organisationName} | Case overview`)
+    cy.title().should('eq', `${organisationName} | Simplified case overview`)
     cy.contains(caseDetailsNote)
   })
 

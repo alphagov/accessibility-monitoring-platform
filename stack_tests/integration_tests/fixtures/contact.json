@@ -1,9 +1,9 @@
 [
   {
-    "model": "cases.contact",
+    "model": "simplified.contact",
     "pk": 1,
     "fields": {
-      "case": 1,
+      "simplified_case": 1,
       "name": "Example Contact",
       "job_title": "",
       "email": "example@example.com",

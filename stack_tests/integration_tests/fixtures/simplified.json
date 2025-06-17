@@ -1,6 +1,6 @@
 [
   {
-    "model": "cases.case",
+    "model": "simplified.simplifiedcase",
     "pk": 1,
     "fields": {
       "version": 4,
@@ -81,12 +81,12 @@
     }
   },
   {
-    "model": "cases.contact",
+    "model": "simplified.contact",
     "pk": 1,
     "fields": {
       "version": 0,
       "created": "2022-09-02T14:36:27.869Z",
-      "case_id": 1,
+      "simplified_case_id": 1,
       "name": "John Smith",
       "email": "john.smith@example.com",
       "job_title": "",
@@ -95,11 +95,11 @@
     }
   },
   {
-    "model": "cases.casecompliance",
+    "model": "simplified.casecompliance",
     "pk": 1,
     "fields": {
       "version": 0,
-      "case_id": 1,
+      "simplified_case_id": 1,
       "website_compliance_state_initial": "not-known",
       "website_compliance_notes_initial": "",
       "statement_compliance_state_initial": "unknown",
@@ -111,10 +111,10 @@
     }
   },
   {
-    "model": "cases.casestatus",
+    "model": "simplified.casestatus",
     "pk": 1,
     "fields": {
-      "case_id": 1,
+      "simplified_case_id": 1,
       "status": "test-in-progress"
     }
   }

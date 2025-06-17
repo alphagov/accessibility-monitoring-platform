@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "version": 2,
-      "case": 1,
+      "simplified_case": 1,
       "published_report_data_updated_time": "2022-09-06T12:20:04.436Z",
       "date_of_test": "2022-09-06",
       "screen_size": "15in",

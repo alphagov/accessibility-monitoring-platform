@@ -11,7 +11,7 @@ const reportOptionsNote = 'Report options note'
 describe('View test', () => {
   beforeEach(() => {
     cy.session('login', cy.login, { cacheAcrossSpecs: true })
-    cy.visit('/cases/1/view')
+    cy.visit('/simplified/1/view')
   })
 
   it('can edit test metadata', () => {
