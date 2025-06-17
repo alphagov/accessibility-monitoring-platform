@@ -11,7 +11,7 @@ import pytest
 from django.http import HttpResponse, StreamingHttpResponse
 
 from ...audits.models import Audit
-from ...cases.models import Case, Contact
+from ...simplified.models import Case, Contact
 from ..csv_export_utils import (
     CASE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_COLUMNS_FOR_EXPORT,

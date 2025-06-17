@@ -16,7 +16,7 @@ from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from ...cases.models import Case, Contact
+from ...simplified.models import Case, Contact
 from ..mark_deleted_util import get_id_from_button_name, mark_object_as_deleted
 from ..models import ChangeToPlatform, Platform
 from ..utils import (
