@@ -154,12 +154,12 @@ class ZendeskTicketAdmin(admin.ModelAdmin):
     list_filter = ["is_deleted"]
 
 
-class EventAdmin(admin.ModelAdmin):
-    """Django admin configuration for Event model"""
+class SimplifiedEventHistoryAdmin(admin.ModelAdmin):
+    """Django admin configuration for SimplifiedEventHistory model"""
 
     search_fields = [
-        "case__organisation_name",
-        "case__case_number",
+        "simplified_case__organisation_name",
+        "simplified_case__case_number",
     ]
     list_display = [
         "simplified_case",
@@ -185,4 +185,4 @@ admin.site.register(CaseEvent, CaseEventAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(EqualityBodyCorrespondence, EqualityBodyCorrespondenceAdmin)
 admin.site.register(ZendeskTicket, ZendeskTicketAdmin)
-admin.site.register(SimplifiedEventHistory, EventAdmin)
+admin.site.register(SimplifiedEventHistory, SimplifiedEventHistoryAdmin)
