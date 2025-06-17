@@ -79,11 +79,11 @@ class TaskMarkAsReadView(ListView):
             task.read = True
             task.save()
             if task.type == Task.Type.REMINDER:
-                messages.success(request, f"{task.case} Reminder task deleted")
+                messages.success(request, f"{task.base_case} Reminder task deleted")
             else:
                 messages.success(
                     request,
-                    f"{task.case} {task.get_type_display()} task marked as read",
+                    f"{task.base_case} {task.get_type_display()} task marked as read",
                 )
         else:
             messages.error(request, "An error occured")
@@ -100,12 +100,16 @@ class CommentsMarkAsReadView(ListView):
 
     def get(self, request, case_id):
         """Hides a task"""
-        case: SimplifiedCase = SimplifiedCase.objects.get(id=case_id)
-        mark_tasks_as_read(user=self.request.user, case=case, type=Task.Type.QA_COMMENT)
+        simplified_case: SimplifiedCase = SimplifiedCase.objects.get(id=case_id)
         mark_tasks_as_read(
-            user=self.request.user, case=case, type=Task.Type.REPORT_APPROVED
+            user=self.request.user, base_case=simplified_case, type=Task.Type.QA_COMMENT
         )
-        messages.success(request, f"{case} comments marked as read")
+        mark_tasks_as_read(
+            user=self.request.user,
+            base_case=simplified_case,
+            type=Task.Type.REPORT_APPROVED,
+        )
+        messages.success(request, f"{simplified_case} comments marked as read")
         return HttpResponseRedirect(reverse_lazy("notifications:task-list"))
 
 

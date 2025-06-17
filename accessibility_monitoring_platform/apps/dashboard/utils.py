@@ -21,6 +21,11 @@ def group_cases_by_status(
                 "id",
             ),
             (
+                "unassigned-case",
+                SimplifiedCase.Status.UNASSIGNED,
+                "id",
+            ),
+            (
                 "test_in_progress",
                 SimplifiedCase.Status.TEST_IN_PROGRESS,
                 "id",

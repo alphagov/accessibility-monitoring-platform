@@ -84,10 +84,10 @@ def add_task(
     return task
 
 
-def mark_tasks_as_read(user: User, case: BaseCase, type: Task.Type) -> None:
+def mark_tasks_as_read(user: User, base_case: BaseCase, type: Task.Type) -> None:
     """Mark tasks as read"""
     tasks: QuerySet[Task] = Task.objects.filter(
-        user=user, case=case, type=type, read=False
+        user=user, base_case=base_case, type=type, read=False
     )
     for task in tasks:
         task.read = True  # type: ignore
@@ -239,7 +239,7 @@ def get_post_case_tasks(user: User) -> list[Task]:
     for equality_body_correspondence in equality_body_correspondences:
         if (
             Task.objects.filter(
-                case=equality_body_correspondence.simplified_case,
+                base_case=equality_body_correspondence.simplified_case,
                 type=Task.Type.REMINDER,
                 date__gte=today,
             ).first()
@@ -248,7 +248,7 @@ def get_post_case_tasks(user: User) -> list[Task]:
             task: Task = Task(
                 type=Task.Type.POSTCASE,
                 date=equality_body_correspondence.created.date(),
-                case=equality_body_correspondence.simplified_case,
+                base_case=equality_body_correspondence.simplified_case,
                 description="Unresolved correspondence",
                 action="View correspondence",
             )
@@ -262,7 +262,7 @@ def get_post_case_tasks(user: User) -> list[Task]:
 
     retests: QuerySet[Retest] = Retest.objects.filter(
         is_deleted=False,
-        case__auditor=user,
+        simplified_case__auditor=user,
         retest_compliance_state=Retest.Compliance.NOT_KNOWN,
         id_within_case__gt=0,
     )
@@ -270,14 +270,16 @@ def get_post_case_tasks(user: User) -> list[Task]:
     for retest in retests:
         if (
             Task.objects.filter(
-                case=retest.simplified_case, type=Task.Type.REMINDER, date__gte=today
+                base_case=retest.simplified_case,
+                type=Task.Type.REMINDER,
+                date__gte=today,
             ).first()
             is None
         ):
             task: Task = Task(
                 type=Task.Type.POSTCASE,
                 date=retest.date_of_retest,
-                case=retest.simplified_case,
+                base_case=retest.simplified_case,
                 description="Incomplete retest",
                 action="View retest",
             )

@@ -11,9 +11,9 @@ from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from ..audits.models import Audit, CheckResult, Page, WcagDefinition
+from ..cases.models import BaseCase
 from ..s3_read_write.models import S3Report
 from ..s3_read_write.utils import S3ReadWriteReport
-from ..simplified.models import SimplifiedCase
 from .models import Report
 
 WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """**Issue {{ check_result.issue_identifier }}**
@@ -178,11 +178,11 @@ def build_report_context(
     }
 
 
-def get_report_visits_metrics(case: SimplifiedCase) -> dict[str, str]:
+def get_report_visits_metrics(base_case: BaseCase) -> dict[str, str]:
     """Returns the visit metrics for reports"""
     return {
-        "number_of_visits": case.reportvisitsmetrics_set.all().count(),
-        "number_of_unique_visitors": case.reportvisitsmetrics_set.values_list(
+        "number_of_visits": base_case.reportvisitsmetrics_set.all().count(),
+        "number_of_unique_visitors": base_case.reportvisitsmetrics_set.values_list(
             "fingerprint_hash"
         )
         .distinct()

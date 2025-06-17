@@ -154,7 +154,7 @@ class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
 
         # Extract case id from view case URL
         try:
-            case_id: str = re.search(".*/cases/(.+?)/view/?", previous_case_url).group(  # type: ignore
+            case_id: str = re.search(".*/simplified/(.+?)/view/?", previous_case_url).group(  # type: ignore
                 1
             )
         except AttributeError:

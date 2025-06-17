@@ -8,8 +8,14 @@ from django.http import HttpRequest
 from django.urls import reverse
 
 from ...audits.models import Retest
-from ...cases.models import BaseCase, CaseCompliance, EqualityBodyCorrespondence
+from ...cases.models import BaseCase
 from ...common.models import Boolean, Link
+from ...simplified.models import (
+    CaseCompliance,
+    CaseStatus,
+    EqualityBodyCorrespondence,
+    SimplifiedCase,
+)
 from ...simplified.utils import create_case_and_compliance
 from ...simplified.views import (
     calculate_report_followup_dates,
@@ -41,8 +47,8 @@ THIRTEEN_WEEKS_AGO = TODAY - timedelta(days=91)
 FOURTEEN_WEEKS_AGO = TODAY - timedelta(days=98)
 
 
-def create_case(user: User) -> BaseCase:
-    base_case: BaseCase = create_case_and_compliance(
+def create_case(user: User) -> SimplifiedCase:
+    simplified_case: SimplifiedCase = create_case_and_compliance(
         created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
@@ -52,11 +58,13 @@ def create_case(user: User) -> BaseCase:
         report_draft_url="https://www.report-draft.com",
         report_review_status=Boolean.YES,
         reviewer=user,
-        report_approved_status=BaseCase.ReportApprovedStatus.APPROVED,
+        report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         report_final_pdf_url="https://www.report-pdf.com",
         report_final_odt_url="https://www.report-odt.com",
     )
-    return base_case
+    CaseStatus.objects.create(simplified_case=simplified_case)
+    simplified_case.update_case_status()
+    return simplified_case
 
 
 @pytest.mark.django_db
@@ -196,9 +204,9 @@ def test_get_post_case_tasks():
 
     assert len(get_post_case_tasks(user=user)) == 0
 
-    base_case: BaseCase = BaseCase.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     equality_body_correspondence: EqualityBodyCorrespondence = (
-        EqualityBodyCorrespondence.objects.create(base_case=base_case)
+        EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
     )
 
     post_case_tasks: list[Task] = get_post_case_tasks(user=user)
@@ -209,7 +217,7 @@ def test_get_post_case_tasks():
 
     assert post_case_task.type == Task.Type.POSTCASE
     assert post_case_task.date == equality_body_correspondence.created.date()
-    assert post_case_task.base_case == base_case
+    assert post_case_task.base_case == simplified_case
     assert post_case_task.description == "Unresolved correspondence"
     assert len(post_case_task.options) == 1
 
@@ -226,7 +234,7 @@ def test_get_post_case_tasks():
 
     assert len(get_post_case_tasks(user=user)) == 0
 
-    retest: Retest = Retest.objects.create(base_case=base_case)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
     post_case_tasks: list[Task] = get_post_case_tasks(user=user)
 
@@ -236,7 +244,7 @@ def test_get_post_case_tasks():
 
     assert post_case_task.type == Task.Type.POSTCASE
     assert post_case_task.date == retest.date_of_retest
-    assert post_case_task.base_case == base_case
+    assert post_case_task.base_case == simplified_case
     assert post_case_task.description == "Incomplete retest"
 
     option: Link = post_case_task.options[0]
@@ -258,14 +266,15 @@ def test_report_ready_to_send_seven_day_no_contact():
     """
     user: User = User.objects.create()
 
-    base_case: BaseCase = create_case(user)
+    simplified_case: SimplifiedCase = create_case(user)
 
     assert len(get_overdue_cases(user)) == 0
 
-    base_case.enable_correspondence_process = True
-    base_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    base_case.no_contact_one_week_chaser_due_date = YESTERDAY
-    base_case.save()
+    simplified_case.enable_correspondence_process = True
+    simplified_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case.no_contact_one_week_chaser_due_date = YESTERDAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
     assert len(get_overdue_cases(user)) == 1
 
@@ -277,20 +286,22 @@ def test_report_ready_to_send_seven_day_no_contact_for_all_users():
     contact email sent date is more than seven days ago for all users.
     """
     user_1: User = User.objects.create(username="user1", email="email1@example.com")
-    case_1: BaseCase = create_case(user_1)
+    simplified_case_1: SimplifiedCase = create_case(user_1)
     user_2: User = User.objects.create(username="user2", email="email2@example.com")
-    case_2: BaseCase = create_case(user_2)
+    simplified_case_2: SimplifiedCase = create_case(user_2)
 
     assert len(get_overdue_cases(None)) == 0
 
-    case_1.enable_correspondence_process = True
-    case_1.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    case_1.no_contact_one_week_chaser_due_date = YESTERDAY
-    case_1.save()
-    case_2.enable_correspondence_process = True
-    case_2.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    case_2.no_contact_one_week_chaser_due_date = YESTERDAY
-    case_2.save()
+    simplified_case_1.enable_correspondence_process = True
+    simplified_case_1.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case_1.no_contact_one_week_chaser_due_date = YESTERDAY
+    simplified_case_1.save()
+    simplified_case_1.update_case_status()
+    simplified_case_2.enable_correspondence_process = True
+    simplified_case_2.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case_2.no_contact_one_week_chaser_due_date = YESTERDAY
+    simplified_case_2.save()
+    simplified_case_2.update_case_status()
 
     assert len(get_overdue_cases(None)) == 2
 
@@ -303,18 +314,20 @@ def test_report_ready_to_send_no_contact_one_week_chaser_due():
     """
     user: User = User.objects.create()
 
-    base_case: BaseCase = create_case(user)
-    base_case.enable_correspondence_process = True
-    base_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    base_case.no_contact_one_week_chaser_sent_date = TODAY
-    base_case.save()
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.enable_correspondence_process = True
+    simplified_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case.no_contact_one_week_chaser_sent_date = TODAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
     assert len(get_overdue_cases(user)) == 0
 
-    base_case.no_contact_one_week_chaser_sent_date = None
-    base_case.no_contact_one_week_chaser_due_date = TODAY
-    base_case.no_contact_one_week_chaser_due_date = YESTERDAY
-    base_case.save()
+    simplified_case.no_contact_one_week_chaser_sent_date = None
+    simplified_case.no_contact_one_week_chaser_due_date = TODAY
+    simplified_case.no_contact_one_week_chaser_due_date = YESTERDAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
     assert len(get_overdue_cases(user)) == 1
 
@@ -326,24 +339,30 @@ def test_report_ready_to_send_no_contact_one_week_chaser_due_for_all_users():
     1-week chaser due date has been reached but not sent for all users.
     """
     user_1: User = User.objects.create(username="user1", email="email1@example.com")
-    case_1: BaseCase = create_case(user_1)
-    case_1.enable_correspondence_process = True
-    case_1.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    case_1.no_contact_one_week_chaser_sent_date = TODAY
+    simplified_case_1: SimplifiedCase = create_case(user_1)
+    simplified_case_1.enable_correspondence_process = True
+    simplified_case_1.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case_1.no_contact_one_week_chaser_sent_date = TODAY
+    simplified_case_1.save()
+    simplified_case_1.update_case_status()
     user_2: User = User.objects.create(username="user2", email="email2@example.com")
-    case_2: BaseCase = create_case(user_2)
-    case_2.enable_correspondence_process = True
-    case_2.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    case_2.no_contact_one_week_chaser_sent_date = TODAY
+    simplified_case_2: SimplifiedCase = create_case(user_2)
+    simplified_case_2.enable_correspondence_process = True
+    simplified_case_2.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case_2.no_contact_one_week_chaser_sent_date = TODAY
+    simplified_case_2.save()
+    simplified_case_2.update_case_status()
 
     assert len(get_overdue_cases(None)) == 0
 
-    case_1.no_contact_one_week_chaser_sent_date = None
-    case_1.no_contact_one_week_chaser_due_date = TODAY
-    case_1.save()
-    case_2.no_contact_one_week_chaser_sent_date = None
-    case_2.no_contact_one_week_chaser_due_date = TODAY
-    case_2.save()
+    simplified_case_1.no_contact_one_week_chaser_sent_date = None
+    simplified_case_1.no_contact_one_week_chaser_due_date = TODAY
+    simplified_case_1.save()
+    simplified_case_1.update_case_status()
+    simplified_case_2.no_contact_one_week_chaser_sent_date = None
+    simplified_case_2.no_contact_one_week_chaser_due_date = TODAY
+    simplified_case_2.save()
+    simplified_case_2.update_case_status()
 
     assert len(get_overdue_cases(None)) == 2
 
@@ -356,18 +375,20 @@ def test_report_ready_to_send_no_contact_four_week_chaser_due():
     """
     user: User = User.objects.create()
 
-    base_case: BaseCase = create_case(user)
-    base_case.enable_correspondence_process = True
-    base_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    base_case.no_contact_four_week_chaser_sent_date = TODAY
-    base_case.save()
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.enable_correspondence_process = True
+    simplified_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case.no_contact_four_week_chaser_sent_date = TODAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
     assert len(get_overdue_cases(user)) == 0
     assert len(get_overdue_cases(None)) == 0
 
-    base_case.no_contact_four_week_chaser_sent_date = None
-    base_case.no_contact_four_week_chaser_due_date = TODAY
-    base_case.save()
+    simplified_case.no_contact_four_week_chaser_sent_date = None
+    simplified_case.no_contact_four_week_chaser_due_date = TODAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
     assert len(get_overdue_cases(user)) == 1
     assert len(get_overdue_cases(None)) == 1
@@ -380,54 +401,70 @@ def test_returns_no_overdue_cases():
     """
     user: User = User.objects.create()
 
-    # BaseCase #1 - ready to be sent
-    base_case: BaseCase = create_case(user)
+    # SimplifiedCase #1 - ready to be sent
+    simplified_case: SimplifiedCase = create_case(user)
 
-    # BaseCase #2 - Sent, waiting for one week followup
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = TODAY
-    base_case.save()
+    # SimplifiedCase #2 - Sent, waiting for one week followup
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = TODAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    # BaseCase #3 - Sent one week followup, waiting for four week followup
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = ONE_WEEK_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_followup_week_1_sent_date = YESTERDAY
-    base_case.save()
+    # SimplifiedCase #3 - Sent one week followup, waiting for four week followup
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = ONE_WEEK_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
+    )
+    simplified_case.report_followup_week_1_sent_date = YESTERDAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    # BaseCase #4 - Sent four week followup, waiting for five day deadline
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = FOUR_WEEKS_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_followup_week_1_sent_date = THREE_WEEKS_AGO
-    base_case.report_followup_week_4_sent_date = YESTERDAY
-    base_case.save()
+    # SimplifiedCase #4 - Sent four week followup, waiting for five day deadline
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = FOUR_WEEKS_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
+    )
+    simplified_case.report_followup_week_1_sent_date = THREE_WEEKS_AGO
+    simplified_case.report_followup_week_4_sent_date = YESTERDAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    # BaseCase #5 - Report has been acknolwedged, waiting for 12-week deadline
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = FOUR_WEEKS_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_followup_week_1_sent_date = THREE_WEEKS_AGO
-    base_case.report_followup_week_4_sent_date = YESTERDAY
-    base_case.report_acknowledged_date = datetime.now()
-    base_case.save()
+    # SimplifiedCase #5 - Report has been acknolwedged, waiting for 12-week deadline
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = FOUR_WEEKS_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
+    )
+    simplified_case.report_followup_week_1_sent_date = THREE_WEEKS_AGO
+    simplified_case.report_followup_week_4_sent_date = YESTERDAY
+    simplified_case.report_acknowledged_date = datetime.now()
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    # BaseCase #6 - BaseCase is past 12-week deadline, update requested
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = TWELVE_WEEKS_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_acknowledged_date = ELEVEN_WEEKS_AGO
-    base_case.twelve_week_update_requested_date = TODAY
-    base_case.save()
+    # SimplifiedCase #6 - SimplifiedCase is past 12-week deadline, update requested
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = TWELVE_WEEKS_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
+    )
+    simplified_case.report_acknowledged_date = ELEVEN_WEEKS_AGO
+    simplified_case.twelve_week_update_requested_date = TODAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    # BaseCase #7 - BaseCase is past 1 week deadline for update, 1 week chaser requested
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = THIRTEEN_WEEKS_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_acknowledged_date = TWELVE_WEEKS_AGO
-    base_case.twelve_week_update_requested_date = ONE_WEEK_AGO
-    base_case.twelve_week_1_week_chaser_sent_date = TODAY
-    base_case.save()
+    # SimplifiedCase #7 - SimplifiedCase is past 1 week deadline for update, 1 week chaser requested
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = THIRTEEN_WEEKS_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
+    )
+    simplified_case.report_acknowledged_date = TWELVE_WEEKS_AGO
+    simplified_case.twelve_week_update_requested_date = ONE_WEEK_AGO
+    simplified_case.twelve_week_1_week_chaser_sent_date = TODAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
     assert list(get_overdue_cases(user)) == []
     assert list(get_overdue_cases(None)) == []
@@ -437,24 +474,28 @@ def test_returns_no_overdue_cases():
 def test_in_report_correspondence_week_1_overdue():
     """Creates two cases; one that is not overdue and another that requires a one-week chaser."""
     user: User = User.objects.create()
-    new_case: BaseCase = create_case(user)
-    new_case.report_sent_date = datetime.now()
-    new_case.save()
+    new_simplified_case: SimplifiedCase = create_case(user)
+    new_simplified_case.report_sent_date = datetime.now()
+    new_simplified_case.save()
+    new_simplified_case.update_case_status()
 
-    base_case: BaseCase = create_case(user)
+    simplified_case: SimplifiedCase = create_case(user)
 
-    base_case.report_sent_date = ONE_WEEK_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.save()
+    simplified_case.report_sent_date = ONE_WEEK_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
+    )
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    assert len(BaseCase.objects.all()) == 2
+    assert len(SimplifiedCase.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
     assert (
-        base_case.in_report_correspondence_progress.label
+        simplified_case.in_report_correspondence_progress.label
         == "1-week follow-up to report due"
     )
-    assert base_case.in_report_correspondence_progress.url == reverse(
-        "simplified:edit-report-one-week-followup", kwargs={"pk": base_case.id}
+    assert simplified_case.in_report_correspondence_progress.url == reverse(
+        "simplified:edit-report-one-week-followup", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -464,20 +505,23 @@ def test_in_report_correspondence_week_4_overdue():
     user: User = User.objects.create()
     create_case(user)
 
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = FOUR_WEEKS_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_followup_week_1_sent_date = THREE_WEEKS_AGO
-    base_case.save()
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = FOUR_WEEKS_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
+    )
+    simplified_case.report_followup_week_1_sent_date = THREE_WEEKS_AGO
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    assert len(BaseCase.objects.all()) == 2
+    assert len(SimplifiedCase.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
     assert (
-        base_case.in_report_correspondence_progress.label
+        simplified_case.in_report_correspondence_progress.label
         == "4-week follow-up to report due"
     )
-    assert base_case.in_report_correspondence_progress.url == reverse(
-        "simplified:edit-report-four-week-followup", kwargs={"pk": base_case.id}
+    assert simplified_case.in_report_correspondence_progress.url == reverse(
+        "simplified:edit-report-four-week-followup", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -487,21 +531,24 @@ def test_in_report_correspondence_psb_overdue_after_four_week_reminder():
     user: User = User.objects.create()
     create_case(user)
 
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = FIVE_WEEKS_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_followup_week_1_sent_date = FOUR_WEEKS_AGO
-    base_case.report_followup_week_4_sent_date = ONE_WEEK_AGO
-    base_case.save()
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = FIVE_WEEKS_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
+    )
+    simplified_case.report_followup_week_1_sent_date = FOUR_WEEKS_AGO
+    simplified_case.report_followup_week_4_sent_date = ONE_WEEK_AGO
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    assert len(BaseCase.objects.all()) == 2
+    assert len(SimplifiedCase.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
     assert (
-        base_case.in_report_correspondence_progress.label
-        == "4-week follow-up to report sent, base_case needs to progress"
+        simplified_case.in_report_correspondence_progress.label
+        == "4-week follow-up to report sent, case needs to progress"
     )
-    assert base_case.in_report_correspondence_progress.url == reverse(
-        "simplified:edit-report-acknowledged", kwargs={"pk": base_case.id}
+    assert simplified_case.in_report_correspondence_progress.url == reverse(
+        "simplified:edit-report-acknowledged", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -511,13 +558,16 @@ def test_in_probation_period_overdue():
     user: User = User.objects.create()
     create_case(user)
 
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = THIRTEEN_WEEKS_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_acknowledged_date = TWELVE_WEEKS_AGO
-    base_case.save()
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = THIRTEEN_WEEKS_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
+    )
+    simplified_case.report_acknowledged_date = TWELVE_WEEKS_AGO
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    assert len(BaseCase.objects.all()) == 2
+    assert len(SimplifiedCase.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
 
 
@@ -530,21 +580,28 @@ def test_in_12_week_correspondence_1_week_followup_overdue():
     user: User = User.objects.create()
     create_case(user)
 
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = THIRTEEN_WEEKS_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_acknowledged_date = THIRTEEN_WEEKS_AGO
-    base_case.twelve_week_update_requested_date = ONE_WEEK_AGO
-    base_case = calculate_twelve_week_chaser_dates(
-        base_case, base_case.twelve_week_update_requested_date
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = THIRTEEN_WEEKS_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
     )
-    base_case.save()
+    simplified_case.report_acknowledged_date = THIRTEEN_WEEKS_AGO
+    simplified_case.twelve_week_update_requested_date = ONE_WEEK_AGO
+    simplified_case = calculate_twelve_week_chaser_dates(
+        simplified_case, simplified_case.twelve_week_update_requested_date
+    )
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    assert len(BaseCase.objects.all()) == 2
+    assert len(SimplifiedCase.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
-    assert base_case.twelve_week_correspondence_progress.label == "1-week follow-up due"
-    assert base_case.twelve_week_correspondence_progress.url == reverse(
-        "simplified:edit-12-week-one-week-followup-final", kwargs={"pk": base_case.id}
+    assert (
+        simplified_case.twelve_week_correspondence_progress.label
+        == "1-week follow-up due"
+    )
+    assert simplified_case.twelve_week_correspondence_progress.url == reverse(
+        "simplified:edit-12-week-one-week-followup-final",
+        kwargs={"pk": simplified_case.id},
     )
 
 
@@ -557,25 +614,28 @@ def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
     user: User = User.objects.create()
     create_case(user)
 
-    base_case: BaseCase = create_case(user)
-    base_case.report_sent_date = FOURTEEN_WEEKS_AGO
-    base_case = calculate_report_followup_dates(base_case, base_case.report_sent_date)
-    base_case.report_acknowledged_date = FOURTEEN_WEEKS_AGO
-    base_case.twelve_week_update_requested_date = TWO_WEEKS_AGO
-    base_case = calculate_twelve_week_chaser_dates(
-        base_case, base_case.twelve_week_update_requested_date
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.report_sent_date = FOURTEEN_WEEKS_AGO
+    simplified_case = calculate_report_followup_dates(
+        simplified_case, simplified_case.report_sent_date
     )
-    base_case.twelve_week_1_week_chaser_sent_date = ONE_WEEK_AGO
-    base_case.save()
+    simplified_case.report_acknowledged_date = FOURTEEN_WEEKS_AGO
+    simplified_case.twelve_week_update_requested_date = TWO_WEEKS_AGO
+    simplified_case = calculate_twelve_week_chaser_dates(
+        simplified_case, simplified_case.twelve_week_update_requested_date
+    )
+    simplified_case.twelve_week_1_week_chaser_sent_date = ONE_WEEK_AGO
+    simplified_case.save()
+    simplified_case.update_case_status()
 
-    assert len(BaseCase.objects.all()) == 2
+    assert len(SimplifiedCase.objects.all()) == 2
     assert len(get_overdue_cases(user)) == 1
     assert (
-        base_case.twelve_week_correspondence_progress.label
-        == "1-week follow-up sent, base_case needs to progress"
+        simplified_case.twelve_week_correspondence_progress.label
+        == "1-week follow-up sent, case needs to progress"
     )
-    assert base_case.twelve_week_correspondence_progress.url == reverse(
-        "simplified:edit-12-week-update-request-ack", kwargs={"pk": base_case.id}
+    assert simplified_case.twelve_week_correspondence_progress.url == reverse(
+        "simplified:edit-12-week-update-request-ack", kwargs={"pk": simplified_case.id}
     )
 
 
@@ -583,11 +643,12 @@ def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
 def test_pending_reminder_removes_overdue():
     """Test overdue cases with pending reminders are excluded"""
     user: User = User.objects.create()
-    base_case: BaseCase = create_case(user)
-    base_case.enable_correspondence_process = True
-    base_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    base_case.no_contact_one_week_chaser_due_date = YESTERDAY
-    base_case.save()
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.enable_correspondence_process = True
+    simplified_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case.no_contact_one_week_chaser_due_date = YESTERDAY
+    simplified_case.save()
+    simplified_case.update_case_status()
 
     tasks: list[Task] = build_task_list(user=user)
 
@@ -596,7 +657,7 @@ def test_pending_reminder_removes_overdue():
     Task.objects.create(
         type=Task.Type.REMINDER,
         user=user,
-        base_case=base_case,
+        base_case=simplified_case,
         date=date.today() + timedelta(days=1),
     )
 
@@ -687,11 +748,11 @@ def test_build_task_list_reminder():
 def test_build_task_list_overdue():
     """Test build_task_list finds overdue task"""
     user: User = User.objects.create()
-    base_case: BaseCase = create_case(user)
-    base_case.enable_correspondence_process = True
-    base_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
-    base_case.no_contact_one_week_chaser_due_date = YESTERDAY
-    base_case.save()
+    simplified_case: SimplifiedCase = create_case(user)
+    simplified_case.enable_correspondence_process = True
+    simplified_case.seven_day_no_contact_email_sent_date = ONE_WEEK_AGO
+    simplified_case.no_contact_one_week_chaser_due_date = YESTERDAY
+    simplified_case.save()
 
     tasks: list[Task] = build_task_list(user=user)
 
@@ -704,10 +765,10 @@ def test_build_task_list_overdue():
 
 @pytest.mark.django_db
 def test_build_task_list_postcase():
-    """Test build_task_list finds post base_case task"""
+    """Test build_task_list finds post case task"""
     user: User = User.objects.create()
-    base_case: BaseCase = BaseCase.objects.create(auditor=user)
-    EqualityBodyCorrespondence.objects.create(base_case=base_case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
+    EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
 
     tasks: list[Task] = build_task_list(user=user)
 
@@ -722,13 +783,13 @@ def test_build_task_list_postcase():
 def test_pending_reminder_removes_postcase():
     """
     Test cases with pending reminders are excluded from being post
-    base_case tasks
+    case tasks
     """
     user: User = User.objects.create()
-    base_case: BaseCase = BaseCase.objects.create(auditor=user)
-    EqualityBodyCorrespondence.objects.create(base_case=base_case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
+    EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
     Retest.objects.create(
-        base_case=base_case,
+        simplified_case=simplified_case,
         retest_compliance_state=Retest.Compliance.NOT_KNOWN,
         id_within_case=1,
     )
@@ -740,7 +801,7 @@ def test_pending_reminder_removes_postcase():
     Task.objects.create(
         type=Task.Type.REMINDER,
         user=user,
-        base_case=base_case,
+        base_case=simplified_case,
         date=date.today() + timedelta(days=1),
     )
 

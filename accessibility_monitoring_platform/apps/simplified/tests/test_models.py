@@ -106,27 +106,11 @@ def test_case_number_incremented_on_creation():
     """Test that each new case gets the next case_number"""
     simplified_case_one: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert simplified_case_one.simplified_case_number == 1
+    assert simplified_case_one.case_number == 1
 
     simplified_case_two: SimplifiedCase = SimplifiedCase.objects.create()
 
-    assert simplified_case_two.simplified_case_number == 2
-
-
-@pytest.mark.django_db
-def test_case_creation_also_creates_compliance():
-    """Test that creating a case also creates a CaseCompliance"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-
-    assert simplified_case.compliance is not None
-    assert simplified_case.compliance.website_compliance_state_initial is not None
-    assert simplified_case.compliance.website_compliance_notes_initial is not None
-    assert simplified_case.compliance.statement_compliance_state_initial is not None
-    assert simplified_case.compliance.statement_compliance_notes_initial is not None
-    assert simplified_case.compliance.website_compliance_state_12_week is not None
-    assert simplified_case.compliance.website_compliance_notes_12_week is not None
-    assert simplified_case.compliance.statement_compliance_state_12_week is not None
-    assert simplified_case.compliance.statement_compliance_notes_12_week is not None
+    assert simplified_case_two.case_number == 2
 
 
 @pytest.mark.django_db
@@ -341,8 +325,8 @@ def test_next_action_due_date_for_report_ready_to_send():
         seven_day_no_contact_email_sent_date=seven_day_no_contact_email_sent_date,
         no_contact_one_week_chaser_due_date=no_contact_one_week_chaser_due_date,
         no_contact_four_week_chaser_due_date=no_contact_four_week_chaser_due_date,
+        status="report-ready-to-send",
     )
-    simplified_case.status.status = "report-ready-to-send"
 
     # Initial no countact details request sent
     assert simplified_case.next_action_due_date == no_contact_one_week_chaser_due_date
@@ -377,8 +361,8 @@ def test_next_action_due_date_for_in_report_correspondence():
         report_followup_week_1_due_date=report_followup_week_1_due_date,
         report_followup_week_4_due_date=report_followup_week_4_due_date,
         report_followup_week_12_due_date=report_followup_week_12_due_date,
+        status="in-report-correspondence",
     )
-    simplified_case.status.status = "in-report-correspondence"
 
     simplified_case.report_followup_week_4_sent_date = None
     assert simplified_case.next_action_due_date == report_followup_week_4_due_date
@@ -397,8 +381,8 @@ def test_next_action_due_date_for_in_probation_period():
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
+        status="in-probation-period",
     )
-    simplified_case.status.status = "in-probation-period"
 
     assert simplified_case.next_action_due_date == report_followup_week_12_due_date
 
@@ -413,8 +397,8 @@ def test_next_action_due_date_for_in_12_week_correspondence():
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
+        status="in-12-week-correspondence",
     )
-    simplified_case.status.status = "in-12-week-correspondence"
 
     assert simplified_case.next_action_due_date == twelve_week_1_week_chaser_due_date
 
@@ -475,8 +459,8 @@ def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_t
     """Check that the calculated next_action_due_date is correctly reported"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
+        status="in-probation-period",
     )
-    simplified_case.status.status = "in-probation-period"
 
     assert simplified_case.next_action_due_date_tense == expected_tense
 
@@ -497,9 +481,9 @@ def test_qa_comments():
     Test the QA comments are returned in most recently created order
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(case=simplified_case, hidden=True)
-    comment1: Comment = Comment.objects.create(case=simplified_case)
-    comment2: Comment = Comment.objects.create(case=simplified_case)
+    Comment.objects.create(simplified_case=simplified_case, hidden=True)
+    comment1: Comment = Comment.objects.create(simplified_case=simplified_case)
+    comment2: Comment = Comment.objects.create(simplified_case=simplified_case)
 
     comments: list[Contact] = simplified_case.qa_comments
 
@@ -512,9 +496,9 @@ def test_qa_comments():
 def test_qa_comments_count():
     """Test the QA comments count"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(case=simplified_case, hidden=True)
-    Comment.objects.create(case=simplified_case)
-    Comment.objects.create(case=simplified_case)
+    Comment.objects.create(simplified_case=simplified_case, hidden=True)
+    Comment.objects.create(simplified_case=simplified_case)
+    Comment.objects.create(simplified_case=simplified_case)
 
     assert simplified_case.qa_comments_count == 2
 
@@ -522,7 +506,7 @@ def test_qa_comments_count():
 @pytest.mark.parametrize(
     "previous_case_url, previous_case_number",
     [
-        ("https://...gov.uk/cases/191/view/", "191"),
+        ("https://...gov.uk/simplified/191/view/", "191"),
         ("", None),
         ("https://...gov.uk/audits/191/view/", None),
     ],
@@ -631,7 +615,7 @@ def test_case_last_edited_from_comment(last_edited_case: SimplifiedCase):
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_CREATED)
     ):
-        comment: Comment = Comment.objects.create(case=last_edited_case)
+        comment: Comment = Comment.objects.create(simplified_case=last_edited_case)
 
     assert last_edited_case.last_edited == DATETIME_COMMENT_CREATED
 
@@ -652,7 +636,7 @@ def test_case_last_edited_from_reminder(last_edited_case: SimplifiedCase):
     ):
         Task.objects.create(
             type=Task.Type.REMINDER,
-            case=last_edited_case,
+            base_case=last_edited_case,
             user=user,
             date=REMINDER_DUE_DATE,
         )
@@ -664,7 +648,7 @@ def test_case_last_edited_from_reminder(last_edited_case: SimplifiedCase):
 def test_case_last_edited_from_report(last_edited_case: SimplifiedCase):
     """Test the case last edited date found on Report"""
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_REPORT_UPDATED)):
-        Report.objects.create(case=last_edited_case)
+        Report.objects.create(base_case=last_edited_case)
 
     assert last_edited_case.last_edited == DATETIME_REPORT_UPDATED
 
@@ -675,7 +659,7 @@ def test_case_last_edited_from_s3_report(last_edited_case: SimplifiedCase):
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_S3REPORT_UPDATED)
     ):
-        S3Report.objects.create(case=last_edited_case, version=0)
+        S3Report.objects.create(base_case=last_edited_case, version=0)
 
     assert last_edited_case.last_edited == DATETIME_S3REPORT_UPDATED
 
@@ -688,6 +672,7 @@ def test_case_statement_checks_still_initial():
     overview checks is still not tested.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    CaseCompliance.objects.create(simplified_case=simplified_case)
 
     assert simplified_case.statement_checks_still_initial is True
 
@@ -903,13 +888,13 @@ def test_equality_body_correspondence_sets_id_within_case():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     first_equality_body_correspondence: EqualityBodyCorrespondence = (
-        EqualityBodyCorrespondence.objects.create(case=simplified_case)
+        EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
     )
 
     assert first_equality_body_correspondence.id_within_case == 1
 
     second_equality_body_correspondence: EqualityBodyCorrespondence = (
-        EqualityBodyCorrespondence.objects.create(case=simplified_case)
+        EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
     )
 
     assert second_equality_body_correspondence.id_within_case == 2
@@ -984,7 +969,7 @@ def test_case_equality_body_correspondences_returns_undeleted_equality_body_corr
     """Test Case.equality_body_correspondences returns undeleted equality_body_correspondences"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_correspondence: EqualityBodyCorrespondence = (
-        EqualityBodyCorrespondence.objects.create(case=simplified_case)
+        EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
     )
 
     assert len(simplified_case.equality_body_correspondences) == 1
@@ -1006,7 +991,7 @@ def test_equality_body_correspondences_unresolved_count():
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_correspondence: EqualityBodyCorrespondence = (
-        EqualityBodyCorrespondence.objects.create(case=simplified_case)
+        EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
     )
 
     assert simplified_case.equality_body_correspondences_unresolved_count == 1
@@ -1023,7 +1008,8 @@ def test_case_equality_body_questions_returns_equality_body_questions():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=simplified_case, type=EqualityBodyCorrespondence.Type.QUESTION
+            simplified_case=simplified_case,
+            type=EqualityBodyCorrespondence.Type.QUESTION,
         )
     )
 
@@ -1037,7 +1023,8 @@ def test_case_equality_body_questions_unresolved_returns_unresolved():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     unresolved_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=simplified_case, type=EqualityBodyCorrespondence.Type.QUESTION
+            simplified_case=simplified_case,
+            type=EqualityBodyCorrespondence.Type.QUESTION,
         )
     )
 
@@ -1056,7 +1043,7 @@ def test_case_equality_body_correspondence_retests_returns_equality_body_corresp
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=simplified_case, type=EqualityBodyCorrespondence.Type.RETEST
+            simplified_case=simplified_case, type=EqualityBodyCorrespondence.Type.RETEST
         )
     )
 
@@ -1072,7 +1059,7 @@ def test_case_equality_body_correspondence_retests_unresolved_returns_unresolved
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     unresolved_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
-            case=simplified_case, type=EqualityBodyCorrespondence.Type.RETEST
+            simplified_case=simplified_case, type=EqualityBodyCorrespondence.Type.RETEST
         )
     )
 
@@ -1322,7 +1309,7 @@ def test_zendesk_ticket_get_absolute_url():
         simplified_case=simplified_case
     )
 
-    assert zendesk_ticket.get_absolute_url() == "/cases/1/update-zendesk-ticket/"
+    assert zendesk_ticket.get_absolute_url() == "/simplified/1/update-zendesk-ticket/"
 
 
 @pytest.mark.django_db
@@ -1360,8 +1347,8 @@ def test_case_report_number_of_visits():
 
     assert simplified_case.report_number_of_visits == 0
 
-    ReportVisitsMetrics.objects.create(case=simplified_case)
-    ReportVisitsMetrics.objects.create(case=simplified_case)
+    ReportVisitsMetrics.objects.create(base_case=simplified_case)
+    ReportVisitsMetrics.objects.create(base_case=simplified_case)
 
     assert simplified_case.report_number_of_visits == 2
 
@@ -1373,8 +1360,8 @@ def test_case_report_number_of_unique_visitors():
 
     assert simplified_case.report_number_of_unique_visitors == 0
 
-    ReportVisitsMetrics.objects.create(case=simplified_case)
-    ReportVisitsMetrics.objects.create(case=simplified_case)
+    ReportVisitsMetrics.objects.create(base_case=simplified_case)
+    ReportVisitsMetrics.objects.create(base_case=simplified_case)
 
     assert simplified_case.report_number_of_unique_visitors == 1
 
@@ -1466,7 +1453,7 @@ def test_case_show_create_report_true():
 def test_case_show_create_report_false():
     """Test that Case.show_create_report is false if Case has a report"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Report.objects.create(case=simplified_case)
+    Report.objects.create(base_case=simplified_case)
 
     assert simplified_case.show_create_report is False
 
@@ -1483,7 +1470,7 @@ def test_case_not_archived_has_report_true():
 def test_case_not_archived_has_report_false():
     """Test that Case.not_archived_has_report is true if Case has a report"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Report.objects.create(case=simplified_case)
+    Report.objects.create(base_case=simplified_case)
 
     assert simplified_case.not_archived_has_report is True
 
@@ -1597,8 +1584,8 @@ def test_overdue_link_report_one_week_followup():
     simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
     simplified_case.report_followup_week_1_due_date = ONE_WEEK_AGO
+    simplified_case.status = SimplifiedCase.Status.IN_REPORT_CORES
     simplified_case.save()
-    simplified_case.status.status = CaseStatus.Status.IN_REPORT_CORES
 
     assert simplified_case.overdue_link is not None
     assert simplified_case.overdue_link.label == "1-week follow-up to report due"
@@ -1617,8 +1604,8 @@ def test_overdue_link_report_four_week_followup():
 
     simplified_case.report_followup_week_4_due_date = ONE_WEEK_AGO
     simplified_case.report_followup_week_1_sent_date = ONE_WEEK_AGO
+    simplified_case.status = SimplifiedCase.Status.IN_REPORT_CORES
     simplified_case.save()
-    simplified_case.status.status = CaseStatus.Status.IN_REPORT_CORES
 
     assert simplified_case.overdue_link is not None
     assert simplified_case.overdue_link.label == "4-week follow-up to report due"
@@ -1638,8 +1625,8 @@ def test_overdue_link_report_four_week_followup_sent_one_week_ago():
     simplified_case.report_followup_week_4_due_date = FOUR_WEEKS_AGO
     simplified_case.report_followup_week_1_sent_date = FOUR_WEEKS_AGO
     simplified_case.report_followup_week_4_sent_date = ONE_WEEK_AGO
+    simplified_case.status = SimplifiedCase.Status.IN_REPORT_CORES
     simplified_case.save()
-    simplified_case.status.status = CaseStatus.Status.IN_REPORT_CORES
 
     assert simplified_case.overdue_link is not None
     assert (
@@ -1660,8 +1647,8 @@ def test_overdue_link_12_week_deadline_due():
     simplified_case: SimplifiedCase = create_case_for_overdue_link()
 
     simplified_case.report_followup_week_12_due_date = ONE_WEEK_AGO
+    simplified_case.status = SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE
     simplified_case.save()
-    simplified_case.status.status = CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
 
     assert simplified_case.overdue_link is not None
     assert simplified_case.overdue_link.label == "12-week update due"
@@ -1680,8 +1667,8 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_due():
 
     simplified_case.twelve_week_update_requested_date = TWO_WEEKS_AGO
     simplified_case.twelve_week_1_week_chaser_due_date = ONE_WEEK_AGO
+    simplified_case.status = SimplifiedCase.Status.IN_12_WEEK_CORES
     simplified_case.save()
-    simplified_case.status.status = CaseStatus.Status.IN_12_WEEK_CORES
 
     assert simplified_case.overdue_link is not None
     assert simplified_case.overdue_link.label == "1-week follow-up due"

@@ -14,6 +14,7 @@ from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 
+from ..cases.models import BaseCase
 from ..common.views import HideCaseNavigationMixin
 from ..simplified.models import CaseEvent, SimplifiedCase
 from ..simplified.utils import (
@@ -174,30 +175,32 @@ class ReportVisitsMetricsView(HideCaseNavigationMixin, ReportTemplateView):
         context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         context["showing"] = self.request.GET.get("showing")
         context["userhash"] = self.request.GET.get("userhash")
-        case: SimplifiedCase = context["report"].case
+        base_case: BaseCase = context["report"].base_case
 
         if context["userhash"]:
             context["visit_logs"] = ReportVisitsMetrics.objects.filter(
-                case=case,
+                base_case=base_case,
                 fingerprint_codename=context["userhash"],
             )
         elif context["showing"] == "unique-visitors":
             visit_logs: list[Any] = []
             disinct_values: QuerySet = (
-                ReportVisitsMetrics.objects.filter(case=case)
+                ReportVisitsMetrics.objects.filter(base_case=base_case)
                 .values("fingerprint_hash")
                 .distinct()
             )
             for query_set in disinct_values:
                 visit_logs.append(
                     ReportVisitsMetrics.objects.filter(
-                        case=case,
+                        base_case=base_case,
                         fingerprint_hash=query_set["fingerprint_hash"],
                     ).first()
                 )
             visit_logs.sort(reverse=True, key=lambda x: x.id)
             context["visit_logs"] = visit_logs
         else:
-            context["visit_logs"] = ReportVisitsMetrics.objects.filter(case=case)
+            context["visit_logs"] = ReportVisitsMetrics.objects.filter(
+                base_case=base_case
+            )
 
         return context

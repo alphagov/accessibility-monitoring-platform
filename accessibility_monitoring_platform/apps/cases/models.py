@@ -1630,6 +1630,14 @@ class BaseCase(VersionModel):
         COMPLETE = "complete", "Complete"
         DEACTIVATED = "deactivated", "Deactivated"
 
+    CLOSED_CASE_STATUSES: list[str] = [
+        Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+        Status.COMPLETE,
+        Status.CASE_CLOSED_WAITING_TO_SEND,
+        Status.IN_CORES_WITH_ENFORCEMENT_BODY,
+        Status.DEACTIVATED,
+    ]
+
     case_number = models.IntegerField(default=1)
     created_by = models.ForeignKey(
         User,

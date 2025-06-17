@@ -1,4 +1,4 @@
-""" Tests - test for notifications models """
+"""Tests - test for notifications models"""
 
 from datetime import date
 
@@ -6,8 +6,8 @@ import pytest
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from ...cases.models import Case
 from ...common.models import Link
+from ...simplified.models import SimplifiedCase
 from ..models import NotificationSetting, Task
 
 
@@ -27,11 +27,11 @@ def test_notifications_settings_returns_str():
 def test_options_qa_comment():
     """Task options for QA comment"""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     task: Task = Task.objects.create(
         type=Task.Type.QA_COMMENT,
         date=date.today(),
-        case=case,
+        base_case=simplified_case,
         user=user,
     )
 
@@ -40,7 +40,7 @@ def test_options_qa_comment():
             label="Go to QA comment",
             url=reverse(
                 "simplified:edit-qa-comments",
-                kwargs={"pk": case.id},
+                kwargs={"pk": simplified_case.id},
             ),
         ),
         Link(
@@ -54,7 +54,7 @@ def test_options_qa_comment():
             label="Mark case tasks as seen",
             url=reverse(
                 "notifications:mark-case-comments-read",
-                kwargs={"case_id": case.id},
+                kwargs={"case_id": simplified_case.id},
             ),
         ),
     ]
@@ -64,11 +64,11 @@ def test_options_qa_comment():
 def test_options_report_approved():
     """Task options for report approved"""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     task: Task = Task.objects.create(
         type=Task.Type.REPORT_APPROVED,
         date=date.today(),
-        case=case,
+        base_case=simplified_case,
         user=user,
     )
 
@@ -77,7 +77,7 @@ def test_options_report_approved():
             label="Go to Report approved",
             url=reverse(
                 "simplified:edit-qa-approval",
-                kwargs={"pk": case.id},
+                kwargs={"pk": simplified_case.id},
             ),
         ),
         Link(
@@ -91,7 +91,7 @@ def test_options_report_approved():
             label="Mark case tasks as seen",
             url=reverse(
                 "notifications:mark-case-comments-read",
-                kwargs={"case_id": case.id},
+                kwargs={"case_id": simplified_case.id},
             ),
         ),
     ]
@@ -101,11 +101,11 @@ def test_options_report_approved():
 def test_options_reminder():
     """Task options for reminder"""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     task: Task = Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
-        case=case,
+        base_case=simplified_case,
         user=user,
     )
 
@@ -131,11 +131,11 @@ def test_options_reminder():
 def test_options_read_reminder():
     """Task options for read reminder"""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     task: Task = Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
-        case=case,
+        base_case=simplified_case,
         user=user,
         read=True,
     )
@@ -145,7 +145,7 @@ def test_options_read_reminder():
             label="Create new",
             url=reverse(
                 "notifications:reminder-create",
-                kwargs={"case_id": case.id},
+                kwargs={"case_id": simplified_case.id},
             ),
         ),
     ]

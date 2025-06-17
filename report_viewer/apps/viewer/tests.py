@@ -15,7 +15,6 @@ from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.audits.models import Audit
-from accessibility_monitoring_platform.apps.cases.models import Case
 from accessibility_monitoring_platform.apps.common.models import (
     Platform,
     UserCacheUniqueHash,
@@ -27,6 +26,7 @@ from accessibility_monitoring_platform.apps.reports.models import (
 )
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWriteReport
+from accessibility_monitoring_platform.apps.simplified.models import SimplifiedCase
 
 from .middleware.report_views_middleware import ReportMetrics
 from .utils import show_warning
@@ -87,15 +87,15 @@ def test_view_privacy_notice(client):
 @mock_aws
 def test_view_report(client):
     """Test view report shows report text from S3"""
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
-    Report.objects.create(case=case)
-    Audit.objects.create(case=case)
+    Report.objects.create(base_case=simplified_case)
+    Audit.objects.create(simplified_case=simplified_case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html: str = "<p>  This is example text </ p>"
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,
-        case=case,
+        base_case=simplified_case,
         user=user,
         report_version="v1_202201401",
     )
@@ -116,10 +116,10 @@ def test_view_older_report(client):
     """
     Older reports' text is suppressed and a warning shown instead
     """
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
+    Audit.objects.create(simplified_case=simplified_case)
+    report: Report = Report.objects.create(base_case=simplified_case)
 
     template: Template = loader.get_template(
         f"""reports_common/accessibility_report_{report.report_version}.html"""
@@ -130,7 +130,7 @@ def test_view_older_report(client):
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,
-        case=case,
+        base_case=simplified_case,
         user=user,
         report_version=report.report_version,
     )
@@ -138,12 +138,14 @@ def test_view_older_report(client):
     html: str = template.render(context)
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,
-        case=case,
+        base_case=simplified_case,
         user=user,
         report_version=report.report_version,
     )
 
-    older_s3report: S3Report | None = S3Report.objects.filter(case=case).first()
+    older_s3report: S3Report | None = S3Report.objects.filter(
+        base_case=simplified_case
+    ).first()
     report_guid_kwargs: dict[str, int] = {"guid": older_s3report.guid}  # type: ignore
 
     response: HttpResponse = client.get(
@@ -155,7 +157,9 @@ def test_view_older_report(client):
     assertContains(response, "A newer version of this report is available.")
     assertNotContains(response, '<h2 id="contents">Contents</h2>')
 
-    newest_s3report: S3Report | None = S3Report.objects.filter(case=case).last()
+    newest_s3report: S3Report | None = S3Report.objects.filter(
+        base_case=simplified_case
+    ).last()
     report_guid_kwargs: dict[str, int] = {"guid": newest_s3report.guid}  # type: ignore
 
     response: HttpResponse = client.get(
@@ -172,15 +176,15 @@ def test_view_older_report(client):
 @mock_aws
 def test_view_report_not_on_s3(client):
     """Test view report shows report text from database when not on S3"""
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
-    Report.objects.create(case=case)
-    Audit.objects.create(case=case)
+    Report.objects.create(base_case=simplified_case)
+    Audit.objects.create(simplified_case=simplified_case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html_on_db: str = "<p>Text on DB</p>"
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content="<p>Text on S3</p>",
-        case=case,
+        base_case=simplified_case,
         user=user,
         report_version="v1_202201401",
     )
@@ -261,14 +265,14 @@ def test_extract_guid_from_url_returns_none():
 @mock_aws
 def test_report_metric_middleware_successful(client):
     """Test logs report views to database"""
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
-    Report.objects.create(case=case)
+    Report.objects.create(base_case=simplified_case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html_on_db: str = "<p>Text on DB</p>"
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content="<p>Text on S3</p>",
-        case=case,
+        base_case=simplified_case,
         user=user,
         report_version="v1_202201401",
     )
@@ -289,14 +293,14 @@ def test_report_metric_middleware_successful(client):
 @mock_aws
 def test_report_metric_middleware_ignore_user(client, rf):
     """Test report view logs ignores user"""
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
-    Report.objects.create(case=case)
+    Report.objects.create(base_case=simplified_case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html_on_db: str = "<p>Text on DB</p>"
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content="<p>Text on S3</p>",
-        case=case,
+        base_case=simplified_case,
         user=user,
         report_version="v1_202201401",
     )

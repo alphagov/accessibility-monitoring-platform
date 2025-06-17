@@ -34,13 +34,9 @@ class MetaStatusCaseListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         """Returns queryset with filter applied"""
         if self.value() == "open":
-            return queryset.exclude(
-                casestatus__status__in=CaseStatus.CLOSED_CASE_STATUSES
-            )
+            return queryset.exclude(status__in=SimplifiedCase.CLOSED_CASE_STATUSES)
         if self.value() == "closed":
-            return queryset.filter(
-                casestatus__status__in=CaseStatus.CLOSED_CASE_STATUSES
-            )
+            return queryset.filter(status__in=SimplifiedCase.CLOSED_CASE_STATUSES)
 
 
 class SimplifiedCaseAdmin(admin.ModelAdmin):

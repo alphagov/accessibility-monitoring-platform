@@ -1254,10 +1254,12 @@ def test_retest_is_incomplete():
 @pytest.mark.django_db
 def test_returning_original_retest():
     """Test original retest contains the retest with id_within_case of 0"""
-    case: SimplifiedCase = SimplifiedCase.objects.create()
-    first_retest: Retest = Retest.objects.create(simplified_case=case, id_within_case=0)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    first_retest: Retest = Retest.objects.create(
+        simplified_case=simplified_case, id_within_case=0
+    )
     second_retest: Retest = Retest.objects.create(
-        simplified_case=case, id_within_case=1
+        simplified_case=simplified_case, id_within_case=1
     )
 
     assert first_retest.original_retest == first_retest

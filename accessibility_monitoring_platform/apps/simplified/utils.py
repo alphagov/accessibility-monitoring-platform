@@ -66,9 +66,9 @@ def get_case_detail_sections(
     )
     view_sections: list[CaseDetailSection] = []
     for page_group in sitemap.platform_page_groups:
-        if (
-            page_group.show
-            and page_group.type == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV
+        if page_group.show and (
+            page_group.type == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV
+            or page_group.type == PlatformPageGroup.Type.CASE_TOOLS
         ):
             case_detail_pages: list[CaseDetailPage] = []
             for page in page_group.pages:
@@ -104,22 +104,6 @@ def get_case_detail_sections(
                 )
             )
     return view_sections
-
-
-def get_sent_date(
-    form: forms.ModelForm, case_from_db: SimplifiedCase, sent_date_name: str
-) -> date | None:
-    """
-    Work out what value to save in a sent date field on the case.
-    If there is a new value in the form, don't replace an existing date on the database.
-    If there is a new value in the form and no date on the database then use the date from the form.
-    If there is no value in the form (i.e. the checkbox is unchecked), set the date on the database to None.
-    """
-    date_on_form: date | None = form.cleaned_data.get(sent_date_name)
-    if date_on_form is None:
-        return None
-    date_on_db: date = getattr(case_from_db, sent_date_name)
-    return date_on_db if date_on_db else date_on_form
 
 
 def filter_cases(form) -> QuerySet[SimplifiedCase]:  # noqa: C901

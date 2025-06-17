@@ -16,9 +16,10 @@ def test_filtering_cases_by_meta_status(admin_client):
     """Test filtering of cases by meta status"""
     SimplifiedCase.objects.create(organisation_name=OPEN_CASE_ORGANISATION_NAME)
     SimplifiedCase.objects.create(
-        organisation_name=CLOSED_CASE_ORGANISATION_NAME, is_deactivated=True
+        organisation_name=CLOSED_CASE_ORGANISATION_NAME,
+        status=SimplifiedCase.Status.DEACTIVATED,
     )
-    url: str = reverse("admin:cases_case_changelist")
+    url: str = reverse("admin:simplified_simplifiedcase_changelist")
 
     response: HttpResponse = admin_client.get(f"{url}?meta_status=open")
 

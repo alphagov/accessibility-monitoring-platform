@@ -118,54 +118,54 @@ def find_duplicate_cases(
 
 
 def calculate_report_followup_dates(
-    case: SimplifiedCase, report_sent_date: date
+    simplified_case: SimplifiedCase, report_sent_date: date
 ) -> SimplifiedCase:
     """Calculate followup dates based on a report sent date"""
     if report_sent_date is None:
-        case.report_followup_week_1_due_date = None
-        case.report_followup_week_4_due_date = None
-        case.report_followup_week_12_due_date = None
+        simplified_case.report_followup_week_1_due_date = None
+        simplified_case.report_followup_week_4_due_date = None
+        simplified_case.report_followup_week_12_due_date = None
     else:
-        case.report_followup_week_1_due_date = report_sent_date + timedelta(
+        simplified_case.report_followup_week_1_due_date = report_sent_date + timedelta(
             days=ONE_WEEK_IN_DAYS
         )
-        case.report_followup_week_4_due_date = report_sent_date + timedelta(
+        simplified_case.report_followup_week_4_due_date = report_sent_date + timedelta(
             days=FOUR_WEEKS_IN_DAYS
         )
-        case.report_followup_week_12_due_date = report_sent_date + timedelta(
+        simplified_case.report_followup_week_12_due_date = report_sent_date + timedelta(
             days=TWELVE_WEEKS_IN_DAYS
         )
-    return case
+    return simplified_case
 
 
 def calculate_no_contact_chaser_dates(
-    case: SimplifiedCase, seven_day_no_contact_email_sent_date: date
+    simplified_case: SimplifiedCase, seven_day_no_contact_email_sent_date: date
 ) -> SimplifiedCase:
     """Calculate chaser dates based on seven day no contact sent date"""
     if seven_day_no_contact_email_sent_date is None:
-        case.no_contact_one_week_chaser_due_date = None
-        case.no_contact_four_week_chaser_due_date = None
+        simplified_case.no_contact_one_week_chaser_due_date = None
+        simplified_case.no_contact_four_week_chaser_due_date = None
     else:
-        case.no_contact_one_week_chaser_due_date = (
+        simplified_case.no_contact_one_week_chaser_due_date = (
             seven_day_no_contact_email_sent_date + timedelta(days=ONE_WEEK_IN_DAYS)
         )
-        case.no_contact_four_week_chaser_due_date = (
+        simplified_case.no_contact_four_week_chaser_due_date = (
             seven_day_no_contact_email_sent_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
         )
-    return case
+    return simplified_case
 
 
 def calculate_twelve_week_chaser_dates(
-    case: SimplifiedCase, twelve_week_update_requested_date: date
+    simplified_case: SimplifiedCase, twelve_week_update_requested_date: date
 ) -> SimplifiedCase:
     """Calculate chaser dates based on a twelve week update requested date"""
     if twelve_week_update_requested_date is None:
-        case.twelve_week_1_week_chaser_due_date = None
+        simplified_case.twelve_week_1_week_chaser_due_date = None
     else:
-        case.twelve_week_1_week_chaser_due_date = (
+        simplified_case.twelve_week_1_week_chaser_due_date = (
             twelve_week_update_requested_date + timedelta(days=ONE_WEEK_IN_DAYS)
         )
-    return case
+    return simplified_case
 
 
 def format_due_date_help_text(due_date: date | None) -> str:
@@ -289,6 +289,7 @@ class CaseUpdateView(NextPlatformPageMixin, UpdateView):
                 self.object.domain = extract_domain_from_url(self.object.home_page_url)
 
             self.object.save()
+            self.object.update_case_status()
 
             if old_status != self.object.status:
                 messages.add_message(
@@ -539,7 +540,7 @@ class CaseRequestContactDetailsUpdateView(CaseUpdateView):
         self.object: SimplifiedCase = form.save(commit=False)
         if "seven_day_no_contact_email_sent_date" in form.changed_data:
             self.object = calculate_no_contact_chaser_dates(
-                case=self.object,
+                simplified_case=self.object,
                 seven_day_no_contact_email_sent_date=form.cleaned_data[
                     "seven_day_no_contact_email_sent_date"
                 ],
@@ -596,7 +597,8 @@ class CaseReportSentOnUpdateView(CaseUpdateView):
         self.object: SimplifiedCase = form.save(commit=False)
         if "report_sent_date" in form.changed_data:
             self.object = calculate_report_followup_dates(
-                case=self.object, report_sent_date=form.cleaned_data["report_sent_date"]
+                simplified_case=self.object,
+                report_sent_date=form.cleaned_data["report_sent_date"],
             )
         return super().form_valid(form)
 
@@ -652,7 +654,7 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
         self.object: SimplifiedCase = form.save(commit=False)
         if "twelve_week_update_requested_date" in form.changed_data:
             self.object = calculate_twelve_week_chaser_dates(
-                case=self.object,
+                simplified_case=self.object,
                 twelve_week_update_requested_date=form.cleaned_data[
                     "twelve_week_update_requested_date"
                 ],
@@ -1267,10 +1269,10 @@ def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedir
     """Mark QA comment reminders as read for the current user"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.get(id=pk)
     mark_tasks_as_read(
-        user=request.user, case=simplified_case, type=Task.Type.QA_COMMENT
+        user=request.user, base_case=simplified_case, type=Task.Type.QA_COMMENT
     )
     mark_tasks_as_read(
-        user=request.user, case=simplified_case, type=Task.Type.REPORT_APPROVED
+        user=request.user, base_case=simplified_case, type=Task.Type.REPORT_APPROVED
     )
     messages.success(request, f"{simplified_case} comments marked as read")
     return redirect(

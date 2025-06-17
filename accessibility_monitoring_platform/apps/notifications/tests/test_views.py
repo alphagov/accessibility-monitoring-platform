@@ -8,7 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...cases.models import Case, EventHistory
+from ...simplified.models import SimplifiedCase, SimplifiedEventHistory
 from ..models import Task
 from ..views import (
     CommentsMarkAsReadView,
@@ -48,12 +48,12 @@ def test_empty_task_list(rf):
 def test_task_list(rf):
     """Test task list page renders"""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request: HttpRequest = rf.get(reverse("notifications:task-list"))
@@ -74,12 +74,12 @@ def test_task_list_other_user(rf):
     other_user: User = User.objects.create(
         username="mockuser2", email="mockuser2@mock.com", password="secret2"
     )
-    case: Case = Case.objects.create(auditor=other_user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=other_user)
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=other_user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request: HttpRequest = rf.get(
@@ -102,18 +102,18 @@ def test_task_list_all_users(rf):
     other_user: User = User.objects.create(
         username="mockuser2", email="mockuser2@mock.com", password="secret2"
     )
-    case: Case = Case.objects.create(auditor=other_user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=other_user)
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=request_user,
-        case=case,
+        base_case=simplified_case,
     )
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=other_user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request: HttpRequest = rf.get(
@@ -140,18 +140,18 @@ def test_task_list_all_users(rf):
 def test_task_list_type_filter(filtered_type, other_type, rf):
     """Test task list type filters"""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     filtered_task: Task = Task.objects.create(
         type=filtered_type,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
     other_task: Task = Task.objects.create(
         type=other_type,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request: HttpRequest = rf.get(
@@ -181,12 +181,12 @@ def test_task_list_type_filter(filtered_type, other_type, rf):
 def test_task_list_read_filter(read_param, rf):
     """Test task list read filter"""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
         description=DESCRIPTION,
         read=True,
     )
@@ -194,7 +194,7 @@ def test_task_list_read_filter(read_param, rf):
         type=Task.Type.REMINDER,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request: HttpRequest = rf.get(
@@ -214,19 +214,19 @@ def test_task_list_read_filter(read_param, rf):
 def test_task_list_future_filter(rf):
     """Test task list future filter"""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today() + timedelta(days=7),
         user=user,
-        case=case,
+        base_case=simplified_case,
         description=DESCRIPTION,
     )
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request: HttpRequest = rf.get(f'{reverse("notifications:task-list")}?future=true')
@@ -244,10 +244,12 @@ def test_task_list_future_filter(rf):
 def test_reminder_task_create(admin_client):
     """Test creating a reminder task"""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
 
     response: HttpResponse = admin_client.post(
-        reverse("notifications:reminder-create", kwargs={"case_id": case.id}),
+        reverse(
+            "notifications:reminder-create", kwargs={"case_id": simplified_case.id}
+        ),
         {
             "date_0": TODAY.day,
             "date_1": TODAY.month,
@@ -259,7 +261,7 @@ def test_reminder_task_create(admin_client):
 
     assert response.status_code == 302
 
-    reminder_task: Task = Task.objects.get(case=case)
+    reminder_task: Task = Task.objects.get(base_case=simplified_case)
 
     assert reminder_task.description == DESCRIPTION
     assert response.url == reverse(
@@ -271,16 +273,18 @@ def test_reminder_task_create(admin_client):
 def test_reminder_task_create_does_not_add_duplicate(admin_client):
     """Test creating a reminder task updates the unread Case reminder if one exists."""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("notifications:reminder-create", kwargs={"case_id": case.id}),
+        reverse(
+            "notifications:reminder-create", kwargs={"case_id": simplified_case.id}
+        ),
         {
             "date_0": TODAY.day,
             "date_1": TODAY.month,
@@ -292,9 +296,9 @@ def test_reminder_task_create_does_not_add_duplicate(admin_client):
 
     assert response.status_code == 302
 
-    assert Task.objects.filter(case=case).count() == 1
+    assert Task.objects.filter(base_case=simplified_case).count() == 1
 
-    reminder_task: Task = Task.objects.get(case=case)
+    reminder_task: Task = Task.objects.get(base_case=simplified_case)
 
     assert reminder_task.description == DESCRIPTION
 
@@ -303,17 +307,19 @@ def test_reminder_task_create_does_not_add_duplicate(admin_client):
 def test_reminder_task_create_adds_reminder_if_no_unread(admin_client):
     """Test creating a reminder task if no unread reminder exists."""
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
         read=True,
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("notifications:reminder-create", kwargs={"case_id": case.id}),
+        reverse(
+            "notifications:reminder-create", kwargs={"case_id": simplified_case.id}
+        ),
         {
             "date_0": TODAY.day,
             "date_1": TODAY.month,
@@ -325,9 +331,9 @@ def test_reminder_task_create_adds_reminder_if_no_unread(admin_client):
 
     assert response.status_code == 302
 
-    assert Task.objects.filter(case=case).count() == 2
+    assert Task.objects.filter(base_case=simplified_case).count() == 2
 
-    reminder_task: Task = case.reminder
+    reminder_task: Task = simplified_case.reminder
 
     assert reminder_task.description == DESCRIPTION
 
@@ -338,10 +344,12 @@ def test_reminder_task_create_redirects_to_case(rf):
     Test creating a reminder task redirects to parent case details
     """
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
 
     request: HttpRequest = rf.post(
-        reverse("notifications:reminder-create", kwargs={"case_id": case.id}),
+        reverse(
+            "notifications:reminder-create", kwargs={"case_id": simplified_case.id}
+        ),
         {
             "date_0": TODAY.day,
             "date_1": TODAY.month,
@@ -352,10 +360,14 @@ def test_reminder_task_create_redirects_to_case(rf):
     )
     request.user = user
 
-    response: HttpResponse = ReminderTaskCreateView.as_view()(request, case_id=case.id)
+    response: HttpResponse = ReminderTaskCreateView.as_view()(
+        request, case_id=simplified_case.id
+    )
 
     assert response.status_code == 302
-    assert response.url == reverse("simplified:case-detail", kwargs={"pk": case.id})
+    assert response.url == reverse(
+        "simplified:case-detail", kwargs={"pk": simplified_case.id}
+    )
 
     task: Task = Task.objects.all().first()
 
@@ -364,10 +376,10 @@ def test_reminder_task_create_redirects_to_case(rf):
     assert task.date == TODAY
     assert task.description == DESCRIPTION
 
-    event_history: EventHistory = EventHistory.objects.all().first()
+    event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.all().first()
 
     assert event_history is not None
-    assert event_history.event_type == EventHistory.Type.CREATE
+    assert event_history.event_type == SimplifiedEventHistory.Type.CREATE
 
 
 @pytest.mark.django_db
@@ -376,12 +388,12 @@ def test_reminder_task_update_redirects_to_self(rf):
     Test updating a reminder task redirects to reminder page
     """
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     task: Task = Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request: HttpRequest = rf.post(
@@ -408,10 +420,10 @@ def test_reminder_task_update_redirects_to_self(rf):
     assert task_from_db is not None
     assert task_from_db.description == DESCRIPTION
 
-    event_history: EventHistory = EventHistory.objects.all().first()
+    event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.all().first()
 
     assert event_history is not None
-    assert event_history.event_type == EventHistory.Type.UPDATE
+    assert event_history.event_type == SimplifiedEventHistory.Type.UPDATE
 
 
 @pytest.mark.django_db
@@ -420,12 +432,12 @@ def test_reminder_task_delete_redirects_to_create(rf):
     Test deleting a reminder task redirects to create reminder page
     """
     user: User = User.objects.create()
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     task: Task = Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request: HttpRequest = rf.post(
@@ -452,10 +464,10 @@ def test_reminder_task_delete_redirects_to_create(rf):
     assert task_from_db is not None
     assert task_from_db.read is True
 
-    event_history: EventHistory = EventHistory.objects.all().first()
+    event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.all().first()
 
     assert event_history is not None
-    assert event_history.event_type == EventHistory.Type.UPDATE
+    assert event_history.event_type == SimplifiedEventHistory.Type.UPDATE
 
 
 @pytest.mark.django_db
@@ -465,12 +477,12 @@ def test_reminder_task_update_updates_user(rf):
     """
     user_1: User = User.objects.create(username="user1", email="email1@example.com")
     user_2: User = User.objects.create(username="user2", email="email2@example.com")
-    case: Case = Case.objects.create(auditor=user_2)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user_2)
     task: Task = Task.objects.create(
         type=Task.Type.REMINDER,
         date=date.today(),
         user=user_1,
-        case=case,
+        base_case=simplified_case,
     )
 
     request: HttpRequest = rf.post(
@@ -500,12 +512,12 @@ def test_task_mark_as_read(rf):
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     task: Task = Task.objects.create(
         type=Task.Type.QA_COMMENT,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request = rf.get(reverse("notifications:mark-task-read", kwargs={"pk": task.id}))
@@ -521,7 +533,7 @@ def test_task_mark_as_read(rf):
     assert len(request._messages.messages) == 1
     assert (
         request._messages.messages[0][1]
-        == f"{task.case} {task.get_type_display()} task marked as read"
+        == f"{task.base_case} {task.get_type_display()} task marked as read"
     )
 
     task_from_db: Task = Task.objects.get(id=task.id)
@@ -538,22 +550,25 @@ def test_comments_mark_as_read_marks_tasks_as_read(rf):
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
     )
-    case: Case = Case.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     qa_comment_task: Task = Task.objects.create(
         type=Task.Type.QA_COMMENT,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
     report_approved_task: Task = Task.objects.create(
         type=Task.Type.REPORT_APPROVED,
         date=date.today(),
         user=user,
-        case=case,
+        base_case=simplified_case,
     )
 
     request = rf.get(
-        reverse("notifications:mark-case-comments-read", kwargs={"case_id": case.id})
+        reverse(
+            "notifications:mark-case-comments-read",
+            kwargs={"case_id": simplified_case.id},
+        )
     )
     request.user = user
     request._messages = MockMessages()
@@ -561,12 +576,16 @@ def test_comments_mark_as_read_marks_tasks_as_read(rf):
     assert qa_comment_task.read is False
     assert report_approved_task.read is False
 
-    response: HttpResponse = CommentsMarkAsReadView.as_view()(request, case_id=case.id)
+    response: HttpResponse = CommentsMarkAsReadView.as_view()(
+        request, case_id=simplified_case.id
+    )
 
     assert response.status_code == 302
     assert response.url == reverse("notifications:task-list")
     assert len(request._messages.messages) == 1
-    assert request._messages.messages[0][1] == f"{case} comments marked as read"
+    assert (
+        request._messages.messages[0][1] == f"{simplified_case} comments marked as read"
+    )
 
     qa_comment_task_from_db: Task = Task.objects.get(id=qa_comment_task.id)
 

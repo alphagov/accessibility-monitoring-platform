@@ -375,9 +375,6 @@ class SimplifiedCase(BaseCase):
     class Meta:
         ordering = ["-id"]
 
-    def __str__(self) -> str:
-        return f"{self.organisation_name} | {self.case_identifier}"
-
     def save(self, *args, **kwargs) -> None:
         now: datetime = timezone.now()
         if (
@@ -407,7 +404,7 @@ class SimplifiedCase(BaseCase):
 
     @property
     def next_action_due_date(self) -> date | None:
-        if self.casestatus.status == CaseStatus.Status.REPORT_READY_TO_SEND:
+        if self.status == SimplifiedCase.Status.REPORT_READY_TO_SEND:
             if (
                 self.no_contact_one_week_chaser_due_date
                 and self.no_contact_one_week_chaser_sent_date is None
@@ -423,7 +420,7 @@ class SimplifiedCase(BaseCase):
                     days=ONE_WEEK_IN_DAYS
                 )
 
-        if self.casestatus.status == CaseStatus.Status.IN_REPORT_CORES:
+        if self.status == SimplifiedCase.Status.IN_REPORT_CORES:
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date
             elif self.report_followup_week_4_sent_date is None:
@@ -436,10 +433,10 @@ class SimplifiedCase(BaseCase):
                 "Case is in-report-correspondence but neither sent date is set"
             )
 
-        if self.casestatus.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
+        if self.status == SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE:
             return self.report_followup_week_12_due_date
 
-        if self.casestatus.status == CaseStatus.Status.IN_12_WEEK_CORES:
+        if self.status == SimplifiedCase.Status.IN_12_WEEK_CORES:
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
             return self.twelve_week_1_week_chaser_sent_date + timedelta(
@@ -704,7 +701,7 @@ class SimplifiedCase(BaseCase):
 
     @property
     def previous_case_number(self):
-        result = re.search(r".*/cases/(\d+)/view.*", self.previous_case_url)
+        result = re.search(r".*/simplified/(\d+)/view.*", self.previous_case_url)
         if result:
             return result.group(1)
         return None
@@ -954,7 +951,7 @@ class SimplifiedCase(BaseCase):
         seven_days_ago = date.today() - timedelta(days=7)
 
         if (
-            self.casestatus.status == CaseStatus.Status.REPORT_READY_TO_SEND
+            self.status == SimplifiedCase.Status.REPORT_READY_TO_SEND
             and self.enable_correspondence_process is True
         ):
             if (
@@ -995,7 +992,7 @@ class SimplifiedCase(BaseCase):
                     ),
                 )
 
-        if self.casestatus.status == CaseStatus.Status.IN_REPORT_CORES:
+        if self.status == SimplifiedCase.Status.IN_REPORT_CORES:
             if (
                 self.report_followup_week_1_due_date is not None
                 and self.report_followup_week_1_due_date > start_date
@@ -1017,7 +1014,7 @@ class SimplifiedCase(BaseCase):
             ):
                 return self.in_report_correspondence_progress
 
-        if self.casestatus.status == CaseStatus.Status.AWAITING_12_WEEK_DEADLINE:
+        if self.status == SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE:
             if (
                 self.report_followup_week_12_due_date is not None
                 and self.report_followup_week_12_due_date > start_date
@@ -1031,7 +1028,7 @@ class SimplifiedCase(BaseCase):
                     ),
                 )
 
-        if self.casestatus.status == CaseStatus.Status.IN_12_WEEK_CORES:
+        if self.status == SimplifiedCase.Status.IN_12_WEEK_CORES:
             if (
                 self.twelve_week_1_week_chaser_due_date is not None
                 and self.twelve_week_1_week_chaser_due_date > start_date
