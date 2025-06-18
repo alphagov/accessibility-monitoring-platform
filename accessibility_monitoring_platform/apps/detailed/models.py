@@ -305,7 +305,7 @@ class DetailedCase(BaseCase):
         return self.contact_set.filter(is_deleted=False)
 
 
-class EventHistory(models.Model):
+class DetailedEventHistory(models.Model):
     """Model to record events on platform"""
 
     class Type(models.TextChoices):
@@ -335,7 +335,7 @@ class EventHistory(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.case} {self.content_type} {self.object_id} {self.event_type} (#{self.id})"
+        return f"{self.detailed_case} {self.content_type} {self.object_id} {self.event_type} (#{self.id})"
 
     class Meta:
         ordering = ["-created"]
@@ -347,7 +347,7 @@ class EventHistory(models.Model):
 
         variable_list: list[dict[str, int | str]] = []
         for key, value in differences.items():
-            if self.event_type == EventHistory.Type.CREATE:
+            if self.event_type == DetailedEventHistory.Type.CREATE:
                 old_value: str = ""
                 new_value: int | str = value
             else:

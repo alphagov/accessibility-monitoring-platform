@@ -56,8 +56,8 @@ from .forms import (
 from .models import Contact, DetailedCase, DetailedCaseHistory
 from .utils import (
     add_to_detailed_case_history,
-    record_model_create_event,
-    record_model_update_event,
+    record_detailed_model_create_event,
+    record_detailed_model_update_event,
 )
 
 
@@ -120,7 +120,7 @@ class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
         """Detect the submit button used and act accordingly"""
         detailed_case: DetailedCase = self.object
         user: User = self.request.user
-        record_model_create_event(
+        record_detailed_model_create_event(
             user=user, model_object=detailed_case, detailed_case=detailed_case
         )
         DetailedCaseHistory.objects.create(
@@ -158,7 +158,7 @@ class DetailedCaseUpdateView(NextPlatformPageMixin, UpdateView):
         if form.changed_data:
             self.object: DetailedCase = form.save(commit=False)
             user: User = self.request.user
-            record_model_update_event(
+            record_detailed_model_update_event(
                 user=user, model_object=self.object, detailed_case=self.object
             )
             self.object.save()
@@ -193,7 +193,7 @@ class DetailedCaseStatusUpdateView(HideCaseNavigationMixin, UpdateView):
         if form.changed_data:
             self.object: DetailedCase = form.save(commit=False)
             user: User = self.request.user
-            record_model_update_event(
+            record_detailed_model_update_event(
                 user=user, model_object=self.object, detailed_case=self.object
             )
             self.object.save()
@@ -244,7 +244,7 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         detailed_case_history: DetailedCaseHistory = self.object
         detailed_case: DetailedCase = detailed_case_history.detailed_case
         user: User = self.request.user
-        record_model_create_event(
+        record_detailed_model_create_event(
             user=user,
             model_object=detailed_case_history,
             detailed_case=detailed_case,
@@ -281,7 +281,7 @@ class ContactCreateView(AddDetailedCaseToContextMixin, CreateView):
 
     def get_success_url(self) -> str:
         """Return to the list of contact details"""
-        record_model_create_event(
+        record_detailed_model_create_event(
             user=self.request.user,
             model_object=self.object,
             detailed_case=self.object.detailed_case,
@@ -311,7 +311,7 @@ class ContactUpdateView(UpdateView):
         contact: Contact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
             contact.is_deleted = True
-        record_model_update_event(
+        record_detailed_model_update_event(
             user=self.request.user,
             model_object=contact,
             detailed_case=contact.detailed_case,
@@ -359,7 +359,7 @@ class ContactChasingRecordUpdateView(DetailedCaseUpdateView):
             self.object: DetailedCase = form.save(commit=False)
             self.object.notes = ""
             user: User = self.request.user
-            record_model_update_event(
+            record_detailed_model_update_event(
                 user=user, model_object=self.object, detailed_case=self.object
             )
             self.object.save()

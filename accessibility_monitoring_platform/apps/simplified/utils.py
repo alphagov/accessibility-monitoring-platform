@@ -56,13 +56,15 @@ class CaseDetailSection:
     pages: list[CaseDetailPage]
 
 
-def get_case_detail_sections(
-    case: SimplifiedCase, sitemap: Sitemap
+def get_simplified_case_detail_sections(
+    simplified_case: SimplifiedCase, sitemap: Sitemap
 ) -> list[CaseDetailSection]:
     """Get sections for case view"""
-    get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
+    get_case_rows: Callable = partial(
+        extract_form_labels_and_values, instance=simplified_case
+    )
     get_audit_rows: Callable = partial(
-        extract_form_labels_and_values, instance=case.audit
+        extract_form_labels_and_values, instance=simplified_case.audit
     )
     view_sections: list[CaseDetailSection] = []
     for page_group in sitemap.platform_page_groups:

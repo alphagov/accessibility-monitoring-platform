@@ -241,7 +241,7 @@ class Audit(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return f"{self.case} (Test {amp_format_date(self.date_of_test)})"
+        return f"{self.simplified_case} (Test {amp_format_date(self.date_of_test)})"
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})

@@ -86,7 +86,7 @@ class Report(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.case} | {amp_format_datetime(self.created)}")
+        return str(f"{self.base_case} | {amp_format_datetime(self.created)}")
 
     def save(self, *args, **kwargs) -> None:
         now: datetime = timezone.now()

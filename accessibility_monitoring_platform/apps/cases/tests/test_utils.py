@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 
 from ...common.models import Sector, SubCategory
 from ...simplified.models import CaseStatus, SimplifiedCase
+from ..forms import CaseSearchForm
 from ..utils import filter_cases
 
 ORGANISATION_NAME: str = "Organisation name one"
@@ -193,6 +194,78 @@ def test_case_filtered_by_subcategory():
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_all_test_types():
+    """Test filtering cases by all testing types"""
+    SimplifiedCase.objects.create(
+        organisation_name="Simplified Org", test_type=SimplifiedCase.TestType.SIMPLIFIED
+    )
+    SimplifiedCase.objects.create(
+        organisation_name="Detailed Org", test_type=SimplifiedCase.TestType.DETAILED
+    )
+    SimplifiedCase.objects.create(
+        organisation_name="Mobile Org", test_type=SimplifiedCase.TestType.MOBILE
+    )
+    form: MockForm = MockForm(cleaned_data={"test_type": ""})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 3
+    assert filtered_cases[0].organisation_name == "Mobile Org"
+    assert filtered_cases[1].organisation_name == "Detailed Org"
+    assert filtered_cases[2].organisation_name == "Simplified Org"
+
+
+@pytest.mark.parametrize(
+    "test_type, expected_organisation",
+    [
+        (SimplifiedCase.TestType.SIMPLIFIED, "Simplified Org"),
+        (SimplifiedCase.TestType.DETAILED, "Detailed Org"),
+        (SimplifiedCase.TestType.MOBILE, "Mobile Org"),
+    ],
+)
+@pytest.mark.django_db
+def test_case_filtered_by_test_type(test_type, expected_organisation):
+    """
+    Test that filtering cases by specific testing type is reflected in the queryset
+    """
+    SimplifiedCase.objects.create(
+        organisation_name="Simplified Org", test_type=SimplifiedCase.TestType.SIMPLIFIED
+    )
+    SimplifiedCase.objects.create(
+        organisation_name="Detailed Org", test_type=SimplifiedCase.TestType.DETAILED
+    )
+    SimplifiedCase.objects.create(
+        organisation_name="Mobile Org", test_type=SimplifiedCase.TestType.MOBILE
+    )
+    form: MockForm = MockForm(cleaned_data={"test_type": test_type})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == expected_organisation
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_default_test_type():
+    """Test filtering cases by test type simplified happens by default"""
+    SimplifiedCase.objects.create(
+        organisation_name="Simplified Org", test_type=SimplifiedCase.TestType.SIMPLIFIED
+    )
+    SimplifiedCase.objects.create(
+        organisation_name="Detailed Org", test_type=SimplifiedCase.TestType.DETAILED
+    )
+    SimplifiedCase.objects.create(
+        organisation_name="Mobile Org", test_type=SimplifiedCase.TestType.MOBILE
+    )
+    form: CaseSearchForm = CaseSearchForm()
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Simplified Org"
 
 
 @pytest.mark.django_db

@@ -94,7 +94,7 @@ from .models import (
 )
 from .utils import (
     filter_cases,
-    get_case_detail_sections,
+    get_simplified_case_detail_sections,
     record_case_event,
     record_simplified_model_create_event,
     record_simplified_model_update_event,
@@ -192,8 +192,8 @@ class CaseDetailView(DetailView):
 
         return {
             **{
-                "case_detail_sections": get_case_detail_sections(
-                    case=simplified_case, sitemap=sitemap
+                "case_detail_sections": get_simplified_case_detail_sections(
+                    simplified_case=simplified_case, sitemap=sitemap
                 )
             },
             **context,

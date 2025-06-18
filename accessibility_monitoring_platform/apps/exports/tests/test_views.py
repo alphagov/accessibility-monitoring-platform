@@ -318,9 +318,11 @@ def test_confirm_export(admin_client):
         "exports:export-ready-cases", kwargs={"pk": export.id}
     )
 
-    case: SimplifiedCase = SimplifiedCase.objects.get(id=export_case.simplified_case.id)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.get(
+        id=export_case.simplified_case.id
+    )
 
-    assert case.sent_to_enforcement_body_sent_date == date.today()
+    assert simplified_case.sent_to_enforcement_body_sent_date == date.today()
 
     event_history: QuerySet[SimplifiedEventHistory] = (
         SimplifiedEventHistory.objects.all()
@@ -329,7 +331,7 @@ def test_confirm_export(admin_client):
     assert len(event_history) == 2
     assert event_history[0].parent == export
     assert event_history[0].event_type == "model_update"
-    assert event_history[1].parent == case
+    assert event_history[1].parent == simplified_case
     assert event_history[1].event_type == "model_update"
 
 
@@ -368,12 +370,12 @@ def test_export_case_as_email(admin_client):
     export: Export = create_cases_and_export(
         enforcement_body=SimplifiedCase.EnforcementBody.ECNI
     )
-    case: ExportCase = export.exportcase_set.first()
+    export_case: ExportCase = export.exportcase_set.first()
 
     response: HttpResponse = admin_client.get(
         reverse(
             "exports:export-case-as-email",
-            kwargs={"export_id": export.id, "pk": case.id},
+            kwargs={"export_id": export.id, "pk": export_case.id},
         )
     )
 

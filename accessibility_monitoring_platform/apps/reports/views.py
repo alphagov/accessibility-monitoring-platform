@@ -77,7 +77,7 @@ class ReportUpdateView(UpdateView):
             record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=self.object,
-                simplified_case=self.object.case,
+                simplified_case=self.object.base_case,
             )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())

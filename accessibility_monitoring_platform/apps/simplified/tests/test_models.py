@@ -22,7 +22,7 @@ from ...audits.models import (
     WcagDefinition,
 )
 from ...comments.models import Comment
-from ...common.models import Boolean, EmailTemplate
+from ...common.models import Boolean, EmailTemplate, Link
 from ...notifications.models import Task
 from ...reports.models import Report, ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
@@ -902,7 +902,7 @@ def test_equality_body_correspondence_sets_id_within_case():
 
 @pytest.mark.django_db
 def test_case_retests_returns_undeleted_retests():
-    """Test Case.retests returns undeleted retests"""
+    """Test SimplifiedCase.retests returns undeleted retests"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
@@ -918,7 +918,7 @@ def test_case_retests_returns_undeleted_retests():
 @pytest.mark.django_db
 def test_case_number_retests():
     """
-    Test Case.number_retests returns number of retests not counting
+    Test SimplifiedCase.number_retests returns number of retests not counting
     Retest #0.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -933,7 +933,7 @@ def test_case_number_retests():
 
 @pytest.mark.django_db
 def test_case_latest_retest_returns_most_recent():
-    """Test Case.latest_retest returns most recent"""
+    """Test SimplifiedCase.latest_retest returns most recent"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert simplified_case.latest_retest is None
@@ -951,7 +951,7 @@ def test_case_latest_retest_returns_most_recent():
 
 @pytest.mark.django_db
 def test_case_incomplete_retests_returns_incomplete_retests():
-    """Test Case.incomplete_retests returns retests with the default state"""
+    """Test SimplifiedCase.incomplete_retests returns retests with the default state"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     incomplete_retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
@@ -966,7 +966,7 @@ def test_case_incomplete_retests_returns_incomplete_retests():
 
 @pytest.mark.django_db
 def test_case_equality_body_correspondences_returns_undeleted_equality_body_correspondences():
-    """Test Case.equality_body_correspondences returns undeleted equality_body_correspondences"""
+    """Test SimplifiedCase.equality_body_correspondences returns undeleted equality_body_correspondences"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_correspondence: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
@@ -986,7 +986,7 @@ def test_case_equality_body_correspondences_returns_undeleted_equality_body_corr
 @pytest.mark.django_db
 def test_equality_body_correspondences_unresolved_count():
     """
-    Test Case.equality_body_correspondences_unresolved_count returns number of
+    Test SimplifiedCase.equality_body_correspondences_unresolved_count returns number of
     unresolved equality_body_correspondences.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -1004,7 +1004,7 @@ def test_equality_body_correspondences_unresolved_count():
 
 @pytest.mark.django_db
 def test_case_equality_body_questions_returns_equality_body_questions():
-    """Test Case.equality_body_questions returns equality_body_questions"""
+    """Test SimplifiedCase.equality_body_questions returns equality_body_questions"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
@@ -1019,7 +1019,7 @@ def test_case_equality_body_questions_returns_equality_body_questions():
 
 @pytest.mark.django_db
 def test_case_equality_body_questions_unresolved_returns_unresolved():
-    """Test Case.equality_body_questions_unresolved returns questions with the default state"""
+    """Test SimplifiedCase.equality_body_questions_unresolved returns questions with the default state"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     unresolved_question: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
@@ -1039,7 +1039,7 @@ def test_case_equality_body_questions_unresolved_returns_unresolved():
 
 @pytest.mark.django_db
 def test_case_equality_body_correspondence_retests_returns_equality_body_correspondence_retests():
-    """Test Case.equality_body_correspondence_retests returns equality_body_correspondence_retests"""
+    """Test SimplifiedCase.equality_body_correspondence_retests returns equality_body_correspondence_retests"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     equality_body_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
@@ -1055,7 +1055,7 @@ def test_case_equality_body_correspondence_retests_returns_equality_body_corresp
 
 @pytest.mark.django_db
 def test_case_equality_body_correspondence_retests_unresolved_returns_unresolved():
-    """Test Case.equality_body_correspondence_retests_unresolved returns retests with the default state"""
+    """Test SimplifiedCase.equality_body_correspondence_retests_unresolved returns retests with the default state"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     unresolved_retest: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(
@@ -1269,7 +1269,7 @@ def test_csv_export_statement_found_at_12_week_retest():
 
 @pytest.mark.django_db
 def test_case_latest_psb_zendesk_url():
-    """Test Case.latest_psb_zendesk_url"""
+    """Test SimplifiedCase.latest_psb_zendesk_url"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert simplified_case.latest_psb_zendesk_url == ""
@@ -1286,7 +1286,7 @@ def test_case_latest_psb_zendesk_url():
 
 @pytest.mark.django_db
 def test_case_zendesk_tickets():
-    """Test Case.zendesk_tickets"""
+    """Test SimplifiedCase.zendesk_tickets"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(
         simplified_case=simplified_case
@@ -1331,7 +1331,7 @@ def test_zendesk_ticket_id_within_case():
 
 @pytest.mark.django_db
 def test_case_email_tmplates():
-    """Test Case.email_templates returns expected data"""
+    """Test SimplifiedCase.email_templates returns expected data"""
     email_templates: QuerySet[EmailTemplate] = EmailTemplate.objects.filter(
         is_deleted=False
     )
@@ -1342,7 +1342,7 @@ def test_case_email_tmplates():
 
 @pytest.mark.django_db
 def test_case_report_number_of_visits():
-    """Test Case.report_number_of_visits returns expected data"""
+    """Test SimplifiedCase.report_number_of_visits returns expected data"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert simplified_case.report_number_of_visits == 0
@@ -1355,7 +1355,7 @@ def test_case_report_number_of_visits():
 
 @pytest.mark.django_db
 def test_case_report_number_of_unique_visitors():
-    """Test Case.report_number_of_unique_visitors returns expected data"""
+    """Test SimplifiedCase.report_number_of_unique_visitors returns expected data"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert simplified_case.report_number_of_unique_visitors == 0
@@ -1368,7 +1368,7 @@ def test_case_report_number_of_unique_visitors():
 
 @pytest.mark.django_db
 def test_case_website_contact_links_count():
-    """Test Case.website_contact_links_count returns expected data"""
+    """Test SimplifiedCase.website_contact_links_count returns expected data"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert simplified_case.website_contact_links_count == 0
@@ -1387,7 +1387,7 @@ def test_case_website_contact_links_count():
 
 
 def test_case_not_archived():
-    """Test that Case.not_archived is true if Case.archived is empty"""
+    """Test that SimplifiedCase.not_archived is true if SimplifiedCase.archived is empty"""
     simplified_case: SimplifiedCase = SimplifiedCase()
 
     assert simplified_case.not_archived is True
@@ -1400,7 +1400,7 @@ def test_case_not_archived():
 @pytest.mark.django_db
 def test_case_show_start_tests():
     """
-    Test that Case.show_start_tests is true when no audit exists and
+    Test that SimplifiedCase.show_start_tests is true when no audit exists and
     the case is not archived
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -1423,7 +1423,7 @@ def test_case_show_start_tests():
 @pytest.mark.django_db
 def test_case_not_archived_has_audit():
     """
-    Test that Case.not_archived_has_audit is true when audit exists and
+    Test that SimplifiedCase.not_archived_has_audit is true when audit exists and
     the case is not archived
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -1443,7 +1443,7 @@ def test_case_not_archived_has_audit():
 
 @pytest.mark.django_db
 def test_case_show_create_report_true():
-    """Test that Case.show_create_report is true if Case has no report"""
+    """Test that SimplifiedCase.show_create_report is true if Case has no report"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert simplified_case.show_create_report is True
@@ -1451,7 +1451,7 @@ def test_case_show_create_report_true():
 
 @pytest.mark.django_db
 def test_case_show_create_report_false():
-    """Test that Case.show_create_report is false if Case has a report"""
+    """Test that SimplifiedCase.show_create_report is false if Case has a report"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     Report.objects.create(base_case=simplified_case)
 
@@ -1460,7 +1460,7 @@ def test_case_show_create_report_false():
 
 @pytest.mark.django_db
 def test_case_not_archived_has_report_true():
-    """Test that Case.not_archived_has_report is false if Case has no report"""
+    """Test that SimplifiedCase.not_archived_has_report is false if Case has no report"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert simplified_case.not_archived_has_report is False
@@ -1468,7 +1468,7 @@ def test_case_not_archived_has_report_true():
 
 @pytest.mark.django_db
 def test_case_not_archived_has_report_false():
-    """Test that Case.not_archived_has_report is true if Case has a report"""
+    """Test that SimplifiedCase.not_archived_has_report is true if Case has a report"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     Report.objects.create(base_case=simplified_case)
 
@@ -1478,7 +1478,7 @@ def test_case_not_archived_has_report_false():
 @pytest.mark.django_db
 def test_show_start_12_week_retest():
     """
-    Test Case.show_start_12_week_retest true when Case is not achived,
+    Test SimplifiedCase.show_start_12_week_retest true when Case is not achived,
     has an audit and the retest_date is not set.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -1497,7 +1497,7 @@ def test_show_start_12_week_retest():
 @pytest.mark.django_db
 def test_show_12_week_retest():
     """
-    Test Case.show_12_week_retest true when Case is not achived,
+    Test SimplifiedCase.show_12_week_retest true when Case is not achived,
     has an audit and the retest_date is set.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -1704,7 +1704,7 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
 
 @pytest.mark.django_db
 def test_case_reminder():
-    """Test Case.reminder returns the unread reminder"""
+    """Test SimplifiedCase.reminder returns the unread reminder"""
     user: User = User.objects.create()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     reminder: Task = Task.objects.create(
@@ -1724,7 +1724,7 @@ def test_case_reminder():
 
 @pytest.mark.django_db
 def test_case_reminder_history():
-    """Test Case.reminder_history returns the read reminders"""
+    """Test SimplifiedCase.reminder_history returns the read reminders"""
     user: User = User.objects.create()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     reminder: Task = Task.objects.create(
@@ -1808,3 +1808,138 @@ def test_event_history_history_update_separator_in_text():
             "new_value": "New note -> separator",
         }
     ]
+
+
+@pytest.mark.django_db
+def test_update_case_status():
+    """Test SimplifiedCase.update_case_status updates the case status"""
+    user: User = User.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
+    CaseStatus.objects.create(simplified_case=simplified_case)
+
+    assert simplified_case.status == SimplifiedCase.Status.UNASSIGNED
+
+    simplified_case.update_case_status()
+
+    assert simplified_case.status == SimplifiedCase.Status.TEST_IN_PROGRESS
+
+
+@pytest.mark.parametrize(
+    "status, expected_label, expected_url",
+    [
+        (
+            CaseStatus.Status.UNASSIGNED,
+            "Go to case metadata",
+            "simplified:edit-case-metadata",
+        ),
+        (
+            CaseStatus.Status.TEST_IN_PROGRESS,
+            "Go to testing details",
+            "simplified:edit-test-results",
+        ),
+        (
+            CaseStatus.Status.REPORT_IN_PROGRESS,
+            "Go to report ready for QA",
+            "simplified:edit-report-ready-for-qa",
+        ),
+        (
+            CaseStatus.Status.READY_TO_QA,
+            "Go to QA approval",
+            "simplified:edit-qa-approval",
+        ),
+        (
+            CaseStatus.Status.QA_IN_PROGRESS,
+            "Go to QA approval",
+            "simplified:edit-qa-approval",
+        ),
+        (
+            CaseStatus.Status.REPORT_READY_TO_SEND,
+            "Go to Report sent on",
+            "simplified:edit-report-sent-on",
+        ),
+        (
+            CaseStatus.Status.AWAITING_12_WEEK_DEADLINE,
+            "Go to 12-week update requested",
+            "simplified:edit-12-week-update-requested",
+        ),
+        (
+            CaseStatus.Status.FINAL_DECISION_DUE,
+            "Go to closing the case",
+            "simplified:edit-case-close",
+        ),
+        (
+            CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND,
+            "Go to closing the case",
+            "simplified:edit-case-close",
+        ),
+        (
+            CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+            "Go to equality body metadata",
+            "simplified:edit-equality-body-metadata",
+        ),
+        (
+            CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY,
+            "Go to equality body metadata",
+            "simplified:edit-equality-body-metadata",
+        ),
+        (
+            CaseStatus.Status.COMPLETE,
+            "Go to post case summary",
+            "simplified:edit-post-case",
+        ),
+        (
+            CaseStatus.Status.DEACTIVATED,
+            "Go to case metadata",
+            "simplified:edit-case-metadata",
+        ),
+    ],
+)
+@pytest.mark.django_db
+def test_next_page_link(status, expected_label, expected_url):
+    """Check that the expected next page link is returned for each Case status"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(status=status)
+
+    assert simplified_case.next_page_link == Link(
+        label=expected_label,
+        url=reverse(expected_url, kwargs={"pk": simplified_case.id}),
+    )
+
+
+@pytest.mark.django_db
+def test_next_page_link_in_report_cores():
+    """
+    Check that the expected next page link is returned for Case status in report
+    correspondence
+    """
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        status=CaseStatus.Status.IN_REPORT_CORES
+    )
+
+    assert (
+        simplified_case.next_page_link
+        == simplified_case.in_report_correspondence_progress
+    )
+
+
+@pytest.mark.django_db
+def test_next_page_link_in_12_week_cores():
+    """
+    Check that the expected next page link is returned for Case status in 12-week
+    correspondence
+    """
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        status=CaseStatus.Status.IN_12_WEEK_CORES
+    )
+
+    assert (
+        simplified_case.next_page_link
+        == simplified_case.twelve_week_correspondence_progress
+    )
+
+
+@pytest.mark.django_db
+def test_simplified_case_identifier():
+    """Test the SimplifiedCase.case_identifier"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    assert simplified_case.case_identifier == "#S-1"

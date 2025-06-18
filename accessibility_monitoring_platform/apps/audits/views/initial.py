@@ -631,10 +631,12 @@ class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
     template_name: str = "audits/forms/test_summary_statement.html"
 
     def get_next_platform_page(self) -> PlatformPage:
-        case: SimplifiedCase = self.object.simplified_case
+        simplified_case: SimplifiedCase = self.object.simplified_case
         next_page_url_name: str = (
             "simplified:edit-create-report"
-            if case.report is None
+            if simplified_case.report is None
             else "simplified:edit-report-ready-for-qa"
         )
-        return get_platform_page_by_url_name(url_name=next_page_url_name, instance=case)
+        return get_platform_page_by_url_name(
+            url_name=next_page_url_name, instance=simplified_case
+        )

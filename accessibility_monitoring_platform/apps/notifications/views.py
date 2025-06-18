@@ -168,7 +168,7 @@ class ReminderTaskCreateView(CreateView):
         record_simplified_model_create_event(
             user=self.request.user,
             model_object=self.object,
-            simplified_case=self.object.case,
+            simplified_case=self.object.base_case,
         )
         return reverse(
             "simplified:case-detail", kwargs={"pk": self.object.base_case.id}
@@ -191,12 +191,16 @@ class ReminderTaskUpdateView(UpdateView):
             self.object: Task = form.save(commit=False)
             if "delete" in self.request.POST:
                 self.object.read = True
-            case: SimplifiedCase = self.object.base_case
-            self.object.user = case.auditor if case.auditor else self.request.user
+            simplified_case: SimplifiedCase = self.object.base_case
+            self.object.user = (
+                simplified_case.auditor
+                if simplified_case.auditor
+                else self.request.user
+            )
             record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=self.object,
-                simplified_case=self.object.case,
+                simplified_case=self.object.base_case.simplifiedcase,
             )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())

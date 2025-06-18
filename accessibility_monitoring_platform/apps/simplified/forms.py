@@ -320,13 +320,13 @@ class CasePublishReportUpdateForm(VersionForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        case: SimplifiedCase = self.instance
-        if case:
+        simplified_case: SimplifiedCase = self.instance
+        if simplified_case:
             if (
-                not case.published_report_url
-                or not case.report
-                or case.report_review_status != Boolean.YES
-                or case.report_approved_status
+                not simplified_case.published_report_url
+                or not simplified_case.report
+                or simplified_case.report_review_status != Boolean.YES
+                or simplified_case.report_approved_status
                 != SimplifiedCase.ReportApprovedStatus.APPROVED
             ):
                 self.fields["publish_report_complete_date"].widget = forms.HiddenInput()

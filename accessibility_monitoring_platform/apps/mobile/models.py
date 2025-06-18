@@ -112,7 +112,7 @@ class EventHistory(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.case} {self.content_type} {self.object_id} {self.event_type} (#{self.id})"
+        return f"{self.mobile_case} {self.content_type} {self.object_id} {self.event_type} (#{self.id})"
 
     class Meta:
         ordering = ["-created"]

@@ -471,7 +471,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name="EventHistory",
+            name="DetailedEventHistory",
             fields=[
                 (
                     "id",

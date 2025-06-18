@@ -1057,6 +1057,84 @@ class SimplifiedCase(BaseCase):
                 self.casestatus.status = status
                 self.casestatus.save()
 
+    @property
+    def next_page_link(self) -> Link:
+        """Return link to next page based on Case status"""
+        return {
+            CaseStatus.Status.UNASSIGNED: Link(
+                label="Go to case metadata",
+                url=reverse("simplified:edit-case-metadata", kwargs={"pk": self.id}),
+            ),
+            CaseStatus.Status.TEST_IN_PROGRESS: Link(
+                label="Go to testing details",
+                url=reverse("simplified:edit-test-results", kwargs={"pk": self.id}),
+            ),
+            CaseStatus.Status.REPORT_IN_PROGRESS: Link(
+                label="Go to report ready for QA",
+                url=reverse(
+                    "simplified:edit-report-ready-for-qa", kwargs={"pk": self.id}
+                ),
+            ),
+            CaseStatus.Status.READY_TO_QA: Link(
+                label="Go to QA approval",
+                url=reverse("simplified:edit-qa-approval", kwargs={"pk": self.id}),
+            ),
+            CaseStatus.Status.QA_IN_PROGRESS: Link(
+                label="Go to QA approval",
+                url=reverse("simplified:edit-qa-approval", kwargs={"pk": self.id}),
+            ),
+            CaseStatus.Status.REPORT_READY_TO_SEND: Link(
+                label="Go to Report sent on",
+                url=reverse("simplified:edit-report-sent-on", kwargs={"pk": self.id}),
+            ),
+            CaseStatus.Status.IN_REPORT_CORES: self.in_report_correspondence_progress,
+            CaseStatus.Status.AWAITING_12_WEEK_DEADLINE: Link(
+                label="Go to 12-week update requested",
+                url=reverse(
+                    "simplified:edit-12-week-update-requested", kwargs={"pk": self.id}
+                ),
+            ),
+            CaseStatus.Status.IN_12_WEEK_CORES: self.twelve_week_correspondence_progress,
+            CaseStatus.Status.REVIEWING_CHANGES: Link(
+                label="Go to reviewing changes",
+                url=reverse("simplified:edit-review-changes", kwargs={"pk": self.id}),
+            ),
+            CaseStatus.Status.FINAL_DECISION_DUE: Link(
+                label="Go to closing the case",
+                url=reverse("simplified:edit-case-close", kwargs={"pk": self.id}),
+            ),
+            CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND: Link(
+                label="Go to closing the case",
+                url=reverse("simplified:edit-case-close", kwargs={"pk": self.id}),
+            ),
+            CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY: Link(
+                label="Go to equality body metadata",
+                url=reverse(
+                    "simplified:edit-equality-body-metadata", kwargs={"pk": self.id}
+                ),
+            ),
+            CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY: Link(
+                label="Go to equality body metadata",
+                url=reverse(
+                    "simplified:edit-equality-body-metadata", kwargs={"pk": self.id}
+                ),
+            ),
+            CaseStatus.Status.COMPLETE: Link(
+                label="Go to post case summary",
+                url=reverse("simplified:edit-post-case", kwargs={"pk": self.id}),
+            ),
+            CaseStatus.Status.DEACTIVATED: Link(
+                label="Go to case metadata",
+                url=reverse("simplified:edit-case-metadata", kwargs={"pk": self.id}),
+            ),
+        }.get(
+            self.status,
+            Link(
+                label="Go to case metadata",
+                url=reverse("simplified:edit-case-metadata", kwargs={"pk": self.id}),
+            ),
+        )
+
 
 class CaseStatus(models.Model):
     """

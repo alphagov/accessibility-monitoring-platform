@@ -19,8 +19,8 @@ def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argu
         }
     except User.DoesNotExist:  # Automated tests
         return
-    EventHistory = apps.get_model("detailed", "EventHistory")
-    EventHistory.objects.all().delete()
+    DetailedEventHistory = apps.get_model("detailed", "DetailedEventHistory")
+    DetailedEventHistory.objects.all().delete()
     DetailedCase = apps.get_model("detailed", "DetailedCase")
     DetailedCase.objects.all().delete()
     DetailedCaseHistory = apps.get_model("detailed", "DetailedCaseHistory")
@@ -39,8 +39,8 @@ def populate_detailed_cases(apps, schema_editor):  # pylint: disable=unused-argu
 
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
-    EventHistory = apps.get_model("detailed", "EventHistory")
-    EventHistory.objects.all().delete()
+    DetailedEventHistory = apps.get_model("detailed", "DetailedEventHistory")
+    DetailedEventHistory.objects.all().delete()
     DetailedCaseHistory = apps.get_model("detailed", "DetailedCaseHistory")
     DetailedCaseHistory.objects.all().delete()
     DetailedCase = apps.get_model("detailed", "DetailedCase")

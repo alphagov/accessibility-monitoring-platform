@@ -200,22 +200,22 @@ def test_build_edit_link_html():
 @pytest.mark.django_db
 def test_create_case_and_compliance_no_args():
     """Test cretaion of case and compliance with no arguments"""
-    case: SimplifiedCase = create_case_and_compliance()
+    simplified_case: SimplifiedCase = create_case_and_compliance()
 
-    assert isinstance(case, SimplifiedCase)
-    assert isinstance(case.compliance, CaseCompliance)
+    assert isinstance(simplified_case, SimplifiedCase)
+    assert isinstance(simplified_case.compliance, CaseCompliance)
 
 
 @pytest.mark.django_db
 def test_create_case_and_compliance():
     """Test cretaion of case and compliance with mix of arguments"""
-    case: SimplifiedCase = create_case_and_compliance(
+    simplified_case: SimplifiedCase = create_case_and_compliance(
         organisation_name=ORGANISATION_NAME,
         website_compliance_state_12_week="compliant",
     )
 
-    assert case.organisation_name == ORGANISATION_NAME
-    assert case.compliance.website_compliance_state_12_week == "compliant"
+    assert simplified_case.organisation_name == ORGANISATION_NAME
+    assert simplified_case.compliance.website_compliance_state_12_week == "compliant"
 
 
 @pytest.mark.django_db
