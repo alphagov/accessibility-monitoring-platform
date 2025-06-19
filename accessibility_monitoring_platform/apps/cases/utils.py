@@ -58,6 +58,7 @@ def filter_cases(form) -> QuerySet[BaseCase] | QuerySet[SimplifiedCase]:
                     | Q(parental_organisation_name__icontains=search)
                     | Q(website_name__icontains=search)
                     | Q(subcategory__name__icontains=search)
+                    | Q(case_identifier__icontains=search)
                 )
         for filter_name in [
             "is_complaint",

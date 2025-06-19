@@ -19,11 +19,12 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
+from ..audits.models import Audit
 from ..cases.models import BaseCase
 from ..common.sitemap import PlatformPage, Sitemap
 from ..detailed.utils import import_detailed_cases_csv
 from ..mobile.utils import import_mobile_cases_csv
-from ..simplified.models import SimplifiedCase
+from ..simplified.models import SimplifiedCase, SimplifiedEventHistory
 from ..simplified.utils import (
     record_simplified_model_create_event,
     record_simplified_model_update_event,
@@ -62,8 +63,6 @@ from .platform_template_view import PlatformTemplateView
 from .utils import extract_domain_from_url, get_platform_settings, sanitise_domain
 
 logger = logging.getLogger(__name__)
-
-REFERENCE_IMPLEMENTATION_CASE_ID: int = 1170
 
 
 class HideCaseNavigationMixin:
@@ -456,12 +455,23 @@ class ReferenceImplementaionView(TemplateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: SimplifiedCase | None = SimplifiedCase.objects.filter(
-            id=REFERENCE_IMPLEMENTATION_CASE_ID
-        ).first()
-        if case is None:  # In test environment
-            case: SimplifiedCase | None = SimplifiedCase.objects.all().first()
-        context["case"] = case
+        audit: SimplifiedCase | None = Audit.objects.all().first()
+        if audit is None:  # In test environment
+            simplified_case: SimplifiedCase | None = (
+                SimplifiedCase.objects.all().first()
+            )
+        else:
+            simplified_case: SimplifiedCase = audit.simplified_case
+        simplified_event_history: SimplifiedEventHistory | None = (
+            SimplifiedEventHistory.objects.all().first()
+        )
+        case_with_history: SimplifiedCase | None = (
+            simplified_case
+            if simplified_event_history is None
+            else simplified_event_history.simplified_case
+        )
+        context["case"] = simplified_case
+        context["case_with_history"] = case_with_history
         return context
 
 

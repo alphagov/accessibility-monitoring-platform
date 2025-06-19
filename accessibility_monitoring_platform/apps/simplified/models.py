@@ -20,7 +20,11 @@ from django.utils.safestring import mark_safe
 
 from ..cases.models import BaseCase, Case
 from ..common.models import Boolean, EmailTemplate, Link, VersionModel
-from ..common.utils import format_outstanding_issues, format_statement_check_overview
+from ..common.utils import (
+    extract_domain_from_url,
+    format_outstanding_issues,
+    format_statement_check_overview,
+)
 
 ONE_WEEK_IN_DAYS: int = 7
 MAX_LENGTH_OF_FORMATTED_URL: int = 25
@@ -383,6 +387,8 @@ class SimplifiedCase(BaseCase):
         ):
             self.completed_date = now
         self.qa_status = self.calulate_qa_status()
+        if not self.domain:
+            self.domain = extract_domain_from_url(self.home_page_url)
         super().save(*args, **kwargs)
 
     @property

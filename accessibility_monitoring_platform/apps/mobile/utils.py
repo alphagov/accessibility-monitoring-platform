@@ -82,6 +82,7 @@ def create_mobile_case_from_dict(
     MobileCase.objects.create(
         test_type=MobileCase.TestType.MOBILE,
         case_number=case_number,
+        case_identifier=f"#M-{case_number}",
         created_by_id=default_user.id,
         created=created,
         updated=updated,
@@ -98,6 +99,8 @@ def create_mobile_case_from_dict(
 
 def import_mobile_cases_csv(csv_data: str) -> None:
     default_user = User.objects.filter(first_name="Paul").first()
+    if default_user is None:
+        return
     try:
         auditors: dict[str, User] = {
             first_name: User.objects.get(first_name=first_name)

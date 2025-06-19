@@ -7,9 +7,10 @@ import pytest
 from ..models import MobileCase
 
 
+@pytest.mark.django_db
 def test_mobile_case_str():
     """Test MobileCase.__str__()"""
-    mobile_case: MobileCase = MobileCase(app_name="App name")
+    mobile_case: MobileCase = MobileCase.objects.create(app_name="App name")
 
     assert str(mobile_case) == "App name | #M-1"
 

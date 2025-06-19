@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from ..common.utils import diff_model_fields, extract_domain_from_url
-from .models import DetailedCase, DetailedCaseHistory, DetailedEventHistory
+from .models import Contact, DetailedCase, DetailedCaseHistory, DetailedEventHistory
 
 
 def record_detailed_model_create_event(
@@ -96,6 +96,7 @@ def create_detailed_case_from_dict(
     detailed_case: DetailedCase = DetailedCase.objects.create(
         test_type=DetailedCase.TestType.DETAILED,
         case_number=case_number,
+        case_identifier=f"#D-{case_number}",
         created_by_id=default_user.id,
         created=created,
         updated=updated,
@@ -121,6 +122,8 @@ def create_detailed_case_from_dict(
 
 def import_detailed_cases_csv(csv_data: str) -> None:
     default_user = User.objects.filter(first_name="Paul").first()
+    if default_user is None:
+        return
     try:
         auditors: dict[str, User] = {
             first_name: User.objects.get(first_name=first_name)
@@ -129,6 +132,7 @@ def import_detailed_cases_csv(csv_data: str) -> None:
     except User.DoesNotExist:  # Automated tests
         auditors = {}
 
+    Contact.objects.all().delete()
     DetailedEventHistory.objects.all().delete()
     DetailedCaseHistory.objects.all().delete()
     DetailedCase.objects.all().delete()

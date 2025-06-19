@@ -47,6 +47,7 @@ def populate_simplified_cases(apps, schema_editor):
         simplified_case = SimplifiedCase.objects.create(
             case=case,
             case_number=case.case_number,
+            case_identifier=f"#S-{case.case_number}",
             archive=case.archive,
             created_by=case.created_by,
             updated=case.updated,

@@ -3,13 +3,11 @@ Models - mobile cases
 """
 
 import json
-from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from ..cases.models import UPDATE_SEPARATOR, BaseCase
@@ -60,26 +58,16 @@ class MobileCase(BaseCase):
         return f"{self.app_name} | {self.case_identifier}"
 
     def save(self, *args, **kwargs) -> None:
-        now: datetime = timezone.now()
-        if not self.created:
-            self.created = now
+        if not self.domain:
             self.domain = extract_domain_from_url(self.app_store_url)
-            max_case_number = MobileCase.objects.aggregate(
-                models.Max("case_number")
-            ).get("case_number__max")
-            if max_case_number is not None:
-                self.case_number = max_case_number + 1
-        self.updated = now
+        if self.test_type != BaseCase.TestType.MOBILE:
+            self.test_type = BaseCase.TestType.MOBILE
         super().save(*args, **kwargs)
 
     @property
     def title(self) -> str:
         title = f"{self.app_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
-
-    @property
-    def case_identifier(self) -> str:
-        return f"#M-{self.case_number}"
 
 
 class EventHistory(models.Model):

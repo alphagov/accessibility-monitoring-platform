@@ -28,6 +28,7 @@ class Migration(migrations.Migration):
                 ),
                 ("version", models.IntegerField(default=0)),
                 ("case_number", models.IntegerField(default=1)),
+                ("case_identifier", models.CharField(max_length=20, default="")),
                 ("updated", models.DateTimeField(blank=True, null=True)),
                 (
                     "status",

@@ -262,20 +262,11 @@ class DetailedCase(BaseCase):
     class Meta:
         ordering = ["-id"]
 
-    def __str__(self) -> str:
-        return f"{self.organisation_name} | {self.case_identifier}"
-
     def save(self, *args, **kwargs) -> None:
-        now: datetime = timezone.now()
-        if not self.created:
-            self.created = now
+        if not self.domain:
             self.domain = extract_domain_from_url(self.home_page_url)
-            max_case_number = DetailedCase.objects.aggregate(
-                models.Max("case_number")
-            ).get("case_number__max")
-            if max_case_number is not None:
-                self.case_number = max_case_number + 1
-        self.updated = now
+        if self.test_type != BaseCase.TestType.DETAILED:
+            self.test_type = BaseCase.TestType.DETAILED
         super().save(*args, **kwargs)
 
     @property
@@ -285,10 +276,6 @@ class DetailedCase(BaseCase):
             title += f"{self.website_name} &nbsp;|&nbsp; "
         title += f"{self.organisation_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
-
-    @property
-    def case_identifier(self) -> str:
-        return f"#D-{self.case_number}"
 
     def status_history(self) -> QuerySet["DetailedCaseHistory"]:
         return self.detailedcasehistory_set.filter(

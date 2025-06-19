@@ -1639,6 +1639,7 @@ class BaseCase(VersionModel):
     ]
 
     case_number = models.IntegerField(default=1)
+    case_identifier = models.CharField(max_length=20, default="")
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -1712,18 +1713,14 @@ class BaseCase(VersionModel):
         now: datetime = timezone.now()
         if not self.created:
             self.created = now
-            self.domain = extract_domain_from_url(self.home_page_url)
             max_case_number = BaseCase.objects.aggregate(models.Max("case_number")).get(
                 "case_number__max"
             )
             if max_case_number is not None:
                 self.case_number = max_case_number + 1
+            self.case_identifier = f"#{self.test_type[0].upper()}-{self.case_number}"
         self.updated = now
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
         return reverse(f"{self.test_type}:case-detail", kwargs={"pk": self.pk})
-
-    @property
-    def case_identifier(self) -> str:
-        return f"#{self.test_type[0].upper()}-{self.case_number}"
