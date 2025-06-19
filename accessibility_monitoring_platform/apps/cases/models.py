@@ -1711,7 +1711,7 @@ class BaseCase(VersionModel):
 
     def save(self, *args, **kwargs) -> None:
         now: datetime = timezone.now()
-        if not self.created:
+        if not self.id:
             self.created = now
             max_case_number = BaseCase.objects.aggregate(models.Max("case_number")).get(
                 "case_number__max"

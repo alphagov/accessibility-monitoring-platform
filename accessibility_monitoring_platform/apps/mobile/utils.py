@@ -79,12 +79,10 @@ def create_mobile_case_from_dict(
     url: str = row["URL"]
     enforcement_body: str = row["Enforcement body"].lower()
     is_complaint: str = row["Is it a complaint?"].lower()
-    MobileCase.objects.create(
+    mobile_case: MobileCase = MobileCase.objects.create(
         test_type=MobileCase.TestType.MOBILE,
         case_number=case_number,
-        case_identifier=f"#M-{case_number}",
         created_by_id=default_user.id,
-        created=created,
         updated=updated,
         auditor_id=auditor.id,
         app_name=row["App name"],
@@ -95,6 +93,8 @@ def create_mobile_case_from_dict(
         is_complaint=is_complaint,
         notes=row["Summary of progress made / response from PSB"],
     )
+    mobile_case.created = created
+    mobile_case.save()
 
 
 def import_mobile_cases_csv(csv_data: str) -> None:

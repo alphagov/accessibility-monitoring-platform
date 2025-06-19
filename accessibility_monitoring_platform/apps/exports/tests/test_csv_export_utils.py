@@ -302,9 +302,10 @@ def test_download_equality_body_cases():
 def test_download_cases():
     """Test creation of CSV download of cases"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        created=datetime(2022, 12, 16, tzinfo=timezone.utc),
         contact_notes="Contact for CSV export",
     )
+    simplified_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
+    simplified_case.save()
     CaseCompliance.objects.create(simplified_case=simplified_case)
     CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
@@ -330,7 +331,7 @@ def test_download_cases():
 
     expected_first_data_row: list[str] = [
         "1",
-        "1",
+        "2",
         "",
         "16/12/2022",
         "Unassigned case",

@@ -307,7 +307,6 @@ def test_issue_report_link(prototype_name, issue_report_link_expected, admin_cli
 @pytest.mark.parametrize(
     "case_field, metric_id, lowercase_label",
     [
-        ("created", "cases-created", "cases created"),
         ("reporting_details_complete_date", "tests-completed", "tests completed"),
         ("report_sent_date", "reports-sent", "reports sent"),
         ("completed_date", "cases-closed", "cases closed"),
@@ -354,10 +353,48 @@ def test_case_progress_metric_over(
     )
 
 
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
+@patch("accessibility_monitoring_platform.apps.common.utils.date")
+def test_case_created_progress_metric_over(mock_date, mock_timezone, admin_client):
+    """
+    Test case progress metric, which is over in last 30 days, is calculated and
+    displayed correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+    mock_date.today.return_value = date(2022, 1, 10)
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2021, 11, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2021, 12, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2021, 12, 16, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2022, 1, 1, tzinfo=timezone.utc)
+    simplified_case.save()
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_OVER_LAST_30_DAYS.format(
+            metric_id="cases-created",
+            number_last_30_days=2,
+            progress_percentage=100,
+            number_previous_30_days=1,
+            lowercase_label="cases created",
+        ),
+        html=True,
+    )
+
+
 @pytest.mark.parametrize(
     "case_field, metric_id, lowercase_label",
     [
-        ("created", "cases-created", "cases created"),
         ("reporting_details_complete_date", "tests-completed", "tests completed"),
         ("report_sent_date", "reports-sent", "reports sent"),
         ("completed_date", "cases-closed", "cases closed"),
@@ -404,10 +441,48 @@ def test_case_progress_metric_under(
     )
 
 
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
+@patch("accessibility_monitoring_platform.apps.common.utils.date")
+def test_case_created_progress_metric_under(mock_date, mock_timezone, admin_client):
+    """
+    Test case progress metric, which is under in last 30 days, is calculated and
+    displayed correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_date.today.return_value = date(2022, 1, 20)
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2021, 11, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2021, 12, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2021, 12, 6, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2022, 1, 1, tzinfo=timezone.utc)
+    simplified_case.save()
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_UNDER_LAST_30_DAYS.format(
+            metric_id="cases-created",
+            number_last_30_days=1,
+            progress_percentage=50,
+            number_previous_30_days=2,
+            lowercase_label="cases created",
+        ),
+        html=True,
+    )
+
+
 @pytest.mark.parametrize(
     "label, table_id, case_field",
     [
-        ("Cases created", "cases-created-over-the-last-year", "created"),
         (
             "Tests completed",
             "tests-completed-over-the-last-year",
@@ -443,6 +518,38 @@ def test_case_yearly_metric(mock_timezone, label, table_id, case_field, admin_cl
     assertContains(
         response,
         METRIC_YEARLY_TABLE.format(column_header=label, table_id=table_id),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.utils.timezone")
+def test_case_created_yearly_metric(mock_timezone, admin_client):
+    """
+    Test case yearly metric table values.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2021, 11, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2021, 12, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2021, 12, 6, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case.created = datetime(2022, 1, 1, tzinfo=timezone.utc)
+    simplified_case.save()
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_YEARLY_TABLE.format(
+            column_header="Cases created", table_id="cases-created-over-the-last-year"
+        ),
         html=True,
     )
 

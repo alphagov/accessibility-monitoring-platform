@@ -22,6 +22,12 @@ def populate_base_case(apps, schema_editor):
             report_visits_metric.base_case_id = simplified_case.basecase_ptr
             report_visits_metric.save()
 
+    ReportWrapper = apps.get_model("reports", "ReportWrapper")
+    report_wrapper = ReportWrapper.objects.all().first()
+    if report_wrapper is not None:
+        report_wrapper.title = """Accessibility report for {% if report.base_case.website_name %}{{ report.base_case.website_name }}{% else %}{{ report.base_case.domain }}{% endif %}"""
+        report_wrapper.save()
+
 
 def reverse_code(apps, schema_editor):
     Report = apps.get_model("reports", "Report")

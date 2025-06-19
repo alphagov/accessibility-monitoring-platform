@@ -96,9 +96,7 @@ def create_detailed_case_from_dict(
     detailed_case: DetailedCase = DetailedCase.objects.create(
         test_type=DetailedCase.TestType.DETAILED,
         case_number=case_number,
-        case_identifier=f"#D-{case_number}",
         created_by_id=default_user.id,
-        created=created,
         updated=updated,
         auditor_id=auditor.id,
         home_page_url=url,
@@ -108,6 +106,8 @@ def create_detailed_case_from_dict(
         is_complaint=is_complaint,
         notes=row["Summary of progress made / response from PSB"],
     )
+    detailed_case.created = created
+    detailed_case.save()
     detailed_case_status_history: DetailedCaseHistory = (
         DetailedCaseHistory.objects.create(
             detailed_case_id=detailed_case.id,

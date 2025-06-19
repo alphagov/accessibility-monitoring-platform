@@ -319,30 +319,34 @@ def test_get_case_progress_metrics(mock_date):
     """Test case progress metrics returned"""
     mock_date.today.return_value = date(2022, 1, 20)
 
-    SimplifiedCase.objects.create(
-        created=datetime(2021, 11, 5, tzinfo=timezone.utc),
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
     )
-    SimplifiedCase.objects.create(
-        created=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    simplified_case.created = datetime(2021, 11, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
-    SimplifiedCase.objects.create(
-        created=datetime(2021, 12, 6, tzinfo=timezone.utc),
+    simplified_case.created = datetime(2021, 12, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
     )
-    SimplifiedCase.objects.create(
-        created=datetime(2022, 1, 1, tzinfo=timezone.utc),
+    simplified_case.created = datetime(2021, 12, 6, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 16, tzinfo=timezone.utc),
     )
+    simplified_case.created = datetime(2022, 1, 1, tzinfo=timezone.utc)
+    simplified_case.save()
 
     case_progress_metrics: list[ThirtyDayMetric] = get_case_progress_metrics()
 
@@ -369,30 +373,34 @@ def test_get_case_yearly_metrics(mock_datetime):
     """Test case yearly metrics returned"""
     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    SimplifiedCase.objects.create(
-        created=datetime(2021, 11, 5, tzinfo=timezone.utc),
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
     )
-    SimplifiedCase.objects.create(
-        created=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    simplified_case.created = datetime(2021, 11, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
-    SimplifiedCase.objects.create(
-        created=datetime(2021, 12, 6, tzinfo=timezone.utc),
+    simplified_case.created = datetime(2021, 12, 5, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
     )
-    SimplifiedCase.objects.create(
-        created=datetime(2022, 1, 1, tzinfo=timezone.utc),
+    simplified_case.created = datetime(2021, 12, 6, tzinfo=timezone.utc)
+    simplified_case.save()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         reporting_details_complete_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         report_sent_date=datetime(2021, 12, 6, tzinfo=timezone.utc),
         completed_date=datetime(2021, 12, 16, tzinfo=timezone.utc),
     )
+    simplified_case.created = datetime(2022, 1, 1, tzinfo=timezone.utc)
+    simplified_case.save()
 
     case_yearly_metrics: list[YearlyMetric] = get_case_yearly_metrics()
 
