@@ -12,13 +12,13 @@
         <div class="govuk-breadcrumbs">
             <ol class="govuk-breadcrumbs__list">
                 {% include 'common/breadcrumb_home.html' %}
-                {% include 'cases/helpers/breadcrumb_case.html' %}
+                {% include 'simplified/helpers/breadcrumb_case.html' %}
                 <li class="govuk-breadcrumbs__list-item">Report QA</li>
                 <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
             </ol>
         </div>
         <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-            {% include 'cases/helpers/compliant_website_notification.html' %}
+            {% include 'simplified/helpers/compliant_website_notification.html' %}
             <div>
                 {% include 'reports_common/accessibility_report_container.html' %}
             </div>

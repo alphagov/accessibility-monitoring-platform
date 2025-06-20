@@ -53,7 +53,7 @@ class ViewReport(TemplateView):
         if raw_html == NO_REPORT_HTML and s3_report.html:
             raw_html = s3_report.html
             logger.warning("Report %s not found on S3", guid)
-        report: Report = s3_report.case.report
+        report: Report = s3_report.base_case.simplifiedcase.report
 
         context.update(
             {

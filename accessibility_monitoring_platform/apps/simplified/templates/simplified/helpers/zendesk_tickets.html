@@ -1,0 +1,31 @@
+<details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
+   <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">View PSB Zendesk tickets ({{ case.zendesk_tickets.count }})</span>
+    </summary>
+    <div class="govuk-details__text">
+        <p class="govuk-body-m">
+            <a href="{% url 'simplified:zendesk-tickets' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Edit/Add PSB Zendesk tickets</a>
+        </p>
+        {% if case.zendesk_tickets %}
+            <table class="govuk-table">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header amp-width-one-half">Zendesk link</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-half">Summary</th>
+                </thead>
+                <tbody class="govuk-table__body">
+                    {% for zendesk_ticket in case.zendesk_tickets %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell amp-width-one-half">
+                                <a href="{{ zendesk_ticket.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                    {{ zendesk_ticket.url }}</a>
+                            </td>
+                            <td class="govuk-table__cell amp-width-one-half">{{ zendesk_ticket.summary }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</details>

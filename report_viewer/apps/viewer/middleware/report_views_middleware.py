@@ -109,7 +109,7 @@ class ReportMetrics:
                 if guid:
                     fingerprint_codename = self.fingerprint_codename(fingerprint_hash)
                     ReportVisitsMetrics(
-                        case=S3Report.objects.get(guid=guid).case,
+                        base_case=S3Report.objects.get(guid=guid).base_case,
                         guid=guid,
                         fingerprint_hash=fingerprint_hash,
                         fingerprint_codename=fingerprint_codename,

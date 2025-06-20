@@ -7,6 +7,6 @@ describe('Dashboard page', () => {
   })
 
   it('can see page', () => {
-    cy.title().should('eq', 'Home | Your cases')
+    cy.title().should('eq', 'Home | Your simplified cases')
   })
 })

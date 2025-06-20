@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from ..audits.models import Audit, CheckResult, Page, WcagDefinition
-from ..cases.models import Case
+from ..cases.models import BaseCase
 from ..s3_read_write.models import S3Report
 from ..s3_read_write.utils import S3ReadWriteReport
 from .models import Report
@@ -167,22 +167,22 @@ def build_report_context(
 ) -> dict[str, Report | list[IssueTable] | Audit]:
     """Return context used to render report"""
     issues_tables: list[IssueTable] = (
-        build_issues_tables(pages=report.case.audit.testable_pages)
-        if report.case.audit is not None
+        build_issues_tables(pages=report.base_case.simplifiedcase.audit.testable_pages)
+        if report.base_case.simplifiedcase.audit is not None
         else []
     )
     return {
         "report": report,
         "issues_tables": issues_tables,
-        "audit": report.case.audit,
+        "audit": report.base_case.simplifiedcase.audit,
     }
 
 
-def get_report_visits_metrics(case: Case) -> dict[str, str]:
+def get_report_visits_metrics(base_case: BaseCase) -> dict[str, str]:
     """Returns the visit metrics for reports"""
     return {
-        "number_of_visits": case.reportvisitsmetrics_set.all().count(),
-        "number_of_unique_visitors": case.reportvisitsmetrics_set.values_list(
+        "number_of_visits": base_case.reportvisitsmetrics_set.all().count(),
+        "number_of_unique_visitors": base_case.reportvisitsmetrics_set.values_list(
             "fingerprint_hash"
         )
         .distinct()
@@ -196,14 +196,16 @@ def publish_report_util(report: Report, request: HttpRequest) -> None:
         f"""reports_common/accessibility_report_{report.report_version}.html"""
     )
     html: str = template.render(build_report_context(report=report), request)
-    published_s3_reports: QuerySet[S3Report] = S3Report.objects.filter(case=report.case)
+    published_s3_reports: QuerySet[S3Report] = S3Report.objects.filter(
+        base_case=report.base_case
+    )
     for s3_report in published_s3_reports:
         s3_report.latest_published = False
         s3_report.save()
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,
-        case=report.case,
+        base_case=report.base_case,
         user=request.user,
         report_version=report.report_version,
     )

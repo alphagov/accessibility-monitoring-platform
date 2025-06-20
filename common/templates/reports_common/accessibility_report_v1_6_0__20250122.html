@@ -31,11 +31,11 @@
 </p>
 <p>
     You’ve been sent this report because
-    {% if audit.case.website_name %}
-        {{ audit.case.website_name }}
-        (<a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>)
+    {% if audit.simplified_case.website_name %}
+        {{ audit.simplified_case.website_name }}
+        (<a href="{{ audit.simplified_case.home_page_url }}">{{ audit.simplified_case.home_page_url }}</a>)
     {% else %}
-        <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>
+        <a href="{{ audit.simplified_case.home_page_url }}">{{ audit.simplified_case.home_page_url }}</a>
     {% endif %}
     is one of the websites we’ve monitored. This report explains:
 </p>
@@ -54,11 +54,11 @@
 <h2 id="report-how-accessible-the-website-is" class="amp-new-page">How accessible the website is</h2>
 <p>
     We checked
-    {% if audit.case.website_name %}
-        {{ audit.case.website_name }}
-        (<a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>)
+    {% if audit.simplified_case.website_name %}
+        {{ audit.simplified_case.website_name }}
+        (<a href="{{ audit.simplified_case.home_page_url }}">{{ audit.simplified_case.home_page_url }}</a>)
     {% else %}
-        <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>
+        <a href="{{ audit.simplified_case.home_page_url }}">{{ audit.simplified_case.home_page_url }}</a>
     {% endif %}
     on
     {{ audit.date_of_test|date:"j F Y" }}
@@ -67,14 +67,14 @@
     standard.
 </p>
 <p>
-    {% if audit.case.compliance.website_compliance_state_initial  == 'not-compliant' %}
+    {% if audit.simplified_case.compliance.website_compliance_state_initial  == 'not-compliant' %}
         Based on our testing, this site is not compliant with WCAG 2.2 AA.
         This means there are some things which would cause significant barriers
         to users with certain accessibility needs.
-    {% elif audit.case.compliance.website_compliance_state_initial  == 'partially-compliant' %}
+    {% elif audit.simplified_case.compliance.website_compliance_state_initial  == 'partially-compliant' %}
         Based on our testing, this site is partially compliant with WCAG 2.2 AA.
         This means there are some things which are not fully accessible.
-    {% elif audit.case.compliance.website_compliance_state_initial  == 'compliant' %}
+    {% elif audit.simplified_case.compliance.website_compliance_state_initial  == 'compliant' %}
         Based on our testing, this site is compliant with WCAG 2.2 AA.
         This means no serious or critical issues were found during our testing.
         We run basic tests on a small part of your website so we can't say for
@@ -242,14 +242,14 @@
 <h2 id="report-enforcement" class="amp-new-page">Enforcement</h2>
 <p>
     On behalf of the Minister for the Cabinet Office we provide the
-    {% if audit.case.enforcement_body == 'ehrc' %}
+    {% if audit.simplified_case.enforcement_body == 'ehrc' %}
         Equality and Human Rights Commission (EHRC)
     {% else %}
         Equality Commission for Northern Ireland (ECNI)
     {% endif %}
     with details about public sector bodies who have been monitored. If
     accessibility issues remain after giving you time to fix them, the
-    {% if audit.case.enforcement_body == 'ehrc' %}
+    {% if audit.simplified_case.enforcement_body == 'ehrc' %}
         EHRC
     {% else %}
         ECNI

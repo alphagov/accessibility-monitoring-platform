@@ -5,7 +5,7 @@ Test utility functions of reports app
 import pytest
 
 from ...audits.models import Audit, CheckResult, Page, WcagDefinition
-from ...cases.models import Case
+from ...simplified.models import SimplifiedCase
 from ..models import Report
 from ..utils import (
     IssueTable,
@@ -27,8 +27,8 @@ CHECK_RESULT_RETEST_NOTES: str = "Check results retest note <span>including HTML
 @pytest.mark.django_db
 def test_build_issue_table_rows():
     """Test issue table row created for failed check"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
@@ -61,8 +61,8 @@ def test_build_issue_table_rows():
 @pytest.mark.django_db
 def test_twelve_week_build_issue_table_rows():
     """Test issue table row created for i12-week retest failed check"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
@@ -101,8 +101,8 @@ def test_report_boilerplate_shown_only_once():
     Test report contains WCAG definition's boilerplate text
     only the first time that definition appears.
     """
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     first_page: Page = Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
@@ -115,7 +115,7 @@ def test_report_boilerplate_shown_only_once():
         page_type=Page.Type.PDF,
         url=PDF_PAGE_URL,
     )
-    Report.objects.create(case=case)
+    Report.objects.create(base_case=simplified_case)
     wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
         type=WcagDefinition.Type.PDF
     ).first()
@@ -151,8 +151,8 @@ def test_report_boilerplate_shown_only_once():
 @pytest.mark.django_db
 def test_generate_report_content_issues_tables():
     """Test report contains issues tables for each page"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     Page.objects.create(
         audit=audit,
         name=HOME_PAGE_NAME,
@@ -165,7 +165,7 @@ def test_generate_report_content_issues_tables():
         page_type=Page.Type.PDF,
         url="https://example.com/pdf",
     )
-    Report.objects.create(case=case)
+    Report.objects.create(base_case=simplified_case)
 
     issues_tables: list[IssueTable] = build_issues_tables(pages=audit.testable_pages)
 
@@ -178,9 +178,9 @@ def test_generate_report_content_issues_tables():
 @pytest.mark.django_db
 def test_build_report_context():
     """Test context to render report built"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    report: Report = Report.objects.create(base_case=simplified_case)
 
     report_context: dict[str, Report | list[IssueTable] | Audit] = build_report_context(
         report=report

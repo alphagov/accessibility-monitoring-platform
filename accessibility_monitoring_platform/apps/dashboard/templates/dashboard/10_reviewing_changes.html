@@ -32,7 +32,7 @@
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-review-changes' case.id %}" class="govuk-link">Reviewing changes</a>
+                            <a href="{% url 'simplified:edit-review-changes' case.id %}" class="govuk-link">Reviewing changes</a>
                         {% endif %}
                         {% if case.reminder %}
                             |

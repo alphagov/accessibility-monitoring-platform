@@ -1,0 +1,107 @@
+{% extends 'common/case_form.html' %}
+
+{% load static %}
+
+{% block preform %}
+{% include 'simplified/helpers/zendesk_tickets.html' %}
+
+{% if case.audit %}
+    <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">View compliance decisions</span>
+        </summary>
+        <div class="govuk-details__text">
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Disproportionate burden claimed?</b></label>
+                <div class="govuk-hint">{{ case.get_is_disproportionate_claimed_display }}</div>
+                <label class="govuk-label"><b>Disproportionate burden notes</b></label>
+                <div class="govuk-hint">
+                    {% if case.disproportionate_notes %}{{ case.disproportionate_notes|markdown_to_html }}{% else %}None{% endif %}
+                </div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Initial accessibility statement decision (found in
+                    <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                <div class="govuk-hint">{{ case.compliance.get_statement_compliance_state_initial_display }}</div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Initial accessibility statement notes (found in
+                    <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                <div class="govuk-hint">
+                    {% if case.compliance.statement_compliance_notes_initial%}{{ case.compliance.statement_compliance_notes_initial|markdown_to_html }}{% else %}None{% endif %}
+                </div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Final accessibility statement decision (found in
+                    <a href="{% url 'audits:edit-retest-statement-compliance' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                <div class="govuk-hint">{{ case.compliance.get_statement_compliance_state_12_week_display }}</div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Link to screenshot of accessibility statement</b></label>
+                <div class="govuk-hint">
+                    {% if case.accessibility_statement_screenshot_url %}
+                        <a href="{{ audit.accessibility_statement_screenshot_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        {{ case.accessibility_statement_screenshot_url }}</a></div>
+                    {% else %}
+                        <p>None</p>
+                    {% endif %}
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Final accessibility statement notes (found in
+                    <a href="{% url 'audits:edit-retest-statement-compliance' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                <div class="govuk-hint">
+                    {% if case.compliance.statement_compliance_notes_12_week %}{{ case.compliance.statement_compliance_notes_12_week|markdown_to_html }}{% else %}None{% endif %}
+                </div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Initial compliance decision (found in
+                    <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                <div class="govuk-hint">{{ case.compliance.get_website_compliance_state_initial_display }}</div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Initial compliance notes (found in
+                    <a href="{{ case.audit.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                <div class="govuk-hint">
+                    {% if case.compliance.website_compliance_notes_initial %}
+                        {{ case.compliance.website_compliance_notes_initial|markdown_to_html }}
+                    {% else %}
+                        None
+                    {% endif %}
+                </div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Final compliance decision (found in
+                    <a href="{% url 'audits:edit-audit-retest-website-decision' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                <div class="govuk-hint">{{ case.compliance.get_website_compliance_state_12_week_display }}</div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Final compliance notes (found in
+                    <a href="{% url 'audits:edit-audit-retest-website-decision' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                <div class="govuk-hint">
+                    {% if case.compliance.website_compliance_notes_12_week %}{{ case.compliance.website_compliance_notes_12_week|markdown_to_html }}{% else %}None{% endif %}
+                </div>
+            </div>
+        </div>
+    </details>
+{% endif %}
+{% include 'simplified/helpers/email_templates.html' %}
+
+<div class="amp-margin-bottom-30">
+    {% include 'audits/helpers/numbers_of_issues.html' with audit=case.audit fontsize="m" %}
+</div>
+{% endblock %}
+
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'common/amp_field.html' with field=form.compliance_email_sent_date %}
+{% include 'simplified/helpers/amp_email_field.html' with field=form.compliance_decision_sent_to_email %}
+{% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
+{% include 'common/amp_field.html' with field=form.recommendation_notes %}
+{% include 'common/amp_field.html' with field=form.enforcement_recommendation_complete_date %}
+{% endblock %}
+
+{% block extrascript %}
+<textarea id="copy-summary-source" hidden>{{ case.psb_progress_notes }}</textarea>
+<script src="{% static 'js/cases_copy_summary.js' %}"></script>
+<script src="{% static 'js/cases_copy_text.js' %}"></script>
+{% endblock %}

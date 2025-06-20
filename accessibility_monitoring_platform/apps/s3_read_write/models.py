@@ -1,8 +1,9 @@
 """Models for s3 read write app"""
+
 from django.contrib.auth.models import User
 from django.db import models
 
-from ..cases.models import Case
+from ..cases.models import BaseCase, Case
 from ..common.utils import amp_format_datetime
 
 REPORT_VIEWER_URL_PATH: str = "/reports/"
@@ -13,7 +14,13 @@ class S3Report(models.Model):
     Model for Case
     """
 
-    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    case = models.ForeignKey(Case, on_delete=models.PROTECT, blank=True, null=True)
+    base_case = models.ForeignKey(
+        BaseCase,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
