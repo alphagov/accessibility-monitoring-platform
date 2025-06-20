@@ -19,11 +19,11 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
-from ..audits.models import Audit
 from ..cases.models import BaseCase
 from ..common.sitemap import PlatformPage, Sitemap
 from ..detailed.utils import import_detailed_cases_csv
 from ..mobile.utils import import_mobile_cases_csv
+from ..reports.models import Report
 from ..simplified.models import SimplifiedCase, SimplifiedEventHistory
 from ..simplified.utils import (
     record_simplified_model_create_event,
@@ -455,23 +455,16 @@ class ReferenceImplementaionView(TemplateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        audit: SimplifiedCase | None = Audit.objects.all().first()
-        if audit is None:  # In test environment
+        report: Report | None = Report.objects.all().first()
+        if report is None or not hasattr(
+            report.base_case, "simplifiedcase"
+        ):  # In test environment
             simplified_case: SimplifiedCase | None = (
                 SimplifiedCase.objects.all().first()
             )
         else:
-            simplified_case: SimplifiedCase = audit.simplified_case
-        simplified_event_history: SimplifiedEventHistory | None = (
-            SimplifiedEventHistory.objects.all().first()
-        )
-        case_with_history: SimplifiedCase | None = (
-            simplified_case
-            if simplified_event_history is None
-            else simplified_event_history.simplified_case
-        )
+            simplified_case: SimplifiedCase = report.base_case.simplifiedcase
         context["case"] = simplified_case
-        context["case_with_history"] = case_with_history
         return context
 
 

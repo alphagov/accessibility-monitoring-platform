@@ -80,9 +80,9 @@
         <h2 class="govuk-heading-m">Case history</h2>
         <ul class="govuk-list">
             <li>
-                <a href="{% url 'simplified:case-history' case_with_history.id %}" class="govuk-link govuk-link--no-visited-state">
-                    {{ case_with_history }}</a>
-                (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ case_with_history.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                <a href="{% url 'simplified:case-history' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    {{ case }}</a>
+                (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ case.case_number }}" class="govuk-link govuk-link--no-visited-state"
                     >admin</a>)
             </li>
         </ul>
