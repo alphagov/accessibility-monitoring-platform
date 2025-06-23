@@ -35,7 +35,6 @@ def create_exportable_case() -> SimplifiedCase:
         compliance_email_sent_date=CUTOFF_DATE,
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_SEND,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
     return simplified_case
 

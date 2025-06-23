@@ -80,7 +80,6 @@ def create_case_for_overdue_link() -> SimplifiedCase:
         reviewer=user,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
     return simplified_case
 
@@ -1815,7 +1814,6 @@ def test_update_case_status():
     """Test SimplifiedCase.update_case_status updates the case status"""
     user: User = User.objects.create()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
-    CaseStatus.objects.create(simplified_case=simplified_case)
 
     assert simplified_case.status == SimplifiedCase.Status.UNASSIGNED
 

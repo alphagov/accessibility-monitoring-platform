@@ -31,7 +31,6 @@ def test_case_status_deactivated(admin_client):
         organisation_name="org name",
         is_deactivated=True,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.DEACTIVATED
@@ -49,7 +48,6 @@ def test_case_status_unassigned(admin_client):
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.UNASSIGNED
@@ -69,7 +67,6 @@ def test_case_status_test_in_progress(admin_client):
         organisation_name="org name",
         auditor=user,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.TEST_IN_PROGRESS
@@ -91,7 +88,6 @@ def test_case_status_report_in_progress(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.REPORT_IN_PROGRESS
@@ -114,7 +110,6 @@ def test_case_status_qa_in_progress(admin_client):
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.QA_IN_PROGRESS
@@ -138,7 +133,6 @@ def test_case_status_report_ready_to_send(admin_client):
         report_review_status=Boolean.YES,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.REPORT_READY_TO_SEND
@@ -163,7 +157,6 @@ def test_case_status_in_report_correspondence(admin_client):
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         report_sent_date=date.today(),
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.IN_REPORT_CORES
@@ -188,7 +181,6 @@ def test_case_status_when_no_psb_contact(admin_client):
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         no_psb_contact=Boolean.YES,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.FINAL_DECISION_DUE
@@ -214,7 +206,6 @@ def test_case_status_in_probation_period(admin_client):
         report_sent_date=date.today(),
         report_acknowledged_date=date.today(),
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE
@@ -241,7 +232,6 @@ def test_case_status_in_12_week_correspondence(admin_client):
         report_acknowledged_date=date.today(),
         twelve_week_update_requested_date=date.today(),
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.IN_12_WEEK_CORES
@@ -268,7 +258,6 @@ def test_case_status_skips_to_reviewing_changes_when_psb_respond_early(admin_cli
         report_acknowledged_date=date.today(),
         twelve_week_correspondence_acknowledged_date=date.today(),
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.REVIEWING_CHANGES
@@ -296,7 +285,6 @@ def test_case_status_reviewing_changes(admin_client):
         twelve_week_update_requested_date=date.today(),
         twelve_week_correspondence_acknowledged_date=date.today(),
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.REVIEWING_CHANGES
@@ -325,7 +313,6 @@ def test_case_status_final_decision_due(admin_client):
         twelve_week_correspondence_acknowledged_date=date.today(),
         is_ready_for_final_decision=Boolean.YES,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.FINAL_DECISION_DUE
@@ -354,7 +341,6 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
         twelve_week_correspondence_acknowledged_date=date.today(),
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_SEND,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.CASE_CLOSED_WAITING_TO_SEND
@@ -384,7 +370,6 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_SEND,
         sent_to_enforcement_body_sent_date=date.today(),
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert (
@@ -418,7 +403,6 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
         sent_to_enforcement_body_sent_date=date.today(),
         enforcement_body_pursuing=SimplifiedCase.EnforcementBodyPursuing.YES_IN_PROGRESS,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert (
@@ -451,7 +435,6 @@ def test_case_status_equality_bodies_complete(admin_client):
         sent_to_enforcement_body_sent_date=date.today(),
         enforcement_body_pursuing=SimplifiedCase.EnforcementBodyPursuing.YES_COMPLETED,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.COMPLETE
@@ -475,7 +458,6 @@ def test_case_status_complete():
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.status == SimplifiedCase.Status.COMPLETE
@@ -493,7 +475,6 @@ def test_case_qa_status_unassigned_qa_case():
         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.qa_status == SimplifiedCase.QAStatus.UNASSIGNED
@@ -513,7 +494,6 @@ def test_case_qa_status_in_qa():
         report_review_status=Boolean.YES,
         reviewer=user2,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.qa_status == SimplifiedCase.QAStatus.IN_QA
@@ -534,7 +514,6 @@ def test_case_qa_status_qa_approved():
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         reviewer=user2,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
 
     assert simplified_case.qa_status == SimplifiedCase.QAStatus.APPROVED

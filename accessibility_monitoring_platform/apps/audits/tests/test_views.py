@@ -106,7 +106,6 @@ def create_audit() -> Audit:
         organisation_name=ORGANISATION_NAME
     )
     CaseCompliance.objects.create(simplified_case=simplified_case)
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     return audit

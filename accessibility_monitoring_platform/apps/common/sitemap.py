@@ -544,8 +544,9 @@ class PlatformPageGroup:
         return self.case_nav_group
 
     def populate_from_case(self, case: SimplifiedCase):
-        for page in self.pages:
-            page.populate_from_case(case=case)
+        if self.pages is not None:
+            for page in self.pages:
+                page.populate_from_case(case=case)
 
     def number_pages_and_subpages(self) -> int:
         """Count number of pages and subpages which can be marked as complete"""

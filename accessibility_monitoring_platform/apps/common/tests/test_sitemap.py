@@ -20,7 +20,9 @@ from ...audits.models import (
 )
 from ...comments.models import Comment
 from ...common.models import EmailTemplate
+from ...detailed.models import DetailedCase
 from ...exports.models import Export
+from ...mobile.models import MobileCase
 from ...notifications.models import Task
 from ...reports.models import Report
 from ...simplified.models import (
@@ -37,15 +39,20 @@ from ..sitemap import (
     AuditRetestPagesPlatformPage,
     CaseCommentsPlatformPage,
     CaseContactsPlatformPage,
+    DetailedCasePlatformPage,
+    DetailedCasePlatformPageGroup,
     EqualityBodyRetestPagesPlatformPage,
     EqualityBodyRetestPlatformPage,
     ExportPlatformPage,
     HomePlatformPage,
+    MobileCasePlatformPage,
+    MobileCasePlatformPageGroup,
     PlatformPage,
     PlatformPageGroup,
     ReportPlatformPage,
     RetestOverviewPlatformPage,
     SimplifiedCasePlatformPage,
+    SimplifiedCasePlatformPageGroup,
     Sitemap,
     build_sitemap_by_url_name,
     build_sitemap_for_current_page,
@@ -350,21 +357,55 @@ def test_export_platform_page():
     assert export_platform_page.get_name() == "EHRC CSV export manager"
 
 
-def test_case_platform_page():
-    """Test CasePlatformPage"""
-    case_platform_page: SimplifiedCasePlatformPage = SimplifiedCasePlatformPage(
-        name=PLATFORM_PAGE_NAME
+def test_simplified_case_platform_page():
+    """Test SimplifiedCasePlatformPage"""
+    simplified_case_platform_page: SimplifiedCasePlatformPage = (
+        SimplifiedCasePlatformPage(name=PLATFORM_PAGE_NAME)
     )
 
-    assert case_platform_page.instance_required_for_url is True
-    assert case_platform_page.instance_class == SimplifiedCase
-    assert case_platform_page.url_kwarg_key == "pk"
+    assert simplified_case_platform_page.instance_required_for_url is True
+    assert simplified_case_platform_page.instance_class == SimplifiedCase
+    assert simplified_case_platform_page.url_kwarg_key == "pk"
 
     simplified_case: SimplifiedCase = SimplifiedCase()
 
-    case_platform_page.populate_from_case(case=simplified_case)
+    simplified_case_platform_page.populate_from_case(case=simplified_case)
 
-    assert case_platform_page.instance == simplified_case
+    assert simplified_case_platform_page.instance == simplified_case
+
+
+def test_detailed_case_platform_page():
+    """Test DetailedCasePlatformPage"""
+    detailed_case_platform_page: DetailedCasePlatformPage = DetailedCasePlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
+
+    assert detailed_case_platform_page.instance_required_for_url is True
+    assert detailed_case_platform_page.instance_class == DetailedCase
+    assert detailed_case_platform_page.url_kwarg_key == "pk"
+
+    detailed_case: DetailedCase = DetailedCase()
+
+    detailed_case_platform_page.populate_from_case(case=detailed_case)
+
+    assert detailed_case_platform_page.instance == detailed_case
+
+
+def test_mobile_case_platform_page():
+    """Test MobileCasePlatformPage"""
+    mobile_case_platform_page: MobileCasePlatformPage = MobileCasePlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
+
+    assert mobile_case_platform_page.instance_required_for_url is True
+    assert mobile_case_platform_page.instance_class == MobileCase
+    assert mobile_case_platform_page.url_kwarg_key == "pk"
+
+    mobile_case: MobileCase = MobileCase()
+
+    mobile_case_platform_page.populate_from_case(case=mobile_case)
+
+    assert mobile_case_platform_page.instance == mobile_case
 
 
 @pytest.mark.django_db
@@ -946,3 +987,56 @@ def test_populate_subpage_instances():
     assert len(bound_subpages) == 1
     assert bound_subpages[0].name == case_platform_page.name
     assert bound_subpages[0].instance == simplified_case
+
+
+def test_simplified_case_platform_page_group():
+    """Test SimplifiedCasePlatformPageGroup"""
+    simplified_case_platform_page_group: SimplifiedCasePlatformPageGroup = (
+        SimplifiedCasePlatformPageGroup(name="Example page group name")
+    )
+
+    assert (
+        simplified_case_platform_page_group.type
+        == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV
+    )
+
+    simplified_case: SimplifiedCase = SimplifiedCase()
+
+    simplified_case_platform_page_group.populate_from_case(case=simplified_case)
+
+    assert simplified_case_platform_page_group.case == simplified_case
+
+
+def test_detailed_case_platform_page_group():
+    """Test DetailedCasePlatformPageGroup"""
+    detailed_case_platform_page_group: DetailedCasePlatformPageGroup = (
+        DetailedCasePlatformPageGroup(name="Example page group name")
+    )
+
+    assert (
+        detailed_case_platform_page_group.type
+        == PlatformPageGroup.Type.DETAILED_CASE_NAV
+    )
+
+    detailed_case: DetailedCase = DetailedCase()
+
+    detailed_case_platform_page_group.populate_from_case(case=detailed_case)
+
+    assert detailed_case_platform_page_group.case == detailed_case
+
+
+def test_mobile_case_platform_page_group():
+    """Test MobileCasePlatformPageGroup"""
+    mobile_case_platform_page_group: MobileCasePlatformPageGroup = (
+        MobileCasePlatformPageGroup(name="Example page group name")
+    )
+
+    assert (
+        mobile_case_platform_page_group.type == PlatformPageGroup.Type.MOBILE_CASE_NAV
+    )
+
+    mobile_case: MobileCase = MobileCase()
+
+    mobile_case_platform_page_group.populate_from_case(case=mobile_case)
+
+    assert mobile_case_platform_page_group.case == mobile_case

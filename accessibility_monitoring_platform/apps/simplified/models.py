@@ -1054,14 +1054,15 @@ class SimplifiedCase(BaseCase):
         )
 
     def update_case_status(self):
-        if hasattr(self, "casestatus"):
-            status: str = self.casestatus.calculate_status()
-            if self.status != status:
-                self.status = status
-                self.save()
-            if self.casestatus.status != status:
-                self.casestatus.status = status
-                self.casestatus.save()
+        if hasattr(self, "casestatus") is False:
+            CaseStatus.objects.create(simplified_case=self)
+        status: str = self.casestatus.calculate_status()
+        if self.status != status:
+            self.status = status
+            self.save()
+        if self.casestatus.status != status:
+            self.casestatus.status = status
+            self.casestatus.save()
 
     @property
     def next_page_link(self) -> Link:

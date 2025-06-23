@@ -307,7 +307,6 @@ def test_download_cases():
     simplified_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
     simplified_case.save()
     CaseCompliance.objects.create(simplified_case=simplified_case)
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
     simplified_cases: list[SimplifiedCase] = [simplified_case]
     Contact.objects.create(simplified_case=simplified_case, email="test@example.com")
@@ -481,7 +480,6 @@ def test_populate_csv_columns():
     """Test collection of case data for CSV export"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     CaseCompliance.objects.create(simplified_case=simplified_case)
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
     Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
     row: list[CSVColumn] = populate_csv_columns(
@@ -506,7 +504,6 @@ def test_populate_feedback_survey_columns():
     """Test collection of case data for feedback survey export"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     CaseCompliance.objects.create(simplified_case=simplified_case)
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
     Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
     row: list[CSVColumn] = populate_csv_columns(

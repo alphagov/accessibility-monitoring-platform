@@ -2533,6 +2533,7 @@ def test_report_approved_notifies_auditor(rf):
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         organisation_name=ORGANISATION_NAME, auditor=user
     )
+    simplified_case.update_case_status()
 
     request_user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"

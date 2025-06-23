@@ -493,13 +493,11 @@ def test_get_policy_total_metrics():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
     simplified_case_2: SimplifiedCase = SimplifiedCase.objects.create(
         report_sent_date=datetime(2022, 1, 1, tzinfo=timezone.utc),
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
     )
-    CaseStatus.objects.create(simplified_case=simplified_case_2)
     simplified_case_2.update_case_status()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit)

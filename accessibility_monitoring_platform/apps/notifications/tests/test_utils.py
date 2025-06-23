@@ -62,7 +62,6 @@ def create_case(user: User) -> SimplifiedCase:
         report_final_pdf_url="https://www.report-pdf.com",
         report_final_odt_url="https://www.report-odt.com",
     )
-    CaseStatus.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
     return simplified_case
 
