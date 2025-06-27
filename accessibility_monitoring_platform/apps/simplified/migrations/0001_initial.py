@@ -361,18 +361,6 @@ class Migration(migrations.Migration):
                     "compliance_decision_sent_to_email",
                     models.CharField(blank=True, default="", max_length=200),
                 ),
-                (
-                    "recommendation_for_enforcement",
-                    models.CharField(
-                        choices=[
-                            ("no-further-action", "No further action"),
-                            ("other", "For enforcement consideration"),
-                            ("unknown", "Not selected"),
-                        ],
-                        default="unknown",
-                        max_length=20,
-                    ),
-                ),
                 ("recommendation_notes", models.TextField(blank=True, default="")),
                 (
                     "enforcement_recommendation_complete_date",

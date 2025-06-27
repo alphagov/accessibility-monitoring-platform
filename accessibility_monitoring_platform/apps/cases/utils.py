@@ -22,7 +22,7 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
 ]
 
 
-def filter_cases(form) -> QuerySet[BaseCase] | QuerySet[SimplifiedCase]:
+def filter_cases(form) -> QuerySet[BaseCase]:
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
     filters: dict = {}
     search_query = Q()
@@ -61,6 +61,7 @@ def filter_cases(form) -> QuerySet[BaseCase] | QuerySet[SimplifiedCase]:
                     | Q(subcategory__name__icontains=search)
                     | Q(case_identifier__icontains=search)
                     | Q(mobilecase__app_name__icontains=search)
+                    | Q(mobilecase__app_store_url__icontains=search)
                 )
         for filter_name in [
             "is_complaint",
@@ -84,14 +85,9 @@ def filter_cases(form) -> QuerySet[BaseCase] | QuerySet[SimplifiedCase]:
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
 
-    if "recommendation_for_enforcement" in filters:
-        search_model: ClassVar[SimplifiedCase] = SimplifiedCase
-    else:
-        search_model: ClassVar[BaseCase] = BaseCase
-
     if not sort_by:
         return (
-            search_model.objects.filter(search_query, **filters)
+            BaseCase.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
                     When(status=BaseCase.Status.UNASSIGNED, then=0),
@@ -102,7 +98,7 @@ def filter_cases(form) -> QuerySet[BaseCase] | QuerySet[SimplifiedCase]:
             .select_related("auditor", "reviewer")
         )
     return (
-        search_model.objects.filter(search_query, **filters)
+        BaseCase.objects.filter(search_query, **filters)
         .order_by(sort_by)
         .select_related("auditor", "reviewer")
     )

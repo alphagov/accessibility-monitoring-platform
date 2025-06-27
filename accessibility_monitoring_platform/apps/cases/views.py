@@ -44,6 +44,7 @@ class CaseListView(ListView):
     model: type[BaseCase] = BaseCase
     context_object_name: str = "cases"
     paginate_by: int = 10
+    template_name: str = "cases/basecase_list.html"
 
     def get(self, request, *args, **kwargs):
         """Populate filter form"""

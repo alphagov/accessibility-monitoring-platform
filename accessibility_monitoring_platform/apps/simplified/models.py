@@ -87,11 +87,6 @@ class SimplifiedCase(BaseCase):
         NO = "no"
         NOT_KNOWN = "unknown", "Not known"
 
-    class RecommendationForEnforcement(models.TextChoices):
-        NO_FURTHER_ACTION = "no-further-action", "No further action"
-        OTHER = "other", "For enforcement consideration"
-        UNKNOWN = "unknown", "Not selected"
-
     class CaseCompleted(models.TextChoices):
         COMPLETE_SEND = (
             "complete-send",
@@ -323,11 +318,7 @@ class SimplifiedCase(BaseCase):
     compliance_decision_sent_to_email = models.CharField(
         max_length=200, default="", blank=True
     )
-    recommendation_for_enforcement = models.CharField(
-        max_length=20,
-        choices=RecommendationForEnforcement.choices,
-        default=RecommendationForEnforcement.UNKNOWN,
-    )
+    # recommendation_for_enforcement from BaseCase
     recommendation_notes = models.TextField(default="", blank=True)
     enforcement_recommendation_complete_date = models.DateField(null=True, blank=True)
 

@@ -166,6 +166,18 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
+                    "recommendation_for_enforcement",
+                    models.CharField(
+                        choices=[
+                            ("no-further-action", "No further action"),
+                            ("other", "For enforcement consideration"),
+                            ("unknown", "Not selected"),
+                        ],
+                        default="unknown",
+                        max_length=20,
+                    ),
+                ),
+                (
                     "sector",
                     models.ForeignKey(
                         blank=True,

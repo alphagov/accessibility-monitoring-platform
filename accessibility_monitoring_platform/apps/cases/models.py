@@ -1700,6 +1700,11 @@ class BaseCase(VersionModel):
         blank=True,
         null=True,
     )
+    recommendation_for_enforcement = models.CharField(
+        max_length=20,
+        choices=RecommendationForEnforcement.choices,
+        default=RecommendationForEnforcement.UNKNOWN,
+    )
 
     class Meta:
         ordering = ["-id"]

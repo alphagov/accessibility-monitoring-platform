@@ -21,7 +21,8 @@
       "parental_organisation_name": "",
       "website_name": "",
       "case_details_complete_date": null,
-      "reviewer": 2
+      "reviewer": 2,
+      "recommendation_for_enforcement": "unknown"
     }
   }
 ]

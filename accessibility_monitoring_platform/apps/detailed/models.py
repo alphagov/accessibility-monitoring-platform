@@ -3,7 +3,6 @@ Models - detailed cases
 """
 
 import json
-from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -11,7 +10,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.query import QuerySet
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from ..cases.models import UPDATE_SEPARATOR, BaseCase

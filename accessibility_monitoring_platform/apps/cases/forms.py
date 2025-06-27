@@ -27,7 +27,7 @@ RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
 class DateType(models.TextChoices):
     START = "audit_case__date_of_test", "Date test started"
     SENT = "sent_to_enforcement_body_sent_date", "Date sent to EB"
-    UPDATED = "case_updated_date", "Case updated"
+    UPDATED = "updated", "Case updated"
 
 
 def get_search_user_choices(user_query: QuerySet[User]) -> list[tuple[str, str]]:
