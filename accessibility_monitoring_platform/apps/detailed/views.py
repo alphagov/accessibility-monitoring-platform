@@ -5,7 +5,6 @@ Views for cases app
 from typing import Any
 
 from django.contrib.auth.models import User
-from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpResponseRedirect
@@ -14,6 +13,8 @@ from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
+from ..cases.models import BaseCase
+from ..cases.utils import find_duplicate_cases
 from ..common.utils import extract_domain_from_url
 from ..common.views import (
     HideCaseNavigationMixin,
@@ -61,16 +62,6 @@ from .utils import (
 )
 
 
-def find_duplicate_cases(
-    url: str, organisation_name: str = ""
-) -> QuerySet[DetailedCase]:
-    """Look for cases with matching domain or organisation name"""
-    domain: str = extract_domain_from_url(url)
-    return DetailedCase.objects.filter(
-        Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
-    )
-
-
 class AddDetailedCaseToContextMixin:
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add detailed case into context"""
@@ -101,7 +92,7 @@ class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
             return super().form_valid(form)
 
         context: dict[str, Any] = self.get_context_data()
-        duplicate_cases: QuerySet[DetailedCase] = find_duplicate_cases(
+        duplicate_cases: QuerySet[BaseCase] = find_duplicate_cases(
             url=form.cleaned_data.get("home_page_url", ""),
             organisation_name=form.cleaned_data.get("organisation_name", ""),
         ).order_by("created")

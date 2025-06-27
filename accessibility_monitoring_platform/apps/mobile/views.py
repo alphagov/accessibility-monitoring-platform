@@ -20,7 +20,7 @@ from .utils import record_model_create_event, record_model_update_event
 
 
 def find_duplicate_cases(organisation_name: str = "") -> QuerySet[MobileCase]:
-    """Look for cases with matching domain or organisation name"""
+    """Look for cases with matching organisation name"""
     return MobileCase.objects.filter(organisation_name__icontains=organisation_name)
 
 

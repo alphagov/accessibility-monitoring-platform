@@ -9,8 +9,8 @@ from django.contrib.auth.models import User
 
 from ...common.models import Sector, SubCategory
 from ...simplified.models import CaseStatus, SimplifiedCase
-from ..forms import CaseSearchForm
-from ..utils import filter_cases
+from ..models import BaseCase
+from ..utils import filter_cases, find_duplicate_cases
 
 ORGANISATION_NAME: str = "Organisation name one"
 ORGANISATION_NAME_COMPLAINT: str = "Organisation name two"
@@ -22,6 +22,10 @@ ORGANISATION_NAME_NOT_SELECTED: str = "Organisation name not selected"
 CASE_NUMBER: int = 99
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
+
+DOMAIN: str = "domain.com"
+HOME_PAGE_URL: str = f"https://{DOMAIN}"
+ORGANISATION_NAME: str = "Organisation name"
 
 
 @dataclass
@@ -249,26 +253,6 @@ def test_case_filtered_by_test_type(test_type, expected_organisation):
 
 
 @pytest.mark.django_db
-def test_case_filtered_by_default_test_type():
-    """Test filtering cases by test type simplified happens by default"""
-    SimplifiedCase.objects.create(
-        organisation_name="Simplified Org", test_type=SimplifiedCase.TestType.SIMPLIFIED
-    )
-    SimplifiedCase.objects.create(
-        organisation_name="Detailed Org", test_type=SimplifiedCase.TestType.DETAILED
-    )
-    SimplifiedCase.objects.create(
-        organisation_name="Mobile Org", test_type=SimplifiedCase.TestType.MOBILE
-    )
-    form: CaseSearchForm = CaseSearchForm()
-
-    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
-
-    assert len(filtered_cases) == 1
-    assert filtered_cases[0].organisation_name == "Simplified Org"
-
-
-@pytest.mark.django_db
 def test_cases_ordered_to_put_unassigned_first():
     """Test that case filtering returns unassigned cases first by default"""
     first_created: SimplifiedCase = SimplifiedCase.objects.create(
@@ -297,3 +281,35 @@ def test_cases_ordered_to_put_unassigned_first():
 
     assert len(filtered_cases) == 2
     assert filtered_cases[0].organisation_name == first_created.organisation_name
+
+
+@pytest.mark.parametrize(
+    "url, domain, expected_number_of_duplicates",
+    [
+        (HOME_PAGE_URL, ORGANISATION_NAME, 2),
+        (HOME_PAGE_URL, "", 1),
+        ("https://domain2.com", "Org name", 0),
+        ("https://domain2.com", "", 0),
+    ],
+)
+@pytest.mark.django_db
+def test_find_duplicate_cases(url, domain, expected_number_of_duplicates) -> BaseCase:
+    """Test find_duplicate_cases returns matching cases"""
+    organisation_name_case: BaseCase = BaseCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+    domain_case: SimplifiedCase = SimplifiedCase.objects.create(
+        home_page_url=HOME_PAGE_URL
+    )
+
+    duplicate_cases: list[BaseCase] = list(find_duplicate_cases(url, domain))
+
+    assert len(duplicate_cases) == expected_number_of_duplicates
+
+    if expected_number_of_duplicates > 0:
+        assert duplicate_cases[0].case_identifier == domain_case.case_identifier
+
+    if expected_number_of_duplicates > 1:
+        assert (
+            duplicate_cases[1].case_identifier == organisation_name_case.case_identifier
+        )

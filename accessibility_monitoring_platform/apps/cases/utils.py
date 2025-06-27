@@ -3,12 +3,12 @@ Utility functions for cases app
 """
 
 import copy
-from typing import Any, ClassVar
+from typing import Any
 
 from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
 
-from ..common.utils import build_filters
+from ..common.utils import build_filters, extract_domain_from_url
 from ..simplified.models import SimplifiedCase
 from .models import BaseCase, Sort
 
@@ -71,8 +71,6 @@ def filter_cases(form) -> QuerySet[BaseCase]:
             filter_value: str = form.cleaned_data.get(filter_name, "")
             if filter_value != "":
                 filters[filter_name] = filter_value
-    else:
-        filters["test_type"] = BaseCase.TestType.SIMPLIFIED
 
     if str(filters.get("status", "")) == BaseCase.Status.READY_TO_QA:
         filters["test_type"] = BaseCase.TestType.SIMPLIFIED
@@ -102,3 +100,13 @@ def filter_cases(form) -> QuerySet[BaseCase]:
         .order_by(sort_by)
         .select_related("auditor", "reviewer")
     )
+
+
+def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[BaseCase]:
+    """Look for cases with matching domain or organisation name"""
+    domain: str = extract_domain_from_url(url)
+    if organisation_name:
+        return BaseCase.objects.filter(
+            Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
+        )
+    return BaseCase.objects.filter(domain=domain)

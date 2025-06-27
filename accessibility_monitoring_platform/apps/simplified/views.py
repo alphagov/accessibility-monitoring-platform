@@ -7,7 +7,6 @@ from typing import Any
 
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -20,6 +19,7 @@ from django.views.generic.list import ListView
 
 from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..cases.forms import CaseSearchForm
+from ..cases.utils import find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.email_template_utils import get_email_template_context
@@ -103,18 +103,6 @@ from .utils import (
 
 FOUR_WEEKS_IN_DAYS: int = 4 * ONE_WEEK_IN_DAYS
 TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
-
-
-def find_duplicate_cases(
-    url: str, organisation_name: str = ""
-) -> QuerySet[SimplifiedCase]:
-    """Look for cases with matching domain or organisation name"""
-    domain: str = extract_domain_from_url(url)
-    if organisation_name:
-        return SimplifiedCase.objects.filter(
-            Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
-        )
-    return SimplifiedCase.objects.filter(domain=domain)
 
 
 def calculate_report_followup_dates(

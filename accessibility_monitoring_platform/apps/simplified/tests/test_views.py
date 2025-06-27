@@ -54,7 +54,6 @@ from ..views import (
     calculate_no_contact_chaser_dates,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
-    find_duplicate_cases,
     format_due_date_help_text,
     mark_qa_comments_as_read,
 )
@@ -1876,36 +1875,6 @@ def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
         response.url
         == f'{reverse("simplified:edit-enforcement-recommendation", kwargs={"pk": simplified_case.id})}'
     )
-
-
-@pytest.mark.parametrize(
-    "url, domain, expected_number_of_duplicates",
-    [
-        (HOME_PAGE_URL, ORGANISATION_NAME, 2),
-        (HOME_PAGE_URL, "", 1),
-        ("https://domain2.com", "Org name", 0),
-        ("https://domain2.com", "", 0),
-    ],
-)
-@pytest.mark.django_db
-def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
-    """Test find_duplicate_cases returns matching cases"""
-    organisation_name_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name=ORGANISATION_NAME
-    )
-    domain_case: SimplifiedCase = SimplifiedCase.objects.create(
-        home_page_url=HOME_PAGE_URL
-    )
-
-    duplicate_cases: list[SimplifiedCase] = list(find_duplicate_cases(url, domain))
-
-    assert len(duplicate_cases) == expected_number_of_duplicates
-
-    if expected_number_of_duplicates > 0:
-        assert duplicate_cases[0] == domain_case
-
-    if expected_number_of_duplicates > 1:
-        assert duplicate_cases[1] == organisation_name_case
 
 
 @pytest.mark.parametrize(
