@@ -2,20 +2,20 @@
 
 {% load l10n %}
 
-{% block title %}{{ retest.case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+{% block title %}{{ retest.simplified_case.organisation_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=retest.case %}
+            {% include 'common/case_banner.html' with case=retest.simplified_case %}
         </div>
     </div>
     {% include 'audits/helpers/retest_breadcrumb.html' with page_heading=sitemap.current_platform_page.get_name %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with retest_header=True %}
+                {% include "simplified/helpers/edit_header.html" with retest_header=True %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -23,7 +23,7 @@
                 {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-equality-body-statement-custom' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include 'audits/helpers/statement_pages_eb_retest.html' with audit=retest.case.audit  %}
+                {% include 'audits/helpers/statement_pages_eb_retest.html' with audit=retest.simplified_case.audit  %}
                 {% include 'common/formset_error_summary.html' with formset=retest_statement_check_results_formset %}
                 <form method="post" action="{% url 'audits:edit-equality-body-statement-custom' retest.id %}">
                     {% csrf_token %}

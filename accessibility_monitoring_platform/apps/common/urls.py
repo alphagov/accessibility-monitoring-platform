@@ -14,6 +14,7 @@ from .views import (
     ContactAdminView,
     FooterLinkFormsetTemplateView,
     FrequentlyUsedLinkFormsetTemplateView,
+    ImportCSV,
     IssueReportListView,
     IssueReportView,
     MarkdownCheatsheetTemplateView,
@@ -106,5 +107,10 @@ urlpatterns: list[URLPattern] = [
         "bulk-url-search/",
         login_required(BulkURLSearchView.as_view()),
         name="bulk-url-search",
+    ),
+    path(
+        "import-csv/",
+        login_required(ImportCSV.as_view()),
+        name="import-csv",
     ),
 ]

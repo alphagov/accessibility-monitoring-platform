@@ -7,7 +7,7 @@ describe('Search page', () => {
   })
 
   it('can see page', () => {
-    cy.title().should('eq', 'Search')
+    cy.title().should('eq', 'Search cases')
   })
 
   it('can do search', () => {

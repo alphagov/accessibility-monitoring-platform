@@ -1,0 +1,17 @@
+<details class="govuk-details" data-module="govuk-details">
+   <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">List of contacts ({{ detailed_case.contacts.count }})</span>
+    </summary>
+    <div class="govuk-details__text">
+        {% for contact in detailed_case.contacts %}
+            <p class="govuk-body amp-margin-bottom-0"><b>Contact {{ forloop.counter }}</b></p>
+            <p class="govuk-body amp-margin-bottom-0">{{ contact.name }}</p>
+            <p class="govuk-body amp-margin-bottom-0">{{ contact.job_title }}</p>
+            <p class="govuk-body">{{ contact.contact_point }}</p>
+        {% endfor %}
+        <p class="govuk-body">
+            <a href="{% url 'detailed:manage-contact-details' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Edit contacts</a>
+        </p>
+    </div>
+</details>

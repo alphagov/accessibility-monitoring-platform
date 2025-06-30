@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "version": 1,
-      "case": 1,
+      "base_case": 1,
       "created": "2022-09-06T12:26:38.866Z",
       "created_by": null,
       "report_version": "v1_2_0__20230523",

@@ -28,7 +28,7 @@
                         {% elif case.audit %}
                             <a href="{% url 'audits:edit-audit-metadata' case.audit.id %}" class="govuk-link"> Testing details </a>
                         {% else %}
-                            <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link"> Testing details </a>
+                            <a href="{% url 'simplified:edit-test-results' case.id %}" class="govuk-link"> Testing details </a>
                         {% endif %}
                     </td>
                 </tr>

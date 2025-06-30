@@ -11,9 +11,12 @@ from django.db.models.query import QuerySet
 from django.http import Http404, HttpRequest
 from django.utils import timezone
 
-from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ..common.utils import list_to_dictionary_of_lists
+from ..simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from .forms import CheckResultForm
 from .models import (
     Audit,
@@ -96,8 +99,10 @@ def create_or_update_check_results_for_page(
             ):
                 check_result.check_result_state = check_result_state
                 check_result.notes = notes
-                record_model_update_event(
-                    user=user, model_object=check_result, case=check_result.audit.case
+                record_simplified_model_update_event(
+                    user=user,
+                    model_object=check_result,
+                    simplified_case=check_result.audit.simplified_case,
                 )
                 add_to_check_result_notes_history(check_result=check_result, user=user)
                 report_data_updated(audit=check_result.audit)
@@ -111,8 +116,10 @@ def create_or_update_check_results_for_page(
                 check_result_state=check_result_state,
                 notes=notes,
             )
-            record_model_create_event(
-                user=user, model_object=check_result, case=check_result.audit.case
+            record_simplified_model_create_event(
+                user=user,
+                model_object=check_result,
+                simplified_case=check_result.audit.simplified_case,
             )
             add_to_check_result_notes_history(
                 check_result=check_result, user=user, new_check_result=True
@@ -168,7 +175,9 @@ def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
     for page_type in Page.MANDATORY_PAGE_TYPES:
         if page_type == Page.Type.HOME:
             Page.objects.create(
-                audit=audit, page_type=page_type, url=audit.case.home_page_url
+                audit=audit,
+                page_type=page_type,
+                url=audit.simplified_case.home_page_url,
             )
         else:
             Page.objects.create(audit=audit, page_type=page_type)
@@ -293,10 +302,12 @@ def create_checkresults_for_retest(retest: Retest) -> None:
     Create pages and checkresults for restest from outstanding issues of previous test.
     """
 
-    audit: Audit = retest.case.audit
+    audit: Audit = retest.simplified_case.audit
     if retest.id_within_case == 1:
         # Create fake retest from 12-week results for first retest to compare itself to
-        retest_0: Retest = Retest.objects.create(case=retest.case, id_within_case=0)
+        retest_0: Retest = Retest.objects.create(
+            simplified_case=retest.simplified_case, id_within_case=0
+        )
         for page in audit.testable_pages:
             if page.unfixed_check_results:
                 retest_page: RetestPage = RetestPage.objects.create(
@@ -313,7 +324,7 @@ def create_checkresults_for_retest(retest: Retest) -> None:
                         retest_notes=check_result.retest_notes,
                     )
 
-    previous_retest: Retest = retest.case.retests.filter(
+    previous_retest: Retest = retest.simplified_case.retests.filter(
         id_within_case=retest.id_within_case - 1
     ).first()
 

@@ -4,7 +4,6 @@ Forms - checks (called tests by users)
 
 from django import forms
 
-from ..cases.models import Boolean, Case, CaseCompliance
 from ..common.forms import (
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
@@ -19,6 +18,8 @@ from ..common.forms import (
     AMPURLField,
     VersionForm,
 )
+from ..common.models import Boolean
+from ..simplified.models import CaseCompliance, SimplifiedCase
 from .models import (
     Audit,
     CheckResult,
@@ -349,7 +350,7 @@ class AuditStatementWebsiteUpdateForm(VersionForm):
     audit_statement_website_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Case
+        model = SimplifiedCase
         fields: list[str] = [
             "version",
             "audit_statement_website_complete_date",
@@ -364,7 +365,7 @@ class AuditStatementComplianceUpdateForm(VersionForm):
     audit_statement_compliance_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Case
+        model = SimplifiedCase
         fields: list[str] = [
             "version",
             "audit_statement_compliance_complete_date",
@@ -379,7 +380,7 @@ class AuditStatementNonAccessibleUpdateForm(VersionForm):
     audit_statement_non_accessible_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Case
+        model = SimplifiedCase
         fields: list[str] = [
             "version",
             "audit_statement_non_accessible_complete_date",
@@ -394,7 +395,7 @@ class AuditStatementPreparationUpdateForm(VersionForm):
     audit_statement_preparation_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Case
+        model = SimplifiedCase
         fields: list[str] = [
             "version",
             "audit_statement_preparation_complete_date",
@@ -409,7 +410,7 @@ class AuditStatementFeedbackUpdateForm(VersionForm):
     audit_statement_feedback_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Case
+        model = SimplifiedCase
         fields: list[str] = [
             "version",
             "audit_statement_feedback_complete_date",
@@ -424,7 +425,7 @@ class AuditStatementCustomUpdateForm(VersionForm):
     audit_statement_custom_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Case
+        model = SimplifiedCase
         fields: list[str] = [
             "version",
             "audit_statement_custom_complete_date",

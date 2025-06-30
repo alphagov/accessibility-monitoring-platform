@@ -43,27 +43,32 @@
                 <h1 class="govuk-heading-xl amp-margin-bottom-10">{{ sitemap.current_platform_page.get_name }}</h1>
             </div>
             <div class="govuk-grid-column-full govuk-button-group">
+                <a
+                    href="{% url 'simplified:case-create' %}"
+                    class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
+                >
+                    Create simplified case
+                </a>
+            </div>
+            <div class="govuk-grid-column-full govuk-button-group">
+                <span class="govuk-body amp-margin-bottom-0">Simplified:</span>
                 {% if show_all_cases %}
                     <a
                         href="{% url 'dashboard:home' %}?view=View your cases"
-                        class="govuk-link govuk-link--no-visited-state"
+                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0 amp-padding-left-10"
                     >
-                        View your cases
+                        Your cases
                     </a>
+                    <span class="govuk-body amp-margin-bottom-0"><b>All cases</b></span>
                 {% else %}
+                    <span class="govuk-body amp-margin-bottom-0 amp-padding-left-10"><b>Your cases</b></span>
                     <a
                         href="{% url 'dashboard:home' %}?view=View all cases"
-                        class="govuk-link govuk-link--no-visited-state"
+                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0 amp-padding-left-10"
                     >
-                        View all cases
+                        All cases
                     </a>
                 {% endif %}
-                <a
-                    href="{% url 'cases:case-create' %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                >
-                    Create case
-                </a>
             </div>
         </div>
         <div class="govuk-grid-row amp-margin-bottom-30">

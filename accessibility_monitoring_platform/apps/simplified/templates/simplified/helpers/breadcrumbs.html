@@ -1,0 +1,10 @@
+<div class="govuk-breadcrumbs amp-margin-bottom-25">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        {% include 'simplified/helpers/breadcrumb_case.html' %}
+        {% if sitemap.current_platform_page.platform_page_group.name %}
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group.name }}</li>
+        {% endif %}
+        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+    </ol>
+</div>

@@ -10,9 +10,9 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from ..audits.models import Audit, CheckResult
-from ..cases.models import Case, CaseCompliance, CaseStatus
 from ..reports.models import ReportVisitsMetrics
 from ..s3_read_write.models import S3Report
+from ..simplified.models import CaseCompliance, CaseStatus, SimplifiedCase
 from .chart import LineChart, Timeseries, TimeseriesDatapoint, build_yearly_metric_chart
 from .utils import get_days_ago_timestamp, get_first_of_this_month_last_year
 
@@ -211,17 +211,21 @@ def get_case_progress_metrics() -> list[ThirtyDayMetric]:
     return [
         ThirtyDayMetric(
             label="Cases created",
-            last_30_day_count=Case.objects.filter(created__gte=thirty_days_ago).count(),
-            previous_30_day_count=Case.objects.filter(created__gte=sixty_days_ago)
+            last_30_day_count=SimplifiedCase.objects.filter(
+                created__gte=thirty_days_ago
+            ).count(),
+            previous_30_day_count=SimplifiedCase.objects.filter(
+                created__gte=sixty_days_ago
+            )
             .filter(created__lt=thirty_days_ago)
             .count(),
         ),
         ThirtyDayMetric(
             label="Tests completed",
-            last_30_day_count=Case.objects.filter(
+            last_30_day_count=SimplifiedCase.objects.filter(
                 reporting_details_complete_date__gte=thirty_days_ago
             ).count(),
-            previous_30_day_count=Case.objects.filter(
+            previous_30_day_count=SimplifiedCase.objects.filter(
                 reporting_details_complete_date__gte=sixty_days_ago
             )
             .filter(reporting_details_complete_date__lt=thirty_days_ago)
@@ -229,10 +233,10 @@ def get_case_progress_metrics() -> list[ThirtyDayMetric]:
         ),
         ThirtyDayMetric(
             label="Reports sent",
-            last_30_day_count=Case.objects.filter(
+            last_30_day_count=SimplifiedCase.objects.filter(
                 report_sent_date__gte=thirty_days_ago
             ).count(),
-            previous_30_day_count=Case.objects.filter(
+            previous_30_day_count=SimplifiedCase.objects.filter(
                 report_sent_date__gte=sixty_days_ago
             )
             .filter(report_sent_date__lt=thirty_days_ago)
@@ -240,10 +244,10 @@ def get_case_progress_metrics() -> list[ThirtyDayMetric]:
         ),
         ThirtyDayMetric(
             label="Cases closed",
-            last_30_day_count=Case.objects.filter(
+            last_30_day_count=SimplifiedCase.objects.filter(
                 completed_date__gte=thirty_days_ago
             ).count(),
-            previous_30_day_count=Case.objects.filter(
+            previous_30_day_count=SimplifiedCase.objects.filter(
                 completed_date__gte=sixty_days_ago
             )
             .filter(completed_date__lt=thirty_days_ago)
@@ -265,7 +269,7 @@ def get_case_yearly_metrics() -> list[YearlyMetric]:
         timeseries: Timeseries = Timeseries(
             label=label,
             datapoints=group_timeseries_data_by_month(
-                queryset=Case.objects,
+                queryset=SimplifiedCase.objects,
                 date_column_name=date_column_name,
                 start_date=start_date,
             ),
@@ -285,12 +289,12 @@ def get_policy_total_metrics() -> list[TotalMetric]:
     return [
         TotalMetric(
             label="Total reports sent",
-            total=Case.objects.exclude(report_sent_date=None).count(),
+            total=SimplifiedCase.objects.exclude(report_sent_date=None).count(),
         ),
         TotalMetric(
             label="Total cases closed",
-            total=Case.objects.filter(
-                status__status__in=CaseStatus.CLOSED_CASE_STATUSES
+            total=SimplifiedCase.objects.filter(
+                status__in=CaseStatus.CLOSED_CASE_STATUSES
             ).count(),
         ),
         TotalMetric(
@@ -315,11 +319,11 @@ def get_policy_progress_metrics() -> list[ProgressMetric]:
     retested_audits: QuerySet[Audit] = Audit.objects.filter(retest_date__gte=start_date)
     retested_audits_count: int = retested_audits.count()
     fixed_audits: QuerySet[Audit] = retested_audits.filter(
-        case__recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
+        simplified_case__recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     fixed_audits_count: int = fixed_audits.count()
     compliant_audits: QuerySet[Audit] = retested_audits.filter(
-        case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
+        simplified_case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
     )
     compliant_audits_count: int = compliant_audits.count()
     check_results_of_last_90_days: QuerySet[CheckResult] = CheckResult.objects.filter(
@@ -369,7 +373,7 @@ def get_policy_progress_metrics() -> list[ProgressMetric]:
 def get_equality_body_cases_metric() -> EqualityBodyCasesMetric:
     """Return numbers of cases completed or in progress with equality body"""
     thirteen_month_start_date: datetime = get_first_of_this_month_last_year()
-    last_year_cases: QuerySet[Case] = Case.objects.filter(
+    last_year_cases: QuerySet[SimplifiedCase] = SimplifiedCase.objects.filter(
         created__gte=thirteen_month_start_date
     )
     return EqualityBodyCasesMetric(
@@ -392,22 +396,22 @@ def get_policy_yearly_metrics() -> list[YearlyMetric]:
     )
     thirteen_month_website_initial_compliant: QuerySet[Audit] = (
         thirteen_month_retested_audits.filter(
-            case__compliance__website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT
+            simplified_case__compliance__website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT
         )
     )
     thirteen_month_statement_initial_compliant: QuerySet[Audit] = (
         thirteen_month_retested_audits.filter(
-            case__compliance__statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT
+            simplified_case__compliance__statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT
         )
     )
     thirteen_month_final_no_action: QuerySet[Audit] = (
         thirteen_month_retested_audits.filter(
-            case__recommendation_for_enforcement=Case.RecommendationForEnforcement.NO_FURTHER_ACTION
+            simplified_case__recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION
         )
     )
     thirteen_month_statement_final_compliant: QuerySet[Audit] = (
         thirteen_month_retested_audits.filter(
-            case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
+            simplified_case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
         )
     )
 
@@ -536,10 +540,10 @@ def get_report_progress_metrics() -> list[ThirtyDayMetric]:
         ),
         ThirtyDayMetric(
             label="Reports acknowledged",
-            last_30_day_count=Case.objects.filter(
+            last_30_day_count=SimplifiedCase.objects.filter(
                 report_acknowledged_date__gte=thirty_days_ago
             ).count(),
-            previous_30_day_count=Case.objects.filter(
+            previous_30_day_count=SimplifiedCase.objects.filter(
                 report_acknowledged_date__gte=sixty_days_ago,
             )
             .filter(report_acknowledged_date__lt=thirty_days_ago)
