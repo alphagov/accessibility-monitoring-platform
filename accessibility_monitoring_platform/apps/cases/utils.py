@@ -19,6 +19,9 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
     ("test_type", "test_type"),
+    ("is_complaint", "is_complaint"),
+    ("enforcement_body", "enforcement_body"),
+    ("recommendation_for_enforcement", "recommendation_for_enforcement"),
 ]
 
 
@@ -47,15 +50,11 @@ def filter_cases(form) -> QuerySet[BaseCase]:
         sort_by: str = form.cleaned_data.get("sort_by", Sort.NEWEST)
         if form.cleaned_data.get("case_search"):
             search: str = form.cleaned_data["case_search"]
-            if (
-                search.isdigit()
-            ):  # if its just a number, it presumes its an ID and returns that case
+            if search.isdigit():
                 search_query = Q(case_number=search)
             else:
                 search_query = (
-                    Q(  # pylint: disable=unsupported-binary-operation
-                        organisation_name__icontains=search
-                    )
+                    Q(organisation_name__icontains=search)
                     | Q(home_page_url__icontains=search)
                     | Q(domain__icontains=search)
                     | Q(psb_location__icontains=search)
@@ -67,14 +66,6 @@ def filter_cases(form) -> QuerySet[BaseCase]:
                     | Q(mobilecase__app_name__icontains=search)
                     | Q(mobilecase__app_store_url__icontains=search)
                 )
-        for filter_name in [
-            "is_complaint",
-            "enforcement_body",
-            "recommendation_for_enforcement",
-        ]:
-            filter_value: str = form.cleaned_data.get(filter_name, "")
-            if filter_value != "":
-                filters[filter_name] = filter_value
 
     if str(filters.get("status", "")) == BaseCase.Status.READY_TO_QA:
         filters["test_type"] = BaseCase.TestType.SIMPLIFIED

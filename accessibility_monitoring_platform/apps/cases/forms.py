@@ -30,7 +30,7 @@ class DateType(models.TextChoices):
         "Date test started",
     )
     SENT = "simplifiedcase__sent_to_enforcement_body_sent_date", "Date sent to EB"
-    UPDATED = "updated", "Case updated"
+    UPDATED = "updated_date", "Case updated"
 
 
 def get_search_user_choices(user_query: QuerySet[User]) -> list[tuple[str, str]]:

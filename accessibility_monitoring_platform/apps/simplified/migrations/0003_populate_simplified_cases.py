@@ -51,6 +51,7 @@ def populate_simplified_cases(apps, schema_editor):
             archive=case.archive,
             created_by=case.created_by,
             updated=case.updated,
+            updated_date=case.updated.date(),
             variant=case.variant,
             created=case.created,
             auditor=case.auditor,

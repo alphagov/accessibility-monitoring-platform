@@ -30,6 +30,7 @@ class Migration(migrations.Migration):
                 ("case_number", models.IntegerField(default=1)),
                 ("case_identifier", models.CharField(max_length=20, default="")),
                 ("updated", models.DateTimeField(blank=True, null=True)),
+                ("updated_date", models.DateField(blank=True, null=True)),
                 (
                     "status",
                     models.CharField(

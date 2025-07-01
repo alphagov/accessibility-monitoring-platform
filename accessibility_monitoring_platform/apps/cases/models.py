@@ -1648,6 +1648,7 @@ class BaseCase(VersionModel):
         null=True,
     )
     updated = models.DateTimeField(null=True, blank=True)
+    updated_date = models.DateField(null=True, blank=True)
     status = models.CharField(
         max_length=200, choices=Status.choices, default=Status.UNASSIGNED
     )
@@ -1725,6 +1726,7 @@ class BaseCase(VersionModel):
                 self.case_number = max_case_number + 1
             self.case_identifier = f"#{self.test_type[0].upper()}-{self.case_number}"
         self.updated = now
+        self.updated_date = now.date()
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:

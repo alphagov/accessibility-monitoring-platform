@@ -38,6 +38,7 @@ def test_new_base_case_defaults():
     assert base_case.created is not None
     assert isinstance(base_case.created, datetime)
     assert base_case.created == base_case.updated
+    assert base_case.updated_date == base_case.updated.date()
     assert base_case.case_number == 2
     assert base_case.case_identifier == "#S-2"
     assert base_case.get_absolute_url() == "/simplified/2/view/"

@@ -1941,3 +1941,17 @@ def test_simplified_case_identifier():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert simplified_case.case_identifier == "#S-1"
+
+
+def test_simplified_case_report_acknowledged_yes_no():
+    """Test the SimplifiedCase.report_acknowledged_yes_no"""
+
+    assert SimplifiedCase().report_acknowledged_yes_no == "No"
+    assert (
+        SimplifiedCase(
+            report_acknowledged_date=datetime(
+                2020, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc
+            )
+        ).report_acknowledged_yes_no
+        == "Yes"
+    )

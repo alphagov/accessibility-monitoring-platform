@@ -11,7 +11,7 @@ import pytest
 from django.http import HttpResponse, StreamingHttpResponse
 
 from ...audits.models import Audit
-from ...simplified.models import CaseCompliance, CaseStatus, Contact, SimplifiedCase
+from ...simplified.models import CaseCompliance, Contact, SimplifiedCase
 from ..csv_export_utils import (
     CASE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_COLUMNS_FOR_EXPORT,
@@ -23,7 +23,6 @@ from ..csv_export_utils import (
     download_feedback_survey_cases,
     download_simplified_cases,
     format_contacts,
-    format_field_as_yes_no,
     format_model_field,
     populate_csv_columns,
     populate_equality_body_columns,
@@ -150,34 +149,6 @@ def test_format_case_field(column, case_value, expected_formatted_value):
     setattr(simplified_case, column.source_attr, case_value)
     assert expected_formatted_value == format_model_field(
         source_instance=simplified_case, column=column
-    )
-
-
-def test_format_field_as_yes_no():
-    """Test field formatted as Yes if it contains a truthy value, otherwise No"""
-    simplified_case: SimplifiedCase = SimplifiedCase()
-
-    assert (
-        format_field_as_yes_no(
-            source_instance=simplified_case,
-            column=CSVColumn(
-                column_header="Falsey field",
-                source_class=SimplifiedCase,
-                source_attr="report_sent_date",
-            ),
-        )
-        == "No"
-    )
-    assert (
-        format_field_as_yes_no(
-            source_instance=simplified_case,
-            column=CSVColumn(
-                column_header="Truthy field",
-                source_class=SimplifiedCase,
-                source_attr="test_type",
-            ),
-        )
-        == "Yes"
     )
 
 

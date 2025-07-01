@@ -659,6 +659,10 @@ class SimplifiedCase(BaseCase):
         return self.not_archived and self.audit is not None
 
     @property
+    def report_acknowledged_yes_no(self):
+        return "Yes" if self.report_acknowledged_date else "No"
+
+    @property
     def show_start_12_week_retest(self):
         return (
             self.not_archived

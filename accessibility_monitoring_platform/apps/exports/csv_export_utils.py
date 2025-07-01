@@ -51,7 +51,6 @@ class EqualityBodyCSVColumn(CSVColumn):
 
 
 CONTACT_DETAILS_COLUMN_HEADER: str = "Contact details"
-ORGANISATION_RESPONDED_COLUMN_HEADER: str = "Organisation responded to report?"
 
 EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
@@ -190,9 +189,9 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
         edit_url_label="Go to contact details",
     ),
     EqualityBodyCSVColumn(
-        column_header=ORGANISATION_RESPONDED_COLUMN_HEADER,
+        column_header="Organisation responded to report?",
         source_class=SimplifiedCase,
-        source_attr="report_acknowledged_date",
+        source_attr="report_acknowledged_yes_no",
         ui_suffix=" (derived from report acknowledged date)",
         edit_url_class=SimplifiedCase,
         edit_url_name="simplified:edit-report-acknowledged",
@@ -818,20 +817,6 @@ def format_contacts(contacts: QuerySet[Contact]) -> str:
     return contact_details
 
 
-def format_field_as_yes_no(
-    source_instance: Audit | SimplifiedCase | Contact | None, column: CSVColumn
-) -> str:
-    """
-    If the field contains a truthy value return Yes otherwise return No.
-    """
-    if source_instance is None:
-        return "No"
-    value: Any = getattr(source_instance, column.source_attr, False)
-    if value:
-        return "Yes"
-    return "No"
-
-
 def format_model_field(
     source_instance: Audit | SimplifiedCase | Contact | None, column: CSVColumn
 ) -> str:
@@ -876,10 +861,6 @@ def populate_equality_body_columns(
         )
         if column.column_header == CONTACT_DETAILS_COLUMN_HEADER:
             column.formatted_data = contact_details
-        elif column.column_header == ORGANISATION_RESPONDED_COLUMN_HEADER:
-            column.formatted_data = format_field_as_yes_no(
-                source_instance=simplified_case, column=column
-            )
         else:
             column.formatted_data = format_model_field(
                 source_instance=source_instance, column=column
