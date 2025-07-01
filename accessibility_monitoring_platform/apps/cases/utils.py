@@ -34,8 +34,12 @@ def filter_cases(form) -> QuerySet[BaseCase]:
         )
         if "date_type" in form.cleaned_data:
             date_range_field: str = form.cleaned_data["date_type"]
-            field_and_filter_names.append(("date_start", f"{date_range_field}__gte"))
-            field_and_filter_names.append(("date_end", f"{date_range_field}__lte"))
+            if form.cleaned_data.get("date_start") is not None:
+                field_and_filter_names.append(
+                    ("date_start", f"{date_range_field}__gte")
+                )
+            if form.cleaned_data.get("date_end") is not None:
+                field_and_filter_names.append(("date_end", f"{date_range_field}__lte"))
         filters: dict[str, Any] = build_filters(
             cleaned_data=form.cleaned_data,
             field_and_filter_names=field_and_filter_names,

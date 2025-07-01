@@ -3,12 +3,16 @@ Test utility functions of cases app
 """
 
 from dataclasses import dataclass
+from datetime import date, datetime, timedelta, timezone
+from unittest.mock import Mock, patch
 
 import pytest
 from django.contrib.auth.models import User
 
+from ...audits.models import Audit
 from ...common.models import Sector, SubCategory
 from ...simplified.models import CaseStatus, SimplifiedCase
+from ..forms import DateType
 from ..models import BaseCase
 from ..utils import filter_cases, find_duplicate_cases
 
@@ -21,6 +25,10 @@ ORGANISATION_NAME_FOR_ENFORCEMENT: str = "Organisation name for enforcement"
 ORGANISATION_NAME_NOT_SELECTED: str = "Organisation name not selected"
 CASE_NUMBER: int = 99
 
+PAST_DATE: date = date(1900, 1, 1)
+TODAYS_DATE: date = date.today()
+YESTERDAYS_DATE: date = TODAYS_DATE - timedelta(days=1)
+FUTURE_DATE: date = TODAYS_DATE + timedelta(days=1)
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
 
 DOMAIN: str = "domain.com"
@@ -64,6 +72,181 @@ def test_case_filtered_by_case_number_search_string():
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].case_number == CASE_NUMBER
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_test_started_date_range():
+    """
+    Test that searching for case by test start date range is reflected in the queryset
+    """
+    excluded_simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Excluded"
+    )
+    excluded_audit: Audit = Audit.objects.create(
+        simplified_case=excluded_simplified_case, date_of_test=PAST_DATE
+    )
+    included_simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Included"
+    )
+    Audit.objects.create(
+        simplified_case=included_simplified_case, date_of_test=TODAYS_DATE
+    )
+
+    form: MockForm = MockForm(
+        cleaned_data={"date_type": DateType.TEST_START, "date_start": TODAYS_DATE}
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+    form: MockForm = MockForm(
+        cleaned_data={
+            "date_type": DateType.TEST_START,
+            "date_start": TODAYS_DATE,
+            "date_end": TODAYS_DATE,
+        }
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+    excluded_audit.date_of_test = FUTURE_DATE
+    excluded_audit.save()
+
+    form: MockForm = MockForm(
+        cleaned_data={"date_type": DateType.TEST_START, "date_end": TODAYS_DATE}
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_sent_to_enforcement_body_date_range():
+    """
+    Test that searching for case by sent to enforcement body date range
+    is reflected in the queryset
+    """
+    excluded_simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Excluded", sent_to_enforcement_body_sent_date=PAST_DATE
+    )
+    SimplifiedCase.objects.create(
+        organisation_name="Included", sent_to_enforcement_body_sent_date=TODAYS_DATE
+    )
+
+    form: MockForm = MockForm(
+        cleaned_data={"date_type": DateType.SENT, "date_start": TODAYS_DATE}
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+    form: MockForm = MockForm(
+        cleaned_data={
+            "date_type": DateType.SENT,
+            "date_start": TODAYS_DATE,
+            "date_end": TODAYS_DATE,
+        }
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+    excluded_simplified_case.sent_to_enforcement_body_sent_date = FUTURE_DATE
+    excluded_simplified_case.save()
+
+    form: MockForm = MockForm(
+        cleaned_data={"date_type": DateType.SENT, "date_end": TODAYS_DATE}
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_updated_date_range():
+    """
+    Test that searching for case by updated date range is reflected in the queryset
+    """
+    with patch(
+        "django.utils.timezone.now",
+        Mock(
+            return_value=datetime(
+                PAST_DATE.year, PAST_DATE.month, PAST_DATE.day, tzinfo=timezone.utc
+            )
+        ),
+    ):
+        excluded_simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+            organisation_name="Excluded"
+        )
+    with patch(
+        "django.utils.timezone.now",
+        Mock(
+            return_value=datetime(
+                YESTERDAYS_DATE.year,
+                YESTERDAYS_DATE.month,
+                YESTERDAYS_DATE.day,
+                tzinfo=timezone.utc,
+            )
+        ),
+    ):
+        SimplifiedCase.objects.create(organisation_name="Included")
+
+    form: MockForm = MockForm(
+        cleaned_data={"date_type": DateType.UPDATED, "date_start": YESTERDAYS_DATE}
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+    form: MockForm = MockForm(
+        cleaned_data={
+            "date_type": DateType.UPDATED,
+            "date_start": YESTERDAYS_DATE,
+            "date_end": TODAYS_DATE,
+        }
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+    with patch(
+        "django.utils.timezone.now",
+        Mock(
+            return_value=datetime(
+                FUTURE_DATE.year,
+                FUTURE_DATE.month,
+                FUTURE_DATE.day,
+                tzinfo=timezone.utc,
+            )
+        ),
+    ):
+        excluded_simplified_case.save()
+
+    form: MockForm = MockForm(
+        cleaned_data={"date_type": DateType.UPDATED, "date_end": TODAYS_DATE}
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
 
 
 @pytest.mark.django_db

@@ -25,8 +25,11 @@ RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
 
 
 class DateType(models.TextChoices):
-    START = "audit_case__date_of_test", "Date test started"
-    SENT = "sent_to_enforcement_body_sent_date", "Date sent to EB"
+    TEST_START = (
+        "simplifiedcase__audit_simplifiedcase__date_of_test",
+        "Date test started",
+    )
+    SENT = "simplifiedcase__sent_to_enforcement_body_sent_date", "Date sent to EB"
     UPDATED = "updated", "Case updated"
 
 
