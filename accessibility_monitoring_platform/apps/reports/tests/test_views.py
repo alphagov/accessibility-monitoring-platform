@@ -116,7 +116,7 @@ def test_report_includes_page_location(admin_client):
     Test that report contains the page location
     """
     report: Report = create_report()
-    audit: Audit = report.base_case.audit
+    audit: Audit = report.base_case.simplifiedcase.audit
     Page.objects.create(
         audit=audit, page_type=Page.Type.HOME, url=HOME_PAGE_URL, location=PAGE_LOCATION
     )
@@ -342,7 +342,7 @@ def test_report_includes_statement_custom_issue(admin_client):
     Test that report contains the page location
     """
     report: Report = create_report()
-    audit: Audit = report.base_case.audit
+    audit: Audit = report.base_case.simplifiedcase.audit
     StatementPage.objects.create(audit=audit, url="https://example.com")
 
     report_pk_kwargs: dict[str, int] = {"pk": report.id}

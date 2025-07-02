@@ -12,7 +12,6 @@ from ...cases.models import BaseCase
 from ...common.models import Boolean, Link
 from ...simplified.models import (
     CaseCompliance,
-    CaseStatus,
     EqualityBodyCorrespondence,
     SimplifiedCase,
 )

@@ -56,7 +56,6 @@ def filter_cases(form) -> QuerySet[BaseCase]:
                 search_query = (
                     Q(organisation_name__icontains=search)
                     | Q(home_page_url__icontains=search)
-                    | Q(domain__icontains=search)
                     | Q(psb_location__icontains=search)
                     | Q(sector__name__icontains=search)
                     | Q(parental_organisation_name__icontains=search)

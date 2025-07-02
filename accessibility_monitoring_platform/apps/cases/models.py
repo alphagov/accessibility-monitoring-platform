@@ -1487,7 +1487,7 @@ class EqualityBodyCorrespondence(models.Model):
         if not self.id:
             self.created = timezone.now()
             self.id_within_case = (
-                self.base_case.equalitybodycorrespondence_set.all().count() + 1
+                self.case.equalitybodycorrespondence_set.all().count() + 1
             )
         super().save(*args, **kwargs)
 
@@ -1515,7 +1515,7 @@ class ZendeskTicket(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
-            self.id_within_case = self.base_case.zendeskticket_set.all().count() + 1
+            self.id_within_case = self.case.zendeskticket_set.all().count() + 1
         super().save(*args, **kwargs)
 
 

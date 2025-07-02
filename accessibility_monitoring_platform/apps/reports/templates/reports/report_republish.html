@@ -15,7 +15,7 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full govuk-button-group">
-            {% if report.base_case.report_approved_status == 'yes' %}
+            {% if report.base_case.simplifiedcase.report_approved_status == 'yes' %}
                 <a href="{% url 'reports:publish-report' report.id %}"
                     role="button"
                     draggable="false"
