@@ -366,3 +366,31 @@ def test_report_includes_statement_custom_issue(admin_client):
 
     assert response.status_code == 200
     assertContains(response, STATEMENT_CUSTOM_CHECK_COMMENT)
+
+
+def test_report_republish_button_show(admin_client):
+    """
+    Test that report contains the page location
+    """
+    report: Report = create_report()
+    report_pk_kwargs: dict[str, int] = {"pk": report.id}
+    simplified_case: SimplifiedCase = report.base_case.simplifiedcase
+    simplified_case.report_approved_status = (
+        SimplifiedCase.ReportApprovedStatus.APPROVED
+    )
+    simplified_case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-republish", kwargs=report_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<a href="{reverse('reports:publish-report', kwargs=report_pk_kwargs)}"
+                role="button"
+                draggable="false"
+                class="govuk-button"
+                data-module="govuk-button">Republish report</a>""",
+        html=True,
+    )
