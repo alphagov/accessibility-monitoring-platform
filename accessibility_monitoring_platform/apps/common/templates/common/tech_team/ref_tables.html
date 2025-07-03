@@ -4,7 +4,7 @@
         <ol class="govuk-list govuk-list--number">
             <li>
                 1-column (faked):
-                <a href="{% url 'cases:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'simplified:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     QA comments</a>
             </li>
             <li>
@@ -13,13 +13,17 @@
                     Add or remove pages</a>
             </li>
             <li>
+                2-column (real):
+                <span class="amp-todo">TODO: Detailed case update status</span>
+            </li>
+            <li>
                 2-column (row headers):
-                <a href="{% url 'cases:case-view-and-search' case.id %}#page-group-1-case-details" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'simplified:case-view-and-search' case.id %}#page-group-1-case-details" class="govuk-link govuk-link--no-visited-state">
                     View and search all case data</a>
             </li>
             <li>
                 3-column (complex cells):
-                <a href="{% url 'cases:outstanding-issues' case.id %}/?show-all=true#wcag-7" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'simplified:outstanding-issues' case.id %}?show-all=true#wcag-7" class="govuk-link govuk-link--no-visited-state">
                     Outstanding issues</a>
             </li>
             <li>

@@ -1,0 +1,28 @@
+[
+  {
+    "model": "cases.basecase",
+    "pk": 1,
+    "fields": {
+      "version": 4,
+      "case_number": 1,
+      "created_by": 2,
+      "updated": "2022-09-02T14:36:27.869Z",
+      "status": "test-in-progress",
+      "created": "2022-09-02T14:36:27.869Z",
+      "auditor": 1,
+      "test_type": "simplified",
+      "home_page_url": "https://example.com",
+      "domain": "example.com",
+      "organisation_name": "ExampleCorp",
+      "psb_location": "england",
+      "sector": 8,
+      "enforcement_body": "ehrc",
+      "is_complaint": "no",
+      "parental_organisation_name": "",
+      "website_name": "",
+      "case_details_complete_date": null,
+      "reviewer": 2,
+      "recommendation_for_enforcement": "unknown"
+    }
+  }
+]

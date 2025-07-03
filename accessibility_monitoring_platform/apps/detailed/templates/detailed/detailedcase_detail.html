@@ -1,0 +1,31 @@
+{% extends 'detailed/base.html' %}
+
+{% block breadcrumbs %}
+<div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+    </ol>
+</div>
+{% endblock %}
+
+{% block maincontent %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="govuk-button-group">
+            <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">{{ sitemap.current_platform_page.get_name }}</h1>
+        </div>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+        {% include 'simplified/details/search_in_case.html' %}
+        <span class="amp-todo">TODO search</span>
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+        {% include 'detailed/helpers/case_nav.html' %}
+    </div>
+    <div class="govuk-grid-column-one-half">
+        {% include 'detailed/helpers/overview.html' %}
+    </div>
+</div>
+{% endblock %}

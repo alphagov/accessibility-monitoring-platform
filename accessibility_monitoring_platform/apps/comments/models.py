@@ -14,6 +14,7 @@ from django.utils.safestring import mark_safe
 from ..audits.models import CheckResult, StatementCheck, StatementCheckResult
 from ..cases.models import Case
 from ..common.utils import replace_whole_words, undo_double_escapes
+from ..simplified.models import SimplifiedCase
 
 
 def get_initial_check_result_url_from_issue_identifier(issue_identifier: str) -> str:
@@ -58,6 +59,13 @@ class Comment(models.Model):
         blank=True,
         null=True,
     )
+    simplified_case = models.ForeignKey(
+        SimplifiedCase,
+        on_delete=models.PROTECT,
+        related_name="comment_simplifiedcase",
+        blank=True,
+        null=True,
+    )
     user = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -87,15 +95,15 @@ class Comment(models.Model):
             extensions=settings.MARKDOWN_EXTENSIONS,
         )
         issue_identifiers = set(
-            re.findall(f"{self.case.case_number}-(?:A|S|SC)-[0-9]+", html)
+            re.findall(f"{self.simplified_case.case_number}-(?:A|S|SC)-[0-9]+", html)
         )
         for issue_identifier in issue_identifiers:
             url: str = ""
-            if issue_identifier.startswith(f"{self.case.case_number}-A-"):
+            if issue_identifier.startswith(f"{self.simplified_case.case_number}-A-"):
                 url: str = get_initial_check_result_url_from_issue_identifier(
                     issue_identifier=issue_identifier
                 )
-            elif issue_identifier.startswith(f"{self.case.case_number}-S"):
+            elif issue_identifier.startswith(f"{self.simplified_case.case_number}-S"):
                 url: str = get_initial_statement_check_result_url_from_issue_identifier(
                     issue_identifier=issue_identifier
                 )

@@ -1,0 +1,27 @@
+{% extends 'simplified/details/details.html' %}
+
+{% block pretable %}
+    {% for contact in case.contacts %}
+        <p class="govuk-body-m"><b>Contact {{ forloop.counter }}</b></p>
+        <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group.name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Name</th>
+                    <td class="govuk-table__cell amp-width-one-half">{{ contact.name }}</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Job title</th>
+                    <td class="govuk-table__cell amp-width-one-half">{{ contact.job_title }}</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Email</th>
+                    <td class="govuk-table__cell amp-width-one-half">{{ contact.email }}</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Preferred contact</th>
+                    <td class="govuk-table__cell amp-width-one-half">{{ contact.get_preferred_display }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+{% endblock %}

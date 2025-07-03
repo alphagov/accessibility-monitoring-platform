@@ -12,7 +12,7 @@ describe('Case overview', () => {
     cy.visit('/cases/')
     cy.get('[name="case_search"]').clear().type(`${organisationName}{enter}`)
     cy.contains(organisationName).click()
-    cy.title().should('eq', `${organisationName} | Case overview`)
+    cy.title().should('eq', `${organisationName} | Simplified case overview`)
 
     cy.contains(/^Statement enforcement$/).click()
     cy.title().should('eq', `${organisationName} | Statement enforcement`)

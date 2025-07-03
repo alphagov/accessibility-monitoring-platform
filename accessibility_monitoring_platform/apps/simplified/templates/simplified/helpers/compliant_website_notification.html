@@ -1,0 +1,32 @@
+{% if case.compliance.statement_compliance_state_initial == 'compliant' and case.compliance.website_compliance_state_initial == 'compliant' %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="govuk-notification-banner {% if case.case_completed == 'complete-no-send' %}govuk-notification-banner--success{% endif %}" role="region" aria-labelledby="banner-title-compliant-website" data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                    <h2 class="govuk-notification-banner__title" id="banner-title-compliant-website">
+                        Important
+                    </h2>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    {% if case.case_completed == 'complete-no-send' %}
+                        <h3 class="govuk-notification-banner__heading amp-max-width-100">
+                            The case has a compliant website and a compliant accessibility statement
+                            and does not require any further action.
+                        </h3>
+                    {% else %}
+                        <h3 class="govuk-notification-banner__heading amp-max-width-100">
+                            The case has a compliant website and a compliant accessibility statement.
+                        </h3>
+                        <h3 class="govuk-notification-banner__heading amp-max-width-100">
+                            Select ‘Case should not be sent to the equality body’ in Closing the case and save.
+                        </h3>
+                        <p class="govuk-body">
+                            Go to
+                            <a class="govuk-notification-banner__link" href="{% url 'simplified:edit-case-close' case.id %}">
+                            Case > Closing the case</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

@@ -1,0 +1,14 @@
+<div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        {% if case %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{{ case.get_absolute_url }}">Detailed testing case</a>
+            </li>
+        {% endif %}
+        {% if show_platform_page_group_name %}
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group.name }}</li>
+        {% endif %}
+        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+    </ol>
+</div>

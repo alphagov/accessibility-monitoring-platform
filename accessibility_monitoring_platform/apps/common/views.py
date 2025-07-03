@@ -19,9 +19,16 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
-from ..cases.models import Case
-from ..cases.utils import record_model_create_event, record_model_update_event
+from ..cases.models import BaseCase
 from ..common.sitemap import PlatformPage, Sitemap
+from ..detailed.utils import import_detailed_cases_csv
+from ..mobile.utils import import_mobile_cases_csv
+from ..reports.models import Report
+from ..simplified.models import SimplifiedCase, SimplifiedEventHistory
+from ..simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from .forms import (
     ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
@@ -31,6 +38,7 @@ from .forms import (
     FooterLinkOneExtraFormset,
     FrequentlyUsedLinkFormset,
     FrequentlyUsedLinkOneExtraFormset,
+    ImportCSVForm,
     PlatformCheckingForm,
 )
 from .mark_deleted_util import mark_object_as_deleted
@@ -55,8 +63,6 @@ from .platform_template_view import PlatformTemplateView
 from .utils import extract_domain_from_url, get_platform_settings, sanitise_domain
 
 logger = logging.getLogger(__name__)
-
-REFERENCE_IMPLEMENTATION_CASE_ID: int = 1170
 
 
 class HideCaseNavigationMixin:
@@ -328,9 +334,13 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
             for link in links:
                 if not link.id:
                     link.save()
-                    record_model_create_event(user=self.request.user, model_object=link)
+                    record_simplified_model_create_event(
+                        user=self.request.user, model_object=link
+                    )
                 else:
-                    record_model_update_event(user=self.request.user, model_object=link)
+                    record_simplified_model_update_event(
+                        user=self.request.user, model_object=link
+                    )
                     link.save()
         else:
             return self.render_to_response(
@@ -383,9 +393,13 @@ class FooterLinkFormsetTemplateView(TemplateView):
             for link in links:
                 if not link.id:
                     link.save()
-                    record_model_create_event(user=self.request.user, model_object=link)
+                    record_simplified_model_create_event(
+                        user=self.request.user, model_object=link
+                    )
                 else:
-                    record_model_update_event(user=self.request.user, model_object=link)
+                    record_simplified_model_update_event(
+                        user=self.request.user, model_object=link
+                    )
                     link.save()
         else:
             return self.render_to_response(
@@ -441,12 +455,16 @@ class ReferenceImplementaionView(TemplateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case | None = Case.objects.filter(
-            id=REFERENCE_IMPLEMENTATION_CASE_ID
-        ).first()
-        if case is None:  # In test environment
-            case: Case | None = Case.objects.all().first()
-        context["case"] = case
+        report: Report | None = Report.objects.all().first()
+        if report is None or not hasattr(
+            report.base_case, "simplifiedcase"
+        ):  # In test environment
+            simplified_case: SimplifiedCase | None = (
+                SimplifiedCase.objects.all().first()
+            )
+        else:
+            simplified_case: SimplifiedCase = report.base_case.simplifiedcase
+        context["case"] = simplified_case
         return context
 
 
@@ -484,12 +502,12 @@ class BulkURLSearchView(FormView):
                 sanitised_domain: str = sanitise_domain(domain)
 
                 if sanitised_domain:
-                    cases: QuerySet[Case] = Case.objects.filter(
+                    base_cases: QuerySet[BaseCase] = BaseCase.objects.filter(
                         home_page_url__icontains=sanitised_domain
                     )
                     search_term: str = sanitised_domain
                 else:
-                    cases: QuerySet[Case] = Case.objects.filter(
+                    base_cases: QuerySet[BaseCase] = BaseCase.objects.filter(
                         home_page_url__icontains=url
                     )
                     search_term: str = url
@@ -497,7 +515,7 @@ class BulkURLSearchView(FormView):
                 bulk_search_results.append(
                     {
                         "search_term": search_term,
-                        "found_flag": cases.count() > 0,
+                        "found_flag": base_cases.count() > 0,
                         "url": url,
                     }
                 )
@@ -505,3 +523,26 @@ class BulkURLSearchView(FormView):
                 self.get_context_data(bulk_search_results=bulk_search_results)
             )
         return self.render_to_response()
+
+
+class ImportCSV(FormView):
+    """
+    Bulk search for cases matching URLs
+    """
+
+    form_class = ImportCSVForm
+    template_name: str = "common/import_csv.html"
+    success_url: str = reverse_lazy("common:import-csv")
+
+    def post(
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect:
+        context: dict[str, Any] = self.get_context_data()
+        form = context["form"]
+        if form.is_valid():
+            csv_data: str = form.cleaned_data["data"]
+            if form.cleaned_data["model"] == "detailed":
+                import_detailed_cases_csv(csv_data)
+            elif form.cleaned_data["model"] == "mobile":
+                import_mobile_cases_csv(csv_data)
+        return self.render_to_response(self.get_context_data())

@@ -3,7 +3,7 @@
     "model": "reports.reportwrapper",
     "pk": 1,
     "fields": {
-        "title": "Accessibility report for {{ report.case.domain }}",
+        "title": "Accessibility report for {{ report.base_case.domain }}",
         "sent_by": "[Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service)",
         "contact": "[accessibility-monitoring@digital.cabinet-office.gov.uk](mailto:accessibility-monitoring@digital.cabinet-office.gov.uk)",
         "related_content": "* [Understanding accessibility requirements for public sector bodies](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps)\r\n* [Make your website or app accessible and publish an accessibility statement](https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement)\r\n* [Public sector website and mobile application accessibility monitoring](https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring)\r\n* [Accessibility monitoring: How we test](https://www.gov.uk/guidance/accessibility-monitoring-how-we-test)"

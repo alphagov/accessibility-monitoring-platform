@@ -15,9 +15,12 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from ..cases.models import Case
-from ..cases.utils import record_model_create_event, record_model_update_event
 from ..common.views import HideCaseNavigationMixin
+from ..simplified.models import SimplifiedCase
+from ..simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from .csv_export_utils import (
     download_equality_body_cases,
     populate_equality_body_columns,
@@ -29,12 +32,12 @@ from .models import Export, ExportCase
 class EnforcementBodyMixin:
     """Mixin to get enforcement body from request"""
 
-    enforcement_body: str = Case.EnforcementBody.EHRC
+    enforcement_body: str = SimplifiedCase.EnforcementBody.EHRC
 
     def get(self, request, *args, **kwargs):
         """Get enforcement body"""
         self.enforcement_body = self.request.GET.get(
-            "enforcement_body", Case.EnforcementBody.EHRC
+            "enforcement_body", SimplifiedCase.EnforcementBody.EHRC
         )
         return super().get(request, *args, **kwargs)
 
@@ -74,7 +77,7 @@ class ExportCreateView(EnforcementBodyMixin, CreateView):
         """Populate next page select field"""
         form = super().get_form()
         self.enforcement_body = self.request.GET.get(
-            "enforcement_body", Case.EnforcementBody.EHRC
+            "enforcement_body", SimplifiedCase.EnforcementBody.EHRC
         )
         form.fields["enforcement_body"].initial = self.enforcement_body
         return form
@@ -89,7 +92,7 @@ class ExportCreateView(EnforcementBodyMixin, CreateView):
         """Detect the submit button used and act accordingly"""
         export: Export = self.object
         user: User = self.request.user
-        record_model_create_event(user=user, model_object=export)
+        record_simplified_model_create_event(user=user, model_object=export)
         return reverse("exports:export-detail", kwargs={"pk": export.id})
 
 
@@ -107,14 +110,16 @@ class ExportCaseAsEmailDetailView(HideCaseNavigationMixin, DetailView):
     View of details of a Case for export as an email
     """
 
-    model: type[Case] = Case
+    model: type[SimplifiedCase] = SimplifiedCase
     context_object_name: str = "case"
     template_name: str = "exports/export_case_as_email.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add field values into context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["export_columns"] = populate_equality_body_columns(case=self.object)
+        context["export_columns"] = populate_equality_body_columns(
+            simplified_case=self.object
+        )
         context["export"] = get_object_or_404(Export, pk=self.kwargs["export_id"])
         return context
 
@@ -135,13 +140,15 @@ class ConfirmExportUpdateView(UpdateView):
         export: Export = self.object
         today: date = date.today()
         user: User = self.request.user
-        for case in export.ready_cases:
-            case.sent_to_enforcement_body_sent_date = today
-            record_model_update_event(user=user, model_object=case, case=case)
-            case.save()
+        for simplified_case in export.ready_cases:
+            simplified_case.sent_to_enforcement_body_sent_date = today
+            record_simplified_model_update_event(
+                user=user, model_object=simplified_case, simplified_case=simplified_case
+            )
+            simplified_case.save()
         export.status = Export.Status.EXPORTED
         export.export_date = today
-        record_model_update_event(user=user, model_object=export)
+        record_simplified_model_update_event(user=user, model_object=export)
         export.save()
         return HttpResponseRedirect(
             reverse("exports:export-ready-cases", kwargs={"pk": export.id})
@@ -169,7 +176,7 @@ class ExportConfirmDeleteUpdateView(UpdateView):
         """Process contents of valid form"""
         export: Export = form.save(commit=False)
         user: User = self.request.user
-        record_model_update_event(user=user, model_object=export)
+        record_simplified_model_update_event(user=user, model_object=export)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

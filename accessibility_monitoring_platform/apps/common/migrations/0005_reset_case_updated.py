@@ -18,6 +18,7 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
 class Migration(migrations.Migration):
 
     dependencies = [
+        ("cases", "0001_initial"),
         ("common", "0004_rename_description_issuereport_issue_description_and_more"),
     ]
 

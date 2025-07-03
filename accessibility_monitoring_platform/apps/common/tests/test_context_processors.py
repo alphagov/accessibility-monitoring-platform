@@ -7,10 +7,10 @@ from django.contrib.auth.models import User
 from django.http.response import HttpResponse
 from pytest_django.asserts import assertContains
 
-from ...cases.models import Case
 from ...common.models import FooterLink, FrequentlyUsedLink, Platform
 from ...common.sitemap import PlatformPage, Sitemap
 from ...common.utils import get_platform_settings
+from ...simplified.models import SimplifiedCase
 from ..context_processors import platform_page
 from ..forms import AMPTopMenuForm
 
@@ -106,9 +106,9 @@ def test_platform_page_case_sitemap_template_context():
     Check sitemap for Case-specific page
     """
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
-    case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     mock_request = MockRequest(
-        path="/cases/1/view/",
+        path="/simplified/1/view/",
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
         user=user,
     )
@@ -124,9 +124,9 @@ def test_platform_page_case_sitemap_template_context():
 
     current_platform_page: PlatformPage = sitemap.current_platform_page
 
-    assert current_platform_page.get_name() == "Case overview"
+    assert current_platform_page.get_name() == "Simplified case overview"
     assert current_platform_page.get_case() is not None
-    assert current_platform_page.get_case() == case
+    assert current_platform_page.get_case() == simplified_case
 
 
 @pytest.mark.django_db
@@ -152,4 +152,4 @@ def test_platform_page_non_case_sitemap_template_context():
 
     current_platform_page: PlatformPage = sitemap.current_platform_page
 
-    assert current_platform_page.get_name() == "Your cases"
+    assert current_platform_page.get_name() == "Your simplified cases"

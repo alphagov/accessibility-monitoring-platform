@@ -30,9 +30,9 @@
                                 No auditor
                             {% endif %}
                         {% elif case.seven_day_no_contact_email_sent_date %}
-                            <a href="{% url 'cases:edit-request-contact-details' case.id %}" class="govuk-link">No contact details request sent</a>
+                            <a href="{% url 'simplified:edit-request-contact-details' case.id %}" class="govuk-link">No contact details request sent</a>
                         {% else %}
-                            <a href="{% url 'cases:edit-qa-approval' case.id %}" class="govuk-link">QA approval</a>
+                            <a href="{% url 'simplified:edit-qa-approval' case.id %}" class="govuk-link">QA approval</a>
                         {% endif %}
                     </td>
                 </tr>

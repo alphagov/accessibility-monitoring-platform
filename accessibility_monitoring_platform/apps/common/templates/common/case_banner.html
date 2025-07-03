@@ -1,10 +1,14 @@
 <div class="amp-case-banner {% if case.archive %}amp-case-banner-title-archive{% else %}amp-case-banner-title-active{% endif %}">
-    <p>#{{ case.case_number }}{% if case.archive %} [ARCHIVED]{% endif %}</p>
+    <p>{{ case.case_identifier }}{% if case.archive %} [ARCHIVED]{% endif %}</p>
     <h1>
         {% if case.website_name %}
             {{ case.website_name }} |
         {% endif %}
-        {{ case.organisation_name }}
+        {% if case.organisation_name %}
+            {{ case.organisation_name }}
+        {% else %}
+            {{ case.app_name }}
+        {% endif %}
     </h1>
 </div>
 <div class="amp-case-banner amp-case-banner-body amp-margin-bottom-10">
@@ -20,22 +24,17 @@
             &nbsp
         </div>
         <p>
-            <a href="{% url 'cases:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                {{ case.status.get_status_display }}
-            </a>
-        </p>
-        <div class="amp-vertical-line">
-            &nbsp
-        </div>
-        <p>
-            {% if case.reminder %}
-                Reminder:
-                <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                    {{ case.reminder.date|amp_date }}
+            {% if mobile_case %}
+                {{ case.get_status_display }}
+                <span class="amp-todo">TODO update status</span>
+            {% elif detailed_case %}
+                {{ case.get_status_display }}
+                <a href="{% url 'detailed:edit-case-status' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Change
                 </a>
             {% else %}
-                <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                    No reminder set
+                <a href="{% url 'simplified:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    {{ case.get_status_display }}
                 </a>
             {% endif %}
         </p>
@@ -43,21 +42,48 @@
             &nbsp
         </div>
         <p>
-            {% if case.report.latest_s3_report %}
-                <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    View report
-                </a>
+            {% if detailed_case or mobile_case %}
+                <span class="amp-todo">TODO reminder</span>
             {% else %}
-                    No report
+                {% if case.reminder %}
+                    Reminder:
+                    <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
+                        {{ case.reminder.date|amp_date }}
+                    </a>
+                {% else %}
+                    <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        No reminder set
+                    </a>
+                {% endif %}
             {% endif %}
         </p>
         <div class="amp-vertical-line">
             &nbsp
         </div>
         <p>
-            <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View website
-            </a>
+            {% if detailed_case or mobile_case %}
+                <span class="amp-todo">TODO detailed report</span>
+            {% else %}
+                {% if case.report.latest_s3_report %}
+                    <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        View report
+                    </a>
+                {% else %}
+                        No report
+                {% endif %}
+            {% endif %}
+        </p>
+        <div class="amp-vertical-line">
+            &nbsp
+        </div>
+        <p>
+            {% if mobile_case %}
+                <span class="amp-todo">TODO link to app?</span>
+            {% else %}
+                <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    View website
+                </a>
+            {% endif %}
         </p>
     </div>
 </div>

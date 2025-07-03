@@ -4,7 +4,7 @@ const newOrganisationName = 'New organisation name'
 const newHomePageURL = 'https://example.com'
 const newAccessibilityStatementURL = `${newHomePageURL}/accessibility-statement`
 
-describe('Create case, tests and report', () => {
+describe('Create simplified case, tests and report', () => {
   before(() => {
     cy.login()
   })
@@ -12,10 +12,10 @@ describe('Create case, tests and report', () => {
   it('can follow case lifecycle', () => {
     cy.visit('/cases')
 
-    cy.title().should('eq', 'Search')
-    cy.contains('Create case').click()
+    cy.title().should('eq', 'Search cases')
+    cy.contains('Create simplified case').click()
 
-    cy.title().should('eq', 'Create case')
+    cy.title().should('eq', 'Create simplified case')
     cy.get('#id_organisation_name').type(newOrganisationName)
     cy.get('#id_home_page_url').type(newHomePageURL)
     cy.get('[name="enforcement_body"]').check('ehrc')
@@ -24,7 +24,7 @@ describe('Create case, tests and report', () => {
     cy.get('#id_sector').select('Private Sector Business')
     cy.contains('Save and continue case').click()
 
-    cy.title().should('eq', 'Create case')
+    cy.title().should('eq', 'Create simplified case')
     cy.contains('We have found 1 cases matching the details you have given')
     cy.contains('Save and continue case').click()
 

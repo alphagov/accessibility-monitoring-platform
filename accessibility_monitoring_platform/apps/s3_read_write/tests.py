@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from moto import mock_aws
 
 from ...settings.base import DATABASES, S3_MOCK_ENDPOINT
-from ..cases.models import Case
+from ..simplified.models import SimplifiedCase
 from .models import S3Report
 from .utils import NO_REPORT_HTML, S3ReadWriteReport
 
@@ -20,24 +20,27 @@ from .utils import NO_REPORT_HTML, S3ReadWriteReport
 def test_upload_string_to_s3():
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     user: User = User.objects.create()
-    case: Case = Case.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
-    case_id: int = case.id
+    case_id: int = simplified_case.id
     raw_html: str = f"""
         <div>
-            <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
+            <h1 class="govuk-body-l">org: {simplified_case.organisation_name}</h1>
             <p class="govuk-body-l">Case id {case_id}.</p>
             <p class="govuk-body-l">datetime: {datetime.now()}.</p>
         </div>
     """
     s3rw.upload_string_to_s3_as_html(
-        html_content=raw_html, case=case, user=user, report_version="v1_20220406"
+        html_content=raw_html,
+        base_case=simplified_case,
+        user=user,
+        report_version="v1_20220406",
     )
 
-    s3report: S3Report = S3Report.objects.get(case=case)
+    s3report: S3Report = S3Report.objects.get(base_case=simplified_case)
 
     s3_resource = boto3.resource(
         service_name="s3",
@@ -55,24 +58,27 @@ def test_upload_string_to_s3():
 def test_retrieve_raw_html():
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     user: User = User.objects.create()
-    case: Case = Case.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
-    case_id: int = case.id
+    case_id: int = simplified_case.id
     raw_html: str = f"""
         <div>
-            <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
+            <h1 class="govuk-body-l">org: {simplified_case.organisation_name}</h1>
             <p class="govuk-body-l">Case id {case_id}.</p>
             <p class="govuk-body-l">datetime: {datetime.now()}.</p>
         </div>
     """
     s3rw.upload_string_to_s3_as_html(
-        html_content=raw_html, case=case, user=user, report_version="v1_20220406"
+        html_content=raw_html,
+        base_case=simplified_case,
+        user=user,
+        report_version="v1_20220406",
     )
 
-    guid: str = S3Report.objects.get(case=case).guid
+    guid: str = S3Report.objects.get(base_case=simplified_case).guid
     res: str = s3rw.retrieve_raw_html_from_s3_by_guid(guid)
 
     assert res == raw_html
@@ -100,24 +106,27 @@ def test_url_builder():
 def test_s3_no_such_key():
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     user: User = User.objects.create()
-    case: Case = Case.objects.create(
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
-    case_id: int = case.id
+    case_id: int = simplified_case.id
     raw_html: str = f"""
         <div>
-            <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
+            <h1 class="govuk-body-l">org: {simplified_case.organisation_name}</h1>
             <p class="govuk-body-l">Case id {case_id}.</p>
             <p class="govuk-body-l">datetime: {datetime.now()}.</p>
         </div>
     """
     s3rw.upload_string_to_s3_as_html(
-        html_content=raw_html, case=case, user=user, report_version="v1_20220406"
+        html_content=raw_html,
+        base_case=simplified_case,
+        user=user,
+        report_version="v1_20220406",
     )
 
-    s3_report: S3Report = S3Report.objects.get(case=case)
+    s3_report: S3Report = S3Report.objects.get(base_case=simplified_case)
     s3_report.s3_directory = "not-a-valid-dir"
     s3_report.save()
     guid: str = s3_report.guid

@@ -3,7 +3,7 @@
 describe('Report publisher', () => {
   beforeEach(() => {
     cy.session('login', cy.login, { cacheAcrossSpecs: true })
-    cy.visit('/cases/1/edit-report-ready-for-qa')
+    cy.visit('/simplified/1/edit-report-ready-for-qa')
   })
 
   it('contains link to latest published HTML report', () => {
