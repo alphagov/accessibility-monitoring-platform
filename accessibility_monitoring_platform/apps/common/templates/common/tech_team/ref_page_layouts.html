@@ -4,17 +4,17 @@
         <ol class="govuk-list govuk-list--number">
             <li>
                 One column:
-                <a href="{% url 'cases:email-template-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'simplified:email-template-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     Email templates</a>
             </li>
             <li>
                 Two columns, one-third:
-                <a href="{% url 'cases:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'simplified:edit-case-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     Case metadata</a>
             </li>
             <li>
                 Two equal columns:
-                <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'simplified:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     Case overview</a>
             </li>
         </ol>

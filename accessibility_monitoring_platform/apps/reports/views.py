@@ -14,9 +14,13 @@ from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 
-from ..cases.models import Case, CaseEvent
-from ..cases.utils import record_model_create_event, record_model_update_event
+from ..cases.models import BaseCase
 from ..common.views import HideCaseNavigationMixin
+from ..simplified.models import CaseEvent, SimplifiedCase
+from ..simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from .forms import ReportWrapperUpdateForm
 from .models import Report, ReportVisitsMetrics, ReportWrapper
 from .utils import build_report_context, get_report_visits_metrics, publish_report_util
@@ -33,20 +37,28 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case: Case = get_object_or_404(Case, id=case_id)
-    if case.report:
+    simplified_case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
+    if simplified_case.report:
         return redirect(
-            reverse("cases:edit-report-ready-for-qa", kwargs={"pk": case.id})
+            reverse(
+                "simplified:edit-report-ready-for-qa", kwargs={"pk": simplified_case.id}
+            )
         )
-    report: Report = Report.objects.create(case=case)
-    record_model_create_event(user=request.user, model_object=report, case=case)
+    report: Report = Report.objects.create(base_case=simplified_case)
+    record_simplified_model_create_event(
+        user=request.user, model_object=report, simplified_case=simplified_case
+    )
     CaseEvent.objects.create(
-        case=case,
+        simplified_case=simplified_case,
         done_by=request.user,
         event_type=CaseEvent.EventType.CREATE_REPORT,
         message="Created report",
     )
-    return redirect(reverse("cases:edit-report-ready-for-qa", kwargs={"pk": case.id}))
+    return redirect(
+        reverse(
+            "simplified:edit-report-ready-for-qa", kwargs={"pk": simplified_case.id}
+        )
+    )
 
 
 class ReportUpdateView(UpdateView):
@@ -62,8 +74,10 @@ class ReportUpdateView(UpdateView):
         if form.changed_data:
             self.object: Report = form.save(commit=False)
             self.object.created_by = self.request.user
-            record_model_update_event(
-                user=self.request.user, model_object=self.object, case=self.object.case
+            record_simplified_model_update_event(
+                user=self.request.user,
+                model_object=self.object,
+                simplified_case=self.object.base_case,
             )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -95,7 +109,7 @@ class ReportPreviewTemplateView(ReportTemplateView):
         context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         report: Report = context["report"]
         template: Template = loader.get_template(report.template_path)
-        context.update(get_report_visits_metrics(report.case))
+        context.update(get_report_visits_metrics(report.base_case))
 
         context["s3_report"] = report.latest_s3_report
         report_context: dict[str, Any] = build_report_context(report=report)
@@ -127,7 +141,12 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     """
     report: Report = get_object_or_404(Report, id=pk)
     publish_report_util(report=report, request=request)
-    return redirect(reverse("cases:edit-publish-report", kwargs={"pk": report.case.id}))
+    return redirect(
+        reverse(
+            "simplified:edit-publish-report",
+            kwargs={"pk": report.base_case.simplifiedcase.id},
+        )
+    )
 
 
 class ReportWrapperUpdateView(UpdateView):
@@ -156,30 +175,32 @@ class ReportVisitsMetricsView(HideCaseNavigationMixin, ReportTemplateView):
         context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         context["showing"] = self.request.GET.get("showing")
         context["userhash"] = self.request.GET.get("userhash")
-        case: Case = context["report"].case
+        base_case: BaseCase = context["report"].base_case
 
         if context["userhash"]:
             context["visit_logs"] = ReportVisitsMetrics.objects.filter(
-                case=case,
+                base_case=base_case,
                 fingerprint_codename=context["userhash"],
             )
         elif context["showing"] == "unique-visitors":
             visit_logs: list[Any] = []
             disinct_values: QuerySet = (
-                ReportVisitsMetrics.objects.filter(case=case)
+                ReportVisitsMetrics.objects.filter(base_case=base_case)
                 .values("fingerprint_hash")
                 .distinct()
             )
             for query_set in disinct_values:
                 visit_logs.append(
                     ReportVisitsMetrics.objects.filter(
-                        case=case,
+                        base_case=base_case,
                         fingerprint_hash=query_set["fingerprint_hash"],
                     ).first()
                 )
             visit_logs.sort(reverse=True, key=lambda x: x.id)
             context["visit_logs"] = visit_logs
         else:
-            context["visit_logs"] = ReportVisitsMetrics.objects.filter(case=case)
+            context["visit_logs"] = ReportVisitsMetrics.objects.filter(
+                base_case=base_case
+            )
 
         return context

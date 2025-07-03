@@ -28,22 +28,32 @@ from ....audits.models import (
     StatementPage,
     WcagDefinition,
 )
-from ....cases.models import (
-    Case,
+from ....cases.models import BaseCase, Case
+from ....cases.models import CaseCompliance as OldCaseCompliance
+from ....cases.models import CaseEvent as OldCaseEvent
+from ....cases.models import CaseStatus as OldCaseStatus
+from ....cases.models import Contact as OldContact
+from ....cases.models import EqualityBodyCorrespondence as OldEqualityBodyCorrespondence
+from ....cases.models import EventHistory as OldEventHistory
+from ....cases.models import ZendeskTicket as OldZendeskTicket
+from ....comments.models import Comment
+from ....common.models import EmailTemplate
+from ....detailed.models import DetailedCase, DetailedCaseHistory
+from ....exports.models import Export, ExportCase
+from ....mobile.models import MobileCase
+from ....notifications.models import NotificationSetting, Task
+from ....reports.models import Report, ReportVisitsMetrics, ReportWrapper
+from ....s3_read_write.models import S3Report
+from ....simplified.models import (
     CaseCompliance,
     CaseEvent,
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
-    EventHistory,
+    SimplifiedCase,
+    SimplifiedEventHistory,
     ZendeskTicket,
 )
-from ....comments.models import Comment
-from ....common.models import EmailTemplate
-from ....exports.models import Export, ExportCase
-from ....notifications.models import NotificationSetting, Task
-from ....reports.models import Report, ReportVisitsMetrics, ReportWrapper
-from ....s3_read_write.models import S3Report
 from ....users.models import AllowedEmail
 from ...models import ChangeToPlatform, IssueReport, Platform, Sector
 
@@ -105,6 +115,13 @@ class Command(BaseCommand):
                 UserCacheUniqueHash,
                 CaseCompliance,
                 CaseStatus,
+                OldCaseStatus,
+                OldCaseCompliance,
+                OldCaseEvent,
+                OldEventHistory,
+                OldZendeskTicket,
+                OldEqualityBodyCorrespondence,
+                OldContact,
             ]
         )
         delete_from_tables(
@@ -128,7 +145,10 @@ class Command(BaseCommand):
                 Report,
             ]
         )
-        delete_from_models([EventHistory, Contact, CaseEvent, Case])
+        delete_from_models([DetailedCaseHistory, DetailedCase])
+        delete_from_models([SimplifiedEventHistory, Contact, CaseEvent, SimplifiedCase])
+        delete_from_models([MobileCase])
+        delete_from_models([BaseCase, Case])
         delete_from_models([ChangeToPlatform, IssueReport, Platform, Sector])  # Common
         delete_from_models([Group, User])
         delete_from_models([AllowedEmail])
@@ -142,7 +162,8 @@ class Command(BaseCommand):
         load_fixture("user")
         load_fixture("emailtemplate")
         load_fixture("platform_settings")
-        load_fixture("case")
+        load_fixture("cases")
+        load_fixture("simplified")
         load_fixture("contact")
         load_fixture("audits")  # Test results
         load_fixture("statementcheckresult")

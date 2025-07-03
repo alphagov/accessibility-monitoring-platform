@@ -458,10 +458,10 @@ class Case(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return f"{self.organisation_name} | #{self.case_number}"
+        return f"{self.organisation_name} | {self.case_identifier}"
 
     def get_absolute_url(self) -> str:
-        return reverse("cases:case-detail", kwargs={"pk": self.pk})
+        return reverse("simplified:case-detail", kwargs={"pk": self.pk})
 
     def save(self, *args, **kwargs) -> None:
         new_case: bool = not self.id
@@ -489,6 +489,17 @@ class Case(VersionModel):
             self.status.calculate_and_save_status()
 
     @property
+    def status(self) -> str:
+        return self.casestatus
+
+    def get_status_display(self) -> str:
+        return self.casestatus.get_status_display()
+
+    @property
+    def case_identifier(self) -> str:
+        return f"#S-{self.case_number}"
+
+    @property
     def formatted_home_page_url(self) -> str:
         if self.home_page_url:
             formatted_url = re.sub(r"https?://(www[0-9]?\.|)", "", self.home_page_url)
@@ -502,7 +513,7 @@ class Case(VersionModel):
         title: str = ""
         if self.website_name:
             title += f"{self.website_name} &nbsp;|&nbsp; "
-        title += f"{self.organisation_name} &nbsp;|&nbsp; #{self.case_number}"
+        title += f"{self.organisation_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
 
     @property
@@ -604,7 +615,7 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up to report coming up",
                 url=reverse(
-                    "cases:edit-report-one-week-followup", kwargs={"pk": self.id}
+                    "simplified:edit-report-one-week-followup", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -615,7 +626,7 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up to report due",
                 url=reverse(
-                    "cases:edit-report-one-week-followup", kwargs={"pk": self.id}
+                    "simplified:edit-report-one-week-followup", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -627,7 +638,7 @@ class Case(VersionModel):
             return Link(
                 label="4-week follow-up to report coming up",
                 url=reverse(
-                    "cases:edit-report-four-week-followup", kwargs={"pk": self.id}
+                    "simplified:edit-report-four-week-followup", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -639,7 +650,7 @@ class Case(VersionModel):
             return Link(
                 label="4-week follow-up to report due",
                 url=reverse(
-                    "cases:edit-report-four-week-followup", kwargs={"pk": self.id}
+                    "simplified:edit-report-four-week-followup", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -648,7 +659,9 @@ class Case(VersionModel):
         ):
             return Link(
                 label="4-week follow-up to report sent, waiting seven days for response",
-                url=reverse("cases:edit-report-acknowledged", kwargs={"pk": self.id}),
+                url=reverse(
+                    "simplified:edit-report-acknowledged", kwargs={"pk": self.id}
+                ),
             )
         elif (
             self.report_followup_week_4_sent_date is not None
@@ -656,11 +669,13 @@ class Case(VersionModel):
         ):
             return Link(
                 label="4-week follow-up to report sent, case needs to progress",
-                url=reverse("cases:edit-report-acknowledged", kwargs={"pk": self.id}),
+                url=reverse(
+                    "simplified:edit-report-acknowledged", kwargs={"pk": self.id}
+                ),
             )
         return Link(
             label="Unknown",
-            url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+            url=reverse("simplified:manage-contact-details", kwargs={"pk": self.id}),
         )
 
     @property
@@ -675,7 +690,8 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up coming up",
                 url=reverse(
-                    "cases:edit-12-week-one-week-followup-final", kwargs={"pk": self.id}
+                    "simplified:edit-12-week-one-week-followup-final",
+                    kwargs={"pk": self.id},
                 ),
             )
         elif (
@@ -686,7 +702,8 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up due",
                 url=reverse(
-                    "cases:edit-12-week-one-week-followup-final", kwargs={"pk": self.id}
+                    "simplified:edit-12-week-one-week-followup-final",
+                    kwargs={"pk": self.id},
                 ),
             )
         elif (
@@ -696,7 +713,7 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up sent, waiting seven days for response",
                 url=reverse(
-                    "cases:edit-12-week-update-request-ack", kwargs={"pk": self.id}
+                    "simplified:edit-12-week-update-request-ack", kwargs={"pk": self.id}
                 ),
             )
         elif (
@@ -706,12 +723,12 @@ class Case(VersionModel):
             return Link(
                 label="1-week follow-up sent, case needs to progress",
                 url=reverse(
-                    "cases:edit-12-week-update-request-ack", kwargs={"pk": self.id}
+                    "simplified:edit-12-week-update-request-ack", kwargs={"pk": self.id}
                 ),
             )
         return Link(
             label="Unknown",
-            url=reverse("cases:manage-contact-details", kwargs={"pk": self.id}),
+            url=reverse("simplified:manage-contact-details", kwargs={"pk": self.id}),
         )
 
     @property
@@ -1056,7 +1073,7 @@ class Case(VersionModel):
                 return Link(
                     label="No contact details response overdue",
                     url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                        "simplified:edit-request-contact-details", kwargs=kwargs_case_pk
                     ),
                 )
             if (
@@ -1068,7 +1085,7 @@ class Case(VersionModel):
                 return Link(
                     label="No contact details response overdue",
                     url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                        "simplified:edit-request-contact-details", kwargs=kwargs_case_pk
                     ),
                 )
             if (
@@ -1080,7 +1097,7 @@ class Case(VersionModel):
                 return Link(
                     label="No contact details response overdue",
                     url=reverse(
-                        "cases:edit-request-contact-details", kwargs=kwargs_case_pk
+                        "simplified:edit-request-contact-details", kwargs=kwargs_case_pk
                     ),
                 )
 
@@ -1115,7 +1132,8 @@ class Case(VersionModel):
                 return Link(
                     label="12-week update due",
                     url=reverse(
-                        "cases:edit-12-week-update-requested", kwargs=kwargs_case_pk
+                        "simplified:edit-12-week-update-requested",
+                        kwargs=kwargs_case_pk,
                     ),
                 )
 
@@ -1134,7 +1152,8 @@ class Case(VersionModel):
             ):
                 return self.twelve_week_correspondence_progress
         return Link(
-            label="Go to case", url=reverse("cases:case-detail", kwargs=kwargs_case_pk)
+            label="Go to case",
+            url=reverse("simplified:case-detail", kwargs=kwargs_case_pk),
         )
 
 
@@ -1182,7 +1201,7 @@ class CaseStatus(models.Model):
         Status.DEACTIVATED,
     ]
 
-    case = models.OneToOneField(Case, on_delete=models.PROTECT, related_name="status")
+    case = models.OneToOneField(Case, on_delete=models.PROTECT)
     status = models.CharField(
         max_length=200, choices=Status.choices, default=Status.UNASSIGNED
     )
@@ -1244,14 +1263,9 @@ class CaseStatus(models.Model):
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            compliance
-            and compliance.website_compliance_state_initial
+            self.case.compliance.website_compliance_state_initial
             != CaseCompliance.WebsiteCompliance.UNKNOWN
-            and (
-                not self.case.statement_checks_still_initial
-                or self.case.compliance.statement_compliance_state_initial
-                != CaseCompliance.StatementCompliance.UNKNOWN
-            )
+            and not self.case.statement_checks_still_initial
             and self.case.report_review_status != Boolean.YES
         ):
             return CaseStatus.Status.REPORT_IN_PROGRESS
@@ -1377,7 +1391,9 @@ class Contact(VersionModel):
         return string
 
     def get_absolute_url(self) -> str:
-        return reverse("cases:manage-contact-details", kwargs={"pk": self.case.id})
+        return reverse(
+            "simplified:manage-contact-details", kwargs={"pk": self.base_case.id}
+        )
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
@@ -1419,7 +1435,7 @@ class CaseEvent(models.Model):
         ordering = ["event_time"]
 
     def __str__(self) -> str:
-        return f"{self.case.organisation_name}: {self.message}"
+        return f"{self.base_case.organisation_name}: {self.message}"
 
 
 class EqualityBodyCorrespondence(models.Model):
@@ -1462,7 +1478,8 @@ class EqualityBodyCorrespondence(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse(
-            "cases:list-equality-body-correspondence", kwargs={"pk": self.case.id}
+            "simplified:list-equality-body-correspondence",
+            kwargs={"pk": self.base_case.id},
         )
 
     def save(self, *args, **kwargs) -> None:
@@ -1494,7 +1511,7 @@ class ZendeskTicket(models.Model):
         return self.url
 
     def get_absolute_url(self) -> str:
-        return reverse("cases:update-zendesk-ticket", kwargs={"pk": self.id})
+        return reverse("simplified:update-zendesk-ticket", kwargs={"pk": self.id})
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
@@ -1553,3 +1570,164 @@ class EventHistory(models.Model):
                 }
             )
         return variable_list
+
+
+class BaseCase(VersionModel):
+    """
+    Model for Case
+    """
+
+    class TestType(models.TextChoices):
+        SIMPLIFIED = "simplified", "Simplified"
+        DETAILED = "detailed", "Detailed"
+        MOBILE = "mobile", "Mobile"
+
+    class PsbLocation(models.TextChoices):
+        ENGLAND = "england", "England"
+        SCOTLAND = "scotland", "Scotland"
+        WALES = "wales", "Wales"
+        NI = "northern_ireland", "Northern Ireland"
+        UK = "uk_wide", "UK-wide"
+        UNKNOWN = "unknown", "Unknown"
+
+    class EnforcementBody(models.TextChoices):
+        EHRC = "ehrc", "Equality and Human Rights Commission"
+        ECNI = "ecni", "Equality Commission Northern Ireland"
+
+    class RecommendationForEnforcement(models.TextChoices):
+        NO_FURTHER_ACTION = "no-further-action", "No further action"
+        OTHER = "other", "For enforcement consideration"
+        UNKNOWN = "unknown", "Not selected"
+
+    class Status(models.TextChoices):
+        UNKNOWN = "unknown", "Unknown"
+        UNASSIGNED = "unassigned-case", "Unassigned case"
+        TEST_IN_PROGRESS = "test-in-progress", "Test in progress"
+        REPORT_IN_PROGRESS = "report-in-progress", "Report in progress"
+        READY_TO_QA = "unassigned-qa-case", "Report ready to QA"
+        QA_IN_PROGRESS = "qa-in-progress", "QA in progress"
+        REPORT_READY_TO_SEND = "report-ready-to-send", "Report ready to send"
+        IN_REPORT_CORES = "in-report-correspondence", "Report sent"
+        AWAITING_12_WEEK_DEADLINE = (
+            "in-probation-period",
+            "Report acknowledged waiting for 12-week deadline",
+        )
+        IN_12_WEEK_CORES = "in-12-week-correspondence", "After 12-week correspondence"
+        REVIEWING_CHANGES = "reviewing-changes", "Reviewing changes"
+        FINAL_DECISION_DUE = "final-decision-due", "Final decision due"
+        CASE_CLOSED_WAITING_TO_SEND = (
+            "case-closed-waiting-to-be-sent",
+            "Case closed and waiting to be sent to equalities body",
+        )
+        CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
+            "case-closed-sent-to-equalities-body",
+            "Case closed and sent to equalities body",
+        )
+        IN_CORES_WITH_ENFORCEMENT_BODY = (
+            "in-correspondence-with-equalities-body",
+            "In correspondence with equalities body",
+        )
+        COMPLETE = "complete", "Complete"
+        DEACTIVATED = "deactivated", "Deactivated"
+
+    CLOSED_CASE_STATUSES: list[str] = [
+        Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+        Status.COMPLETE,
+        Status.CASE_CLOSED_WAITING_TO_SEND,
+        Status.IN_CORES_WITH_ENFORCEMENT_BODY,
+        Status.DEACTIVATED,
+    ]
+
+    case_number = models.IntegerField(default=1)
+    case_identifier = models.CharField(max_length=20, default="")
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="basecase_created_by",
+        blank=True,
+        null=True,
+    )
+    updated = models.DateTimeField(null=True, blank=True)
+    updated_date = models.DateField(null=True, blank=True)
+    status = models.CharField(
+        max_length=200, choices=Status.choices, default=Status.UNASSIGNED
+    )
+
+    # Case metadata page
+    created = models.DateTimeField(blank=True)
+    auditor = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="basecase_auditor",
+        blank=True,
+        null=True,
+    )
+    test_type = models.CharField(
+        max_length=10, choices=TestType.choices, default=TestType.SIMPLIFIED
+    )
+    home_page_url = models.TextField(default="", blank=True)
+    domain = models.TextField(default="", blank=True)
+    organisation_name = models.TextField(default="", blank=True)
+    psb_location = models.CharField(
+        max_length=20,
+        choices=PsbLocation.choices,
+        default=PsbLocation.UNKNOWN,
+    )
+    sector = models.ForeignKey(Sector, on_delete=models.PROTECT, null=True, blank=True)
+    enforcement_body = models.CharField(
+        max_length=20,
+        choices=EnforcementBody.choices,
+        default=EnforcementBody.EHRC,
+    )
+    is_complaint = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    parental_organisation_name = models.TextField(default="", blank=True)
+    website_name = models.TextField(default="", blank=True)
+    subcategory = models.ForeignKey(
+        SubCategory,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
+    is_feedback_requested = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    case_details_complete_date = models.DateField(null=True, blank=True)
+    reviewer = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="basecase_reviewer",
+        blank=True,
+        null=True,
+    )
+    recommendation_for_enforcement = models.CharField(
+        max_length=20,
+        choices=RecommendationForEnforcement.choices,
+        default=RecommendationForEnforcement.UNKNOWN,
+    )
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        if self.organisation_name:
+            return f"{self.organisation_name} | {self.case_identifier}"
+        return self.case_identifier
+
+    def save(self, *args, **kwargs) -> None:
+        now: datetime = timezone.now()
+        if not self.id:
+            self.created = now
+            max_case_number = BaseCase.objects.aggregate(models.Max("case_number")).get(
+                "case_number__max"
+            )
+            if max_case_number is not None:
+                self.case_number = max_case_number + 1
+            self.case_identifier = f"#{self.test_type[0].upper()}-{self.case_number}"
+        self.updated = now
+        self.updated_date = now.date()
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self) -> str:
+        return reverse(f"{self.test_type}:case-detail", kwargs={"pk": self.pk})

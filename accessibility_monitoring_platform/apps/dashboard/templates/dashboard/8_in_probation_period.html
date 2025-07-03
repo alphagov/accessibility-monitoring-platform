@@ -32,7 +32,7 @@
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:manage-contact-details' case.id %}" class="govuk-link">
+                            <a href="{% url 'simplified:manage-contact-details' case.id %}" class="govuk-link">
                                 {% if case.report_followup_week_12_due_date < today %}
                                     Overdue
                                 {% else %}

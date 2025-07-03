@@ -13,11 +13,14 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
-from ...cases.models import Case, CaseEvent
-from ...cases.utils import record_model_create_event, record_model_update_event
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.utils import amp_format_date, get_url_parameters_for_pagination
 from ...common.views import NextPlatformPageMixin
+from ...simplified.models import CaseEvent, SimplifiedCase
+from ...simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
+)
 from ..forms import (
     StatementCheckCreateUpdateForm,
     StatementCheckResultFormset,
@@ -53,17 +56,21 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case: Case = get_object_or_404(Case, id=case_id)
-    if case.audit:
+    simplified_case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
+    if simplified_case.audit:
         return redirect(
-            reverse("audits:edit-audit-metadata", kwargs={"pk": case.audit.id})
+            reverse(
+                "audits:edit-audit-metadata", kwargs={"pk": simplified_case.audit.id}
+            )
         )
-    audit: Audit = Audit.objects.create(case=case)
-    record_model_create_event(user=request.user, model_object=audit, case=case)
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    record_simplified_model_create_event(
+        user=request.user, model_object=audit, simplified_case=simplified_case
+    )
     create_mandatory_pages_for_new_audit(audit=audit)
     create_statement_checks_for_new_audit(audit=audit)
     CaseEvent.objects.create(
-        case=case,
+        simplified_case=simplified_case,
         done_by=request.user,
         event_type=CaseEvent.EventType.CREATE_AUDIT,
         message="Started test",
@@ -84,8 +91,8 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     """
     page: Page = get_object_or_404(Page, id=pk)
     page.is_deleted = False
-    record_model_update_event(
-        user=request.user, model_object=page, case=page.audit.case
+    record_simplified_model_update_event(
+        user=request.user, model_object=page, simplified_case=page.audit.simplified_case
     )
     page.save()
     return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))
@@ -103,13 +110,15 @@ class AuditUpdateView(NextPlatformPageMixin, UpdateView):
         """Add event on change of audit"""
         if form.changed_data:
             self.object: Audit = form.save(commit=False)
-            record_model_update_event(
-                user=self.request.user, model_object=self.object, case=self.object.case
+            record_simplified_model_update_event(
+                user=self.request.user,
+                model_object=self.object,
+                simplified_case=self.object.simplified_case,
             )
             old_audit: Audit = Audit.objects.get(id=self.object.id)
             if old_audit.retest_date != self.object.retest_date:
                 CaseEvent.objects.create(
-                    case=self.object.case,
+                    simplified_case=self.object.simplified_case,
                     done_by=self.request.user,
                     event_type=CaseEvent.EventType.START_RETEST,
                     message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",
@@ -144,12 +153,13 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
             if self.request.POST:
                 case_compliance_form: Form = self.case_compliance_form_class(
                     self.request.POST,
-                    instance=self.object.case.compliance,
+                    instance=self.object.simplified_case.compliance,
                     prefix="case-compliance",
                 )
             else:
                 case_compliance_form: Form = self.case_compliance_form_class(
-                    instance=self.object.case.compliance, prefix="case-compliance"
+                    instance=self.object.simplified_case.compliance,
+                    prefix="case-compliance",
                 )
             context["case_compliance_form"] = case_compliance_form
         return context
@@ -161,13 +171,15 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
         self.object: Audit = self.get_object()
         form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
         case_compliance_form: Form = self.case_compliance_form_class(
-            request.POST, instance=self.object.case.compliance, prefix="case-compliance"
+            request.POST,
+            instance=self.object.simplified_case.compliance,
+            prefix="case-compliance",
         )
         if form.is_valid() and case_compliance_form.is_valid():
             form.save()
             case_compliance_form.save()
             audit: Audit = self.object
-            audit.case.status.calculate_and_save_status()
+            audit.simplified_case.update_case_status()
             if "website_compliance_state_initial" in case_compliance_form.changed_data:
                 report_data_updated(audit=self.object)
             return HttpResponseRedirect(self.get_success_url())
@@ -215,10 +227,10 @@ class AuditStatementCheckingView(AuditUpdateView):
         ]
         if statement_check_results_formset.is_valid():
             for statement_check_results_form in statement_check_results_formset.forms:
-                record_model_update_event(
+                record_simplified_model_update_event(
                     user=self.request.user,
                     model_object=statement_check_results_form.instance,
-                    case=statement_check_results_form.instance.audit.case,
+                    simplified_case=statement_check_results_form.instance.audit.simplified_case,
                 )
                 statement_check_results_form.save()
         else:
@@ -294,7 +306,9 @@ class WcagDefinitionCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Return to list of WCAG definitions"""
-        record_model_create_event(user=self.request.user, model_object=self.object)
+        record_simplified_model_create_event(
+            user=self.request.user, model_object=self.object
+        )
         return reverse("audits:wcag-definition-list")
 
 
@@ -312,7 +326,7 @@ class WcagDefinitionUpdateView(UpdateView):
         """Add record event on change of WCAG definition"""
         if form.changed_data:
             wcag_definition: WcagDefinition = form.save(commit=False)
-            record_model_update_event(
+            record_simplified_model_update_event(
                 user=self.request.user, model_object=wcag_definition
             )
         return super().form_valid(form)
@@ -383,7 +397,9 @@ class StatementCheckCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Return to list of statement checks"""
-        record_model_create_event(user=self.request.user, model_object=self.object)
+        record_simplified_model_create_event(
+            user=self.request.user, model_object=self.object
+        )
         return reverse("audits:statement-check-list")
 
 
@@ -401,7 +417,9 @@ class StatementCheckUpdateView(UpdateView):
         """Add record event on change of statement check"""
         if form.changed_data:
             self.object: StatementCheck = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)
+            record_simplified_model_update_event(
+                user=self.request.user, model_object=self.object
+            )
         return super().form_valid(form)
 
 
@@ -439,16 +457,16 @@ class StatementPageFormsetUpdateView(AuditUpdateView):
                 if not statement_page.audit_id:
                     statement_page.audit = audit
                     statement_page.save()
-                    record_model_create_event(
+                    record_simplified_model_create_event(
                         user=self.request.user,
                         model_object=statement_page,
-                        case=statement_page.audit.case,
+                        simplified_case=statement_page.audit.simplified_case,
                     )
                 else:
-                    record_model_update_event(
+                    record_simplified_model_update_event(
                         user=self.request.user,
                         model_object=statement_page,
-                        case=statement_page.audit.case,
+                        simplified_case=statement_page.audit.simplified_case,
                     )
                     statement_page.save()
         else:

@@ -7,6 +7,8 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("common", "0007_populate_template_name"),
+        ("cases", "0010_populate_events"),
+        ("audits", "0017_populate_check_result_histories"),
     ]
 
     operations = [

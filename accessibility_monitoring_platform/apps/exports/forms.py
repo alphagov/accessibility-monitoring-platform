@@ -5,8 +5,8 @@ from datetime import date
 from django import forms
 from django.core.exceptions import ValidationError
 
-from ..cases.models import Case
 from ..common.forms import AMPBooleanCheckboxWidget, AMPDateField
+from ..simplified.models import SimplifiedCase
 from .models import Export
 from .utils import get_exportable_cases
 
@@ -25,7 +25,9 @@ class ExportCreateForm(forms.ModelForm):
 
     def clean_cutoff_date(self):
         cutoff_date: date = self.cleaned_data["cutoff_date"]
-        enforcement_body: Case.EnforcementBody = self.cleaned_data["enforcement_body"]
+        enforcement_body: SimplifiedCase.EnforcementBody = self.cleaned_data[
+            "enforcement_body"
+        ]
         if Export.objects.filter(
             cutoff_date=cutoff_date, enforcement_body=enforcement_body, is_deleted=False
         ).exists():

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
-from ..cases.models import Case
+from ..cases.models import BaseCase, Case
 from ..common.models import Link
 from ..common.templatetags.common_tags import amp_date
 
@@ -23,6 +23,12 @@ class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     date = models.DateField()
     case = models.ForeignKey(Case, on_delete=models.PROTECT, blank=True, null=True)
+    base_case = models.ForeignKey(
+        BaseCase,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
     description = models.TextField(default="")
     read = models.BooleanField(default=False)
     action = models.TextField(default="N/A")
@@ -41,8 +47,8 @@ class Task(models.Model):
                 Link(
                     label="Go to QA comment",
                     url=reverse(
-                        "cases:edit-qa-comments",
-                        kwargs={"pk": self.case.id},
+                        "simplified:edit-qa-comments",
+                        kwargs={"pk": self.base_case.id},
                     ),
                 ),
             )
@@ -51,8 +57,8 @@ class Task(models.Model):
                 Link(
                     label="Go to Report approved",
                     url=reverse(
-                        "cases:edit-qa-approval",
-                        kwargs={"pk": self.case.id},
+                        "simplified:edit-qa-approval",
+                        kwargs={"pk": self.base_case.id},
                     ),
                 ),
             )
@@ -63,7 +69,7 @@ class Task(models.Model):
                         label="Create new",
                         url=reverse(
                             "notifications:reminder-create",
-                            kwargs={"case_id": self.case.id},
+                            kwargs={"case_id": self.base_case.id},
                         ),
                     )
                 )
@@ -101,7 +107,7 @@ class Task(models.Model):
                     label="Mark case tasks as seen",
                     url=reverse(
                         "notifications:mark-case-comments-read",
-                        kwargs={"case_id": self.case.id},
+                        kwargs={"case_id": self.base_case.id},
                     ),
                 ),
             )

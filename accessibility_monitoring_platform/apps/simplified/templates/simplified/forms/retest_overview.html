@@ -1,0 +1,54 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+{% include 'simplified/helpers/email_templates.html' %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <a
+            {% if case.latest_retest.is_incomplete %}
+                href="{% url 'simplified:retest-create-error' case.id %}"
+            {% else %}
+                href="{% url 'audits:create-equality-body-retest' case.id %}"
+            {% endif %}
+            role="button"
+            draggable="false"
+            class="govuk-button"
+            data-module="govuk-button"
+        >
+            New retest
+        </a>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+        {% for equality_body_retest in equality_body_retests %}
+            <h2 class="govuk-heading-m">Retest #{{ equality_body_retest.id_within_case }}</h2>
+            <p class="govuk-body-m">
+                <a href="{% url 'audits:retest-metadata-update' equality_body_retest.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Edit retest</a>
+            </p>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>Date of retest</b></p>
+            <p class="govuk-body-m">{{ equality_body_retest.date_of_retest|amp_date }}</p>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>Outcome</b></p>
+            <p class="govuk-body-m">{{ equality_body_retest.get_retest_compliance_state_display }}</p>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>Statement outcome</b></p>
+            <p class="govuk-body-m">{{ equality_body_retest.get_statement_compliance_state_display }}</p>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>WCAG issues</b></p>
+            <p class="govuk-body-m">{{ equality_body_retest.fixed_checks_count }} of {{ equality_body_retest.simplified_case.audit.failed_check_results.count }} issues fixed</p>
+            <p class="govuk-body-m amp-margin-bottom-5"><b>Retest notes</b></p>
+            <div class="amp-report-wrapper">
+                {% if equality_body_retest.retest_notes %}
+                    {{ equality_body_retest.retest_notes|markdown_to_html }}
+                {% else %}
+                    <p>None</p>
+                {% endif %}
+            </div>
+            <hr class="amp-width-100 amp-margin-bottom-30" />
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block form %}
+{% endblock %}

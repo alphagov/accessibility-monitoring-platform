@@ -7,7 +7,8 @@ from datetime import date
 from django import forms
 from django.contrib.auth.models import User
 
-from ...cases.models import Case
+from ...cases.models import BaseCase
+from ...simplified.models import SimplifiedCase
 from ..form_extract_utils import FieldLabelAndValue, extract_form_labels_and_values
 from ..forms import (
     AMPAuditorModelChoiceField,
@@ -35,7 +36,7 @@ class CaseForm(forms.ModelForm):
     auditor = AMPAuditorModelChoiceField(label=AUDITOR_LABEL)
     sector = AMPModelChoiceField(label=SECTOR_LABEL, queryset=Sector.objects.all())
     test_type = AMPChoiceRadioField(
-        label=TEST_TYPE_LABEL, choices=Case.TestType.choices
+        label=TEST_TYPE_LABEL, choices=BaseCase.TestType.choices
     )
     home_page_url = AMPURLField(
         label=HOME_PAGE_URL_LABEL,
@@ -46,7 +47,7 @@ class CaseForm(forms.ModelForm):
     report_sent_date = AMPDateField(label=REPORT_SENT_ON_LABEL)
 
     class Meta:
-        model = Case
+        model = BaseCase
         fields = [
             "auditor",
             "sector",
@@ -63,7 +64,7 @@ def test_extract_form_labels_and_values():
     """
     auditor: User = User(first_name="first", last_name="second")
     sector: Sector = Sector(name="sector name")
-    case: Case = Case(
+    simplified_case: SimplifiedCase = SimplifiedCase(
         auditor=auditor,
         sector=sector,
         test_type="simplified",
@@ -73,7 +74,7 @@ def test_extract_form_labels_and_values():
     )
 
     labels_and_values: list[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=case, form=CaseForm()
+        instance=simplified_case, form=CaseForm()
     )
 
     assert len(labels_and_values) == 6
@@ -84,19 +85,21 @@ def test_extract_form_labels_and_values():
         label=SECTOR_LABEL, value=sector.name
     )
     assert labels_and_values[2] == FieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
+        label=TEST_TYPE_LABEL, value=simplified_case.get_test_type_display()
     )
     assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
-        value=case.home_page_url,
+        value=simplified_case.home_page_url,
         type=FieldLabelAndValue.Type.URL,
     )
     assert labels_and_values[4] == FieldLabelAndValue(
-        label=NOTES_LABEL, value=case.notes, type=FieldLabelAndValue.Type.NOTES
+        label=NOTES_LABEL,
+        value=simplified_case.notes,
+        type=FieldLabelAndValue.Type.NOTES,
     )
     assert labels_and_values[5] == FieldLabelAndValue(
         label=REPORT_SENT_ON_LABEL,
-        value=case.report_sent_date,
+        value=simplified_case.report_sent_date,
         type=FieldLabelAndValue.Type.DATE,
     )
 
@@ -106,10 +109,10 @@ def test_extract_form_labels_and_values_with_no_values_set():
     Test extraction of labels from form and values from case when
     there are no values populated.
     """
-    case: Case = Case()
+    simplified_case: SimplifiedCase = SimplifiedCase()
 
     labels_and_values: list[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=case, form=CaseForm()
+        instance=simplified_case, form=CaseForm()
     )
 
     assert len(labels_and_values) == 5
@@ -118,7 +121,7 @@ def test_extract_form_labels_and_values_with_no_values_set():
         label=SECTOR_LABEL, value="Unknown"
     )
     assert labels_and_values[2] == FieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
+        label=TEST_TYPE_LABEL, value=simplified_case.get_test_type_display()
     )
     assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
@@ -136,10 +139,10 @@ def test_extract_form_labels_and_values_can_exclude_fields():
     Test fields can be excluded from extraction of labels from form and values
     from case.
     """
-    case: Case = Case()
+    simplified_case: SimplifiedCase = SimplifiedCase()
 
     labels_and_values: list[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=case,
+        instance=simplified_case,
         form=CaseForm(),
         excluded_fields=["home_page_url", "report_sent_date"],
     )
@@ -150,5 +153,5 @@ def test_extract_form_labels_and_values_can_exclude_fields():
         label=SECTOR_LABEL, value="Unknown"
     )
     assert labels_and_values[2] == FieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
+        label=TEST_TYPE_LABEL, value=simplified_case.get_test_type_display()
     )

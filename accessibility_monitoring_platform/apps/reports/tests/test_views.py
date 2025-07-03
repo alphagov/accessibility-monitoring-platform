@@ -19,8 +19,8 @@ from ...audits.models import (
     StatementCheckResult,
     StatementPage,
 )
-from ...cases.models import Case, CaseCompliance, CaseEvent
 from ...common.models import Boolean
+from ...simplified.models import CaseCompliance, CaseEvent, SimplifiedCase
 from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
 
 USER_NAME: str = "user1"
@@ -34,17 +34,18 @@ STATEMENT_CUSTOM_CHECK_COMMENT: str = "Statement custom check result comment"
 
 def create_report() -> Report:
     """Create a report"""
-    case: Case = Case.objects.create()
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    Audit.objects.create(simplified_case=simplified_case)
+    report: Report = Report.objects.create(base_case=simplified_case)
     return report
 
 
 def test_create_report_uses_latest_template(admin_client):
     """Test that report create uses latest report template"""
-    case: Case = Case.objects.create()
-    path_kwargs: dict[str, int] = {"case_id": case.id}
-    audit: Audit = Audit.objects.create(case=case)
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     StatementCheckResult.objects.create(audit=audit)
 
     response: HttpResponse = admin_client.get(
@@ -53,15 +54,15 @@ def test_create_report_uses_latest_template(admin_client):
 
     assert response.status_code == 302
 
-    report: Report = Report.objects.get(case=case)
+    report: Report = Report.objects.get(base_case=simplified_case)
 
     assert report.report_version == REPORT_VERSION_DEFAULT
 
 
 def test_create_report_redirects(admin_client):
     """Test that report create redirects to report publisher"""
-    case: Case = Case.objects.create()
-    path_kwargs: dict[str, int] = {"case_id": case.id}
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-create", kwargs=path_kwargs),
@@ -69,28 +70,30 @@ def test_create_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("cases:edit-report-ready-for-qa", kwargs={"pk": 1})
+    assert response.url == reverse(
+        "simplified:edit-report-ready-for-qa", kwargs={"pk": 1}
+    )
 
 
 def test_create_report_does_not_create_duplicate(admin_client):
     """Test that report create does not create a duplicate report"""
     report: Report = create_report()
-    path_kwargs: dict[str, int] = {"case_id": report.case.id}
+    path_kwargs: dict[str, int] = {"case_id": report.base_case.id}
 
-    assert Report.objects.filter(case=report.case).count() == 1
+    assert Report.objects.filter(base_case=report.base_case).count() == 1
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-create", kwargs=path_kwargs),
     )
 
     assert response.status_code == 302
-    assert Report.objects.filter(case=report.case).count() == 1
+    assert Report.objects.filter(base_case=report.base_case).count() == 1
 
 
 def test_create_report_creates_case_event(admin_client):
     """Test that report create al creates a case event"""
-    case: Case = Case.objects.create()
-    path_kwargs: dict[str, int] = {"case_id": case.id}
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-create", kwargs=path_kwargs),
@@ -98,7 +101,9 @@ def test_create_report_creates_case_event(admin_client):
 
     assert response.status_code == 302
 
-    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
+        simplified_case=simplified_case
+    )
     assert case_events.count() == 1
 
     case_event: CaseEvent = case_events[0]
@@ -111,7 +116,7 @@ def test_report_includes_page_location(admin_client):
     Test that report contains the page location
     """
     report: Report = create_report()
-    audit: Audit = report.case.audit
+    audit: Audit = report.base_case.simplifiedcase.audit
     Page.objects.create(
         audit=audit, page_type=Page.Type.HOME, url=HOME_PAGE_URL, location=PAGE_LOCATION
     )
@@ -205,24 +210,24 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     Test that the report details page tells user to review report
     """
     report: Report = create_report()
-    case: Case = report.case
-    case_pk_kwargs: dict[str, int] = {"pk": case.id}
+    simplified_case: SimplifiedCase = report.base_case
+    case_pk_kwargs: dict[str, int] = {"pk": simplified_case.id}
     user = User.objects.create()
-    case.home_page_url = "https://www.website.com"
-    case.organisation_name = "org name"
-    case.auditor = user
-    case.report_review_status = Boolean.YES
-    case.compliance.statement_compliance_state_initial = (
+    simplified_case.home_page_url = "https://www.website.com"
+    simplified_case.organisation_name = "org name"
+    simplified_case.auditor = user
+    simplified_case.report_review_status = Boolean.YES
+    simplified_case.compliance.statement_compliance_state_initial = (
         CaseCompliance.StatementCompliance.COMPLIANT
     )
-    case.compliance.website_compliance_state_initial = (
+    simplified_case.compliance.website_compliance_state_initial = (
         CaseCompliance.WebsiteCompliance.COMPLIANT
     )
-    case.compliance.save()
-    case.save()
+    simplified_case.compliance.save()
+    simplified_case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-publish-report", kwargs=case_pk_kwargs)
+        reverse("simplified:edit-publish-report", kwargs=case_pk_kwargs)
     )
 
     assert response.status_code == 200
@@ -236,17 +241,23 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
 def test_report_metrics_displays_in_report_logs(admin_client):
     report: Report = create_report()
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
-    case: Case = report.case
-    case.save()
+    simplified_case: SimplifiedCase = report.base_case
+    simplified_case.save()
 
     ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
+        base_case=simplified_case,
+        fingerprint_hash=1234,
+        fingerprint_codename=FIRST_CODENAME,
     )
     ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
+        base_case=simplified_case,
+        fingerprint_hash=1234,
+        fingerprint_codename=FIRST_CODENAME,
     )
     ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=5678, fingerprint_codename=SECOND_CODENAME
+        base_case=simplified_case,
+        fingerprint_hash=5678,
+        fingerprint_codename=SECOND_CODENAME,
     )
     url: str = (
         f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=all"""
@@ -290,25 +301,32 @@ def test_report_metrics_unique_vists_shows_only_current_report(admin_client):
     """
     report: Report = create_report()
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
-    case: Case = report.case
-    case.save()
-    other_case: Case = Case.objects.create()
+    simplified_case: SimplifiedCase = report.base_case
+    other_simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
+        base_case=simplified_case,
+        fingerprint_hash=1234,
+        fingerprint_codename=FIRST_CODENAME,
     )
     ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
+        base_case=simplified_case,
+        fingerprint_hash=1234,
+        fingerprint_codename=FIRST_CODENAME,
     )
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2020, 1, 5, tzinfo=timezone.utc)),
     ):
         ReportVisitsMetrics.objects.create(
-            case=other_case, fingerprint_hash=5678, fingerprint_codename=SECOND_CODENAME
+            base_case=other_simplified_case,
+            fingerprint_hash=5678,
+            fingerprint_codename=SECOND_CODENAME,
         )
     ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=5678, fingerprint_codename=SECOND_CODENAME
+        base_case=simplified_case,
+        fingerprint_hash=5678,
+        fingerprint_codename=SECOND_CODENAME,
     )
 
     url: str = (
@@ -324,7 +342,7 @@ def test_report_includes_statement_custom_issue(admin_client):
     Test that report contains the page location
     """
     report: Report = create_report()
-    audit: Audit = report.case.audit
+    audit: Audit = report.base_case.simplifiedcase.audit
     StatementPage.objects.create(audit=audit, url="https://example.com")
 
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
@@ -348,3 +366,31 @@ def test_report_includes_statement_custom_issue(admin_client):
 
     assert response.status_code == 200
     assertContains(response, STATEMENT_CUSTOM_CHECK_COMMENT)
+
+
+def test_report_republish_button_show(admin_client):
+    """
+    Test that report contains the page location
+    """
+    report: Report = create_report()
+    report_pk_kwargs: dict[str, int] = {"pk": report.id}
+    simplified_case: SimplifiedCase = report.base_case.simplifiedcase
+    simplified_case.report_approved_status = (
+        SimplifiedCase.ReportApprovedStatus.APPROVED
+    )
+    simplified_case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-republish", kwargs=report_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<a href="{reverse('reports:publish-report', kwargs=report_pk_kwargs)}"
+                role="button"
+                draggable="false"
+                class="govuk-button"
+                data-module="govuk-button">Republish report</a>""",
+        html=True,
+    )

@@ -1,0 +1,21 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+{% if case.audit %}
+    {% include 'audits/helpers/test_summary.html' with show_wcag_summary=True show_statement_summary=True %}
+{% else %}
+    <h2 class="govuk-heading-l">Overview</h2>
+    <p class="govuk-body">
+        This is a new case and does not have any test data.
+        Complete a
+        <a href="{% url 'simplified:edit-test-results' case.id %}"
+            class="govuk-link govuk-link--no-visited-state">test</a>
+        and
+        <a href="{% url 'simplified:edit-twelve-week-retest' case.id %}"
+            class="govuk-link govuk-link--no-visited-state">retest</a>
+        before using this page.
+    </p>
+{% endif %}
+{% endblock %}
+
+{% block form %}{% endblock %}

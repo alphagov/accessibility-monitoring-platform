@@ -1,0 +1,48 @@
+{% extends 'detailed/base.html' %}
+
+{% block breadcrumbs %}
+{% include 'detailed/helpers/breadcrumbs.html' %}
+{% endblock %}
+
+{% block formbuttons %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <input
+            type="submit"
+            value="Save"
+            name="save"
+            class="govuk-button"
+            data-module="govuk-button"
+        />
+        <a
+            href="{{ case.get_absolute_url }}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Return to overview
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block postform %}
+<table class="govuk-table">
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header amp-width-one-half">Date time</th>
+            <th scope="col" class="govuk-table__header amp-width-one-half">New status</th>
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        {% for detailed_case_status_event in detailed_case.status_history %}
+            <tr class="govuk-table__row ">
+                <td scope="row" class="govuk-table__cell amp-width-one-half">
+                    {{ detailed_case_status_event.created|amp_datetime }}
+                </td>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {{ detailed_case_status_event.value }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

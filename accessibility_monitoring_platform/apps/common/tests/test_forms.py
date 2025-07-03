@@ -11,8 +11,8 @@ import pytest
 from django import forms
 from pytest_django.asserts import assertHTMLEqual
 
-from ...cases.forms import CaseMetadataUpdateForm
-from ...cases.models import Case
+from ...simplified.forms import CaseMetadataUpdateForm
+from ...simplified.models import SimplifiedCase
 from ..forms import (
     AMPCharField,
     AMPCharFieldWide,
@@ -353,7 +353,7 @@ def test_amp_date_sent_field_and_widget_return_none_when_not_checked():
 
 def test_version_form():
     """Test version form returns and logs version errors"""
-    case: Case = Case()
+    case: SimplifiedCase = SimplifiedCase()
     version_form: CaseMetadataUpdateForm = CaseMetadataUpdateForm(
         data={"version": 1}, instance=case
     )
