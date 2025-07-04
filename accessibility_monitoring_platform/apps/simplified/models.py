@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import BaseCase, Case
+from ..cases.models import BaseCase
 from ..common.models import Boolean, EmailTemplate, Link, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
@@ -121,7 +121,6 @@ class SimplifiedCase(BaseCase):
             "Not applicable or organisation responded to 12-week update",
         )
 
-    case = models.ForeignKey(Case, on_delete=models.PROTECT, blank=True, null=True)
     archive = models.TextField(default="", blank=True)
     variant = models.CharField(
         max_length=20,
