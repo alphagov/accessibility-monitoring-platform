@@ -11,8 +11,8 @@ class ReportAdmin(admin.ModelAdmin):
     """Django admin configuration for Report model"""
 
     readonly_fields = ["created"]
-    search_fields = ["case__case_number", "case__organisation_name"]
-    list_display = ["case", "created"]
+    search_fields = ["base_case__case_number", "base_case__organisation_name"]
+    list_display = ["base_case", "created"]
 
 
 class ReportVisitsMetricsAdmin(admin.ModelAdmin):
@@ -20,12 +20,12 @@ class ReportVisitsMetricsAdmin(admin.ModelAdmin):
 
     readonly_fields = ["created"]
     search_fields = [
-        "case__case_number",
-        "case__organisation_name",
+        "base_case__case_number",
+        "base_case__organisation_name",
         "guid",
         "fingerprint_codename",
     ]
-    list_display = ["created", "case", "fingerprint_codename"]
+    list_display = ["created", "base_case", "fingerprint_codename"]
 
 
 admin.site.register(Report, ReportAdmin)

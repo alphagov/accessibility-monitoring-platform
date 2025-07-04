@@ -6,15 +6,15 @@ from datetime import datetime
 
 import pytest
 
-from ..models import BaseCase, Case
+from ..models import BaseCase
 
 
 @pytest.mark.django_db
 def test_case_identifier():
     """Test the Case.case_identifier"""
-    case: Case = Case.objects.create()
+    base_case: BaseCase = BaseCase.objects.create()
 
-    assert case.case_identifier == "#S-1"
+    assert base_case.case_identifier == "#S-1"
 
 
 @pytest.mark.django_db

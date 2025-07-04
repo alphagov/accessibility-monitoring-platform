@@ -12,7 +12,6 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from ..audits.models import CheckResult, StatementCheck, StatementCheckResult
-from ..cases.models import Case
 from ..common.utils import replace_whole_words, undo_double_escapes
 from ..simplified.models import SimplifiedCase
 
@@ -52,13 +51,6 @@ def get_initial_statement_check_result_url_from_issue_identifier(
 class Comment(models.Model):
     """Comment model"""
 
-    case = models.ForeignKey(
-        Case,
-        on_delete=models.PROTECT,
-        related_name="comment_case",
-        blank=True,
-        null=True,
-    )
     simplified_case = models.ForeignKey(
         SimplifiedCase,
         on_delete=models.PROTECT,

@@ -3,7 +3,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from ..cases.models import Case
 from ..common.utils import amp_format_date
 from ..simplified.models import SimplifiedCase
 from .utils import get_exportable_cases
@@ -87,7 +86,6 @@ class ExportCase(models.Model):
         EXCLUDED = "excluded", "Excluded"
 
     export = models.ForeignKey(Export, on_delete=models.PROTECT)
-    case = models.ForeignKey(Case, on_delete=models.PROTECT, blank=True, null=True)
     simplified_case = models.ForeignKey(
         SimplifiedCase,
         on_delete=models.PROTECT,

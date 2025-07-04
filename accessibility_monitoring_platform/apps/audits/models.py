@@ -15,7 +15,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import Case
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date, calculate_percentage
 from ..simplified.models import CaseCompliance, SimplifiedCase
@@ -67,13 +66,6 @@ class Audit(VersionModel):
         NO_STATEMENT = "no-statement", "No statement"
         NOT_CHECKED = "not-checked", "Not checked"
 
-    case = models.OneToOneField(
-        Case,
-        on_delete=models.PROTECT,
-        related_name="audit_case",
-        blank=True,
-        null=True,
-    )
     simplified_case = models.OneToOneField(
         SimplifiedCase,
         on_delete=models.PROTECT,
@@ -978,7 +970,6 @@ class Retest(VersionModel):
         PARTIAL = "partially-compliant", "Partially compliant"
         NOT_KNOWN = "not-known", "Not known"
 
-    case = models.ForeignKey(Case, on_delete=models.PROTECT, blank=True, null=True)
     simplified_case = models.ForeignKey(
         SimplifiedCase,
         on_delete=models.PROTECT,
@@ -1027,7 +1018,7 @@ class Retest(VersionModel):
     statement_decision_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
-        ordering = ["case_id", "-id_within_case"]
+        ordering = ["simplified_case_id", "-id_within_case"]
 
     def get_absolute_url(self) -> str:
         return reverse("audits:retest-compliance-update", kwargs={"pk": self.id})

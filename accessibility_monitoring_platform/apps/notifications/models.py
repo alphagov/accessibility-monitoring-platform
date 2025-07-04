@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
-from ..cases.models import BaseCase, Case
+from ..cases.models import BaseCase
 from ..common.models import Link
 from ..common.templatetags.common_tags import amp_date
 
@@ -22,7 +22,6 @@ class Task(models.Model):
     type = models.CharField(max_length=20, choices=Type, default=Type.REMINDER)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     date = models.DateField()
-    case = models.ForeignKey(Case, on_delete=models.PROTECT, blank=True, null=True)
     base_case = models.ForeignKey(
         BaseCase,
         on_delete=models.PROTECT,
