@@ -28,12 +28,12 @@ class ExportCaseAdmin(admin.ModelAdmin):
 
     search_fields = [
         "export__exporter__username",
-        "case__organisation_name",
-        "case__case_number",
+        "simplified_case__organisation_name",
+        "simplified_case__case_number",
     ]
     list_display = [
         "export",
-        "case",
+        "simplified_case",
         "status",
     ]
     list_filter = ["status"]
