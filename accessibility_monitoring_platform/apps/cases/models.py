@@ -29,6 +29,120 @@ COMPLIANCE_FIELDS: list[str] = [
 UPDATE_SEPARATOR: str = " -> "
 
 
+class SimplifiedCaseStatus(models.TextChoices):
+    UNASSIGNED = "000-unassigned-case", "Unassigned case"
+    TEST_IN_PROGRESS = "050-test-in-progress", "Test in progress"
+    REPORT_IN_PROGRESS = "060-report-in-progress", "Report in progress"
+    READY_TO_QA = "070-unassigned-qa-case", "Report ready to QA"
+    QA_IN_PROGRESS = "080-qa-in-progress", "QA in progress"
+    REPORT_READY_TO_SEND = "090-report-ready-to-send", "Report ready to send"
+    IN_REPORT_CORES = "100-in-report-correspondence", "Report sent"
+    AWAITING_12_WEEK_DEADLINE = (
+        "120-in-12-week-period",
+        "Report acknowledged waiting for 12-week deadline",
+    )
+    AFTER_12_WEEK_CORES = (
+        "140-after-12-week-correspondence",
+        "After 12-week correspondence",
+    )
+    REVIEWING_CHANGES = "150-reviewing-changes", "Reviewing changes"
+    FINAL_DECISION_DUE = "160-final-decision-due", "Final decision due"
+    CASE_CLOSED_WAITING_TO_SEND = (
+        "170-case-closed-waiting-to-be-sent",
+        "Case closed and waiting to be sent to equalities body",
+    )
+    CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
+        "180-case-closed-sent-to-equalities-body",
+        "Case closed and sent to equalities body",
+    )
+    IN_CORES_WITH_ENFORCEMENT_BODY = (
+        "190-in-correspondence-with-equalities-body",
+        "In correspondence with equalities body",
+    )
+    COMPLETE = "200-complete", "Complete"
+    DEACTIVATED = "900-deactivated", "Deactivated"
+    UNKNOWN = "910-unknown", "Unknown"
+
+
+class DetailedCaseStatus(models.TextChoices):
+    UNASSIGNED = "000-unassigned-case", "Unassigned case"
+    PSB_INFO_REQ = "010-initial-psb-info-requested", "Requested information"
+    PSB_INFO_CHASING = (
+        "020-initial-psb-info-chasing",
+        "Chasing - no response / missed deadline",
+    )
+    PSB_INFO_REQ_ACK = "030-initial-psb-info-req-ack", "Acknowledge our request"
+    PSB_INFO_RECEIVED = "040-initial-psb-info-received", "Received Details/Access"
+    TEST_IN_PROGRESS = "050-test-in-progress", "Test in progress"
+    REPORT_IN_PROGRESS = "060-report-in-progress", "Report in progress"
+    READY_TO_QA = "070-unassigned-qa-case", "Report ready to QA"
+    REPORT_READY_TO_SEND = "090-report-ready-to-send", "Report ready to send"
+    IN_REPORT_CORES = "100-in-report-correspondence", "Report sent"
+    AWAITING_REPORT_ACK = "110-awaiting-report-ack", "Waiting for response"
+    AWAITING_12_WEEK_DEADLINE = (
+        "120-in-12-week-period",
+        "Report acknowledged waiting for 12-week deadline",
+    )
+    REQUESTED_12_WEEK_UPDATE = (
+        "130-12-week-requested-update",
+        "Requested update at 12 weeks",
+    )
+    AFTER_12_WEEK_CORES = (
+        "140-after-12-week-correspondence",
+        "After 12-week correspondence",
+    )
+    REVIEWING_CHANGES = "150-reviewing-changes", "Reviewing changes"
+    CASE_CLOSED_WAITING_TO_SEND = (
+        "170-case-closed-waiting-to-be-sent",
+        "Case closed and waiting to be sent to equalities body",
+    )
+    CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
+        "180-case-closed-sent-to-equalities-body",
+        "Case closed and sent to equalities body",
+    )
+    COMPLETE = "200-complete", "Complete"
+    UNKNOWN = "910-unknown", "Unknown"
+
+
+class MobileCaseStatus(models.TextChoices):
+    UNASSIGNED = "000-unassigned-case", "Unassigned case"
+    TEST_IN_PROGRESS = "050-test-in-progress", "Test in progress"
+    REPORT_IN_PROGRESS = "060-report-in-progress", "Report in progress"
+    READY_TO_QA = "070-unassigned-qa-case", "Report ready to QA"
+    REPORT_READY_TO_SEND = "090-report-ready-to-send", "Report ready to send"
+    IN_REPORT_CORES = "100-in-report-correspondence", "Report sent"
+    AWAITING_12_WEEK_DEADLINE = (
+        "120-in-12-week-period",
+        "Report acknowledged waiting for 12-week deadline",
+    )
+    AFTER_12_WEEK_CORES = (
+        "140-after-12-week-correspondence",
+        "After 12-week correspondence",
+    )
+    REVIEWING_CHANGES = "150-reviewing-changes", "Reviewing changes"
+    CASE_CLOSED_WAITING_TO_SEND = (
+        "170-case-closed-waiting-to-be-sent",
+        "Case closed and waiting to be sent to equalities body",
+    )
+    CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
+        "180-case-closed-sent-to-equalities-body",
+        "Case closed and sent to equalities body",
+    )
+    COMPLETE = "200-complete", "Complete"
+    UNKNOWN = "910-unknown", "Unknown"
+
+
+ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = sorted(
+    list(
+        set(
+            SimplifiedCaseStatus.choices
+            + DetailedCaseStatus.choices
+            + MobileCaseStatus.choices
+        )
+    )
+)
+
+
 class Sort(models.TextChoices):
     NEWEST = "", "Newest, Unassigned first"
     OLDEST = "id", "Oldest"
@@ -63,35 +177,50 @@ class BaseCase(VersionModel):
         UNKNOWN = "unknown", "Not selected"
 
     class Status(models.TextChoices):
-        UNKNOWN = "unknown", "Unknown"
-        UNASSIGNED = "unassigned-case", "Unassigned case"
-        TEST_IN_PROGRESS = "test-in-progress", "Test in progress"
-        REPORT_IN_PROGRESS = "report-in-progress", "Report in progress"
-        READY_TO_QA = "unassigned-qa-case", "Report ready to QA"
-        QA_IN_PROGRESS = "qa-in-progress", "QA in progress"
-        REPORT_READY_TO_SEND = "report-ready-to-send", "Report ready to send"
-        IN_REPORT_CORES = "in-report-correspondence", "Report sent"
+        UNASSIGNED = "000-unassigned-case", "Unassigned case"
+        PSB_INFO_REQ = "010-initial-psb-info-requested", "Requested information"
+        PSB_INFO_CHASING = (
+            "020-initial-psb-info-chasing",
+            "Chasing - no response / missed deadline",
+        )
+        PSB_INFO_REQ_ACK = "030-initial-psb-info-req-ack", "Acknowledge our request"
+        PSB_INFO_RECEIVED = "040-initial-psb-info-received", "Received Details/Access"
+        TEST_IN_PROGRESS = "050-test-in-progress", "Test in progress"
+        REPORT_IN_PROGRESS = "060-report-in-progress", "Report in progress"
+        READY_TO_QA = "070-unassigned-qa-case", "Report ready to QA"
+        QA_IN_PROGRESS = "080-qa-in-progress", "QA in progress"
+        REPORT_READY_TO_SEND = "090-report-ready-to-send", "Report ready to send"
+        IN_REPORT_CORES = "100-in-report-correspondence", "Report sent"
+        AWAITING_REPORT_ACK = "110-awaiting-report-ack", "Waiting for response"
         AWAITING_12_WEEK_DEADLINE = (
-            "in-probation-period",
+            "120-in-12-week-period",
             "Report acknowledged waiting for 12-week deadline",
         )
-        IN_12_WEEK_CORES = "in-12-week-correspondence", "After 12-week correspondence"
-        REVIEWING_CHANGES = "reviewing-changes", "Reviewing changes"
-        FINAL_DECISION_DUE = "final-decision-due", "Final decision due"
+        REQUESTED_12_WEEK_UPDATE = (
+            "130-12-week-requested-update",
+            "Requested update at 12 weeks",
+        )
+        AFTER_12_WEEK_CORES = (
+            "140-after-12-week-correspondence",
+            "After 12-week correspondence",
+        )
+        REVIEWING_CHANGES = "150-reviewing-changes", "Reviewing changes"
+        FINAL_DECISION_DUE = "160-final-decision-due", "Final decision due"
         CASE_CLOSED_WAITING_TO_SEND = (
-            "case-closed-waiting-to-be-sent",
+            "170-case-closed-waiting-to-be-sent",
             "Case closed and waiting to be sent to equalities body",
         )
         CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
-            "case-closed-sent-to-equalities-body",
+            "180-case-closed-sent-to-equalities-body",
             "Case closed and sent to equalities body",
         )
         IN_CORES_WITH_ENFORCEMENT_BODY = (
-            "in-correspondence-with-equalities-body",
+            "190-in-correspondence-with-equalities-body",
             "In correspondence with equalities body",
         )
-        COMPLETE = "complete", "Complete"
-        DEACTIVATED = "deactivated", "Deactivated"
+        COMPLETE = "200-complete", "Complete"
+        DEACTIVATED = "900-deactivated", "Deactivated"
+        UNKNOWN = "910-unknown", "Unknown"
 
     CLOSED_CASE_STATUSES: list[str] = [
         Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,

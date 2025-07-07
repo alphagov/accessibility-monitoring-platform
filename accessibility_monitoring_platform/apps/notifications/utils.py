@@ -184,7 +184,7 @@ def get_overdue_cases(user_request: User | None) -> list[SimplifiedCase]:
     )
 
     in_12_week_correspondence: QuerySet[SimplifiedCase] = cases.filter(
-        Q(status__icontains=CaseStatus.Status.IN_12_WEEK_CORES),
+        Q(status__icontains=CaseStatus.Status.AFTER_12_WEEK_CORES),
         Q(
             Q(
                 twelve_week_1_week_chaser_due_date__range=[

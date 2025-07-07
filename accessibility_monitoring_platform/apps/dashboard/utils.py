@@ -21,7 +21,7 @@ def group_cases_by_status(
                 "id",
             ),
             (
-                "unassigned-case",
+                "unassigned_case",
                 SimplifiedCase.Status.UNASSIGNED,
                 "id",
             ),
@@ -57,7 +57,7 @@ def group_cases_by_status(
             ),
             (
                 "in_12_week_correspondence",
-                SimplifiedCase.Status.IN_12_WEEK_CORES,
+                SimplifiedCase.Status.AFTER_12_WEEK_CORES,
                 "next_action_due_date",
             ),
             (

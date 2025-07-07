@@ -18,7 +18,9 @@ from ..simplified.models import BaseCase, Complaint, Sort
 
 TEST_TYPE_CHOICES: list[tuple[str, str]] = [("", "All")] + BaseCase.TestType.choices
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + BaseCase.EnforcementBody.choices
-STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + BaseCase.Status.choices
+STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + [
+    choice for choice in BaseCase.Status.choices if choice[0] != BaseCase.Status.UNKNOWN
+]
 RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
     ("", "All")
 ] + BaseCase.RecommendationForEnforcement.choices

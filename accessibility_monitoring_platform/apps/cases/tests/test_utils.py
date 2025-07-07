@@ -221,7 +221,7 @@ def test_case_filtered_by_reviewer():
 def test_case_filtered_by_status():
     """Test that filtering cases by status is reflected in the queryset"""
     SimplifiedCase.objects.create(organisation_name=ORGANISATION_NAME)
-    form: MockForm = MockForm(cleaned_data={"status": "unassigned-case"})
+    form: MockForm = MockForm(cleaned_data={"status": SimplifiedCase.Status.UNASSIGNED})
 
     filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
 

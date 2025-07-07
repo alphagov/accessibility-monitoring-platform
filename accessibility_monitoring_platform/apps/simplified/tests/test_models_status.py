@@ -234,7 +234,7 @@ def test_case_status_in_12_week_correspondence(admin_client):
     )
     simplified_case.update_case_status()
 
-    assert simplified_case.status == SimplifiedCase.Status.IN_12_WEEK_CORES
+    assert simplified_case.status == SimplifiedCase.Status.AFTER_12_WEEK_CORES
 
     check_for_status_specific_link(
         admin_client,

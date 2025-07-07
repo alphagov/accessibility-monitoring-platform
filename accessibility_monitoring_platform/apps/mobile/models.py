@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from ..cases.models import UPDATE_SEPARATOR, BaseCase
+from ..cases.models import UPDATE_SEPARATOR, BaseCase, MobileCaseStatus
 from ..common.utils import extract_domain_from_url
 
 
@@ -23,16 +23,7 @@ class MobileCase(BaseCase):
         ANDROID = "android", "Android"
         IOS = "ios", "iOS"
 
-    # class Status(models.TextChoices):
-    #     INITIAL = "010_initial", "Initial"
-    #     CONTACTING = "020_contacting", "Seeking to contact"
-    #     AUDITING = "030_auditing", "Testing"
-    #     REPORTING = "040_reporting", "Writing report"
-    #     QA_REPORT = "050_qa_report", "QA in progress"
-    #     AWAIT_RESPONSE = "060_await_response", "Awaiting response"
-    #     REVIEWING_UPDATE = "070_reviewing_update", "Reviewing update"
-    #     REQUIRES_DECISION = "080_requires_decision", "Requires decision"
-    #     WAITING_12_WEEKS = "090_waiting_12_weeks", "Waiting for 12-weeks"
+    Status = MobileCaseStatus
 
     # Case metadata page
     app_name = models.TextField(default="", blank=True)
