@@ -2,6 +2,7 @@
 Models - cases
 """
 
+from dataclasses import dataclass
 from datetime import datetime
 
 from django.contrib.auth.models import User
@@ -35,20 +36,15 @@ class TestType(models.TextChoices):
     MOBILE = "mobile", "Mobile"
 
 
+@dataclass
 class CaseStatusChoice:
     name: str
     value: str
     label: str
     test_types: list[TestType]
 
-    def __init__(self, name: str, value: str, label: str, test_types: list[str]):
-        self.name = name
-        self.value = value
-        self.label = label
-        self.test_types = test_types
 
-
-CASE_STATUESES: list[CaseStatusChoice] = [
+CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(
         name="UNASSIGNED",
         value="000-unassigned-case",
@@ -188,6 +184,9 @@ CASE_STATUESES: list[CaseStatusChoice] = [
         test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
     ),
 ]
+ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = [
+    (case_status.value, case_status.label) for case_status in CASE_STATUSES
+]
 
 
 class CaseStatusChoices:
@@ -195,7 +194,7 @@ class CaseStatusChoices:
 
     def __init__(self, test_type: str):
         self.choices = []
-        for status in CASE_STATUESES:
+        for status in CASE_STATUSES:
             if test_type in status.test_types:
                 setattr(self, status.name, status.value)
                 self.choices.append((status.value, status.label))
@@ -215,17 +214,6 @@ if DetailedCaseStatus is None:
     )
 if MobileCaseStatus is None:
     MobileCaseStatus: CaseStatusChoices = CaseStatusChoices(test_type=TestType.MOBILE)
-
-
-ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = sorted(
-    list(
-        set(
-            SimplifiedCaseStatus.choices
-            + DetailedCaseStatus.choices
-            + MobileCaseStatus.choices
-        )
-    )
-)
 
 
 class Complaint(models.TextChoices):
