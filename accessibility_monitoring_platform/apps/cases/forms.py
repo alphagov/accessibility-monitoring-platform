@@ -6,6 +6,13 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import QuerySet
 
+from ..cases.models import (
+    ALL_CASE_STATUS_CHOICES,
+    BaseCase,
+    Complaint,
+    SimplifiedCaseStatus,
+    Sort,
+)
 from ..common.forms import (
     AMPCharFieldWide,
     AMPChoiceField,
@@ -14,12 +21,13 @@ from ..common.forms import (
     AMPModelChoiceField,
 )
 from ..common.models import Sector, SubCategory
-from ..simplified.models import BaseCase, Complaint, Sort
 
 TEST_TYPE_CHOICES: list[tuple[str, str]] = [("", "All")] + BaseCase.TestType.choices
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + BaseCase.EnforcementBody.choices
 STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + [
-    choice for choice in BaseCase.Status.choices if choice[0] != BaseCase.Status.UNKNOWN
+    choice
+    for choice in ALL_CASE_STATUS_CHOICES
+    if choice[0] != SimplifiedCaseStatus.UNKNOWN
 ]
 RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
     ("", "All")

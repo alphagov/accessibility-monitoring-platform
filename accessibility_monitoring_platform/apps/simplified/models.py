@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import BaseCase
+from ..cases.models import BaseCase, SimplifiedCaseStatus
 from ..common.models import Boolean, EmailTemplate, Link, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
@@ -50,16 +50,12 @@ class Sort(models.TextChoices):
     NAME = "organisation_name", "Alphabetic"
 
 
-class Complaint(models.TextChoices):
-    ALL = "", "All"
-    NO = "no", "No complaints"
-    YES = "yes", "Only complaints"
-
-
 class SimplifiedCase(BaseCase):
     """
     Model for Case
     """
+
+    Status = SimplifiedCaseStatus
 
     class Variant(models.TextChoices):
         CLOSE_CASE = "close-case", "Equality Body Close Case"

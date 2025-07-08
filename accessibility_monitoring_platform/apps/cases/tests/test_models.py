@@ -15,11 +15,6 @@ from ..models import (
 )
 
 
-def test_all_case_statuses():
-    """Check the contents of the full list of ALL_CASE_STATUS_CHOICES"""
-    assert len(ALL_CASE_STATUS_CHOICES) == 23
-
-
 def test_simplified_case_statuses():
     """Check the SimplifiedCaseStatus.choices"""
     assert len(SimplifiedCaseStatus.choices) == 17
@@ -87,7 +82,7 @@ def test_detailed_case_statuses():
 
 def test_mobile_case_statuses():
     """Check the MobileCaseStatus.choices"""
-    # assert len(MobileCaseStatus.choices) == 13
+    assert len(MobileCaseStatus.choices) == 13
     assert MobileCaseStatus.choices == [
         ("000-unassigned-case", "Unassigned case"),
         ("050-test-in-progress", "Test in progress"),
@@ -109,6 +104,11 @@ def test_mobile_case_statuses():
         ("200-complete", "Complete"),
         ("910-unknown", "Unknown"),
     ]
+
+
+def test_all_case_statuses():
+    """Check the contents of the full list of ALL_CASE_STATUS_CHOICES"""
+    assert len(ALL_CASE_STATUS_CHOICES) == 23
 
 
 @pytest.mark.django_db

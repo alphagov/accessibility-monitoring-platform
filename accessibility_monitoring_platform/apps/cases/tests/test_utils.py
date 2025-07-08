@@ -283,10 +283,12 @@ def test_case_filtered_by_search_string(search_string):
 def test_simplified_case_filtered_by_ready_to_qa():
     """Test that case with status Ready to QA is found"""
     SimplifiedCase.objects.create(
-        status=BaseCase.Status.QA_IN_PROGRESS,
+        status=SimplifiedCase.Status.QA_IN_PROGRESS,
         report_review_status=Boolean.YES,
     )
-    form: MockForm = MockForm(cleaned_data={"status": BaseCase.Status.READY_TO_QA})
+    form: MockForm = MockForm(
+        cleaned_data={"status": SimplifiedCase.Status.READY_TO_QA}
+    )
 
     filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
 
