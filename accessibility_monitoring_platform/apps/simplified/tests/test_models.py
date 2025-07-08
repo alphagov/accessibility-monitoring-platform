@@ -440,7 +440,6 @@ def test_next_action_due_date_not_set(status):
         report_followup_week_12_due_date=report_followup_week_12_due_date,
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
-    simplified_case.status.status = status
 
     assert simplified_case.next_action_due_date == date(1970, 1, 1)
 

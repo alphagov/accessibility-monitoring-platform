@@ -9,15 +9,35 @@ import pytest
 from ..models import (
     ALL_CASE_STATUS_CHOICES,
     BaseCase,
+    CaseStatusChoices,
     DetailedCaseStatus,
     MobileCaseStatus,
     SimplifiedCaseStatus,
 )
 
 
+@pytest.mark.parametrize(
+    "test_type, expected_number_of_choices, expected_attr",
+    [
+        (BaseCase.TestType.SIMPLIFIED, 17, "QA_IN_PROGRESS"),
+        (BaseCase.TestType.DETAILED, 19, "PSB_INFO_REQ"),
+        (BaseCase.TestType.MOBILE, 13, "UNASSIGNED"),
+    ],
+)
+def test_case_status_choices(test_type, expected_number_of_choices, expected_attr):
+    """
+    Test CaseStatusChoices creates an object with statuses for a specific
+    testing type.
+    """
+    case_status_choices: CaseStatusChoices = CaseStatusChoices(test_type=test_type)
+
+    assert len(case_status_choices.choices) == expected_number_of_choices
+    assert hasattr(case_status_choices, expected_attr) is True
+
+
 def test_simplified_case_statuses():
     """Check the SimplifiedCaseStatus.choices"""
-    assert len(SimplifiedCaseStatus.choices) == 17
+
     assert SimplifiedCaseStatus.choices == [
         ("000-unassigned-case", "Unassigned case"),
         ("050-test-in-progress", "Test in progress"),
@@ -50,7 +70,6 @@ def test_simplified_case_statuses():
 
 def test_detailed_case_statuses():
     """Check the DetailedCaseStatus.choices"""
-    assert len(DetailedCaseStatus.choices) == 19
     assert DetailedCaseStatus.choices == [
         ("000-unassigned-case", "Unassigned case"),
         ("010-initial-psb-info-requested", "Requested information"),
@@ -82,7 +101,6 @@ def test_detailed_case_statuses():
 
 def test_mobile_case_statuses():
     """Check the MobileCaseStatus.choices"""
-    assert len(MobileCaseStatus.choices) == 13
     assert MobileCaseStatus.choices == [
         ("000-unassigned-case", "Unassigned case"),
         ("050-test-in-progress", "Test in progress"),
