@@ -24,7 +24,7 @@ from ..common.sitemap import PlatformPage, Sitemap
 from ..detailed.utils import import_detailed_cases_csv
 from ..mobile.utils import import_mobile_cases_csv
 from ..reports.models import Report
-from ..simplified.models import SimplifiedCase, SimplifiedEventHistory
+from ..simplified.models import SimplifiedCase
 from ..simplified.utils import (
     record_simplified_model_create_event,
     record_simplified_model_update_event,

@@ -1889,9 +1889,11 @@ def build_sitemap_by_url_name(
     return sitemap_by_url_name
 
 
-SITEMAP_BY_URL_NAME: dict[str, PlatformPage] = build_sitemap_by_url_name(
-    site_map=SITE_MAP
-)
+SITEMAP_BY_URL_NAME: None = None
+if SITEMAP_BY_URL_NAME is None:
+    SITEMAP_BY_URL_NAME: dict[str, PlatformPage] = build_sitemap_by_url_name(
+        site_map=SITE_MAP
+    )
 
 
 def get_requested_platform_page(request: HttpRequest) -> PlatformPage:

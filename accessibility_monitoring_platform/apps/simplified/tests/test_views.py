@@ -113,7 +113,7 @@ CASE_ARCHIVE: list[dict] = {
                     "name": "archived_choice_field",
                     "data_type": "str",
                     "label": "Status field",
-                    "value": "case-closed-sent-to-equalities-body",
+                    "value": SimplifiedCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
                     "display_value": "Case closed and sent to equalities body",
                 },
             ],

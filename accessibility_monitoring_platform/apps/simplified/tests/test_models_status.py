@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ..models import Boolean, CaseCompliance, CaseStatus, SimplifiedCase
+from ..models import Boolean, CaseCompliance, SimplifiedCase
 from ..utils import create_case_and_compliance
 
 
@@ -234,7 +234,7 @@ def test_case_status_in_12_week_correspondence(admin_client):
     )
     simplified_case.update_case_status()
 
-    assert simplified_case.status == SimplifiedCase.Status.IN_12_WEEK_CORES
+    assert simplified_case.status == SimplifiedCase.Status.AFTER_12_WEEK_CORES
 
     check_for_status_specific_link(
         admin_client,

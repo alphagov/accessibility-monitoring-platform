@@ -17,7 +17,7 @@ from ...audits.models import (
 )
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
-from ...simplified.models import CaseCompliance, CaseStatus, SimplifiedCase
+from ...simplified.models import CaseCompliance, SimplifiedCase
 from ...simplified.utils import create_case_and_compliance
 from ..chart import Timeseries, TimeseriesDatapoint
 from ..metrics import (

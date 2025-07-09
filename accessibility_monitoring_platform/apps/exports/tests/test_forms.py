@@ -8,7 +8,7 @@ import pytest
 from django.contrib.auth.models import User
 
 from ...common.models import Boolean
-from ...simplified.models import CaseCompliance, CaseStatus, SimplifiedCase
+from ...simplified.models import CaseCompliance, SimplifiedCase
 from ...simplified.utils import create_case_and_compliance
 from ..forms import ExportCreateForm
 from ..models import Export
