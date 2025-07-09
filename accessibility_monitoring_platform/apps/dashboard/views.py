@@ -58,17 +58,17 @@ class DashboardView(TemplateView):
             simplified_case
             for simplified_case in all_simplified_cases
             if (
-                simplified_case.status != "complete"
-                and simplified_case.status != "case-closed-sent-to-equalities-body"
-                and simplified_case.status != "deleted"
-                and simplified_case.status != "deactivated"
+                simplified_case.status != SimplifiedCase.Status.COMPLETE
+                and simplified_case.status
+                != SimplifiedCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
+                and simplified_case.status != SimplifiedCase.Status.DEACTIVATED
             )
         ]
         unassigned_cases: list[SimplifiedCase] = sorted(
             [
                 simplified_case
                 for simplified_case in all_simplified_cases
-                if simplified_case.status == "unassigned-case"
+                if simplified_case.status == SimplifiedCase.Status.UNASSIGNED
             ],
             key=lambda simplified_case: (simplified_case.created),  # type: ignore
         )

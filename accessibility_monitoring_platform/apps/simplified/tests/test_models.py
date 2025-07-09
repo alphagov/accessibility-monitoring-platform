@@ -324,7 +324,7 @@ def test_next_action_due_date_for_report_ready_to_send():
         seven_day_no_contact_email_sent_date=seven_day_no_contact_email_sent_date,
         no_contact_one_week_chaser_due_date=no_contact_one_week_chaser_due_date,
         no_contact_four_week_chaser_due_date=no_contact_four_week_chaser_due_date,
-        status="report-ready-to-send",
+        status=SimplifiedCase.Status.REPORT_READY_TO_SEND,
     )
 
     # Initial no countact details request sent
@@ -360,7 +360,7 @@ def test_next_action_due_date_for_in_report_correspondence():
         report_followup_week_1_due_date=report_followup_week_1_due_date,
         report_followup_week_4_due_date=report_followup_week_4_due_date,
         report_followup_week_12_due_date=report_followup_week_12_due_date,
-        status="in-report-correspondence",
+        status=SimplifiedCase.Status.IN_REPORT_CORES,
     )
 
     simplified_case.report_followup_week_4_sent_date = None
@@ -380,7 +380,7 @@ def test_next_action_due_date_for_in_probation_period():
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
-        status="in-probation-period",
+        status=SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE,
     )
 
     assert simplified_case.next_action_due_date == report_followup_week_12_due_date
@@ -396,7 +396,7 @@ def test_next_action_due_date_for_in_12_week_correspondence():
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
-        status="in-12-week-correspondence",
+        status=SimplifiedCase.Status.AFTER_12_WEEK_CORES,
     )
 
     assert simplified_case.next_action_due_date == twelve_week_1_week_chaser_due_date
@@ -416,15 +416,15 @@ def test_next_action_due_date_for_in_12_week_correspondence():
     "status",
     [
         "unknown",
-        "unassigned-case",
-        "test-in-progress",
-        "report-in-progress",
-        "unassigned-qa-case",
-        "qa-in-progress",
-        "report-ready-to-send",
-        "final-decision-due",
-        "in-correspondence-with-equalities-body",
-        "complete",
+        SimplifiedCase.Status.UNASSIGNED,
+        SimplifiedCase.Status.TEST_IN_PROGRESS,
+        SimplifiedCase.Status.REPORT_IN_PROGRESS,
+        SimplifiedCase.Status.READY_TO_QA,
+        SimplifiedCase.Status.QA_IN_PROGRESS,
+        SimplifiedCase.Status.REPORT_READY_TO_SEND,
+        SimplifiedCase.Status.FINAL_DECISION_DUE,
+        SimplifiedCase.Status.IN_CORES_WITH_ENFORCEMENT_BODY,
+        SimplifiedCase.Status.COMPLETE,
     ],
 )
 @pytest.mark.django_db
@@ -440,7 +440,6 @@ def test_next_action_due_date_not_set(status):
         report_followup_week_12_due_date=report_followup_week_12_due_date,
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
     )
-    simplified_case.status.status = status
 
     assert simplified_case.next_action_due_date == date(1970, 1, 1)
 
@@ -458,7 +457,7 @@ def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_t
     """Check that the calculated next_action_due_date is correctly reported"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         report_followup_week_12_due_date=report_followup_week_12_due_date,
-        status="in-probation-period",
+        status=SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE,
     )
 
     assert simplified_case.next_action_due_date_tense == expected_tense
@@ -1666,7 +1665,7 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_due():
 
     simplified_case.twelve_week_update_requested_date = TWO_WEEKS_AGO
     simplified_case.twelve_week_1_week_chaser_due_date = ONE_WEEK_AGO
-    simplified_case.status = SimplifiedCase.Status.IN_12_WEEK_CORES
+    simplified_case.status = SimplifiedCase.Status.AFTER_12_WEEK_CORES
     simplified_case.save()
 
     assert simplified_case.overdue_link is not None
@@ -1688,7 +1687,7 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
     simplified_case.twelve_week_update_requested_date = TWO_WEEKS_AGO
     simplified_case.twelve_week_1_week_chaser_due_date = ONE_WEEK_AGO
     simplified_case.twelve_week_1_week_chaser_sent_date = ONE_WEEK_AGO
-    simplified_case.status = SimplifiedCase.Status.IN_12_WEEK_CORES
+    simplified_case.status = SimplifiedCase.Status.AFTER_12_WEEK_CORES
     simplified_case.save()
 
     assert simplified_case.overdue_link is not None
@@ -1926,7 +1925,7 @@ def test_next_page_link_in_12_week_cores():
     correspondence
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        status=CaseStatus.Status.IN_12_WEEK_CORES
+        status=CaseStatus.Status.AFTER_12_WEEK_CORES
     )
 
     assert (

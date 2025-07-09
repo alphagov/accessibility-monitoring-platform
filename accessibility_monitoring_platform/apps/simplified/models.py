@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import BaseCase
+from ..cases.models import BaseCase, SimplifiedCaseStatus
 from ..common.models import Boolean, EmailTemplate, Link, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
@@ -50,16 +50,12 @@ class Sort(models.TextChoices):
     NAME = "organisation_name", "Alphabetic"
 
 
-class Complaint(models.TextChoices):
-    ALL = "", "All"
-    NO = "no", "No complaints"
-    YES = "yes", "Only complaints"
-
-
 class SimplifiedCase(BaseCase):
     """
     Model for Case
     """
+
+    Status = SimplifiedCaseStatus
 
     class Variant(models.TextChoices):
         CLOSE_CASE = "close-case", "Equality Body Close Case"
@@ -432,7 +428,7 @@ class SimplifiedCase(BaseCase):
         if self.status == SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE:
             return self.report_followup_week_12_due_date
 
-        if self.status == SimplifiedCase.Status.IN_12_WEEK_CORES:
+        if self.status == SimplifiedCase.Status.AFTER_12_WEEK_CORES:
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
             return self.twelve_week_1_week_chaser_sent_date + timedelta(
@@ -1028,7 +1024,7 @@ class SimplifiedCase(BaseCase):
                     ),
                 )
 
-        if self.status == SimplifiedCase.Status.IN_12_WEEK_CORES:
+        if self.status == SimplifiedCase.Status.AFTER_12_WEEK_CORES:
             if (
                 self.twelve_week_1_week_chaser_due_date is not None
                 and self.twelve_week_1_week_chaser_due_date > start_date
@@ -1095,7 +1091,7 @@ class SimplifiedCase(BaseCase):
                     "simplified:edit-12-week-update-requested", kwargs={"pk": self.id}
                 ),
             ),
-            CaseStatus.Status.IN_12_WEEK_CORES: self.twelve_week_correspondence_progress,
+            CaseStatus.Status.AFTER_12_WEEK_CORES: self.twelve_week_correspondence_progress,
             CaseStatus.Status.REVIEWING_CHANGES: Link(
                 label="Go to reviewing changes",
                 url=reverse("simplified:edit-review-changes", kwargs={"pk": self.id}),
@@ -1142,36 +1138,7 @@ class CaseStatus(models.Model):
     Model for case status
     """
 
-    class Status(models.TextChoices):
-        UNKNOWN = "unknown", "Unknown"
-        UNASSIGNED = "unassigned-case", "Unassigned case"
-        TEST_IN_PROGRESS = "test-in-progress", "Test in progress"
-        REPORT_IN_PROGRESS = "report-in-progress", "Report in progress"
-        READY_TO_QA = "unassigned-qa-case", "Report ready to QA"
-        QA_IN_PROGRESS = "qa-in-progress", "QA in progress"
-        REPORT_READY_TO_SEND = "report-ready-to-send", "Report ready to send"
-        IN_REPORT_CORES = "in-report-correspondence", "Report sent"
-        AWAITING_12_WEEK_DEADLINE = (
-            "in-probation-period",
-            "Report acknowledged waiting for 12-week deadline",
-        )
-        IN_12_WEEK_CORES = "in-12-week-correspondence", "After 12-week correspondence"
-        REVIEWING_CHANGES = "reviewing-changes", "Reviewing changes"
-        FINAL_DECISION_DUE = "final-decision-due", "Final decision due"
-        CASE_CLOSED_WAITING_TO_SEND = (
-            "case-closed-waiting-to-be-sent",
-            "Case closed and waiting to be sent to equalities body",
-        )
-        CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
-            "case-closed-sent-to-equalities-body",
-            "Case closed and sent to equalities body",
-        )
-        IN_CORES_WITH_ENFORCEMENT_BODY = (
-            "in-correspondence-with-equalities-body",
-            "In correspondence with equalities body",
-        )
-        COMPLETE = "complete", "Complete"
-        DEACTIVATED = "deactivated", "Deactivated"
+    Status = SimplifiedCaseStatus
 
     CLOSED_CASE_STATUSES: list[str] = [
         Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
@@ -1273,7 +1240,7 @@ class CaseStatus(models.Model):
             and self.simplified_case.organisation_response
             == SimplifiedCase.OrganisationResponse.NOT_APPLICABLE
         ):
-            return CaseStatus.Status.IN_12_WEEK_CORES
+            return CaseStatus.Status.AFTER_12_WEEK_CORES
         elif (
             self.simplified_case.twelve_week_correspondence_acknowledged_date
             or self.simplified_case.organisation_response

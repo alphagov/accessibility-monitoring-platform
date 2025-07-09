@@ -14,7 +14,7 @@ from accessibility_monitoring_platform.apps.common.models import ChangeToPlatfor
 from ...audits.models import Audit
 from ...common.models import Boolean
 from ...notifications.models import Task
-from ...simplified.models import CaseCompliance, CaseStatus, SimplifiedCase
+from ...simplified.models import CaseCompliance, SimplifiedCase
 from ...simplified.utils import create_case_and_compliance
 
 

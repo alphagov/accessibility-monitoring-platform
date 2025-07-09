@@ -18,7 +18,6 @@ from ...reports.models import Report
 from ...simplified.models import (
     CaseCompliance,
     CaseEvent,
-    CaseStatus,
     SimplifiedCase,
     SimplifiedEventHistory,
 )
@@ -995,7 +994,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     simplified_case.compliance.save()
     simplified_case.update_case_status()
 
-    assert audit.simplified_case.status == "test-in-progress"
+    assert audit.simplified_case.status == SimplifiedCase.Status.TEST_IN_PROGRESS
 
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-statement-overview", kwargs=audit_pk),
@@ -1018,7 +1017,9 @@ def test_audit_edit_statement_overview_updates_case_status(
     assert response.status_code == 302
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)
-    assert audit_from_db.simplified_case.status == "report-in-progress"
+    assert (
+        audit_from_db.simplified_case.status == SimplifiedCase.Status.REPORT_IN_PROGRESS
+    )
 
     statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
         id=1

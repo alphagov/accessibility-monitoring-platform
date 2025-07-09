@@ -66,9 +66,9 @@ def filter_cases(form) -> QuerySet[BaseCase]:
                     | Q(mobilecase__app_store_url__icontains=search)
                 )
 
-    if str(filters.get("status", "")) == BaseCase.Status.READY_TO_QA:
+    if str(filters.get("status", "")) == SimplifiedCase.Status.READY_TO_QA:
         filters["test_type"] = BaseCase.TestType.SIMPLIFIED
-        filters["status"] = BaseCase.Status.QA_IN_PROGRESS
+        filters["status"] = SimplifiedCase.Status.QA_IN_PROGRESS
         filters["simplifiedcase__qa_status"] = SimplifiedCase.QAStatus.UNASSIGNED
 
     # Auditor and reviewer may be filtered by unassigned
@@ -82,7 +82,7 @@ def filter_cases(form) -> QuerySet[BaseCase]:
             BaseCase.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
-                    When(status=BaseCase.Status.UNASSIGNED, then=0),
+                    When(status=SimplifiedCase.Status.UNASSIGNED, then=0),
                     default=1,
                 )
             )

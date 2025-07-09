@@ -2,6 +2,7 @@
 Models - cases
 """
 
+from dataclasses import dataclass
 from datetime import datetime
 
 from django.contrib.auth.models import User
@@ -29,6 +30,199 @@ COMPLIANCE_FIELDS: list[str] = [
 UPDATE_SEPARATOR: str = " -> "
 
 
+class TestType(models.TextChoices):
+    SIMPLIFIED = "simplified", "Simplified"
+    DETAILED = "detailed", "Detailed"
+    MOBILE = "mobile", "Mobile"
+
+
+@dataclass
+class CaseStatusChoice:
+    name: str
+    value: str
+    label: str
+    test_types: list[TestType]
+
+
+CASE_STATUS_UNKNOWN: CaseStatusChoice = CaseStatusChoice(
+    name="UNKNOWN",
+    value="910-unknown",
+    label="Unknown",
+    test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+)
+CASE_STATUSES: list[CaseStatusChoice] = [
+    CaseStatusChoice(
+        name="UNASSIGNED",
+        value="000-unassigned-case",
+        label="Unassigned case",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="PSB_INFO_REQ",
+        value="010-initial-psb-info-requested",
+        label="Requested information",
+        test_types=[TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="PSB_INFO_CHASING",
+        value="020-initial-psb-info-chasing",
+        label="Chasing - no response / missed deadline",
+        test_types=[TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="PSB_INFO_REQ_ACK",
+        value="030-initial-psb-info-req-ack",
+        label="Acknowledge our request",
+        test_types=[TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="PSB_INFO_RECEIVED",
+        value="040-initial-psb-info-received",
+        label="Received Details/Access",
+        test_types=[TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="TEST_IN_PROGRESS",
+        value="050-test-in-progress",
+        label="Test in progress",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="REPORT_IN_PROGRESS",
+        value="060-report-in-progress",
+        label="Report in progress",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="READY_TO_QA",
+        value="070-unassigned-qa-case",
+        label="Report ready to QA",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="QA_IN_PROGRESS",
+        value="080-qa-in-progress",
+        label="QA in progress",
+        test_types=[TestType.SIMPLIFIED],
+    ),
+    CaseStatusChoice(
+        name="REPORT_READY_TO_SEND",
+        value="090-report-ready-to-send",
+        label="Report ready to send",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="IN_REPORT_CORES",
+        value="100-in-report-correspondence",
+        label="Report sent",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="AWAITING_REPORT_ACK",
+        value="110-awaiting-report-ack",
+        label="Waiting for response",
+        test_types=[TestType.DETAILED],
+    ),
+    CaseStatusChoice(
+        name="AWAITING_12_WEEK_DEADLINE",
+        value="120-in-12-week-period",
+        label="Report acknowledged waiting for 12-week deadline",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="REQUESTED_12_WEEK_UPDATE",
+        value="130-12-week-requested-update",
+        label="Requested update at 12 weeks",
+        test_types=[TestType.DETAILED],
+    ),
+    CaseStatusChoice(
+        name="AFTER_12_WEEK_CORES",
+        value="140-after-12-week-correspondence",
+        label="After 12-week correspondence",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="REVIEWING_CHANGES",
+        value="150-reviewing-changes",
+        label="Reviewing changes",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="FINAL_DECISION_DUE",
+        value="160-final-decision-due",
+        label="Final decision due",
+        test_types=[TestType.SIMPLIFIED],
+    ),
+    CaseStatusChoice(
+        name="CASE_CLOSED_WAITING_TO_SEND",
+        value="170-case-closed-waiting-to-be-sent",
+        label="Case closed and waiting to be sent to equalities body",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY",
+        value="180-case-closed-sent-to-equalities-body",
+        label="Case closed and sent to equalities body",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="IN_CORES_WITH_ENFORCEMENT_BODY",
+        value="190-in-correspondence-with-equalities-body",
+        label="In correspondence with equalities body",
+        test_types=[TestType.SIMPLIFIED],
+    ),
+    CaseStatusChoice(
+        name="COMPLETE",
+        value="200-complete",
+        label="Complete",
+        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    ),
+    CaseStatusChoice(
+        name="DEACTIVATED",
+        value="900-deactivated",
+        label="Deactivated",
+        test_types=[TestType.SIMPLIFIED],
+    ),
+    CASE_STATUS_UNKNOWN,
+]
+ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = [
+    (case_status.value, case_status.label) for case_status in CASE_STATUSES
+]
+
+
+class CaseStatusChoices:
+    choices: None | list[tuple[str, str]] = None
+
+    def __init__(self, test_type: str):
+        self.choices = []
+        for status in CASE_STATUSES:
+            if test_type in status.test_types:
+                setattr(self, status.name, status.value)
+                self.choices.append((status.value, status.label))
+
+
+SimplifiedCaseStatus: None | CaseStatusChoices = None
+DetailedCaseStatus: None | CaseStatusChoices = None
+MobileCaseStatus: None | CaseStatusChoices = None
+
+if SimplifiedCaseStatus is None:
+    SimplifiedCaseStatus: None | CaseStatusChoices = CaseStatusChoices(
+        test_type=TestType.SIMPLIFIED
+    )
+if DetailedCaseStatus is None:
+    DetailedCaseStatus: CaseStatusChoices = CaseStatusChoices(
+        test_type=TestType.DETAILED
+    )
+if MobileCaseStatus is None:
+    MobileCaseStatus: CaseStatusChoices = CaseStatusChoices(test_type=TestType.MOBILE)
+
+
+class Complaint(models.TextChoices):
+    ALL = "", "All"
+    NO = "no", "No complaints"
+    YES = "yes", "Only complaints"
+
+
 class Sort(models.TextChoices):
     NEWEST = "", "Newest, Unassigned first"
     OLDEST = "id", "Oldest"
@@ -40,10 +234,7 @@ class BaseCase(VersionModel):
     Model for Case
     """
 
-    class TestType(models.TextChoices):
-        SIMPLIFIED = "simplified", "Simplified"
-        DETAILED = "detailed", "Detailed"
-        MOBILE = "mobile", "Mobile"
+    TestType = TestType
 
     class PsbLocation(models.TextChoices):
         ENGLAND = "england", "England"
@@ -62,43 +253,12 @@ class BaseCase(VersionModel):
         OTHER = "other", "For enforcement consideration"
         UNKNOWN = "unknown", "Not selected"
 
-    class Status(models.TextChoices):
-        UNKNOWN = "unknown", "Unknown"
-        UNASSIGNED = "unassigned-case", "Unassigned case"
-        TEST_IN_PROGRESS = "test-in-progress", "Test in progress"
-        REPORT_IN_PROGRESS = "report-in-progress", "Report in progress"
-        READY_TO_QA = "unassigned-qa-case", "Report ready to QA"
-        QA_IN_PROGRESS = "qa-in-progress", "QA in progress"
-        REPORT_READY_TO_SEND = "report-ready-to-send", "Report ready to send"
-        IN_REPORT_CORES = "in-report-correspondence", "Report sent"
-        AWAITING_12_WEEK_DEADLINE = (
-            "in-probation-period",
-            "Report acknowledged waiting for 12-week deadline",
-        )
-        IN_12_WEEK_CORES = "in-12-week-correspondence", "After 12-week correspondence"
-        REVIEWING_CHANGES = "reviewing-changes", "Reviewing changes"
-        FINAL_DECISION_DUE = "final-decision-due", "Final decision due"
-        CASE_CLOSED_WAITING_TO_SEND = (
-            "case-closed-waiting-to-be-sent",
-            "Case closed and waiting to be sent to equalities body",
-        )
-        CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
-            "case-closed-sent-to-equalities-body",
-            "Case closed and sent to equalities body",
-        )
-        IN_CORES_WITH_ENFORCEMENT_BODY = (
-            "in-correspondence-with-equalities-body",
-            "In correspondence with equalities body",
-        )
-        COMPLETE = "complete", "Complete"
-        DEACTIVATED = "deactivated", "Deactivated"
-
     CLOSED_CASE_STATUSES: list[str] = [
-        Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
-        Status.COMPLETE,
-        Status.CASE_CLOSED_WAITING_TO_SEND,
-        Status.IN_CORES_WITH_ENFORCEMENT_BODY,
-        Status.DEACTIVATED,
+        SimplifiedCaseStatus.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+        SimplifiedCaseStatus.COMPLETE,
+        SimplifiedCaseStatus.CASE_CLOSED_WAITING_TO_SEND,
+        SimplifiedCaseStatus.IN_CORES_WITH_ENFORCEMENT_BODY,
+        SimplifiedCaseStatus.DEACTIVATED,
     ]
 
     case_number = models.IntegerField(default=1)
@@ -113,7 +273,9 @@ class BaseCase(VersionModel):
     updated = models.DateTimeField(null=True, blank=True)
     updated_date = models.DateField(null=True, blank=True)
     status = models.CharField(
-        max_length=200, choices=Status.choices, default=Status.UNASSIGNED
+        max_length=200,
+        choices=ALL_CASE_STATUS_CHOICES,
+        default=SimplifiedCaseStatus.UNASSIGNED,
     )
 
     # Case metadata page
