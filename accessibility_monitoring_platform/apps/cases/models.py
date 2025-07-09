@@ -44,6 +44,12 @@ class CaseStatusChoice:
     test_types: list[TestType]
 
 
+CASE_STATUS_UNKNOWN: CaseStatusChoice = CaseStatusChoice(
+    name="UNKNOWN",
+    value="910-unknown",
+    label="Unknown",
+    test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+)
 CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(
         name="UNASSIGNED",
@@ -177,17 +183,10 @@ CASE_STATUSES: list[CaseStatusChoice] = [
         label="Deactivated",
         test_types=[TestType.SIMPLIFIED],
     ),
-    CaseStatusChoice(
-        name="UNKNOWN",
-        value="910-unknown",
-        label="Unknown",
-        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
-    ),
+    CASE_STATUS_UNKNOWN,
 ]
 ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = [
-    (case_status.value, case_status.label)
-    for case_status in CASE_STATUSES
-    if case_status.name != "UNKNOWN"
+    (case_status.value, case_status.label) for case_status in CASE_STATUSES
 ]
 
 

@@ -1138,39 +1138,7 @@ class CaseStatus(models.Model):
     Model for case status
     """
 
-    class Status(models.TextChoices):
-        UNASSIGNED = "000-unassigned-case", "Unassigned case"
-        TEST_IN_PROGRESS = "050-test-in-progress", "Test in progress"
-        REPORT_IN_PROGRESS = "060-report-in-progress", "Report in progress"
-        READY_TO_QA = "070-unassigned-qa-case", "Report ready to QA"
-        QA_IN_PROGRESS = "080-qa-in-progress", "QA in progress"
-        REPORT_READY_TO_SEND = "090-report-ready-to-send", "Report ready to send"
-        IN_REPORT_CORES = "100-in-report-correspondence", "Report sent"
-        AWAITING_12_WEEK_DEADLINE = (
-            "120-in-12-week-period",
-            "Report acknowledged waiting for 12-week deadline",
-        )
-        AFTER_12_WEEK_CORES = (
-            "140-after-12-week-correspondence",
-            "After 12-week correspondence",
-        )
-        REVIEWING_CHANGES = "150-reviewing-changes", "Reviewing changes"
-        FINAL_DECISION_DUE = "160-final-decision-due", "Final decision due"
-        CASE_CLOSED_WAITING_TO_SEND = (
-            "170-case-closed-waiting-to-be-sent",
-            "Case closed and waiting to be sent to equalities body",
-        )
-        CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY = (
-            "180-case-closed-sent-to-equalities-body",
-            "Case closed and sent to equalities body",
-        )
-        IN_CORES_WITH_ENFORCEMENT_BODY = (
-            "190-in-correspondence-with-equalities-body",
-            "In correspondence with equalities body",
-        )
-        COMPLETE = "200-complete", "Complete"
-        DEACTIVATED = "900-deactivated", "Deactivated"
-        UNKNOWN = "910-unknown", "Unknown"
+    Status = SimplifiedCaseStatus
 
     CLOSED_CASE_STATUSES: list[str] = [
         Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,

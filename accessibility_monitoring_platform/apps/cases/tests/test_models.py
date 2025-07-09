@@ -18,7 +18,7 @@ from ..models import (
 
 def test_all_case_statuses():
     """Check how many status choices there are"""
-    assert len(ALL_CASE_STATUS_CHOICES) == 22
+    assert len(ALL_CASE_STATUS_CHOICES) == 23
 
 
 @pytest.mark.parametrize(

@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ..models import Boolean, CaseCompliance, CaseStatus, SimplifiedCase
+from ..models import Boolean, CaseCompliance, SimplifiedCase
 from ..utils import create_case_and_compliance
 
 

@@ -7,7 +7,6 @@ from unittest.mock import patch
 import pytest
 
 from ...audits.models import Audit, Retest
-from ...cases.models import BaseCase
 from ...simplified.models import SimplifiedCase
 from ..email_template_utils import get_email_template_context
 
