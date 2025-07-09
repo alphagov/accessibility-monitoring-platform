@@ -147,11 +147,7 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
 class DetailedCaseStatusUpdateForm(VersionForm):
     status = AMPChoiceField(
         label="Status",
-        choices=[
-            choice
-            for choice in DetailedCase.Status.choices
-            if choice[0] != DetailedCase.Status.UNKNOWN
-        ],
+        choices=DetailedCase.Status.choices,
     )
 
     class Meta:

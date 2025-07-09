@@ -25,8 +25,8 @@ def test_all_case_statuses():
     "test_type, expected_number_of_choices, expected_attr",
     [
         (BaseCase.TestType.SIMPLIFIED, 17, "QA_IN_PROGRESS"),
-        (BaseCase.TestType.DETAILED, 19, "PSB_INFO_REQ"),
-        (BaseCase.TestType.MOBILE, 17, "UNASSIGNED"),
+        (BaseCase.TestType.DETAILED, 18, "PSB_INFO_REQ"),
+        (BaseCase.TestType.MOBILE, 16, "UNASSIGNED"),
     ],
 )
 def test_case_status_choices(test_type, expected_number_of_choices, expected_attr):
@@ -100,7 +100,6 @@ def test_detailed_case_statuses():
             "Case closed and sent to equalities body",
         ),
         ("200-complete", "Complete"),
-        ("910-unknown", "Unknown"),
     ]
 
 
@@ -129,7 +128,6 @@ def test_mobile_case_statuses():
             "Case closed and sent to equalities body",
         ),
         ("200-complete", "Complete"),
-        ("910-unknown", "Unknown"),
     ]
 
 

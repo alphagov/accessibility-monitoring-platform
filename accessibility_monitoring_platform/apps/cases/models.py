@@ -48,7 +48,7 @@ CASE_STATUS_UNKNOWN: CaseStatusChoice = CaseStatusChoice(
     name="UNKNOWN",
     value="910-unknown",
     label="Unknown",
-    test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+    test_types=[TestType.SIMPLIFIED],
 )
 CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(

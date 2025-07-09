@@ -1945,12 +1945,14 @@ def build_sitemap_for_current_page(
         case_navigation: list[PlatformPageGroup] = [
             platform_page_group
             for platform_page_group in site_map
-            if platform_page_group.type
-            in [
-                case_nav_type,
-                PlatformPageGroup.Type.CASE_TOOLS,
-            ]
+            if platform_page_group.type == case_nav_type
         ]
+        if case_nav_type == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV:
+            case_navigation += [
+                platform_page_group
+                for platform_page_group in site_map
+                if platform_page_group.type == PlatformPageGroup.Type.CASE_TOOLS
+            ]
         for platform_page_group in case_navigation:
             platform_page_group.populate_from_case(case=case)
         return case_navigation
