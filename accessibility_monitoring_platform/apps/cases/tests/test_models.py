@@ -16,12 +16,17 @@ from ..models import (
 )
 
 
+def test_all_case_statuses():
+    """Check how many status choices there are"""
+    assert len(ALL_CASE_STATUS_CHOICES) == 22
+
+
 @pytest.mark.parametrize(
     "test_type, expected_number_of_choices, expected_attr",
     [
         (BaseCase.TestType.SIMPLIFIED, 17, "QA_IN_PROGRESS"),
         (BaseCase.TestType.DETAILED, 19, "PSB_INFO_REQ"),
-        (BaseCase.TestType.MOBILE, 13, "UNASSIGNED"),
+        (BaseCase.TestType.MOBILE, 17, "UNASSIGNED"),
     ],
 )
 def test_case_status_choices(test_type, expected_number_of_choices, expected_attr):
@@ -103,6 +108,10 @@ def test_mobile_case_statuses():
     """Check the MobileCaseStatus.choices"""
     assert MobileCaseStatus.choices == [
         ("000-unassigned-case", "Unassigned case"),
+        ("010-initial-psb-info-requested", "Requested information"),
+        ("020-initial-psb-info-chasing", "Chasing - no response / missed deadline"),
+        ("030-initial-psb-info-req-ack", "Acknowledge our request"),
+        ("040-initial-psb-info-received", "Received Details/Access"),
         ("050-test-in-progress", "Test in progress"),
         ("060-report-in-progress", "Report in progress"),
         ("070-unassigned-qa-case", "Report ready to QA"),
@@ -122,11 +131,6 @@ def test_mobile_case_statuses():
         ("200-complete", "Complete"),
         ("910-unknown", "Unknown"),
     ]
-
-
-def test_all_case_statuses():
-    """Check the contents of the full list of ALL_CASE_STATUS_CHOICES"""
-    assert len(ALL_CASE_STATUS_CHOICES) == 23
 
 
 @pytest.mark.django_db

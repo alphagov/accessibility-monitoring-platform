@@ -311,11 +311,11 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
         ),
         MockCase(
             id=28,
-            qa_status="in-qa",
+            qa_status=SimplifiedCase.QAStatus.IN_QA,
         ),
         MockCase(
             id=29,
-            qa_status="in-qa",
+            qa_status=SimplifiedCase.QAStatus.IN_QA,
         ),
     ],
     "case_closed_waiting_to_be_sent": [
@@ -375,12 +375,12 @@ def test_return_cases_requiring_user_review():
     mock_case_1: MockCase = MockCase(
         id=1,
         reviewer=user,
-        qa_status="in-qa",
+        qa_status=SimplifiedCase.QAStatus.IN_QA,
     )
     mock_case_2: MockCase = MockCase(
         id=2,
         reviewer=user,
-        qa_status="in-qa",
+        qa_status=SimplifiedCase.QAStatus.IN_QA,
     )
     all_cases: list[MockCase] = [  # type: ignore
         mock_case_2,

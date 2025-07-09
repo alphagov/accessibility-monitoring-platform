@@ -6,6 +6,84 @@ from django.contrib.auth.models import User
 
 from ..simplified.models import SimplifiedCase
 
+STATUS_PARAMETRES: list[tuple[str, str, str]] = [  # final dict key, status, and sort
+    (
+        "unknown",
+        SimplifiedCase.Status.UNKNOWN,
+        "id",
+    ),
+    (
+        "unassigned_case",
+        SimplifiedCase.Status.UNASSIGNED,
+        "id",
+    ),
+    (
+        "test_in_progress",
+        SimplifiedCase.Status.TEST_IN_PROGRESS,
+        "id",
+    ),
+    (
+        "reports_in_progress",
+        SimplifiedCase.Status.REPORT_IN_PROGRESS,
+        "id",
+    ),
+    (
+        "report_ready_to_send",
+        SimplifiedCase.Status.REPORT_READY_TO_SEND,
+        "id",
+    ),
+    (
+        "qa_in_progress",
+        SimplifiedCase.Status.QA_IN_PROGRESS,
+        "id",
+    ),
+    (
+        "in_report_correspondence",
+        SimplifiedCase.Status.IN_REPORT_CORES,
+        "next_action_due_date",
+    ),
+    (
+        "in_probation_period",
+        SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE,
+        "next_action_due_date",
+    ),
+    (
+        "in_12_week_correspondence",
+        SimplifiedCase.Status.AFTER_12_WEEK_CORES,
+        "next_action_due_date",
+    ),
+    (
+        "reviewing_changes",
+        SimplifiedCase.Status.REVIEWING_CHANGES,
+        "twelve_week_correspondence_acknowledged_date",
+    ),
+    (
+        "final_decision_due",
+        SimplifiedCase.Status.FINAL_DECISION_DUE,
+        "report_followup_week_12_due_date",
+    ),
+    (
+        "case_closed_waiting_to_be_sent",
+        SimplifiedCase.Status.CASE_CLOSED_WAITING_TO_SEND,
+        "case_close_complete_date",
+    ),
+    (
+        "case_closed_sent_to_equalities_body",
+        SimplifiedCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+        "sent_to_enforcement_body_sent_date",
+    ),
+    (
+        "in_correspondence_with_equalities_body",
+        SimplifiedCase.Status.IN_CORES_WITH_ENFORCEMENT_BODY,
+        "report_followup_week_12_due_date",
+    ),
+    (
+        "completed",
+        SimplifiedCase.Status.COMPLETE,
+        "completed_date",
+    ),
+]
+
 
 def group_cases_by_status(
     simplified_cases: list[SimplifiedCase],
@@ -13,87 +91,7 @@ def group_cases_by_status(
     """Group cases by status values; Sort by a specific column"""
     cases_by_status: dict[str, list[SimplifiedCase]] = {}
 
-    status_parametres: list[tuple[str, str, str]] = (
-        [  # final dict key, status, and sort
-            (
-                "unknown",
-                SimplifiedCase.Status.UNKNOWN,
-                "id",
-            ),
-            (
-                "unassigned_case",
-                SimplifiedCase.Status.UNASSIGNED,
-                "id",
-            ),
-            (
-                "test_in_progress",
-                SimplifiedCase.Status.TEST_IN_PROGRESS,
-                "id",
-            ),
-            (
-                "reports_in_progress",
-                SimplifiedCase.Status.REPORT_IN_PROGRESS,
-                "id",
-            ),
-            (
-                "report_ready_to_send",
-                SimplifiedCase.Status.REPORT_READY_TO_SEND,
-                "id",
-            ),
-            (
-                "qa_in_progress",
-                SimplifiedCase.Status.QA_IN_PROGRESS,
-                "id",
-            ),
-            (
-                "in_report_correspondence",
-                SimplifiedCase.Status.IN_REPORT_CORES,
-                "next_action_due_date",
-            ),
-            (
-                "in_probation_period",
-                SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE,
-                "next_action_due_date",
-            ),
-            (
-                "in_12_week_correspondence",
-                SimplifiedCase.Status.AFTER_12_WEEK_CORES,
-                "next_action_due_date",
-            ),
-            (
-                "reviewing_changes",
-                SimplifiedCase.Status.REVIEWING_CHANGES,
-                "twelve_week_correspondence_acknowledged_date",
-            ),
-            (
-                "final_decision_due",
-                SimplifiedCase.Status.FINAL_DECISION_DUE,
-                "report_followup_week_12_due_date",
-            ),
-            (
-                "case_closed_waiting_to_be_sent",
-                SimplifiedCase.Status.CASE_CLOSED_WAITING_TO_SEND,
-                "case_close_complete_date",
-            ),
-            (
-                "case_closed_sent_to_equalities_body",
-                SimplifiedCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
-                "sent_to_enforcement_body_sent_date",
-            ),
-            (
-                "in_correspondence_with_equalities_body",
-                SimplifiedCase.Status.IN_CORES_WITH_ENFORCEMENT_BODY,
-                "report_followup_week_12_due_date",
-            ),
-            (
-                "completed",
-                SimplifiedCase.Status.COMPLETE,
-                "completed_date",
-            ),
-        ]
-    )
-
-    for status_key, status, field_to_sort_by in status_parametres:
+    for status_key, status, field_to_sort_by in STATUS_PARAMETRES:
         cases_by_status[status_key] = sorted(
             [
                 simplified_case
@@ -128,7 +126,8 @@ def return_cases_requiring_user_review(
     cases_requiring_user_review: list[SimplifiedCase] = [
         simplified_case
         for simplified_case in simplified_cases
-        if simplified_case.reviewer == user and simplified_case.qa_status == "in-qa"
+        if simplified_case.reviewer == user
+        and simplified_case.qa_status == SimplifiedCase.QAStatus.IN_QA
     ]
     return sorted(  # sort by case ID
         cases_requiring_user_review,

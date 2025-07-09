@@ -55,25 +55,25 @@ CASE_STATUSES: list[CaseStatusChoice] = [
         name="PSB_INFO_REQ",
         value="010-initial-psb-info-requested",
         label="Requested information",
-        test_types=[TestType.DETAILED],
+        test_types=[TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
         name="PSB_INFO_CHASING",
         value="020-initial-psb-info-chasing",
         label="Chasing - no response / missed deadline",
-        test_types=[TestType.DETAILED],
+        test_types=[TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
         name="PSB_INFO_REQ_ACK",
         value="030-initial-psb-info-req-ack",
         label="Acknowledge our request",
-        test_types=[TestType.DETAILED],
+        test_types=[TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
         name="PSB_INFO_RECEIVED",
         value="040-initial-psb-info-received",
         label="Received Details/Access",
-        test_types=[TestType.DETAILED],
+        test_types=[TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
         name="TEST_IN_PROGRESS",
@@ -185,7 +185,9 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     ),
 ]
 ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = [
-    (case_status.value, case_status.label) for case_status in CASE_STATUSES
+    (case_status.value, case_status.label)
+    for case_status in CASE_STATUSES
+    if case_status.name != "UNKNOWN"
 ]
 
 
