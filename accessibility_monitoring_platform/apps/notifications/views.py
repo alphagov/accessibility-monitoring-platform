@@ -12,10 +12,6 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import BaseCase
 from ..simplified.models import SimplifiedCase
-from ..simplified.utils import (
-    record_simplified_model_create_event,
-    record_simplified_model_update_event,
-)
 from .forms import ReminderForm
 from .models import Task
 from .utils import (
@@ -23,6 +19,8 @@ from .utils import (
     build_task_list,
     get_task_type_counts,
     mark_tasks_as_read,
+    record_case_model_create_event,
+    record_case_model_update_event,
 )
 
 
@@ -135,12 +133,11 @@ class ReminderTaskCreateView(CreateView):
                 reminder_task.date = form.cleaned_data["date"]
                 reminder_task.user = user
                 reminder_task.description = form.cleaned_data["description"]
-                if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
-                    record_simplified_model_update_event(
-                        user=self.request.user,
-                        model_object=reminder_task,
-                        simplified_case=base_case.simplifiedcase,
-                    )
+                record_case_model_update_event(
+                    user=self.request.user,
+                    model_object=reminder_task,
+                    base_case=base_case,
+                )
                 reminder_task.save()
             except Task.DoesNotExist:
                 self.object: Task = Task.objects.create(
@@ -150,23 +147,21 @@ class ReminderTaskCreateView(CreateView):
                     user=user,
                     description=form.cleaned_data["description"],
                 )
-                if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
-                    record_simplified_model_create_event(
-                        user=self.request.user,
-                        model_object=self.object,
-                        simplified_case=base_case.simplifiedcase,
-                    )
+                record_case_model_create_event(
+                    user=self.request.user,
+                    model_object=self.object,
+                    base_case=base_case,
+                )
         return HttpResponseRedirect(base_case.get_absolute_url())
 
     def get_success_url(self) -> str:
         """Record creation event"""
         base_case: BaseCase = self.object.base_case
-        if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
-            record_simplified_model_create_event(
-                user=self.request.user,
-                model_object=self.object,
-                simplified_case=base_case.simplifiedcase,
-            )
+        record_case_model_create_event(
+            user=self.request.user,
+            model_object=self.object,
+            base_case=base_case,
+        )
         return self.object.base_case.get_absolute_url()
 
 
@@ -190,12 +185,11 @@ class ReminderTaskUpdateView(UpdateView):
             self.object.user = (
                 base_case.auditor if base_case.auditor else self.request.user
             )
-            if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
-                record_simplified_model_update_event(
-                    user=self.request.user,
-                    model_object=self.object,
-                    simplified_case=self.object.base_case.simplifiedcase,
-                )
+            record_case_model_update_event(
+                user=self.request.user,
+                model_object=self.object,
+                base_case=self.object.base_case,
+            )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 

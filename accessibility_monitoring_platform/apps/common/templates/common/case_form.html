@@ -10,9 +10,9 @@
         </div>
     </div>
     {% block breadcrumbs %}
-    {% if case.simplifiedcase %}
+    {% if case.test_type == 'simplified' %}
         {% include 'simplified/helpers/breadcrumbs.html' %}
-    {% elif case.detailedcase %}
+    {% elif case.test_type == 'detailed' %}
         {% include 'detailed/helpers/breadcrumbs.html' %}
     {% endif %}
     {% endblock %}
@@ -30,7 +30,7 @@
                     {% endif %}
                     {% if case.test_type == 'simplified' %}
                         {% include "cases/helpers/case_nav.html" with case_nav_type='simplified_case_nav' %}
-                    {% else %}
+                    {% elif case.test_type == 'detailed' %}
                         {% include "cases/helpers/case_nav.html" with case_nav_type='detailed_case_nav' %}
                     {% endif %}
                 {% endblock %}

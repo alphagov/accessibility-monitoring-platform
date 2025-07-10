@@ -2,10 +2,12 @@
 Tests for cases models
 """
 
-from datetime import datetime
+from datetime import date, datetime
 
 import pytest
+from django.contrib.auth.models import User
 
+from ...notifications.models import Task
 from ..models import (
     ALL_CASE_STATUS_CHOICES,
     BaseCase,
@@ -14,6 +16,8 @@ from ..models import (
     MobileCaseStatus,
     SimplifiedCaseStatus,
 )
+
+REMINDER_DUE_DATE: date = date(2022, 1, 1)
 
 
 def test_all_case_statuses():
@@ -165,3 +169,44 @@ def test_new_base_case_defaults():
     assert base_case.case_identifier == "#S-2"
     assert base_case.get_absolute_url() == "/simplified/2/view/"
     assert str(base_case) == "Org Name | #S-2"
+
+
+@pytest.mark.django_db
+def test_case_reminder():
+    """Test BaseCase.reminder returns the unread reminder"""
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create()
+    reminder: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        base_case=base_case,
+        user=user,
+        date=REMINDER_DUE_DATE,
+    )
+
+    assert base_case.reminder == reminder
+
+    reminder.read = True
+    reminder.save()
+
+    assert base_case.reminder is None
+
+
+@pytest.mark.django_db
+def test_case_reminder_history():
+    """Test BaseCase.reminder_history returns the read reminders"""
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create()
+    reminder: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        base_case=base_case,
+        user=user,
+        date=REMINDER_DUE_DATE,
+    )
+
+    assert base_case.reminder_history.count() == 0
+
+    reminder.read = True
+    reminder.save()
+
+    assert base_case.reminder_history.count() == 1
+    assert base_case.reminder_history.first() == reminder

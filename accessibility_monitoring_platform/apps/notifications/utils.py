@@ -5,6 +5,7 @@ from typing import Any, TypedDict
 
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
+from django.db import models
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
@@ -13,11 +14,19 @@ from django.template.loader import get_template
 from django.urls import reverse
 
 from ..audits.models import Retest
+from ..detailed.utils import (
+    record_detailed_model_create_event,
+    record_detailed_model_update_event,
+)
 from ..simplified.models import (
     BaseCase,
     CaseStatus,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+)
+from ..simplified.utils import (
+    record_simplified_model_create_event,
+    record_simplified_model_update_event,
 )
 from .models import Link, NotificationSetting, Task
 
@@ -364,3 +373,39 @@ def get_task_type_counts(tasks: list[Task]) -> dict[str, int]:
         "overdue": get_tasks_by_type_count(tasks=tasks, type=Task.Type.OVERDUE),
         "postcase": get_tasks_by_type_count(tasks=tasks, type=Task.Type.POSTCASE),
     }
+
+
+def record_case_model_create_event(
+    user: User, model_object: models.Model, base_case: BaseCase
+) -> None:
+    """Record create event on the correct type of Case"""
+    if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
+        record_simplified_model_create_event(
+            user=user,
+            model_object=model_object,
+            simplified_case=base_case.simplifiedcase,
+        )
+    elif base_case.test_type == BaseCase.TestType.DETAILED:
+        record_detailed_model_create_event(
+            user=user,
+            model_object=model_object,
+            detailed_case=base_case.detailedcase,
+        )
+
+
+def record_case_model_update_event(
+    user: User, model_object: models.Model, base_case: BaseCase
+) -> None:
+    """Record update event on the correct type of Case"""
+    if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
+        record_simplified_model_update_event(
+            user=user,
+            model_object=model_object,
+            simplified_case=base_case.simplifiedcase,
+        )
+    elif base_case.test_type == BaseCase.TestType.DETAILED:
+        record_detailed_model_update_event(
+            user=user,
+            model_object=model_object,
+            detailed_case=base_case.detailedcase,
+        )
