@@ -3,7 +3,7 @@
 {% block casebanner %}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-        {% include 'detailed/helpers/case_banner.html' %}
+        {% include 'cases/helpers/case_banner.html' %}
     </div>
 </div>
 {% endblock casebanner %}
@@ -18,7 +18,7 @@
         <div class="govuk-grid-column-full">
     {% else %}
         <div class="govuk-grid-column-one-quarter">
-            {% include "detailed/helpers/case_nav.html" %}
+            {% include "cases/helpers/case_nav.html" with case_nav_type='detailed_case_nav' %}
         </div>
         <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
     {% endif %}

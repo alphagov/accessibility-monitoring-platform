@@ -24,10 +24,10 @@
             &nbsp
         </div>
         <p>
-            {% if mobile_case %}
+            {% if case.test_type == 'mobile' %}
                 {{ case.get_status_display }}
-                <span class="amp-todo">TODO update status</span>
-            {% elif detailed_case %}
+                <span class="amp-todo">TODO update mobile status</span>
+            {% elif case.test_type == 'detailed' %}
                 {{ case.get_status_display }}
                 <a href="{% url 'detailed:edit-case-status' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     Change
@@ -42,7 +42,7 @@
             &nbsp
         </div>
         <p>
-            {% if detailed_case or mobile_case %}
+            {% if case.test_type == 'mobile' %}
                 <span class="amp-todo">TODO reminder</span>
             {% else %}
                 {% if case.reminder %}
@@ -61,8 +61,16 @@
             &nbsp
         </div>
         <p>
-            {% if detailed_case or mobile_case %}
+            {% if case.test_type == 'mobile' %}
                 <span class="amp-todo">TODO detailed report</span>
+            {% elif case.test_type == 'detailed' %}
+                {% if case.public_report_url %}
+                    <a href="{{ case.public_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        View report
+                    </a>
+                {% else %}
+                        No report
+                {% endif %}
             {% else %}
                 {% if case.report.latest_s3_report %}
                     <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
@@ -77,7 +85,7 @@
             &nbsp
         </div>
         <p>
-            {% if mobile_case %}
+            {% if case.test_type == 'mobile' %}
                 <span class="amp-todo">TODO link to app?</span>
             {% else %}
                 <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">

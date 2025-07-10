@@ -356,3 +356,11 @@ class BaseCase(VersionModel):
 
     def get_absolute_url(self) -> str:
         return reverse(f"{self.test_type}:case-detail", kwargs={"pk": self.pk})
+
+    @property
+    def reminder(self):
+        return self.task_set.filter(type="reminder", read=False).first()
+
+    @property
+    def reminder_history(self):
+        return self.task_set.filter(type="reminder", read=True)

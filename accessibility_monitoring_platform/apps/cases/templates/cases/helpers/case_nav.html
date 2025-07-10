@@ -7,7 +7,7 @@
                     ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
                 {% endif %}
             </p>
-            {% include 'simplified/helpers/case_nav_group_pages.html' with section_selected=True %}
+            {% include 'cases/helpers/case_nav_group_pages.html' with section_selected=True %}
        {% else %}
             <details class="amp-nav-details"{% if platform_page_group.name == section_name %} open{% endif %}{% if platform_page_group.disabled %} disabled{% endif %}>
                 <summary class="amp-nav-details__summary">
@@ -16,11 +16,22 @@
                         ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
                     {% endif %}
                 </summary>
-                {% include 'simplified/helpers/case_nav_group_pages.html' %}
+                {% include 'cases/helpers/case_nav_group_pages.html' %}
             </details>
         {% endif %}
     {% endif %}
 {% endfor %}
-{% if sitemap.current_platform_page.platform_page_group.type == 'simplified_case_nav' %}
+{% if case.test_type == 'detailed' %}
+    <div class="amp-nav-steps">
+        <ul class="govuk-list">
+            <li>
+                <a href="{% url 'detailed:create-case-note' case.id %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                    Open case notes</a>
+                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+            </li>
+        </ul>
+    </div>
+{% endif %}
+{% if case.test_type == 'simplified' %}
     {% include 'common/frequently_used_links.html' %}
 {% endif %}

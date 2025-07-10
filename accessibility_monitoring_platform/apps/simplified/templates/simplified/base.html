@@ -7,7 +7,7 @@
     {% block casebanner %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' %}
+            {% include 'cases/helpers/case_banner.html' %}
         </div>
     </div>
     {% endblock casebanner %}
@@ -27,7 +27,7 @@
                             <a href="{% url 'simplified:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">Return to case overview</a>
                         </p>
                     {% endif %}
-                    {% include "simplified/helpers/case_nav.html" with case_nav_type='simplified_case_nav' %}
+                    {% include "cases/helpers/case_nav.html" with case_nav_type='simplified_case_nav' %}
                 {% endblock nav %}
             </div>
             {% endif %}

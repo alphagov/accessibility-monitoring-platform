@@ -10,6 +10,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
+from ..cases.models import BaseCase
 from ..simplified.models import SimplifiedCase
 from ..simplified.utils import (
     record_simplified_model_create_event,
@@ -125,54 +126,48 @@ class ReminderTaskCreateView(CreateView):
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         if form.changed_data:
-            simplified_case: SimplifiedCase = SimplifiedCase.objects.get(
-                pk=self.kwargs["case_id"]
-            )
-            user: User = (
-                simplified_case.auditor
-                if simplified_case.auditor
-                else self.request.user
-            )
+            base_case: BaseCase = BaseCase.objects.get(pk=self.kwargs["case_id"])
+            user: User = base_case.auditor if base_case.auditor else self.request.user
             try:
                 reminder_task: Task = Task.objects.get(
-                    base_case=simplified_case, type=Task.Type.REMINDER, read=False
+                    base_case=base_case, type=Task.Type.REMINDER, read=False
                 )
                 reminder_task.date = form.cleaned_data["date"]
                 reminder_task.user = user
                 reminder_task.description = form.cleaned_data["description"]
-                record_simplified_model_update_event(
-                    user=self.request.user,
-                    model_object=reminder_task,
-                    simplified_case=simplified_case,
-                )
+                if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
+                    record_simplified_model_update_event(
+                        user=self.request.user,
+                        model_object=reminder_task,
+                        simplified_case=base_case.simplifiedcase,
+                    )
                 reminder_task.save()
             except Task.DoesNotExist:
                 self.object: Task = Task.objects.create(
                     date=form.cleaned_data["date"],
                     type=Task.Type.REMINDER,
-                    base_case=simplified_case,
+                    base_case=base_case,
                     user=user,
                     description=form.cleaned_data["description"],
                 )
-                record_simplified_model_create_event(
-                    user=self.request.user,
-                    model_object=self.object,
-                    simplified_case=simplified_case,
-                )
-        return HttpResponseRedirect(
-            reverse_lazy("simplified:case-detail", kwargs={"pk": simplified_case.id})
-        )
+                if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
+                    record_simplified_model_create_event(
+                        user=self.request.user,
+                        model_object=self.object,
+                        simplified_case=base_case.simplifiedcase,
+                    )
+        return HttpResponseRedirect(base_case.get_absolute_url())
 
     def get_success_url(self) -> str:
         """Record creation event"""
-        record_simplified_model_create_event(
-            user=self.request.user,
-            model_object=self.object,
-            simplified_case=self.object.base_case,
-        )
-        return reverse(
-            "simplified:case-detail", kwargs={"pk": self.object.base_case.id}
-        )
+        base_case: BaseCase = self.object.base_case
+        if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
+            record_simplified_model_create_event(
+                user=self.request.user,
+                model_object=self.object,
+                simplified_case=base_case.simplifiedcase,
+            )
+        return self.object.base_case.get_absolute_url()
 
 
 class ReminderTaskUpdateView(UpdateView):
@@ -191,17 +186,16 @@ class ReminderTaskUpdateView(UpdateView):
             self.object: Task = form.save(commit=False)
             if "delete" in self.request.POST:
                 self.object.read = True
-            simplified_case: SimplifiedCase = self.object.base_case
+            base_case: BaseCase = self.object.base_case
             self.object.user = (
-                simplified_case.auditor
-                if simplified_case.auditor
-                else self.request.user
+                base_case.auditor if base_case.auditor else self.request.user
             )
-            record_simplified_model_update_event(
-                user=self.request.user,
-                model_object=self.object,
-                simplified_case=self.object.base_case.simplifiedcase,
-            )
+            if base_case.test_type == BaseCase.TestType.SIMPLIFIED:
+                record_simplified_model_update_event(
+                    user=self.request.user,
+                    model_object=self.object,
+                    simplified_case=self.object.base_case.simplifiedcase,
+                )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 

@@ -8,7 +8,7 @@
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=retest.simplified_case %}
+            {% include 'cases/helpers/case_banner.html' with case=retest.simplified_case %}
         </div>
     </div>
     {% include 'audits/helpers/retest_breadcrumb.html' with page_heading=sitemap.current_platform_page.get_name %}
