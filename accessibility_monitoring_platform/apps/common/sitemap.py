@@ -1582,7 +1582,7 @@ SITE_MAP: list[PlatformPageGroup] = [
         case_nav_group=False,
         pages=[
             DetailedCasePlatformPage(
-                name="Case overview", url_name="detailed:case-detail"
+                name="Detailed case overview", url_name="detailed:case-detail"
             ),
             DetailedCasePlatformPage(
                 name="Change status", url_name="detailed:edit-case-status"
@@ -1814,7 +1814,9 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Mobile testing case",
         case_nav_group=False,
         pages=[
-            MobileCasePlatformPage(name="Case overview", url_name="mobile:case-detail"),
+            MobileCasePlatformPage(
+                name="Mobile case overview", url_name="mobile:case-detail"
+            ),
         ],
     ),
     MobileCasePlatformPageGroup(

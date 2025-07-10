@@ -277,6 +277,10 @@ class DetailedCase(BaseCase):
         )
 
     @property
+    def most_recent_history(self):
+        return self.detailedcasehistory_set.first()
+
+    @property
     def contacts(self) -> QuerySet["Contact"]:
         return self.contact_set.filter(is_deleted=False)
 

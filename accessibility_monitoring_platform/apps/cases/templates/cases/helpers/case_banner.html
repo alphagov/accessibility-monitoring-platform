@@ -1,4 +1,4 @@
-<div class="amp-case-banner {% if case.archive %}amp-case-banner-title-archive{% else %}amp-case-banner-title-active{% endif %}">
+<div class="amp-case-banner {% if case.archive %}amp-case-banner-title-archive{% else %}amp-case-banner-title-{{ case.test_type }}{% endif %}">
     <p>{{ case.case_identifier }}{% if case.archive %} [ARCHIVED]{% endif %}</p>
     <h1>
         {% if case.website_name %}

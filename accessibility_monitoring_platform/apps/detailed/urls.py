@@ -64,7 +64,7 @@ urlpatterns: list[URLPattern] = [
         name="edit-case-status",
     ),
     path(
-        "<int:case_id>/case-note-create/",
+        "<int:case_id>/create-case-note/",
         login_required(DetailedCaseNoteCreateView.as_view()),
         name="create-case-note",
     ),
