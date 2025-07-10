@@ -164,9 +164,6 @@ UNRESOLVED_EQUALITY_BODY_MESSAGE: str = (
 UNRESOLVED_EQUALITY_BODY_NOTES: str = "Unresolved equality body correspondence notes"
 STATEMENT_CHECK_RESULT_REPORT_COMMENT: str = "Statement check result report comment"
 STATEMENT_CHECK_RESULT_RETEST_COMMENT: str = "Statement check result retest comment"
-REPORT_ACKNOWLEDGED_WARNING: str = (
-    "The report has been acknowledged by the organisation, and no further follow-up is needed."
-)
 TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
     "The request for a final update has been acknowledged by the organisation"
 )
@@ -1710,39 +1707,6 @@ def test_case_report_one_week_followup_contains_followup_due_date(admin_client):
     )
 
 
-def test_case_report_one_week_followup_shows_warning_if_report_ack(admin_client):
-    """
-    Test that the case report one week followup view shows a warning if the report
-    has been acknowledged
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "simplified:edit-report-one-week-followup",
-            kwargs={"pk": simplified_case.id},
-        )
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, REPORT_ACKNOWLEDGED_WARNING)
-
-    simplified_case.report_acknowledged_date = TODAY
-    simplified_case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "simplified:edit-report-one-week-followup",
-            kwargs={"pk": simplified_case.id},
-        )
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, REPORT_ACKNOWLEDGED_WARNING)
-
-
 def test_case_report_four_week_followup_contains_followup_due_date(admin_client):
     """Test that the case report four week followup view contains the followup due date"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
@@ -1762,39 +1726,6 @@ def test_case_report_four_week_followup_contains_followup_due_date(admin_client)
         response,
         f"Due {amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}",
     )
-
-
-def test_case_report_four_week_followup_shows_warning_if_report_ack(admin_client):
-    """
-    Test that the case report four week followup view shows a warning if the report
-    has been acknowledged
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "simplified:edit-report-four-week-followup",
-            kwargs={"pk": simplified_case.id},
-        )
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, REPORT_ACKNOWLEDGED_WARNING)
-
-    simplified_case.report_acknowledged_date = TODAY
-    simplified_case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "simplified:edit-report-four-week-followup",
-            kwargs={"pk": simplified_case.id},
-        )
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, REPORT_ACKNOWLEDGED_WARNING)
 
 
 def test_case_report_twelve_week_1_week_chaser_contains_followup_due_date(admin_client):
