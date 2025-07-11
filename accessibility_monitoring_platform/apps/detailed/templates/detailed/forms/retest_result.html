@@ -5,9 +5,13 @@
     <div class="govuk-grid-column-full">
         <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Link to monitor folder</b></p>
         <p class="govuk-body">
-            <a href="{{ case.monitor_folder_url }}" rel="noreferrer noopener"
-                target="_blank" class="govuk-link">google.drive.com/doc</a>
-            <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+            {% if case.monitor_folder_url %}
+                <a href="{{ case.monitor_folder_url }}" rel="noreferrer noopener"
+                    target="_blank" class="govuk-link">google.drive.com/doc</a>
+                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+            {% else %}
+                None
+            {% endif %}
         </p>
         <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Total issues</b></p>
         <p class="govuk-body">{{ case.initial_total_number_of_issues }}</p>

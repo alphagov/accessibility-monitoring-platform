@@ -43,6 +43,7 @@
                                             {% include 'common/amp_field.html' with field=form.is_complaint %}
                                             {% include 'common/amp_field.html' with field=form.enforcement_body %}
                                             {% include 'common/amp_field.html' with field=form.subcategory %}
+                                            {% include 'common/amp_field.html' with field=form.test_type %}
                                         </div>
                                     </details>
                                 </div>
@@ -67,6 +68,14 @@
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
                                     Create simplified case
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'detailed:case-create' %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Create detailed case
                                 </a>
                             </li>
                             <li>

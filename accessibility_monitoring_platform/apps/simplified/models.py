@@ -447,14 +447,6 @@ class SimplifiedCase(BaseCase):
         return "future"
 
     @property
-    def reminder(self):
-        return self.task_set.filter(type="reminder", read=False).first()
-
-    @property
-    def reminder_history(self):
-        return self.task_set.filter(type="reminder", read=True)
-
-    @property
     def qa_comments(self):
         return self.comment_simplifiedcase.filter(hidden=False).order_by(
             "-created_date"
