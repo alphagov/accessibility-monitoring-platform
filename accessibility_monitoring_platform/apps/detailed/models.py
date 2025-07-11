@@ -62,6 +62,10 @@ class DetailedCase(BaseCase):
         IN_PROGRESS = "in-progress", "Case in progress"
         NO = "no", "No (or holding)"
 
+    class ServiceType(models.TextChoices):
+        SERVICE = "service", "Service"
+        WEBSITE = "website", "Website"
+
     # status = models.CharField(
     #     max_length=30,
     #     choices=Status.choices,
@@ -72,6 +76,11 @@ class DetailedCase(BaseCase):
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
+    service_type = models.CharField(
+        max_length=20,
+        choices=ServiceType.choices,
+        default=ServiceType.WEBSITE,
+    )
     case_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Initial contact - Manage contact details
@@ -95,6 +104,7 @@ class DetailedCase(BaseCase):
 
     # Initial test - Testing details
     monitor_folder_url = models.TextField(default="", blank=True)
+    monitor_doc_url = models.TextField(default="", blank=True)
     initial_testing_details_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - Testing outcome
@@ -385,7 +395,7 @@ class Contact(VersionModel):
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     name = models.TextField(default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
-    contact_point = models.CharField(max_length=200, default="", blank=True)
+    contact_point = models.TextField(default="", blank=True)
     preferred = models.CharField(
         max_length=20, choices=Preferred.choices, default=Preferred.UNKNOWN
     )
