@@ -4,7 +4,7 @@ Admin for cases
 
 from django.contrib import admin
 
-from .models import Contact, DetailedCase, DetailedCaseHistory
+from .models import Contact, DetailedCase, DetailedCaseHistory, ZendeskTicket
 
 
 class ContactAdmin(admin.ModelAdmin):
@@ -65,6 +65,20 @@ class DetailedCaseHistoryAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
+class ZendeskTicketAdmin(admin.ModelAdmin):
+    """Django admin configuration for ZendeskTicket model"""
+
+    search_fields = [
+        "url",
+        "summary",
+        "detailed_case__organisation_name",
+        "detailed_case__case_number",
+    ]
+    list_display = ["url", "summary", "detailed_case", "created", "is_deleted"]
+    list_filter = ["is_deleted"]
+
+
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(DetailedCase, DetailedCaseAdmin)
 admin.site.register(DetailedCaseHistory, DetailedCaseHistoryAdmin)
+admin.site.register(ZendeskTicket, ZendeskTicketAdmin)

@@ -376,7 +376,7 @@ class DetailedCaseHistory(models.Model):
         )
 
     class Meta:
-        ordering = ["-created"]
+        ordering = ["-id"]
         verbose_name_plural = "Detailed Case history"
 
 
@@ -421,3 +421,30 @@ class Contact(VersionModel):
         return reverse(
             "detailed:manage-contact-details", kwargs={"pk": self.detailed_case.id}
         )
+
+
+class ZendeskTicket(models.Model):
+    """
+    Model for detailed ZendeskTicket
+    """
+
+    detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=1, blank=True)
+    url = models.TextField(default="", blank=True)
+    summary = models.TextField(default="", blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return self.url
+
+    def get_absolute_url(self) -> str:
+        return reverse("detailed:update-zendesk-ticket", kwargs={"pk": self.id})
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.id_within_case = self.detailed_case.zendeskticket_set.all().count() + 1
+        super().save(*args, **kwargs)

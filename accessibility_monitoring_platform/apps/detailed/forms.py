@@ -618,9 +618,9 @@ class RetestMetricsUpdateForm(VersionForm):
 class CaseCloseUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 
-    case_close_decision_state = AMPChoiceRadioField(
+    recommendation_for_enforcement = AMPChoiceRadioField(
         label="Enforcement recommendation",
-        choices=DetailedCase.CaseCloseDecision.choices,
+        choices=DetailedCase.RecommendationForEnforcement.choices,
     )
     case_close_decision_notes = AMPTextField(label="Enforcement recommendation details")
     case_close_decision_sent_date = AMPDateField(label="Date decision email sent")
@@ -638,7 +638,7 @@ class CaseCloseUpdateForm(VersionForm):
         model = DetailedCase
         fields = [
             "version",
-            "case_close_decision_state",
+            "recommendation_for_enforcement",
             "case_close_decision_notes",
             "case_close_decision_sent_date",
             "case_close_decision_sent_to",

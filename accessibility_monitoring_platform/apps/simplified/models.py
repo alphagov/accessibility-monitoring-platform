@@ -1435,7 +1435,7 @@ class EqualityBodyCorrespondence(models.Model):
 
 class ZendeskTicket(models.Model):
     """
-    Model for cases ZendeskTicket
+    Model for simplified ZendeskTicket
     """
 
     simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
