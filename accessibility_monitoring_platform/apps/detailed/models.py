@@ -231,7 +231,6 @@ class DetailedCase(BaseCase):
         choices=CaseCloseDecision.choices,
         default=CaseCloseDecision.NO_DECISION,
     )
-    case_close_decision_notes = models.TextField(default="", blank=True)
     case_close_decision_sent_date = models.DateField(null=True, blank=True)
     case_close_decision_sent_to = models.CharField(
         max_length=200, default="", blank=True

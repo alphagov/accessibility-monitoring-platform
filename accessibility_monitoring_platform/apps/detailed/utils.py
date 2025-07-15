@@ -166,7 +166,6 @@ def create_detailed_case_from_dict(
         website_name=row["Website"],
         enforcement_body=row["Enforcement body"].lower(),
         is_complaint=row["Is it a complaint?"].lower(),
-        notes=row["Summary of progress made / response from PSB"],
         service_type=row["Type"].lower(),
         monitor_doc_url=validate_url(row["Link to monitor doc"]),
         public_report_url=validate_url(row["Public link to report PDF"]),
@@ -215,14 +214,14 @@ def create_detailed_case_from_dict(
         detailed_case=detailed_case,
         created=last_updated,
         created_by=auditor,
-        note=f"Original record number is {original_record_number}",
+        note=f"Legacy record number is {original_record_number}",
     )
     if " " in qa_auditors:
         add_note_to_history(
             detailed_case=detailed_case,
             created=last_updated,
             created_by=auditor,
-            note=f"All QA auditors: {qa_auditors}",
+            note=f"All legacy QA auditors: {qa_auditors}",
         )
 
     for column_name in [
@@ -237,7 +236,7 @@ def create_detailed_case_from_dict(
                 detailed_case=detailed_case,
                 created=last_updated,
                 created_by=auditor,
-                note=f"{column_name}:\n\n{row[column_name]}",
+                note=f"Legacy {column_name}:\n\n{row[column_name]}",
             )
 
     if feedback_survey_sent and feedback_survey_sent != "Yes":
@@ -245,7 +244,7 @@ def create_detailed_case_from_dict(
             detailed_case=detailed_case,
             created=last_updated,
             created_by=auditor,
-            note=f"Feedback survey sent:\n\n{feedback_survey_sent}",
+            note=f"Legacy feedback survey sent:\n\n{feedback_survey_sent}",
         )
 
     contact: Contact = Contact.objects.create(
@@ -264,7 +263,7 @@ def create_detailed_case_from_dict(
             ZendeskTicket.objects.create(
                 detailed_case=detailed_case,
                 url=zendesk_url,
-                summary="Imported from spreadsheet",
+                summary="Legacy",
             )
 
 
