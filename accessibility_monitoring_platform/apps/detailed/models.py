@@ -66,12 +66,6 @@ class DetailedCase(BaseCase):
         SERVICE = "service", "Service"
         WEBSITE = "website", "Website"
 
-    # status = models.CharField(
-    #     max_length=30,
-    #     choices=Status.choices,
-    #     default=Status.INITIAL,
-    # )
-
     # Case details - Case metadata
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)

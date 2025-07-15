@@ -20,6 +20,7 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     CorrespondenceTwelveWeekRequestUpdateView,
     DetailedCaseCreateView,
     DetailedCaseDetailView,
+    DetailedCaseHistoryDetailView,
     DetailedCaseMetadataUpdateView,
     DetailedCaseNoteCreateView,
     DetailedCaseStatusUpdateView,
@@ -208,5 +209,10 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-unresponsive-psb/",
         login_required(UnresponsivePSBUpdateView.as_view()),
         name="edit-unresponsive-psb",
+    ),
+    path(
+        "<int:pk>/history/",
+        login_required(DetailedCaseHistoryDetailView.as_view()),
+        name="case-history",
     ),
 ]

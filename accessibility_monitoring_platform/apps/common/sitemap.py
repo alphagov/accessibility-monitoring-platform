@@ -1868,7 +1868,10 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Tech team",
         pages=[
             SimplifiedCasePlatformPage(
-                name="Case history", url_name="simplified:case-history"
+                name="Simplified case history", url_name="simplified:case-history"
+            ),
+            DetailedCasePlatformPage(
+                name="Detailed case history", url_name="detailed:case-history"
             ),
             PlatformPage(name="Issue reports", url_name="common:issue-reports-list"),
             PlatformPage(

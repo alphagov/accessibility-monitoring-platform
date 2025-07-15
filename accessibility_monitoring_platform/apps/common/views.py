@@ -21,6 +21,7 @@ from django.views.generic.list import ListView
 
 from ..cases.models import BaseCase
 from ..common.sitemap import PlatformPage, Sitemap
+from ..detailed.models import DetailedCase
 from ..detailed.utils import import_detailed_cases_csv
 from ..mobile.utils import import_mobile_cases_csv
 from ..reports.models import Report
@@ -465,6 +466,7 @@ class ReferenceImplementaionView(TemplateView):
         else:
             simplified_case: SimplifiedCase = report.base_case.simplifiedcase
         context["case"] = simplified_case
+        context["detailed_case"] = DetailedCase.objects.last()
         return context
 
 

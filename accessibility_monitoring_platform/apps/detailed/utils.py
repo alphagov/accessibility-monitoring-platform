@@ -85,11 +85,14 @@ def add_to_detailed_case_history(
     event_type: DetailedCaseHistory.EventType = DetailedCaseHistory.EventType.NOTE,
 ) -> None:
     """Add latest change of DetailedCase.status to history"""
-    DetailedCaseHistory.objects.create(
+    detailed_case_history: DetailedCaseHistory = DetailedCaseHistory.objects.create(
         detailed_case=detailed_case,
         event_type=event_type,
         created_by=user,
         value=value,
+    )
+    record_detailed_model_create_event(
+        user=user, model_object=detailed_case_history, detailed_case=detailed_case
     )
 
 
@@ -120,6 +123,9 @@ def add_note_to_history(
     )
     detailed_case_history.created = created
     detailed_case_history.save()
+    record_detailed_model_create_event(
+        user=created_by, model_object=detailed_case_history, detailed_case=detailed_case
+    )
 
 
 def validate_url(url: str) -> str:
@@ -195,6 +201,7 @@ def create_detailed_case_from_dict(
             row["Active case with enforcement body?"]
         ],
         is_feedback_survey_sent=is_feedback_survey_sent,
+        first_contact_date=get_datetime_from_string(row["First Contact Date"]),
     )
     detailed_case.created = created
     detailed_case.save()
@@ -203,7 +210,7 @@ def create_detailed_case_from_dict(
         DetailedCaseHistory.objects.create(
             detailed_case_id=detailed_case.id,
             event_type=DetailedCaseHistory.EventType.STATUS,
-            value="Initial",
+            value="Legacy",
             created_by=auditor,
         )
     )
@@ -244,7 +251,7 @@ def create_detailed_case_from_dict(
             detailed_case=detailed_case,
             created=last_updated,
             created_by=auditor,
-            note=f"Legacy feedback survey sent:\n\n{feedback_survey_sent}",
+            note=f"Legacy Feedback survey sent:\n\n{feedback_survey_sent}",
         )
 
     contact: Contact = Contact.objects.create(

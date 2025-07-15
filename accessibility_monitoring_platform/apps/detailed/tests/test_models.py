@@ -78,6 +78,27 @@ def test_detailed_case_histories(history_type, detailed_case_history_attr):
     assert detailed_case_history_excluded not in detailed_case_history
 
 
+@pytest.mark.django_db
+def test_detailed_case_most_recent_history():
+    """Test DetailedCase.most_recent_history returns the most recent event"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    user: User = User.objects.create()
+    DetailedCaseHistory.objects.create(
+        detailed_case=detailed_case,
+        event_type=DetailedCaseHistory.EventType.NOTE,
+        created_by=user,
+    )
+    detailed_case_history_last: DetailedCaseHistory = (
+        DetailedCaseHistory.objects.create(
+            detailed_case=detailed_case,
+            event_type=DetailedCaseHistory.EventType.NOTE,
+            created_by=user,
+        )
+    )
+
+    assert detailed_case.most_recent_history == detailed_case_history_last
+
+
 def test_contact_str():
     """Test Contact.__str__()"""
     contact: Contact = Contact(name="Contact Name", contact_point="name@example.com")

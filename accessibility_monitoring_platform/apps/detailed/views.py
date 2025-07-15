@@ -55,7 +55,7 @@ from .forms import (
     TwelveWeekRequestUpdateForm,
     UnresponsivePSBUpdateForm,
 )
-from .models import Contact, DetailedCase, DetailedCaseHistory
+from .models import Contact, DetailedCase, DetailedCaseHistory, DetailedEventHistory
 from .utils import (
     add_to_detailed_case_history,
     record_detailed_model_create_event,
@@ -530,3 +530,24 @@ class UnresponsivePSBUpdateView(
     note_type: DetailedCaseHistory.EventType = (
         DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE
     )
+
+
+class DetailedCaseHistoryDetailView(DetailView):
+    """
+    View of details of a single case
+    """
+
+    model: type[DetailedCase] = DetailedCase
+    context_object_name: str = "case"
+    template_name: str = "detailed/case_history.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add current case to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        detailed_case: DetailedCase = self.object
+        event_history: DetailedEventHistory = DetailedEventHistory.objects.filter(
+            detailed_case=detailed_case
+        ).prefetch_related("parent")
+        context["event_history"] = event_history
+        context["all_users"] = User.objects.all().order_by("id")
+        return context
