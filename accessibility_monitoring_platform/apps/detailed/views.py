@@ -53,6 +53,7 @@ from .forms import (
     TwelveWeekAcknowledgedUpdateForm,
     TwelveWeekDeadlineUpdateForm,
     TwelveWeekRequestUpdateForm,
+    UnresponsivePSBUpdateForm,
 )
 from .models import Contact, DetailedCase, DetailedCaseHistory
 from .utils import (
@@ -71,6 +72,28 @@ class AddDetailedCaseToContextMixin:
         context: dict[str, Any] = super().get_context_data(**kwargs)
         context["detailed_case"] = detailed_case
         return context
+
+
+class AddNoteMixin:
+    def form_valid(self, form: ContactUpdateForm):
+        """Store notes in history not in DetailedCase"""
+        if form.cleaned_data["notes"]:
+            add_to_detailed_case_history(
+                detailed_case=self.object,
+                user=self.request.user,
+                value=form.cleaned_data["notes"],
+                event_type=self.note_type,
+            )
+        if form.changed_data:
+            self.object: DetailedCase = form.save(commit=False)
+            self.object.notes = ""
+            user: User = self.request.user
+            record_detailed_model_update_event(
+                user=user, model_object=self.object, detailed_case=self.object
+            )
+            self.object.save()
+
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
@@ -331,31 +354,14 @@ class ContactInformationRequestUpdateView(CorrespondenceUpdateView):
     )
 
 
-class ContactChasingRecordUpdateView(DetailedCaseUpdateView):
+class ContactChasingRecordUpdateView(AddNoteMixin, DetailedCaseUpdateView):
     """View to update chasing record for contact"""
 
     form_class: type[ContactChasingRecordUpdateForm] = ContactChasingRecordUpdateForm
     template_name: str = "detailed/forms/contact_notes.html"
-
-    def form_valid(self, form: ContactUpdateForm):
-        """Mark store notes in history not in DetailedCase"""
-        if form.cleaned_data["notes"]:
-            add_to_detailed_case_history(
-                detailed_case=self.object,
-                user=self.request.user,
-                value=form.cleaned_data["notes"],
-                event_type=DetailedCaseHistory.EventType.CONTACT_NOTE,
-            )
-        if form.changed_data:
-            self.object: DetailedCase = form.save(commit=False)
-            self.object.notes = ""
-            user: User = self.request.user
-            record_detailed_model_update_event(
-                user=user, model_object=self.object, detailed_case=self.object
-            )
-            self.object.save()
-
-        return HttpResponseRedirect(self.get_success_url())
+    note_type: DetailedCaseHistory.EventType = (
+        DetailedCaseHistory.EventType.CONTACT_NOTE
+    )
 
 
 class ContactInformationDeliveredUpdateView(CorrespondenceUpdateView):
@@ -496,10 +502,14 @@ class RetestMetricsUpdateView(DetailedCaseUpdateView):
     form_class: type[RetestMetricsUpdateForm] = RetestMetricsUpdateForm
 
 
-class CaseCloseUpdateView(DetailedCaseUpdateView):
+class CaseCloseUpdateView(AddNoteMixin, DetailedCaseUpdateView):
     """View to update closing the case"""
 
+    template_name: str = "detailed/forms/close_case.html"
     form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+    note_type: DetailedCaseHistory.EventType = (
+        DetailedCaseHistory.EventType.RECOMMENDATION
+    )
 
 
 class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):
@@ -507,4 +517,16 @@ class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):
 
     form_class: type[EnforcementBodyMetadataUpdateForm] = (
         EnforcementBodyMetadataUpdateForm
+    )
+
+
+class UnresponsivePSBUpdateView(
+    AddNoteMixin, HideCaseNavigationMixin, DetailedCaseUpdateView
+):
+    """View to set unresponsive PSB flag"""
+
+    form_class: type[UnresponsivePSBUpdateForm] = UnresponsivePSBUpdateForm
+    template_name: str = "detailed/forms/unresponsive_psb.html"
+    note_type: DetailedCaseHistory.EventType = (
+        DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE
     )

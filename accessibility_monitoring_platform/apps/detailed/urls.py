@@ -39,6 +39,7 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     RetestStatementComplianceUpdateView,
     RetestSummaryUpdateView,
     RetestWebsiteComplianceUpdateView,
+    UnresponsivePSBUpdateView,
 )
 
 app_name: str = "detailed"
@@ -202,5 +203,10 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-equality-body-metadata/",
         login_required(EnforcementBodyMetadataUpdateView.as_view()),
         name="edit-equality-body-metadata",
+    ),
+    path(
+        "<int:pk>/edit-unresponsive-psb/",
+        login_required(UnresponsivePSBUpdateView.as_view()),
+        name="edit-unresponsive-psb",
     ),
 ]

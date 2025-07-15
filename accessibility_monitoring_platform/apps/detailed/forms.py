@@ -622,7 +622,7 @@ class CaseCloseUpdateForm(VersionForm):
         label="Enforcement recommendation",
         choices=DetailedCase.RecommendationForEnforcement.choices,
     )
-    case_close_decision_notes = AMPTextField(label="Enforcement recommendation details")
+    notes = AMPTextField(label="Enforcement recommendation details")
     case_close_decision_sent_date = AMPDateField(label="Date decision email sent")
     case_close_decision_sent_to = AMPCharFieldWide(label="Decision sent to")
     is_feedback_survey_sent = AMPChoiceCheckboxField(
@@ -639,7 +639,7 @@ class CaseCloseUpdateForm(VersionForm):
         fields = [
             "version",
             "recommendation_for_enforcement",
-            "case_close_decision_notes",
+            "notes",
             "case_close_decision_sent_date",
             "case_close_decision_sent_to",
             "is_feedback_survey_sent",
@@ -682,4 +682,26 @@ class EnforcementBodyMetadataUpdateForm(VersionForm):
             "enforcement_body_completed_case_date",
             "is_case_added_to_stats",
             "enforcement_body_metadata_complete_date",
+        ]
+
+
+class UnresponsivePSBUpdateForm(VersionForm):
+    """Form for recording an unresponsive PSB"""
+
+    no_psb_contact = AMPChoiceCheckboxField(
+        label="Do you want to mark the PSB as unresponsive to this case?",
+        choices=Boolean.choices,
+        help_text="This field affects the case status",
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Mark the PSB as unresponsive to this case"}
+        ),
+    )
+    notes = AMPTextField(label="Public sector body is unresponsive notes")
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "no_psb_contact",
+            "notes",
         ]

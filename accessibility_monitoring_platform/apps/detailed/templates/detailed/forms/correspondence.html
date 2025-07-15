@@ -2,6 +2,9 @@
 
 {% block preform %}
     {% include 'detailed/helpers/contacts_list.html' %}
-    <p class="govuk-body amp-todo">TODO: Details element with PSB Zendesk tickets</p>
-    <p class="govuk-body amp-todo">TODO: Link to unresponsive PSB page</p>
+    {% include 'detailed/helpers/zendesk_tickets.html' %}
+    <p class="govuk-body">
+        <a href="{% url 'detailed:edit-unresponsive-psb' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
+            Unresponsive PSB</a>
+    </p>
 {% endblock %}

@@ -258,6 +258,11 @@ class DetailedCase(BaseCase):
     )
     enforcement_body_metadata_complete_date = models.DateField(null=True, blank=True)
 
+    # Unresponsive PSB page
+    no_psb_contact = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+
     class Meta:
         ordering = ["-id"]
 
@@ -284,6 +289,16 @@ class DetailedCase(BaseCase):
     def contact_notes_history(self) -> QuerySet["DetailedCaseHistory"]:
         return self.detailedcasehistory_set.filter(
             event_type=DetailedCaseHistory.EventType.CONTACT_NOTE
+        )
+
+    def recommendation_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.filter(
+            event_type=DetailedCaseHistory.EventType.RECOMMENDATION
+        )
+
+    def unresponsive_psb_notes_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.filter(
+            event_type=DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE
         )
 
     @property
@@ -360,6 +375,8 @@ class DetailedCaseHistory(models.Model):
         REMINDER = "reminder", "Reminder set"
         STATUS = "status", "Changed status"
         CONTACT_NOTE = "contact_note", "Entered contact note"
+        RECOMMENDATION = "recommendation", "Entered enforcement recommendation"
+        UNRESPONSIVE_NOTE = "unresponsive_note", "Entered unresponsive PSB note"
 
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     event_type = models.CharField(
