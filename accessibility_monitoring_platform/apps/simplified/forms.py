@@ -971,22 +971,6 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
         ]
 
 
-class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
-    """
-    Form for confirming the deletion of a zendesk ticket
-    """
-
-    is_deleted = forms.BooleanField(
-        label="Conform you want to remove Zendest ticket",
-        required=False,
-        widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove ticket"}),
-    )
-
-    class Meta:
-        model = ZendeskTicket
-        fields = ["is_deleted"]
-
-
 class ZendeskTicketCreateUpdateForm(forms.ModelForm):
     """
     Form for updating a zendesk ticket
@@ -998,3 +982,19 @@ class ZendeskTicketCreateUpdateForm(forms.ModelForm):
     class Meta:
         model = ZendeskTicket
         fields = ["summary", "url"]
+
+
+class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
+    """
+    Form for confirming the deletion of a zendesk ticket
+    """
+
+    is_deleted = forms.BooleanField(
+        label="Confirm you want to remove Zendest ticket",
+        required=False,
+        widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove ticket"}),
+    )
+
+    class Meta:
+        model = ZendeskTicket
+        fields = ["is_deleted"]

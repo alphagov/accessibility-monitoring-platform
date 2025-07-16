@@ -138,6 +138,7 @@ def create_detailed_case_from_dict(
     row: dict[str, Any], default_user: User, auditors: dict[str, User]
 ) -> None:
     original_record_number: str = row["Record "]
+    case_number: int = int(original_record_number[1:])
     first_contact_date: str = get_datetime_from_string(
         row["First Contact Date"]
     )  # dd/mm/yyyy
@@ -204,6 +205,8 @@ def create_detailed_case_from_dict(
         first_contact_date=get_datetime_from_string(row["First Contact Date"]),
     )
     detailed_case.created = created
+    detailed_case.case_number = case_number
+    detailed_case.case_identifier = f"#D-{case_number}"
     detailed_case.save()
 
     detailed_case_status_history: DetailedCaseHistory = (
@@ -217,12 +220,6 @@ def create_detailed_case_from_dict(
     detailed_case_status_history.created = last_updated
     detailed_case_status_history.save()
 
-    add_note_to_history(
-        detailed_case=detailed_case,
-        created=last_updated,
-        created_by=auditor,
-        note=f"Legacy record number is {original_record_number}",
-    )
     if " " in qa_auditors:
         add_note_to_history(
             detailed_case=detailed_case,

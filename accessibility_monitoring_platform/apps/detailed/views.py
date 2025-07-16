@@ -54,8 +54,16 @@ from .forms import (
     TwelveWeekDeadlineUpdateForm,
     TwelveWeekRequestUpdateForm,
     UnresponsivePSBUpdateForm,
+    ZendeskTicketConfirmDeleteUpdateForm,
+    ZendeskTicketCreateUpdateForm,
 )
-from .models import Contact, DetailedCase, DetailedCaseHistory, DetailedEventHistory
+from .models import (
+    Contact,
+    DetailedCase,
+    DetailedCaseHistory,
+    DetailedEventHistory,
+    ZendeskTicket,
+)
 from .utils import (
     add_to_detailed_case_history,
     record_detailed_model_create_event,
@@ -518,6 +526,99 @@ class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):
     form_class: type[EnforcementBodyMetadataUpdateForm] = (
         EnforcementBodyMetadataUpdateForm
     )
+
+
+class CaseZendeskTicketsDetailView(
+    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, DetailView
+):
+    """
+    View of Zendesk tickets for a detailed case
+    """
+
+    model: type[DetailedCase] = DetailedCase
+    context_object_name: str = "case"
+    template_name: str = "detailed/zendesk_tickets.html"
+
+
+class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
+    """
+    View to create a Zendesk ticket
+    """
+
+    model: type[DetailedCase] = ZendeskTicket
+    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    template_name: str = "detailed/forms/zendesk_ticket_create.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add case to context as object"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        detailed_case: DetailedCase = get_object_or_404(
+            DetailedCase, id=self.kwargs.get("case_id")
+        )
+        context["object"] = detailed_case
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        detailed_case: DetailedCase = get_object_or_404(
+            DetailedCase, id=self.kwargs.get("case_id")
+        )
+        zendesk_ticket: ZendeskTicket = form.save(commit=False)
+        zendesk_ticket.detailed_case = detailed_case
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        zendesk_ticket: ZendeskTicket = self.object
+        user: User = self.request.user
+        record_detailed_model_create_event(
+            user=user,
+            model_object=zendesk_ticket,
+            detailed_case=zendesk_ticket.detailed_case,
+        )
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.detailed_case.id}
+        return reverse("detailed:zendesk-tickets", kwargs=case_pk)
+
+
+class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
+    """
+    View to update Zendesk ticket
+    """
+
+    model: type[ZendeskTicket] = ZendeskTicket
+    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    context_object_name: str = "zendesk_ticket"
+    template_name: str = "detailed/forms/zendesk_ticket_update.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add update event"""
+        if form.changed_data:
+            zendesk_ticket: ZendeskTicket = form.save(commit=False)
+            user: User = self.request.user
+            record_detailed_model_update_event(
+                user=user,
+                model_object=zendesk_ticket,
+                detailed_case=zendesk_ticket.detailed_case,
+            )
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Return to zendesk tickets page on save"""
+        zendesk_ticket: ZendeskTicket = self.object
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.detailed_case.id}
+        return reverse("detailed:zendesk-tickets", kwargs=case_pk)
+
+
+class ZendeskTicketConfirmDeleteUpdateView(ZendeskTicketUpdateView):
+    """
+    View to confirm delete of Zendesk ticket
+    """
+
+    form_class: type[ZendeskTicketConfirmDeleteUpdateForm] = (
+        ZendeskTicketConfirmDeleteUpdateForm
+    )
+    template_name: str = "detailed/forms/zendesk_ticket_confirm_delete.html"
 
 
 class UnresponsivePSBUpdateView(

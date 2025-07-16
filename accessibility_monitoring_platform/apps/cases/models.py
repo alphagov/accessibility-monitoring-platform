@@ -50,13 +50,14 @@ CASE_STATUS_UNKNOWN: CaseStatusChoice = CaseStatusChoice(
     label="Unknown",
     test_types=[TestType.SIMPLIFIED],
 )
+CASE_STATUS_UNASSIGNED: CaseStatusChoice = CaseStatusChoice(
+    name="UNASSIGNED",
+    value="000-unassigned-case",
+    label="Unassigned case",
+    test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
+)
 CASE_STATUSES: list[CaseStatusChoice] = [
-    CaseStatusChoice(
-        name="UNASSIGNED",
-        value="000-unassigned-case",
-        label="Unassigned case",
-        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
-    ),
+    CASE_STATUS_UNASSIGNED,
     CaseStatusChoice(
         name="PSB_INFO_REQ",
         value="010-initial-psb-info-requested",

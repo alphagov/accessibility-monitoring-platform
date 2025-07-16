@@ -26,6 +26,7 @@ from ..comments.models import Comment
 from ..detailed.forms import DetailedCaseMetadataUpdateForm
 from ..detailed.models import Contact as DetailedCaseContact
 from ..detailed.models import DetailedCase
+from ..detailed.models import ZendeskTicket as DetailedZendeskTicket
 from ..exports.models import Export
 from ..mobile.forms import MobileCaseMetadataUpdateForm
 from ..mobile.models import MobileCase
@@ -288,7 +289,6 @@ class BaseCasePlatformPage(PlatformPage):
 class SimplifiedCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_required_for_url = True
         self.instance_class: ClassVar[SimplifiedCase] = SimplifiedCase
 
     def populate_from_case(self, case: SimplifiedCase):
@@ -306,7 +306,7 @@ class SimplifiedCasePlatformPage(BaseCasePlatformPage):
             if hasattr(self.instance, "retest"):
                 return self.instance.retest.simplified_case
             if hasattr(self.instance, "base_case"):
-                return self.instance.base_base_cbase_ase
+                return self.instance.base_case
 
 
 class DetailedCasePlatformPage(BaseCasePlatformPage):
@@ -1594,6 +1594,28 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
             DetailedCasePlatformPage(
                 name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"
+            ),
+            DetailedCasePlatformPage(
+                name="PSB Zendesk tickets",
+                url_name="detailed:zendesk-tickets",
+                # case_details_template_name="detailed/details/details_psb_zendesk_tickets.html",
+                subpages=[
+                    DetailedCasePlatformPage(
+                        name="Add PSB Zendesk ticket",
+                        url_name="detailed:create-zendesk-ticket",
+                        url_kwarg_key="case_id",
+                    ),
+                    PlatformPage(
+                        name="Edit PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:update-zendesk-ticket",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                    PlatformPage(
+                        name="Remove PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:confirm-delete-zendesk-ticket",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                ],
             ),
         ],
     ),

@@ -295,6 +295,10 @@ class DetailedCase(BaseCase):
         )
 
     @property
+    def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:
+        return self.zendeskticket_set.filter(is_deleted=False)
+
+    @property
     def most_recent_history(self):
         return self.detailedcasehistory_set.first()
 

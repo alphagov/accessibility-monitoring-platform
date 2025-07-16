@@ -13,10 +13,10 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from ..common.utils import diff_model_fields, extract_domain_from_url
-from .models import EventHistory, MobileCase
+from .models import EventHistory, MobileCase, MobileCaseHistory
 
 
-def record_model_create_event(
+def record_mobile_model_create_event(
     user: User, model_object: models.Model, mobile_case: MobileCase
 ) -> None:
     """Record model create event"""
@@ -31,7 +31,7 @@ def record_model_create_event(
     )
 
 
-def record_model_update_event(
+def record_mobile_model_update_event(
     user: User, model_object: models.Model, mobile_case: MobileCase
 ) -> None:
     """Record model update event"""
@@ -52,14 +52,42 @@ def record_model_update_event(
         )
 
 
-def get_datetime_from_string(date: str) -> datetime:
-    day, month, year = date.split("/")
-    day: int = int(day)
-    month: int = int(month)
-    year: int = int(year)
-    if year < 100:
-        year += 2000
-    return datetime(year, month, day, tzinfo=timezone.utc)
+def get_datetime_from_string(date: str) -> None | datetime:
+    if len(date) < 5:
+        return None
+    if date[0].isdigit():
+        # dd/mm/yyyy
+        day, month, year = date.split("/")
+        day: int = int(day)
+        month: int = int(month)
+        year: int = int(year)
+        if year < 100:
+            year += 2000
+        return datetime(year, month, day, tzinfo=timezone.utc)
+    # mmm yyyy
+    return datetime.strptime(f"1 {date}", "%d %b %Y").replace(tzinfo=timezone.utc)
+
+
+def validate_url(url: str) -> str:
+    if url.startswith("http"):
+        return url
+    return ""
+
+
+def add_note_to_history(
+    mobile_case: MobileCase, created: datetime, created_by: User, note: str
+) -> None:
+    mobile_case_history: MobileCaseHistory = MobileCaseHistory.objects.create(
+        mobile_case=mobile_case,
+        event_type=MobileCaseHistory.EventType.NOTE,
+        value=note,
+        created_by=created_by,
+    )
+    mobile_case_history.created = created
+    mobile_case_history.save()
+    record_mobile_model_create_event(
+        user=created_by, model_object=mobile_case_history, mobile_case=mobile_case
+    )
 
 
 def create_mobile_case_from_dict(
@@ -68,20 +96,18 @@ def create_mobile_case_from_dict(
     """User dictionary date (from csv) to create mobile Case"""
     case_number: int = int(row["Record "][1:])
     app_os: str = row["Type"].lower()
-    first_contact_date: str = row["First contact date"]  # dd/mm/yyyy
-    created: datetime = get_datetime_from_string(first_contact_date)
-    last_date: str = row["Date decision email sent"]  # dd/mm/yyyy
-    if len(last_date) > 3:
-        updated: datetime = get_datetime_from_string(last_date)
+    created: datetime = get_datetime_from_string(row["First contact date"])
+    last_date: str = get_datetime_from_string(row["Date decision email sent"])
+    if last_date is not None:
+        updated: datetime = last_date
     else:
         updated: datetime = created
     auditor: User = auditors.get(row["Auditor"], default_user)
-    url: str = row["URL"]
+    url: str = validate_url(row["URL"])
     enforcement_body: str = row["Enforcement body"].lower()
     is_complaint: str = row["Is it a complaint?"].lower()
     mobile_case: MobileCase = MobileCase.objects.create(
         test_type=MobileCase.TestType.MOBILE,
-        case_number=case_number,
         created_by_id=default_user.id,
         updated=updated,
         auditor_id=auditor.id,
@@ -91,10 +117,21 @@ def create_mobile_case_from_dict(
         app_os=app_os,
         enforcement_body=enforcement_body,
         is_complaint=is_complaint,
-        notes=row["Summary of progress made / response from PSB"],
     )
     mobile_case.created = created
+    mobile_case.case_number = case_number
+    mobile_case.case_identifier = f"#M-{case_number}"
     mobile_case.save()
+    for column_name in [
+        "Summary of progress made / response from PSB",
+    ]:
+        if row[column_name]:
+            add_note_to_history(
+                mobile_case=mobile_case,
+                created=updated,
+                created_by=auditor,
+                note=f"Legacy {column_name}:\n\n{row[column_name]}",
+            )
 
 
 def import_mobile_cases_csv(csv_data: str) -> None:

@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 
 from ..common.forms import (
     AMPAuditorModelChoiceField,
+    AMPBooleanCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
@@ -24,7 +25,7 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Boolean, Sector, SubCategory
-from .models import Contact, DetailedCase, DetailedCaseHistory
+from .models import Contact, DetailedCase, DetailedCaseHistory, ZendeskTicket
 
 
 class DetailedCaseCreateForm(forms.ModelForm):
@@ -683,6 +684,35 @@ class EnforcementBodyMetadataUpdateForm(VersionForm):
             "is_case_added_to_stats",
             "enforcement_body_metadata_complete_date",
         ]
+
+
+class ZendeskTicketCreateUpdateForm(forms.ModelForm):
+    """
+    Form for updating a zendesk ticket
+    """
+
+    summary = AMPTextField(label="Summary")
+    url = AMPURLField(label="Link to Zendesk ticket")
+
+    class Meta:
+        model = ZendeskTicket
+        fields = ["summary", "url"]
+
+
+class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
+    """
+    Form for confirming the deletion of a zendesk ticket
+    """
+
+    is_deleted = forms.BooleanField(
+        label="Confirm you want to remove Zendest ticket",
+        required=False,
+        widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove ticket"}),
+    )
+
+    class Meta:
+        model = ZendeskTicket
+        fields = ["is_deleted"]
 
 
 class UnresponsivePSBUpdateForm(VersionForm):
