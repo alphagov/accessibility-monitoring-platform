@@ -545,7 +545,7 @@ class PlatformPageGroup:
         SIMPLIFIED_CASE_NAV: str = auto()
         DETAILED_CASE_NAV: str = auto()
         MOBILE_CASE_NAV: str = auto()
-        CASE_TOOLS: str = auto()
+        SIMPLIFIED_CASE_TOOLS: str = auto()
         DEFAULT: str = auto()
 
     name: str
@@ -1394,7 +1394,7 @@ SITE_MAP: list[PlatformPageGroup] = [
     ),
     SimplifiedCasePlatformPageGroup(
         name="Case tools",
-        type=PlatformPageGroup.Type.CASE_TOOLS,
+        type=PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS,
         pages=[
             SimplifiedCasePlatformPage(
                 name="View and search all case data",
@@ -2004,7 +2004,8 @@ def build_sitemap_for_current_page(
             case_navigation += [
                 platform_page_group
                 for platform_page_group in site_map
-                if platform_page_group.type == PlatformPageGroup.Type.CASE_TOOLS
+                if platform_page_group.type
+                == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
             ]
         for platform_page_group in case_navigation:
             platform_page_group.populate_from_case(case=case)

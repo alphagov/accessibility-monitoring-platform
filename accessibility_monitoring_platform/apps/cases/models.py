@@ -192,7 +192,7 @@ ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = [
 
 
 class CaseStatusChoices:
-    choices: None | list[tuple[str, str]] = None
+    choices: list[tuple[str, str]] | None = None
 
     def __init__(self, test_type: str):
         self.choices = []
@@ -202,12 +202,12 @@ class CaseStatusChoices:
                 self.choices.append((status.value, status.label))
 
 
-SimplifiedCaseStatus: None | CaseStatusChoices = None
-DetailedCaseStatus: None | CaseStatusChoices = None
-MobileCaseStatus: None | CaseStatusChoices = None
+SimplifiedCaseStatus: CaseStatusChoices | None = None
+DetailedCaseStatus: CaseStatusChoices | None = None
+MobileCaseStatus: CaseStatusChoices | None = None
 
 if SimplifiedCaseStatus is None:
-    SimplifiedCaseStatus: None | CaseStatusChoices = CaseStatusChoices(
+    SimplifiedCaseStatus: CaseStatusChoices | None = CaseStatusChoices(
         test_type=TestType.SIMPLIFIED
     )
 if DetailedCaseStatus is None:

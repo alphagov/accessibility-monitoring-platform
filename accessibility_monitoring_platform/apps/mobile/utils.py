@@ -52,7 +52,7 @@ def record_mobile_model_update_event(
         )
 
 
-def get_datetime_from_string(date: str) -> None | datetime:
+def get_datetime_from_string(date: str) -> datetime | None:
     if len(date) < 5:
         return None
     if date[0].isdigit():

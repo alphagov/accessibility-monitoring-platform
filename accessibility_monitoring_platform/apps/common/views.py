@@ -466,7 +466,7 @@ class ReferenceImplementaionView(TemplateView):
         else:
             simplified_case: SimplifiedCase = report.base_case.simplifiedcase
         context["case"] = simplified_case
-        context["detailed_case"] = DetailedCase.objects.last()
+        context["detailed_case"] = DetailedCase.objects.first()
         return context
 
 

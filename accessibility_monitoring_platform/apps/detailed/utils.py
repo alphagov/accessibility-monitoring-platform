@@ -12,6 +12,7 @@ from typing import Any
 from django.contrib.auth.models import User
 from django.db import models
 
+from ..cases.models import Sector
 from ..common.models import Boolean
 from ..common.utils import diff_model_fields, extract_domain_from_url
 from ..notifications.models import Task
@@ -39,6 +40,21 @@ MAP_ENFORCEMENT_BODY_CLOSED_CASE: dict[str, str] = {
     "No": DetailedCase.EnforcementBodyClosedCase.YES,
     "Yes": DetailedCase.EnforcementBodyClosedCase.IN_PROGRESS,
     "": DetailedCase.EnforcementBodyClosedCase.NO,
+}
+MAP_PSB_LOCATION: dict[str, str] = {
+    "England": DetailedCase.PsbLocation.ENGLAND,
+    "Scotland": DetailedCase.PsbLocation.SCOTLAND,
+    "Wales": DetailedCase.PsbLocation.WALES,
+    "Northern Ireland": DetailedCase.PsbLocation.NI,
+    "UK-wide": DetailedCase.PsbLocation.UK,
+    "Unknown": DetailedCase.PsbLocation.UNKNOWN,
+}
+MAP_DISPROPORTIONATE_BURDEN_CLAIM: dict[str, str] = {
+    "Claim with no assessment": DetailedCase.DisproportionateBurden.NO_ASSESSMENT,
+    "Claim with assessment": DetailedCase.DisproportionateBurden.ASSESSMENT,
+    "No claim": DetailedCase.DisproportionateBurden.NO_CLAIM,
+    "No statement": DetailedCase.DisproportionateBurden.NO_STATEMENT,
+    "Not checked": DetailedCase.DisproportionateBurden.NOT_CHECKED,
 }
 
 
@@ -96,7 +112,7 @@ def add_to_detailed_case_history(
     )
 
 
-def get_datetime_from_string(date: str) -> None | datetime:
+def get_datetime_from_string(date: str) -> datetime | None:
     if len(date) < 5:
         return None
     if date[0].isdigit():
@@ -135,7 +151,10 @@ def validate_url(url: str) -> str:
 
 
 def create_detailed_case_from_dict(
-    row: dict[str, Any], default_user: User, auditors: dict[str, User]
+    row: dict[str, Any],
+    default_user: User,
+    auditors: dict[str, User],
+    sectors: dict[str, Sector],
 ) -> None:
     original_record_number: str = row["Record "]
     case_number: int = int(original_record_number[1:])
@@ -198,11 +217,18 @@ def create_detailed_case_from_dict(
         enforcement_body_sent_date=get_datetime_from_string(
             row["Date sent to enforcement body"]
         ),
-        enforcement_body_closed_case_state=MAP_ENFORCEMENT_BODY_CLOSED_CASE[
-            row["Active case with enforcement body?"]
-        ],
+        enforcement_body_closed_case_state=MAP_ENFORCEMENT_BODY_CLOSED_CASE.get(
+            row["Active case with enforcement body?"],
+            DetailedCase.StatementCompliance.UNKNOWN,
+        ),
         is_feedback_survey_sent=is_feedback_survey_sent,
         first_contact_date=get_datetime_from_string(row["First Contact Date"]),
+        psb_location=MAP_PSB_LOCATION[row["Public sector body location"]],
+        sector=sectors[row["Sector"]],
+        retest_disproportionate_burden_claim=MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
+            row["Disproportionate Burden Claimed?"],
+            DetailedCase.DisproportionateBurden.NOT_CHECKED,
+        ),
     )
     detailed_case.created = created
     detailed_case.case_number = case_number
@@ -282,6 +308,9 @@ def import_detailed_cases_csv(csv_data: str) -> None:
         }
     except User.DoesNotExist:  # Automated tests
         auditors = {}
+    sectors: dict[str, Sector] = {
+        sector.name: sector for sector in Sector.objects.all()
+    }
 
     Contact.objects.all().delete()
     ZendeskTicket.objects.all().delete()
@@ -296,5 +325,5 @@ def import_detailed_cases_csv(csv_data: str) -> None:
         if row["Enforcement body"] == "":
             continue
         create_detailed_case_from_dict(
-            row=row, default_user=default_user, auditors=auditors
+            row=row, default_user=default_user, auditors=auditors, sectors=sectors
         )

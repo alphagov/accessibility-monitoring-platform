@@ -68,7 +68,7 @@ def get_simplified_case_detail_sections(
     for page_group in sitemap.platform_page_groups:
         if page_group.show and (
             page_group.type == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV
-            or page_group.type == PlatformPageGroup.Type.CASE_TOOLS
+            or page_group.type == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
         ):
             case_detail_pages: list[CaseDetailPage] = []
             for page in page_group.pages:

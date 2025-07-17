@@ -4,7 +4,6 @@ Admin for cases
 
 from django.contrib import admin
 
-from ..common.admin import ExportCsvMixin
 from .models import (
     Contact,
     DetailedCase,
