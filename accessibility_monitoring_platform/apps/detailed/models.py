@@ -62,16 +62,19 @@ class DetailedCase(BaseCase):
         IN_PROGRESS = "in-progress", "Case in progress"
         NO = "no", "No (or holding)"
 
-    # status = models.CharField(
-    #     max_length=30,
-    #     choices=Status.choices,
-    #     default=Status.INITIAL,
-    # )
+    class ServiceType(models.TextChoices):
+        SERVICE = "service", "Service"
+        WEBSITE = "website", "Website"
 
     # Case details - Case metadata
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
+    service_type = models.CharField(
+        max_length=20,
+        choices=ServiceType.choices,
+        default=ServiceType.WEBSITE,
+    )
     case_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Initial contact - Manage contact details
@@ -95,6 +98,7 @@ class DetailedCase(BaseCase):
 
     # Initial test - Testing details
     monitor_folder_url = models.TextField(default="", blank=True)
+    monitor_doc_url = models.TextField(default="", blank=True)
     initial_testing_details_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - Testing outcome
@@ -248,6 +252,11 @@ class DetailedCase(BaseCase):
     )
     enforcement_body_metadata_complete_date = models.DateField(null=True, blank=True)
 
+    # Unresponsive PSB page
+    no_psb_contact = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+
     class Meta:
         ordering = ["-id"]
 
@@ -275,6 +284,24 @@ class DetailedCase(BaseCase):
         return self.detailedcasehistory_set.filter(
             event_type=DetailedCaseHistory.EventType.CONTACT_NOTE
         )
+
+    def recommendation_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.filter(
+            event_type=DetailedCaseHistory.EventType.RECOMMENDATION
+        )
+
+    def unresponsive_psb_notes_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.filter(
+            event_type=DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE
+        )
+
+    @property
+    def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:
+        return self.zendeskticket_set.filter(is_deleted=False)
+
+    @property
+    def most_recent_history(self):
+        return self.detailedcasehistory_set.first()
 
     @property
     def contacts(self) -> QuerySet["Contact"]:
@@ -346,6 +373,8 @@ class DetailedCaseHistory(models.Model):
         REMINDER = "reminder", "Reminder set"
         STATUS = "status", "Changed status"
         CONTACT_NOTE = "contact_note", "Entered contact note"
+        RECOMMENDATION = "recommendation", "Entered enforcement recommendation"
+        UNRESPONSIVE_NOTE = "unresponsive_note", "Entered unresponsive PSB note"
 
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     event_type = models.CharField(
@@ -362,7 +391,7 @@ class DetailedCaseHistory(models.Model):
         )
 
     class Meta:
-        ordering = ["-created"]
+        ordering = ["-id"]
         verbose_name_plural = "Detailed Case history"
 
 
@@ -381,7 +410,7 @@ class Contact(VersionModel):
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     name = models.TextField(default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
-    contact_point = models.CharField(max_length=200, default="", blank=True)
+    contact_point = models.TextField(default="", blank=True)
     preferred = models.CharField(
         max_length=20, choices=Preferred.choices, default=Preferred.UNKNOWN
     )
@@ -407,3 +436,30 @@ class Contact(VersionModel):
         return reverse(
             "detailed:manage-contact-details", kwargs={"pk": self.detailed_case.id}
         )
+
+
+class ZendeskTicket(models.Model):
+    """
+    Model for detailed ZendeskTicket
+    """
+
+    detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=1, blank=True)
+    url = models.TextField(default="", blank=True)
+    summary = models.TextField(default="", blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return self.url
+
+    def get_absolute_url(self) -> str:
+        return reverse("detailed:update-zendesk-ticket", kwargs={"pk": self.id})
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.id_within_case = self.detailed_case.zendeskticket_set.all().count() + 1
+        super().save(*args, **kwargs)

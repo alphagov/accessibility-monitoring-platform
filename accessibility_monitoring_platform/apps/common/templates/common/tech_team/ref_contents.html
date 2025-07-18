@@ -85,6 +85,14 @@
                 (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ case.case_number }}" class="govuk-link govuk-link--no-visited-state"
                     >admin</a>)
             </li>
+            {% if detailed_case %}
+                <li>
+                    <a href="{% url 'detailed:case-history' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        {{ detailed_case }}</a>
+                    (<a href="{% url 'admin:detailed_detailedeventhistory_changelist' %}?q={{ detailed_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                        >admin</a>)
+                </li>
+            {% endif %}
         </ul>
     </div>
 </div>

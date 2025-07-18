@@ -11,7 +11,11 @@
 
 {% block formfields %}
 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
 {% include 'common/amp_field.html' with field=form.notes %}
-{% include 'detailed/helpers/note_history.html' with note_history=case.contact_notes_history %}
-{% include 'common/amp_field.html' with field=form.chasing_record_complete_date %}
+{% include 'detailed/helpers/note_history.html' with note_history=case.recommendation_history %}
+{% include 'common/amp_field.html' with field=form.case_close_decision_sent_date %}
+{% include 'common/amp_field.html' with field=form.case_close_decision_sent_to %}
+{% include 'common/amp_field.html' with field=form.is_feedback_survey_sent %}
+{% include 'common/amp_field.html' with field=form.case_close_complete_date %}
 {% endblock %}

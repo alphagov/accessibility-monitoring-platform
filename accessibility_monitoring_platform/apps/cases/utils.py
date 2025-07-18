@@ -10,7 +10,7 @@ from django.db.models import Q, QuerySet, When
 
 from ..common.utils import build_filters, extract_domain_from_url
 from ..simplified.models import SimplifiedCase
-from .models import BaseCase, Sort
+from .models import CASE_STATUS_UNASSIGNED, BaseCase, Sort
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -82,7 +82,7 @@ def filter_cases(form) -> QuerySet[BaseCase]:
             BaseCase.objects.filter(search_query, **filters)
             .annotate(
                 position_unassigned_first=DjangoCase(
-                    When(status=SimplifiedCase.Status.UNASSIGNED, then=0),
+                    When(status=CASE_STATUS_UNASSIGNED.value, then=0),
                     default=1,
                 )
             )

@@ -26,6 +26,7 @@ from ..comments.models import Comment
 from ..detailed.forms import DetailedCaseMetadataUpdateForm
 from ..detailed.models import Contact as DetailedCaseContact
 from ..detailed.models import DetailedCase
+from ..detailed.models import ZendeskTicket as DetailedZendeskTicket
 from ..exports.models import Export
 from ..mobile.forms import MobileCaseMetadataUpdateForm
 from ..mobile.models import MobileCase
@@ -229,20 +230,15 @@ class PlatformPage:
             if isinstance(self.instance, BaseCase):
                 return self.instance
             if hasattr(self.instance, "base_case"):
-                if hasattr(self.instance.base_case, "simplifiedcase"):
-                    return self.instance.base_case.simplifiedcase
-                if hasattr(self.instance.base_case, "detailedcase"):
-                    return self.instance.base_case.detailedcase
-                if hasattr(self.instance.base_case, "mobilecase"):
-                    return self.instance.base_case.mobilecase
+                return self.instance.base_case
             if hasattr(self.instance, "simplified_case"):
                 return self.instance.simplified_case
+            if hasattr(self.instance, "detailed_case"):
+                return self.instance.detailed_case
             if hasattr(self.instance, "audit"):
                 return self.instance.audit.simplified_case
             if hasattr(self.instance, "retest"):
                 return self.instance.retest.simplified_case
-            if hasattr(self.instance, "case"):
-                return self.instance.case
 
 
 class HomePlatformPage(PlatformPage):
@@ -270,13 +266,30 @@ class ExportPlatformPage(PlatformPage):
         return self.name.format(enforcement_body=self.enforcement_body)
 
 
-class SimplifiedCasePlatformPage(PlatformPage):
+class BaseCasePlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_required_for_url = True
-        self.instance_class: ClassVar[SimplifiedCase] = SimplifiedCase
+        self.instance_class: ClassVar[BaseCase] = BaseCase
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
+
+    def populate_from_case(self, case: BaseCase):
+        self.set_instance(instance=case)
+        super().populate_from_case(case=case)
+
+    def get_case(self) -> BaseCase | None:
+        if self.instance is not None:
+            if isinstance(self.instance, BaseCase):
+                return self.instance
+            if hasattr(self.instance, "base_case"):
+                return self.instance.base_case
+
+
+class SimplifiedCasePlatformPage(BaseCasePlatformPage):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.instance_class: ClassVar[SimplifiedCase] = SimplifiedCase
 
     def populate_from_case(self, case: SimplifiedCase):
         self.set_instance(instance=case)
@@ -292,11 +305,11 @@ class SimplifiedCasePlatformPage(PlatformPage):
                 return self.instance.audit.simplified_case
             if hasattr(self.instance, "retest"):
                 return self.instance.retest.simplified_case
-            if hasattr(self.instance, "case"):
-                return self.instance.case
+            if hasattr(self.instance, "base_case"):
+                return self.instance.base_case
 
 
-class DetailedCasePlatformPage(SimplifiedCasePlatformPage):
+class DetailedCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[DetailedCase] = DetailedCase
@@ -308,7 +321,9 @@ class DetailedCasePlatformPage(SimplifiedCasePlatformPage):
             if hasattr(self.instance, "detailed_case"):
                 return self.instance.detailed_case
 
-    def populate_from_case(self, case: DetailedCase):
+    def populate_from_case(self, case: BaseCase | DetailedCase):
+        if hasattr(case, "detailedcase"):
+            self.set_instance(instance=case.detailedcase)
         self.set_instance(instance=case)
 
 
@@ -530,7 +545,7 @@ class PlatformPageGroup:
         SIMPLIFIED_CASE_NAV: str = auto()
         DETAILED_CASE_NAV: str = auto()
         MOBILE_CASE_NAV: str = auto()
-        CASE_TOOLS: str = auto()
+        SIMPLIFIED_CASE_TOOLS: str = auto()
         DEFAULT: str = auto()
 
     name: str
@@ -543,7 +558,7 @@ class PlatformPageGroup:
     def show(self):
         return self.case_nav_group
 
-    def populate_from_case(self, case: SimplifiedCase):
+    def populate_from_case(self, case: SimplifiedCase | DetailedCase | MobileCase):
         if self.pages is not None:
             for page in self.pages:
                 page.populate_from_case(case=case)
@@ -599,11 +614,7 @@ class PlatformPageGroup:
         return 0
 
 
-class SimplifiedCasePlatformPageGroup(PlatformPageGroup):
-    def __init__(self, type=PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV, **kwargs):
-        super().__init__(**kwargs)
-        self.type: PlatformPageGroup.Type = type
-        self.case: SimplifiedCase | None = None
+class BaseCasePlatformPageGroup(PlatformPageGroup):
 
     @property
     def show(self):
@@ -611,19 +622,26 @@ class SimplifiedCasePlatformPageGroup(PlatformPageGroup):
             return getattr(self.case, self.show_flag_name)
         return self.case_nav_group
 
-    def populate_from_case(self, case: SimplifiedCase):
+    def populate_from_case(self, case: SimplifiedCase | DetailedCase | MobileCase):
         self.case = case
         super().populate_from_case(case=case)
 
 
-class DetailedCasePlatformPageGroup(SimplifiedCasePlatformPageGroup):
+class SimplifiedCasePlatformPageGroup(BaseCasePlatformPageGroup):
+    def __init__(self, type=PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV, **kwargs):
+        super().__init__(**kwargs)
+        self.type: PlatformPageGroup.Type = type
+        self.case: SimplifiedCase | None = None
+
+
+class DetailedCasePlatformPageGroup(BaseCasePlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.DETAILED_CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
         self.case: DetailedCase | None = None
 
 
-class MobileCasePlatformPageGroup(SimplifiedCasePlatformPageGroup):
+class MobileCasePlatformPageGroup(BaseCasePlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.MOBILE_CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
@@ -1376,7 +1394,7 @@ SITE_MAP: list[PlatformPageGroup] = [
     ),
     SimplifiedCasePlatformPageGroup(
         name="Case tools",
-        type=PlatformPageGroup.Type.CASE_TOOLS,
+        type=PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS,
         pages=[
             SimplifiedCasePlatformPage(
                 name="View and search all case data",
@@ -1439,7 +1457,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             SimplifiedCasePlatformPage(
                 name="Simplified case overview", url_name="simplified:case-detail"
             ),
-            SimplifiedCasePlatformPage(
+            BaseCasePlatformPage(
                 name="Create reminder",
                 url_name="notifications:reminder-create",
                 url_kwarg_key="case_id",
@@ -1564,7 +1582,7 @@ SITE_MAP: list[PlatformPageGroup] = [
         case_nav_group=False,
         pages=[
             DetailedCasePlatformPage(
-                name="Case overview", url_name="detailed:case-detail"
+                name="Detailed case overview", url_name="detailed:case-detail"
             ),
             DetailedCasePlatformPage(
                 name="Change status", url_name="detailed:edit-case-status"
@@ -1573,6 +1591,31 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Case notes",
                 url_name="detailed:create-case-note",
                 url_kwarg_key="case_id",
+            ),
+            DetailedCasePlatformPage(
+                name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"
+            ),
+            DetailedCasePlatformPage(
+                name="PSB Zendesk tickets",
+                url_name="detailed:zendesk-tickets",
+                # case_details_template_name="detailed/details/details_psb_zendesk_tickets.html",
+                subpages=[
+                    DetailedCasePlatformPage(
+                        name="Add PSB Zendesk ticket",
+                        url_name="detailed:create-zendesk-ticket",
+                        url_kwarg_key="case_id",
+                    ),
+                    PlatformPage(
+                        name="Edit PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:update-zendesk-ticket",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                    PlatformPage(
+                        name="Remove PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:confirm-delete-zendesk-ticket",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                ],
             ),
         ],
     ),
@@ -1796,7 +1839,9 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Mobile testing case",
         case_nav_group=False,
         pages=[
-            MobileCasePlatformPage(name="Case overview", url_name="mobile:case-detail"),
+            MobileCasePlatformPage(
+                name="Mobile case overview", url_name="mobile:case-detail"
+            ),
         ],
     ),
     MobileCasePlatformPageGroup(
@@ -1845,7 +1890,10 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Tech team",
         pages=[
             SimplifiedCasePlatformPage(
-                name="Case history", url_name="simplified:case-history"
+                name="Simplified case history", url_name="simplified:case-history"
+            ),
+            DetailedCasePlatformPage(
+                name="Detailed case history", url_name="detailed:case-history"
             ),
             PlatformPage(name="Issue reports", url_name="common:issue-reports-list"),
             PlatformPage(
@@ -1930,8 +1978,13 @@ def build_sitemap_for_current_page(
     case: SimplifiedCase | DetailedCase | BaseCase | None = (
         current_platform_page.get_case()
     )
-    if case is not None and case.test_type == BaseCase.TestType.SIMPLIFIED:
-        case: SimplifiedCase = case.simplifiedcase
+    if case is not None:
+        if hasattr(case, "simplifiedcase"):
+            case: SimplifiedCase = case.simplifiedcase
+        elif hasattr(case, "detailedcase"):
+            case: DetailedCase = case.detailedcase
+        elif hasattr(case, "mobilecase"):
+            case: MobileCase = case.mobilecase
     case_nav_type: PlatformPageGroup.Type | None = (
         TEST_TYPE_TO_CASE_NAV.get(case.test_type) if case is not None else None
     )
@@ -1945,12 +1998,15 @@ def build_sitemap_for_current_page(
         case_navigation: list[PlatformPageGroup] = [
             platform_page_group
             for platform_page_group in site_map
-            if platform_page_group.type
-            in [
-                case_nav_type,
-                PlatformPageGroup.Type.CASE_TOOLS,
-            ]
+            if platform_page_group.type == case_nav_type
         ]
+        if case_nav_type == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV:
+            case_navigation += [
+                platform_page_group
+                for platform_page_group in site_map
+                if platform_page_group.type
+                == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
+            ]
         for platform_page_group in case_navigation:
             platform_page_group.populate_from_case(case=case)
         return case_navigation
