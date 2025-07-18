@@ -43,6 +43,14 @@ class CaseStatusChoice:
     label: str
     test_types: list[TestType]
 
+    @property
+    def all_choices_label(self):
+        if len(self.test_types) == 1:
+            return f"{self.label} ({self.test_types[0].label[0]})"
+        if len(self.test_types) == 2:
+            return f"{self.label} ({self.test_types[0].label[0]}&{self.test_types[1].label[0]})"
+        return self.label
+
 
 CASE_STATUS_UNKNOWN: CaseStatusChoice = CaseStatusChoice(
     name="UNKNOWN",
@@ -187,7 +195,7 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     CASE_STATUS_UNKNOWN,
 ]
 ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = [
-    (case_status.value, case_status.label) for case_status in CASE_STATUSES
+    (case_status.value, case_status.all_choices_label) for case_status in CASE_STATUSES
 ]
 
 

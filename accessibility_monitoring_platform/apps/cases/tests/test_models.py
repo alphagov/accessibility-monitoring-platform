@@ -11,13 +11,42 @@ from ...notifications.models import Task
 from ..models import (
     ALL_CASE_STATUS_CHOICES,
     BaseCase,
+    CaseStatusChoice,
     CaseStatusChoices,
     DetailedCaseStatus,
     MobileCaseStatus,
     SimplifiedCaseStatus,
+    TestType,
 )
 
 REMINDER_DUE_DATE: date = date(2022, 1, 1)
+
+
+def test_case_status_choice_all_choices_label():
+    """
+    When list all status choices add indication to label when choice is not
+    available for all testing types.
+    """
+    case_status_choice: CaseStatusChoice = CaseStatusChoice(
+        name="STATUS",
+        value="990-status",
+        label="Status label",
+        test_types=[TestType.SIMPLIFIED],
+    )
+
+    assert case_status_choice.all_choices_label == "Status label (S)"
+
+    case_status_choice.test_types = [
+        TestType.SIMPLIFIED,
+        TestType.DETAILED,
+        TestType.MOBILE,
+    ]
+
+    assert case_status_choice.all_choices_label == "Status label"
+
+    case_status_choice.test_types = [TestType.DETAILED, TestType.MOBILE]
+
+    assert case_status_choice.all_choices_label == "Status label (D&M)"
 
 
 def test_all_case_statuses():
