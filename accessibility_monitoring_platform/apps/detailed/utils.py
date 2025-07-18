@@ -266,7 +266,7 @@ def create_detailed_case_from_dict(
                 detailed_case=detailed_case,
                 created=last_updated,
                 created_by=auditor,
-                note=f"Legacy {column_name}:\n\n{row[column_name]}",
+                note=f"{column_name} from imported spreadsheet:\n\n{row[column_name]}",
             )
 
     if feedback_survey_sent and feedback_survey_sent != "Yes":
@@ -274,7 +274,7 @@ def create_detailed_case_from_dict(
             detailed_case=detailed_case,
             created=last_updated,
             created_by=auditor,
-            note=f"Legacy Feedback survey sent:\n\n{feedback_survey_sent}",
+            note=f"Feedback survey sent from imported spreadsheet:\n\n{feedback_survey_sent}",
         )
 
     contact: Contact = Contact.objects.create(
@@ -293,7 +293,7 @@ def create_detailed_case_from_dict(
             ZendeskTicket.objects.create(
                 detailed_case=detailed_case,
                 url=zendesk_url,
-                summary="Legacy",
+                summary="From imported spreadsheet",
             )
 
 
