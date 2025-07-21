@@ -45,10 +45,11 @@ class CaseStatusChoice:
 
     @property
     def all_choices_label(self):
-        if len(self.test_types) == 1:
-            return f"{self.label} ({self.test_types[0].label[0]})"
-        if len(self.test_types) == 2:
-            return f"{self.label} ({self.test_types[0].label[0]}&{self.test_types[1].label[0]})"
+        if len(self.test_types) < len(TestType):
+            test_type_initials: str = "&".join(
+                [test_type.label[0] for test_type in self.test_types]
+            )
+            return f"{self.label} ({test_type_initials})"
         return self.label
 
 
