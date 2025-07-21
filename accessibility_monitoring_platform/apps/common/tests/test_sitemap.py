@@ -77,6 +77,10 @@ class MockRequest:
             self.GET = get_params
 
 
+class MockInstance:
+    complete_flag: bool = False
+
+
 def test_platform_page_url_kwarg_key():
     """
     Test PlatformPage url_kwarg_key defaults to "pk" if an instance_class is set
@@ -132,9 +136,7 @@ def test_platform_page_url():
 def test_platform_page_url_missing_instance():
     """Test PlatformPage.url returns empty string when a required instance is missing"""
     assert (
-        PlatformPage(
-            name=PLATFORM_PAGE_NAME, url_name=URL_NAME, instance_required_for_url=True
-        ).url
+        PlatformPage(name=PLATFORM_PAGE_NAME, url_name=URL_NAME, url_kwarg_key="pk").url
         == ""
     )
 
@@ -246,7 +248,7 @@ def test_populate_from_request(rf):
     platform_page: PlatformPage = PlatformPage(
         name="Edit contact {instance}",
         url_name="simplified:edit-contact-update",
-        instance_required_for_url=True,
+        url_kwarg_key="pk",
         instance_class=Contact,
     )
 
@@ -363,7 +365,6 @@ def test_simplified_case_platform_page():
         SimplifiedCasePlatformPage(name=PLATFORM_PAGE_NAME)
     )
 
-    assert simplified_case_platform_page.instance_required_for_url is True
     assert simplified_case_platform_page.instance_class == SimplifiedCase
     assert simplified_case_platform_page.url_kwarg_key == "pk"
 
@@ -380,7 +381,6 @@ def test_detailed_case_platform_page():
         name=PLATFORM_PAGE_NAME
     )
 
-    assert detailed_case_platform_page.instance_required_for_url is True
     assert detailed_case_platform_page.instance_class == DetailedCase
     assert detailed_case_platform_page.url_kwarg_key == "pk"
 
@@ -397,7 +397,6 @@ def test_mobile_case_platform_page():
         name=PLATFORM_PAGE_NAME
     )
 
-    assert mobile_case_platform_page.instance_required_for_url is True
     assert mobile_case_platform_page.instance_class == MobileCase
     assert mobile_case_platform_page.url_kwarg_key == "pk"
 
@@ -416,7 +415,6 @@ def test_case_comments_platform_page():
     )
 
     assert isinstance(case_comments_platform_page, CaseCommentsPlatformPage)
-    assert case_comments_platform_page.instance_required_for_url is True
     assert case_comments_platform_page.instance_class == SimplifiedCase
     assert case_comments_platform_page.url_kwarg_key == "pk"
 
@@ -449,7 +447,6 @@ def test_case_contacts_platform_page():
     )
 
     assert isinstance(case_contacts_platform_page, CaseContactsPlatformPage)
-    assert case_contacts_platform_page.instance_required_for_url is True
     assert case_contacts_platform_page.instance_class == SimplifiedCase
     assert case_contacts_platform_page.url_kwarg_key == "pk"
 
@@ -475,7 +472,6 @@ def test_audit_platform_page():
     """Test AuditPlatformPage"""
     audit_platform_page: AuditPlatformPage = AuditPlatformPage(name=PLATFORM_PAGE_NAME)
 
-    assert audit_platform_page.instance_required_for_url is True
     assert audit_platform_page.instance_class == Audit
     assert audit_platform_page.url_kwarg_key == "pk"
 
@@ -495,7 +491,6 @@ def test_audit_pages_platform_page():
     )
 
     assert isinstance(audit_pages_platform_page, AuditPagesPlatformPage)
-    assert audit_pages_platform_page.instance_required_for_url is True
     assert audit_pages_platform_page.instance_class == Audit
     assert audit_pages_platform_page.url_kwarg_key == "pk"
 
@@ -519,7 +514,6 @@ def test_report_platform_page():
         name=PLATFORM_PAGE_NAME
     )
 
-    assert report_platform_page.instance_required_for_url is True
     assert report_platform_page.instance_class == Report
     assert report_platform_page.url_kwarg_key == "pk"
 
@@ -541,7 +535,6 @@ def test_audit_retest_pages_platform_page():
     )
 
     assert isinstance(audit_retest_pages_platform_page, AuditRetestPagesPlatformPage)
-    assert audit_retest_pages_platform_page.instance_required_for_url is True
     assert audit_retest_pages_platform_page.instance_class == Audit
     assert audit_retest_pages_platform_page.url_kwarg_key == "pk"
 
@@ -585,7 +578,6 @@ def test_equality_body_retest_platform_page():
         EqualityBodyRetestPlatformPage(name=PLATFORM_PAGE_NAME)
     )
 
-    assert equality_body_retest_platform_page.instance_required_for_url is True
     assert equality_body_retest_platform_page.instance_class == Retest
     assert equality_body_retest_platform_page.url_kwarg_key == "pk"
 
@@ -600,7 +592,6 @@ def test_retest_overview_platform_page():
     )
 
     assert isinstance(retest_overview_platform_page, RetestOverviewPlatformPage)
-    assert retest_overview_platform_page.instance_required_for_url is True
     assert retest_overview_platform_page.instance_class == SimplifiedCase
     assert retest_overview_platform_page.url_kwarg_key == "pk"
 
@@ -634,7 +625,6 @@ def test_equality_body_retest_pages_platform_page():
         )
     )
 
-    assert equality_body_retest_pages_platform_page.instance_required_for_url is True
     assert equality_body_retest_pages_platform_page.instance_class == Retest
     assert equality_body_retest_pages_platform_page.url_kwarg_key == "pk"
 
@@ -1040,3 +1030,74 @@ def test_mobile_case_platform_page_group():
     mobile_case_platform_page_group.populate_from_case(case=mobile_case)
 
     assert mobile_case_platform_page_group.case == mobile_case
+
+
+def test_completable_pages_and_subpages():
+    """Count number of pages in a group"""
+    platform_subpage: PlatformPage = PlatformPage(
+        name="Sub page",
+        url_name="test:page-two",
+        complete_flag_name="complete_flag",
+    )
+    platform_page: PlatformPage = PlatformPage(
+        name="First page",
+        url_name="test:page-one",
+        complete_flag_name="complete_flag",
+        subpages=[platform_subpage],
+    )
+    platform_page_group: PlatformPageGroup = PlatformPageGroup(
+        name="Group name",
+        pages=[platform_page],
+    )
+
+    assert platform_page_group.completable_pages_and_subpages() == [
+        platform_page,
+        platform_subpage,
+    ]
+
+
+def test_number_pages_and_subpages():
+    """Count number of pages in a group"""
+    platform_page: PlatformPage = PlatformPage(
+        name="First page",
+        url_name="test:page-one",
+        complete_flag_name="complete_flag",
+        subpages=[
+            PlatformPage(
+                name="Sub page",
+                url_name="test:page-two",
+                complete_flag_name="complete_flag",
+            )
+        ],
+    )
+    platform_page_group: PlatformPageGroup = PlatformPageGroup(
+        name="Group name",
+        pages=[platform_page],
+    )
+
+    assert platform_page_group.number_pages_and_subpages() == 2
+
+
+def test_number_complete():
+    """Count number of pages in a group marked as complete"""
+    mock_instance_1 = MockInstance()
+    platform_page_1: PlatformPage = PlatformPage(
+        name="First page",
+        url_name="test:page-one",
+        instance=mock_instance_1,
+        complete_flag_name="complete_flag",
+    )
+    platform_page_2: PlatformPage = PlatformPage(
+        name="Second page",
+        url_name="test:page-two",
+    )
+    platform_page_group: PlatformPageGroup = PlatformPageGroup(
+        name="Group name",
+        pages=[platform_page_1, platform_page_2],
+    )
+
+    assert platform_page_group.number_complete() == 0
+
+    mock_instance_1.complete_flag = True
+
+    assert platform_page_group.number_complete() == 1
