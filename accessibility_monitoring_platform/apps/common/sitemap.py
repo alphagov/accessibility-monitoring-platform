@@ -1243,6 +1243,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                     PlatformPage(
                         name="Edit Zendesk ticket",
                         url_name="simplified:edit-equality-body-correspondence",
+                        url_kwarg_key="pk",
                         instance_class=EqualityBodyCorrespondence,
                         visible_only_when_current=True,
                     ),
@@ -1397,11 +1398,13 @@ SITE_MAP: list[PlatformPageGroup] = [
                     PlatformPage(
                         name="Edit PSB Zendesk ticket #{instance.id_within_case}",
                         url_name="simplified:update-zendesk-ticket",
+                        url_kwarg_key="pk",
                         instance_class=ZendeskTicket,
                     ),
                     PlatformPage(
                         name="Remove PSB Zendesk ticket #{instance.id_within_case}",
                         url_name="simplified:confirm-delete-zendesk-ticket",
+                        url_kwarg_key="pk",
                         instance_class=ZendeskTicket,
                     ),
                 ],
@@ -1573,11 +1576,13 @@ SITE_MAP: list[PlatformPageGroup] = [
                     PlatformPage(
                         name="Edit PSB Zendesk ticket #{instance.id_within_case}",
                         url_name="detailed:update-zendesk-ticket",
+                        url_kwarg_key="pk",
                         instance_class=DetailedZendeskTicket,
                     ),
                     PlatformPage(
                         name="Remove PSB Zendesk ticket #{instance.id_within_case}",
                         url_name="detailed:confirm-delete-zendesk-ticket",
+                        url_kwarg_key="pk",
                         instance_class=DetailedZendeskTicket,
                     ),
                 ],

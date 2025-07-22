@@ -623,9 +623,13 @@ class CaseCloseUpdateForm(VersionForm):
         label="Enforcement recommendation",
         choices=DetailedCase.RecommendationForEnforcement.choices,
     )
-    notes = AMPTextField(label="Enforcement recommendation details")
-    case_close_decision_sent_date = AMPDateField(label="Date decision email sent")
-    case_close_decision_sent_to = AMPCharFieldWide(label="Decision sent to")
+    recommendation_notes = AMPTextField(label="Enforcement recommendation details")
+    recommendation_decision_sent_date = AMPDateField(label="Date decision email sent")
+    recommendation_decision_sent_to = AMPCharFieldWide(label="Decision sent to")
+    case_close_decision_state = AMPChoiceRadioField(
+        label="Case completed",
+        choices=DetailedCase.CaseCloseDecision,
+    )
     is_feedback_survey_sent = AMPChoiceCheckboxField(
         label="Feedback survey sent",
         choices=Boolean.choices,
@@ -640,9 +644,10 @@ class CaseCloseUpdateForm(VersionForm):
         fields = [
             "version",
             "recommendation_for_enforcement",
-            "notes",
-            "case_close_decision_sent_date",
-            "case_close_decision_sent_to",
+            "recommendation_notes",
+            "recommendation_decision_sent_date",
+            "recommendation_decision_sent_to",
+            "case_close_decision_state",
             "is_feedback_survey_sent",
             "case_close_complete_date",
         ]

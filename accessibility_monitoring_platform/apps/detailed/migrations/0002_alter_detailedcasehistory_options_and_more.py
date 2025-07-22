@@ -25,6 +25,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="detailedcase",
+            name="recommendation_notes",
+            field=models.TextField(blank=True, default=""),
+        ),
+        migrations.AddField(
+            model_name="detailedcase",
             name="no_psb_contact",
             field=models.CharField(
                 choices=[("yes", "Yes"), ("no", "No")], default="no", max_length=20
@@ -38,6 +43,16 @@ class Migration(migrations.Migration):
                 default="website",
                 max_length=20,
             ),
+        ),
+        migrations.RenameField(
+            model_name="detailedcase",
+            old_name="case_close_decision_sent_date",
+            new_name="recommendation_decision_sent_date",
+        ),
+        migrations.RenameField(
+            model_name="detailedcase",
+            old_name="case_close_decision_sent_to",
+            new_name="recommendation_decision_sent_to",
         ),
         migrations.AlterField(
             model_name="contact",

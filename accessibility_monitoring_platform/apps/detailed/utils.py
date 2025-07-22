@@ -211,7 +211,7 @@ def create_detailed_case_from_dict(
             row["Enforcement Recommendation"]
         ],
         retest_date=get_datetime_from_string(row["Retest date"]),
-        case_close_decision_sent_date=get_datetime_from_string(
+        recommendation_decision_sent_date=get_datetime_from_string(
             row["Date decision email sent"]
         ),
         enforcement_body_sent_date=get_datetime_from_string(
@@ -229,6 +229,7 @@ def create_detailed_case_from_dict(
             row["Disproportionate Burden Claimed?"],
             DetailedCase.DisproportionateBurden.NOT_CHECKED,
         ),
+        recommendation_notes=row["Enforcement Recommendation Notes"],
     )
     detailed_case.created = created
     detailed_case.case_number = case_number
@@ -239,7 +240,7 @@ def create_detailed_case_from_dict(
         DetailedCaseHistory.objects.create(
             detailed_case_id=detailed_case.id,
             event_type=DetailedCaseHistory.EventType.STATUS,
-            value="Legacy",
+            value="Imported from spreadsheet",
             created_by=auditor,
         )
     )
@@ -259,7 +260,6 @@ def create_detailed_case_from_dict(
         "Summary of progress made / response from PSB",
         "Disproportionate Burden Notes",
         "Notes on accessibility statement",
-        "Enforcement Recommendation Notes",
     ]:
         if row[column_name]:
             add_note_to_history(
