@@ -1,6 +1,4 @@
-"""
-Test utility functions of cases app
-"""
+"""Test sitemap"""
 
 from datetime import date
 

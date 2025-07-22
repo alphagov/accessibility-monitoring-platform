@@ -3014,6 +3014,15 @@ def test_test_statement_summary_page_view(url_name, admin_client):
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
     StatementPage.objects.create(audit=audit, url="https://example.com")
+    overview_statement_check: StatementCheck | None = StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ).first()
+    StatementCheckResult.objects.create(
+        statement_check=overview_statement_check,
+        audit=audit,
+        type=StatementCheck.Type.OVERVIEW,
+        check_result_state=StatementCheckResult.Result.YES,
+    )
     statement_check: StatementCheck = StatementCheck.objects.filter(
         type=StatementCheck.Type.WEBSITE
     ).first()

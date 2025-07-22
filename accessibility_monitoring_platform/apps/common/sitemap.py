@@ -82,18 +82,6 @@ def populate_subpages_with_instance(
     return subpages
 
 
-class Sitemap:
-    platform_page_groups: list[PlatformPageGroup]
-    current_platform_page: PlatformPage
-    next_platform_page: PlatformPage | None
-
-    def __init__(self, request: HttpRequest):
-        self.current_platform_page = get_requested_platform_page(request=request)
-        self.platform_page_groups = build_sitemap_for_current_page(
-            current_platform_page=self.current_platform_page
-        )
-
-
 class PlatformPage:
     name: str
     platform_page_group: PlatformPageGroup | None = None
@@ -1982,3 +1970,15 @@ def build_sitemap_for_current_page(
             platform_page_group.populate_from_case(case=case)
         return case_navigation
     return SITE_MAP
+
+
+class Sitemap:
+    platform_page_groups: list[PlatformPageGroup]
+    current_platform_page: PlatformPage
+    next_platform_page: PlatformPage | None
+
+    def __init__(self, request: HttpRequest):
+        self.current_platform_page = get_requested_platform_page(request=request)
+        self.platform_page_groups = build_sitemap_for_current_page(
+            current_platform_page=self.current_platform_page
+        )

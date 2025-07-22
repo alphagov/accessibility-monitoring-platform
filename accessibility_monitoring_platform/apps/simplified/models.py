@@ -1325,12 +1325,7 @@ class Contact(VersionModel):
         ordering = ["-preferred", "-id"]
 
     def __str__(self) -> str:
-        string: str = ""
-        if self.name:
-            string = self.name
-        if self.email:
-            string += f" {self.email}"
-        return string
+        return f"{self.name} {self.email}".strip()
 
     def get_absolute_url(self) -> str:
         return reverse(
