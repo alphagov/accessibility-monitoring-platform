@@ -146,11 +146,19 @@ def test_platform_page_show():
     assert PlatformPage(name=PLATFORM_PAGE_NAME).show is True
     assert (
         PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=SimplifiedCase).show
-        is True
+        is False
     )
 
     simplified_case: SimplifiedCase = SimplifiedCase(organisation_name="Show flag")
 
+    assert (
+        PlatformPage(
+            name=PLATFORM_PAGE_NAME,
+            instance_class=SimplifiedCase,
+            instance=simplified_case,
+        ).show
+        is True
+    )
     assert (
         PlatformPage(
             name=PLATFORM_PAGE_NAME,

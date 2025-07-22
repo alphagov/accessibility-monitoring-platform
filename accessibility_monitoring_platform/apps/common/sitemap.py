@@ -157,7 +157,7 @@ class PlatformPage:
             return None
         if self.name.startswith("Page not found for "):
             return ""
-        if self.instance is not None and self.url_kwarg_key is not None:
+        if self.url_kwarg_key and self.instance is not None:
             return reverse(self.url_name, kwargs={self.url_kwarg_key: self.instance.id})
         if self.url_kwarg_key and self.instance is None:
             logger.warning(
@@ -172,6 +172,8 @@ class PlatformPage:
     def show(self):
         if self.instance is not None and self.show_flag_name is not None:
             return getattr(self.instance, self.show_flag_name)
+        if self.instance is None and self.url_kwarg_key:
+            return False
         return True
 
     @property
