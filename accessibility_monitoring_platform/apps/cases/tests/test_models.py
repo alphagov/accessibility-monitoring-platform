@@ -34,7 +34,7 @@ def test_case_status_choice_all_choices_label():
         test_types=[TestType.SIMPLIFIED],
     )
 
-    assert case_status_choice.all_choices_label == "Status label (S)"
+    assert case_status_choice.search_cases_choices_label == "Status label (S)"
 
     case_status_choice.test_types = [
         TestType.SIMPLIFIED,
@@ -42,11 +42,11 @@ def test_case_status_choice_all_choices_label():
         TestType.MOBILE,
     ]
 
-    assert case_status_choice.all_choices_label == "Status label"
+    assert case_status_choice.search_cases_choices_label == "Status label"
 
     case_status_choice.test_types = [TestType.DETAILED, TestType.MOBILE]
 
-    assert case_status_choice.all_choices_label == "Status label (D&M)"
+    assert case_status_choice.search_cases_choices_label == "Status label (D&M)"
 
 
 def test_all_case_statuses():

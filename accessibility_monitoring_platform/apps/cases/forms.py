@@ -7,7 +7,7 @@ from django.db import models
 from django.db.models import QuerySet
 
 from ..cases.models import (
-    ALL_CASE_STATUS_CHOICES,
+    ALL_CASE_STATUS_SEARCH_CHOICES,
     CASE_STATUS_UNKNOWN,
     BaseCase,
     Complaint,
@@ -26,7 +26,7 @@ TEST_TYPE_CHOICES: list[tuple[str, str]] = [("", "All")] + BaseCase.TestType.cho
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + BaseCase.EnforcementBody.choices
 STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + [
     choice
-    for choice in ALL_CASE_STATUS_CHOICES
+    for choice in ALL_CASE_STATUS_SEARCH_CHOICES
     if choice[0] != CASE_STATUS_UNKNOWN.value
 ]
 RECOMMENDATION_CHOICES: list[tuple[str, str]] = [

@@ -44,7 +44,7 @@ class CaseStatusChoice:
     test_types: list[TestType]
 
     @property
-    def all_choices_label(self):
+    def search_cases_choices_label(self):
         if len(self.test_types) < len(TestType):
             test_type_initials: str = "&".join(
                 [test_type.label[0] for test_type in self.test_types]
@@ -195,8 +195,12 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     ),
     CASE_STATUS_UNKNOWN,
 ]
+ALL_CASE_STATUS_SEARCH_CHOICES: list[tuple[str, str]] = [
+    (case_status.value, case_status.search_cases_choices_label)
+    for case_status in CASE_STATUSES
+]
 ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = [
-    (case_status.value, case_status.all_choices_label) for case_status in CASE_STATUSES
+    (case_status.value, case_status.label) for case_status in CASE_STATUSES
 ]
 
 
