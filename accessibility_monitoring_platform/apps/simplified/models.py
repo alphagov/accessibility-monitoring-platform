@@ -1206,9 +1206,12 @@ class CaseStatus(models.Model):
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            self.simplified_case.compliance.website_compliance_state_initial
-            != CaseCompliance.WebsiteCompliance.UNKNOWN
-            and not self.simplified_case.statement_checks_still_initial
+            self.simplified_case.compliance.website_compliance_state_initial != CaseCompliance.WebsiteCompliance.UNKNOWN
+            and (
+                not self.simplified_case.statement_checks_still_initial
+                or self.simplified_case.compliance.statement_compliance_state_initial
+                != CaseCompliance.StatementCompliance.UNKNOWN
+            )
             and self.simplified_case.report_review_status != Boolean.YES
         ):
             return CaseStatus.Status.REPORT_IN_PROGRESS
