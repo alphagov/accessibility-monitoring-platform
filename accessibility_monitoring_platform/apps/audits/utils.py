@@ -481,8 +481,5 @@ def change_statement_question_from_dict(row: dict[str, Any]) -> None:
 def statement_questions_bulk_update(csv_data: str) -> None:
     """Bulk update statement questions from data in CSV"""
     reader: Any = csv.DictReader(io.StringIO(csv_data))
-    import pdb
-
-    pdb.set_trace()
     for row in reader:
         change_statement_question_from_dict(row=row)
