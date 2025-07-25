@@ -7,7 +7,7 @@ from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.mail import EmailMessage
 from django.db.models.query import QuerySet
@@ -19,6 +19,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
+from ..audits.utils import statement_questions_bulk_update
 from ..cases.models import BaseCase
 from ..common.sitemap import PlatformPage, Sitemap
 from ..detailed.utils import import_detailed_cases_csv
@@ -40,6 +41,7 @@ from .forms import (
     FrequentlyUsedLinkOneExtraFormset,
     ImportCSVForm,
     PlatformCheckingForm,
+    StatementQuestionBulkUpdateForm,
 )
 from .mark_deleted_util import mark_object_as_deleted
 from .metrics import (
@@ -63,6 +65,12 @@ from .platform_template_view import PlatformTemplateView
 from .utils import extract_domain_from_url, get_platform_settings, sanitise_domain
 
 logger = logging.getLogger(__name__)
+
+
+class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 class HideCaseNavigationMixin:
@@ -421,7 +429,7 @@ class FooterLinkFormsetTemplateView(TemplateView):
         return url
 
 
-class PlatformCheckingView(UserPassesTestMixin, FormView):
+class PlatformCheckingView(StaffRequiredMixin, FormView):
     """
     Write log message
     """
@@ -429,10 +437,6 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
     form_class = PlatformCheckingForm
     template_name: str = "common/tech_team/platform_checking.html"
     success_url: str = reverse_lazy("common:platform-checking")
-
-    def test_func(self):
-        """Only staff users have access to this view"""
-        return self.request.user.is_staff
 
     def form_valid(self, form):
         if "trigger_400" in self.request.POST:
@@ -447,7 +451,7 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
         return super().form_valid(form)
 
 
-class ReferenceImplementaionView(TemplateView):
+class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
     """Reference implementations of reusable components"""
 
     template_name: str = "common/tech_team/reference_implementation.html"
@@ -525,10 +529,8 @@ class BulkURLSearchView(FormView):
         return self.render_to_response()
 
 
-class ImportCSV(FormView):
-    """
-    Bulk search for cases matching URLs
-    """
+class ImportCSV(StaffRequiredMixin, FormView):
+    """Reset Detailed or Mobile Cases data from CSV"""
 
     form_class = ImportCSVForm
     template_name: str = "common/import_csv.html"
@@ -545,4 +547,22 @@ class ImportCSV(FormView):
                 import_detailed_cases_csv(csv_data)
             elif form.cleaned_data["model"] == "mobile":
                 import_mobile_cases_csv(csv_data)
+        return self.render_to_response(self.get_context_data())
+
+
+class StatementQuestionBulkUpdate(StaffRequiredMixin, FormView):
+    """Bulk update of statement questions from CSV data"""
+
+    form_class = StatementQuestionBulkUpdateForm
+    template_name: str = "common/statement_questions_csv.html"
+    success_url: str = reverse_lazy("common:statement-questions-csv")
+
+    def post(
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect:
+        context: dict[str, Any] = self.get_context_data()
+        form = context["form"]
+        if form.is_valid():
+            csv_data: str = form.cleaned_data["data"]
+            statement_questions_bulk_update(csv_data)
         return self.render_to_response(self.get_context_data())
