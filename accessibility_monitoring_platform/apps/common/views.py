@@ -7,7 +7,7 @@ from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.mail import EmailMessage
 from django.db.models.query import QuerySet
@@ -64,6 +64,12 @@ from .platform_template_view import PlatformTemplateView
 from .utils import extract_domain_from_url, get_platform_settings, sanitise_domain
 
 logger = logging.getLogger(__name__)
+
+
+class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 class HideCaseNavigationMixin:
@@ -422,7 +428,7 @@ class FooterLinkFormsetTemplateView(TemplateView):
         return url
 
 
-class PlatformCheckingView(UserPassesTestMixin, FormView):
+class PlatformCheckingView(StaffRequiredMixin, FormView):
     """
     Write log message
     """
@@ -448,8 +454,8 @@ class PlatformCheckingView(UserPassesTestMixin, FormView):
         return super().form_valid(form)
 
 
-class ReferenceImplementaionView(TemplateView):
-    """Reference implementations of reusable components"""
+class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
+    """Reference implementation of reusable components"""
 
     template_name: str = "common/tech_team/reference_implementation.html"
 
@@ -527,7 +533,7 @@ class BulkURLSearchView(FormView):
         return self.render_to_response()
 
 
-class ImportCSV(FormView):
+class ImportCSV(StaffRequiredMixin, FormView):
     """
     Bulk search for cases matching URLs
     """

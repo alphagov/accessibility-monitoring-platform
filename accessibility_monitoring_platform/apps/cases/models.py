@@ -30,7 +30,11 @@ COMPLIANCE_FIELDS: list[str] = [
 UPDATE_SEPARATOR: str = " -> "
 
 
-class TestType(models.TextChoices):
+class DisablePyTestCollectionMixin(object):
+    __test__ = False
+
+
+class TestType(DisablePyTestCollectionMixin, models.TextChoices):
     SIMPLIFIED = "simplified", "Simplified"
     DETAILED = "detailed", "Detailed"
     MOBILE = "mobile", "Mobile"
