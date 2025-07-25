@@ -1856,7 +1856,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
             PlatformPage(name="Issue reports", url_name="common:issue-reports-list"),
             PlatformPage(
-                name="Reference implementations",
+                name="Reference implementation",
                 url_name="common:reference-implementation",
             ),
             PlatformPage(name="Tools and sitemap", url_name="common:platform-checking"),
