@@ -10,6 +10,21 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AddField(
+            model_name="audit",
+            name="audit_retest_statement_disproportionate_complete_date",
+            field=models.DateField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name="audit",
+            name="audit_statement_disproportionate_complete_date",
+            field=models.DateField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name="retest",
+            name="statement_disproportionate_complete_date",
+            field=models.DateField(blank=True, null=True),
+        ),
         migrations.AlterField(
             model_name="reteststatementcheckresult",
             name="type",

@@ -30,6 +30,7 @@ from ..forms import (
     AuditRetestStatementComplianceUpdateForm,
     AuditRetestStatementCustomUpdateForm,
     AuditRetestStatementDecisionUpdateForm,
+    AuditRetestStatementDisproportionateUpdateForm,
     AuditRetestStatementFeedbackUpdateForm,
     AuditRetestStatementInitialCustomIssueUpdateForm,
     AuditRetestStatementNonAccessibleUpdateForm,
@@ -454,6 +455,17 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
         AuditRetestStatementFeedbackUpdateForm
     )
     statement_check_type: str = StatementCheck.Type.FEEDBACK
+
+
+class AuditRetestStatementDisproportionateFormView(AuditRetestStatementCheckingView):
+    """
+    View to update statement disproportionate burden check results retest
+    """
+
+    form_class: type[AuditRetestStatementDisproportionateUpdateForm] = (
+        AuditRetestStatementDisproportionateUpdateForm
+    )
+    statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
 class AuditRetestStatementCustomFormView(AuditUpdateView):

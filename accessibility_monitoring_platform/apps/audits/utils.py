@@ -474,15 +474,14 @@ def add_to_check_result_restest_notes_history(
 
 def change_statement_question_from_dict(row: dict[str, Any]) -> None:
     """Update or create StatementCheck"""
-    today: date = date.today()
-    yesterday: date = today - timedelta(days=1)
+    yesterday: date = date.today() - timedelta(days=1)
     if row["id"]:
         statement_check_id: int = int(row["id"])
         statement_check: StatementCheck = StatementCheck.objects.get(
             id=statement_check_id
         )
         if row["end_date"]:
-            statement_check.date_end = today
+            statement_check.date_end = yesterday
             statement_check.position = int(row["position"])
             statement_check.save()
             return

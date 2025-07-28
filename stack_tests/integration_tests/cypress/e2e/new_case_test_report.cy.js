@@ -83,6 +83,9 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Feedback and enforcement procedure`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | Disproportionate burden claim`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | Custom issues`)
     cy.contains('Save and continue').click()
 
@@ -192,6 +195,9 @@ describe('Create simplified case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Feedback and enforcement procedure`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Disproportionate burden claim`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Custom issues`)
