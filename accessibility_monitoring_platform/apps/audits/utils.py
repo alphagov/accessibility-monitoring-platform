@@ -5,7 +5,7 @@ Utilities for audits app
 import csv
 import io
 from collections import namedtuple
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any, TypeVar
 
 from django.contrib.auth.models import User
@@ -473,9 +473,33 @@ def add_to_check_result_restest_notes_history(
 
 
 def change_statement_question_from_dict(row: dict[str, Any]) -> None:
-    if "id" in row and row["id"]:
+    """Update or create StatementCheck"""
+    today: date = date.today()
+    yesterday: date = today - timedelta(days=1)
+    if row["id"]:
         statement_check_id: int = int(row["id"])
-        statement_check: StatementCheck.objects.get(id=statement_check_id)
+        statement_check: StatementCheck = StatementCheck.objects.get(
+            id=statement_check_id
+        )
+        if row["end_date"]:
+            statement_check.date_end = today
+            statement_check.position = int(row["position"])
+            statement_check.save()
+            return
+        statement_check.label = row["New Question"]
+        statement_check.success_criteria = row["New Success criteria "]
+        statement_check.report_text = row["New Report text"]
+        statement_check.position = int(row["position"])
+        statement_check.save()
+    else:
+        statement_check: StatementCheck = StatementCheck.objects.create(
+            type=row["type"],
+            label=row["New Question"],
+            success_criteria=row["New Success criteria "],
+            report_text=row["New Report text"],
+            position=int(row["position"]),
+            date_start=yesterday,
+        )
 
 
 def statement_questions_bulk_update(csv_data: str) -> None:

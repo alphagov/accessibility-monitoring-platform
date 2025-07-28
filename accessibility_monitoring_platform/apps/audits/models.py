@@ -839,6 +839,7 @@ class StatementCheck(models.Model):
         FEEDBACK = "feedback", "Feedback and enforcement procedure"
         CUSTOM = "custom", "Custom statement issues"
         TWELVE_WEEK = "12-week", "New 12-week custom statement issues"
+        DISPROPORTIONATE = "disproportionate", "Disproportionate burden"
 
     type = models.CharField(
         max_length=20,
