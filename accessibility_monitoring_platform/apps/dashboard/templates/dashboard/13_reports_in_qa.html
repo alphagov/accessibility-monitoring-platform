@@ -4,7 +4,7 @@
     <table class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header amp-width-15-percent">Date created</th>
+                <th scope="col" class="govuk-table__header amp-width-15-percent">Date of test</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">QA status</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Auditor</th>
@@ -14,7 +14,7 @@
             {% for case in all_cases_in_qa %}
                 <tr class="govuk-table__row ">
                     <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">
-                        {{ case.created|amp_date_trunc }}
+                        {% if case.audit %}{{ case.audit.date_of_test|amp_date_trunc }}{% else %}None{% endif %}
                     </th>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         <a href="{% url 'simplified:edit-qa-auditor' case.id %}" class="govuk-link">
