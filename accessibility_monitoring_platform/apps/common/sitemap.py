@@ -1856,6 +1856,10 @@ SITE_MAP: list[PlatformPageGroup] = [
             PlatformPage(
                 name="Reset detailed or mobile case data", url_name="common:import-csv"
             ),
+            PlatformPage(
+                name="Statement questions bulk update",
+                url_name="common:statement-questions-csv",
+            ),
         ],
     ),
 ]

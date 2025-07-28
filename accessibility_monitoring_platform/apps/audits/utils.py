@@ -2,6 +2,8 @@
 Utilities for audits app
 """
 
+import csv
+import io
 from collections import namedtuple
 from datetime import date, datetime
 from typing import Any, TypeVar
@@ -468,3 +470,19 @@ def add_to_check_result_restest_notes_history(
             retest_notes=check_result.retest_notes,
             retest_state=check_result.retest_state,
         )
+
+
+def change_statement_question_from_dict(row: dict[str, Any]) -> None:
+    if "id" in row and row["id"]:
+        statement_check_id: int = int(row["id"])
+        statement_check: StatementCheck.objects.get(id=statement_check_id)
+
+
+def statement_questions_bulk_update(csv_data: str) -> None:
+    """Bulk update statement questions from data in CSV"""
+    reader: Any = csv.DictReader(io.StringIO(csv_data))
+    import pdb
+
+    pdb.set_trace()
+    for row in reader:
+        change_statement_question_from_dict(row=row)
