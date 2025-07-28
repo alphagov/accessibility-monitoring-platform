@@ -19,6 +19,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
+from ..audits.utils import statement_questions_bulk_update
 from ..cases.models import BaseCase
 from ..common.sitemap import PlatformPage, Sitemap
 from ..detailed.models import DetailedCase
@@ -41,6 +42,7 @@ from .forms import (
     FrequentlyUsedLinkOneExtraFormset,
     ImportCSVForm,
     PlatformCheckingForm,
+    StatementQuestionBulkUpdateForm,
 )
 from .mark_deleted_util import mark_object_as_deleted
 from .metrics import (
@@ -437,10 +439,6 @@ class PlatformCheckingView(StaffRequiredMixin, FormView):
     template_name: str = "common/tech_team/platform_checking.html"
     success_url: str = reverse_lazy("common:platform-checking")
 
-    def test_func(self):
-        """Only staff users have access to this view"""
-        return self.request.user.is_staff
-
     def form_valid(self, form):
         if "trigger_400" in self.request.POST:
             raise BadRequest
@@ -534,9 +532,7 @@ class BulkURLSearchView(FormView):
 
 
 class ImportCSV(StaffRequiredMixin, FormView):
-    """
-    Bulk search for cases matching URLs
-    """
+    """Reset Detailed or Mobile Cases data from CSV"""
 
     form_class = ImportCSVForm
     template_name: str = "common/import_csv.html"
@@ -553,4 +549,22 @@ class ImportCSV(StaffRequiredMixin, FormView):
                 import_detailed_cases_csv(csv_data)
             elif form.cleaned_data["model"] == "mobile":
                 import_mobile_cases_csv(csv_data)
+        return self.render_to_response(self.get_context_data())
+
+
+class StatementQuestionBulkUpdate(StaffRequiredMixin, FormView):
+    """Bulk update of statement questions from CSV data"""
+
+    form_class = StatementQuestionBulkUpdateForm
+    template_name: str = "common/statement_questions_csv.html"
+    success_url: str = reverse_lazy("common:statement-questions-csv")
+
+    def post(
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect:
+        context: dict[str, Any] = self.get_context_data()
+        form = context["form"]
+        if form.is_valid():
+            csv_data: str = form.cleaned_data["data"]
+            statement_questions_bulk_update(csv_data)
         return self.render_to_response(self.get_context_data())
