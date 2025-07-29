@@ -623,7 +623,9 @@ class CaseCloseUpdateForm(VersionForm):
         label="Enforcement recommendation",
         choices=DetailedCase.RecommendationForEnforcement.choices,
     )
-    recommendation_notes = AMPTextField(label="Enforcement recommendation details")
+    recommendation_notes = AMPTextField(
+        label="Enforcement recommendation details (included in EB export)"
+    )
     recommendation_decision_sent_date = AMPDateField(label="Date decision email sent")
     recommendation_decision_sent_to = AMPCharFieldWide(label="Decision sent to")
     case_close_decision_state = AMPChoiceRadioField(

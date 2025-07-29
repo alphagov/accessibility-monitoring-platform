@@ -510,7 +510,7 @@ class RetestMetricsUpdateView(DetailedCaseUpdateView):
     form_class: type[RetestMetricsUpdateForm] = RetestMetricsUpdateForm
 
 
-class CaseCloseUpdateView(AddNoteMixin, DetailedCaseUpdateView):
+class CaseCloseUpdateView(DetailedCaseUpdateView):
     """View to update closing the case"""
 
     template_name: str = "detailed/forms/close_case.html"
