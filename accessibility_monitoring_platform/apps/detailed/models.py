@@ -38,7 +38,8 @@ class DetailedCase(BaseCase):
 
     class StatementCompliance(models.TextChoices):
         COMPLIANT = "compliant", "Compliant"
-        NOT_COMPLIANT = "not-compliant", "Not compliant or no statement"
+        NOT_COMPLIANT = "not-compliant", "Not compliant"
+        NO_STATEMENT = "no-statement", "No statement"
         UNKNOWN = "unknown", "Not assessed"
 
     class ReportApprovedStatus(models.TextChoices):

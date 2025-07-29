@@ -60,6 +60,34 @@ class Migration(migrations.Migration):
             field=models.TextField(blank=True, default=""),
         ),
         migrations.AlterField(
+            model_name="detailedcase",
+            name="initial_statement_compliance_state",
+            field=models.CharField(
+                choices=[
+                    ("compliant", "Compliant"),
+                    ("not-compliant", "Not compliant"),
+                    ("no-statement", "No statement"),
+                    ("unknown", "Not assessed"),
+                ],
+                default="unknown",
+                max_length=200,
+            ),
+        ),
+        migrations.AlterField(
+            model_name="detailedcase",
+            name="retest_statement_compliance_state",
+            field=models.CharField(
+                choices=[
+                    ("compliant", "Compliant"),
+                    ("not-compliant", "Not compliant"),
+                    ("no-statement", "No statement"),
+                    ("unknown", "Not assessed"),
+                ],
+                default="unknown",
+                max_length=200,
+            ),
+        ),
+        migrations.AlterField(
             model_name="detailedcasehistory",
             name="event_type",
             field=models.CharField(
