@@ -57,6 +57,7 @@ def get_search_user_choices(user_query: QuerySet[User]) -> list[tuple[str, str]]
 class CaseSearchForm(AMPDateRangeForm):
     """Form for searching for cases"""
 
+    test_type = AMPChoiceField(label="Testing type", choices=TEST_TYPE_CHOICES)
     sort_by = AMPChoiceField(label="Sort by", choices=Sort.choices)
     case_search = AMPCharFieldWide(label="Search")
     auditor = AMPChoiceField(label="Auditor")
@@ -76,7 +77,6 @@ class CaseSearchForm(AMPDateRangeForm):
     subcategory = AMPModelChoiceField(
         label="Sub-category", queryset=SubCategory.objects.all()
     )
-    test_type = AMPChoiceField(label="Testing type", choices=TEST_TYPE_CHOICES)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

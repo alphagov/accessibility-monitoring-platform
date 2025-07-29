@@ -56,6 +56,9 @@ MAP_DISPROPORTIONATE_BURDEN_CLAIM: dict[str, str] = {
     "No statement": DetailedCase.DisproportionateBurden.NO_STATEMENT,
     "Not checked": DetailedCase.DisproportionateBurden.NOT_CHECKED,
 }
+MAP_CASE_STATUS: dict[str, str] = {
+    "Case closed and sent to equality body": DetailedCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+}
 
 
 def record_detailed_model_create_event(
@@ -180,6 +183,7 @@ def create_detailed_case_from_dict(
     is_feedback_survey_sent: Boolean = (
         Boolean.YES if feedback_survey_sent == "Yes" else Boolean.NO
     )
+    status: str = MAP_CASE_STATUS.get(row["Status"], DetailedCase.Status.UNASSIGNED)
 
     detailed_case: DetailedCase = DetailedCase.objects.create(
         test_type=DetailedCase.TestType.DETAILED,
@@ -230,6 +234,8 @@ def create_detailed_case_from_dict(
             DetailedCase.DisproportionateBurden.NOT_CHECKED,
         ),
         recommendation_notes=row["Enforcement Recommendation Notes"],
+        parental_organisation_name=row["Parent org (if relevant)"],
+        status=status,
     )
     detailed_case.created = created
     detailed_case.case_number = case_number

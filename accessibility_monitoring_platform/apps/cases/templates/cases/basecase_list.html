@@ -31,6 +31,7 @@
                                             <span class="govuk-details__summary-text">Advanced search</span>
                                         </summary>
                                         <div class="govuk-details__text amp-advanced-search">
+                                            {% include 'common/amp_field.html' with field=form.test_type %}
                                             {% include 'common/amp_field.html' with field=form.sort_by %}
                                             {% include 'common/amp_field.html' with field=form.status %}
                                             {% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
@@ -43,7 +44,6 @@
                                             {% include 'common/amp_field.html' with field=form.is_complaint %}
                                             {% include 'common/amp_field.html' with field=form.enforcement_body %}
                                             {% include 'common/amp_field.html' with field=form.subcategory %}
-                                            {% include 'common/amp_field.html' with field=form.test_type %}
                                         </div>
                                     </details>
                                 </div>
