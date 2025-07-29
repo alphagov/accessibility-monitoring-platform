@@ -381,10 +381,20 @@ class DetailedCaseHistory(models.Model):
     event_type = models.CharField(
         max_length=20, choices=EventType.choices, default=EventType.NOTE
     )
+    detailed_case_status = models.CharField(
+        max_length=200,
+        choices=DetailedCase.Status.choices,
+        default=DetailedCase.Status.UNASSIGNED,
+    )
     value = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.detailed_case_status = self.detailed_case.status
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return (

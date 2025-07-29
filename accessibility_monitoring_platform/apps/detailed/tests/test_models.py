@@ -99,6 +99,25 @@ def test_detailed_case_most_recent_history():
     assert detailed_case.most_recent_history == detailed_case_history_last
 
 
+@pytest.mark.django_db
+def test_detailed_case_history_saves_detailed_case_status():
+    """Test DetailedCaseiHistory saves the current DetailedCase status"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        status=DetailedCase.Status.REVIEWING_CHANGES
+    )
+    user: User = User.objects.create()
+    detailed_case_history: DetailedCaseHistory = DetailedCaseHistory.objects.create(
+        detailed_case=detailed_case,
+        event_type=DetailedCaseHistory.EventType.NOTE,
+        created_by=user,
+    )
+
+    assert (
+        detailed_case_history.detailed_case_status
+        == DetailedCase.Status.REVIEWING_CHANGES
+    )
+
+
 def test_contact_str():
     """Test Contact.__str__()"""
     contact: Contact = Contact(name="Contact Name", contact_point="name@example.com")

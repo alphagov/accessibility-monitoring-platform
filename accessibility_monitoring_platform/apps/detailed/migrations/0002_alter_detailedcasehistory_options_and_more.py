@@ -75,6 +75,49 @@ class Migration(migrations.Migration):
                 max_length=20,
             ),
         ),
+        migrations.AddField(
+            model_name="detailedcasehistory",
+            name="detailed_case_status",
+            field=models.CharField(
+                choices=[
+                    ("000-unassigned-case", "Unassigned case"),
+                    ("010-initial-psb-info-requested", "Requested information"),
+                    (
+                        "020-initial-psb-info-chasing",
+                        "Chasing - no response / missed deadline",
+                    ),
+                    ("030-initial-psb-info-req-ack", "Acknowledge our request"),
+                    ("040-initial-psb-info-received", "Received Details/Access"),
+                    ("050-test-in-progress", "Test in progress"),
+                    ("060-report-in-progress", "Report in progress"),
+                    ("070-unassigned-qa-case", "Report ready to QA"),
+                    ("090-report-ready-to-send", "Report ready to send"),
+                    ("100-in-report-correspondence", "Report sent"),
+                    ("110-awaiting-report-ack", "Waiting for response"),
+                    (
+                        "120-in-12-week-period",
+                        "Report acknowledged waiting for 12-week deadline",
+                    ),
+                    ("130-12-week-requested-update", "Requested update at 12 weeks"),
+                    (
+                        "140-after-12-week-correspondence",
+                        "After 12-week correspondence",
+                    ),
+                    ("150-reviewing-changes", "Reviewing changes"),
+                    (
+                        "170-case-closed-waiting-to-be-sent",
+                        "Case closed and waiting to be sent to equalities body",
+                    ),
+                    (
+                        "180-case-closed-sent-to-equalities-body",
+                        "Case closed and sent to equalities body",
+                    ),
+                    ("200-complete", "Complete"),
+                ],
+                default="000-unassigned-case",
+                max_length=200,
+            ),
+        ),
         migrations.CreateModel(
             name="ZendeskTicket",
             fields=[

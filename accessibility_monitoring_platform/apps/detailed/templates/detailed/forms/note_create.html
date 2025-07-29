@@ -42,7 +42,15 @@
 {% for detailed_case_event in case.detailedcasehistory_set.all %}
     <div class="govuk-grid-row amp-searchable">
         <div class="govuk-grid-column-one-quarter">
-            <p class="govuk-body amp-margin-bottom-5"><b>{{ detailed_case_event.get_event_type_display }}</b></p>
+            <p class="govuk-body amp-margin-bottom-5">
+                <b>
+                {% if detailed_case_event.event_type == 'note' %}
+                    {{ detailed_case_event.get_detailed_case_status_display }}
+                {% else %}
+                    {{ detailed_case_event.get_event_type_display }}
+                {% endif %}
+                </b>
+            </p>
             <p class="govuk-body amp-margin-bottom-5">{{ detailed_case_event.created_by.get_full_name }}</p>
             <p class="govuk-body">{{ detailed_case_event.created|amp_datetime }}</p>
         </div>
