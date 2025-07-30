@@ -119,7 +119,6 @@ class StatementCheckAdmin(admin.ModelAdmin, ExportCsvMixin):
         "date_end",
     ]
     list_filter = ["type"]
-    actions = ["export_as_csv"]
     fieldsets = (
         (
             None,
