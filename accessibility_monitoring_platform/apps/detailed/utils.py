@@ -144,7 +144,3 @@ def import_detailed_cases_csv(csv_data: str) -> None:
         create_detailed_case_from_dict(
             row=row, default_user=default_user, auditors=auditors
         )
-
-
-def import_mobile_cases_csv(data: str) -> None:
-    pass
