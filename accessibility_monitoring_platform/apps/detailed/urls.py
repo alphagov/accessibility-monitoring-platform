@@ -36,7 +36,6 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     QAApprovalUpdateView,
     ReportDraftUpdateView,
     RetestDisproportionateBurdenUpdateView,
-    RetestMetricsUpdateView,
     RetestResultUpdateView,
     RetestStatementComplianceUpdateView,
     RetestSummaryUpdateView,
@@ -193,11 +192,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-retest-statement-compliance/",
         login_required(RetestStatementComplianceUpdateView.as_view()),
         name="edit-retest-statement-compliance",
-    ),
-    path(
-        "<int:pk>/edit-retest-metrics/",
-        login_required(RetestMetricsUpdateView.as_view()),
-        name="edit-retest-metrics",
     ),
     path(
         "<int:pk>/edit-case-close/",

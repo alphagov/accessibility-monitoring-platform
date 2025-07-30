@@ -611,21 +611,6 @@ class RetestStatementComplianceUpdateForm(VersionForm):
         ]
 
 
-class RetestMetricsUpdateForm(VersionForm):
-    """Form for updating reviewing changes final metrics page"""
-
-    number_of_days_to_retest = AMPIntegerField(label="Days taken to retest")
-    retest_metrics_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
-            "number_of_days_to_retest",
-            "retest_metrics_complete_date",
-        ]
-
-
 class CaseCloseUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 

@@ -205,4 +205,12 @@ class Migration(migrations.Migration):
             name="retest_end_date",
             field=models.DateField(blank=True, null=True),
         ),
+        migrations.RemoveField(
+            model_name="detailedcase",
+            name="number_of_days_to_retest",
+        ),
+        migrations.RemoveField(
+            model_name="detailedcase",
+            name="retest_metrics_complete_date",
+        ),
     ]

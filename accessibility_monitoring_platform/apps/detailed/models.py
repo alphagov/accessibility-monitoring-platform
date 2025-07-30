@@ -221,10 +221,6 @@ class DetailedCase(BaseCase):
     )
     retest_statement_compliance_complete_date = models.DateField(null=True, blank=True)
 
-    # Reviewing changes - Final metrics
-    number_of_days_to_retest = models.IntegerField(null=True, blank=True)
-    retest_metrics_complete_date = models.DateField(null=True, blank=True)
-
     # Closing the case - Closing the case
     recommendation_decision_sent_date = models.DateField(null=True, blank=True)
     recommendation_decision_sent_to = models.CharField(

@@ -1762,12 +1762,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Statement compliance",
                 url_name="detailed:edit-retest-statement-compliance",
                 complete_flag_name="retest_statement_compliance_complete_date",
-                next_page_url_name="detailed:edit-retest-metrics",
-            ),
-            DetailedCasePlatformPage(
-                name="Final metrics",
-                url_name="detailed:edit-retest-metrics",
-                complete_flag_name="retest_metrics_complete_date",
                 next_page_url_name="detailed:edit-case-close",
             ),
         ],

@@ -45,7 +45,6 @@ from .forms import (
     ReportDraftUpdateForm,
     ReportSentUpdateForm,
     RetestDisproportionateBurdenUpdateForm,
-    RetestMetricsUpdateForm,
     RetestResultUpdateForm,
     RetestStatementComplianceUpdateForm,
     RetestSummaryUpdateForm,
@@ -502,12 +501,6 @@ class RetestStatementComplianceUpdateView(DetailedCaseUpdateView):
     form_class: type[RetestStatementComplianceUpdateForm] = (
         RetestStatementComplianceUpdateForm
     )
-
-
-class RetestMetricsUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes final metrics"""
-
-    form_class: type[RetestMetricsUpdateForm] = RetestMetricsUpdateForm
 
 
 class CaseCloseUpdateView(DetailedCaseUpdateView):
