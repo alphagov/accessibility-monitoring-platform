@@ -591,6 +591,20 @@
     "model": "audits.statementcheck",
     "pk": 43,
     "fields": {
+      "type": "disproportionate",
+      "issue_number": 1,
+      "label": "If there is a disproportionate burden claim, is it under a correctly worded heading of \"disproportionate burden\"",
+      "success_criteria": "If there is a disproportionate burden claim, it is under a heading of \"disproportionate burden\"",
+      "report_text": "The disproportionate burden claim should be listed under a heading of \"disproportionate burden\"",
+      "position": 420,
+      "date_start": null,
+      "date_end": null
+    }
+  },
+  {
+    "model": "audits.statementcheck",
+    "pk": 44,
+    "fields": {
       "type": "website",
       "issue_number": 1,
       "label": "Does the scope of the accessibility page clearly cover the site being tested?",
