@@ -130,6 +130,11 @@ class Audit(VersionModel):
     # Statement checking feedback
     audit_statement_feedback_complete_date = models.DateField(null=True, blank=True)
 
+    # Statement checking disporportionate burden
+    audit_statement_disproportionate_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
     # Statement checking other
     audit_statement_custom_complete_date = models.DateField(null=True, blank=True)
 
@@ -201,6 +206,11 @@ class Audit(VersionModel):
 
     # Retest statement checking feedback
     audit_retest_statement_feedback_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Retest statement checking feedback
+    audit_retest_statement_disproportionate_complete_date = models.DateField(
         null=True, blank=True
     )
 
@@ -407,6 +417,12 @@ class Audit(VersionModel):
         return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
 
     @property
+    def disproportionate_statement_check_results(self):
+        return self.statement_check_results.filter(
+            type=StatementCheck.Type.DISPROPORTIONATE
+        )
+
+    @property
     def custom_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 
@@ -468,6 +484,12 @@ class Audit(VersionModel):
     def feedback_outstanding_statement_check_results(self):
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.FEEDBACK
+        )
+
+    @property
+    def disproportionate_outstanding_statement_check_results(self):
+        return self.outstanding_statement_check_results.filter(
+            type=StatementCheck.Type.DISPROPORTIONATE
         )
 
     @property
@@ -841,6 +863,7 @@ class StatementCheck(models.Model):
         FEEDBACK = "feedback", "Feedback and enforcement procedure"
         CUSTOM = "custom", "Custom statement issues"
         TWELVE_WEEK = "12-week", "New 12-week custom statement issues"
+        DISPROPORTIONATE = "disproportionate", "Disproportionate burden"
 
     type = models.CharField(
         max_length=20,
@@ -1000,6 +1023,7 @@ class Retest(VersionModel):
     statement_non_accessible_complete_date = models.DateField(null=True, blank=True)
     statement_preparation_complete_date = models.DateField(null=True, blank=True)
     statement_feedback_complete_date = models.DateField(null=True, blank=True)
+    statement_disproportionate_complete_date = models.DateField(null=True, blank=True)
     statement_custom_complete_date = models.DateField(null=True, blank=True)
     statement_results_complete_date = models.DateField(null=True, blank=True)
 
@@ -1143,6 +1167,12 @@ class Retest(VersionModel):
     @property
     def feedback_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
+
+    @property
+    def disproportionate_statement_check_results(self):
+        return self.statement_check_results.filter(
+            type=StatementCheck.Type.DISPROPORTIONATE
+        )
 
     @property
     def custom_statement_check_results(self):

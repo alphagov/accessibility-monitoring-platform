@@ -263,7 +263,7 @@ def test_dynamic_statement_pages_shown(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Initial statement (0/11)"),
+        CURRENT_PAGE_GROUP.format(name="Initial statement (0/12)"),
         html=True,
     )
     assertContains(response, "<b>Statement overview</b>", html=True)

@@ -758,6 +758,16 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-feedback",
             "save_continue",
+            "audits:edit-statement-disproportionate",
+        ),
+        (
+            "audits:edit-statement-disproportionate",
+            "save",
+            "audits:edit-statement-disproportionate",
+        ),
+        (
+            "audits:edit-statement-disproportionate",
+            "save_continue",
             "audits:edit-statement-custom",
         ),
         (
@@ -852,6 +862,16 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         ),
         (
             "audits:edit-retest-statement-feedback",
+            "save_continue",
+            "audits:edit-retest-statement-disproportionate",
+        ),
+        (
+            "audits:edit-retest-statement-disproportionate",
+            "save",
+            "audits:edit-retest-statement-disproportionate",
+        ),
+        (
+            "audits:edit-retest-statement-disproportionate",
             "save_continue",
             "audits:edit-retest-statement-custom",
         ),
@@ -3259,6 +3279,16 @@ def test_delete_retest(admin_client):
         ),
         (
             "audits:edit-equality-body-statement-feedback",
+            "save_continue",
+            "audits:edit-equality-body-statement-disproportionate",
+        ),
+        (
+            "audits:edit-equality-body-statement-disproportionate",
+            "save",
+            "audits:edit-equality-body-statement-disproportionate",
+        ),
+        (
+            "audits:edit-equality-body-statement-disproportionate",
             "save_continue",
             "audits:edit-equality-body-statement-custom",
         ),
