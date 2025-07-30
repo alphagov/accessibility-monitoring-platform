@@ -25,6 +25,7 @@ from .views.equality_body import (
     RetestStatementComplianceFormView,
     RetestStatementCustomFormView,
     RetestStatementDecisionUpdateView,
+    RetestStatementDisproportionateFormView,
     RetestStatementFeedbackFormView,
     RetestStatementNonAccessibleFormView,
     RetestStatementOverviewFormView,
@@ -43,6 +44,7 @@ from .views.initial import (
     AuditPagesUpdateView,
     AuditStatementComplianceFormView,
     AuditStatementCustomFormView,
+    AuditStatementDisproportionateFormView,
     AuditStatementFeedbackFormView,
     AuditStatementNonAccessibleFormView,
     AuditStatementOverviewFormView,
@@ -69,6 +71,7 @@ from .views.twelve_week import (
     AuditRetestPagesView,
     AuditRetestStatementComplianceFormView,
     AuditRetestStatementCustomFormView,
+    AuditRetestStatementDisproportionateFormView,
     AuditRetestStatementFeedbackFormView,
     AuditRetestStatementNonAccessibleFormView,
     AuditRetestStatementOverviewFormView,
@@ -149,6 +152,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-statement-feedback/",
         login_required(AuditStatementFeedbackFormView.as_view()),
         name="edit-statement-feedback",
+    ),
+    path(
+        "<int:pk>/edit-statement-disproportionate/",
+        login_required(AuditStatementDisproportionateFormView.as_view()),
+        name="edit-statement-disproportionate",
     ),
     path(
         "<int:pk>/edit-statement-custom/",
@@ -264,6 +272,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-retest-statement-feedback/",
         login_required(AuditRetestStatementFeedbackFormView.as_view()),
         name="edit-retest-statement-feedback",
+    ),
+    path(
+        "<int:pk>/edit-retest-statement-disproportionate/",
+        login_required(AuditRetestStatementDisproportionateFormView.as_view()),
+        name="edit-retest-statement-disproportionate",
     ),
     path(
         "<int:pk>/edit-retest-statement-custom/",
@@ -404,6 +417,11 @@ urlpatterns: list[URLPattern] = [
         "retests/<int:pk>/edit-equality-body-statement-feedback/",
         login_required(RetestStatementFeedbackFormView.as_view()),
         name="edit-equality-body-statement-feedback",
+    ),
+    path(
+        "retests/<int:pk>/edit-equality-body-statement-disproportionate/",
+        login_required(RetestStatementDisproportionateFormView.as_view()),
+        name="edit-equality-body-statement-disproportionate",
     ),
     path(
         "retests/<int:pk>/edit-equality-body-statement-custom/",

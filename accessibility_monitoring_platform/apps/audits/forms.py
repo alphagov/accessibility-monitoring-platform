@@ -19,7 +19,7 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Boolean
-from ..simplified.models import CaseCompliance, SimplifiedCase
+from ..simplified.models import CaseCompliance
 from .models import (
     Audit,
     CheckResult,
@@ -350,7 +350,7 @@ class AuditStatementWebsiteUpdateForm(VersionForm):
     audit_statement_website_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = SimplifiedCase
+        model = Audit
         fields: list[str] = [
             "version",
             "audit_statement_website_complete_date",
@@ -365,7 +365,7 @@ class AuditStatementComplianceUpdateForm(VersionForm):
     audit_statement_compliance_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = SimplifiedCase
+        model = Audit
         fields: list[str] = [
             "version",
             "audit_statement_compliance_complete_date",
@@ -380,7 +380,7 @@ class AuditStatementNonAccessibleUpdateForm(VersionForm):
     audit_statement_non_accessible_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = SimplifiedCase
+        model = Audit
         fields: list[str] = [
             "version",
             "audit_statement_non_accessible_complete_date",
@@ -395,7 +395,7 @@ class AuditStatementPreparationUpdateForm(VersionForm):
     audit_statement_preparation_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = SimplifiedCase
+        model = Audit
         fields: list[str] = [
             "version",
             "audit_statement_preparation_complete_date",
@@ -410,10 +410,25 @@ class AuditStatementFeedbackUpdateForm(VersionForm):
     audit_statement_feedback_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = SimplifiedCase
+        model = Audit
         fields: list[str] = [
             "version",
             "audit_statement_feedback_complete_date",
+        ]
+
+
+class AuditStatementDisproportionateUpdateForm(VersionForm):
+    """
+    Form for editing statement feedback
+    """
+
+    audit_statement_disproportionate_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: list[str] = [
+            "version",
+            "audit_statement_disproportionate_complete_date",
         ]
 
 
@@ -425,7 +440,7 @@ class AuditStatementCustomUpdateForm(VersionForm):
     audit_statement_custom_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = SimplifiedCase
+        model = Audit
         fields: list[str] = [
             "version",
             "audit_statement_custom_complete_date",
@@ -883,6 +898,21 @@ class AuditRetestStatementFeedbackUpdateForm(VersionForm):
         fields: list[str] = [
             "version",
             "audit_retest_statement_feedback_complete_date",
+        ]
+
+
+class AuditRetestStatementDisproportionateUpdateForm(VersionForm):
+    """
+    Form for editing disproportionate burden feedback
+    """
+
+    audit_retest_statement_disproportionate_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: list[str] = [
+            "version",
+            "audit_retest_statement_disproportionate_complete_date",
         ]
 
 
@@ -1369,6 +1399,21 @@ class RetestStatementFeedbackUpdateForm(VersionForm):
         fields: list[str] = [
             "version",
             "statement_feedback_complete_date",
+        ]
+
+
+class RetestStatementDisproportionateUpdateForm(VersionForm):
+    """
+    Form for editing retest statement disproportionate burden
+    """
+
+    statement_disproportionate_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: list[str] = [
+            "version",
+            "statement_disproportionate_complete_date",
         ]
 
 

@@ -33,6 +33,7 @@ from ..forms import (
     RetestStatementCustomCheckResultFormsetOneExtra,
     RetestStatementCustomUpdateForm,
     RetestStatementDecisionUpdateForm,
+    RetestStatementDisproportionateUpdateForm,
     RetestStatementFeedbackUpdateForm,
     RetestStatementNonAccessibleUpdateForm,
     RetestStatementOverviewUpdateForm,
@@ -507,6 +508,20 @@ class RetestStatementFeedbackFormView(RetestStatementCheckingView):
         "audits/statement_checks/equality_body_retest_statement_feedback.html"
     )
     statement_check_type: str = StatementCheck.Type.FEEDBACK
+
+
+class RetestStatementDisproportionateFormView(RetestStatementCheckingView):
+    """
+    View to update statement disproportionate burden check results retest
+    """
+
+    form_class: type[RetestStatementDisproportionateUpdateForm] = (
+        RetestStatementDisproportionateUpdateForm
+    )
+    template_name: str = (
+        "audits/statement_checks/equality_body_retest_statement_disproportionate.html"
+    )
+    statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
 class RetestStatementCustomFormView(RetestUpdateView):

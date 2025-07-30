@@ -30,6 +30,7 @@ from ..forms import (
     AuditStatementComplianceUpdateForm,
     AuditStatementCustomUpdateForm,
     AuditStatementDecisionUpdateForm,
+    AuditStatementDisproportionateUpdateForm,
     AuditStatementFeedbackUpdateForm,
     AuditStatementNonAccessibleUpdateForm,
     AuditStatementOverviewUpdateForm,
@@ -484,6 +485,18 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.FEEDBACK
+
+
+class AuditStatementDisproportionateFormView(AuditStatementCheckingView):
+    """
+    View to update statement disproportionate burden check results
+    """
+
+    form_class: type[AuditStatementDisproportionateUpdateForm] = (
+        AuditStatementDisproportionateUpdateForm
+    )
+    template_name: str = "audits/statement_checks/statement_formset_form.html"
+    statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
 class AuditStatementCustomFormView(AuditUpdateView):
