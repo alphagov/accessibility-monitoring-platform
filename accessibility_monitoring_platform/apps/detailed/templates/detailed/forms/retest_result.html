@@ -13,12 +13,10 @@
                 None
             {% endif %}
         </p>
-        <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Total issues</b></p>
+        <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Number of pages</b></p>
+        <p class="govuk-body">{{ case.initial_total_number_of_pages }}</p>
+        <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Number of issues</b></p>
         <p class="govuk-body">{{ case.initial_total_number_of_issues }}</p>
-        <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Number of unique page issues</b></p>
-        <p class="govuk-body"><span class="amp-todo">TODO: unknown number</span></p>
-        <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Number pages tested</b></p>
-        <p class="govuk-body"><span class="amp-todo">TODO: unknown number</span></p>
     </div>
 </div>
 {% endblock %}
