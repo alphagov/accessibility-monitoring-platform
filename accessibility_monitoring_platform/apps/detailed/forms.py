@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 
 from ..common.forms import (
     AMPAuditorModelChoiceField,
+    AMPBooleanCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
@@ -24,7 +25,7 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Boolean, Sector, SubCategory
-from .models import Contact, DetailedCase, DetailedCaseHistory
+from .models import Contact, DetailedCase, DetailedCaseHistory, ZendeskTicket
 
 
 class DetailedCaseCreateForm(forms.ModelForm):
@@ -51,6 +52,10 @@ class DetailedCaseCreateForm(forms.ModelForm):
         label="Public sector body location",
         choices=DetailedCase.PsbLocation.choices,
     )
+    service_type = AMPChoiceRadioField(
+        label="Type",
+        choices=DetailedCase.ServiceType,
+    )
     previous_case_url = AMPURLField(
         label="URL to previous case",
         help_text="If the website has been previously audited, include a link to the case below",
@@ -74,6 +79,7 @@ class DetailedCaseCreateForm(forms.ModelForm):
             "subcategory",
             "enforcement_body",
             "psb_location",
+            "service_type",
             "previous_case_url",
             "is_complaint",
         ]
@@ -138,6 +144,7 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
             "subcategory",
             "enforcement_body",
             "psb_location",
+            "service_type",
             "previous_case_url",
             "is_complaint",
             "case_metadata_complete_date",
@@ -147,11 +154,7 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
 class DetailedCaseStatusUpdateForm(VersionForm):
     status = AMPChoiceField(
         label="Status",
-        choices=[
-            choice
-            for choice in DetailedCase.Status.choices
-            if choice[0] != DetailedCase.Status.UNKNOWN
-        ],
+        choices=DetailedCase.Status.choices,
     )
 
     class Meta:
@@ -192,9 +195,15 @@ class ContactCreateForm(forms.ModelForm):
     job_title = AMPCharFieldWide(label="Job title")
     contact_point = AMPCharFieldWide(label="Contact point")
     preferred = AMPChoiceRadioField(
-        label="Preferred contact", choices=Contact.Preferred.choices
+        label="Preferred contact",
+        choices=Contact.Preferred.choices,
+        initial=Contact.Preferred.UNKNOWN,
     )
-    type = AMPChoiceRadioField(label="Type of contact", choices=Contact.Type.choices)
+    type = AMPChoiceRadioField(
+        label="Type of contact",
+        choices=Contact.Type.choices,
+        initial=Contact.Type.ORGANISATION,
+    )
 
     class Meta:
         model = Contact
@@ -279,6 +288,8 @@ class InitialTestingDetailsUpdateForm(VersionForm):
 
     auditor = AMPAuditorModelChoiceField(label="Auditor")
     monitor_folder_url = AMPURLField(label="Link to monitor folder")
+    monitor_doc_url = AMPURLField(label="Link to monitor document")
+    initial_test_start_date = AMPDateField(label="Test start date")
     initial_testing_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -287,6 +298,8 @@ class InitialTestingDetailsUpdateForm(VersionForm):
             "version",
             "auditor",
             "monitor_folder_url",
+            "monitor_doc_url",
+            "initial_test_start_date",
             "initial_testing_details_complete_date",
         ]
 
@@ -294,15 +307,17 @@ class InitialTestingDetailsUpdateForm(VersionForm):
 class InitialTestingOutcomeUpdateForm(VersionForm):
     """Form for updating initial testing outcome page"""
 
-    initial_test_date = AMPDateField(label="Test date")
-    initial_total_number_of_issues = AMPIntegerField(label="Total number of issues")
+    initial_test_end_date = AMPDateField(label="Test end date")
+    initial_total_number_of_pages = AMPIntegerField(label="Number of pages")
+    initial_total_number_of_issues = AMPIntegerField(label="Number of issues")
     initial_testing_outcome_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
         fields = [
             "version",
-            "initial_test_date",
+            "initial_test_end_date",
+            "initial_total_number_of_pages",
             "initial_total_number_of_issues",
             "initial_testing_outcome_complete_date",
         ]
@@ -365,6 +380,7 @@ class InitialStatementComplianceUpdateForm(VersionForm):
 class ReportDraftUpdateForm(VersionForm):
     """Form for updating report draft page"""
 
+    report_start_date = AMPDateField(label="Report start date")
     report_draft_url = AMPURLField(label="Link to report draft")
     report_ready_for_qa = AMPChoiceRadioField(
         label="Report ready for QA process?",
@@ -376,6 +392,7 @@ class ReportDraftUpdateForm(VersionForm):
         model = DetailedCase
         fields = [
             "version",
+            "report_start_date",
             "report_draft_url",
             "report_ready_for_qa",
             "report_draft_complete_date",
@@ -405,6 +422,7 @@ class QAApprovalUpdateForm(VersionForm):
 class PublishReportUpdateForm(VersionForm):
     """Form for updating publish report page"""
 
+    report_end_date = AMPDateField(label="Report end date")
     equality_body_report_url = AMPURLField(label="Link to equality body PDF report")
     public_report_url = AMPURLField(label="Link to public report")
     publish_report_complete_date = AMPDatePageCompleteField()
@@ -413,6 +431,7 @@ class PublishReportUpdateForm(VersionForm):
         model = DetailedCase
         fields = [
             "version",
+            "report_end_date",
             "equality_body_report_url",
             "public_report_url",
             "publish_report_complete_date",
@@ -509,6 +528,7 @@ class RetestResultUpdateForm(VersionForm):
     retest_total_number_of_issues = AMPIntegerField(
         label="Total number of remaining issues"
     )
+    retest_end_date = AMPDateField(label="Retest end date")
     retest_result_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -517,6 +537,7 @@ class RetestResultUpdateForm(VersionForm):
             "version",
             "retest_date",
             "retest_total_number_of_issues",
+            "retest_end_date",
             "retest_result_complete_date",
         ]
 
@@ -590,31 +611,22 @@ class RetestStatementComplianceUpdateForm(VersionForm):
         ]
 
 
-class RetestMetricsUpdateForm(VersionForm):
-    """Form for updating reviewing changes final metrics page"""
-
-    number_of_days_to_retest = AMPIntegerField(label="Days taken to retest")
-    retest_metrics_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
-            "number_of_days_to_retest",
-            "retest_metrics_complete_date",
-        ]
-
-
 class CaseCloseUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 
-    case_close_decision_state = AMPChoiceRadioField(
+    recommendation_for_enforcement = AMPChoiceRadioField(
         label="Enforcement recommendation",
-        choices=DetailedCase.CaseCloseDecision.choices,
+        choices=DetailedCase.RecommendationForEnforcement.choices,
     )
-    case_close_decision_notes = AMPTextField(label="Enforcement recommendation details")
-    case_close_decision_sent_date = AMPDateField(label="Date decision email sent")
-    case_close_decision_sent_to = AMPCharFieldWide(label="Decision sent to")
+    recommendation_notes = AMPTextField(
+        label="Enforcement recommendation details (included in EB export)"
+    )
+    recommendation_decision_sent_date = AMPDateField(label="Date decision email sent")
+    recommendation_decision_sent_to = AMPCharFieldWide(label="Decision sent to")
+    case_close_decision_state = AMPChoiceRadioField(
+        label="Case completed",
+        choices=DetailedCase.CaseCloseDecision,
+    )
     is_feedback_survey_sent = AMPChoiceCheckboxField(
         label="Feedback survey sent",
         choices=Boolean.choices,
@@ -628,10 +640,11 @@ class CaseCloseUpdateForm(VersionForm):
         model = DetailedCase
         fields = [
             "version",
+            "recommendation_for_enforcement",
+            "recommendation_notes",
+            "recommendation_decision_sent_date",
+            "recommendation_decision_sent_to",
             "case_close_decision_state",
-            "case_close_decision_notes",
-            "case_close_decision_sent_date",
-            "case_close_decision_sent_to",
             "is_feedback_survey_sent",
             "case_close_complete_date",
         ]
@@ -672,4 +685,55 @@ class EnforcementBodyMetadataUpdateForm(VersionForm):
             "enforcement_body_completed_case_date",
             "is_case_added_to_stats",
             "enforcement_body_metadata_complete_date",
+        ]
+
+
+class ZendeskTicketCreateUpdateForm(forms.ModelForm):
+    """
+    Form for updating a zendesk ticket
+    """
+
+    summary = AMPTextField(label="Summary")
+    url = AMPURLField(label="Link to Zendesk ticket")
+
+    class Meta:
+        model = ZendeskTicket
+        fields = ["summary", "url"]
+
+
+class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
+    """
+    Form for confirming the deletion of a zendesk ticket
+    """
+
+    is_deleted = forms.BooleanField(
+        label="Confirm you want to remove Zendest ticket",
+        required=False,
+        widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove ticket"}),
+    )
+
+    class Meta:
+        model = ZendeskTicket
+        fields = ["is_deleted"]
+
+
+class UnresponsivePSBUpdateForm(VersionForm):
+    """Form for recording an unresponsive PSB"""
+
+    no_psb_contact = AMPChoiceCheckboxField(
+        label="Do you want to mark the PSB as unresponsive to this case?",
+        choices=Boolean.choices,
+        help_text="This field affects the case status",
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Mark the PSB as unresponsive to this case"}
+        ),
+    )
+    notes = AMPTextField(label="Public sector body is unresponsive notes")
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "no_psb_contact",
+            "notes",
         ]

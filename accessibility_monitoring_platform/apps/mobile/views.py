@@ -16,7 +16,7 @@ from ..common.utils import extract_domain_from_url
 from ..common.views import ShowGoBackJSWidgetMixin
 from .forms import MobileCaseCreateForm, MobileCaseMetadataUpdateForm
 from .models import MobileCase
-from .utils import record_model_create_event, record_model_update_event
+from .utils import record_mobile_model_create_event, record_mobile_model_update_event
 
 
 def find_duplicate_cases(organisation_name: str = "") -> QuerySet[MobileCase]:
@@ -61,7 +61,7 @@ class MobileCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
         """Detect the submit button used and act accordingly"""
         mobile_case: MobileCase = self.object
         user: User = self.request.user
-        record_model_create_event(
+        record_mobile_model_create_event(
             user=user, model_object=mobile_case, mobile_case=mobile_case
         )
         case_pk: dict[str, int] = {"pk": self.object.id}
@@ -97,7 +97,7 @@ class MobileCaseMetadataUpdateView(UpdateView):
                 self.object.domain = extract_domain_from_url(self.object.home_page_url)
 
             user: User = self.request.user
-            record_model_update_event(
+            record_mobile_model_update_event(
                 user=user, model_object=self.object, mobile_case=self.object
             )
 

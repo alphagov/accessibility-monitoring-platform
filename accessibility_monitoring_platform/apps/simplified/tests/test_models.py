@@ -1701,47 +1701,6 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
 
 
 @pytest.mark.django_db
-def test_case_reminder():
-    """Test SimplifiedCase.reminder returns the unread reminder"""
-    user: User = User.objects.create()
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    reminder: Task = Task.objects.create(
-        type=Task.Type.REMINDER,
-        base_case=simplified_case,
-        user=user,
-        date=REMINDER_DUE_DATE,
-    )
-
-    assert simplified_case.reminder == reminder
-
-    reminder.read = True
-    reminder.save()
-
-    assert simplified_case.reminder is None
-
-
-@pytest.mark.django_db
-def test_case_reminder_history():
-    """Test SimplifiedCase.reminder_history returns the read reminders"""
-    user: User = User.objects.create()
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    reminder: Task = Task.objects.create(
-        type=Task.Type.REMINDER,
-        base_case=simplified_case,
-        user=user,
-        date=REMINDER_DUE_DATE,
-    )
-
-    assert simplified_case.reminder_history.count() == 0
-
-    reminder.read = True
-    reminder.save()
-
-    assert simplified_case.reminder_history.count() == 1
-    assert simplified_case.reminder_history.first() == reminder
-
-
-@pytest.mark.django_db
 def test_event_history_history_update():
     """Test EventHistory.variables contains expected values for update"""
     user: User = User.objects.create()

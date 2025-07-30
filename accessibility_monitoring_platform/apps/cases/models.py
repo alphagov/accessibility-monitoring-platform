@@ -30,7 +30,11 @@ COMPLIANCE_FIELDS: list[str] = [
 UPDATE_SEPARATOR: str = " -> "
 
 
-class TestType(models.TextChoices):
+class DisablePyTestCollectionMixin(object):
+    __test__ = False
+
+
+class TestType(DisablePyTestCollectionMixin, models.TextChoices):
     SIMPLIFIED = "simplified", "Simplified"
     DETAILED = "detailed", "Detailed"
     MOBILE = "mobile", "Mobile"
@@ -43,20 +47,30 @@ class CaseStatusChoice:
     label: str
     test_types: list[TestType]
 
+    @property
+    def search_cases_choices_label(self):
+        if len(self.test_types) < len(TestType):
+            test_type_initials: str = "&".join(
+                [test_type.label[0] for test_type in self.test_types]
+            )
+            return f"{self.label} ({test_type_initials})"
+        return self.label
+
 
 CASE_STATUS_UNKNOWN: CaseStatusChoice = CaseStatusChoice(
     name="UNKNOWN",
     value="910-unknown",
     label="Unknown",
+    test_types=[TestType.SIMPLIFIED],
+)
+CASE_STATUS_UNASSIGNED: CaseStatusChoice = CaseStatusChoice(
+    name="UNASSIGNED",
+    value="000-unassigned-case",
+    label="Unassigned case",
     test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
 )
 CASE_STATUSES: list[CaseStatusChoice] = [
-    CaseStatusChoice(
-        name="UNASSIGNED",
-        value="000-unassigned-case",
-        label="Unassigned case",
-        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
-    ),
+    CASE_STATUS_UNASSIGNED,
     CaseStatusChoice(
         name="PSB_INFO_REQ",
         value="010-initial-psb-info-requested",
@@ -185,13 +199,17 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     ),
     CASE_STATUS_UNKNOWN,
 ]
+ALL_CASE_STATUS_SEARCH_CHOICES: list[tuple[str, str]] = [
+    (case_status.value, case_status.search_cases_choices_label)
+    for case_status in CASE_STATUSES
+]
 ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = [
     (case_status.value, case_status.label) for case_status in CASE_STATUSES
 ]
 
 
 class CaseStatusChoices:
-    choices: None | list[tuple[str, str]] = None
+    choices: list[tuple[str, str]] | None = None
 
     def __init__(self, test_type: str):
         self.choices = []
@@ -201,12 +219,12 @@ class CaseStatusChoices:
                 self.choices.append((status.value, status.label))
 
 
-SimplifiedCaseStatus: None | CaseStatusChoices = None
-DetailedCaseStatus: None | CaseStatusChoices = None
-MobileCaseStatus: None | CaseStatusChoices = None
+SimplifiedCaseStatus: CaseStatusChoices | None = None
+DetailedCaseStatus: CaseStatusChoices | None = None
+MobileCaseStatus: CaseStatusChoices | None = None
 
 if SimplifiedCaseStatus is None:
-    SimplifiedCaseStatus: None | CaseStatusChoices = CaseStatusChoices(
+    SimplifiedCaseStatus: CaseStatusChoices | None = CaseStatusChoices(
         test_type=TestType.SIMPLIFIED
     )
 if DetailedCaseStatus is None:
@@ -356,3 +374,11 @@ class BaseCase(VersionModel):
 
     def get_absolute_url(self) -> str:
         return reverse(f"{self.test_type}:case-detail", kwargs={"pk": self.pk})
+
+    @property
+    def reminder(self):
+        return self.task_set.filter(type="reminder", read=False).first()
+
+    @property
+    def reminder_history(self):
+        return self.task_set.filter(type="reminder", read=True)

@@ -447,14 +447,6 @@ class SimplifiedCase(BaseCase):
         return "future"
 
     @property
-    def reminder(self):
-        return self.task_set.filter(type="reminder", read=False).first()
-
-    @property
-    def reminder_history(self):
-        return self.task_set.filter(type="reminder", read=True)
-
-    @property
     def qa_comments(self):
         return self.comment_simplifiedcase.filter(hidden=False).order_by(
             "-created_date"
@@ -1206,7 +1198,8 @@ class CaseStatus(models.Model):
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            self.simplified_case.compliance.website_compliance_state_initial != CaseCompliance.WebsiteCompliance.UNKNOWN
+            self.simplified_case.compliance.website_compliance_state_initial
+            != CaseCompliance.WebsiteCompliance.UNKNOWN
             and (
                 not self.simplified_case.statement_checks_still_initial
                 or self.simplified_case.compliance.statement_compliance_state_initial
@@ -1336,12 +1329,7 @@ class Contact(VersionModel):
         ordering = ["-preferred", "-id"]
 
     def __str__(self) -> str:
-        string: str = ""
-        if self.name:
-            string = self.name
-        if self.email:
-            string += f" {self.email}"
-        return string
+        return f"{self.name} {self.email}".strip()
 
     def get_absolute_url(self) -> str:
         return reverse(
@@ -1446,7 +1434,7 @@ class EqualityBodyCorrespondence(models.Model):
 
 class ZendeskTicket(models.Model):
     """
-    Model for cases ZendeskTicket
+    Model for simplified ZendeskTicket
     """
 
     simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)

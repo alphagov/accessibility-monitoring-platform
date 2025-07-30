@@ -22,6 +22,7 @@ from django.views.generic.list import ListView
 from ..audits.utils import statement_questions_bulk_update
 from ..cases.models import BaseCase
 from ..common.sitemap import PlatformPage, Sitemap
+from ..detailed.models import DetailedCase
 from ..detailed.utils import import_detailed_cases_csv
 from ..mobile.utils import import_mobile_cases_csv
 from ..reports.models import Report
@@ -452,7 +453,7 @@ class PlatformCheckingView(StaffRequiredMixin, FormView):
 
 
 class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
-    """Reference implementations of reusable components"""
+    """Reference implementation of reusable components"""
 
     template_name: str = "common/tech_team/reference_implementation.html"
 
@@ -469,6 +470,7 @@ class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
         else:
             simplified_case: SimplifiedCase = report.base_case.simplifiedcase
         context["case"] = simplified_case
+        context["detailed_case"] = DetailedCase.objects.first()
         return context
 
 

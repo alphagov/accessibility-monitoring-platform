@@ -6,7 +6,7 @@ import copy
 import logging
 from dataclasses import dataclass
 from enum import StrEnum, auto
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 from django import forms
 from django.contrib.auth.models import User
@@ -26,6 +26,7 @@ from ..comments.models import Comment
 from ..detailed.forms import DetailedCaseMetadataUpdateForm
 from ..detailed.models import Contact as DetailedCaseContact
 from ..detailed.models import DetailedCase
+from ..detailed.models import ZendeskTicket as DetailedZendeskTicket
 from ..exports.models import Export
 from ..mobile.forms import MobileCaseMetadataUpdateForm
 from ..mobile.models import MobileCase
@@ -81,26 +82,13 @@ def populate_subpages_with_instance(
     return subpages
 
 
-class Sitemap:
-    platform_page_groups: list[PlatformPageGroup]
-    current_platform_page: PlatformPage
-    next_platform_page: PlatformPage | None
-
-    def __init__(self, request: HttpRequest):
-        self.current_platform_page = get_requested_platform_page(request=request)
-        self.platform_page_groups = build_sitemap_for_current_page(
-            current_platform_page=self.current_platform_page
-        )
-
-
 class PlatformPage:
     name: str
-    platform_page_group: Optional["PlatformPageGroup"] = None
+    platform_page_group: PlatformPageGroup | None = None
     url_name: str | None = None
     url_kwarg_key: str | None = None
     instance_class: type[models.Model] | None = None
     instance: models.Model | None = None
-    instance_required_for_url: bool = False
     complete_flag_name: str | None = None
     show_flag_name: str | None = None
     visible_only_when_current: bool = False
@@ -113,16 +101,15 @@ class PlatformPage:
     def __init__(
         self,
         name: str,
-        platform_page_group: Optional["PlatformPageGroup"] = None,
+        platform_page_group: PlatformPageGroup | None = None,
         url_name: str | None = None,
         url_kwarg_key: str | None = None,
         instance_class: type[models.Model] | None = None,
         instance: models.Model | None = None,
-        instance_required_for_url: bool = False,
         complete_flag_name: str | None = None,
         show_flag_name: str | None = None,
         visible_only_when_current: bool = False,
-        subpages: list["PlatformPage"] | None = None,
+        subpages: list[PlatformPage] | None = None,
         case_details_form_class: type[forms.ModelForm] | None = None,
         case_details_template_name: str = "",
         next_page_url_name: str | None = None,
@@ -136,7 +123,6 @@ class PlatformPage:
             self.url_kwarg_key = url_kwarg_key
         self.instance_class = instance_class
         self.instance = instance
-        self.instance_required_for_url = instance_required_for_url
         self.complete_flag_name = complete_flag_name
         self.show_flag_name = show_flag_name
         self.visible_only_when_current = visible_only_when_current
@@ -159,9 +145,9 @@ class PlatformPage:
             return None
         if self.name.startswith("Page not found for "):
             return ""
-        if self.instance is not None and self.url_kwarg_key is not None:
+        if self.url_kwarg_key and self.instance is not None:
             return reverse(self.url_name, kwargs={self.url_kwarg_key: self.instance.id})
-        if self.instance_required_for_url and self.instance is None:
+        if self.url_kwarg_key and self.instance is None:
             logger.warning(
                 "Expected instance missing; Url cannot be calculated %s %s",
                 self.url_name,
@@ -174,6 +160,8 @@ class PlatformPage:
     def show(self):
         if self.instance is not None and self.show_flag_name is not None:
             return getattr(self.instance, self.show_flag_name)
+        if self.instance is None and self.url_kwarg_key:
+            return False
         return True
 
     @property
@@ -229,20 +217,15 @@ class PlatformPage:
             if isinstance(self.instance, BaseCase):
                 return self.instance
             if hasattr(self.instance, "base_case"):
-                if hasattr(self.instance.base_case, "simplifiedcase"):
-                    return self.instance.base_case.simplifiedcase
-                if hasattr(self.instance.base_case, "detailedcase"):
-                    return self.instance.base_case.detailedcase
-                if hasattr(self.instance.base_case, "mobilecase"):
-                    return self.instance.base_case.mobilecase
+                return self.instance.base_case
             if hasattr(self.instance, "simplified_case"):
                 return self.instance.simplified_case
+            if hasattr(self.instance, "detailed_case"):
+                return self.instance.detailed_case
             if hasattr(self.instance, "audit"):
                 return self.instance.audit.simplified_case
             if hasattr(self.instance, "retest"):
                 return self.instance.retest.simplified_case
-            if hasattr(self.instance, "case"):
-                return self.instance.case
 
 
 class HomePlatformPage(PlatformPage):
@@ -270,13 +253,29 @@ class ExportPlatformPage(PlatformPage):
         return self.name.format(enforcement_body=self.enforcement_body)
 
 
-class SimplifiedCasePlatformPage(PlatformPage):
+class BaseCasePlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_required_for_url = True
-        self.instance_class: ClassVar[SimplifiedCase] = SimplifiedCase
+        self.instance_class: ClassVar[BaseCase] = BaseCase
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
+
+    def populate_from_case(self, case: BaseCase):
+        self.set_instance(instance=case)
+        super().populate_from_case(case=case)
+
+    def get_case(self) -> BaseCase | None:
+        if self.instance is not None:
+            if isinstance(self.instance, BaseCase):
+                return self.instance
+            if hasattr(self.instance, "base_case"):
+                return self.instance.base_case
+
+
+class SimplifiedCasePlatformPage(BaseCasePlatformPage):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.instance_class: ClassVar[SimplifiedCase] = SimplifiedCase
 
     def populate_from_case(self, case: SimplifiedCase):
         self.set_instance(instance=case)
@@ -292,11 +291,11 @@ class SimplifiedCasePlatformPage(PlatformPage):
                 return self.instance.audit.simplified_case
             if hasattr(self.instance, "retest"):
                 return self.instance.retest.simplified_case
-            if hasattr(self.instance, "case"):
-                return self.instance.case
+            if hasattr(self.instance, "base_case"):
+                return self.instance.base_case
 
 
-class DetailedCasePlatformPage(SimplifiedCasePlatformPage):
+class DetailedCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[DetailedCase] = DetailedCase
@@ -308,7 +307,9 @@ class DetailedCasePlatformPage(SimplifiedCasePlatformPage):
             if hasattr(self.instance, "detailed_case"):
                 return self.instance.detailed_case
 
-    def populate_from_case(self, case: DetailedCase):
+    def populate_from_case(self, case: BaseCase | DetailedCase):
+        if hasattr(case, "detailedcase"):
+            self.set_instance(instance=case.detailedcase)
         self.set_instance(instance=case)
 
 
@@ -372,7 +373,6 @@ class CaseCommentsPlatformPage(SimplifiedCasePlatformPage):
 class AuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_required_for_url = True
         self.instance_class: ClassVar[Audit] = Audit
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
@@ -429,7 +429,6 @@ class AuditCustomIssuesPlatformPage(AuditPlatformPage):
 class ReportPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_required_for_url = True
         self.instance_class: ClassVar[Report] = Report
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
@@ -445,7 +444,6 @@ class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_required_for_url = True
         self.instance_class: ClassVar[EmailTemplate] = EmailTemplate
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
@@ -481,7 +479,6 @@ class AuditRetestPagesPlatformPage(AuditPlatformPage):
 class EqualityBodyRetestPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_required_for_url = True
         self.instance_class: ClassVar[Retest] = Retest
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
@@ -530,7 +527,7 @@ class PlatformPageGroup:
         SIMPLIFIED_CASE_NAV: str = auto()
         DETAILED_CASE_NAV: str = auto()
         MOBILE_CASE_NAV: str = auto()
-        CASE_TOOLS: str = auto()
+        SIMPLIFIED_CASE_TOOLS: str = auto()
         DEFAULT: str = auto()
 
     name: str
@@ -543,67 +540,45 @@ class PlatformPageGroup:
     def show(self):
         return self.case_nav_group
 
-    def populate_from_case(self, case: SimplifiedCase):
+    def populate_from_case(self, case: SimplifiedCase | DetailedCase | MobileCase):
         if self.pages is not None:
             for page in self.pages:
                 page.populate_from_case(case=case)
 
+    def completable_pages_and_subpages(self) -> list[PlatformPage]:
+        """Pages and subpages which can be marked as complete"""
+        if self.pages is None:
+            return []
+        completable_platform_pages: list[PlatformPage] = [
+            page
+            for page in self.pages
+            if page.show and page.complete_flag_name is not None
+        ]
+        for page in self.pages:
+            if page.subpages is not None:
+                completable_platform_pages += [
+                    page
+                    for page in page.subpages
+                    if page.show and page.complete_flag_name is not None
+                ]
+        return completable_platform_pages
+
     def number_pages_and_subpages(self) -> int:
         """Count number of pages and subpages which can be marked as complete"""
-        if self.pages is not None:
-            count: int = len(
-                [
-                    page
-                    for page in self.pages
-                    if page.show
-                    and not page.visible_only_when_current
-                    and page.complete_flag_name is not None
-                ]
-            )
-            for page in self.pages:
-                if page.subpages is not None:
-                    count += len(
-                        [
-                            page
-                            for page in page.subpages
-                            if page.show
-                            and not page.visible_only_when_current
-                            and page.complete_flag_name is not None
-                        ]
-                    )
-            return count
-        return 0
+        return len(self.completable_pages_and_subpages())
 
     def number_complete(self) -> int:
         """Count number of pages and subpages which have been marked as complete"""
-        if self.pages is not None:
-            count: int = 0
-            for page in self.pages:
-                if (
-                    not page.show
-                    or page.visible_only_when_current
-                    or page.complete_flag_name is None
-                ):
-                    continue
-                if page.complete:
-                    count += 1
-                if page.subpages is not None:
-                    count += len(
-                        [
-                            subpage
-                            for subpage in page.subpages
-                            if subpage.complete and subpage.show
-                        ]
-                    )
-            return count
-        return 0
+        return len(
+            [
+                platform_page
+                for platform_page in self.completable_pages_and_subpages()
+                if platform_page.complete
+            ]
+        )
 
 
-class SimplifiedCasePlatformPageGroup(PlatformPageGroup):
-    def __init__(self, type=PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV, **kwargs):
-        super().__init__(**kwargs)
-        self.type: PlatformPageGroup.Type = type
-        self.case: SimplifiedCase | None = None
+class BaseCasePlatformPageGroup(PlatformPageGroup):
 
     @property
     def show(self):
@@ -611,19 +586,26 @@ class SimplifiedCasePlatformPageGroup(PlatformPageGroup):
             return getattr(self.case, self.show_flag_name)
         return self.case_nav_group
 
-    def populate_from_case(self, case: SimplifiedCase):
+    def populate_from_case(self, case: SimplifiedCase | DetailedCase | MobileCase):
         self.case = case
         super().populate_from_case(case=case)
 
 
-class DetailedCasePlatformPageGroup(SimplifiedCasePlatformPageGroup):
+class SimplifiedCasePlatformPageGroup(BaseCasePlatformPageGroup):
+    def __init__(self, type=PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV, **kwargs):
+        super().__init__(**kwargs)
+        self.type: PlatformPageGroup.Type = type
+        self.case: SimplifiedCase | None = None
+
+
+class DetailedCasePlatformPageGroup(BaseCasePlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.DETAILED_CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
         self.case: DetailedCase | None = None
 
 
-class MobileCasePlatformPageGroup(SimplifiedCasePlatformPageGroup):
+class MobileCasePlatformPageGroup(BaseCasePlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.MOBILE_CASE_NAV, **kwargs):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
@@ -683,7 +665,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="audits:edit-audit-page-checks",
                         url_kwarg_key="pk",
                         instance_class=Page,
-                        instance_required_for_url=True,
                         complete_flag_name="complete_date",
                         case_details_template_name="simplified/details/details_initial_page_wcag_results.html",
                     )
@@ -788,7 +769,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="audits:edit-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_required_for_url=True,
                         instance_class=StatementCheckResult,
                     ),
                     PlatformPage(
@@ -796,7 +776,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="audits:edit-custom-issue-delete-confirm",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_required_for_url=True,
                         instance_class=StatementCheckResult,
                     ),
                 ],
@@ -862,8 +841,8 @@ SITE_MAP: list[PlatformPageGroup] = [
                     PlatformPage(
                         name="Edit or delete comment",
                         url_name="comments:edit-qa-comment",
+                        url_kwarg_key="pk",
                         instance_class=Comment,
-                        instance_required_for_url=True,
                         visible_only_when_current=True,
                     ),
                 ],
@@ -930,7 +909,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="simplified:edit-contact-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_required_for_url=True,
                         instance_class=Contact,
                     ),
                 ],
@@ -1065,7 +1043,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="audits:edit-audit-retest-page-checks",
                         url_kwarg_key="pk",
                         instance_class=Page,
-                        instance_required_for_url=True,
                         complete_flag_name="retest_complete_date",
                         case_details_template_name="simplified/details/details_twelve_week_page_wcag_results.html",
                     )
@@ -1163,7 +1140,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="audits:edit-retest-initial-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_required_for_url=True,
                         instance_class=StatementCheckResult,
                     ),
                     AuditPlatformPage(
@@ -1177,7 +1153,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="audits:edit-retest-new-12-week-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_required_for_url=True,
                         instance_class=StatementCheckResult,
                     ),
                     PlatformPage(
@@ -1185,7 +1160,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="audits:edit-retest-new-12-week-custom-issue-delete-confirm",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_required_for_url=True,
                         instance_class=StatementCheckResult,
                     ),
                 ],
@@ -1275,6 +1249,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                     PlatformPage(
                         name="Edit Zendesk ticket",
                         url_name="simplified:edit-equality-body-correspondence",
+                        url_kwarg_key="pk",
                         instance_class=EqualityBodyCorrespondence,
                         visible_only_when_current=True,
                     ),
@@ -1398,7 +1373,7 @@ SITE_MAP: list[PlatformPageGroup] = [
     ),
     SimplifiedCasePlatformPageGroup(
         name="Case tools",
-        type=PlatformPageGroup.Type.CASE_TOOLS,
+        type=PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS,
         pages=[
             SimplifiedCasePlatformPage(
                 name="View and search all case data",
@@ -1435,11 +1410,13 @@ SITE_MAP: list[PlatformPageGroup] = [
                     PlatformPage(
                         name="Edit PSB Zendesk ticket #{instance.id_within_case}",
                         url_name="simplified:update-zendesk-ticket",
+                        url_kwarg_key="pk",
                         instance_class=ZendeskTicket,
                     ),
                     PlatformPage(
                         name="Remove PSB Zendesk ticket #{instance.id_within_case}",
                         url_name="simplified:confirm-delete-zendesk-ticket",
+                        url_kwarg_key="pk",
                         instance_class=ZendeskTicket,
                     ),
                 ],
@@ -1461,7 +1438,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             SimplifiedCasePlatformPage(
                 name="Simplified case overview", url_name="simplified:case-detail"
             ),
-            SimplifiedCasePlatformPage(
+            BaseCasePlatformPage(
                 name="Create reminder",
                 url_name="notifications:reminder-create",
                 url_kwarg_key="case_id",
@@ -1494,13 +1471,13 @@ SITE_MAP: list[PlatformPageGroup] = [
             PlatformPage(
                 name="Delete {instance}",
                 url_name="exports:export-confirm-delete",
-                instance_required_for_url=True,
+                url_kwarg_key="pk",
                 instance_class=Export,
             ),
             PlatformPage(
                 name="Confirm {instance}",
                 url_name="exports:export-confirm-export",
-                instance_required_for_url=True,
+                url_kwarg_key="pk",
                 instance_class=Export,
             ),
             ExportPlatformPage(
@@ -1510,7 +1487,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             PlatformPage(
                 name="{instance}",
                 url_name="exports:export-detail",
-                instance_required_for_url=True,
+                url_kwarg_key="pk",
                 instance_class=Export,
             ),
             SimplifiedCasePlatformPage(
@@ -1554,12 +1531,11 @@ SITE_MAP: list[PlatformPageGroup] = [
                     PlatformPage(
                         name="Create WCAG error",
                         url_name="audits:wcag-definition-create",
-                        instance_required_for_url=True,
                     ),
                     PlatformPage(
                         name="Update WCAG definition",
                         url_name="audits:wcag-definition-update",
-                        instance_required_for_url=True,
+                        url_kwarg_key="pk",
                     ),
                 ],
             ),
@@ -1574,7 +1550,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                     PlatformPage(
                         name="Update statement issue",
                         url_name="audits:statement-check-update",
-                        instance_required_for_url=True,
+                        url_kwarg_key="pk",
                     ),
                 ],
             ),
@@ -1586,7 +1562,7 @@ SITE_MAP: list[PlatformPageGroup] = [
         case_nav_group=False,
         pages=[
             DetailedCasePlatformPage(
-                name="Case overview", url_name="detailed:case-detail"
+                name="Detailed case overview", url_name="detailed:case-detail"
             ),
             DetailedCasePlatformPage(
                 name="Change status", url_name="detailed:edit-case-status"
@@ -1595,6 +1571,33 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Case notes",
                 url_name="detailed:create-case-note",
                 url_kwarg_key="case_id",
+            ),
+            DetailedCasePlatformPage(
+                name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"
+            ),
+            DetailedCasePlatformPage(
+                name="PSB Zendesk tickets",
+                url_name="detailed:zendesk-tickets",
+                # case_details_template_name="detailed/details/details_psb_zendesk_tickets.html",
+                subpages=[
+                    DetailedCasePlatformPage(
+                        name="Add PSB Zendesk ticket",
+                        url_name="detailed:create-zendesk-ticket",
+                        url_kwarg_key="case_id",
+                    ),
+                    PlatformPage(
+                        name="Edit PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:update-zendesk-ticket",
+                        url_kwarg_key="pk",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                    PlatformPage(
+                        name="Remove PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:confirm-delete-zendesk-ticket",
+                        url_kwarg_key="pk",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                ],
             ),
         ],
     ),
@@ -1630,7 +1633,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                         url_name="detailed:edit-contact-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_required_for_url=True,
                         instance_class=DetailedCaseContact,
                     ),
                 ],
@@ -1782,12 +1784,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Statement compliance",
                 url_name="detailed:edit-retest-statement-compliance",
                 complete_flag_name="retest_statement_compliance_complete_date",
-                next_page_url_name="detailed:edit-retest-metrics",
-            ),
-            DetailedCasePlatformPage(
-                name="Final metrics",
-                url_name="detailed:edit-retest-metrics",
-                complete_flag_name="retest_metrics_complete_date",
                 next_page_url_name="detailed:edit-case-close",
             ),
         ],
@@ -1818,7 +1814,9 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Mobile testing case",
         case_nav_group=False,
         pages=[
-            MobileCasePlatformPage(name="Case overview", url_name="mobile:case-detail"),
+            MobileCasePlatformPage(
+                name="Mobile case overview", url_name="mobile:case-detail"
+            ),
         ],
     ),
     MobileCasePlatformPageGroup(
@@ -1853,7 +1851,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             PlatformPage(
                 name="Reminder",
                 url_name="notifications:edit-reminder-task",
-                instance_required_for_url=True,
+                url_kwarg_key="pk",
                 instance_class=Task,
             ),
             PlatformPage(name="Privacy notice", url_name="common:privacy-notice"),
@@ -1867,11 +1865,14 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Tech team",
         pages=[
             SimplifiedCasePlatformPage(
-                name="Case history", url_name="simplified:case-history"
+                name="Simplified case history", url_name="simplified:case-history"
+            ),
+            DetailedCasePlatformPage(
+                name="Detailed case history", url_name="detailed:case-history"
             ),
             PlatformPage(name="Issue reports", url_name="common:issue-reports-list"),
             PlatformPage(
-                name="Reference implementations",
+                name="Reference implementation",
                 url_name="common:reference-implementation",
             ),
             PlatformPage(name="Tools and sitemap", url_name="common:platform-checking"),
@@ -1956,8 +1957,13 @@ def build_sitemap_for_current_page(
     case: SimplifiedCase | DetailedCase | BaseCase | None = (
         current_platform_page.get_case()
     )
-    if case is not None and case.test_type == BaseCase.TestType.SIMPLIFIED:
-        case: SimplifiedCase = case.simplifiedcase
+    if case is not None:
+        if hasattr(case, "simplifiedcase"):
+            case: SimplifiedCase = case.simplifiedcase
+        elif hasattr(case, "detailedcase"):
+            case: DetailedCase = case.detailedcase
+        elif hasattr(case, "mobilecase"):
+            case: MobileCase = case.mobilecase
     case_nav_type: PlatformPageGroup.Type | None = (
         TEST_TYPE_TO_CASE_NAV.get(case.test_type) if case is not None else None
     )
@@ -1971,13 +1977,28 @@ def build_sitemap_for_current_page(
         case_navigation: list[PlatformPageGroup] = [
             platform_page_group
             for platform_page_group in site_map
-            if platform_page_group.type
-            in [
-                case_nav_type,
-                PlatformPageGroup.Type.CASE_TOOLS,
-            ]
+            if platform_page_group.type == case_nav_type
         ]
+        if case_nav_type == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV:
+            case_navigation += [
+                platform_page_group
+                for platform_page_group in site_map
+                if platform_page_group.type
+                == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
+            ]
         for platform_page_group in case_navigation:
             platform_page_group.populate_from_case(case=case)
         return case_navigation
     return SITE_MAP
+
+
+class Sitemap:
+    platform_page_groups: list[PlatformPageGroup]
+    current_platform_page: PlatformPage
+    next_platform_page: PlatformPage | None
+
+    def __init__(self, request: HttpRequest):
+        self.current_platform_page = get_requested_platform_page(request=request)
+        self.platform_page_groups = build_sitemap_for_current_page(
+            current_platform_page=self.current_platform_page
+        )

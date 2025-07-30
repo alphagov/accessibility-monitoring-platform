@@ -8,6 +8,7 @@ from django.urls.resolvers import URLPattern
 
 from accessibility_monitoring_platform.apps.detailed.views import (
     CaseCloseUpdateView,
+    CaseZendeskTicketsDetailView,
     ContactChasingRecordUpdateView,
     ContactCreateView,
     ContactInformationDeliveredUpdateView,
@@ -20,6 +21,7 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     CorrespondenceTwelveWeekRequestUpdateView,
     DetailedCaseCreateView,
     DetailedCaseDetailView,
+    DetailedCaseHistoryDetailView,
     DetailedCaseMetadataUpdateView,
     DetailedCaseNoteCreateView,
     DetailedCaseStatusUpdateView,
@@ -34,11 +36,14 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     QAApprovalUpdateView,
     ReportDraftUpdateView,
     RetestDisproportionateBurdenUpdateView,
-    RetestMetricsUpdateView,
     RetestResultUpdateView,
     RetestStatementComplianceUpdateView,
     RetestSummaryUpdateView,
     RetestWebsiteComplianceUpdateView,
+    UnresponsivePSBUpdateView,
+    ZendeskTicketConfirmDeleteUpdateView,
+    ZendeskTicketCreateView,
+    ZendeskTicketUpdateView,
 )
 
 app_name: str = "detailed"
@@ -64,7 +69,7 @@ urlpatterns: list[URLPattern] = [
         name="edit-case-status",
     ),
     path(
-        "<int:case_id>/case-note-create/",
+        "<int:case_id>/create-case-note/",
         login_required(DetailedCaseNoteCreateView.as_view()),
         name="create-case-note",
     ),
@@ -189,11 +194,6 @@ urlpatterns: list[URLPattern] = [
         name="edit-retest-statement-compliance",
     ),
     path(
-        "<int:pk>/edit-retest-metrics/",
-        login_required(RetestMetricsUpdateView.as_view()),
-        name="edit-retest-metrics",
-    ),
-    path(
         "<int:pk>/edit-case-close/",
         login_required(CaseCloseUpdateView.as_view()),
         name="edit-case-close",
@@ -202,5 +202,35 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-equality-body-metadata/",
         login_required(EnforcementBodyMetadataUpdateView.as_view()),
         name="edit-equality-body-metadata",
+    ),
+    path(
+        "<int:pk>/zendesk-tickets/",
+        login_required(CaseZendeskTicketsDetailView.as_view()),
+        name="zendesk-tickets",
+    ),
+    path(
+        "<int:case_id>/create-zendesk-ticket/",
+        login_required(ZendeskTicketCreateView.as_view()),
+        name="create-zendesk-ticket",
+    ),
+    path(
+        "<int:pk>/update-zendesk-ticket/",
+        login_required(ZendeskTicketUpdateView.as_view()),
+        name="update-zendesk-ticket",
+    ),
+    path(
+        "<int:pk>/confirm-delete-zendesk-ticket/",
+        login_required(ZendeskTicketConfirmDeleteUpdateView.as_view()),
+        name="confirm-delete-zendesk-ticket",
+    ),
+    path(
+        "<int:pk>/edit-unresponsive-psb/",
+        login_required(UnresponsivePSBUpdateView.as_view()),
+        name="edit-unresponsive-psb",
+    ),
+    path(
+        "<int:pk>/history/",
+        login_required(DetailedCaseHistoryDetailView.as_view()),
+        name="case-history",
     ),
 ]

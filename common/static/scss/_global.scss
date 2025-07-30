@@ -22,9 +22,19 @@ pre {
         margin: 0;
     }
 }
-.amp-case-banner-title-active {
+.amp-case-banner-title-simplified {
     color: govuk-colour("white");
     background-color: govuk-colour("blue");
+}
+
+.amp-case-banner-title-detailed {
+    color: govuk-colour("white");
+    background-color: govuk-colour("orange");
+}
+
+.amp-case-banner-title-mobile {
+    color: govuk-colour("white");
+    background-color: govuk-colour("green");
 }
 
 .amp-case-banner-title-archive {
