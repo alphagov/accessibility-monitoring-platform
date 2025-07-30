@@ -134,6 +134,7 @@ class StatementCheckAdmin(admin.ModelAdmin, ExportCsvMixin):
             },
         ),
     )
+    actions = ["export_as_csv"]
 
 
 class StatementCheckResultAdmin(admin.ModelAdmin):
