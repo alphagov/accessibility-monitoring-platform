@@ -289,6 +289,7 @@ class InitialTestingDetailsUpdateForm(VersionForm):
     auditor = AMPAuditorModelChoiceField(label="Auditor")
     monitor_folder_url = AMPURLField(label="Link to monitor folder")
     monitor_doc_url = AMPURLField(label="Link to monitor document")
+    initial_test_start_date = AMPDateField(label="Test start date")
     initial_testing_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -298,6 +299,7 @@ class InitialTestingDetailsUpdateForm(VersionForm):
             "auditor",
             "monitor_folder_url",
             "monitor_doc_url",
+            "initial_test_start_date",
             "initial_testing_details_complete_date",
         ]
 
@@ -305,15 +307,17 @@ class InitialTestingDetailsUpdateForm(VersionForm):
 class InitialTestingOutcomeUpdateForm(VersionForm):
     """Form for updating initial testing outcome page"""
 
-    initial_test_date = AMPDateField(label="Test date")
-    initial_total_number_of_issues = AMPIntegerField(label="Total number of issues")
+    initial_test_end_date = AMPDateField(label="Test end date")
+    initial_total_number_of_pages = AMPIntegerField(label="Number of pages")
+    initial_total_number_of_issues = AMPIntegerField(label="Number of issues")
     initial_testing_outcome_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
         fields = [
             "version",
-            "initial_test_date",
+            "initial_test_end_date",
+            "initial_total_number_of_pages",
             "initial_total_number_of_issues",
             "initial_testing_outcome_complete_date",
         ]
@@ -376,6 +380,7 @@ class InitialStatementComplianceUpdateForm(VersionForm):
 class ReportDraftUpdateForm(VersionForm):
     """Form for updating report draft page"""
 
+    report_start_date = AMPDateField(label="Report start date")
     report_draft_url = AMPURLField(label="Link to report draft")
     report_ready_for_qa = AMPChoiceRadioField(
         label="Report ready for QA process?",
@@ -387,6 +392,7 @@ class ReportDraftUpdateForm(VersionForm):
         model = DetailedCase
         fields = [
             "version",
+            "report_start_date",
             "report_draft_url",
             "report_ready_for_qa",
             "report_draft_complete_date",
@@ -416,6 +422,7 @@ class QAApprovalUpdateForm(VersionForm):
 class PublishReportUpdateForm(VersionForm):
     """Form for updating publish report page"""
 
+    report_end_date = AMPDateField(label="Report end date")
     equality_body_report_url = AMPURLField(label="Link to equality body PDF report")
     public_report_url = AMPURLField(label="Link to public report")
     publish_report_complete_date = AMPDatePageCompleteField()
@@ -424,6 +431,7 @@ class PublishReportUpdateForm(VersionForm):
         model = DetailedCase
         fields = [
             "version",
+            "report_end_date",
             "equality_body_report_url",
             "public_report_url",
             "publish_report_complete_date",
@@ -520,6 +528,7 @@ class RetestResultUpdateForm(VersionForm):
     retest_total_number_of_issues = AMPIntegerField(
         label="Total number of remaining issues"
     )
+    retest_end_date = AMPDateField(label="Retest end date")
     retest_result_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -528,6 +537,7 @@ class RetestResultUpdateForm(VersionForm):
             "version",
             "retest_date",
             "retest_total_number_of_issues",
+            "retest_end_date",
             "retest_result_complete_date",
         ]
 

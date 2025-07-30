@@ -100,10 +100,12 @@ class DetailedCase(BaseCase):
     # Initial test - Testing details
     monitor_folder_url = models.TextField(default="", blank=True)
     monitor_doc_url = models.TextField(default="", blank=True)
+    initial_test_start_date = models.DateField(null=True, blank=True)
     initial_testing_details_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - Testing outcome
-    initial_test_date = models.DateField(null=True, blank=True)
+    initial_test_end_date = models.DateField(null=True, blank=True)
+    initial_total_number_of_pages = models.IntegerField(null=True, blank=True)
     initial_total_number_of_issues = models.IntegerField(null=True, blank=True)
     initial_testing_outcome_complete_date = models.DateField(null=True, blank=True)
 
@@ -134,6 +136,7 @@ class DetailedCase(BaseCase):
     initial_statement_compliance_complete_date = models.DateField(null=True, blank=True)
 
     # Report - Report draft
+    report_start_date = models.DateField(null=True, blank=True)
     report_draft_url = models.TextField(default="", blank=True)
     report_ready_for_qa = models.CharField(
         max_length=20,
@@ -151,6 +154,7 @@ class DetailedCase(BaseCase):
     qa_approval_complete_date = models.DateField(null=True, blank=True)
 
     # Report - Publish report
+    report_end_date = models.DateField(null=True, blank=True)
     equality_body_report_url = models.TextField(default="", blank=True)
     public_report_url = models.TextField(default="", blank=True)
     publish_report_complete_date = models.DateField(null=True, blank=True)
@@ -184,6 +188,7 @@ class DetailedCase(BaseCase):
     # Reviewing changes - Retest result
     retest_date = models.DateField(null=True, blank=True)
     retest_total_number_of_issues = models.IntegerField(null=True, blank=True)
+    retest_end_date = models.DateField(null=True, blank=True)
     retest_result_complete_date = models.DateField(null=True, blank=True)
 
     # Reviewing changes - Summary of changes

@@ -175,4 +175,34 @@ class Migration(migrations.Migration):
                 "ordering": ["-id"],
             },
         ),
+        migrations.RenameField(
+            model_name="detailedcase",
+            old_name="initial_test_date",
+            new_name="initial_test_end_date",
+        ),
+        migrations.AddField(
+            model_name="detailedcase",
+            name="initial_test_start_date",
+            field=models.DateField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name="detailedcase",
+            name="initial_total_number_of_pages",
+            field=models.IntegerField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name="detailedcase",
+            name="report_end_date",
+            field=models.DateField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name="detailedcase",
+            name="report_start_date",
+            field=models.DateField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name="detailedcase",
+            name="retest_end_date",
+            field=models.DateField(blank=True, null=True),
+        ),
     ]
