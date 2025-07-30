@@ -106,7 +106,7 @@ class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):
     actions = ["export_as_csv"]
 
 
-class StatementCheckAdmin(admin.ModelAdmin):
+class StatementCheckAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for StatementCheck model"""
 
     search_fields = ["label", "success_criteria", "report_text"]
@@ -133,6 +133,7 @@ class StatementCheckAdmin(admin.ModelAdmin):
             },
         ),
     )
+    actions = ["export_as_csv"]
 
 
 class StatementCheckResultAdmin(admin.ModelAdmin):
