@@ -470,39 +470,3 @@ def add_to_check_result_restest_notes_history(
             retest_notes=check_result.retest_notes,
             retest_state=check_result.retest_state,
         )
-
-
-def change_statement_question_from_dict(row: dict[str, Any]) -> None:
-    """Update or create StatementCheck"""
-    yesterday: date = date.today() - timedelta(days=1)
-    if row["id"]:
-        statement_check_id: int = int(row["id"])
-        statement_check: StatementCheck = StatementCheck.objects.get(
-            id=statement_check_id
-        )
-        if row["end_date"]:
-            statement_check.date_end = yesterday
-            statement_check.position = int(row["position"])
-            statement_check.save()
-            return
-        statement_check.label = row["New Question"]
-        statement_check.success_criteria = row["New Success criteria "]
-        statement_check.report_text = row["New Report text"]
-        statement_check.position = int(row["position"])
-        statement_check.save()
-    else:
-        statement_check: StatementCheck = StatementCheck.objects.create(
-            type=row["type"],
-            label=row["New Question"],
-            success_criteria=row["New Success criteria "],
-            report_text=row["New Report text"],
-            position=int(row["position"]),
-            date_start=yesterday,
-        )
-
-
-def statement_questions_bulk_update(csv_data: str) -> None:
-    """Bulk update statement questions from data in CSV"""
-    reader: Any = csv.DictReader(io.StringIO(csv_data))
-    for row in reader:
-        change_statement_question_from_dict(row=row)
