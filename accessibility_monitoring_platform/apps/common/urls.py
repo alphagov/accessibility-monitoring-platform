@@ -25,7 +25,6 @@ from .views import (
     PlatformCheckingView,
     PrivacyNoticeTemplateView,
     ReferenceImplementaionView,
-    StatementQuestionBulkUpdate,
 )
 
 app_name: str = "common"
@@ -113,10 +112,5 @@ urlpatterns: list[URLPattern] = [
         "import-csv/",
         login_required(ImportCSV.as_view()),
         name="import-csv",
-    ),
-    path(
-        "statement-questions-csv/",
-        login_required(StatementQuestionBulkUpdate.as_view()),
-        name="statement-questions-csv",
     ),
 ]
