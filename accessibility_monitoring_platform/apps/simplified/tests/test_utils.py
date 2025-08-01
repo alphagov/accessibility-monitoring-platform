@@ -4,7 +4,9 @@ Test utility functions of cases app
 
 import json
 from dataclasses import dataclass
+from datetime import date, datetime, timezone
 from typing import Any
+from unittest.mock import Mock, patch
 
 import pytest
 from django.contrib.auth.models import User
@@ -12,11 +14,19 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
 
 from ...audits.models import Audit
-from ...common.models import Boolean
-from ..models import CaseCompliance, CaseEvent, SimplifiedCase, SimplifiedEventHistory
+from ...cases.forms import DateType
+from ...common.models import Boolean, Sector, SubCategory
+from ..models import (
+    CaseCompliance,
+    CaseEvent,
+    CaseStatus,
+    SimplifiedCase,
+    SimplifiedEventHistory,
+)
 from ..utils import (
     build_edit_link_html,
     create_case_and_compliance,
+    filter_cases,
     record_case_event,
     record_simplified_model_create_event,
     record_simplified_model_update_event,
@@ -32,6 +42,21 @@ ORGANISATION_NAME_NOT_SELECTED: str = "Organisation name not selected"
 CASE_NUMBER: int = 99
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
+
+PAST_DATE: date = date(1900, 1, 1)
+TODAYS_DATE: date = date.today()
+
+DOMAIN: str = "domain.com"
+HOME_PAGE_URL: str = f"https://{DOMAIN}"
+ORGANISATION_NAME: str = "Organisation name"
+PSB_LOCATION: str = "England"
+SECTOR_NAME: str = "Sector name"
+PARENTAL_ORGANISATION_NAME: str = "Parent organisation"
+WEBSITE_NAME: str = "Website name"
+SUBCATEGORY_NAME: str = "Sub-category name"
+CASE_IDENTIFIER: str = "#S-1"
+APP_NAME: str = "App name"
+APP_STORE_URL: str = "https://appstore.com"
 
 
 @dataclass
@@ -255,3 +280,377 @@ def test_record_model_update_event():
 
     assert event.event_type == SimplifiedEventHistory.Type.UPDATE
     assert event.difference == '{"first_name": " -> Changed"}'
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_date_of_test_date_range():
+    """Test searching for cases by date of test in date range."""
+    excluded_simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Excluded"
+    )
+    Audit.objects.create(
+        simplified_case=excluded_simplified_case, date_of_test=PAST_DATE
+    )
+    included_simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Included"
+    )
+    Audit.objects.create(
+        simplified_case=included_simplified_case, date_of_test=TODAYS_DATE
+    )
+
+    form: MockForm = MockForm(
+        cleaned_data={
+            "date_type": DateType.TEST_START,
+            "date_start": TODAYS_DATE,
+            "date_end": TODAYS_DATE,
+        }
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_sent_to_enforcement_body_date_range():
+    """Test searching for cases by sent to enforcement body date range"""
+    SimplifiedCase.objects.create(
+        organisation_name="Excluded", sent_to_enforcement_body_sent_date=PAST_DATE
+    )
+    SimplifiedCase.objects.create(
+        organisation_name="Included", sent_to_enforcement_body_sent_date=TODAYS_DATE
+    )
+
+    form: MockForm = MockForm(
+        cleaned_data={
+            "date_type": DateType.SENT,
+            "date_start": TODAYS_DATE,
+            "date_end": TODAYS_DATE,
+        }
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_updated_date_range():
+    """Test searching for cases by updated date range"""
+    with patch(
+        "django.utils.timezone.now",
+        Mock(
+            return_value=datetime(
+                PAST_DATE.year, PAST_DATE.month, PAST_DATE.day, tzinfo=timezone.utc
+            )
+        ),
+    ):
+        SimplifiedCase.objects.create(organisation_name="Excluded")
+    with patch(
+        "django.utils.timezone.now",
+        Mock(
+            return_value=datetime(
+                TODAYS_DATE.year,
+                TODAYS_DATE.month,
+                TODAYS_DATE.day,
+                tzinfo=timezone.utc,
+            )
+        ),
+    ):
+        SimplifiedCase.objects.create(organisation_name="Included")
+
+    form: MockForm = MockForm(
+        cleaned_data={
+            "date_type": DateType.UPDATED,
+            "date_start": TODAYS_DATE,
+            "date_end": TODAYS_DATE,
+        }
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Included"
+
+
+@pytest.mark.django_db
+def test_filtering_by_date_range_is_inclusive():
+    """Test filtering Cases by date range includes Cases with matching dates"""
+    with patch(
+        "django.utils.timezone.now",
+        Mock(
+            return_value=datetime(
+                TODAYS_DATE.year,
+                TODAYS_DATE.month,
+                TODAYS_DATE.day,
+                tzinfo=timezone.utc,
+            )
+        ),
+    ):
+        SimplifiedCase.objects.create()
+
+    form: MockForm = MockForm(
+        cleaned_data={
+            "date_type": DateType.UPDATED,
+            "date_end": TODAYS_DATE,
+        }
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+
+    form: MockForm = MockForm(
+        cleaned_data={
+            "date_type": DateType.UPDATED,
+            "date_end": TODAYS_DATE,
+        }
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_auditor():
+    """Test that filtering cases by auditor is reflected in the queryset"""
+    auditor: User = User.objects.create(
+        username="new", first_name="New", last_name="User"
+    )
+    SimplifiedCase.objects.create(auditor=auditor)
+    form: MockForm = MockForm(cleaned_data={"auditor": auditor.id})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_reviewer():
+    """Test that filtering cases by reviewer is reflected in the queryset"""
+    reviewer: User = User.objects.create(
+        username="new", first_name="New", last_name="User"
+    )
+    SimplifiedCase.objects.create(reviewer=reviewer)
+    form: MockForm = MockForm(cleaned_data={"reviewer": reviewer.id})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_status():
+    """Test that filtering cases by status is reflected in the queryset"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+    CaseStatus.objects.create(simplified_case=simplified_case)
+    form: MockForm = MockForm(cleaned_data={"status": SimplifiedCase.Status.UNASSIGNED})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_case_number_search_string():
+    """Test that searching for case by number is reflected in the queryset"""
+    SimplifiedCase.objects.create(case_number=CASE_NUMBER)
+    form: MockForm = MockForm(cleaned_data={"case_search": str(CASE_NUMBER)})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].case_number == CASE_NUMBER
+
+
+@pytest.mark.parametrize(
+    "search_string",
+    [
+        ORGANISATION_NAME,
+        HOME_PAGE_URL,
+        PSB_LOCATION,
+        SECTOR_NAME,
+        PARENTAL_ORGANISATION_NAME,
+        WEBSITE_NAME,
+        SUBCATEGORY_NAME,
+        CASE_IDENTIFIER,
+    ],
+)
+@pytest.mark.django_db
+def test_case_filtered_by_search_string(search_string):
+    """Test that searching for cases is reflected in the queryset"""
+    sector: Sector = Sector.objects.create(name=SECTOR_NAME)
+    subcategory: SubCategory = SubCategory.objects.create(name=SUBCATEGORY_NAME)
+    SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        home_page_url=HOME_PAGE_URL,
+        psb_location=PSB_LOCATION,
+        sector=sector,
+        parental_organisation_name=PARENTAL_ORGANISATION_NAME,
+        website_name=WEBSITE_NAME,
+        subcategory=subcategory,
+    )
+    form: MockForm = MockForm(cleaned_data={"case_search": search_string})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+
+
+@pytest.mark.django_db
+def test_simplified_case_filtered_by_ready_to_qa():
+    """Test that case with status Ready to QA is found"""
+    SimplifiedCase.objects.create(
+        status=SimplifiedCase.Status.QA_IN_PROGRESS,
+        report_review_status=Boolean.YES,
+    )
+    form: MockForm = MockForm(
+        cleaned_data={"status": SimplifiedCase.Status.READY_TO_QA}
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+
+
+@pytest.mark.parametrize(
+    "search_field",
+    ["auditor_id", "reviewer_id"],
+)
+@pytest.mark.django_db
+def test_simplified_case_filtered_by_not_having_an_auditor(search_field):
+    """Test that case without auditor or reviewer is found"""
+    SimplifiedCase.objects.create()
+    form: MockForm = MockForm(cleaned_data={search_field: "none"})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+
+
+@pytest.mark.parametrize(
+    "recommendation_for_enforcement_filter, expected_number, expected_name",
+    [
+        ("", 3, ORGANISATION_NAME_NOT_SELECTED),
+        ("no-further-action", 1, ORGANISATION_NAME_NO_FURTHER_ACTION),
+        ("other", 1, ORGANISATION_NAME_FOR_ENFORCEMENT),
+        ("unknown", 1, ORGANISATION_NAME_NOT_SELECTED),
+    ],
+)
+@pytest.mark.django_db
+def test_case_filtered_by_recommendation_for_enforcement(
+    recommendation_for_enforcement_filter, expected_number, expected_name
+):
+    """
+    Test that filtering by recommendation for enforcement is reflected in the queryset
+    """
+    SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME_NO_FURTHER_ACTION,
+        recommendation_for_enforcement="no-further-action",
+    )
+    SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME_FOR_ENFORCEMENT,
+        recommendation_for_enforcement="other",
+    )
+    SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME_NOT_SELECTED,
+        recommendation_for_enforcement="unknown",
+    )
+    form: MockForm = MockForm(
+        cleaned_data={
+            "recommendation_for_enforcement": recommendation_for_enforcement_filter
+        }
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))  # type: ignore
+
+    assert len(filtered_cases) == expected_number
+    assert filtered_cases[0].organisation_name == expected_name
+
+
+@pytest.mark.parametrize(
+    "is_complaint_filter, expected_number, expected_name",
+    [
+        ("", 2, ORGANISATION_NAME_COMPLAINT),
+        ("no", 1, ORGANISATION_NAME),
+        ("yes", 1, ORGANISATION_NAME_COMPLAINT),
+    ],
+)
+@pytest.mark.django_db
+def test_case_filtered_by_is_complaint(
+    is_complaint_filter, expected_number, expected_name
+):
+    """Test that filtering by complaint is reflected in the queryset"""
+    SimplifiedCase.objects.create(organisation_name=ORGANISATION_NAME)
+    SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME_COMPLAINT, is_complaint="yes"
+    )
+    form: MockForm = MockForm(cleaned_data={"is_complaint": is_complaint_filter})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == expected_number
+    assert filtered_cases[0].organisation_name == expected_name
+
+
+@pytest.mark.parametrize(
+    "enforcement_body_filter, expected_number, expected_name",
+    [
+        ("", 2, ORGANISATION_NAME_EHRC),
+        ("ehrc", 1, ORGANISATION_NAME_EHRC),
+        ("ecni", 1, ORGANISATION_NAME_ECNI),
+    ],
+)
+@pytest.mark.django_db
+def test_case_filtered_by_enforcement_body(
+    enforcement_body_filter, expected_number, expected_name
+):
+    """Test that filtering by enforcement body is reflected in the queryset"""
+    SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME_ECNI, enforcement_body="ecni"
+    )
+    SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME_EHRC, enforcement_body="ehrc"
+    )
+    form: MockForm = MockForm(
+        cleaned_data={"enforcement_body": enforcement_body_filter}
+    )
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))  # type: ignore
+
+    assert len(filtered_cases) == expected_number
+    assert filtered_cases[0].organisation_name == expected_name
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_sector():
+    """Test that filtering by sector is reflected in the queryset"""
+    sector: Sector = Sector.objects.create()
+    SimplifiedCase.objects.create(organisation_name=ORGANISATION_NAME, sector=sector)
+    form: MockForm = MockForm(cleaned_data={"sector": sector})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_subcategory():
+    """Test that filtering by subcategory is reflected in the queryset"""
+    subcategory: SubCategory = SubCategory.objects.create()
+    SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME, subcategory=subcategory
+    )
+    form: MockForm = MockForm(cleaned_data={"subcategory": subcategory})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == ORGANISATION_NAME
