@@ -696,6 +696,11 @@ CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="enforcement_body_pursuing",
     ),
     CSVColumn(
+        column_header="Equality body has officially closed the case?",
+        source_class=SimplifiedCase,
+        source_attr="enforcement_body_closed_case",
+    ),
+    CSVColumn(
         column_header="Equality body correspondence notes",
         source_class=SimplifiedCase,
         source_attr="enforcement_body_correspondence_notes",
