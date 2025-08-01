@@ -378,6 +378,7 @@ def test_download_cases():
         "",
         "",
         "No",
+        "No (or holding)",
         "",
         "",
         "False",
@@ -457,7 +458,7 @@ def test_populate_csv_columns():
         simplified_case=simplified_case, column_definitions=CASE_COLUMNS_FOR_EXPORT
     )
 
-    assert len(row) == 91
+    assert len(row) == 92
 
     contact_email: list[CSVColumn] = [
         cell for cell in row if cell.column_header == "Contact email"
