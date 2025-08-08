@@ -30,36 +30,38 @@
 
 <h2 class="govuk-heading-s amp-margin-bottom-5">
     Test in progress
-    {% if case.audit %}
-        {% if case.compliance.website_compliance_state_initial != 'not-known' and not case.statement_checks_still_initial and case.compliance.statement_compliance_state_initial != 'unknown'  %}
-            [COMPLETE]
-        {% endif %}
-    {% else %}
-        {% if case.compliance.website_compliance_state_initial != 'not-known' and case.compliance.statement_compliance_state_initial != 'unknown' %}
-            [COMPLETE]
-        {% endif %}
+    {% if case.compliance.website_compliance_state_initial != 'not-known' and case.compliance.statement_compliance_state_initial != 'unknown'  %}
+        [COMPLETE]
     {% endif %}
 </h2>
 <ul class="govuk-list govuk-list--bullet">
-    <li>
-        <a href="{% url 'simplified:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
-            Initial website compliance decision is not filled in
-        </a>
-        {% if case.compliance.website_compliance_state_initial != 'not-known' %}&check;{% endif %}
-    </li>
-    <li>
-        {% if case.audit %}
-            <a href="{% url 'audits:edit-statement-overview' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
-                Statement overview not filled in
+    {% if case.audit %}
+        <li>
+            <a href="{% url 'audits:edit-website-decision' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                Initial website compliance decision is not filled in
             </a>
-            {% if not case.statement_checks_still_initial %}&check;{% endif %}
-        {% else %}
+            {% if case.compliance.website_compliance_state_initial != 'not-known' %}&check;{% endif %}
+        </li>
+        <li>
+            <a href="{% url 'audits:edit-statement-decision' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                Initial accessibility statement decision is not filled in
+            </a>
+            {% if case.compliance and case.compliance.statement_compliance_state_initial != 'unknown' %}&check;{% endif %}
+        </li>
+    {% else %}
+        <li>
+            <a href="{% url 'simplified:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Initial website compliance decision is not filled in
+            </a>
+            {% if case.compliance.website_compliance_state_initial != 'not-known' %}&check;{% endif %}
+        </li>
+        <li>
             <a href="{% url 'simplified:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
                 Initial accessibility statement decision is not filled in
             </a>
-            {% if case.compliance.statement_compliance_state_initial != 'unknown' %}&check;{% endif %}
-        {% endif %}
-    </li>
+            {% if case.compliance and case.compliance.statement_compliance_state_initial != 'unknown' %}&check;{% endif %}
+        </li>
+    {% endif %}
 </ul>
 
 <h2 class="govuk-heading-s amp-margin-bottom-5">Report in progress {% if case.report_review_status == 'yes' %} [COMPLETE] {% endif %}</h2>
@@ -170,9 +172,10 @@
 <ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'simplified:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
-            Equality body pursuing this case? should be 'Yes, completed'
+            Equality body has officially closed the case? should either be 'Yes' or 'Case in progress'
         </a>
-        {% if case.enforcement_body_closed_case == 'yes' %}&check;{% endif %}
+        {% if case.enforcement_body_closed_case != 'no' %}&check;{% endif %}
+
     </li>
 </ul>
 
