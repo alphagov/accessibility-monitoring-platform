@@ -11,7 +11,12 @@ from django.http import HttpResponse, StreamingHttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...simplified.models import CaseCompliance, SimplifiedCase, SimplifiedEventHistory
+from ...simplified.models import (
+    CaseCompliance,
+    CaseStatus,
+    SimplifiedCase,
+    SimplifiedEventHistory,
+)
 from ..models import Export, ExportCase
 from .test_forms import CUTOFF_DATE, create_exportable_case
 
@@ -323,6 +328,9 @@ def test_confirm_export(admin_client):
     )
 
     assert simplified_case.sent_to_enforcement_body_sent_date == date.today()
+    assert (
+        simplified_case.status == CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
+    )
 
     event_history: QuerySet[SimplifiedEventHistory] = (
         SimplifiedEventHistory.objects.all()

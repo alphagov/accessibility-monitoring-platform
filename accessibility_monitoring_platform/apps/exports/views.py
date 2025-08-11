@@ -146,6 +146,7 @@ class ConfirmExportUpdateView(UpdateView):
                 user=user, model_object=simplified_case, simplified_case=simplified_case
             )
             simplified_case.save()
+            simplified_case.update_case_status()
         export.status = Export.Status.EXPORTED
         export.export_date = today
         record_simplified_model_update_event(user=user, model_object=export)
