@@ -50,21 +50,18 @@ def filter_cases(form) -> QuerySet[BaseCase]:
         sort_by: str = form.cleaned_data.get("sort_by", Sort.NEWEST)
         if form.cleaned_data.get("case_search"):
             search: str = form.cleaned_data["case_search"]
-            if search.isdigit():
-                search_query = Q(case_number=search)
-            else:
-                search_query = (
-                    Q(organisation_name__icontains=search)
-                    | Q(home_page_url__icontains=search)
-                    | Q(psb_location__icontains=search)
-                    | Q(sector__name__icontains=search)
-                    | Q(parental_organisation_name__icontains=search)
-                    | Q(website_name__icontains=search)
-                    | Q(subcategory__name__icontains=search)
-                    | Q(case_identifier__icontains=search)
-                    | Q(mobilecase__app_name__icontains=search)
-                    | Q(mobilecase__app_store_url__icontains=search)
-                )
+            search_query = (
+                Q(organisation_name__icontains=search)
+                | Q(home_page_url__icontains=search)
+                | Q(psb_location__icontains=search)
+                | Q(sector__name__icontains=search)
+                | Q(parental_organisation_name__icontains=search)
+                | Q(website_name__icontains=search)
+                | Q(subcategory__name__icontains=search)
+                | Q(case_identifier__icontains=search)
+                | Q(mobilecase__app_name__icontains=search)
+                | Q(mobilecase__app_store_url__icontains=search)
+            )
 
     if str(filters.get("status", "")) == SimplifiedCase.Status.READY_TO_QA:
         filters["test_type"] = BaseCase.TestType.SIMPLIFIED
