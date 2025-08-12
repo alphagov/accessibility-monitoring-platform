@@ -112,7 +112,7 @@ def exclude_cases_with_pending_reminders(
     for case in cases:
         if (
             Task.objects.filter(
-                base_case=case, type=Task.Type.REMINDER, date__gte=today
+                base_case=case, type=Task.Type.REMINDER, date__gte=today, read=False
             ).first()
             is None
         ):

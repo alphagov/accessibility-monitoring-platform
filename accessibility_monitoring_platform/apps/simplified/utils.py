@@ -107,7 +107,7 @@ def get_simplified_case_detail_sections(
 
 
 def filter_cases(form) -> QuerySet[SimplifiedCase]:  # noqa: C901
-    """Return a queryset of Cases filtered by the values in CaseSearchForm"""
+    """Return a queryset of SimplifiedCases filtered by the values in CaseSearchForm"""
     filters: dict = {}
     search_query = Q()
     sort_by: str = Sort.NEWEST
@@ -118,6 +118,10 @@ def filter_cases(form) -> QuerySet[SimplifiedCase]:  # noqa: C901
         )
         if "date_type" in form.cleaned_data:
             date_range_field: str = form.cleaned_data["date_type"]
+            if date_range_field.startswith("simplifiedcase__"):
+                # Form is for BaseCase so remove simplifiedcase prefix
+                # as this filter is on SimplifiedCase
+                date_range_field = date_range_field[len("simplifiedcase__") :]
             field_and_filter_names.append(("date_start", f"{date_range_field}__gte"))
             field_and_filter_names.append(("date_end", f"{date_range_field}__lte"))
         filters: dict[str, Any] = build_filters(
@@ -142,6 +146,7 @@ def filter_cases(form) -> QuerySet[SimplifiedCase]:  # noqa: C901
                     | Q(parental_organisation_name__icontains=search)
                     | Q(website_name__icontains=search)
                     | Q(subcategory__name__icontains=search)
+                    | Q(case_identifier__icontains=search)
                 )
         for filter_name in [
             "is_complaint",

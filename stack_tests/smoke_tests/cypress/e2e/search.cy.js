@@ -12,7 +12,7 @@ describe('Search page', () => {
 
   it('can do search', () => {
     cy.contains('Anglesey Council').should('not.exist')
-    cy.get('[name="case_search"]').clear().type('1{enter}')
+    cy.get('[name="case_search"]').clear().type('anglesey{enter}')
     cy.contains('Anglesey Council')
   })
 })
