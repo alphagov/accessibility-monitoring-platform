@@ -885,7 +885,7 @@ def test_get_task_type_counts():
 def test_exclude_cases_with_pending_reminders():
     """
     Test exclude_cases_with_pending_reminders returns cases
-    without pending reminders
+    without pending unread reminders
     """
 
     assert exclude_cases_with_pending_reminders(cases=[]) == []
@@ -899,10 +899,18 @@ def test_exclude_cases_with_pending_reminders():
     ]
 
     user: User = User.objects.create()
-    Task.objects.create(
+    task: Task = Task.objects.create(
         user=user, base_case=case_to_exclude, type=Task.Type.REMINDER, date=date.today()
     )
 
     assert exclude_cases_with_pending_reminders(cases=[base_case, case_to_exclude]) == [
         base_case,
+    ]
+
+    task.read = True
+    task.save()
+
+    assert exclude_cases_with_pending_reminders(cases=[base_case, case_to_exclude]) == [
+        base_case,
+        case_to_exclude,
     ]
