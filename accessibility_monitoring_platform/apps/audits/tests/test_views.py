@@ -992,7 +992,7 @@ def test_audit_edit_statement_overview_updates_when_no_statement_exists(
     assert audit_from_db.audit_statement_overview_complete_date == date.today()
 
 
-def test_audit_edit_statement_overview_updates_case_status(
+def test_audit_statement_initial_decision_updates_case_status(
     admin_client,
 ):
     """
@@ -1017,20 +1017,13 @@ def test_audit_edit_statement_overview_updates_case_status(
     assert audit.simplified_case.status == SimplifiedCase.Status.TEST_IN_PROGRESS
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-overview", kwargs=audit_pk),
+        reverse("audits:edit-statement-decision", kwargs=audit_pk),
         {
             "version": audit.version,
             "save": "Button value",
-            "form-TOTAL_FORMS": "2",
-            "form-INITIAL_FORMS": "2",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "form-0-id": "1",
-            "form-0-check_result_state": "yes",
-            "form-0-report_comment": "",
-            "form-1-id": "2",
-            "form-1-check_result_state": "no",
-            "form-1-report_comment": "",
+            "case-compliance-version": audit.simplified_case.compliance.version,
+            "case-compliance-statement_compliance_state_initial": STATEMENT_COMPLIANCE_STATE,
+            "case-compliance-statement_compliance_notes_initial": STATEMENT_COMPLIANCE_NOTES,
         },
     )
 
@@ -1040,18 +1033,6 @@ def test_audit_edit_statement_overview_updates_case_status(
     assert (
         audit_from_db.simplified_case.status == SimplifiedCase.Status.REPORT_IN_PROGRESS
     )
-
-    statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
-        id=1
-    )
-
-    assert statement_checkresult_1.check_result_state == "yes"
-
-    statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
-        id=2
-    )
-
-    assert statement_checkresult_2.check_result_state == "no"
 
 
 def test_audit_retest_statement_overview_updates_when_no_statement_exists(

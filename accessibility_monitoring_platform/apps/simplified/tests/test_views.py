@@ -2844,35 +2844,30 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     case_pk_kwargs: dict[str, int] = {"pk": simplified_case.id}
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     audit_pk_kwargs: dict[str, int] = {"pk": audit.id}
-
-    for statement_check in StatementCheck.objects.all():
-        StatementCheckResult.objects.create(
-            audit=audit,
-            type=statement_check.type,
-            statement_check=statement_check,
-        )
+    CaseCompliance.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:status-workflow", kwargs=case_pk_kwargs),
     )
 
-    assert response.status_code == 200
-
-    overview_url: str = reverse(
-        "audits:edit-statement-overview", kwargs=audit_pk_kwargs
+    initial_statement_assessment: str = reverse(
+        "audits:edit-statement-decision",
+        kwargs=audit_pk_kwargs,
     )
+
     assertContains(
         response,
         f"""<li>
-            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
-                Statement overview not filled in
+            <a href="{initial_statement_assessment}" class="govuk-link govuk-link--no-visited-state">
+                Initial accessibility statement decision is not filled in
             </a></li>""",
         html=True,
     )
 
-    for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = StatementCheckResult.Result.YES
-        statement_check_result.save()
+    simplified_case.compliance.statement_compliance_state_initial = (
+        CaseCompliance.StatementCompliance.COMPLIANT
+    )
+    simplified_case.compliance.save()
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:status-workflow", kwargs=case_pk_kwargs),
@@ -2883,8 +2878,8 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     assertContains(
         response,
         f"""<li>
-            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
-                Statement overview not filled in
+            <a href="{initial_statement_assessment}" class="govuk-link govuk-link--no-visited-state">
+                Initial accessibility statement decision is not filled in
             </a>&check;</li>""",
         html=True,
     )

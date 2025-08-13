@@ -1167,7 +1167,8 @@ class CaseStatus(models.Model):
 
         if self.simplified_case.is_deactivated:
             return CaseStatus.Status.DEACTIVATED
-        elif (
+
+        if (
             self.simplified_case.case_completed
             == SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
             or self.simplified_case.enforcement_body_pursuing
@@ -1176,86 +1177,50 @@ class CaseStatus(models.Model):
             == SimplifiedCase.EnforcementBodyClosedCase.YES
         ):
             return CaseStatus.Status.COMPLETE
-        elif (
+
+        if (
             self.simplified_case.enforcement_body_pursuing
             == SimplifiedCase.EnforcementBodyPursuing.YES_IN_PROGRESS
             or self.simplified_case.enforcement_body_closed_case
             == SimplifiedCase.EnforcementBodyClosedCase.IN_PROGRESS
         ):
             return CaseStatus.Status.IN_CORES_WITH_ENFORCEMENT_BODY
-        elif self.simplified_case.sent_to_enforcement_body_sent_date is not None:
+
+        if self.simplified_case.sent_to_enforcement_body_sent_date is not None:
             return CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
-        elif (
-            self.simplified_case.case_completed
-            == SimplifiedCase.CaseCompleted.COMPLETE_SEND
-        ):
+
+        if self.simplified_case.case_completed == SimplifiedCase.CaseCompleted.COMPLETE_SEND:
             return CaseStatus.Status.CASE_CLOSED_WAITING_TO_SEND
-        elif self.simplified_case.no_psb_contact == Boolean.YES:
+
+        if self.simplified_case.no_psb_contact == Boolean.YES:
             return CaseStatus.Status.FINAL_DECISION_DUE
-        elif self.simplified_case.auditor is None:
-            return CaseStatus.Status.UNASSIGNED
-        elif (
-            compliance is None
-            or compliance.website_compliance_state_initial
-            == CaseCompliance.WebsiteCompliance.UNKNOWN
-            or bool(
-                self.simplified_case.statement_checks_still_initial
-                and self.simplified_case.compliance.statement_compliance_state_initial
-                == CaseCompliance.StatementCompliance.UNKNOWN
-            )
-        ):
-            return CaseStatus.Status.TEST_IN_PROGRESS
-        elif (
-            self.simplified_case.compliance.website_compliance_state_initial != CaseCompliance.WebsiteCompliance.UNKNOWN
-            and (
-                not self.simplified_case.statement_checks_still_initial
-                or self.simplified_case.compliance.statement_compliance_state_initial
-                != CaseCompliance.StatementCompliance.UNKNOWN
-            )
-            and self.simplified_case.report_review_status != Boolean.YES
-        ):
-            return CaseStatus.Status.REPORT_IN_PROGRESS
-        elif (
-            self.simplified_case.report_review_status == Boolean.YES
-            and self.simplified_case.report_approved_status
-            != SimplifiedCase.ReportApprovedStatus.APPROVED
-        ):
-            return CaseStatus.Status.QA_IN_PROGRESS
-        elif (
-            self.simplified_case.report_approved_status
-            == SimplifiedCase.ReportApprovedStatus.APPROVED
-            and self.simplified_case.report_sent_date is None
-        ):
-            return CaseStatus.Status.REPORT_READY_TO_SEND
-        elif (
-            self.simplified_case.report_sent_date
-            and self.simplified_case.report_acknowledged_date is None
-        ):
-            return CaseStatus.Status.IN_REPORT_CORES
-        elif self.simplified_case.report_acknowledged_date and (
-            self.simplified_case.twelve_week_update_requested_date is None
-            and self.simplified_case.twelve_week_correspondence_acknowledged_date
-            is None
-        ):
-            return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
-        elif self.simplified_case.twelve_week_update_requested_date and (
-            self.simplified_case.twelve_week_correspondence_acknowledged_date is None
-            and self.simplified_case.organisation_response
-            == SimplifiedCase.OrganisationResponse.NOT_APPLICABLE
-        ):
-            return CaseStatus.Status.AFTER_12_WEEK_CORES
-        elif (
+
+        status_dict = {}
+        status_dict[CaseStatus.Status.UNASSIGNED] = bool(self.simplified_case.auditor)
+        status_dict[CaseStatus.Status.TEST_IN_PROGRESS] = bool(
+            compliance
+            and compliance.website_compliance_state_initial != CaseCompliance.WebsiteCompliance.UNKNOWN
+            and self.simplified_case.compliance.statement_compliance_state_initial != CaseCompliance.StatementCompliance.UNKNOWN
+        )
+        status_dict[CaseStatus.Status.REPORT_IN_PROGRESS] = self.simplified_case.report_review_status == Boolean.YES
+        status_dict[CaseStatus.Status.QA_IN_PROGRESS] = self.simplified_case.report_approved_status == SimplifiedCase.ReportApprovedStatus.APPROVED
+        status_dict[CaseStatus.Status.REPORT_READY_TO_SEND] = bool(self.simplified_case.report_sent_date)
+        status_dict[CaseStatus.Status.IN_REPORT_CORES] = bool(self.simplified_case.report_acknowledged_date)
+        status_dict[CaseStatus.Status.AWAITING_12_WEEK_DEADLINE] = bool(
+            self.simplified_case.twelve_week_update_requested_date
+            or self.simplified_case.twelve_week_correspondence_acknowledged_date
+        )
+        status_dict[CaseStatus.Status.AFTER_12_WEEK_CORES] = bool(
             self.simplified_case.twelve_week_correspondence_acknowledged_date
-            or self.simplified_case.organisation_response
-            != SimplifiedCase.OrganisationResponse.NOT_APPLICABLE
-        ) and self.simplified_case.is_ready_for_final_decision == Boolean.NO:
-            return CaseStatus.Status.REVIEWING_CHANGES
-        elif (
-            self.simplified_case.is_ready_for_final_decision == Boolean.YES
-            and self.simplified_case.case_completed
-            == SimplifiedCase.CaseCompleted.NO_DECISION
-        ):
-            return CaseStatus.Status.FINAL_DECISION_DUE
+            or self.simplified_case.organisation_response != SimplifiedCase.OrganisationResponse.NOT_APPLICABLE
+        )
+        status_dict[CaseStatus.Status.REVIEWING_CHANGES] = self.simplified_case.is_ready_for_final_decision == Boolean.YES
+        status_dict[CaseStatus.Status.FINAL_DECISION_DUE] = self.simplified_case.case_completed != SimplifiedCase.CaseCompleted.NO_DECISION
+
+        for k, v in status_dict.items():
+            if v is False:
+                return k
+
         return CaseStatus.Status.UNKNOWN
 
 
