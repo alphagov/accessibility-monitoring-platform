@@ -843,7 +843,11 @@ def test_overview_issues_statement_with_statement_checks():
     """Test that case with audit returns overview"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    for count, statement_check in enumerate(StatementCheck.objects.all()):
+    for count, statement_check in enumerate(
+        StatementCheck.objects.filter(date_end=None)
+    ):
+        if count == 20:
+            break
         check_result_state: str = (
             StatementCheckResult.Result.NO
             if count % 2 == 0
@@ -856,7 +860,7 @@ def test_overview_issues_statement_with_statement_checks():
             check_result_state=check_result_state,
         )
 
-    assert simplified_case.overview_issues_statement == "21 checks failed on test"
+    assert simplified_case.overview_issues_statement == "10 checks failed on test"
 
     for count, statement_check_result in enumerate(
         audit.failed_statement_check_results
@@ -865,7 +869,7 @@ def test_overview_issues_statement_with_statement_checks():
             statement_check_result.check_result_state = StatementCheckResult.Result.YES
             statement_check_result.save()
 
-    assert simplified_case.overview_issues_statement == "10 checks failed on test"
+    assert simplified_case.overview_issues_statement == "5 checks failed on test"
 
 
 def test_archived_sections():

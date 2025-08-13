@@ -131,7 +131,7 @@ def create_audit_and_wcag() -> Audit:
 def create_audit_and_statement_check_results() -> Audit:
     """Create an audit with all types of statement checks"""
     audit: Audit = create_audit_and_wcag()
-    for count, statement_check in enumerate(StatementCheck.objects.all()):
+    for count, statement_check in enumerate(StatementCheck.objects.on_date(TODAY)):
         StatementCheckResult.objects.create(
             audit=audit,
             type=statement_check.type,
@@ -2780,7 +2780,7 @@ def test_statement_check_list_renders(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Statement issues editor")
-    assertContains(response, "Displaying 42 Statement checks.", html=True)
+    assertContains(response, "Displaying 84 Statement checks.", html=True)
     assertContains(
         response,
         """<a href="/audits/1/edit-statement-check/"
@@ -2797,7 +2797,7 @@ def test_statement_check_list_search(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Displaying 11 Statement checks.", html=True)
+    assertContains(response, "Displaying 22 Statement checks.", html=True)
 
 
 def test_create_statement_check_works(admin_client):
