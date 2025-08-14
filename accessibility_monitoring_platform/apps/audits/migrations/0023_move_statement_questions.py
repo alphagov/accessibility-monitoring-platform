@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-MOVE_ISSUE_NUMBERS: list[int] = [2, 44]
+MOVE_ISSUE_NUMBERS: list[int] = [44]
 OLD_STATEMENT_CHECK_TYPE: str = "overview"
 NEW_STATEMENT_CHECK_TYPE: str = "website"
 
