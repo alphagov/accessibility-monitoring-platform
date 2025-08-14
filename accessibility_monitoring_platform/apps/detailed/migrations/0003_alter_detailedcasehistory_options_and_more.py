@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("detailed", "0001_initial"),
+        ("detailed", "0002_populate_detailed_cases"),
     ]
 
     operations = [

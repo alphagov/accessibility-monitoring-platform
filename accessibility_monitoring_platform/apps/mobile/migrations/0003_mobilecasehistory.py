@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("mobile", "0001_initial"),
+        ("mobile", "0002_populate_mobile_cases"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
