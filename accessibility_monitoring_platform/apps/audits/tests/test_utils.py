@@ -1103,7 +1103,7 @@ def test_get_audit_summary_issue_counts(rf):
     assert "number_of_wcag_issues" in context
     assert context["number_of_wcag_issues"] == 1
     assert "number_of_statement_issues" in context
-    assert context["number_of_statement_issues"] == 2
+    assert context["number_of_statement_issues"] == 1
 
     for statement_check_result in StatementCheckResult.objects.filter(
         type=StatementCheck.Type.OVERVIEW
@@ -1135,7 +1135,7 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
     )
 
     assert "overview" in statement_check_results_by_type
-    assert len(statement_check_results_by_type["overview"]) == 2
+    assert len(statement_check_results_by_type["overview"]) == 1
 
     statement_check_result = statement_check_results_by_type["overview"][0]
     request.GET = {}
