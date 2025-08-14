@@ -23,6 +23,7 @@ from ..cases.models import BaseCase
 from ..common.sitemap import PlatformPage, Sitemap
 from ..detailed.models import DetailedCase
 from ..detailed.utils import import_detailed_cases_csv
+from ..mobile.models import MobileCase
 from ..mobile.utils import import_mobile_cases_csv
 from ..reports.models import Report
 from ..simplified.models import SimplifiedCase
@@ -469,6 +470,11 @@ class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
             simplified_case: SimplifiedCase = report.base_case.simplifiedcase
         context["case"] = simplified_case
         context["detailed_case"] = DetailedCase.objects.first()
+        context["banner_case_detailed"] = context["detailed_case"]
+        context["banner_case_mobile"] = MobileCase.objects.last()
+        context["banner_case_archived"] = SimplifiedCase.objects.exclude(
+            archive=""
+        ).first()
         return context
 
 
