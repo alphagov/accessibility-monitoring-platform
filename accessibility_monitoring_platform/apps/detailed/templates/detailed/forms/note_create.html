@@ -44,15 +44,24 @@
         <div class="govuk-grid-column-one-quarter">
             <p class="govuk-body amp-margin-bottom-5">
                 <b>
-                {% if detailed_case_event.event_type == 'note' %}
-                    {{ detailed_case_event.get_detailed_case_status_display }}
+                {% if detailed_case_event.label %}
+                    {{ detailed_case_event.label }}
                 {% else %}
                     {{ detailed_case_event.get_event_type_display }}
                 {% endif %}
                 </b>
             </p>
             <p class="govuk-body amp-margin-bottom-5">{{ detailed_case_event.created_by.get_full_name }}</p>
-            <p class="govuk-body">{{ detailed_case_event.created|amp_datetime }}</p>
+            <p class="govuk-body amp-margin-bottom-5">{{ detailed_case_event.created|amp_datetime }}</p>
+            {% if detailed_case_event.event_type == 'note' %}
+                <p class="govuk-body amp-margin-bottom-5">
+                    <a href="{% url 'detailed:edit-case-note' detailed_case_event.id %}"
+                        class="govuk-link govuk-link--no-visited-state">Edit</a>
+                </p>
+                {% if detailed_case_event.updated|amp_datetime != detailed_case_event.created|amp_datetime %}
+                    <p class="govuk-body-s">Edited {{ detailed_case_event.updated|amp_datetime }}</p>
+                {% endif %}
+            {% endif %}
         </div>
         <div class="govuk-grid-column-three-quarters govuk-body amp-notes">
             {{ detailed_case_event.value|markdown_to_html }}

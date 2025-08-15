@@ -283,6 +283,9 @@ class DetailedCase(BaseCase):
             event_type=DetailedCaseHistory.EventType.STATUS
         )
 
+    def notes_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.filter(event_type__icontains="notes")
+
     def contact_notes_history(self) -> QuerySet["DetailedCaseHistory"]:
         return self.detailedcasehistory_set.filter(
             event_type=DetailedCaseHistory.EventType.CONTACT_NOTE
@@ -383,19 +386,28 @@ class DetailedCaseHistory(models.Model):
     event_type = models.CharField(
         max_length=20, choices=EventType.choices, default=EventType.NOTE
     )
+    id_within_case = models.IntegerField(default=0, blank=True)
     detailed_case_status = models.CharField(
         max_length=200,
         choices=DetailedCase.Status.choices,
         default=DetailedCase.Status.UNASSIGNED,
     )
     value = models.TextField(default="", blank=True)
+    label = models.CharField(max_length=200, default="", blank=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             self.detailed_case_status = self.detailed_case.status
+            if self.event_type in [
+                DetailedCaseHistory.EventType.NOTE,
+                DetailedCaseHistory.EventType.CONTACT_NOTE,
+                DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE,
+            ]:
+                self.id_within_case = self.detailed_case.notes_history().count() + 1
         super().save(*args, **kwargs)
 
     def __str__(self):

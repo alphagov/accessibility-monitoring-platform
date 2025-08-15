@@ -175,6 +175,18 @@ class DetailedCaseHistoryCreateForm(forms.ModelForm):
         ]
 
 
+class DetailedCaseHistoryUpdateForm(forms.ModelForm):
+    label = AMPCharFieldWide(label="Label")
+    value = AMPTextField(label="New note")
+
+    class Meta:
+        model = DetailedCaseHistory
+        fields = [
+            "label",
+            "value",
+        ]
+
+
 class ManageContactsUpdateForm(VersionForm):
     """Form for updating contacts list page"""
 

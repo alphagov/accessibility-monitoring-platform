@@ -25,7 +25,7 @@ from ..cases.models import BaseCase
 from ..comments.models import Comment
 from ..detailed.forms import DetailedCaseMetadataUpdateForm
 from ..detailed.models import Contact as DetailedCaseContact
-from ..detailed.models import DetailedCase
+from ..detailed.models import DetailedCase, DetailedCaseHistory
 from ..detailed.models import ZendeskTicket as DetailedZendeskTicket
 from ..exports.models import Export
 from ..mobile.forms import MobileCaseMetadataUpdateForm
@@ -1571,6 +1571,12 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Case notes",
                 url_name="detailed:create-case-note",
                 url_kwarg_key="case_id",
+            ),
+            PlatformPage(
+                name="Edit case note #{instance.id_within_case}",
+                url_name="detailed:edit-case-note",
+                url_kwarg_key="pk",
+                instance_class=DetailedCaseHistory,
             ),
             DetailedCasePlatformPage(
                 name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"

@@ -146,6 +146,21 @@ class Migration(migrations.Migration):
                 max_length=200,
             ),
         ),
+        migrations.AddField(
+            model_name="detailedcasehistory",
+            name="label",
+            field=models.CharField(blank=True, default="", max_length=200),
+        ),
+        migrations.AddField(
+            model_name="detailedcasehistory",
+            name="updated",
+            field=models.DateTimeField(auto_now=True),
+        ),
+        migrations.AddField(
+            model_name="detailedcasehistory",
+            name="id_within_case",
+            field=models.IntegerField(blank=True, default=0),
+        ),
         migrations.CreateModel(
             name="ZendeskTicket",
             fields=[

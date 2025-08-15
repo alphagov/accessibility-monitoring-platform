@@ -30,6 +30,7 @@ from .forms import (
     ContactUpdateForm,
     DetailedCaseCreateForm,
     DetailedCaseHistoryCreateForm,
+    DetailedCaseHistoryUpdateForm,
     DetailedCaseMetadataUpdateForm,
     DetailedCaseStatusUpdateForm,
     EnforcementBodyMetadataUpdateForm,
@@ -250,7 +251,7 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         context["detailed_case_history"] = detailed_case.detailedcasehistory_set.all()
         return context
 
-    def form_valid(self, form: DetailedCaseCreateForm):
+    def form_valid(self, form: DetailedCaseHistoryCreateForm):
         """Process contents of valid form"""
         detailed_case: DetailedCase = get_object_or_404(
             DetailedCase, id=self.kwargs.get("case_id")
@@ -258,6 +259,7 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         detailed_case_history: DetailedCaseHistory = form.save(commit=False)
         detailed_case_history.detailed_case = detailed_case
         detailed_case_history.created_by = self.request.user
+        detailed_case_history.label = detailed_case.get_status_display()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -272,6 +274,32 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         )
         return reverse(
             "detailed:create-case-note", kwargs={"case_id": detailed_case.id}
+        )
+
+
+class DetailedCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
+    """View to edit a note on the DetailedCaseHistory"""
+
+    model: type[DetailedCaseHistory] = DetailedCaseHistory
+    form_class: type[DetailedCaseHistoryUpdateForm] = DetailedCaseHistoryUpdateForm
+    context_object_name: str = "detailed_case_history"
+    template_name: str = "detailed/forms/note_update.html"
+
+    def form_valid(self, form: ContactUpdateForm):
+        """Mark contact as deleted if button is pressed"""
+        detailed_case_history: DetailedCaseHistory = form.save(commit=False)
+        record_detailed_model_update_event(
+            user=self.request.user,
+            model_object=detailed_case_history,
+            detailed_case=detailed_case_history.detailed_case,
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Return to notes page"""
+        return reverse(
+            "detailed:create-case-note",
+            kwargs={"case_id": self.object.detailed_case.id},
         )
 
 
