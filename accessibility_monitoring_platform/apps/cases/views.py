@@ -33,6 +33,7 @@ TRUTHY_SEARCH_FIELDS: list[str] = [
     "is_complaint",
     "enforcement_body",
     "subcategory",
+    "test_type",
 ]
 
 

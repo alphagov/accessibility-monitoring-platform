@@ -1,35 +1,17 @@
-{% extends 'detailed/base.html' %}
+{% extends 'common/case_form.html' %}
 
 {% block preform %}
     {% include 'detailed/helpers/contacts_list.html' %}
-    <p class="govuk-body amp-todo">TODO: Details element with PSB Zendesk tickets</p>
-    <p class="govuk-body amp-todo">TODO: Link to unresponsive PSB page</p>
+    {% include 'detailed/helpers/zendesk_tickets.html' %}
+    <p class="govuk-body">
+        <a href="{% url 'detailed:edit-unresponsive-psb' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
+            Unresponsive PSB</a>
+    </p>
 {% endblock %}
 
-{% block postform %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-        <hr class="amp-width-100" />
-    </div>
-</div>
-{% for detailed_case_event in detailed_case.contact_notes_history %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <p class="govuk-body amp-margin-bottom-5">
-                <b>{{ detailed_case_event.created_by.get_full_name }}</b> |
-                {{ detailed_case_event.created|amp_datetime }}
-            </p>
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full govuk-body amp-notes">
-            {{ detailed_case_event.value|markdown_to_html }}
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <hr class="amp-width-100" />
-        </div>
-    </div>
-{% endfor %}
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'common/amp_field.html' with field=form.notes %}
+{% include 'detailed/helpers/note_history.html' with note_history=case.contact_notes_history %}
+{% include 'common/amp_field.html' with field=form.chasing_record_complete_date %}
 {% endblock %}

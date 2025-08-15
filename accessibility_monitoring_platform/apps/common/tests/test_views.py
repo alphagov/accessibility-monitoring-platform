@@ -1418,4 +1418,4 @@ def test_reference_implementations_page(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Reference implementations")
+    assertContains(response, "Reference implementation")
