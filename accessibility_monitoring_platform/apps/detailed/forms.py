@@ -130,6 +130,7 @@ class DetailedCaseCreateForm(forms.ModelForm):
 
 
 class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
+    case_folder_url = AMPURLField(label="Link to case folder")
     case_metadata_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
@@ -151,6 +152,7 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
             "psb_location",
             "previous_case_url",
             "is_complaint",
+            "case_folder_url",
             "case_metadata_complete_date",
         ]
 
@@ -303,8 +305,6 @@ class InitialTestingDetailsUpdateForm(VersionForm):
     """Form for updating initial testing details page"""
 
     auditor = AMPAuditorModelChoiceField(label="Auditor")
-    monitor_folder_url = AMPURLField(label="Link to monitor folder")
-    monitor_doc_url = AMPURLField(label="Link to monitor document")
     initial_test_start_date = AMPDateField(label="Test start date")
     initial_testing_details_complete_date = AMPDatePageCompleteField()
 
@@ -313,8 +313,6 @@ class InitialTestingDetailsUpdateForm(VersionForm):
         fields = [
             "version",
             "auditor",
-            "monitor_folder_url",
-            "monitor_doc_url",
             "initial_test_start_date",
             "initial_testing_details_complete_date",
         ]

@@ -64,12 +64,14 @@
             {% if case.test_type == 'mobile' %}
                 <span class="amp-todo">TODO mobile report</span>
             {% elif case.test_type == 'detailed' %}
-                {% if case.public_report_url %}
-                    <a href="{{ case.public_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                        View report
+                {% if case.case_folder_url %}
+                    <a href="{{ case.case_folder_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        Case folder
                     </a>
                 {% else %}
-                        No report
+                    <a href="{% url 'detailed:edit-case-metadata' case.id %}#id_case_folder_url-label" class="govuk-link govuk-link--no-visited-state">
+                        Enter case folder URL
+                    </a>
                 {% endif %}
             {% else %}
                 {% if case.report.latest_s3_report %}

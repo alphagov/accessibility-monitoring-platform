@@ -76,6 +76,7 @@ class DetailedCase(BaseCase):
         choices=ServiceType.choices,
         default=ServiceType.WEBSITE,
     )
+    case_folder_url = models.TextField(default="", blank=True)
     case_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Initial contact - Manage contact details
@@ -98,8 +99,6 @@ class DetailedCase(BaseCase):
     information_delivered_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - Testing details
-    monitor_folder_url = models.TextField(default="", blank=True)
-    monitor_doc_url = models.TextField(default="", blank=True)
     initial_test_start_date = models.DateField(null=True, blank=True)
     initial_testing_details_complete_date = models.DateField(null=True, blank=True)
 

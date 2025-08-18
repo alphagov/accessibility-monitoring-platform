@@ -6,10 +6,19 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.urls import reverse
-from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertContains, assertNotContains
 
 from ..models import DetailedCase, DetailedEventHistory, ZendeskTicket
 
+CASE_FOLDER_URL: str = "https://drive.google.com/drive/folders/xxxxxxx"
+CASE_FOLDER_LINK: str = f"""
+    <a href="{CASE_FOLDER_URL}"
+        rel="noreferrer noopener" target="_blank" class="govuk-link">
+        Case folder</a>"""
+CASE_FOLDER_URL_FIELD_LINK: str = """
+    <a href="/detailed/1/case-metadata/#id_case_folder_url-label"
+        class="govuk-link govuk-link--no-visited-state">
+        Enter case folder URL</a>"""
 ZENDESK_SUMMARY: str = "Zendesk ticket summary"
 ZENDESK_URL: str = "https://zendesk.com/tickets/1"
 
@@ -29,6 +38,38 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
 
     assert response.status_code == 200
     assertContains(response, expected_content, html=True)
+
+
+def test_case_folder_url_shown(admin_client):
+    """Test Case folder URL shown in banner when populated."""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "detailed:case-detail",
+            kwargs={"pk": detailed_case.id},
+        )
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, CASE_FOLDER_URL_FIELD_LINK, html=True)
+    assertNotContains(response, CASE_FOLDER_LINK, html=True)
+
+    detailed_case.case_folder_url = CASE_FOLDER_URL
+    detailed_case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "detailed:case-detail",
+            kwargs={"pk": detailed_case.id},
+        )
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, CASE_FOLDER_URL_FIELD_LINK, html=True)
+    assertContains(response, CASE_FOLDER_LINK, html=True)
 
 
 def test_zendesk_tickets_shown(admin_client):
