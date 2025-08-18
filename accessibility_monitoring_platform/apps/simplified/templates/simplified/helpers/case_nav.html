@@ -21,6 +21,6 @@
         {% endif %}
     {% endif %}
 {% endfor %}
-{% if sitemap.current_platform_page.platform_page_group.type == 'simplified_case_nav' %}
+{% if sitemap.current_platform_page.platform_page_group.type == 'simplified_case_nav' or case_nav_type == 'simplified_case_nav' %}
     {% include 'common/frequently_used_links.html' %}
 {% endif %}
