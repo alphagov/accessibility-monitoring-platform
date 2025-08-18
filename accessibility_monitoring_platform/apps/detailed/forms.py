@@ -47,14 +47,17 @@ class DetailedCaseCreateForm(forms.ModelForm):
     enforcement_body = AMPChoiceRadioField(
         label="Which equalities body will check the case?",
         choices=DetailedCase.EnforcementBody.choices,
-    )
-    psb_location = AMPChoiceRadioField(
-        label="Public sector body location",
-        choices=DetailedCase.PsbLocation.choices,
+        initial=DetailedCase.EnforcementBody.EHRC,
     )
     service_type = AMPChoiceRadioField(
         label="Type",
         choices=DetailedCase.ServiceType,
+        initial=DetailedCase.ServiceType.WEBSITE,
+    )
+    psb_location = AMPChoiceRadioField(
+        label="Public sector body location",
+        choices=DetailedCase.PsbLocation.choices,
+        initial=DetailedCase.PsbLocation.ENGLAND,
     )
     previous_case_url = AMPURLField(
         label="URL to previous case",
@@ -78,6 +81,7 @@ class DetailedCaseCreateForm(forms.ModelForm):
             "sector",
             "subcategory",
             "enforcement_body",
+            "service_type",
             "psb_location",
             "service_type",
             "previous_case_url",
@@ -143,8 +147,8 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
             "sector",
             "subcategory",
             "enforcement_body",
-            "psb_location",
             "service_type",
+            "psb_location",
             "previous_case_url",
             "is_complaint",
             "case_metadata_complete_date",
