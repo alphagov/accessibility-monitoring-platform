@@ -614,4 +614,6 @@ def test_tast_tools_shown_on_reminder_page(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Case tools")
+    assertContains(
+        response, '<h2 class="govuk-heading-s amp-margin-bottom-10">Case tools</h2>'
+    )
