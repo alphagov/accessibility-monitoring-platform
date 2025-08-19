@@ -197,7 +197,6 @@ def create_detailed_case_from_dict(
         enforcement_body=row["Enforcement body"].lower(),
         is_complaint=row["Is it a complaint?"].lower(),
         service_type=row["Type"].lower(),
-        # monitor_doc_url=validate_url(row["Link to monitor doc"]),
         public_report_url=validate_url(row["Public link to report PDF"]),
         reviewer=qa_auditor,
         report_sent_date=get_datetime_from_string(row["Report sent on"]),

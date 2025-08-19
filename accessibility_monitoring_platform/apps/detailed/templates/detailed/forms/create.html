@@ -48,12 +48,12 @@
         <div class="govuk-grid-column-full">
             {% if duplicate_cases %}
                 <div class="govuk-body">
-                    <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Organisation name</p>
-                    <p class="govuk-!-font-weight-regular">{{ new_case.organisation_name }}</p>
-                </div>
-                <div class="govuk-body">
                     <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Full URL</p>
                     <p class="govuk-!-font-weight-regular">{{ new_case.home_page_url }}</p>
+                </div>
+                <div class="govuk-body">
+                    <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Organisation name</p>
+                    <p class="govuk-!-font-weight-regular">{{ new_case.organisation_name }}</p>
                 </div>
                 <div class="govuk-body">
                     <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Sector</p>
@@ -99,9 +99,9 @@
 
             <div class="govuk-grid-row{% if duplicate_cases %} amp-display-none{% endif %}">
                 <div class="govuk-grid-column-full">
+                    {% include 'common/amp_field.html' with field=form.home_page_url %}
                     {% include 'common/amp_field.html' with field=form.organisation_name %}
                     {% include 'common/amp_field.html' with field=form.parental_organisation_name %}
-                    {% include 'common/amp_field.html' with field=form.home_page_url %}
                     {% include 'common/amp_field.html' with field=form.website_name %}
                     {% include 'common/amp_field.html' with field=form.sector %}
                     {% include 'common/amp_field.html' with field=form.subcategory %}

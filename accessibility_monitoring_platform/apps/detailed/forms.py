@@ -33,11 +33,11 @@ class DetailedCaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
+    home_page_url = AMPURLField(label="Full URL")
     organisation_name = AMPCharFieldWide(
         label="Organisation name",
     )
     parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
-    home_page_url = AMPURLField(label="Full URL")
     website_name = AMPCharFieldWide(label="Website name")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
@@ -74,9 +74,9 @@ class DetailedCaseCreateForm(forms.ModelForm):
     class Meta:
         model = DetailedCase
         fields = [
+            "home_page_url",
             "organisation_name",
             "parental_organisation_name",
-            "home_page_url",
             "website_name",
             "sector",
             "subcategory",
@@ -141,9 +141,9 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
         model = DetailedCase
         fields = [
             "version",
+            "home_page_url",
             "organisation_name",
             "parental_organisation_name",
-            "home_page_url",
             "website_name",
             "sector",
             "subcategory",
