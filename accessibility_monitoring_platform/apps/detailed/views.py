@@ -32,11 +32,8 @@ from .forms import (
     DetailedCaseMetadataUpdateForm,
     DetailedCaseStatusUpdateForm,
     EnforcementBodyMetadataUpdateForm,
-    InitialDisproportionateBurdenUpdateForm,
-    InitialStatementComplianceUpdateForm,
     InitialTestingDetailsUpdateForm,
     InitialTestingOutcomeUpdateForm,
-    InitialWebsiteComplianceUpdateForm,
     ManageContactsUpdateForm,
     PublishReportUpdateForm,
     QAApprovalUpdateForm,
@@ -397,30 +394,6 @@ class InitialTestingOutcomeUpdateView(DetailedCaseUpdateView):
     """View to update initial testing outcome"""
 
     form_class: type[InitialTestingOutcomeUpdateForm] = InitialTestingOutcomeUpdateForm
-
-
-class InitialWebsiteComplianceUpdateView(DetailedCaseUpdateView):
-    """View to update initial testing outcome"""
-
-    form_class: type[InitialWebsiteComplianceUpdateForm] = (
-        InitialWebsiteComplianceUpdateForm
-    )
-
-
-class InitialDisproportionateBurdenUpdateView(DetailedCaseUpdateView):
-    """View to update initial testing outcome"""
-
-    form_class: type[InitialDisproportionateBurdenUpdateForm] = (
-        InitialDisproportionateBurdenUpdateForm
-    )
-
-
-class InitialStatementComplianceUpdateView(DetailedCaseUpdateView):
-    """View to update initial testing outcome"""
-
-    form_class: type[InitialStatementComplianceUpdateForm] = (
-        InitialStatementComplianceUpdateForm
-    )
 
 
 class ReportDraftUpdateView(DetailedCaseUpdateView):

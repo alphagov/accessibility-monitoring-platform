@@ -95,33 +95,22 @@ class DetailedCase(BaseCase):
     initial_test_end_date = models.DateField(null=True, blank=True)
     initial_total_number_of_pages = models.IntegerField(null=True, blank=True)
     initial_total_number_of_issues = models.IntegerField(null=True, blank=True)
-    initial_testing_outcome_complete_date = models.DateField(null=True, blank=True)
-
-    # Initial test - Website compliance
     initial_website_compliance_state = models.CharField(
         max_length=20,
         choices=WebsiteCompliance.choices,
         default=WebsiteCompliance.UNKNOWN,
     )
-    initial_website_compliance_complete_date = models.DateField(null=True, blank=True)
-
-    # Initial test - Disproportionate burden
-    initial_disproportionate_burden_claim = models.CharField(
-        max_length=20,
-        choices=DisproportionateBurden.choices,
-        default=DisproportionateBurden.NOT_CHECKED,
-    )
-    initial_disproportionate_burden_complete_date = models.DateField(
-        null=True, blank=True
-    )
-
-    # Initial test - Statement compliance
     initial_statement_compliance_state = models.CharField(
         max_length=200,
         choices=StatementCompliance.choices,
         default=StatementCompliance.UNKNOWN,
     )
-    initial_statement_compliance_complete_date = models.DateField(null=True, blank=True)
+    initial_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    initial_testing_outcome_complete_date = models.DateField(null=True, blank=True)
 
     # Report - Report draft
     report_start_date = models.DateField(null=True, blank=True)

@@ -1658,7 +1658,7 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Initial test",
         pages=[
             DetailedCasePlatformPage(
-                name="Testing details",
+                name="Testing",
                 url_name="detailed:edit-initial-testing-details",
                 complete_flag_name="initial_testing_details_complete_date",
                 next_page_url_name="detailed:edit-initial-testing-outcome",
@@ -1667,24 +1667,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Testing outcome",
                 url_name="detailed:edit-initial-testing-outcome",
                 complete_flag_name="initial_testing_outcome_complete_date",
-                next_page_url_name="detailed:edit-initial-website-compliance",
-            ),
-            DetailedCasePlatformPage(
-                name="Website compliance",
-                url_name="detailed:edit-initial-website-compliance",
-                complete_flag_name="initial_website_compliance_complete_date",
-                next_page_url_name="detailed:edit-disproportionate-burden-compliance",
-            ),
-            DetailedCasePlatformPage(
-                name="Disproportionate burden",
-                url_name="detailed:edit-disproportionate-burden-compliance",
-                complete_flag_name="initial_disproportionate_burden_complete_date",
-                next_page_url_name="detailed:edit-initial-statement-compliance",
-            ),
-            DetailedCasePlatformPage(
-                name="Statement compliance",
-                url_name="detailed:edit-initial-statement-compliance",
-                complete_flag_name="initial_statement_compliance_complete_date",
                 next_page_url_name="detailed:edit-report-draft",
             ),
         ],
@@ -1695,19 +1677,19 @@ SITE_MAP: list[PlatformPageGroup] = [
             DetailedCasePlatformPage(
                 name="Report draft",
                 url_name="detailed:edit-report-draft",
-                complete_flag_name="initial_website_compliance_complete_date",
+                complete_flag_name="report_draft_complete_date",
                 next_page_url_name="detailed:edit-qa-approval",
             ),
             DetailedCasePlatformPage(
                 name="QA approval",
                 url_name="detailed:edit-qa-approval",
-                complete_flag_name="initial_disproportionate_burden_complete_date",
+                complete_flag_name="qa_approval_complete_date",
                 next_page_url_name="detailed:edit-publish-report",
             ),
             DetailedCasePlatformPage(
                 name="Publish report",
                 url_name="detailed:edit-publish-report",
-                complete_flag_name="initial_statement_compliance_complete_date",
+                complete_flag_name="publish_report_complete_date",
                 next_page_url_name="detailed:edit-report-sent",
             ),
         ],

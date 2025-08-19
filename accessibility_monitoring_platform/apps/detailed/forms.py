@@ -279,8 +279,20 @@ class InitialTestingOutcomeUpdateForm(VersionForm):
     """Form for updating initial testing outcome page"""
 
     initial_test_end_date = AMPDateField(label="Test end date")
-    initial_total_number_of_pages = AMPIntegerField(label="Number of pages")
+    initial_total_number_of_pages = AMPIntegerField(label="Pages tested")
     initial_total_number_of_issues = AMPIntegerField(label="Number of issues")
+    initial_website_compliance_state = AMPChoiceRadioField(
+        label="Initial compliance decision",
+        choices=DetailedCase.WebsiteCompliance.choices,
+    )
+    initial_statement_compliance_state = AMPChoiceRadioField(
+        label="Initial compliance decision",
+        choices=DetailedCase.StatementCompliance.choices,
+    )
+    initial_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Initial disproportionate burden claim",
+        choices=DetailedCase.DisproportionateBurden.choices,
+    )
     initial_testing_outcome_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -290,61 +302,10 @@ class InitialTestingOutcomeUpdateForm(VersionForm):
             "initial_test_end_date",
             "initial_total_number_of_pages",
             "initial_total_number_of_issues",
-            "initial_testing_outcome_complete_date",
-        ]
-
-
-class InitialWebsiteComplianceUpdateForm(VersionForm):
-    """Form for updating initial website compliance page"""
-
-    initial_website_compliance_state = AMPChoiceRadioField(
-        label="Initial compliance decision",
-        choices=DetailedCase.WebsiteCompliance.choices,
-    )
-    initial_website_compliance_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
             "initial_website_compliance_state",
-            "initial_website_compliance_complete_date",
-        ]
-
-
-class InitialDisproportionateBurdenUpdateForm(VersionForm):
-    """Form for updating initial disproportionate burden page"""
-
-    initial_disproportionate_burden_claim = AMPChoiceRadioField(
-        label="Initial disproportionate burden claim",
-        choices=DetailedCase.DisproportionateBurden.choices,
-    )
-    initial_disproportionate_burden_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
-            "initial_disproportionate_burden_claim",
-            "initial_disproportionate_burden_complete_date",
-        ]
-
-
-class InitialStatementComplianceUpdateForm(VersionForm):
-    """Form for updating initial statement compliance page"""
-
-    initial_statement_compliance_state = AMPChoiceRadioField(
-        label="Initial compliance decision",
-        choices=DetailedCase.StatementCompliance.choices,
-    )
-    initial_statement_compliance_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
             "initial_statement_compliance_state",
-            "initial_statement_compliance_complete_date",
+            "initial_disproportionate_burden_claim",
+            "initial_testing_outcome_complete_date",
         ]
 
 

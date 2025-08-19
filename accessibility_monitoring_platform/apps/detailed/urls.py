@@ -25,11 +25,8 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     DetailedCaseNoteUpdateView,
     DetailedCaseStatusUpdateView,
     EnforcementBodyMetadataUpdateView,
-    InitialDisproportionateBurdenUpdateView,
-    InitialStatementComplianceUpdateView,
     InitialTestingDetailsUpdateView,
     InitialTestingOutcomeUpdateView,
-    InitialWebsiteComplianceUpdateView,
     ManageContactDetailsUpdateView,
     PublishReportUpdateView,
     QAApprovalUpdateView,
@@ -106,21 +103,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-initial-testing-outcome/",
         login_required(InitialTestingOutcomeUpdateView.as_view()),
         name="edit-initial-testing-outcome",
-    ),
-    path(
-        "<int:pk>/edit-initial-website-compliance/",
-        login_required(InitialWebsiteComplianceUpdateView.as_view()),
-        name="edit-initial-website-compliance",
-    ),
-    path(
-        "<int:pk>/edit-disproportionate-burden-compliance/",
-        login_required(InitialDisproportionateBurdenUpdateView.as_view()),
-        name="edit-disproportionate-burden-compliance",
-    ),
-    path(
-        "<int:pk>/edit-initial-statement-compliance/",
-        login_required(InitialStatementComplianceUpdateView.as_view()),
-        name="edit-initial-statement-compliance",
     ),
     path(
         "<int:pk>/edit-report-draft/",
