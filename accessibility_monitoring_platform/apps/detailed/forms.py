@@ -211,37 +211,32 @@ class ContactCreateForm(forms.ModelForm):
 
     name = AMPCharFieldWide(label="Name")
     job_title = AMPCharFieldWide(label="Job title")
-    contact_point = AMPCharFieldWide(label="Contact point")
+    contact_details = AMPCharFieldWide(label="Contact details")
     preferred = AMPChoiceRadioField(
         label="Preferred contact",
         choices=Contact.Preferred.choices,
         initial=Contact.Preferred.UNKNOWN,
     )
-    type = AMPChoiceRadioField(
-        label="Type of contact",
-        choices=Contact.Type.choices,
-        initial=Contact.Type.ORGANISATION,
-    )
+    information = AMPTextField(label="Contact information")
 
     class Meta:
         model = Contact
-        fields = ["name", "job_title", "contact_point", "preferred", "type"]
+        fields = ["name", "job_title", "contact_details", "preferred", "information"]
 
 
-class ContactUpdateForm(VersionForm):
+class ContactUpdateForm(VersionForm, ContactCreateForm):
     """Form for updating a contact"""
 
-    name = AMPCharFieldWide(label="Name")
-    job_title = AMPCharFieldWide(label="Job title")
-    contact_point = AMPCharFieldWide(label="Email")
-    preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=Contact.Preferred.choices
-    )
-    type = AMPChoiceRadioField(label="Type of contact", choices=Contact.Type.choices)
-
     class Meta:
         model = Contact
-        fields = ["version", "name", "job_title", "contact_point", "preferred", "type"]
+        fields = [
+            "version",
+            "name",
+            "job_title",
+            "contact_details",
+            "preferred",
+            "information",
+        ]
 
 
 class ContactInformationRequestUpdateForm(VersionForm):

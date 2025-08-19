@@ -283,15 +283,16 @@ def create_detailed_case_from_dict(
             note=f"Feedback survey sent from imported spreadsheet:\n\n{feedback_survey_sent}",
         )
 
-    contact: Contact = Contact.objects.create(
-        detailed_case=detailed_case,
-        name=row["Contact name"],
-        job_title=row["Job title"],
-        contact_point=row["Contact detail"],
-        created_by=auditor,
-    )
-    contact.created = last_updated
-    contact.save()
+    if row["Contact name"] or row["Job title"] or row["Contact detail"]:
+        contact: Contact = Contact.objects.create(
+            detailed_case=detailed_case,
+            name=row["Contact name"],
+            job_title=row["Job title"],
+            contact_details=row["Contact detail"],
+            created_by=auditor,
+        )
+        contact.created = last_updated
+        contact.save()
 
     zendesk_urls: str = row["Zendesk ticket"]
     for zendesk_url in zendesk_urls.split():

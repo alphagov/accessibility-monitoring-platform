@@ -427,19 +427,13 @@ class Contact(VersionModel):
         NO = "no", "No"
         UNKNOWN = "unknown", "Not known"
 
-    class Type(models.TextChoices):
-        ORGANISATION = "organisation", "Organisation"
-        CONTRACTOR = "contractor", "Contractor"
-
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     name = models.TextField(default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
-    contact_point = models.TextField(default="", blank=True)
+    contact_details = models.TextField(default="", blank=True)
+    information = models.TextField(default="", blank=True)
     preferred = models.CharField(
         max_length=20, choices=Preferred.choices, default=Preferred.UNKNOWN
-    )
-    type = models.CharField(
-        max_length=20, choices=Type.choices, default=Type.ORGANISATION
     )
     created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -452,8 +446,8 @@ class Contact(VersionModel):
         string: str = ""
         if self.name:
             string = self.name
-        if self.contact_point:
-            string += f" {self.contact_point}"
+        if self.contact_details:
+            string += f" {self.contact_details}"
         return string
 
     def get_absolute_url(self) -> str:

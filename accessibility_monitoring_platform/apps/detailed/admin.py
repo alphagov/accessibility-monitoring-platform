@@ -40,14 +40,14 @@ class DetailedEventHistoryAdmin(admin.ModelAdmin):
 class ContactAdmin(admin.ModelAdmin):
     search_fields = [
         "name",
-        "contact_point",
+        "contact_details",
         "detailed_case__organisation_name",
         "detailed_case__case_number",
     ]
     list_display = [
         "__str__",
         "name",
-        "contact_point",
+        "contact_details",
         "detailed_case",
         "is_deleted",
     ]

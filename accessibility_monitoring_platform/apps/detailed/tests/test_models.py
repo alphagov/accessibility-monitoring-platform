@@ -120,6 +120,6 @@ def test_detailed_case_history_saves_detailed_case_status():
 
 def test_contact_str():
     """Test Contact.__str__()"""
-    contact: Contact = Contact(name="Contact Name", contact_point="name@example.com")
+    contact: Contact = Contact(name="Contact Name", contact_details="name@example.com")
 
     assert str(contact) == "Contact Name name@example.com"

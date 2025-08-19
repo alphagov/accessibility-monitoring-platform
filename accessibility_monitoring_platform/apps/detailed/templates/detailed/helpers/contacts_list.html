@@ -7,7 +7,7 @@
             <p class="govuk-body amp-margin-bottom-0"><b>Contact {{ forloop.counter }}</b></p>
             <p class="govuk-body amp-margin-bottom-0">{{ contact.name }}</p>
             <p class="govuk-body amp-margin-bottom-0">{{ contact.job_title }}</p>
-            <p class="govuk-body">{{ contact.contact_point }}</p>
+            <p class="govuk-body">{{ contact.contact_details }}</p>
         {% endfor %}
         <p class="govuk-body">
             <a href="{% url 'detailed:manage-contact-details' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
