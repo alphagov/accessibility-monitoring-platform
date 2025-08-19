@@ -594,3 +594,26 @@ def test_comments_mark_as_read_marks_tasks_as_read(rf):
     report_approved_task_from_db: Task = Task.objects.get(id=report_approved_task.id)
 
     assert report_approved_task_from_db.read is True
+
+
+@pytest.mark.django_db
+def test_tast_tools_shown_on_reminder_page(admin_client):
+    """Test the reminder page for a simplified case shows the Case tools"""
+    user: User = User.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=user,
+        base_case=simplified_case,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("notifications:edit-reminder-task", kwargs={"pk": task.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, '<h2 class="govuk-heading-s amp-margin-bottom-10">Case tools</h2>'
+    )
