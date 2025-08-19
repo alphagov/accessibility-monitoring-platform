@@ -27,6 +27,7 @@ class DetailedCase(BaseCase):
     class WebsiteCompliance(models.TextChoices):
         COMPLIANT = "compliant", "Fully compliant"
         PARTIALLY = "partially-compliant", "Partially compliant"
+        NOT = "not-compliant", "Not compliant"
         UNKNOWN = "not-known", "Not known"
 
     class DisproportionateBurden(models.TextChoices):

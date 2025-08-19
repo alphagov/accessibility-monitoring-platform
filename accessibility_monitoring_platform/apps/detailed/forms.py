@@ -282,11 +282,11 @@ class InitialTestingOutcomeUpdateForm(VersionForm):
     initial_total_number_of_pages = AMPIntegerField(label="Pages tested")
     initial_total_number_of_issues = AMPIntegerField(label="Number of issues")
     initial_website_compliance_state = AMPChoiceRadioField(
-        label="Initial compliance decision",
+        label="Initial website compliance decision",
         choices=DetailedCase.WebsiteCompliance.choices,
     )
     initial_statement_compliance_state = AMPChoiceRadioField(
-        label="Initial compliance decision",
+        label="Initial statement compliance decision",
         choices=DetailedCase.StatementCompliance.choices,
     )
     initial_disproportionate_burden_claim = AMPChoiceRadioField(
