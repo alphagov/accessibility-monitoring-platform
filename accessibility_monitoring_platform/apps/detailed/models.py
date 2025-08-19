@@ -87,9 +87,6 @@ class DetailedCase(BaseCase):
     first_contact_sent_to = models.CharField(max_length=200, default="", blank=True)
     request_contact_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Initial contact - Chasing contact record
-    chasing_record_complete_date = models.DateField(null=True, blank=True)
-
     # Initial contact - Information delivered
     contact_acknowledged_date = models.DateField(null=True, blank=True)
     contact_acknowledged_by = models.CharField(max_length=200, default="", blank=True)
@@ -285,11 +282,6 @@ class DetailedCase(BaseCase):
     def notes_history(self) -> QuerySet["DetailedCaseHistory"]:
         return self.detailedcasehistory_set.filter(event_type__icontains="notes")
 
-    def contact_notes_history(self) -> QuerySet["DetailedCaseHistory"]:
-        return self.detailedcasehistory_set.filter(
-            event_type=DetailedCaseHistory.EventType.CONTACT_NOTE
-        )
-
     def recommendation_history(self) -> QuerySet["DetailedCaseHistory"]:
         return self.detailedcasehistory_set.filter(
             event_type=DetailedCaseHistory.EventType.RECOMMENDATION
@@ -377,7 +369,6 @@ class DetailedCaseHistory(models.Model):
         NOTE = "note", "Entered note"
         REMINDER = "reminder", "Reminder set"
         STATUS = "status", "Changed status"
-        CONTACT_NOTE = "contact_note", "Entered contact note"
         RECOMMENDATION = "recommendation", "Entered enforcement recommendation"
         UNRESPONSIVE_NOTE = "unresponsive_note", "Entered unresponsive PSB note"
 
@@ -403,7 +394,6 @@ class DetailedCaseHistory(models.Model):
             self.detailed_case_status = self.detailed_case.status
             if self.event_type in [
                 DetailedCaseHistory.EventType.NOTE,
-                DetailedCaseHistory.EventType.CONTACT_NOTE,
                 DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE,
             ]:
                 self.id_within_case = self.detailed_case.notes_history().count() + 1

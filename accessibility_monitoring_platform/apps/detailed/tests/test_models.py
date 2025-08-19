@@ -43,7 +43,6 @@ def test_detailed_case_title():
     "history_type, detailed_case_history_attr",
     [
         (DetailedCaseHistory.EventType.STATUS, "status_history"),
-        (DetailedCaseHistory.EventType.CONTACT_NOTE, "contact_notes_history"),
         (DetailedCaseHistory.EventType.RECOMMENDATION, "recommendation_history"),
         (
             DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE,

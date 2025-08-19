@@ -9,7 +9,6 @@ from django.urls.resolvers import URLPattern
 from accessibility_monitoring_platform.apps.detailed.views import (
     CaseCloseUpdateView,
     CaseZendeskTicketsDetailView,
-    ContactChasingRecordUpdateView,
     ContactCreateView,
     ContactInformationDeliveredUpdateView,
     ContactInformationRequestUpdateView,
@@ -98,11 +97,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-request-contact-details/",
         login_required(ContactInformationRequestUpdateView.as_view()),
         name="edit-request-contact-details",
-    ),
-    path(
-        "<int:pk>/edit-chasing-record/",
-        login_required(ContactChasingRecordUpdateView.as_view()),
-        name="edit-chasing-record",
     ),
     path(
         "<int:pk>/edit-information-delivered/",

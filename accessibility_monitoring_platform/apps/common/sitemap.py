@@ -1650,12 +1650,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="Information request",
                 url_name="detailed:edit-request-contact-details",
                 complete_flag_name="request_contact_details_complete_date",
-                next_page_url_name="detailed:edit-chasing-record",
-            ),
-            DetailedCasePlatformPage(
-                name="Chasing record",
-                url_name="detailed:edit-chasing-record",
-                complete_flag_name="chasing_record_complete_date",
                 next_page_url_name="detailed:edit-information-delivered",
             ),
             DetailedCasePlatformPage(

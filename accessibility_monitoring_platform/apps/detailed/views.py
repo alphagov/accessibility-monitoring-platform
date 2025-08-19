@@ -23,7 +23,6 @@ from ..common.views import (
 )
 from .forms import (
     CaseCloseUpdateForm,
-    ContactChasingRecordUpdateForm,
     ContactCreateForm,
     ContactInformationDeliveredUpdateForm,
     ContactInformationRequestUpdateForm,
@@ -386,16 +385,6 @@ class ContactInformationRequestUpdateView(CorrespondenceUpdateView):
 
     form_class: type[ContactInformationRequestUpdateForm] = (
         ContactInformationRequestUpdateForm
-    )
-
-
-class ContactChasingRecordUpdateView(AddNoteMixin, DetailedCaseUpdateView):
-    """View to update chasing record for contact"""
-
-    form_class: type[ContactChasingRecordUpdateForm] = ContactChasingRecordUpdateForm
-    template_name: str = "detailed/forms/contact_notes.html"
-    note_type: DetailedCaseHistory.EventType = (
-        DetailedCaseHistory.EventType.CONTACT_NOTE
     )
 
 

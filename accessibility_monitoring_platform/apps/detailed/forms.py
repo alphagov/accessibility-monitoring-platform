@@ -256,21 +256,6 @@ class ContactInformationRequestUpdateForm(VersionForm):
         ]
 
 
-class ContactChasingRecordUpdateForm(VersionForm):
-    """Form for updating chasing record for contact page"""
-
-    notes = AMPTextField(label="Chasing record")
-    chasing_record_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
-            "notes",
-            "chasing_record_complete_date",
-        ]
-
-
 class ContactInformationDeliveredUpdateForm(VersionForm):
     """Form for updating contact information delivered page"""
 
