@@ -226,7 +226,9 @@ def create_detailed_case_from_dict(
             DetailedCase.StatementCompliance.UNKNOWN,
         ),
         is_feedback_survey_sent=is_feedback_survey_sent,
-        first_contact_date=get_datetime_from_string(row["First Contact Date"]),
+        contact_information_request_start_date=get_datetime_from_string(
+            row["First Contact Date"]
+        ),
         psb_location=MAP_PSB_LOCATION[row["Public sector body location"]],
         sector=sectors[row["Sector"]],
         retest_disproportionate_burden_claim=MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(

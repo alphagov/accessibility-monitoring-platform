@@ -1649,13 +1649,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             DetailedCasePlatformPage(
                 name="Information request",
                 url_name="detailed:edit-request-contact-details",
-                complete_flag_name="request_contact_details_complete_date",
-                next_page_url_name="detailed:edit-information-delivered",
-            ),
-            DetailedCasePlatformPage(
-                name="Information delivered",
-                url_name="detailed:edit-information-delivered",
-                complete_flag_name="information_delivered_complete_date",
+                complete_flag_name="contact_information_request_complete_date",
                 next_page_url_name="detailed:edit-initial-testing-details",
             ),
         ],

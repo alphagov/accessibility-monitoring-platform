@@ -242,42 +242,19 @@ class ContactUpdateForm(VersionForm, ContactCreateForm):
 class ContactInformationRequestUpdateForm(VersionForm):
     """Form for updating contact information request page"""
 
-    first_contact_date = AMPDateField(label="First contact sent date")
-    first_contact_sent_to = AMPCharFieldWide(label="First contact sent to")
-    request_contact_details_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
-            "first_contact_date",
-            "first_contact_sent_to",
-            "request_contact_details_complete_date",
-        ]
-
-
-class ContactInformationDeliveredUpdateForm(VersionForm):
-    """Form for updating contact information delivered page"""
-
-    contact_acknowledged_date = AMPDateField(label="Request acknowledged")
-    contact_acknowledged_by = AMPCharFieldWide(label="Acknowledged by")
-    saved_to_google_drive = AMPChoiceCheckboxField(
-        label="Information saved to Google drive?",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Information saved to Google drive"}
-        ),
+    contact_information_request_start_date = AMPDateField(
+        label="Information request process started"
     )
-    information_delivered_complete_date = AMPDatePageCompleteField()
+    contact_information_request_end_date = AMPDateField(label="Information delivered")
+    contact_information_request_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
         fields = [
             "version",
-            "contact_acknowledged_date",
-            "contact_acknowledged_by",
-            "saved_to_google_drive",
-            "information_delivered_complete_date",
+            "contact_information_request_start_date",
+            "contact_information_request_end_date",
+            "contact_information_request_complete_date",
         ]
 
 

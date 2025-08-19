@@ -83,17 +83,9 @@ class DetailedCase(BaseCase):
     manage_contacts_complete_date = models.DateField(null=True, blank=True)
 
     # Initial contact - Request contact details
-    first_contact_date = models.DateField(null=True, blank=True)
-    first_contact_sent_to = models.CharField(max_length=200, default="", blank=True)
-    request_contact_details_complete_date = models.DateField(null=True, blank=True)
-
-    # Initial contact - Information delivered
-    contact_acknowledged_date = models.DateField(null=True, blank=True)
-    contact_acknowledged_by = models.CharField(max_length=200, default="", blank=True)
-    saved_to_google_drive = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
-    information_delivered_complete_date = models.DateField(null=True, blank=True)
+    contact_information_request_start_date = models.DateField(null=True, blank=True)
+    contact_information_request_end_date = models.DateField(null=True, blank=True)
+    contact_information_request_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - Testing details
     initial_test_start_date = models.DateField(null=True, blank=True)

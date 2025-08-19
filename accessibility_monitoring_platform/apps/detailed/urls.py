@@ -10,7 +10,6 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     CaseCloseUpdateView,
     CaseZendeskTicketsDetailView,
     ContactCreateView,
-    ContactInformationDeliveredUpdateView,
     ContactInformationRequestUpdateView,
     ContactUpdateView,
     CorrespondenceReportAcknowledgedUpdateView,
@@ -97,11 +96,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-request-contact-details/",
         login_required(ContactInformationRequestUpdateView.as_view()),
         name="edit-request-contact-details",
-    ),
-    path(
-        "<int:pk>/edit-information-delivered/",
-        login_required(ContactInformationDeliveredUpdateView.as_view()),
-        name="edit-information-delivered",
     ),
     path(
         "<int:pk>/edit-initial-testing-details/",

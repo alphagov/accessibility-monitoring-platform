@@ -24,7 +24,6 @@ from ..common.views import (
 from .forms import (
     CaseCloseUpdateForm,
     ContactCreateForm,
-    ContactInformationDeliveredUpdateForm,
     ContactInformationRequestUpdateForm,
     ContactUpdateForm,
     DetailedCaseCreateForm,
@@ -385,14 +384,6 @@ class ContactInformationRequestUpdateView(CorrespondenceUpdateView):
 
     form_class: type[ContactInformationRequestUpdateForm] = (
         ContactInformationRequestUpdateForm
-    )
-
-
-class ContactInformationDeliveredUpdateView(CorrespondenceUpdateView):
-    """View to update information delivered for contact"""
-
-    form_class: type[ContactInformationDeliveredUpdateForm] = (
-        ContactInformationDeliveredUpdateForm
     )
 
 
