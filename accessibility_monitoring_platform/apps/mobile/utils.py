@@ -117,6 +117,9 @@ def create_mobile_case_from_dict(
         app_os=app_os,
         enforcement_body=enforcement_body,
         is_complaint=is_complaint,
+        case_folder_url=row["Link to case folder"],
+        initial_test_start_date=get_datetime_from_string(row["Test start date"]),
+        initial_test_end_date=get_datetime_from_string(row["Test end date"]),
     )
     mobile_case.created = created
     mobile_case.case_number = case_number
@@ -147,6 +150,7 @@ def import_mobile_cases_csv(csv_data: str) -> None:
         auditors = {}
 
     EventHistory.objects.all().delete()
+    MobileCaseHistory.objects.all().delete()
     MobileCase.objects.all().delete()
 
     reader: Any = csv.DictReader(io.StringIO(csv_data))

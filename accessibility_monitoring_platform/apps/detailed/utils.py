@@ -237,6 +237,9 @@ def create_detailed_case_from_dict(
         recommendation_notes=row["Enforcement Recommendation Notes"],
         parental_organisation_name=row["Parent org (if relevant)"],
         status=status,
+        case_folder_url=row["Link to case folder"],
+        initial_test_start_date=get_datetime_from_string(row["Test start date"]),
+        initial_test_end_date=get_datetime_from_string(row["Test end date"]),
     )
     detailed_case.created = created
     detailed_case.case_number = case_number
