@@ -131,6 +131,13 @@ class DetailedCaseCreateForm(forms.ModelForm):
 
 class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
     case_folder_url = AMPURLField(label="Link to case folder")
+    is_feedback_requested = AMPChoiceCheckboxField(
+        label="Feedback survey sent?",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
     case_metadata_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
@@ -153,6 +160,7 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
             "previous_case_url",
             "is_complaint",
             "case_folder_url",
+            "is_feedback_requested",
             "case_metadata_complete_date",
         ]
 
