@@ -23,6 +23,7 @@ from ...audits.models import (
     StatementPage,
     WcagDefinition,
 )
+from ...detailed.models import DetailedCase
 from ...notifications.models import Task
 from ...reports.models import Report, ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
@@ -1096,6 +1097,56 @@ def test_report_viewed_yearly_metric(mock_timezone, admin_client):
         METRIC_YEARLY_TABLE.format(
             column_header="Report views", table_id="reports-views-over-the-last-year"
         ),
+        html=True,
+    )
+
+
+def test_simplified_case_nav(admin_client):
+    """Test simplified case nav rendered correctly"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<h2 class="govuk-heading-s amp-margin-bottom-10">Case tools</h2>',
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<li>
+            <a href="/simplified/{simplified_case.id}/zendesk-tickets/"
+            rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+            PSB Zendesk tickets</a>
+        </li>""",
+        html=True,
+    )
+
+
+def test_detailed_case_nav(admin_client):
+    """Test detailed case nav rendered correctly"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("detailed:case-detail", kwargs={"pk": detailed_case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<h2 class="govuk-heading-s amp-margin-bottom-10">Case tools</h2>',
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<li>
+            <a href="/detailed/{detailed_case.id}/zendesk-tickets/"
+            rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+            PSB Zendesk tickets</a>
+        </li>""",
         html=True,
     )
 

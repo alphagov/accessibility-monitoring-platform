@@ -528,6 +528,7 @@ class PlatformPageGroup:
         DETAILED_CASE_NAV: str = auto()
         MOBILE_CASE_NAV: str = auto()
         SIMPLIFIED_CASE_TOOLS: str = auto()
+        DETAILED_CASE_TOOLS: str = auto()
         DEFAULT: str = auto()
 
     name: str
@@ -1431,6 +1432,36 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
+    DetailedCasePlatformPageGroup(
+        name="Case tools",
+        type=PlatformPageGroup.Type.DETAILED_CASE_TOOLS,
+        pages=[
+            DetailedCasePlatformPage(
+                name="PSB Zendesk tickets",
+                url_name="detailed:zendesk-tickets",
+                # case_details_template_name="detailed/details/details_psb_zendesk_tickets.html",
+                subpages=[
+                    DetailedCasePlatformPage(
+                        name="Add PSB Zendesk ticket",
+                        url_name="detailed:create-zendesk-ticket",
+                        url_kwarg_key="case_id",
+                    ),
+                    PlatformPage(
+                        name="Edit PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:update-zendesk-ticket",
+                        url_kwarg_key="pk",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                    PlatformPage(
+                        name="Remove PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:confirm-delete-zendesk-ticket",
+                        url_kwarg_key="pk",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                ],
+            ),
+        ],
+    ),
     SimplifiedCasePlatformPageGroup(
         name="Simplified case",
         case_nav_group=False,
@@ -1580,30 +1611,6 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
             DetailedCasePlatformPage(
                 name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"
-            ),
-            DetailedCasePlatformPage(
-                name="PSB Zendesk tickets",
-                url_name="detailed:zendesk-tickets",
-                # case_details_template_name="detailed/details/details_psb_zendesk_tickets.html",
-                subpages=[
-                    DetailedCasePlatformPage(
-                        name="Add PSB Zendesk ticket",
-                        url_name="detailed:create-zendesk-ticket",
-                        url_kwarg_key="case_id",
-                    ),
-                    PlatformPage(
-                        name="Edit PSB Zendesk ticket #{instance.id_within_case}",
-                        url_name="detailed:update-zendesk-ticket",
-                        url_kwarg_key="pk",
-                        instance_class=DetailedZendeskTicket,
-                    ),
-                    PlatformPage(
-                        name="Remove PSB Zendesk ticket #{instance.id_within_case}",
-                        url_name="detailed:confirm-delete-zendesk-ticket",
-                        url_kwarg_key="pk",
-                        instance_class=DetailedZendeskTicket,
-                    ),
-                ],
             ),
         ],
     ),
@@ -1957,6 +1964,13 @@ def build_sitemap_for_current_page(
                 for platform_page_group in site_map
                 if platform_page_group.type
                 == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
+            ]
+        if case_nav_type == PlatformPageGroup.Type.DETAILED_CASE_NAV:
+            case_navigation += [
+                platform_page_group
+                for platform_page_group in site_map
+                if platform_page_group.type
+                == PlatformPageGroup.Type.DETAILED_CASE_TOOLS
             ]
         for platform_page_group in case_navigation:
             platform_page_group.populate_from_case(case=case)

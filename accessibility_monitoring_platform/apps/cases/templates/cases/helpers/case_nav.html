@@ -1,3 +1,14 @@
+{% if case.test_type == 'detailed' %}
+    <div class="amp-nav-steps">
+        <ul class="govuk-list">
+            <li>
+                <a href="{% url 'detailed:create-case-note' case.id %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                    Open case notes</a>
+                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+            </li>
+        </ul>
+    </div>
+{% endif %}
 {% for platform_page_group in sitemap.platform_page_groups %}
     {% if platform_page_group.type == case_nav_type and platform_page_group.show %}
         {% if platform_page_group.name == sitemap.current_platform_page.platform_page_group.name or case.archive %}
@@ -21,17 +32,4 @@
         {% endif %}
     {% endif %}
 {% endfor %}
-{% if case.test_type == 'detailed' %}
-    <div class="amp-nav-steps">
-        <ul class="govuk-list">
-            <li>
-                <a href="{% url 'detailed:create-case-note' case.id %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                    Open case notes</a>
-                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
-            </li>
-        </ul>
-    </div>
-{% endif %}
-{% if case.test_type == 'simplified' %}
-    {% include 'common/frequently_used_links.html' %}
-{% endif %}
+{% include 'common/frequently_used_links.html' %}
