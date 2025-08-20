@@ -37,11 +37,11 @@
         </div>
     {% endif %}
 {% endfor %}
-{% if case.test_type == 'simplified' %}
-    <h2 class="govuk-heading-s amp-margin-bottom-10">Links</h2>
-    <div class="amp-nav-steps">
-        <ul class="govuk-list">
-            {% for frequently_used_link in frequently_used_links %}
+<h2 class="govuk-heading-s amp-margin-bottom-10">Links</h2>
+<div class="amp-nav-steps">
+    <ul class="govuk-list">
+        {% for frequently_used_link in frequently_used_links %}
+            {% if frequently_used_link.case_type == 'all' or frequently_used_link.case_type == case.test_type %}
                 <li>
                     <a href="{{ frequently_used_link.url }}" target="_blank" class="govuk-link govuk-link--no-visited-state">
                         {% if frequently_used_link.label %}
@@ -51,14 +51,16 @@
                         {% endif %}
                     </a>
                 </li>
-            {% endfor %}
-            {% if case.trello_url %}
-                <li>
-                    <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                        Trello
-                    </a>
-                </li>
             {% endif %}
+        {% endfor %}
+        {% if case.trello_url %}
+            <li>
+                <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Trello
+                </a>
+            </li>
+        {% endif %}
+        {% if case.test_type == 'simplified' %}
             <li>
                 {% if case.audit.latest_statement_link %}
                     <a href="{{ case.audit.latest_statement_link }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
@@ -68,6 +70,6 @@
                     No accessibility statement URL
                 {% endif %}
             </li>
-        </ul>
-    </div>
-{% endif %}
+        {% endif %}
+    </ul>
+</div>

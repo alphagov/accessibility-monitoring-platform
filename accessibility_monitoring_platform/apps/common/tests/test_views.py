@@ -1166,6 +1166,23 @@ def test_frequently_used_link_shown(admin_client):
     assertContains(response, LINK_URL)
 
 
+@pytest.mark.django_db
+def test_frequently_used_link_not_shown(admin_client):
+    """Test custom frequently used link is not displayed when of a different case_type"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    FrequentlyUsedLink.objects.create(
+        label=LINK_LABEL, url=LINK_URL, case_type=FrequentlyUsedLink.CaseType.DETAILED
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
+    )
+
+    assert response.status_code == 200
+    assertNotContains(response, LINK_LABEL)
+    assertNotContains(response, LINK_URL)
+
+
 def test_add_frequently_used_link_form_appears(admin_client):
     """Test that pressing the add link button adds a new link form"""
 
