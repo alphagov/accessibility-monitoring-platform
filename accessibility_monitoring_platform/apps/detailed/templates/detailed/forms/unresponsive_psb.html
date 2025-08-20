@@ -10,13 +10,6 @@
 </div>
 {% endblock %}
 
-{% block formfields %}
-{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-{% include 'common/amp_field.html' with field=form.no_psb_contact %}
-{% include 'common/amp_field.html' with field=form.notes %}
-{% include 'detailed/helpers/note_history.html' with note_history=case.unresponsive_psb_notes_history %}
-{% endblock %}
-
 {% block formbuttons %}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full govuk-button-group">

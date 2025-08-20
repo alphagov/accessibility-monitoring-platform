@@ -237,6 +237,7 @@ class DetailedCase(BaseCase):
     no_psb_contact = models.CharField(
         max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
+    no_psb_contact_info = models.TextField(default="", blank=True)
 
     class Meta:
         ordering = ["-id"]

@@ -187,3 +187,22 @@ def test_confirm_delete_zendesk_ticket_view(admin_client):
     )
 
     assert event_history.event_type == DetailedEventHistory.Type.UPDATE
+
+
+def test_unresponsive_psb_save_message(admin_client):
+    """Test that a message is shown when the Unresponsive PSB page is saved"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("detailed:edit-unresponsive-psb", kwargs={"pk": detailed_case.id}),
+        {"version": detailed_case.version, "no_psb_contact": True, "save": "Save"},
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<div class="govuk-inset-text">Page saved</div>""",
+        html=True,
+    )

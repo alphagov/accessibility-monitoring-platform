@@ -4,6 +4,7 @@ Views for cases app
 
 from typing import Any
 
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -77,26 +78,14 @@ class AddDetailedCaseToContextMixin:
         return context
 
 
-class AddNoteMixin:
-    def form_valid(self, form: ContactUpdateForm):
-        """Store notes in history not in DetailedCase"""
-        if form.cleaned_data["notes"]:
-            add_to_detailed_case_history(
-                detailed_case=self.object,
-                user=self.request.user,
-                value=form.cleaned_data["notes"],
-                event_type=self.note_type,
-            )
-        if form.changed_data:
-            self.object: DetailedCase = form.save(commit=False)
-            self.object.notes = ""
-            user: User = self.request.user
-            record_detailed_model_update_event(
-                user=user, model_object=self.object, detailed_case=self.object
-            )
-            self.object.save()
-
-        return HttpResponseRedirect(self.get_success_url())
+class MessageOnSaveMixin:
+    def get_success_url(self) -> str:
+        messages.add_message(
+            self.request,
+            messages.INFO,
+            "Page saved",
+        )
+        return super().get_success_url()
 
 
 class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
@@ -596,7 +585,7 @@ class ZendeskTicketConfirmDeleteUpdateView(ZendeskTicketUpdateView):
 
 
 class UnresponsivePSBUpdateView(
-    AddNoteMixin, HideCaseNavigationMixin, DetailedCaseUpdateView
+    MessageOnSaveMixin, HideCaseNavigationMixin, DetailedCaseUpdateView
 ):
     """View to set unresponsive PSB flag"""
 
