@@ -18,6 +18,7 @@ from ..common.forms import (
     AMPChoiceRadioField,
     AMPDateField,
     AMPDatePageCompleteField,
+    AMPDateWidget,
     AMPIntegerField,
     AMPModelChoiceField,
     AMPTextField,
@@ -415,7 +416,10 @@ class ReportAcknowledgedUpdateForm(VersionForm):
 class TwelveWeekDeadlineUpdateForm(VersionForm):
     """Form for updating correspondence 12-week deadline page"""
 
-    twelve_week_deadline_date = AMPDateField(label="12-week deadline")
+    twelve_week_deadline_date = AMPDateField(
+        label="12-week deadline",
+        widget=AMPDateWidget(attrs={"populate_with_12_week_only": True}),
+    )
     twelve_week_deadline_complete_date = AMPDatePageCompleteField()
 
     class Meta:

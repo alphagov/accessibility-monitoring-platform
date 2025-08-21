@@ -45,6 +45,15 @@
             Populate date with 12 weeks from today
         </span>
     </p>
+{% elif widget.attrs.populate_with_12_week_only %}
+    <p class="govuk-body-m amp-margin-top-10 amp-margin-bottom-0">
+        <span class="amp-control amp-populate-date-12-weeks" tabIndex="0"
+            dayFieldId="{{ widget.subwidgets.0.attrs.id }}"
+            monthFieldId="{{ widget.subwidgets.1.attrs.id }}"
+            yearFieldId="{{ widget.subwidgets.2.attrs.id }}">
+            Populate date with 12 weeks from today
+        </span>
+    </p>
 {% else %}
     <p class="govuk-body-m amp-margin-top-10 amp-margin-bottom-0">
         <span class="amp-control amp-populate-date-today" tabIndex="0"
