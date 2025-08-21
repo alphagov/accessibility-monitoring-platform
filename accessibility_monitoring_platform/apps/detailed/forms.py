@@ -318,32 +318,60 @@ class InitialTestingOutcomeUpdateForm(VersionForm):
         ]
 
 
-class ReportDraftUpdateForm(VersionForm):
-    """Form for updating report draft page"""
+class ReportReadyForQAUpdateForm(VersionForm):
+    """Form for updating report ready for QA page"""
 
-    report_start_date = AMPDateField(label="Report start date")
-    report_draft_url = AMPURLField(label="Link to report draft")
     report_ready_for_qa = AMPChoiceRadioField(
         label="Report ready for QA process?",
         choices=Boolean.choices,
     )
-    report_draft_complete_date = AMPDatePageCompleteField()
+    report_ready_for_qa_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
         fields = [
             "version",
-            "report_start_date",
-            "report_draft_url",
             "report_ready_for_qa",
-            "report_draft_complete_date",
+            "report_ready_for_qa_complete_date",
+        ]
+
+
+class QAAuditorUpdateForm(VersionForm):
+    """Form for updating report QA auditor page"""
+
+    reviewer = AMPAuditorModelChoiceField(label="QA auditor")
+    qa_auditor_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "reviewer",
+            "qa_auditor_complete_date",
+        ]
+
+
+class QACommentsUpdateForm(VersionForm):
+    """
+    Form for updating QA comments page
+    """
+
+    body: AMPTextField = AMPTextField(
+        label="Add comment",
+        widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "12"}),
+    )
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "body",
         ]
 
 
 class QAApprovalUpdateForm(VersionForm):
     """Form for updating report QA approval page"""
 
-    reviewer = AMPAuditorModelChoiceField(label="QA auditor")
     report_approved_status = AMPChoiceRadioField(
         label="Report approved?",
         choices=DetailedCase.ReportApprovedStatus.choices,
@@ -354,28 +382,23 @@ class QAApprovalUpdateForm(VersionForm):
         model = DetailedCase
         fields = [
             "version",
-            "reviewer",
             "report_approved_status",
             "qa_approval_complete_date",
         ]
 
 
-class PublishReportUpdateForm(VersionForm):
+class FinalReportUpdateForm(VersionForm):
     """Form for updating publish report page"""
 
-    report_end_date = AMPDateField(label="Report end date")
     equality_body_report_url = AMPURLField(label="Link to equality body PDF report")
-    public_report_url = AMPURLField(label="Link to public report")
-    publish_report_complete_date = AMPDatePageCompleteField()
+    final_report_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
         fields = [
             "version",
-            "report_end_date",
             "equality_body_report_url",
-            "public_report_url",
-            "publish_report_complete_date",
+            "final_report_complete_date",
         ]
 
 

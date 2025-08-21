@@ -113,15 +113,18 @@ class DetailedCase(BaseCase):
     )
     initial_testing_outcome_complete_date = models.DateField(null=True, blank=True)
 
-    # Report - Report draft
-    report_start_date = models.DateField(null=True, blank=True)
-    report_draft_url = models.TextField(default="", blank=True)
+    # Report - Report ready for QA
     report_ready_for_qa = models.CharField(
         max_length=20,
         choices=Boolean.choices,
         default=Boolean.NO,
     )
-    report_draft_complete_date = models.DateField(null=True, blank=True)
+    report_ready_for_qa_complete_date = models.DateField(null=True, blank=True)
+
+    # Report - QA auditor
+    qa_auditor_complete_date = models.DateField(null=True, blank=True)
+
+    # Report - QA comments
 
     # Report - QA approval
     report_approved_status = models.CharField(
@@ -131,11 +134,9 @@ class DetailedCase(BaseCase):
     )
     qa_approval_complete_date = models.DateField(null=True, blank=True)
 
-    # Report - Publish report
-    report_end_date = models.DateField(null=True, blank=True)
+    # Report - Final report
     equality_body_report_url = models.TextField(default="", blank=True)
-    public_report_url = models.TextField(default="", blank=True)
-    publish_report_complete_date = models.DateField(null=True, blank=True)
+    final_report_complete_date = models.DateField(null=True, blank=True)
 
     # Correspondence - Report sent
     report_sent_date = models.DateField(null=True, blank=True)

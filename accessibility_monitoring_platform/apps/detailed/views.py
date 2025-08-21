@@ -33,13 +33,15 @@ from .forms import (
     DetailedCaseMetadataUpdateForm,
     DetailedCaseStatusUpdateForm,
     EnforcementBodyMetadataUpdateForm,
+    FinalReportUpdateForm,
     InitialTestingDetailsUpdateForm,
     InitialTestingOutcomeUpdateForm,
     ManageContactsUpdateForm,
-    PublishReportUpdateForm,
     QAApprovalUpdateForm,
+    QAAuditorUpdateForm,
+    QACommentsUpdateForm,
     ReportAcknowledgedUpdateForm,
-    ReportDraftUpdateForm,
+    ReportReadyForQAUpdateForm,
     ReportSentUpdateForm,
     RetestDisproportionateBurdenUpdateForm,
     RetestResultUpdateForm,
@@ -385,10 +387,22 @@ class InitialTestingOutcomeUpdateView(DetailedCaseUpdateView):
     form_class: type[InitialTestingOutcomeUpdateForm] = InitialTestingOutcomeUpdateForm
 
 
-class ReportDraftUpdateView(DetailedCaseUpdateView):
+class ReportReadyForQAUpdateView(DetailedCaseUpdateView):
     """View to update report draft"""
 
-    form_class: type[ReportDraftUpdateForm] = ReportDraftUpdateForm
+    form_class: type[ReportReadyForQAUpdateForm] = ReportReadyForQAUpdateForm
+
+
+class QAAuditorUpdateView(DetailedCaseUpdateView):
+    """View to update QA auditor"""
+
+    form_class: type[QAAuditorUpdateForm] = QAAuditorUpdateForm
+
+
+class QACommentsUpdateView(DetailedCaseUpdateView):
+    """View to add or update QA comments"""
+
+    form_class: type[QACommentsUpdateForm] = QACommentsUpdateForm
 
 
 class QAApprovalUpdateView(DetailedCaseUpdateView):
@@ -397,10 +411,10 @@ class QAApprovalUpdateView(DetailedCaseUpdateView):
     form_class: type[QAApprovalUpdateForm] = QAApprovalUpdateForm
 
 
-class PublishReportUpdateView(DetailedCaseUpdateView):
+class FinalReportUpdateView(DetailedCaseUpdateView):
     """View to update publish report"""
 
-    form_class: type[PublishReportUpdateForm] = PublishReportUpdateForm
+    form_class: type[FinalReportUpdateForm] = FinalReportUpdateForm
 
 
 class CorrespondenceReportSentUpdateView(CorrespondenceUpdateView):
