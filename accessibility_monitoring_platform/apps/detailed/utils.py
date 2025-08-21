@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from ..cases.models import Sector
+from ..comments.models import Comment
 from ..common.models import Boolean
 from ..common.utils import diff_model_fields, extract_domain_from_url
 from ..notifications.models import Task
@@ -197,7 +198,7 @@ def create_detailed_case_from_dict(
         enforcement_body=row["Enforcement body"].lower(),
         is_complaint=row["Is it a complaint?"].lower(),
         service_type=row["Type"].lower(),
-        public_report_url=validate_url(row["Public link to report PDF"]),
+        equality_body_report_url=validate_url(row["Public link to report PDF"]),
         reviewer=qa_auditor,
         report_sent_date=get_datetime_from_string(row["Report sent on"]),
         report_acknowledged_date=get_datetime_from_string(row["Report acknowledged"]),
@@ -329,6 +330,7 @@ def import_detailed_cases_csv(csv_data: str) -> None:
     DetailedCaseHistory.objects.all().delete()
     for detailed_case in DetailedCase.objects.all():
         Task.objects.filter(base_case=detailed_case).delete()
+        Comment.objects.filter(base_case=detailed_case).delete()
     DetailedCase.objects.all().delete()
 
     reader: Any = csv.DictReader(io.StringIO(csv_data))
