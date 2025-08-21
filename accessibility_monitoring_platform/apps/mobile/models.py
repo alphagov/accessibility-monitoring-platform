@@ -126,11 +126,8 @@ class MobileCaseHistory(models.Model):
 
     class EventType(models.TextChoices):
         NOTE = "note", "Entered note"
-        REMINDER = "reminder", "Reminder set"
         STATUS = "status", "Changed status"
-        CONTACT_NOTE = "contact_note", "Entered contact note"
         RECOMMENDATION = "recommendation", "Entered enforcement recommendation"
-        UNRESPONSIVE_NOTE = "unresponsive_note", "Entered unresponsive PSB note"
 
     mobile_case = models.ForeignKey(MobileCase, on_delete=models.PROTECT)
     event_type = models.CharField(

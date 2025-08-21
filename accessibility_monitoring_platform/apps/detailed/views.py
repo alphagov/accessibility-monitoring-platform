@@ -478,9 +478,6 @@ class CaseCloseUpdateView(DetailedCaseUpdateView):
 
     template_name: str = "detailed/forms/close_case.html"
     form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
-    note_type: DetailedCaseHistory.EventType = (
-        DetailedCaseHistory.EventType.RECOMMENDATION
-    )
 
 
 class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):
@@ -591,9 +588,6 @@ class UnresponsivePSBUpdateView(
 
     form_class: type[UnresponsivePSBUpdateForm] = UnresponsivePSBUpdateForm
     template_name: str = "detailed/forms/unresponsive_psb.html"
-    note_type: DetailedCaseHistory.EventType = (
-        DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE
-    )
 
 
 class DetailedCaseHistoryDetailView(DetailView):

@@ -263,16 +263,8 @@ class DetailedCase(BaseCase):
         )
 
     def notes_history(self) -> QuerySet["DetailedCaseHistory"]:
-        return self.detailedcasehistory_set.filter(event_type__icontains="notes")
-
-    def recommendation_history(self) -> QuerySet["DetailedCaseHistory"]:
         return self.detailedcasehistory_set.filter(
-            event_type=DetailedCaseHistory.EventType.RECOMMENDATION
-        )
-
-    def unresponsive_psb_notes_history(self) -> QuerySet["DetailedCaseHistory"]:
-        return self.detailedcasehistory_set.filter(
-            event_type=DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE
+            event_type=DetailedCaseHistory.EventType.NOTE
         )
 
     @property
@@ -350,10 +342,8 @@ class DetailedCaseHistory(models.Model):
 
     class EventType(models.TextChoices):
         NOTE = "note", "Entered note"
-        REMINDER = "reminder", "Reminder set"
         STATUS = "status", "Changed status"
         RECOMMENDATION = "recommendation", "Entered enforcement recommendation"
-        UNRESPONSIVE_NOTE = "unresponsive_note", "Entered unresponsive PSB note"
 
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     event_type = models.CharField(
@@ -375,10 +365,7 @@ class DetailedCaseHistory(models.Model):
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             self.detailed_case_status = self.detailed_case.status
-            if self.event_type in [
-                DetailedCaseHistory.EventType.NOTE,
-                DetailedCaseHistory.EventType.UNRESPONSIVE_NOTE,
-            ]:
+            if self.event_type == DetailedCaseHistory.EventType.NOTE:
                 self.id_within_case = self.detailed_case.notes_history().count() + 1
         super().save(*args, **kwargs)
 
