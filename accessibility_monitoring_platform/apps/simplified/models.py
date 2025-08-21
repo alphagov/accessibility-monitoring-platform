@@ -447,12 +447,6 @@ class SimplifiedCase(BaseCase):
         return "future"
 
     @property
-    def qa_comments(self):
-        return self.comment_simplifiedcase.filter(hidden=False).order_by(
-            "-created_date"
-        )
-
-    @property
     def qa_comments_count(self):
         return self.qa_comments.count()
 
@@ -718,7 +712,7 @@ class SimplifiedCase(BaseCase):
             for check_result in self.audit.checkresult_audit.all():
                 updated_times.append(check_result.updated)
 
-        for comment in self.comment_simplifiedcase.all():
+        for comment in self.comment_basecase.all():
             updated_times.append(comment.created_date)
             updated_times.append(comment.updated)
 

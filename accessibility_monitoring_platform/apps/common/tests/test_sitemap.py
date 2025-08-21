@@ -426,12 +426,8 @@ def test_case_comments_platform_page():
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
-    Comment.objects.create(
-        simplified_case=simplified_case, user=user, body="Comment One"
-    )
-    Comment.objects.create(
-        simplified_case=simplified_case, user=user, body="Comment Two"
-    )
+    Comment.objects.create(base_case=simplified_case, user=user, body="Comment One")
+    Comment.objects.create(base_case=simplified_case, user=user, body="Comment Two")
 
     case_comments_platform_page.populate_from_case(case=simplified_case)
 
@@ -947,7 +943,7 @@ def test_page_name(url, expected_page_name, admin_client):
     Task.objects.create(base_case=simplified_case, date=FIRST_SEPTEMBER_2024, user=user)
     EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
     ZendeskTicket.objects.create(simplified_case=simplified_case)
-    Comment.objects.create(simplified_case=simplified_case, user=user)
+    Comment.objects.create(base_case=simplified_case, user=user)
     Export.objects.create(cutoff_date=FIRST_SEPTEMBER_2024, exporter=user)
 
     response: HttpResponse = admin_client.get(url)

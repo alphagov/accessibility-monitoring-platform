@@ -372,7 +372,7 @@ class CaseQACommentsUpdateView(CaseUpdateView):
         body: str = form.cleaned_data.get("body")
         if body:
             comment: Comment = Comment.objects.create(
-                simplified_case=simplified_case,
+                base_case=simplified_case,
                 user=self.request.user,
                 body=form.cleaned_data.get("body"),
             )

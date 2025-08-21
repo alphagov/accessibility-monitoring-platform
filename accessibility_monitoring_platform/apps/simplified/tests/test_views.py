@@ -1345,7 +1345,7 @@ def test_qa_comments_creates_comment(admin_client, admin_user):
     )
     assert response.status_code == 302
 
-    comment: Comment = Comment.objects.get(simplified_case=simplified_case)
+    comment: Comment = Comment.objects.get(base_case=simplified_case)
 
     assert comment.body == QA_COMMENT_BODY
     assert comment.user == admin_user
@@ -1372,7 +1372,7 @@ def test_qa_comments_does_not_create_comment(admin_client, admin_user):
     )
     assert response.status_code == 302
 
-    assert Comment.objects.filter(simplified_case=simplified_case).count() == 0
+    assert Comment.objects.filter(base_case=simplified_case).count() == 0
 
 
 @pytest.mark.django_db

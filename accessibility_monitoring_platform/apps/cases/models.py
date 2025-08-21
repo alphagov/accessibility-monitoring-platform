@@ -382,3 +382,7 @@ class BaseCase(VersionModel):
     @property
     def reminder_history(self):
         return self.task_set.filter(type="reminder", read=True)
+
+    @property
+    def qa_comments(self):
+        return self.comment_basecase.filter(hidden=False).order_by("-created_date")

@@ -479,9 +479,9 @@ def test_qa_comments():
     Test the QA comments are returned in most recently created order
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(simplified_case=simplified_case, hidden=True)
-    comment1: Comment = Comment.objects.create(simplified_case=simplified_case)
-    comment2: Comment = Comment.objects.create(simplified_case=simplified_case)
+    Comment.objects.create(base_case=simplified_case, hidden=True)
+    comment1: Comment = Comment.objects.create(base_case=simplified_case)
+    comment2: Comment = Comment.objects.create(base_case=simplified_case)
 
     comments: list[Contact] = simplified_case.qa_comments
 
@@ -494,9 +494,9 @@ def test_qa_comments():
 def test_qa_comments_count():
     """Test the QA comments count"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(simplified_case=simplified_case, hidden=True)
-    Comment.objects.create(simplified_case=simplified_case)
-    Comment.objects.create(simplified_case=simplified_case)
+    Comment.objects.create(base_case=simplified_case, hidden=True)
+    Comment.objects.create(base_case=simplified_case)
+    Comment.objects.create(base_case=simplified_case)
 
     assert simplified_case.qa_comments_count == 2
 
@@ -613,7 +613,7 @@ def test_case_last_edited_from_comment(last_edited_case: SimplifiedCase):
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_CREATED)
     ):
-        comment: Comment = Comment.objects.create(simplified_case=last_edited_case)
+        comment: Comment = Comment.objects.create(base_case=last_edited_case)
 
     assert last_edited_case.last_edited == DATETIME_COMMENT_CREATED
 

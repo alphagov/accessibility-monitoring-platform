@@ -42,6 +42,7 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     ZendeskTicketConfirmDeleteUpdateView,
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
+    mark_qa_comments_as_read,
 )
 
 app_name: str = "detailed"
@@ -120,6 +121,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-qa-comments/",
         login_required(QACommentsUpdateView.as_view()),
         name="edit-qa-comments",
+    ),
+    path(
+        "<int:pk>/mark-qa-comments-as-read/",
+        login_required(mark_qa_comments_as_read),
+        name="mark-qa-comments-as-read",
     ),
     path(
         "<int:pk>/edit-qa-approval/",

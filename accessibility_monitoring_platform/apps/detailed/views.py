@@ -8,20 +8,24 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.http import HttpRequest, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import BaseCase
 from ..cases.utils import find_duplicate_cases
+from ..comments.models import Comment
+from ..comments.utils import add_comment_notification
 from ..common.utils import extract_domain_from_url
 from ..common.views import (
     HideCaseNavigationMixin,
     NextPlatformPageMixin,
     ShowGoBackJSWidgetMixin,
 )
+from ..notifications.models import Task
+from ..notifications.utils import mark_tasks_as_read
 from .forms import (
     CaseCloseUpdateForm,
     ContactCreateForm,
@@ -403,6 +407,25 @@ class QACommentsUpdateView(DetailedCaseUpdateView):
     """View to add or update QA comments"""
 
     form_class: type[QACommentsUpdateForm] = QACommentsUpdateForm
+    template_name: str = "detailed/forms/qa_comments.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        detailed_case: DetailedCase = self.object
+        body: str = form.cleaned_data.get("body")
+        if body:
+            comment: Comment = Comment.objects.create(
+                base_case=detailed_case,
+                user=self.request.user,
+                body=form.cleaned_data.get("body"),
+            )
+            record_detailed_model_create_event(
+                user=self.request.user,
+                model_object=comment,
+                detailed_case=detailed_case,
+            )
+            add_comment_notification(self.request, comment)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class QAApprovalUpdateView(DetailedCaseUpdateView):
@@ -623,3 +646,18 @@ class DetailedCaseHistoryDetailView(DetailView):
         context["event_history"] = event_history
         context["all_users"] = User.objects.all().order_by("id")
         return context
+
+
+def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedirect:
+    """Mark QA comment reminders as read for the current user"""
+    detailed_case: DetailedCase = DetailedCase.objects.get(id=pk)
+    mark_tasks_as_read(
+        user=request.user, base_case=detailed_case, type=Task.Type.QA_COMMENT
+    )
+    mark_tasks_as_read(
+        user=request.user, base_case=detailed_case, type=Task.Type.REPORT_APPROVED
+    )
+    messages.success(request, f"{detailed_case} comments marked as read")
+    return redirect(
+        reverse("detailed:edit-qa-comments", kwargs={"pk": detailed_case.id})
+    )

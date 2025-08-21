@@ -2,13 +2,19 @@
 Tests for cases views
 """
 
+from datetime import date
+
 import pytest
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
+from ...comments.models import Comment
+from ...notifications.models import Task
 from ..models import DetailedCase, DetailedEventHistory, ZendeskTicket
+from ..views import mark_qa_comments_as_read
 
 CASE_FOLDER_URL: str = "https://drive.google.com/drive/folders/xxxxxxx"
 CASE_FOLDER_LINK: str = f"""
@@ -21,6 +27,17 @@ CASE_FOLDER_URL_FIELD_LINK: str = """
         Enter case folder URL</a>"""
 ZENDESK_SUMMARY: str = "Zendesk ticket summary"
 ZENDESK_URL: str = "https://zendesk.com/tickets/1"
+TODAY: date = date.today()
+QA_COMMENT_BODY: str = "QA comment body"
+ORGANISATION_NAME: str = "Organisation name"
+
+
+class MockMessages:
+    def __init__(self):
+        self.messages = []
+
+    def add(self, level: str, message: str, extra_tags: str) -> None:
+        self.messages.append((level, message, extra_tags))
 
 
 @pytest.mark.parametrize(
@@ -205,4 +222,107 @@ def test_unresponsive_psb_save_message(admin_client):
         response,
         """<div class="govuk-inset-text">Page saved</div>""",
         html=True,
+    )
+
+
+def test_qa_comments_creates_comment(admin_client, admin_user):
+    """Test adding a comment using QA comments page"""
+    Group.objects.create(name="QA auditor")
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("detailed:edit-qa-comments", kwargs={"pk": detailed_case.id}),
+        {
+            "save": "Button value",
+            "version": detailed_case.version,
+            "body": QA_COMMENT_BODY,
+        },
+    )
+    assert response.status_code == 302
+
+    comment: Comment = Comment.objects.get(base_case=detailed_case)
+
+    assert comment.body == QA_COMMENT_BODY
+    assert comment.user == admin_user
+
+    content_type: ContentType = ContentType.objects.get_for_model(Comment)
+    event_history: DetailedEventHistory = DetailedEventHistory.objects.get(
+        content_type=content_type, object_id=comment.id
+    )
+
+    assert event_history.event_type == DetailedEventHistory.Type.CREATE
+
+
+def test_qa_comments_does_not_create_comment(admin_client, admin_user):
+    """Test QA comments page does not create a blank comment"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("detailed:edit-qa-comments", kwargs={"pk": detailed_case.id}),
+        {
+            "save": "Button value",
+            "version": detailed_case.version,
+            "body": "",
+        },
+    )
+    assert response.status_code == 302
+
+    assert Comment.objects.filter(base_case=detailed_case).count() == 0
+
+
+@pytest.mark.django_db
+def test_mark_qa_comments_as_read(rf):
+    """Test marking QA comments as read"""
+    other_user: User = User.objects.create()
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        organisation_name=ORGANISATION_NAME, auditor=other_user
+    )
+    other_user_qa_comment_reminder: Task = Task.objects.create(
+        base_case=detailed_case,
+        user=other_user,
+        type=Task.Type.QA_COMMENT,
+        date=TODAY,
+    )
+    other_user_report_approved_reminder: Task = Task.objects.create(
+        base_case=detailed_case,
+        user=other_user,
+        type=Task.Type.REPORT_APPROVED,
+        date=TODAY,
+    )
+
+    request_user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    request = rf.get(
+        reverse("detailed:mark-qa-comments-as-read", kwargs={"pk": detailed_case.id}),
+    )
+    request.user = request_user
+    request._messages = MockMessages()
+
+    qa_comment_reminder: Task = Task.objects.create(
+        base_case=detailed_case,
+        user=request_user,
+        type=Task.Type.QA_COMMENT,
+        date=TODAY,
+    )
+    report_approved_reminder: Task = Task.objects.create(
+        base_case=detailed_case,
+        user=request_user,
+        type=Task.Type.REPORT_APPROVED,
+        date=TODAY,
+    )
+
+    response: HttpResponse = mark_qa_comments_as_read(request, pk=detailed_case.id)
+
+    assert response.status_code == 302
+
+    assert Task.objects.get(id=other_user_qa_comment_reminder.id).read is False
+    assert Task.objects.get(id=other_user_report_approved_reminder.id).read is False
+
+    assert Task.objects.get(id=qa_comment_reminder.id).read is True
+    assert Task.objects.get(id=report_approved_reminder.id).read is True
+
+    assert len(request._messages.messages) == 1
+    assert (
+        request._messages.messages[0][1] == f"{detailed_case} comments marked as read"
     )
