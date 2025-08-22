@@ -105,9 +105,6 @@ class UserUpdateForm(forms.ModelForm):
     )
     first_name = AMPCharFieldWide(required=True, max_length=150)
     last_name = AMPCharFieldWide(required=True, max_length=150)
-    password = AMPPasswordField(
-        help_text="Enter your password to confirm the update",
-    )
 
     class Meta:
         model = User
@@ -116,16 +113,8 @@ class UserUpdateForm(forms.ModelForm):
             "enable_2fa",
             "first_name",
             "last_name",
-            "password",
         ]
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
-
-    def clean_password(self):
-        cleaned_data: Any = super().clean()
-        password: Any = cleaned_data.get("password")
-        if self.user.check_password(password) is False:
-            raise forms.ValidationError("Password is incorrect")
-        return password

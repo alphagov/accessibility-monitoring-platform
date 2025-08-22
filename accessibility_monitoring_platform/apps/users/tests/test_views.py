@@ -214,26 +214,6 @@ def test_edit_user_post_saves_correctly(client):
 
 
 @pytest.mark.django_db
-def test_edit_user_post_errors_appear(client):
-    """Tests if error message appears if there is a mistake in the form"""
-    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
-    user: User = create_user()
-    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
-
-    data: UserUpdateFormData = VALID_USER_UPDATE_FORM_DATA.copy()
-    data["password"] = INVALID_PASSWORD
-
-    response: HttpResponse = client.post(
-        reverse("users:edit-user", kwargs={"pk": user.id}),
-        data=data,
-        follow=True,
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Password is incorrect")
-
-
-@pytest.mark.django_db
 def test_2fa_not_enabled_on_user_creation(client):
     """Tests to see if 2FA EmailDevice not created when user is registered"""
     AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
