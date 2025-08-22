@@ -2,10 +2,8 @@
 Utilities for audits app
 """
 
-import csv
-import io
 from collections import namedtuple
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from typing import Any, TypeVar
 
 from django.contrib.auth.models import User

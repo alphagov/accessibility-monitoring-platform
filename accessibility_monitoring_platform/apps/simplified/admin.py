@@ -147,8 +147,8 @@ class ZendeskTicketAdmin(admin.ModelAdmin):
     search_fields = [
         "url",
         "summary",
-        "case__organisation_name",
-        "case__case_number",
+        "simplified_case__organisation_name",
+        "simplified_case__case_number",
     ]
     list_display = ["url", "summary", "simplified_case", "created", "is_deleted"]
     list_filter = ["is_deleted"]

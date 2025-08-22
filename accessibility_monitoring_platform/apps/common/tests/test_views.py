@@ -23,6 +23,7 @@ from ...audits.models import (
     StatementPage,
     WcagDefinition,
 )
+from ...detailed.models import DetailedCase
 from ...notifications.models import Task
 from ...reports.models import Report, ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
@@ -1100,6 +1101,56 @@ def test_report_viewed_yearly_metric(mock_timezone, admin_client):
     )
 
 
+def test_simplified_case_nav(admin_client):
+    """Test simplified case nav rendered correctly"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<h2 class="govuk-heading-s amp-margin-bottom-10">Case tools</h2>',
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<li>
+            <a href="/simplified/{simplified_case.id}/zendesk-tickets/"
+            rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+            PSB Zendesk tickets</a>
+        </li>""",
+        html=True,
+    )
+
+
+def test_detailed_case_nav(admin_client):
+    """Test detailed case nav rendered correctly"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("detailed:case-detail", kwargs={"pk": detailed_case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<h2 class="govuk-heading-s amp-margin-bottom-10">Case tools</h2>',
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<li>
+            <a href="/detailed/{detailed_case.id}/zendesk-tickets/"
+            rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+            PSB Zendesk tickets</a>
+        </li>""",
+        html=True,
+    )
+
+
 @pytest.mark.django_db
 def test_frequently_used_link_shown(admin_client):
     """Test custom frequently used link is displayed"""
@@ -1113,6 +1164,23 @@ def test_frequently_used_link_shown(admin_client):
     assert response.status_code == 200
     assertContains(response, LINK_LABEL)
     assertContains(response, LINK_URL)
+
+
+@pytest.mark.django_db
+def test_frequently_used_link_not_shown(admin_client):
+    """Test custom frequently used link is not displayed when of a different case_type"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    FrequentlyUsedLink.objects.create(
+        label=LINK_LABEL, url=LINK_URL, case_type=FrequentlyUsedLink.CaseType.DETAILED
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
+    )
+
+    assert response.status_code == 200
+    assertNotContains(response, LINK_LABEL)
+    assertNotContains(response, LINK_URL)
 
 
 def test_add_frequently_used_link_form_appears(admin_client):
@@ -1418,4 +1486,4 @@ def test_reference_implementations_page(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Reference implementations")
+    assertContains(response, "Reference implementation")

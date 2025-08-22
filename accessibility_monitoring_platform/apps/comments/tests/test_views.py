@@ -33,9 +33,7 @@ def test_edit_qa_comment_redirects_based_on_button_pressed(
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
-    comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case, user=user
-    )
+    comment: Comment = Comment.objects.create(base_case=simplified_case, user=user)
 
     response: HttpResponse = admin_client.post(
         reverse(comment_edit_path, kwargs={"pk": comment.id}),
@@ -64,7 +62,7 @@ def test_qa_comment_removal(admin_client, admin_user):
     """Test removing QA comment by hiding it"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case, user=admin_user
+        base_case=simplified_case, user=admin_user
     )
 
     response: HttpResponse = admin_client.post(
@@ -75,7 +73,7 @@ def test_qa_comment_removal(admin_client, admin_user):
     )
     assert response.status_code == 302
 
-    comment: Comment = Comment.objects.get(simplified_case=simplified_case)
+    comment: Comment = Comment.objects.get(base_case=simplified_case)
 
     assert comment.hidden is True
 
@@ -84,9 +82,7 @@ def test_qa_comment_removal_not_allowed(admin_client):
     """Test other users cannot hide QA comment"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
-    comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case, user=user
-    )
+    comment: Comment = Comment.objects.create(base_case=simplified_case, user=user)
 
     response: HttpResponse = admin_client.post(
         reverse("comments:edit-qa-comment", kwargs={"pk": simplified_case.id}),
@@ -96,7 +92,7 @@ def test_qa_comment_removal_not_allowed(admin_client):
     )
     assert response.status_code == 302
 
-    comment: Comment = Comment.objects.get(simplified_case=simplified_case)
+    comment: Comment = Comment.objects.get(base_case=simplified_case)
 
     assert comment.hidden is False
 
@@ -106,7 +102,7 @@ def test_edit_qa_comment_appears_in_case_nav(admin_client, admin_user):
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     Report.objects.create(base_case=simplified_case)
     comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case, user=admin_user
+        base_case=simplified_case, user=admin_user
     )
 
     response: HttpResponse = admin_client.get(
