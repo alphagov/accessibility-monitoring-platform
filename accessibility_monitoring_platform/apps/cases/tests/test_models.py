@@ -51,14 +51,14 @@ def test_case_status_choice_all_choices_label():
 
 def test_all_case_statuses():
     """Check how many status choices there are"""
-    assert len(ALL_CASE_STATUS_CHOICES) == 23
+    assert len(ALL_CASE_STATUS_CHOICES) == 24
 
 
 @pytest.mark.parametrize(
     "test_type, expected_number_of_choices, expected_attr",
     [
         (BaseCase.TestType.SIMPLIFIED, 17, "QA_IN_PROGRESS"),
-        (BaseCase.TestType.DETAILED, 18, "PSB_INFO_REQ"),
+        (BaseCase.TestType.DETAILED, 19, "PSB_INFO_REQ"),
         (BaseCase.TestType.MOBILE, 16, "UNASSIGNED"),
     ],
 )
@@ -133,6 +133,7 @@ def test_detailed_case_statuses():
             "Case closed and sent to equalities body",
         ),
         ("200-complete", "Complete"),
+        ("210-blocked", "Blocked"),
     ]
 
 
