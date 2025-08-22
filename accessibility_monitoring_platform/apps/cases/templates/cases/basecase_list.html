@@ -61,6 +61,7 @@
                             </div>
                         </form>
                         <hr class="amp-width-100 amp-margin-bottom-25" />
+                        <h2 id="id_header_3" class="govuk-heading-m">Simplified</h2>
                         <ul class="govuk-list">
                             <li>
                                 <a
@@ -68,14 +69,6 @@
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
                                     Create simplified case
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="{% url 'detailed:case-create' %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Create detailed case
                                 </a>
                             </li>
                             <li>
@@ -108,6 +101,17 @@
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
                                     ECNI CSV export manager
+                                </a>
+                            </li>
+                        </ul>
+                        <h2 id="id_header_3" class="govuk-heading-m">Detailed</h2>
+                        <ul class="govuk-list">
+                            <li>
+                                <a
+                                    href="{% url 'detailed:case-create' %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Create detailed case
                                 </a>
                             </li>
                         </ul>
