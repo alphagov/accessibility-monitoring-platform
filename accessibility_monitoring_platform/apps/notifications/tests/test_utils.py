@@ -115,7 +115,7 @@ def test_add_task_creates_task_and_sends_email(type, mailoutbox, rf):
         base_case=base_case,
         type=type,
         description="this is a notification",
-        list_description="There is a notification",
+        email_description="There is a notification",
         request=request,
     )
 
@@ -149,7 +149,7 @@ def test_add_task_creates_task_and_sends_no_email(mailoutbox, rf):
         base_case=base_case,
         type=type,
         description="this is a notification",
-        list_description="There is a notification",
+        email_description="There is a notification",
         request=request,
     )
 
@@ -181,7 +181,7 @@ def test_add_task_creates_new_email_notification_model_when_null(mailoutbox, rf)
         base_case=base_case,
         type=type,
         description="this is a notification",
-        list_description="There is a notification",
+        email_description="There is a notification",
         request=request,
     )
 

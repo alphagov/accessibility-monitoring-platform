@@ -227,8 +227,12 @@ def test_unresponsive_psb_save_message(admin_client):
 
 def test_qa_comments_creates_comment(admin_client, admin_user):
     """Test adding a comment using QA comments page"""
-    Group.objects.create(name="QA auditor")
-    detailed_case: DetailedCase = DetailedCase.objects.create()
+    qa_auditor_group: Group = Group.objects.create(name="QA auditor")
+    qa_auditor: User = User.objects.create()
+    qa_auditor_group.user_set.add(qa_auditor)
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
 
     response: HttpResponse = admin_client.post(
         reverse("detailed:edit-qa-comments", kwargs={"pk": detailed_case.id}),
@@ -251,6 +255,13 @@ def test_qa_comments_creates_comment(admin_client, admin_user):
     )
 
     assert event_history.event_type == DetailedEventHistory.Type.CREATE
+
+    reminder: Task = Task.objects.get(base_case=detailed_case, user=qa_auditor)
+
+    assert reminder.type == Task.Type.QA_COMMENT
+    assert (
+        reminder.description == f"  left a message in discussion:\n\n{QA_COMMENT_BODY}"
+    )
 
 
 def test_qa_comments_does_not_create_comment(admin_client, admin_user):

@@ -36,7 +36,7 @@ TASK_LIST_READ_TIMEDELTA: timedelta = timedelta(days=7)
 
 class EmailContextType(TypedDict):
     user: User
-    list_description: str
+    email_description: str
     body: str
     path: str
     request: HttpRequest
@@ -47,7 +47,7 @@ def add_task(
     base_case: BaseCase,
     type: Task.Type,
     description: str,
-    list_description: str,
+    email_description: str,
     request: HttpRequest,
 ) -> Task:
     """Adds notification to database. Also handles email notifications."""
@@ -75,7 +75,7 @@ def add_task(
     if email_settings.email_notifications_enabled:
         context: EmailContextType = {
             "user": user,
-            "list_description": list_description,
+            "email_description": email_description,
             "body": description,
             "path": path,
             "request": request,
@@ -83,7 +83,7 @@ def add_task(
         template: str = get_template("notifications/notification_email.txt")
         content: str = template.render(context)  # type: ignore
         email: EmailMessage = EmailMessage(
-            subject=f"You have a new notification in the monitoring platform : {list_description}",
+            subject=f"You have a new notification in the monitoring platform : {email_description}",
             body=content,
             from_email="accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk",
             to=[user.email],

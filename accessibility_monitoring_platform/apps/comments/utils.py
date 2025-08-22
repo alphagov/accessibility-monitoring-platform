@@ -58,7 +58,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     organisation_name: str = (
         comment.base_case.organisation_name if comment.base_case is not None else ""
     )
-    list_description: str = f"{organisation_name} | COMMENT"
+    email_description: str = f"{organisation_name} | COMMENT"
 
     for target_user_id in user_ids:
         target_user = User.objects.get(id=target_user_id)
@@ -67,7 +67,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
             base_case=comment.base_case,
             type=Task.Type.QA_COMMENT,
             description=description,
-            list_description=list_description,
+            email_description=email_description,
             request=request,
         )
         if comment.base_case.test_type == BaseCase.TestType.SIMPLIFIED:

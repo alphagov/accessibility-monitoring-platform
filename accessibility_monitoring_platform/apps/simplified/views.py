@@ -407,7 +407,7 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
                         base_case=simplified_case,
                         type=Task.Type.REPORT_APPROVED,
                         description=f"{self.request.user.get_full_name()} QA approved Case {simplified_case}",
-                        list_description=f"{simplified_case} - Report approved",
+                        email_description=f"{simplified_case} - Report approved",
                         request=self.request,
                     )
                     record_simplified_model_create_event(

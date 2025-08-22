@@ -2,7 +2,7 @@ Hello {{ user.first_name }} {{ user.last_name }}
 
 You have a new notification in the Accessibility Monitoring Platform
 
-{{ list_description }}
+{{ email_description }}
 
 See https://{{ request.get_host }}{{path}}
 
