@@ -192,6 +192,12 @@ CASE_STATUSES: list[CaseStatusChoice] = [
         test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
+        name="BLOCKED",
+        value="210-blocked",
+        label="Blocked",
+        test_types=[TestType.DETAILED],
+    ),
+    CaseStatusChoice(
         name="DEACTIVATED",
         value="900-deactivated",
         label="Deactivated",
