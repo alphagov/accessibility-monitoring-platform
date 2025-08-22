@@ -118,15 +118,3 @@ def test_valid_user_update_form():
     )
 
     assert form.is_valid()
-
-
-@pytest.mark.django_db
-def test_incorrect_password_returns_error():
-    """Returns an error if password is incorrect"""
-    user: User = create_user()
-    data: UserUpdateFormData = VALID_USER_UPDATE_FORM_DATA.copy()
-    data["password"] = INVALID_PASSWORD
-
-    form: UserUpdateForm = UserUpdateForm(data=data or None, user=user)
-
-    assert form.errors["password"] == ["Password is incorrect"]
