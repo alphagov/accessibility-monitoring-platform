@@ -208,13 +208,13 @@ def create_detailed_case_from_dict(
         retest_statement_compliance_state=MAP_STATEMENT_COMPLIANCE[
             row["Accessibility Statement Decision"].lower()
         ],
-        retest_statement_backup_url=validate_url(
-            row["Link to new copy of accessibility statement if not compliant"]
-        ),
+        # retest_statement_backup_url=validate_url(
+        #     row["Link to new copy of accessibility statement if not compliant"]
+        # ),
         recommendation_for_enforcement=MAP_ENFORCEMENT_RECOMMENDATION[
             row["Enforcement Recommendation"]
         ],
-        retest_date=get_datetime_from_string(row["Retest date"]),
+        retest_start_date=get_datetime_from_string(row["Retest date"]),
         recommendation_decision_sent_date=get_datetime_from_string(
             row["Date decision email sent"]
         ),
