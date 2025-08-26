@@ -47,11 +47,8 @@ from .forms import (
     ReportAcknowledgedUpdateForm,
     ReportReadyForQAUpdateForm,
     ReportSentUpdateForm,
-    RetestDisproportionateBurdenUpdateForm,
+    RetestingUpdateForm,
     RetestResultUpdateForm,
-    RetestStatementComplianceUpdateForm,
-    RetestSummaryUpdateForm,
-    RetestWebsiteComplianceUpdateForm,
     TwelveWeekAcknowledgedUpdateForm,
     TwelveWeekDeadlineUpdateForm,
     TwelveWeekRequestUpdateForm,
@@ -472,42 +469,17 @@ class CorrespondenceTwelveWeekAcknowledgedUpdateView(CorrespondenceUpdateView):
     )
 
 
+class RetestingUpdateView(DetailedCaseUpdateView):
+    """View to update reviewing changes retesting"""
+
+    form_class: type[RetestingUpdateForm] = RetestingUpdateForm
+    template_name: str = "detailed/forms/retesting.html"
+
+
 class RetestResultUpdateView(DetailedCaseUpdateView):
     """View to update reviewing changes retest result"""
 
     form_class: type[RetestResultUpdateForm] = RetestResultUpdateForm
-    template_name: str = "detailed/forms/retest_result.html"
-
-
-class RetestSummaryUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes summary of changes"""
-
-    form_class: type[RetestSummaryUpdateForm] = RetestSummaryUpdateForm
-    template_name: str = "detailed/forms/retest_summary.html"
-
-
-class RetestWebsiteComplianceUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes website compliance"""
-
-    form_class: type[RetestWebsiteComplianceUpdateForm] = (
-        RetestWebsiteComplianceUpdateForm
-    )
-
-
-class RetestDisproportionateBurdenUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes disproportionate burden"""
-
-    form_class: type[RetestDisproportionateBurdenUpdateForm] = (
-        RetestDisproportionateBurdenUpdateForm
-    )
-
-
-class RetestStatementComplianceUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes statement compliance"""
-
-    form_class: type[RetestStatementComplianceUpdateForm] = (
-        RetestStatementComplianceUpdateForm
-    )
 
 
 class CaseCloseUpdateView(DetailedCaseUpdateView):

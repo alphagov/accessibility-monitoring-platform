@@ -33,11 +33,8 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     QAAuditorUpdateView,
     QACommentsUpdateView,
     ReportReadyForQAUpdateView,
-    RetestDisproportionateBurdenUpdateView,
+    RetestingUpdateView,
     RetestResultUpdateView,
-    RetestStatementComplianceUpdateView,
-    RetestSummaryUpdateView,
-    RetestWebsiteComplianceUpdateView,
     UnresponsivePSBUpdateView,
     ZendeskTicketConfirmDeleteUpdateView,
     ZendeskTicketCreateView,
@@ -163,29 +160,14 @@ urlpatterns: list[URLPattern] = [
         name="edit-12-week-acknowledged",
     ),
     path(
+        "<int:pk>/edit-retesting/",
+        login_required(RetestingUpdateView.as_view()),
+        name="edit-retesting",
+    ),
+    path(
         "<int:pk>/edit-retest-result/",
         login_required(RetestResultUpdateView.as_view()),
         name="edit-retest-result",
-    ),
-    path(
-        "<int:pk>/edit-retest-summary/",
-        login_required(RetestSummaryUpdateView.as_view()),
-        name="edit-retest-summary",
-    ),
-    path(
-        "<int:pk>/edit-retest-website-compliance/",
-        login_required(RetestWebsiteComplianceUpdateView.as_view()),
-        name="edit-retest-website-compliance",
-    ),
-    path(
-        "<int:pk>/edit-retest-disproportionate-burden/",
-        login_required(RetestDisproportionateBurdenUpdateView.as_view()),
-        name="edit-retest-disproportionate-burden",
-    ),
-    path(
-        "<int:pk>/edit-retest-statement-compliance/",
-        login_required(RetestStatementComplianceUpdateView.as_view()),
-        name="edit-retest-statement-compliance",
     ),
     path(
         "<int:pk>/edit-case-close/",

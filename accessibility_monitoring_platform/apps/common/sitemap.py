@@ -1743,7 +1743,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 name="12-week acknowledged",
                 url_name="detailed:edit-12-week-acknowledged",
                 complete_flag_name="twelve_week_acknowledged_complete_date",
-                next_page_url_name="detailed:edit-retest-result",
+                next_page_url_name="detailed:edit-retesting",
             ),
         ],
     ),
@@ -1751,33 +1751,15 @@ SITE_MAP: list[PlatformPageGroup] = [
         name="Reviewing changes",
         pages=[
             DetailedCasePlatformPage(
+                name="Retesting",
+                url_name="detailed:edit-retesting",
+                complete_flag_name="retesting_complete_date",
+                next_page_url_name="detailed:edit-retest-result",
+            ),
+            DetailedCasePlatformPage(
                 name="Retest result",
                 url_name="detailed:edit-retest-result",
                 complete_flag_name="retest_result_complete_date",
-                next_page_url_name="detailed:edit-retest-summary",
-            ),
-            DetailedCasePlatformPage(
-                name="Summary of changes",
-                url_name="detailed:edit-retest-summary",
-                complete_flag_name="summary_of_changes_complete_date",
-                next_page_url_name="detailed:edit-retest-website-compliance",
-            ),
-            DetailedCasePlatformPage(
-                name="Website compliance",
-                url_name="detailed:edit-retest-website-compliance",
-                complete_flag_name="retest_website_compliance_complete_date",
-                next_page_url_name="detailed:edit-retest-disproportionate-burden",
-            ),
-            DetailedCasePlatformPage(
-                name="Disproportionate burden",
-                url_name="detailed:edit-retest-disproportionate-burden",
-                complete_flag_name="retest_disproportionate_burden_complete_date",
-                next_page_url_name="detailed:edit-retest-statement-compliance",
-            ),
-            DetailedCasePlatformPage(
-                name="Statement compliance",
-                url_name="detailed:edit-retest-statement-compliance",
-                complete_flag_name="retest_statement_compliance_complete_date",
                 next_page_url_name="detailed:edit-case-close",
             ),
         ],

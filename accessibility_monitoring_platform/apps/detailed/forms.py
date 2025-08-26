@@ -480,93 +480,62 @@ class TwelveWeekAcknowledgedUpdateForm(VersionForm):
         ]
 
 
-class RetestResultUpdateForm(VersionForm):
-    """Form for updating reviewing changes retest result page"""
+class RetestingUpdateForm(VersionForm):
+    """Form for updating reviewing changes retesting page"""
 
-    retest_date = AMPDateField(label="Retest date")
+    retest_start_date = AMPDateField(label="Retest date")
     retest_total_number_of_issues = AMPIntegerField(
         label="Total number of remaining issues"
     )
-    retest_end_date = AMPDateField(label="Retest end date")
+    retesting_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "retest_start_date",
+            "retest_total_number_of_issues",
+            "retesting_complete_date",
+        ]
+
+
+class RetestResultUpdateForm(VersionForm):
+    """Form for updating reviewing changes retest result page"""
+
+    retest_website_compliance_state = AMPChoiceRadioField(
+        label="Retest compliance decision",
+        choices=DetailedCase.WebsiteCompliance.choices,
+    )
+    retest_website_compliance_information = AMPTextField(
+        label="Retest website compliance decision information"
+    )
+    retest_statement_compliance_state = AMPChoiceRadioField(
+        label="Retest compliance decision",
+        choices=DetailedCase.StatementCompliance.choices,
+    )
+    retest_statement_compliance_information = AMPTextField(
+        label="Retest statement compliance decision information"
+    )
+    retest_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Retest disproportionate burden claim",
+        choices=DetailedCase.DisproportionateBurden.choices,
+    )
+    retest_disproportionate_burden_information = AMPTextField(
+        label="Retest disproportionate burden information"
+    )
     retest_result_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
         fields = [
             "version",
-            "retest_date",
-            "retest_total_number_of_issues",
-            "retest_end_date",
-            "retest_result_complete_date",
-        ]
-
-
-class RetestSummaryUpdateForm(VersionForm):
-    """Form for updating reviewing changes summary of changes page"""
-
-    summary_of_changes_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
-            "summary_of_changes_complete_date",
-        ]
-
-
-class RetestWebsiteComplianceUpdateForm(VersionForm):
-    """Form for updating reviewing changes website compliance page"""
-
-    retest_website_compliance_state = AMPChoiceRadioField(
-        label="Retest compliance decision",
-        choices=DetailedCase.WebsiteCompliance.choices,
-    )
-    retest_website_compliance_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
             "retest_website_compliance_state",
-            "retest_website_compliance_complete_date",
-        ]
-
-
-class RetestDisproportionateBurdenUpdateForm(VersionForm):
-    """Form for updating reviewing changes disproportionate burden page"""
-
-    retest_disproportionate_burden_claim = AMPChoiceRadioField(
-        label="Retest disproportionate burden claim",
-        choices=DetailedCase.DisproportionateBurden.choices,
-    )
-    retest_disproportionate_burden_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
-            "retest_disproportionate_burden_claim",
-            "retest_disproportionate_burden_complete_date",
-        ]
-
-
-class RetestStatementComplianceUpdateForm(VersionForm):
-    """Form for updating reviewing changes statement compliance page"""
-
-    retest_statement_backup_url = AMPURLField(label="Link to backup of statement")
-    retest_statement_compliance_state = AMPChoiceRadioField(
-        label="Retest compliance decision",
-        choices=DetailedCase.StatementCompliance.choices,
-    )
-    retest_statement_compliance_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = DetailedCase
-        fields = [
-            "version",
-            "retest_statement_backup_url",
+            "retest_website_compliance_information",
             "retest_statement_compliance_state",
-            "retest_statement_compliance_complete_date",
+            "retest_statement_compliance_information",
+            "retest_disproportionate_burden_claim",
+            "retest_disproportionate_burden_information",
+            "retest_result_complete_date",
         ]
 
 

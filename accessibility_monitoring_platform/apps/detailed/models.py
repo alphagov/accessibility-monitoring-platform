@@ -158,41 +158,33 @@ class DetailedCase(BaseCase):
     twelve_week_acknowledged_date = models.DateField(null=True, blank=True)
     twelve_week_acknowledged_complete_date = models.DateField(null=True, blank=True)
 
-    # Reviewing changes - Retest result
-    retest_date = models.DateField(null=True, blank=True)
+    # Reviewing changes - Retesting
+    retest_start_date = models.DateField(null=True, blank=True)
     retest_total_number_of_issues = models.IntegerField(null=True, blank=True)
-    retest_end_date = models.DateField(null=True, blank=True)
-    retest_result_complete_date = models.DateField(null=True, blank=True)
+    retesting_complete_date = models.DateField(null=True, blank=True)
 
-    # Reviewing changes - Summary of changes
-    summary_of_changes_complete_date = models.DateField(null=True, blank=True)
-
-    # Reviewing changes - Website compliance decision
+    # Reviewing changes - Retest result
     retest_website_compliance_state = models.CharField(
         max_length=20,
         choices=WebsiteCompliance.choices,
         default=WebsiteCompliance.UNKNOWN,
     )
-    retest_website_compliance_complete_date = models.DateField(null=True, blank=True)
-
-    # Reviewing changes - Disproportionate burden
-    retest_disproportionate_burden_claim = models.CharField(
-        max_length=20,
-        choices=DisproportionateBurden.choices,
-        default=DisproportionateBurden.NOT_CHECKED,
-    )
-    retest_disproportionate_burden_complete_date = models.DateField(
-        null=True, blank=True
-    )
-
-    # Reviewing changes - Statement compliance
-    retest_statement_backup_url = models.TextField(default="", blank=True)
+    retest_website_compliance_information = models.TextField(default="", blank=True)
     retest_statement_compliance_state = models.CharField(
         max_length=200,
         choices=StatementCompliance.choices,
         default=StatementCompliance.UNKNOWN,
     )
-    retest_statement_compliance_complete_date = models.DateField(null=True, blank=True)
+    retest_statement_compliance_information = models.TextField(default="", blank=True)
+    retest_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    retest_disproportionate_burden_information = models.TextField(
+        default="", blank=True
+    )
+    retest_result_complete_date = models.DateField(null=True, blank=True)
 
     # Closing the case - Closing the case
     recommendation_decision_sent_date = models.DateField(null=True, blank=True)
