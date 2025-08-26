@@ -687,7 +687,9 @@ class UnresponsivePSBUpdateForm(VersionForm):
             attrs={"label": "Mark the PSB as unresponsive to this case"}
         ),
     )
-    no_psb_contact_info = AMPTextField(label="Public sector body is unresponsive notes")
+    no_psb_contact_info = AMPTextField(
+        label="Public sector body is unresponsive information"
+    )
 
     class Meta:
         model = DetailedCase
