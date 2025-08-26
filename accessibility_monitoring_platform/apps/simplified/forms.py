@@ -977,7 +977,7 @@ class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
     """
 
     is_deleted = forms.BooleanField(
-        label="Conform you want to remove Zendest ticket",
+        label="Confirm you want to remove Zendest ticket",
         required=False,
         widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove ticket"}),
     )
