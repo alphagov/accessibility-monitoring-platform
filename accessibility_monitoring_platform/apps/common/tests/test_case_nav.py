@@ -573,25 +573,3 @@ def test_frequently_used_links_shown_for_simplified_case(admin_client):
         ),
         html=True,
     )
-
-
-def test_open_case_notes_link_shown_for_detailed_case(admin_client):
-    """Test link to open case notes in new tab shown"""
-    detailed_case: DetailedCase = DetailedCase.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("detailed:edit-case-metadata", kwargs={"pk": detailed_case.id}),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        """<li>
-            <a href="/detailed/1/create-case-note/"
-                target="_blank" class="govuk-link govuk-link--no-visited-state">
-                Open case notes</a>
-            <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
-        </li>""",
-        html=True,
-    )

@@ -87,7 +87,11 @@
             &nbsp
         </div>
         <p>
-            {% if case.test_type == 'mobile' %}
+            {% if case.test_type == 'detailed' %}
+                <a href="{% url 'detailed:create-case-note' case.id %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                    Open case notes</a>
+                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+            {% elif case.test_type == 'mobile' %}
                 <span class="amp-todo">TODO link to mobile app?</span>
             {% else %}
                 <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">

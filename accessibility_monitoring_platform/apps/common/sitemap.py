@@ -1460,6 +1460,9 @@ SITE_MAP: list[PlatformPageGroup] = [
                     ),
                 ],
             ),
+            DetailedCasePlatformPage(
+                name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"
+            ),
         ],
     ),
     SimplifiedCasePlatformPageGroup(
@@ -1608,9 +1611,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 url_name="detailed:edit-case-note",
                 url_kwarg_key="pk",
                 instance_class=DetailedCaseHistory,
-            ),
-            DetailedCasePlatformPage(
-                name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"
             ),
         ],
     ),
