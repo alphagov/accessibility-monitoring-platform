@@ -555,6 +555,11 @@ class CaseCloseUpdateForm(VersionForm):
         label="Case completed",
         choices=DetailedCase.CaseCloseDecision,
     )
+    is_case_added_to_stats = AMPChoiceCheckboxField(
+        label="Case stats",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Case added to stats tab?"}),
+    )
     is_feedback_survey_sent = AMPChoiceCheckboxField(
         label="Feedback survey sent",
         choices=Boolean.choices,
@@ -573,6 +578,7 @@ class CaseCloseUpdateForm(VersionForm):
             "recommendation_decision_sent_date",
             "recommendation_decision_sent_to",
             "case_close_decision_state",
+            "is_case_added_to_stats",
             "is_feedback_survey_sent",
             "case_close_complete_date",
         ]
@@ -595,11 +601,6 @@ class EnforcementBodyMetadataUpdateForm(VersionForm):
     enforcement_body_completed_case_date = AMPDateField(
         label="Date equality body completed the case"
     )
-    is_case_added_to_stats = AMPChoiceCheckboxField(
-        label="Case stats",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(attrs={"label": "Case added to stats tab?"}),
-    )
     enforcement_body_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -611,7 +612,6 @@ class EnforcementBodyMetadataUpdateForm(VersionForm):
             "enforcement_body_case_owner",
             "enforcement_body_closed_case_state",
             "enforcement_body_completed_case_date",
-            "is_case_added_to_stats",
             "enforcement_body_metadata_complete_date",
         ]
 
