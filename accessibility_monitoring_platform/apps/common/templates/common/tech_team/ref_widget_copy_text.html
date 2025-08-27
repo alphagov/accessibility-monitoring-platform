@@ -1,0 +1,47 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h3 id="id_copy_text" class="govuk-heading-s">Copy text</h3>
+        <p class="govuk-body">
+            Copy text to input field.
+
+            Example <code class="amp-code">simplified/helpers/amp_email_field.html</code>.
+            Wrap elements containing searchable text with ones with <code class="amp-code">class="amp-searchable"</code>.
+            Example:
+        </p>
+    </div>
+</div>
+<div class="govuk-grid-row amp-margin-bottom-30">
+    <div class="govuk-grid-column-one-third">
+        <p class="govuk-body">
+            <span
+                tabIndex="0"
+                class="amp-control amp-copy-text"
+                sourceText="Text to copy"
+                targetId="id_copy_dest">
+                Copy 'Text to copy'</span>
+        </p>
+        <p class="govuk-body">
+            <span tabIndex="0" class="amp-control amp-copy-text" sourceText="" targetId="id_copy_dest">Clear</span>
+        </p>
+        <label class="govuk-label" for="id_copy_dest"><b>Copy text destination</b></label>
+        <input type="text" name="copy_text_destination" class="govuk-input" id="id_copy_dest">
+        <script src="/static/js/cases_copy_text.js"></script>
+    </div>
+    <div class="govuk-grid-column-two-thirds">
+        <code class="amp-code">
+&lt;p class="govuk-body">
+    &lt;span
+        tabIndex="0"
+        class="amp-control amp-copy-text"
+        sourceText="Text to copy"
+        targetId="id_copy_dest">
+        Copy 'Text to copy'&lt;/span>
+&lt;/p>
+&lt;p class="govuk-body">
+    &lt;span tabIndex="0" class="amp-control amp-copy-text" sourceText="" targetId="id_copy_dest">Clear&lt;/span>
+&lt;/p>
+&lt;label class="govuk-label" for="id_copy_dest">&lt;b>Copy text destination&lt;/b>&lt;/label>
+&lt;input type="text" name="copy_text_destination" class="govuk-input" id="id_copy_dest">
+&lt;script src="/static/js/cases_copy_text.js">&lt;/script></code>
+    </div>
+</div>
