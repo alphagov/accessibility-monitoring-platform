@@ -15,6 +15,7 @@ from .views import (
     FooterLinkFormsetTemplateView,
     FrequentlyUsedLinkFormsetTemplateView,
     ImportCSV,
+    ImportTrelloComments,
     IssueReportListView,
     IssueReportView,
     MarkdownCheatsheetTemplateView,
@@ -112,5 +113,10 @@ urlpatterns: list[URLPattern] = [
         "import-csv/",
         login_required(ImportCSV.as_view()),
         name="import-csv",
+    ),
+    path(
+        "import-trello-comments/",
+        login_required(ImportTrelloComments.as_view()),
+        name="import-trello-comments",
     ),
 ]

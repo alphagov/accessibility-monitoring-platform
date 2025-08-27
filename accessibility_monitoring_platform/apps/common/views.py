@@ -20,6 +20,7 @@ from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import BaseCase
+from ..cases.utils import import_trello_comments
 from ..common.sitemap import PlatformPage, Sitemap
 from ..detailed.models import DetailedCase
 from ..detailed.utils import import_detailed_cases_csv
@@ -41,6 +42,7 @@ from .forms import (
     FrequentlyUsedLinkFormset,
     FrequentlyUsedLinkOneExtraFormset,
     ImportCSVForm,
+    ImportTrelloCommentsForm,
     PlatformCheckingForm,
 )
 from .mark_deleted_util import mark_object_as_deleted
@@ -553,4 +555,22 @@ class ImportCSV(StaffRequiredMixin, FormView):
                 import_detailed_cases_csv(csv_data)
             elif form.cleaned_data["model"] == "mobile":
                 import_mobile_cases_csv(csv_data)
+        return self.render_to_response(self.get_context_data())
+
+
+class ImportTrelloComments(StaffRequiredMixin, FormView):
+    """Import Trello comments for Detailed and Mobile cases from CSV data"""
+
+    form_class = ImportTrelloCommentsForm
+    template_name: str = "common/import_trello_comments.html"
+    success_url: str = reverse_lazy("common:import-trello-comments")
+
+    def post(
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect:
+        context: dict[str, Any] = self.get_context_data()
+        form = context["form"]
+        if form.is_valid():
+            csv_data: str = form.cleaned_data["data"]
+            import_trello_comments(csv_data)
         return self.render_to_response(self.get_context_data())

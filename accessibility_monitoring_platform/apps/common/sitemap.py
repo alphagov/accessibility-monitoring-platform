@@ -1855,6 +1855,9 @@ SITE_MAP: list[PlatformPageGroup] = [
             PlatformPage(
                 name="Reset detailed or mobile case data", url_name="common:import-csv"
             ),
+            PlatformPage(
+                name="Import Trello comments", url_name="common:import-trello-comments"
+            ),
         ],
     ),
 ]
