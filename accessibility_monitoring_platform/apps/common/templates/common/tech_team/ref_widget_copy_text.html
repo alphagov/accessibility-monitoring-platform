@@ -3,9 +3,10 @@
         <h3 id="id_copy_text" class="govuk-heading-s">Copy text</h3>
         <p class="govuk-body">
             Copy text to input field.
-
-            Example <code class="amp-code">simplified/helpers/amp_email_field.html</code>.
-            Wrap elements containing searchable text with ones with <code class="amp-code">class="amp-searchable"</code>.
+            See it in a real form field in <code class="amp-code">simplified/helpers/amp_email_field.html</code>.
+        </p>
+        <p class="govuk-body">
+            Add span with text to copy as <code class="amp-code">sourceText</code> and id of destination as <code class="amp-code">targetId</code>.
             Example:
         </p>
     </div>
@@ -14,8 +15,7 @@
     <div class="govuk-grid-column-one-third">
         <p class="govuk-body">
             <span
-                tabIndex="0"
-                class="amp-control amp-copy-text"
+                tabIndex="0" class="amp-control amp-copy-text"
                 sourceText="Text to copy"
                 targetId="id_copy_dest">
                 Copy 'Text to copy'</span>
@@ -31,8 +31,7 @@
         <code class="amp-code">
 &lt;p class="govuk-body">
     &lt;span
-        tabIndex="0"
-        class="amp-control amp-copy-text"
+        tabIndex="0" class="amp-control amp-copy-text"
         sourceText="Text to copy"
         targetId="id_copy_dest">
         Copy 'Text to copy'&lt;/span>
