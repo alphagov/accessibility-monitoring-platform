@@ -4,7 +4,6 @@ Tests for detailed models
 
 import pytest
 from django.contrib.auth.models import User
-from django.db.models.query import QuerySet
 
 from ..models import Contact, DetailedCase, DetailedCaseHistory
 
