@@ -7,6 +7,12 @@
 
 {% block content %}
 <div class="govuk-width-container">
+     <div class="govuk-breadcrumbs amp-margin-bottom-20">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+        </ol>
+     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -21,7 +27,7 @@
         <div class="govuk-grid-row amp-margin-bottom-30">
             <div class="govuk-grid-column-full">
                 <ul class="govuk-list">
-                    <li class="amp-custom-nav-bar amp-margin-right-25 {% if type == None %} amp-custom-nav-bar-selected {% endif %}">
+                    <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-nav-bar-selected {% endif %}">
                         <div class="amp-margin-bottom-15">
                             <a href="{% url 'notifications:task-list' %}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">All</a>
                         </div>
@@ -54,16 +60,16 @@
                 </ul>
             </div>
             <div class="govuk-grid-column-full">
-                {% if type == None %}
+                {% if not type %}
                     <ul class="govuk-list">
                         <li class="amp-custom-nav-bar amp-margin-right-25">
-                            {% if type == None and show_all_users == None %}
+                            {% if not show_all_users %}
                                 <b> All </b>
                             {% else %} 
                                 <a href="{% url 'notifications:task-list' %}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">All</a>
                             {% endif %}
                         </li>
-                        <li class="amp-custom-nav-bar amp-margin-right-25 {% if type == None %} amp-custom-sub-nav-bar-selected {% endif %}">
+                        <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-sub-nav-bar-selected {% endif %}">
                             {% if show_all_users == True %}
                                 <b> Show all tasks for all users </b>
                             {% else %}    
@@ -75,7 +81,7 @@
                 {% if type == 'qa-comment' %}
                     <ul class="govuk-list">
                         <li class="amp-custom-nav-bar amp-margin-right-25">
-                            {% if read == None %}
+                            {% if not read %}
                                 <b>QA comment ({{ task_type_counts.qa_comment }})</b>
                             {% else %} 
                                 <a href="?type=qa-comment" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">QA comment ({{ task_type_counts.qa_comment }})</a>
@@ -93,7 +99,7 @@
                 {% if type == 'report-approved' %}
                     <ul class="govuk-list">
                         <li class="amp-custom-nav-bar amp-margin-right-25">
-                            {% if read == None %}
+                            {% if not read %}
                                 <b>Report approved ({{ task_type_counts.report_approved }})</b>
                             {% else %} 
                                 <a href="?type=report-approved" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Report approved ({{ task_type_counts.report_approved }})</a>
@@ -111,7 +117,7 @@
                 {% if type == 'reminder' %}
                     <ul class="govuk-list">
                         <li class="amp-custom-nav-bar amp-margin-right-25">
-                            {% if read == None and deleted == None and future == None %}
+                            {% if not read and not deleted and not future %}
                                 <b>Reminder ({{ task_type_counts.reminder }})</b>
                             {% else %} 
                                 <a href="?type=reminder" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Reminder ({{ task_type_counts.reminder }})</a>
@@ -128,7 +134,7 @@
                             {% if future %}
                                 <b> View future </b>
                             {% else %}    
-                                <a href="?type=reminder&future=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View deleted</a>
+                                <a href="?type=reminder&future=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View future</a>
                             {% endif %}
                         </li>
                     </ul>
