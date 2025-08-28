@@ -2,13 +2,11 @@
 Tests for common views
 """
 
-import logging
 from datetime import date, datetime, timezone
 from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
@@ -25,11 +23,10 @@ from ...audits.models import (
 )
 from ...detailed.models import DetailedCase
 from ...notifications.models import Task
-from ...reports.models import Report, ReportVisitsMetrics
+from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 from ...simplified.models import CaseCompliance, SimplifiedCase
 from ...simplified.utils import create_case_and_compliance
-from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
 from ..models import FooterLink, FrequentlyUsedLink, Platform
 from ..utils import get_platform_settings
 
@@ -169,7 +166,6 @@ LOG_MESSAGE: str = "Hello"
         ("common:edit-active-qa-auditor", ">Active QA auditor</h1>"),
         ("common:platform-history", ">Platform version history</h1>"),
         ("common:issue-report", ">Report an issue</h1>"),
-        ("common:platform-checking", ">Tools and sitemap</h1>"),
         ("common:accessibility-statement", ">Accessibility statement</h1>"),
         ("common:privacy-notice", ">Privacy notice</h1>"),
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
@@ -1332,48 +1328,6 @@ def test_delete_footer_link(admin_client):
     assert link_on_database.is_deleted is True
 
 
-def test_platform_checking_writes_log(admin_client, caplog):
-    """Test platform checking writes to log"""
-    response: HttpResponse = admin_client.post(
-        reverse("common:platform-checking"),
-        {
-            "level": logging.WARNING,
-            "message": LOG_MESSAGE,
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == reverse("common:platform-checking")
-    assert caplog.record_tuples == [
-        ("accessibility_monitoring_platform.apps.common.views", 30, LOG_MESSAGE)
-    ]
-
-
-@pytest.mark.django_db
-def test_platform_checking_staff_access(client):
-    """Tests if staff users can access platform checking"""
-    user: User = create_user()
-    user.is_staff = True
-    user.save()
-    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
-
-    response: HttpResponse = client.get(reverse("common:platform-checking"))
-
-    assert response.status_code == 200
-    assertContains(response, "Tools and sitemap")
-
-
-@pytest.mark.django_db
-def test_platform_checking_non_staff_access(client):
-    """Tests non-staff users cannot access platform checking"""
-    create_user()
-    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
-
-    response: HttpResponse = client.get(reverse("common:platform-checking"))
-
-    assert response.status_code == 403
-
-
 @pytest.mark.django_db
 def test_latest_statement_frequently_used_link(admin_client):
     """
@@ -1472,18 +1426,3 @@ def test_page_name(url, expected_page_name, admin_client):
     assertContains(response, "Report an issue")
     assertContains(response, url)
     assertContains(response, expected_page_name)
-
-
-def test_reference_implementations_page(admin_client):
-    """Test that the reference implementation page renders"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
-    Report.objects.create(base_case=simplified_case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("common:reference-implementation")
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Reference implementation")

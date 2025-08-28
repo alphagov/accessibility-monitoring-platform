@@ -13,6 +13,48 @@ from .models import (
 )
 
 
+class DetailedCaseAdmin(admin.ModelAdmin):
+    """Django admin configuration for DetailedCase model"""
+
+    readonly_fields = ["created"]
+    search_fields = ["case_number", "organisation_name", "domain"]
+    list_display = [
+        "case_number",
+        "organisation_name",
+        "domain",
+        "auditor",
+        "created",
+    ]
+    list_filter = [
+        ("auditor", admin.RelatedOnlyFieldListFilter),
+        "status",
+    ]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class DetailedCaseHistoryAdmin(admin.ModelAdmin):
+    """Django admin configuration for DetailedCaseHistory model"""
+
+    readonly_fields = ["detailed_case", "event_type", "created_by", "created"]
+    search_fields = [
+        "detailed_case__case_number",
+        "detailed_case__organisation_name",
+        "value",
+    ]
+    list_display = [
+        "detailed_case",
+        "event_type",
+        "label",
+        "created_by",
+        "created",
+    ]
+    list_filter = [
+        "event_type",
+        ("created_by", admin.RelatedOnlyFieldListFilter),
+    ]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
 class DetailedEventHistoryAdmin(admin.ModelAdmin):
     """Django admin configuration for DetailedEventHistory model"""
 
@@ -55,47 +97,6 @@ class ContactAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
-class DetailedCaseAdmin(admin.ModelAdmin):
-    """Django admin configuration for DetailedCase model"""
-
-    readonly_fields = ["created"]
-    search_fields = ["case_number", "organisation_name", "domain"]
-    list_display = [
-        "case_number",
-        "organisation_name",
-        "domain",
-        "auditor",
-        "created",
-    ]
-    list_filter = [
-        ("auditor", admin.RelatedOnlyFieldListFilter),
-        "status",
-    ]
-    show_facets = admin.ShowFacets.ALWAYS
-
-
-class DetailedCaseHistoryAdmin(admin.ModelAdmin):
-    """Django admin configuration for DetailedCaseHistory model"""
-
-    readonly_fields = ["detailed_case", "event_type", "created_by", "created"]
-    search_fields = [
-        "detailed_case__case_number",
-        "detailed_case__organisation_name",
-        "value",
-    ]
-    list_display = [
-        "detailed_case",
-        "event_type",
-        "created_by",
-        "created",
-    ]
-    list_filter = [
-        "event_type",
-        ("created_by", admin.RelatedOnlyFieldListFilter),
-    ]
-    show_facets = admin.ShowFacets.ALWAYS
-
-
 class ZendeskTicketAdmin(admin.ModelAdmin):
     """Django admin configuration for ZendeskTicket model"""
 
@@ -109,8 +110,8 @@ class ZendeskTicketAdmin(admin.ModelAdmin):
     list_filter = ["is_deleted"]
 
 
-admin.site.register(DetailedEventHistory, DetailedEventHistoryAdmin)
-admin.site.register(Contact, ContactAdmin)
 admin.site.register(DetailedCase, DetailedCaseAdmin)
 admin.site.register(DetailedCaseHistory, DetailedCaseHistoryAdmin)
+admin.site.register(DetailedEventHistory, DetailedEventHistoryAdmin)
+admin.site.register(Contact, ContactAdmin)
 admin.site.register(ZendeskTicket, ZendeskTicketAdmin)

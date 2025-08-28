@@ -14,18 +14,13 @@ from .views import (
     ContactAdminView,
     FooterLinkFormsetTemplateView,
     FrequentlyUsedLinkFormsetTemplateView,
-    ImportCSV,
-    ImportTrelloComments,
-    IssueReportListView,
     IssueReportView,
     MarkdownCheatsheetTemplateView,
     MetricsCaseTemplateView,
     MetricsPolicyTemplateView,
     MetricsReportTemplateView,
     MoreInformationTemplateView,
-    PlatformCheckingView,
     PrivacyNoticeTemplateView,
-    ReferenceImplementaionView,
 )
 
 app_name: str = "common"
@@ -90,33 +85,8 @@ urlpatterns: list[URLPattern] = [
         name="metrics-report",
     ),
     path(
-        "platform-checking/",
-        login_required(PlatformCheckingView.as_view()),
-        name="platform-checking",
-    ),
-    path(
-        "reference-implementation/",
-        login_required(ReferenceImplementaionView.as_view()),
-        name="reference-implementation",
-    ),
-    path(
-        "issue-reports-list/",
-        login_required(IssueReportListView.as_view()),
-        name="issue-reports-list",
-    ),
-    path(
         "bulk-url-search/",
         login_required(BulkURLSearchView.as_view()),
         name="bulk-url-search",
-    ),
-    path(
-        "import-csv/",
-        login_required(ImportCSV.as_view()),
-        name="import-csv",
-    ),
-    path(
-        "import-trello-comments/",
-        login_required(ImportTrelloComments.as_view()),
-        name="import-trello-comments",
     ),
 ]

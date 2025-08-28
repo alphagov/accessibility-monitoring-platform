@@ -330,7 +330,6 @@ class DetailedCaseHistory(models.Model):
     class EventType(models.TextChoices):
         NOTE = "note", "Entered note"
         STATUS = "status", "Changed status"
-        RECOMMENDATION = "recommendation", "Entered enforcement recommendation"
 
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     event_type = models.CharField(
@@ -362,7 +361,7 @@ class DetailedCaseHistory(models.Model):
         )
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["-created"]
         verbose_name_plural = "Detailed Case history"
 
 

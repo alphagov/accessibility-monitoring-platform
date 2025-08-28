@@ -1846,17 +1846,18 @@ SITE_MAP: list[PlatformPageGroup] = [
             DetailedCasePlatformPage(
                 name="Detailed case history", url_name="detailed:case-history"
             ),
-            PlatformPage(name="Issue reports", url_name="common:issue-reports-list"),
+            PlatformPage(name="Issue reports", url_name="tech:issue-reports-list"),
             PlatformPage(
                 name="Reference implementation",
-                url_name="common:reference-implementation",
+                url_name="tech:reference-implementation",
             ),
-            PlatformPage(name="Tools and sitemap", url_name="common:platform-checking"),
+            PlatformPage(name="Tools and sitemap", url_name="tech:platform-checking"),
             PlatformPage(
-                name="Reset detailed or mobile case data", url_name="common:import-csv"
+                name="Reset detailed or mobile case data", url_name="tech:import-csv"
             ),
             PlatformPage(
-                name="Import Trello comments", url_name="common:import-trello-comments"
+                name="Import detailed Trello comments",
+                url_name="tech:import-trello-comments",
             ),
         ],
     ),

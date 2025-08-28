@@ -43,7 +43,7 @@ class TaskListView(TemplateView):
             context["show_all_users"] = True
             context["tasks"] = tasks
             context["task_type_counts"] = get_task_type_counts(tasks=tasks)
-            return context
+            return {**context, **params}
 
         user: User = self.request.user
 

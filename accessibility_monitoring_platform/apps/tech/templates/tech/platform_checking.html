@@ -58,11 +58,11 @@
                 <h2 class="govuk-heading-m">Tech team pages</h2>
                 <ul class="govuk-list">
                     <li>
-                        <a href="{% url 'common:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'tech:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
                             Issue reports</a>
                     </li>
                     <li>
-                        <a href="{% url 'common:reference-implementation' %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url 'tech:reference-implementation' %}" class="govuk-link govuk-link--no-visited-state">
                             Reference implementation</a>
                     </li>
                 </ul>
@@ -70,7 +70,7 @@
             <div class="govuk-grid-column-two-thirds">
                 <h2 id="id_tools" class="govuk-heading-l">Tools</h2>
                 <h3 id="id_write_to_log" class="govuk-heading-m">Write to log</h3>
-                <form method="post" action="{% url 'common:platform-checking' %}">
+                <form method="post" action="{% url 'tech:platform-checking' %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
@@ -98,7 +98,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'dashboard:home' %}"
+                                href="{% url 'tech:reference-implementation' %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel
@@ -143,7 +143,7 @@
                             <b>{% if platform_page_group.name %}{{ platform_page_group.name }}{% else %}ANONYMOUS{% endif %}</b>
                             (type <code>{{ platform_page_group.type }}</code>):
                             {% if platform_page_group.pages %}
-                                {% include 'common/tech_team/platform_subpages.html' with pages=platform_page_group.pages %}
+                                {% include 'tech/platform_subpages.html' with pages=platform_page_group.pages %}
                             {% endif %}
                         </li>
                     {% endfor %}
