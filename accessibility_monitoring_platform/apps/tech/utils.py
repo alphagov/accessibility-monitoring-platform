@@ -410,6 +410,7 @@ def import_trello_comments(csv_data: str) -> None:
             for comment_fullname, username in COMMENT_FULLNAME_TO_USERNAME.items()
         }
     except User.DoesNotExist:  # Automated tests
+        logger.warning("One or more historic Users missing")
         return
     DetailedCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
     reader: Any = csv.DictReader(io.StringIO(csv_data))
