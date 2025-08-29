@@ -28,9 +28,8 @@
                 {{ case.get_status_display }}
                 <span class="amp-todo">TODO update mobile status</span>
             {% elif case.test_type == 'detailed' %}
-                {{ case.get_status_display }}
                 <a href="{% url 'detailed:edit-case-status' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                    Change
+                    {{ case.get_status_display }}
                 </a>
             {% else %}
                 <a href="{% url 'simplified:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
