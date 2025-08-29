@@ -166,12 +166,12 @@ def test_task_list_type_filter(filtered_type, other_type, rf):
     assertContains(response, "Tasks (1)")
     assertContains(
         response,
-        f"""<h2 class="govuk-heading-m amp-margin-bottom-10">{filtered_task.get_type_display()}</h2>""",
+        f"""<h2 class="govuk-heading-m amp-margin-bottom-20">{filtered_task.get_type_display()}</h2>""",
         html=True,
     )
     assertNotContains(
         response,
-        f"""<h2 class="govuk-heading-m amp-margin-bottom-10">{other_task.get_type_display()}</h2>""",
+        f"""<h2 class="govuk-heading-m amp-margin-bottom-20">{other_task.get_type_display()}</h2>""",
         html=True,
     )
 
