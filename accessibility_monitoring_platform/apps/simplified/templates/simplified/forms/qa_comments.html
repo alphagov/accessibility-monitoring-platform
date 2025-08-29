@@ -39,7 +39,7 @@
 {% endblock %}
 
 {% block postform %}
-    <div class="govuk-grid-row">
+    <div id="qa-discussion" class="govuk-grid-row">
         <div class="govuk-grid-column-full amp-margin-top-30">
             {% for comment in case.qa_comments %}
                 {% include "comments/helpers/comment.html" %}

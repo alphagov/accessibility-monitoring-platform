@@ -1,11 +1,19 @@
 {% extends 'common/case_form.html' %}
 
+{% load static %}
+
 {% block preform %}
     {% include 'simplified/helpers/qa_links.html' %}
 {% endblock %}
 
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'common/amp_field.html' with field=form.body %}
+{% include 'common/preview_markdown.html' with field_id=form.body.auto_id %}
+{% endblock %}
+
 {% block formbuttons %}
-    <div class="govuk-grid-row">
+    <div class="govuk-grid-row amp-margin-top-30">
         <div class="govuk-grid-column-two-thirds govuk-button-group">
             <input
                 type="submit"
@@ -15,7 +23,11 @@
                 data-module="govuk-button"
             />
             <a
-                href="{% url 'simplified:edit-qa-comments' comment.base_case.id %}?#qa-discussion"
+                {% if comment.base_case.test_type == 'detailed' %}
+                    href="{% url 'detailed:edit-qa-comments' comment.base_case.id %}?#qa-discussion"
+                {% else %}
+                    href="{% url 'simplified:edit-qa-comments' comment.base_case.id %}?#qa-discussion"
+                {% endif %}
                 class="govuk-link govuk-link--no-visited-state"
             >
                 Cancel
@@ -31,4 +43,8 @@
             />
         </div>
     </div>
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'js/markdown_preview.js' %}"></script>
 {% endblock %}

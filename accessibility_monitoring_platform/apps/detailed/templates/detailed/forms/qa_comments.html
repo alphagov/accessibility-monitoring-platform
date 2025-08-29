@@ -1,11 +1,19 @@
 {% extends 'common/case_form.html' %}
 
+{% load static %}
+
 {% block preform %}
     {% include 'simplified/helpers/qa_links.html' %}
 {% endblock %}
 
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'common/amp_field.html' with field=form.body %}
+{% include 'common/preview_markdown.html' with field_id=form.body.auto_id %}
+{% endblock %}
+
 {% block formbuttons %}
-<div class="govuk-grid-row">
+<div class="govuk-grid-row amp-margin-top-30">
     <div class="govuk-grid-column-full govuk-button-group">
         <input
             type="submit"
@@ -39,7 +47,7 @@
 {% endblock %}
 
 {% block postform %}
-    <div class="govuk-grid-row">
+    <div id="qa-discussion" class="govuk-grid-row">
         <div class="govuk-grid-column-full amp-margin-top-30">
             {% for comment in case.qa_comments %}
                 {% include "comments/helpers/comment.html" %}
@@ -53,4 +61,8 @@
             {% endfor %}
         </div>
     </div>
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'js/markdown_preview.js' %}"></script>
 {% endblock %}
