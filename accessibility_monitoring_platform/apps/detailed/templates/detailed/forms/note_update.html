@@ -1,5 +1,7 @@
 {% extends 'detailed/base.html' %}
 
+{% load static %}
+
 {% block preform %}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
@@ -11,8 +13,15 @@
 </div>
 {% endblock %}
 
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'common/amp_field.html' with field=form.label %}
+{% include 'common/amp_field.html' with field=form.value %}
+{% include 'common/preview_markdown.html' with field_id=form.value.auto_id %}
+{% endblock %}
+
 {% block formbuttons %}
-    <div class="govuk-grid-row">
+    <div class="govuk-grid-row amp-margin-top-30">
         <div class="govuk-grid-column-full govuk-button-group">
             <input
                 type="submit"
@@ -29,4 +38,9 @@
             </a>
         </div>
     </div>
+{% endblock %}
+
+
+{% block extrascript %}
+    <script src="{% static 'js/markdown_preview.js' %}"></script>
 {% endblock %}
