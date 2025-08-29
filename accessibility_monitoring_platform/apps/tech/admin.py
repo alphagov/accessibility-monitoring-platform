@@ -1,3 +1,1 @@
-"""
-No admin for dashboard app
-"""
+"""No admin for tech team app"""

@@ -1,6 +1,4 @@
-"""
-Common widgets and form fields
-"""
+"""Forms for tech team app"""
 
 import logging
 
@@ -22,9 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class PlatformCheckingForm(forms.Form):
-    """
-    Form used to write a log message.
-    """
+    """Form used to write a log message"""
 
     level = AMPChoiceField(label="Level", choices=LOG_LEVEL_CHOICES)
     message = AMPCharFieldWide(label="Message", initial="Test log message")

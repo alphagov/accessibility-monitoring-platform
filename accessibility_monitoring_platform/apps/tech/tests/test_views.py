@@ -1,6 +1,4 @@
-"""
-Tests for common views
-"""
+"""Tests for tech team app views"""
 
 import logging
 

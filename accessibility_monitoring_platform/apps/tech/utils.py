@@ -1,6 +1,4 @@
-"""
-Utility functions used in tech team pages
-"""
+"""Utility functions used in tech team app"""
 
 import csv
 import io
@@ -448,7 +446,7 @@ def import_trello_comments(csv_data: str) -> None:
                     DetailedCaseHistory.objects.create(
                         detailed_case=detailed_case,
                         event_type=DetailedCaseHistory.EventType.NOTE,
-                        value=row["comment_text"],
+                        value=row["comment_text"].replace(' "\u200c")', ")"),
                         label=TRELLO_COMMENT_LABEL,
                         created_by=comment_fullname_to_user[row["comment_fullname"]],
                     )

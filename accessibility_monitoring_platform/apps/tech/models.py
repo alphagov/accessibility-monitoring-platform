@@ -1,3 +1,1 @@
-"""
-No models for dashboard app
-"""
+"""No models for tech team app"""

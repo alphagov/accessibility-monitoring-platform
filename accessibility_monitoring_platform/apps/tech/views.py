@@ -1,8 +1,4 @@
-"""
-Views for dashboard.
-
-Home should be the only view for dashboard.
-"""
+"""Views for tech team app"""
 
 import logging
 from typing import Any
@@ -37,9 +33,7 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class PlatformCheckingView(StaffRequiredMixin, FormView):
-    """
-    Write log message
-    """
+    """Write log message"""
 
     form_class = PlatformCheckingForm
     template_name: str = "tech/platform_checking.html"
@@ -86,9 +80,7 @@ class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
 
 
 class IssueReportListView(ListView):
-    """
-    View of list of issue reports.
-    """
+    """View of list of issue reports"""
 
     model: type[IssueReport] = IssueReport
     template_name: str = "tech/issue_report_list.html"
@@ -118,7 +110,7 @@ class ImportCSV(StaffRequiredMixin, FormView):
 
 
 class ImportTrelloComments(StaffRequiredMixin, FormView):
-    """Import Trello comments for Detailed and Mobile cases from CSV data"""
+    """Import Trello comments for Detailed cases from CSV data"""
 
     form_class = ImportTrelloCommentsForm
     template_name: str = "tech/import_trello_comments.html"
