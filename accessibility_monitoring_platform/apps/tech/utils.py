@@ -413,6 +413,7 @@ def import_trello_comments(csv_data: str) -> None:
         logger.warning("One or more historic Users missing")
         return
     DetailedCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
+    status_history_entries: dict[int, DetailedCaseHistory] = {}
     reader: Any = csv.DictReader(io.StringIO(csv_data))
     for row in reader:
         case_no: str = row["case_no"]
@@ -432,6 +433,12 @@ def import_trello_comments(csv_data: str) -> None:
                 if detailed_case_status != DetailedCase.Status.UNASSIGNED:
                     detailed_case.status = detailed_case_status
                     detailed_case.save()
+                    status_history_entries[detailed_case.id] = DetailedCaseHistory(
+                        detailed_case_id=detailed_case.id,
+                        event_type=DetailedCaseHistory.EventType.STATUS,
+                        value=detailed_case.get_status_display(),
+                        created_by=detailed_case.auditor,
+                    )
                 comment_time: datetime = datetime.strptime(
                     row["comment_date"], "%Y-%m-%dT%H:%M:%S.%fZ"
                 ).replace(tzinfo=timezone.utc)
@@ -449,12 +456,5 @@ def import_trello_comments(csv_data: str) -> None:
                 logger.warning("DetailedCase not found: %s", case_identifier)
 
     # Add status changes to history
-    for detailed_case in DetailedCase.objects.exclude(
-        status=DetailedCase.Status.UNASSIGNED
-    ):
-        DetailedCaseHistory.objects.create(
-            detailed_case_id=detailed_case.id,
-            event_type=DetailedCaseHistory.EventType.STATUS,
-            value=detailed_case.get_status_display(),
-            created_by=detailed_case.auditor,
-        )
+    for detailed_case_history in status_history_entries.values():
+        detailed_case_history.save()
