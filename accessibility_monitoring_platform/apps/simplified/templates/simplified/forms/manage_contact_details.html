@@ -2,61 +2,75 @@
 
 {% block preform %}
 {% include 'simplified/helpers/correspondence.html' %}
-<p class="govuk-body amp-margin-bottom-30">
-    {% if case.enable_correspondence_process %}
-        <a href="{% url 'simplified:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
-            + Add contact</a>
-    {% else %}
-        <a href="{% url 'simplified:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Add contact</a> or
-        <a href="{% url 'simplified:enable-correspondence-process' case.id %}" class="govuk-link govuk-link--no-visited-state">start correspondence process</a>
-        if you’re unable to find sufficient contact details
-    {% endif %}
-</p>
-{% for contact in case.contacts %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-third">
-            <p class="govuk-body amp-margin-bottom-5"><b>Contact {{ forloop.counter }}</b></p>
+<div class="amp-margin-bottom-40">
+    <p class="govuk-body amp-margin-bottom-40">
+        {% if case.enable_correspondence_process %}
+            <a href="{% url 'simplified:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                + Add contact</a>
+        {% else %}
+            <a href="{% url 'simplified:edit-contact-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Add contact</a> or
+            <a href="{% url 'simplified:enable-correspondence-process' case.id %}" class="govuk-link govuk-link--no-visited-state">start correspondence process</a>
+            if you’re unable to find sufficient contact details
+        {% endif %}
+    </p>
+</div>
+<div class="amp-margin-bottom-40">
+    {% for contact in case.contacts %}
+    <div class="amp-margin-bottom-40">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <p class="govuk-body-l amp-margin-bottom-10">
+                    <b>Contact {{ forloop.counter }}</b>
+                    &nbsp;
+                    <a href="{% url 'detailed:edit-contact-update' contact.id %}" class="govuk-link govuk-link--no-visited-state govuk-body-m">
+                        Edit
+                    </a>
+                </p>
+            </div>
         </div>
-        <div class="govuk-grid-column-two-thirds">
-            <p class="govuk-body amp-margin-bottom-5">
-                <a href="{% url 'simplified:edit-contact-update' contact.id %}" class="govuk-link govuk-link--no-visited-state">
-                    Edit or remove</a>
-            </p>
+        <div class="govuk-grid-row amp-margin-bottom-10">
+            <div class="govuk-grid-column-one-third">
+                <p class="govuk-body amp-margin-bottom-0">
+                    <b>Name</b>
+                </p>
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body amp-margin-bottom-0">{{ contact.name }}</p>
+            </div>
+        </div>
+        <div class="govuk-grid-row amp-margin-bottom-10">
+            <div class="govuk-grid-column-one-third">
+                <p class="govuk-body amp-margin-bottom-0">
+                    <b>Job title</b>
+                </p>
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body amp-margin-bottom-0">{{ contact.job_title }}</p>
+            </div>
+        </div>
+        <div class="govuk-grid-row amp-margin-bottom-10">
+            <div class="govuk-grid-column-one-third">
+                <p class="govuk-body amp-margin-bottom-0">
+                    <b>Email</b>
+                </p>
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body amp-margin-bottom-0">{{ contact.email }}</p>
+            </div>
+        </div>
+        <div class="govuk-grid-row amp-margin-bottom-10">
+            <div class="govuk-grid-column-one-third">
+                <p class="govuk-body">
+                    <b>Preferred contact</b>
+                </p>
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body">{{ contact.get_preferred_display }}</p>
+            </div>
         </div>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-third">
-            <p class="govuk-body amp-margin-bottom-0"><b>Name:</b></p>
-        </div>
-        <div class="govuk-grid-column-two-thirds">
-            <p class="govuk-body amp-margin-bottom-0">{{ contact.name }}</p>
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-third">
-            <p class="govuk-body amp-margin-bottom-0"><b>Job title:</b></p>
-        </div>
-        <div class="govuk-grid-column-two-thirds">
-            <p class="govuk-body amp-margin-bottom-0">{{ contact.job_title }}</p>
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-third">
-            <p class="govuk-body amp-margin-bottom-0"><b>Email:</b></p>
-        </div>
-        <div class="govuk-grid-column-two-thirds">
-            <p class="govuk-body amp-margin-bottom-0">{{ contact.email }}</p>
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-third">
-            <p class="govuk-body"><b>Preferred contact:</b></p>
-        </div>
-        <div class="govuk-grid-column-two-thirds">
-            <p class="govuk-body">{{ contact.get_preferred_display }}</p>
-        </div>
-    </div>
-{% endfor %}
+    {% endfor %}
+</div>
 {% endblock %}
 
 {% block formbuttons %}

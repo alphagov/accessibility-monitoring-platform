@@ -692,7 +692,7 @@ def test_update_contact_page_loads(admin_client):
 
     assertContains(
         response,
-        f"""<h1 class="govuk-heading-xl amp-margin-bottom-30">Edit contact {contact}</h1>""",
+        f"""<h1 class="govuk-heading-xl amp-margin-bottom-40">Edit contact {contact}</h1>""",
         html=True,
     )
 
@@ -711,7 +711,7 @@ def test_create_zendesk_ticket_page_loads(admin_client):
 
     assertContains(
         response,
-        '<h1 class="govuk-heading-xl amp-margin-bottom-30">Add PSB Zendesk ticket</h1>',
+        '<h1 class="govuk-heading-xl amp-margin-bottom-40">Add PSB Zendesk ticket</h1>',
         html=True,
     )
 
@@ -731,7 +731,7 @@ def test_update_zendesk_ticket_page_loads(admin_client):
 
     assertContains(
         response,
-        '<h1 class="govuk-heading-xl amp-margin-bottom-30">Edit PSB Zendesk ticket #1</h1>',
+        '<h1 class="govuk-heading-xl amp-margin-bottom-40">Edit PSB Zendesk ticket #1</h1>',
         html=True,
     )
 
