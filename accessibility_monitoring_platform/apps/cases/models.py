@@ -241,7 +241,7 @@ class BaseCase(VersionModel):
         SCOTLAND = "scotland", "Scotland"
         WALES = "wales", "Wales"
         NI = "northern_ireland", "Northern Ireland"
-        UK = "uk_wide", "UK-wide"
+        UK = "uk_wide", "UK-wide or multiple countries"
         UNKNOWN = "unknown", "Unknown"
 
     class EnforcementBody(models.TextChoices):
