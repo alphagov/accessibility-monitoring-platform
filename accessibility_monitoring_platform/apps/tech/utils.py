@@ -76,18 +76,6 @@ COMMENT_FULLNAME_TO_USERNAME: dict[str, str] = {
     "Nicole Tinti": "nicole.tinti@digital.cabinet-office.gov.uk",
 }
 TRELLO_COMMENT_LABEL: str = "Imported from Trello"
-STATUS_TRELLO_TO_PLATFORM: dict[str, str] = {
-    "Blocked": DetailedCase.Status.BLOCKED,
-    "Chasing - no response / missed deadline": DetailedCase.Status.PSB_INFO_CHASING,
-    # "DONE DONE DONE": "UNKNOWN",
-    "In test": DetailedCase.Status.TEST_IN_PROGRESS,
-    # "Never responded": "UNKNOWN",
-    "Received Details/Access": DetailedCase.Status.PSB_INFO_RECEIVED,
-    # "Reported to EHRC/ECNI - requires statement enforcement": "UNKNOWN",
-    "Requested update at 12 week": DetailedCase.Status.REQUESTED_12_WEEK_UPDATE,
-    "Response received - waiting for 12 weeks": DetailedCase.Status.AWAITING_12_WEEK_DEADLINE,
-    "Reviewing update": DetailedCase.Status.REVIEWING_CHANGES,
-}
 
 
 def add_note_to_history(
@@ -411,7 +399,6 @@ def import_trello_comments(csv_data: str) -> None:
         logger.warning("One or more historic Users missing")
         return
     DetailedCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
-    status_history_entries: dict[int, DetailedCaseHistory] = {}
     reader: Any = csv.DictReader(io.StringIO(csv_data))
     for row in reader:
         case_no: str = row["case_no"]
@@ -423,20 +410,6 @@ def import_trello_comments(csv_data: str) -> None:
                 detailed_case: DetailedCase = DetailedCase.objects.get(
                     case_identifier=case_identifier
                 )
-                detailed_case_status: DetailedCase.Status = (
-                    STATUS_TRELLO_TO_PLATFORM.get(
-                        row["status"], DetailedCase.Status.UNASSIGNED
-                    )
-                )
-                if detailed_case_status != DetailedCase.Status.UNASSIGNED:
-                    detailed_case.status = detailed_case_status
-                    detailed_case.save()
-                    status_history_entries[detailed_case.id] = DetailedCaseHistory(
-                        detailed_case_id=detailed_case.id,
-                        event_type=DetailedCaseHistory.EventType.STATUS,
-                        value=detailed_case.get_status_display(),
-                        created_by=detailed_case.auditor,
-                    )
                 comment_time: datetime = datetime.strptime(
                     row["comment_date"], "%Y-%m-%dT%H:%M:%S.%fZ"
                 ).replace(tzinfo=timezone.utc)
@@ -452,7 +425,3 @@ def import_trello_comments(csv_data: str) -> None:
                     )
             except DetailedCase.DoesNotExist:
                 logger.warning("DetailedCase not found: %s", case_identifier)
-
-    # Add status changes to history
-    for detailed_case_history in status_history_entries.values():
-        detailed_case_history.save()
