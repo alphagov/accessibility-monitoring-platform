@@ -77,7 +77,13 @@ describe('Case overview', () => {
   it('can edit contact details', () => {
     cy.contains('Contact details').click()
     cy.contains(/^Manage contact details$/).click()
-    cy.contains('Edit or remove').click()
+    cy.get('a')                         
+      .not('details a')                 
+      .filter(':visible')               
+      .filter((_, el) => /(^|\b)Edit(\b|\/)/i.test(el.textContent))
+      .last()
+      .scrollIntoView({ block: 'center' })
+      .click();
     cy.get('[name="name"]').clear().type(contactName)
     cy.get('[name="email"]').clear().type(contactEmail)
     cy.contains('Save and return').click()
