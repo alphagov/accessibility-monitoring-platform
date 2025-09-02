@@ -218,6 +218,35 @@ def test_case_filtered_by_reviewer():
 
 
 @pytest.mark.django_db
+def test_case_filtered_by_case_number():
+    """Test that searching for case by number is reflected in the queryset"""
+    SimplifiedCase.objects.create(case_number=CASE_NUMBER)
+    form: MockForm = MockForm(cleaned_data={"case_number": str(CASE_NUMBER)})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].case_number == CASE_NUMBER
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_case_identifier():
+    """Test that filtering cases by case identifier is reflected in the queryset"""
+    SimplifiedCase.objects.create(organisation_name="Found")
+    case_not_found: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Not Found"
+    )
+    case_not_found.case_identifier = "#S-10"
+    case_not_found.save()
+    form: MockForm = MockForm(cleaned_data={"case_search": "s-1"})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == "Found"
+
+
+@pytest.mark.django_db
 def test_case_filtered_by_status():
     """Test that filtering cases by status is reflected in the queryset"""
     SimplifiedCase.objects.create(organisation_name=ORGANISATION_NAME)
