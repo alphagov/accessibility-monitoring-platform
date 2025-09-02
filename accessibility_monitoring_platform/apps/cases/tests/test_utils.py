@@ -237,6 +237,7 @@ def test_case_filtered_by_case_identifier():
         organisation_name="Not Found"
     )
     case_not_found.case_identifier = "#S-10"
+    case_not_found.save()
     form: MockForm = MockForm(cleaned_data={"case_search": "s-1"})
 
     filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
