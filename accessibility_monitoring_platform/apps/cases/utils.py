@@ -51,7 +51,9 @@ def filter_cases(form) -> QuerySet[BaseCase]:
             field_and_filter_names=field_and_filter_names,
         )
         sort_by: str = form.cleaned_data.get("sort_by", Sort.NEWEST)
-        if form.cleaned_data.get("case_search"):
+        if form.cleaned_data.get("case_number"):
+            search_query = Q(case_number=form.cleaned_data["case_number"])
+        elif form.cleaned_data.get("case_search"):
             search: str = form.cleaned_data["case_search"]
             search_query = (
                 Q(organisation_name__icontains=search)
@@ -61,7 +63,7 @@ def filter_cases(form) -> QuerySet[BaseCase]:
                 | Q(parental_organisation_name__icontains=search)
                 | Q(website_name__icontains=search)
                 | Q(subcategory__name__icontains=search)
-                | Q(case_identifier__icontains=search)
+                | Q(case_identifier__endswith=search.upper())
                 | Q(mobilecase__app_name__icontains=search)
                 | Q(mobilecase__app_store_url__icontains=search)
             )
