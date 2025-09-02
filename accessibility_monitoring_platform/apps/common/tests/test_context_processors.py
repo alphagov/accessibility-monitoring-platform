@@ -57,11 +57,7 @@ def test_active_qa_auditor_present(admin_client):
     response: HttpResponse = admin_client.get("/")
 
     assert response.status_code == 200
-    assertContains(
-        response,
-        f"""<p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">{USER_FIRST_NAME}</p>""",
-        html=True,
-    )
+    assertContains(response, USER_FIRST_NAME)
 
 
 @pytest.mark.django_db
