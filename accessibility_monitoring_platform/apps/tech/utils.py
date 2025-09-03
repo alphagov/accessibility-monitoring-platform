@@ -76,6 +76,7 @@ COMMENT_FULLNAME_TO_USERNAME: dict[str, str] = {
     "Nicole Tinti": "nicole.tinti@digital.cabinet-office.gov.uk",
 }
 TRELLO_COMMENT_LABEL: str = "Imported from Trello"
+TRELLO_DESCRIPTION_LABEL: str = "Description imported from Trello"
 
 
 def add_note_to_history(
@@ -399,6 +400,8 @@ def import_trello_comments(csv_data: str) -> None:
         logger.warning("One or more historic Users missing")
         return
     DetailedCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
+    DetailedCaseHistory.objects.filter(label=TRELLO_DESCRIPTION_LABEL).delete()
+    card_descriptions: dict[DetailedCase, str] = {}
     reader: Any = csv.DictReader(io.StringIO(csv_data))
     for row in reader:
         case_no: str = row["case_no"]
@@ -410,6 +413,7 @@ def import_trello_comments(csv_data: str) -> None:
                 detailed_case: DetailedCase = DetailedCase.objects.get(
                     case_identifier=case_identifier
                 )
+                card_descriptions[detailed_case] = row["card_description"]
                 comment_time: datetime = datetime.strptime(
                     row["comment_date"], "%Y-%m-%dT%H:%M:%S.%fZ"
                 ).replace(tzinfo=timezone.utc)
@@ -425,3 +429,14 @@ def import_trello_comments(csv_data: str) -> None:
                     )
             except DetailedCase.DoesNotExist:
                 logger.warning("DetailedCase not found: %s", case_identifier)
+
+    # Add description text
+    katherine: User = comment_fullname_to_user["katherine.badger"]
+    for detailed_case, description_text in card_descriptions.items():
+        DetailedCaseHistory.objects.create(
+            detailed_case=detailed_case,
+            event_type=DetailedCaseHistory.EventType.NOTE,
+            value=description_text.replace(' "\u200c")', ")"),
+            label=TRELLO_DESCRIPTION_LABEL,
+            created_by=katherine,
+        )
