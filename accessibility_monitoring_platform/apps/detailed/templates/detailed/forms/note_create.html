@@ -39,9 +39,14 @@
 {% endblock %}
 
 {% block postform %}
+<div class="amp-margin-bottom-40">
+    <hr class="amp-width-100" />
+</div>
 {% include 'common/amp_search_widget.html' with search_label='Search notes' %}
+<br/>
+<br/>
 {% for detailed_case_event in case.detailedcasehistory_set.all %}
-    <div class="govuk-grid-row amp-searchable">
+    <div class="govuk-grid-row amp-searchable amp-margin-bottom-30">
         <div class="govuk-grid-column-one-quarter">
             <p class="govuk-body amp-margin-bottom-5">
                 <b>
@@ -69,7 +74,7 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
+        <div class="govuk-grid-column-full amp-margin-bottom-30">
             <hr class="amp-width-100" />
         </div>
     </div>

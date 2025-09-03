@@ -1,4 +1,4 @@
-<div class="amp-margin-bottom-30">
+<div class="amp-margin-bottom-40">
     {% include 'simplified/helpers/correspondence_overview_detail.html' %}
 
     <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
@@ -12,6 +12,8 @@
     </details>
     {% include 'simplified/helpers/zendesk_tickets.html' %}
     {% include 'simplified/helpers/email_templates.html' %}
+</div>
+<div class="amp-margin-bottom-40">
     <p class="govuk-body">
         <a href="{% url 'simplified:edit-no-psb-response' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
             Unable to send report or no response from public sector body?</a>

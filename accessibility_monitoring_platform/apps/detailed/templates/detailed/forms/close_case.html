@@ -1,6 +1,8 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-    {% include 'detailed/helpers/contacts_list.html' %}
-    {% include 'detailed/helpers/zendesk_tickets.html' %}
+    <div class="amp-margin-bottom-40">
+        {% include 'detailed/helpers/contacts_list.html' %}
+        {% include 'detailed/helpers/zendesk_tickets.html' %}
+    </div>
 {% endblock %}
