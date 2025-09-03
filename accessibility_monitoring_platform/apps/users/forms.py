@@ -2,8 +2,6 @@
 Form for users
 """
 
-from typing import Any
-
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm
@@ -15,7 +13,6 @@ from ..common.forms import (
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
     AMPNewPasswordField,
-    AMPPasswordField,
 )
 from ..common.models import Boolean
 from .models import AllowedEmail
