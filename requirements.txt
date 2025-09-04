@@ -13,11 +13,11 @@ attrs==25.3.0
     # via
     #   outcome
     #   trio
-boto3==1.40.17
+boto3==1.40.22
     # via
     #   -r requirements.in
     #   moto
-botocore==1.40.17
+botocore==1.40.22
     # via
     #   boto3
     #   moto
@@ -30,9 +30,9 @@ cffi==1.17.1
     # via cryptography
 charset-normalizer==3.4.3
     # via requests
-cryptography==45.0.6
+cryptography==45.0.7
     # via moto
-django==5.2.5
+django==5.2.6
     # via
     #   -r requirements.in
     #   django-axes
@@ -91,7 +91,7 @@ packaging==25.0
     #   django-csp
     #   pytest
     #   webdriver-manager
-phonenumbers==9.0.12
+phonenumbers==9.0.13
     # via -r requirements.in
 pluggy==1.6.0
     # via pytest
