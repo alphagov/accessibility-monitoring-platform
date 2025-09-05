@@ -10,14 +10,15 @@ from typing import Any
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
+from django.db.models import Q
 
 from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
 from ..notifications.utils import build_task_list, get_task_type_counts
 from ..simplified.models import SimplifiedCase
+from ..detailed.models import DetailedCase
 from .utils import (
-    get_all_cases_in_qa,
     group_cases_by_status,
-    return_cases_requiring_user_review,
+    group_detailed_cases_by_status
 )
 
 
@@ -29,70 +30,78 @@ class DashboardView(TemplateView):
     def get_context_data(self, *args, **kwargs) -> dict[str, Any]:
         context: dict[str, Any] = super().get_context_data(*args, **kwargs)
         user: User = get_object_or_404(User, id=self.request.user.id)  # type: ignore
-        all_simplified_cases: list[SimplifiedCase] = list(
-            SimplifiedCase.objects.all().select_related("auditor", "reviewer").all()
-        )
 
-        view_url_param: str | None = self.request.GET.get("view")
-        show_all_cases = view_url_param == "View all cases"
+        type_param: str | None = self.request.GET.get("type")
+        filter_param: str | None = self.request.GET.get("filter")
 
-        if show_all_cases:
-            simplified_cases: list[SimplifiedCase] = all_simplified_cases
-        else:
-            simplified_cases: list[SimplifiedCase] = [
-                simplified_case
-                for simplified_case in all_simplified_cases
-                if simplified_case.auditor == user
-            ]
-
-        cases_by_status: dict[str, list[SimplifiedCase]] = group_cases_by_status(
-            simplified_cases=simplified_cases
-        )
-
-        cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
-            simplified_cases=all_simplified_cases,
-            user=user,
-        )
-
-        incomplete_cases: list[SimplifiedCase] = [
-            simplified_case
-            for simplified_case in all_simplified_cases
-            if (
-                simplified_case.status != SimplifiedCase.Status.COMPLETE
-                and simplified_case.status
-                != SimplifiedCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
-                and simplified_case.status != SimplifiedCase.Status.DEACTIVATED
+        case_list = None
+        if not type_param:  # Default is simplified
+            case_list = SimplifiedCase.objects.all().select_related("auditor", "reviewer").exclude(
+                status__in=[
+                    SimplifiedCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+                    SimplifiedCase.Status.COMPLETE,
+                    SimplifiedCase.Status.DEACTIVATED
+                ]
             )
-        ]
-        unassigned_cases: list[SimplifiedCase] = sorted(
-            [
-                simplified_case
-                for simplified_case in all_simplified_cases
-                if simplified_case.status == SimplifiedCase.Status.UNASSIGNED
-            ],
-            key=lambda simplified_case: (simplified_case.created),  # type: ignore
-        )
-        cases_by_status["unassigned_cases"] = unassigned_cases
+        else:  # This will be replaced by type_param == "detailed": when mobile cases are implemented
+            case_list = DetailedCase.objects.all().select_related("auditor", "reviewer").all()
+
+        qa_count = case_list.filter(
+            status__in=[
+                SimplifiedCase.Status.QA_IN_PROGRESS,
+                SimplifiedCase.Status.READY_TO_QA,
+            ]
+        ).count()
+
+        if isinstance(case_list.first(), SimplifiedCase) and not filter_param:  # Simplified and your cases
+            case_list = case_list.filter(
+                Q(auditor=user)
+                | Q(status=SimplifiedCase.Status.UNASSIGNED)
+            )
+        elif isinstance(case_list.first(), DetailedCase) and not filter_param:  # Detailed and your cases
+            case_list = case_list.filter(
+                Q(auditor=user) | Q(
+                    status__in=[
+                        SimplifiedCase.Status.UNASSIGNED,
+                        DetailedCase.Status.PSB_INFO_REQ,
+                        DetailedCase.Status.PSB_INFO_CHASING,
+                        DetailedCase.Status.PSB_INFO_REQ_ACK,
+                        DetailedCase.Status.PSB_INFO_RECEIVED,
+                        DetailedCase.Status.PSB_INFO_REQ,
+                        DetailedCase.Status.PSB_INFO_CHASING,
+                        DetailedCase.Status.PSB_INFO_REQ_ACK,
+                        DetailedCase.Status.PSB_INFO_RECEIVED,
+                    ]
+                )
+            )
+        elif filter_param == "qa-filter":  # Looks into the 'all cases' queryset and pulls out the QA cases
+            case_list = case_list.filter(
+                status__in=[
+                    SimplifiedCase.Status.QA_IN_PROGRESS,
+                    SimplifiedCase.Status.READY_TO_QA,
+                ]
+            )
+
+        cases_by_status = {}
+        if case_list and isinstance(case_list.first(), SimplifiedCase):
+            cases_by_status = group_cases_by_status(
+                simplified_cases=case_list
+            )
+        elif case_list and isinstance(case_list.first(), DetailedCase):
+            cases_by_status = group_detailed_cases_by_status(
+                detailed_cases=case_list
+            )
 
         context.update(
             {
+                "type": type_param,
+                "filter": filter_param,
                 "cases_by_status": cases_by_status,
-                "total_your_active_cases": len(
-                    [
-                        simplified_case
-                        for simplified_case in incomplete_cases
-                        if simplified_case.auditor == user
-                    ]
-                ),
                 "today": date.today(),
-                "show_all_cases": show_all_cases,
-                "page_title": "All cases" if show_all_cases else "Your cases",
                 "mfa_disabled": not checks_if_2fa_is_enabled(user=user),
                 "recent_changes_to_platform": get_recent_changes_to_platform(),
-                "all_cases_in_qa": get_all_cases_in_qa(all_cases=all_simplified_cases),
-                "task_type_counts": get_task_type_counts(
-                    tasks=build_task_list(user=self.request.user)
-                ),
+                "task_type_counts": get_task_type_counts(tasks=build_task_list(user=self.request.user)),
+                "qa_count": qa_count,
             }
         )
         return context

@@ -80,7 +80,7 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(
         name="PSB_INFO_CHASING",
         value="020-initial-psb-info-chasing",
-        label="Chasing - no response / missed deadline",
+        label="Chasing initial response",
         test_types=[TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
@@ -92,7 +92,7 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(
         name="PSB_INFO_RECEIVED",
         value="040-initial-psb-info-received",
-        label="Received Details/Access",
+        label="Received details and access",
         test_types=[TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(

@@ -9,10 +9,6 @@
     </p>
 </div>
 <div class="amp-margin-bottom-25">
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Your active cases</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">{{ total_your_active_cases }}</p>
-</div>
-<div class="amp-margin-bottom-25">
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA comments unread</b></p>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
         {{ task_type_counts.qa_comment }}
@@ -33,7 +29,7 @@
         (<a href="{% url 'notifications:task-list' %}?type=overdue" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
     </p>
 </div>
-<div class="amp-margin-bottom-25">
+<div>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case notifications</b></p>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
         {{ task_type_counts.postcase }}
