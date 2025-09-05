@@ -173,6 +173,12 @@ def create_detailed_case_from_dict(
             retest_statement_compliance_state=MAP_STATEMENT_COMPLIANCE[
                 row["Accessibility Statement Decision"].lower()
             ],
+            retest_statement_compliance_information=row[
+                "Notes on accessibility statement"
+            ],
+            retest_disproportionate_burden_information=row[
+                "Disproportionate Burden Notes"
+            ],
             # retest_statement_backup_url=validate_url(
             #     row["Link to new copy of accessibility statement if not compliant"]
             # ),
@@ -229,8 +235,6 @@ def create_detailed_case_from_dict(
     for column_name in [
         "Related case notes (if applicable)",
         "Summary of progress made / response from PSB",
-        "Disproportionate Burden Notes",
-        "Notes on accessibility statement",
     ]:
         if row[column_name]:
             add_note_to_history(
