@@ -5,6 +5,10 @@
             <div class="amp-left-border">
                 <ul class="govuk-list">
                     <li>
+                        <a href="#id_banners" class="govuk-link govuk-link--no-visited-state">
+                            Banners</a>
+                    </li>
+                    <li>
                         <a href="#id_forms" class="govuk-link govuk-link--no-visited-state">
                             Forms</a>
                     </li>
@@ -52,20 +56,22 @@
         <h2 class="govuk-heading-m">Tech team pages</h2>
         <ul class="govuk-list">
             <li>
-                <a href="{% url 'common:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'tech:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
                     Issue reports</a>
                 (<a href="{% url 'admin:common_issuereport_changelist' %}?complete__exact=0" class="govuk-link govuk-link--no-visited-state"
                     >admin</a>)
             </li>
             <li>
-                <a href="{% url 'common:platform-checking' %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'tech:platform-checking' %}" class="govuk-link govuk-link--no-visited-state">
                     Tools and sitemap</a>
-                (<a href="{% url 'common:platform-checking' %}#id_sitemap" class="govuk-link govuk-link--no-visited-state"
+                (<a href="{% url 'tech:platform-checking' %}#id_sitemap" class="govuk-link govuk-link--no-visited-state"
                     >sitemap</a>)
             </li>
             <li>
-                <a href="{% url 'common:import-csv' %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'tech:import-csv' %}" class="govuk-link govuk-link--no-visited-state">
                     Reset detailed or mobile case data</a>
+                (<a href="{% url 'tech:import-trello-comments' %}" class="govuk-link govuk-link--no-visited-state"
+                    >Reset Trello comments</a>)
             </li>
         </ul>
         <h2 class="govuk-heading-m">Platform history</h2>
@@ -85,6 +91,14 @@
                 (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ case.case_number }}" class="govuk-link govuk-link--no-visited-state"
                     >admin</a>)
             </li>
+            {% if detailed_case %}
+                <li>
+                    <a href="{% url 'detailed:case-history' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        {{ detailed_case }}</a>
+                    (<a href="{% url 'admin:detailed_detailedeventhistory_changelist' %}?q={{ detailed_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                        >admin</a>)
+                </li>
+            {% endif %}
         </ul>
     </div>
 </div>

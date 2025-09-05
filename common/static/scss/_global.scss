@@ -22,9 +22,19 @@ pre {
         margin: 0;
     }
 }
-.amp-case-banner-title-active {
+.amp-case-banner-title-simplified {
     color: govuk-colour("white");
     background-color: govuk-colour("blue");
+}
+
+.amp-case-banner-title-detailed {
+    color: govuk-colour("white");
+    background-color: govuk-colour("black");
+}
+
+.amp-case-banner-title-mobile {
+    color: govuk-colour("white");
+    background-color: govuk-colour("green");
 }
 
 .amp-case-banner-title-archive {
@@ -451,6 +461,10 @@ img, .amp-max-width-100 {
     .govuk-fieldset__legend, .govuk-fieldset__legend--l {
         margin-bottom: 0;
     }
+}
+
+#id_search_results {
+    display: none;
 }
 
 // For use in reports

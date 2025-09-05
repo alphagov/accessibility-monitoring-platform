@@ -1,0 +1,19 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h2 id="id_banners" class="govuk-heading-m">Banners</h2>
+        {% if banner_case_detailed %}
+            {% include 'cases/helpers/case_banner.html' with case=banner_case_detailed %}
+            <hr class="amp-width-100" />
+        {% endif %}
+        {% if banner_case_mobile %}
+            {% include 'cases/helpers/case_banner.html' with case=banner_case_mobile %}
+            <hr class="amp-width-100" />
+        {% endif %}
+        {% if banner_case_archived %}
+            {% include 'cases/helpers/case_banner.html' with case=banner_case_archived %}
+            <hr class="amp-width-100" />
+        {% endif %}
+        {% include 'cases/helpers/case_banner.html' %}
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    </div>
+</div>

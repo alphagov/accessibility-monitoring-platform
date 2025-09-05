@@ -692,7 +692,7 @@ def test_update_contact_page_loads(admin_client):
 
     assertContains(
         response,
-        f"""<h1 class="govuk-heading-xl amp-margin-bottom-30">Edit contact {contact}</h1>""",
+        f"""<h1 class="govuk-heading-xl amp-margin-bottom-40">Edit contact {contact}</h1>""",
         html=True,
     )
 
@@ -711,7 +711,7 @@ def test_create_zendesk_ticket_page_loads(admin_client):
 
     assertContains(
         response,
-        '<h1 class="govuk-heading-xl amp-margin-bottom-30">Add PSB Zendesk ticket</h1>',
+        '<h1 class="govuk-heading-xl amp-margin-bottom-40">Add PSB Zendesk ticket</h1>',
         html=True,
     )
 
@@ -731,7 +731,7 @@ def test_update_zendesk_ticket_page_loads(admin_client):
 
     assertContains(
         response,
-        '<h1 class="govuk-heading-xl amp-margin-bottom-30">Edit PSB Zendesk ticket #1</h1>',
+        '<h1 class="govuk-heading-xl amp-margin-bottom-40">Edit PSB Zendesk ticket #1</h1>',
         html=True,
     )
 
@@ -1345,7 +1345,7 @@ def test_qa_comments_creates_comment(admin_client, admin_user):
     )
     assert response.status_code == 302
 
-    comment: Comment = Comment.objects.get(simplified_case=simplified_case)
+    comment: Comment = Comment.objects.get(base_case=simplified_case)
 
     assert comment.body == QA_COMMENT_BODY
     assert comment.user == admin_user
@@ -1372,7 +1372,7 @@ def test_qa_comments_does_not_create_comment(admin_client, admin_user):
     )
     assert response.status_code == 302
 
-    assert Comment.objects.filter(simplified_case=simplified_case).count() == 0
+    assert Comment.objects.filter(base_case=simplified_case).count() == 0
 
 
 @pytest.mark.django_db

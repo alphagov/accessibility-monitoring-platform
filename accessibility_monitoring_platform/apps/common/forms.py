@@ -519,3 +519,7 @@ class BulkURLSearchForm(forms.Form):
 class ImportCSVForm(forms.Form):
     model = AMPChoiceField(label="Model", choices=IMPORT_MODEL_CHOICES)
     data = AMPTextField(label="CSV data")
+
+
+class ImportTrelloCommentsForm(forms.Form):
+    data = AMPTextField(label="CSV data")
