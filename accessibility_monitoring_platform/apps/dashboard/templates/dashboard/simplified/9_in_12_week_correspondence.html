@@ -25,7 +25,7 @@
                     </td>
                     <td class="govuk-table__cell amp-width-one-quarter">{{case.domain|truncatechars:25}}</td>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        {% if show_all_cases %}
+                        {% if filter == "all-cases" %}
                             {% if case.auditor %}
                                 <a href="{% url 'cases:case-list' %}?auditor={{case.auditor.id}}" class="govuk-link">{{ case.auditor.get_full_name }}</a>
                             {% else %}

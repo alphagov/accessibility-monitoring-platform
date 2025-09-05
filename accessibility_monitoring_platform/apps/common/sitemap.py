@@ -228,17 +228,6 @@ class PlatformPage:
                 return self.instance.retest.simplified_case
 
 
-class HomePlatformPage(PlatformPage):
-    def populate_from_request(self, request: HttpRequest):
-        """Set get name from parameters"""
-        view_param: str = request.GET.get("view", "View your simplified cases")
-        self.name: str = (
-            "All simplified cases"
-            if view_param == "View all cases"
-            else "Your simplified cases"
-        )
-
-
 class ExportPlatformPage(PlatformPage):
     enforcement_body: str = "EHRC"
 
@@ -1822,7 +1811,7 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
             PlatformPage(name="Report an issue", url_name="common:issue-report"),
             PlatformPage(name="Contact admin", url_name="common:contact-admin"),
-            HomePlatformPage(name="Your cases", url_name="dashboard:home"),
+            PlatformPage(name="Dashboard", url_name="dashboard:home"),
             PlatformPage(name="Tasks", url_name="notifications:task-list"),
             PlatformPage(
                 name="Reminder",

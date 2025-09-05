@@ -1,12 +1,4 @@
 <nav aria-label="Table of contents" class="amp-margin-bottom-30">
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA cases</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-25">
-        {% if all_cases_in_qa %}
-            <a href="#all-cases-in-qa" class="govuk-link govuk-link--no-visited-state">
-        {% endif %}
-        Reports in QA - {{ all_cases_in_qa|length }}{% if all_cases_in_qa %}</a>{% endif %}
-    </p>
-
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Audit cases</b></p>
     {% if cases_by_status.unknown %}
         <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
@@ -15,10 +7,11 @@
         </p>
     {% endif %}
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-        {% if cases_by_status.unassigned_cases %}
+        {% if cases_by_status.unassigned_case %}
             <a href="#cases-status-unassigned" class="govuk-link govuk-link--no-visited-state">
         {% endif %}
-        Unassigned cases - {{ cases_by_status.unassigned_cases|length }}{% if cases_by_status.unassigned_cases %}</a>{% endif %}
+        Unassigned cases - {{ cases_by_status.unassigned_case|length }}
+        {% if cases_by_status.unassigned_case %}</a>{% endif %}
     </p>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
         {% if cases_by_status.test_in_progress %}

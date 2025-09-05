@@ -1,11 +1,10 @@
-
 {% if cases|length == 0 %}
-   <p class="govuk-body"> There are currently no new cases </p>
+   <p class="govuk-body"> There are currently no cases in report sent </p>
 {% else %}
     <table class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header amp-width-15-percent">Date created</th>
+                <th scope="col" class="govuk-table__header amp-width-15-percent">Next action due</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Full URL</th>
                 {% if show_all_cases %}
@@ -18,20 +17,22 @@
         <tbody class="govuk-table__body">
             {% for case in cases %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">{{ case.created|amp_date_trunc }}</th>
-                    <td class="govuk-table__cell amp-width-one-quarter">
-                        <a href="{{ case.get_absolute_url }}" class="govuk-link">{{ case.organisation_name|truncatechars:25 }}</a>
+                    <td scope="row" class="govuk-table__cell amp-width-one-15-percent govuk-!-font-weight-regular">
+                        {% include "common/amp_date_tag.html" with date_to_tag=case.next_action_due_date tense=case.next_action_due_date_tense %}
                     </td>
-                    <td class="govuk-table__cell amp-width-one-quarter">{{ case.domain|truncatechars:25 }}</td>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        {% if show_all_cases %}
+                        <a href="{{ case.get_absolute_url }}" class="govuk-link"> {{case.organisation_name|truncatechars:25}} </a>
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-quarter">{{case.domain|truncatechars:25}} </td>
+                    <td class="govuk-table__cell amp-width-one-quarter">
+                        {% if filter == "all-cases" %}
                             {% if case.auditor %}
-                                <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" class="govuk-link">{{ case.auditor.get_full_name }}</a>
+                                <a href="{% url 'cases:case-list' %}?auditor={{case.auditor.id}}" class="govuk-link"> {{ case.auditor.get_full_name }} </a>
                             {% else %}
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'simplified:edit-case-metadata' case.id %}" class="govuk-link">Case metadata</a>
+                            <a href="{{ case.in_report_correspondence_progress.url }}" class="govuk-link"> {{ case.in_report_correspondence_progress.label }} </a>
                         {% endif %}
                     </td>
                 </tr>

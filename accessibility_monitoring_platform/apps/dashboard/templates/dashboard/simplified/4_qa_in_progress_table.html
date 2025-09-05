@@ -1,5 +1,5 @@
 {% if cases|length == 0 %}
-   <p class="govuk-body"> There are currently no reports in progress </p>
+   <p class="govuk-body"> There are currently no cases in QA </p>
 {% else %}
     <table class="govuk-table">
         <thead class="govuk-table__head">
@@ -8,25 +8,29 @@
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Full URL</th>
                 {% if show_all_cases %}
-                    <th scope="col" class="govuk-table__header amp-width-one-quarter">Auditor</th>
+                    <th scope="col" class="govuk-table__header amp-width-one-quarter">QA Auditor</th>
                 {% else %}
-                    <th scope="col" class="govuk-table__header amp-width-one-quarter">Step progress</th>
+                    <th scope="col" class="govuk-table__header amp-width-one-quarter">Current step</th>
                 {% endif %}
             </tr>
         </thead>
         <tbody class="govuk-table__body">
             {% for case in cases %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular"> {{ case.created|amp_date_trunc }} </th>
+                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">{{ case.created|amp_date_trunc }}</th>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         <a href="{{ case.get_absolute_url }}" class="govuk-link">{{ case.organisation_name|truncatechars:25 }}</a>
                     </td>
                     <td class="govuk-table__cell amp-width-one-quarter">{{ case.domain|truncatechars:25 }}</td>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        {% if show_all_cases %}
-                            <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" class="govuk-link"> {{ case.auditor.get_full_name }} </a>
+                        {% if filter == "all-cases" %}
+                            {% if case.reviewer %}
+                                <a href="{% url 'cases:case-list' %}?auditor={{case.reviewer.id}}" class="govuk-link"> {{case.reviewer.first_name}} {{case.reviewer.last_name}} </a>
+                            {% else %}
+                                No auditor
+                            {% endif %}
                         {% else %}
-                            <a href="{% url 'simplified:edit-report-ready-for-qa' case.id %}" class="govuk-link">Report ready for QA</a>
+                            <a href="{% url 'simplified:edit-qa-approval' case.id %}" class="govuk-link"> {{case.get_report_approved_status_display}} </a>
                         {% endif %}
                     </td>
                 </tr>

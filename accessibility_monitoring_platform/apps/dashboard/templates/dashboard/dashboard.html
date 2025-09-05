@@ -20,7 +20,7 @@
                 </div>
             </div>
         {% endif %}
-        <div class="govuk-grid-row">
+        <div class="govuk-grid-row amp-margin-bottom-30">
             {% if mfa_disabled %}
                 <div class="govuk-grid-column-full">
                     <div class="govuk-notification-banner" role="region" aria-labelledby="banner-title-two-factor" data-module="govuk-notification-banner">
@@ -39,57 +39,126 @@
                 </div>
             {% endif %}
 
-            <div class="govuk-grid-column-full">
+            <div class="govuk-grid-column-full amp-margin-bottom-30">
                 <h1 class="govuk-heading-xl amp-margin-bottom-10">{{ sitemap.current_platform_page.get_name }}</h1>
             </div>
-            <div class="govuk-grid-column-full govuk-button-group">
-                <a
-                    href="{% url 'simplified:case-create' %}"
-                    class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
-                >
-                    Create simplified case
-                </a>
-                <a
-                    href="{% url 'detailed:case-create' %}"
-                    class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
-                >
-                    Create detailed case
-                </a>
+            
+            <div class="govuk-grid-column-full">
+                <ul class="govuk-list">
+                    <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-nav-bar-selected {% endif %}">
+                        <div class="amp-margin-bottom-15">
+                            <a href="{% url 'dashboard:home' %}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Simplified</a>
+                        </div>
+                    </li>
+                    <li class="amp-custom-nav-bar amp-margin-right-25 {% if type == 'detailed' %} amp-custom-nav-bar-selected {% endif %}">
+                        <div class="amp-margin-bottom-15">
+                            <a href="{% url 'dashboard:home' %}?type=detailed" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Detailed</a>
+                        </div>
+                    </li>
+                </ul>
             </div>
-            <div class="govuk-grid-column-full govuk-button-group">
-                <span class="govuk-body amp-margin-bottom-0">Simplified:</span>
-                {% if show_all_cases %}
-                    <a
-                        href="{% url 'dashboard:home' %}?view=View your cases"
-                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0 amp-padding-left-10"
-                    >
-                        Your cases
-                    </a>
-                    <span class="govuk-body amp-margin-bottom-0"><b>All cases</b></span>
-                {% else %}
-                    <span class="govuk-body amp-margin-bottom-0 amp-padding-left-10"><b>Your cases</b></span>
-                    <a
-                        href="{% url 'dashboard:home' %}?view=View all cases"
-                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0 amp-padding-left-10"
-                    >
-                        All cases
-                    </a>
+            <div class="govuk-grid-column-full">
+                {% if not type %}
+                    <ul class="govuk-list">
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if not filter %}
+                                <b> Your simplified cases </b>
+                            {% else %} 
+                                <a href="{% url 'dashboard:home' %}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Your simplified cases</a>
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-sub-nav-bar-selected {% endif %}">
+                            {% if filter == 'all-cases' %}
+                                <b> All simplified cases </b>
+                            {% else %}    
+                                <a href="{% url 'dashboard:home' %}?filter=all-cases" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">All simplified cases</a>
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-sub-nav-bar-selected {% endif %}">
+                            {% if filter == 'qa-filter' %}
+                                <b> QA Cases ({{ qa_count }}) </b>
+                            {% else %}
+                                {% if qa_count %}
+                                    <a href="{% url 'dashboard:home' %}?filter=qa-filter" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">QA Cases ({{ qa_count }})</a>
+                                {% else %}
+                                    <p>QA cases (0)</p>
+                                {% endif %}
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-sub-nav-bar-selected {% endif %}">
+                            <a href="{% url 'simplified:case-create' %}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
+                                + Create case
+                            </a>
+                        </li>
+                    </ul>
+                {% endif %}
+                {% if type == 'detailed' %}
+                    <ul class="govuk-list">
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if not filter %}
+                                <b> Your detailed cases </b>
+                            {% else %} 
+                                <a href="{% url 'dashboard:home' %}?type=detailed" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Your detailed cases</a>
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-sub-nav-bar-selected {% endif %}">
+                            {% if filter == 'all-cases' %}
+                                <b> All detailed cases </b>
+                            {% else %}    
+                                <a href="{% url 'dashboard:home' %}?type=detailed&filter=all-cases" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">All detailed cases</a>
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-sub-nav-bar-selected {% endif %}">
+                            {% if filter == 'qa-filter' %}
+                                <b> QA Cases ({{ qa_count }}) </b>
+                            {% else %}
+                                {% if qa_count %}
+                                    <a href="{% url 'dashboard:home' %}?type=detailed&filter=qa-filter" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">QA Cases ({{ qa_count }})</a>
+                                {% else %}
+                                    QA cases (0)
+                                {% endif %}
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-sub-nav-bar-selected {% endif %}">
+                            <a href="{% url 'detailed:case-create' %}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">
+                                + Create case
+                            </a>
+                        </li>
+                    </ul>
                 {% endif %}
             </div>
         </div>
-        <div class="govuk-grid-row amp-margin-bottom-30">
-            <div class="govuk-grid-column-one-half">
-                {% include "dashboard/nav.html" %}
+        {% if filter != 'qa-filter' %}
+            <div class="govuk-grid-row amp-margin-bottom-30">
+                {% if not type %}
+                <div class="govuk-grid-column-one-half">
+                    {% include "dashboard/simplified/simplified_nav.html" %}
+                </div>
+                {% elif type == 'detailed' %}
+                    <div class="govuk-grid-column-one-half">
+                        {% include "dashboard/detailed/detailed_nav.html" %}
+                    </div>
+                {% endif %}
+                <div class="govuk-grid-column-one-half amp-left-border">
+                    {% include "dashboard/overview.html" %}
+                </div>
             </div>
-            <div class="govuk-grid-column-one-half amp-left-border">
-                {% include "dashboard/overview.html" %}
+        {% endif %}
+        {% if not type %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include "dashboard/simplified_sections.html" %}
+                </div>
             </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include "dashboard/sections.html" %}
+        {% endif %}
+
+        {% if type == "detailed" %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include "dashboard/detailed_sections.html" %}
+                </div>
             </div>
-        </div>
+        {% endif %}
     </main>
 </div>
 

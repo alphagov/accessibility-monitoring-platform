@@ -5,6 +5,8 @@ Utility functions used in dashboard
 from django.contrib.auth.models import User
 
 from ..simplified.models import SimplifiedCase
+from ..detailed.models import DetailedCase
+from ..cases.models import CASE_STATUSES, TestType
 
 STATUS_PARAMETRES: list[tuple[str, str, str]] = [  # final dict key, status, and sort
     (
@@ -103,6 +105,24 @@ def group_cases_by_status(
                 getattr(simplified_case, sort_key),
             ),
         )
+    return cases_by_status
+
+
+def group_detailed_cases_by_status(detailed_cases: DetailedCase) -> dict[str, dict]:
+    """Group detailed cases by values, include label & ID information and sort by ID"""
+    cases_by_status = {}
+    for status in CASE_STATUSES:
+        if TestType.DETAILED in status.test_types:
+            cases_by_status[status.value] = {}
+            cases_by_status[status.value]["label"] = status.label
+            cases_by_status[status.value]["cases"] = []
+
+    for case in detailed_cases:
+        cases_by_status[case.status]["cases"].append(case)
+
+    for status in cases_by_status.values():
+        status["cases"] = sorted(status["cases"], key=lambda c: c.id)
+
     return cases_by_status
 
 

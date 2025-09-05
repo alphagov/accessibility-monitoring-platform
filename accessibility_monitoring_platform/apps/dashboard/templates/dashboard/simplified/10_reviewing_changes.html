@@ -1,10 +1,10 @@
 {% if cases|length == 0 %}
-   <p class="govuk-body"> There are currently no cases in ready to send </p>
+   <p class="govuk-body">There are currently no cases in after 12-week correspondence</p>
 {% else %}
     <table class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header amp-width-15-percent">Date created</th>
+                <th scope="col" class="govuk-table__header amp-width-15-percent">Update acknowledged</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Full URL</th>
                 {% if show_all_cases %}
@@ -17,22 +17,26 @@
         <tbody class="govuk-table__body">
             {% for case in cases %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header amp-width-15-percent">{{ case.created|amp_date_trunc }}</th>
+                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">
+                        {{ case.twelve_week_correspondence_acknowledged_date| amp_date_trunc }}
+                    </th>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         <a href="{{ case.get_absolute_url }}" class="govuk-link">{{case.organisation_name|truncatechars:25}}</a>
                     </td>
                     <td class="govuk-table__cell amp-width-one-quarter">{{case.domain|truncatechars:25}}</td>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        {% if show_all_cases %}
+                        {% if filter == "all-cases" %}
                             {% if case.auditor %}
-                                <a href="{% url 'cases:case-list' %}?auditor={{case.auditor.id}}" class="govuk-link">{{ case.auditor.get_full_name }}</a>
+                                <a href="{% url 'cases:case-list' %}?auditor={{case.auditor.id}}" class="govuk-link govuk-link--no-visited-state">{{ case.auditor.get_full_name }}</a>
                             {% else %}
                                 No auditor
                             {% endif %}
-                        {% elif case.seven_day_no_contact_email_sent_date %}
-                            <a href="{% url 'simplified:edit-request-contact-details' case.id %}" class="govuk-link">No contact details request sent</a>
                         {% else %}
-                            <a href="{% url 'simplified:edit-qa-approval' case.id %}" class="govuk-link">QA approval</a>
+                            <a href="{% url 'simplified:edit-review-changes' case.id %}" class="govuk-link">Reviewing changes</a>
+                        {% endif %}
+                        {% if case.reminder %}
+                            |
+                            <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">View reminder</a>
                         {% endif %}
                     </td>
                 </tr>
