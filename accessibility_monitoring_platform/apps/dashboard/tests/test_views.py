@@ -5,14 +5,14 @@ Tests for view - dashboard
 from datetime import date, datetime, timedelta
 
 import pytest
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from accessibility_monitoring_platform.apps.common.models import ChangeToPlatform
-
 from ...audits.models import Audit
-from ...common.models import Boolean
+from ...common.models import Boolean, ChangeToPlatform
+from ...detailed.models import DetailedCase
 from ...notifications.models import Task
 from ...simplified.models import CaseCompliance, SimplifiedCase
 from ...simplified.utils import create_case_and_compliance
@@ -361,3 +361,123 @@ def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
         response,
         reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),
     )
+
+
+def test_dashboard_shows_simplified_cases(admin_client):
+    """Tests dashboard shows simplified cases when no parameter set"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Simplified Organisation"
+    )
+    dashboard_url: str = reverse("dashboard:home")
+
+    response: HttpResponse = admin_client.get(dashboard_url)
+
+    assert response.status_code == 200
+
+    assertContains(response, simplified_case.organisation_name)
+
+    response: HttpResponse = admin_client.get(f"{dashboard_url}?type=detailed")
+
+    assert response.status_code == 200
+
+    assertNotContains(response, simplified_case.organisation_name)
+
+
+def test_dashboard_shows_all_simplified_cases(admin_client):
+    """Tests dashboard shows all simplified cases when parameter set"""
+    user: User = User.objects.create()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Simplified Organisation",
+        auditor=user,
+        status=SimplifiedCase.Status.TEST_IN_PROGRESS,
+    )
+    dashboard_url: str = reverse("dashboard:home")
+
+    response: HttpResponse = admin_client.get(dashboard_url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, simplified_case.organisation_name)
+
+    response: HttpResponse = admin_client.get(f"{dashboard_url}?filter=all-cases")
+
+    assert response.status_code == 200
+
+    assertContains(response, simplified_case.organisation_name)
+
+
+def test_dashboard_shows_detailed_cases(admin_client):
+    """Tests dashboard shows detailed cases when parameter set"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        organisation_name="Detailed Organisation"
+    )
+    dashboard_url: str = reverse("dashboard:home")
+
+    response: HttpResponse = admin_client.get(dashboard_url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, detailed_case.organisation_name)
+
+    response: HttpResponse = admin_client.get(f"{dashboard_url}?type=detailed")
+
+    assert response.status_code == 200
+
+    assertContains(response, detailed_case.organisation_name)
+
+
+def test_dashboard_shows_all_detailed_cases(admin_client):
+    """Tests dashboard shows all detailed cases when parameter set"""
+    user: User = User.objects.create()
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        organisation_name="Detailed Organisation",
+        auditor=user,
+        status=DetailedCase.Status.BLOCKED,
+    )
+    dashboard_url: str = reverse("dashboard:home")
+
+    response: HttpResponse = admin_client.get(f"{dashboard_url}?type=detailed")
+
+    assert response.status_code == 200
+
+    assertNotContains(response, detailed_case.organisation_name)
+
+    response: HttpResponse = admin_client.get(
+        f"{dashboard_url}?type=detailed&filter=all-cases"
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, detailed_case.organisation_name)
+
+
+def test_dashboard_shows_simplified_cases_in_qa(admin_client):
+    """Tests dashboard shows simplified qa cases when no filter set"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Simplified Organisation",
+        status=SimplifiedCase.Status.QA_IN_PROGRESS,
+    )
+    dashboard_url: str = reverse("dashboard:home")
+
+    response: HttpResponse = admin_client.get(f"{dashboard_url}?filter=qa-filter")
+
+    assert response.status_code == 200
+
+    assertContains(response, simplified_case.organisation_name)
+
+
+def test_dashboard_shows_detailed_cases_in_qa(admin_client):
+    """Tests dashboard shows detailed qa cases when no filter set"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        organisation_name="Detailed Organisation",
+        status=DetailedCase.Status.READY_TO_QA,
+    )
+    dashboard_url: str = reverse("dashboard:home")
+
+    response: HttpResponse = admin_client.get(
+        f"{dashboard_url}?type=detailed&filter=qa-filter"
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, detailed_case.organisation_name)

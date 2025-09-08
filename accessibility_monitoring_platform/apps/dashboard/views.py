@@ -76,10 +76,6 @@ class DashboardView(TemplateView):
                             DetailedCase.Status.PSB_INFO_CHASING,
                             DetailedCase.Status.PSB_INFO_REQ_ACK,
                             DetailedCase.Status.PSB_INFO_RECEIVED,
-                            DetailedCase.Status.PSB_INFO_REQ,
-                            DetailedCase.Status.PSB_INFO_CHASING,
-                            DetailedCase.Status.PSB_INFO_REQ_ACK,
-                            DetailedCase.Status.PSB_INFO_RECEIVED,
                         ]
                     )
                 )
