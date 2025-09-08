@@ -14,7 +14,6 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
-from ...common.templatetags.common_tags import amp_date
 from ...reports.models import Report
 from ...simplified.models import (
     CaseCompliance,
@@ -3465,49 +3464,6 @@ def test_equality_body_page_location_shown(admin_client):
     assert response.status_code == 200
 
     assertContains(response, PAGE_LOCATION)
-
-
-def test_equality_body_note_dates_shown(admin_client):
-    """
-    Test that a equality body retest page shows when initial and 12-week retest
-    notes were made.
-    """
-    retest: Retest = create_equality_body_retest()
-    retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
-    audit: Audit = retest.simplified_case.audit
-    audit.date_of_test = INITIAL_START_DATE
-    audit.retest_date = TWELVE_WEEK_RETEST
-    audit.save()
-    retest_0: Retest = Retest.objects.create(
-        simplified_case=retest.simplified_case, id_within_case=0
-    )
-    retest_page_0: RetestPage = RetestPage.objects.create(
-        retest=retest,
-        page=retest_page.page,
-    )
-    check_result: CheckResult = CheckResult.objects.all().first()
-    RetestCheckResult.objects.create(
-        retest=retest_0,
-        retest_page=retest_page_0,
-        check_result=check_result,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-    )
-    RetestCheckResult.objects.create(
-        retest=retest_0,
-        retest_page=retest_page_0,
-        check_result=check_result,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, amp_date(INITIAL_START_DATE))
-    assertContains(response, amp_date(TWELVE_WEEK_RETEST))
 
 
 def test_equality_body_page_checks_save_continue(

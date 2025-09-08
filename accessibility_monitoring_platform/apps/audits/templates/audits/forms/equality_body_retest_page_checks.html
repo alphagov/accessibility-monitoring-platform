@@ -115,16 +115,14 @@
                                             <span class="govuk-details__summary-text">Previous test notes</span>
                                         </summary>
                                         <div class="govuk-details__text">
-                                            <label class="govuk-label"><b>Initial notes ({{ form.instance.check_result.audit.date_of_test|amp_date }})</b></label>
+                                            <label class="govuk-label"><b>Initial notes</b></label>
                                             {{ form.instance.check_result.notes|markdown_to_html }}
                                             {% for retest_check_result in form.instance.all_retest_check_results %}
                                                 {% if retest_check_result != form.instance %}
                                                     <label class="govuk-label">
                                                         <b>
                                                             {{ retest_check_result.retest }} notes
-                                                            {% if retest_check_result.retest.id_within_case == 0 %}
-                                                                ({{ retest_check_result.check_result.audit.retest_date|amp_date }})
-                                                            {% else %}
+                                                            {% if retest_check_result.retest.id_within_case > 0 %}
                                                                 ({{ retest_check_result.retest.date_of_retest|amp_date }})
                                                             {% endif %}
                                                         </b>
