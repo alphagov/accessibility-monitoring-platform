@@ -34,7 +34,7 @@ NOT_FOUND_DOMAIN: str = "not-found"
 FOUND_DOMAIN: str = "found"
 EMAIL_SUBJECT: str = "Email subject"
 EMAIL_MESSAGE: str = "Email message"
-ISSUE_REPORT_LINK: str = """<a class="govuk-footer__link" href="/common/report-issue/?page_url=/&page_title=Your simplified cases"
+ISSUE_REPORT_LINK: str = """<a class="govuk-footer__link" href="/common/report-issue/?page_url=/&page_title=Dashboard"
 target="_blank">Report an issue</a>"""
 METRIC_OVER_LAST_30_DAYS: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_last_30_days}</b></span>

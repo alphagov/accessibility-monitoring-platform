@@ -42,7 +42,6 @@ from ..sitemap import (
     EqualityBodyRetestPagesPlatformPage,
     EqualityBodyRetestPlatformPage,
     ExportPlatformPage,
-    HomePlatformPage,
     MobileCasePlatformPage,
     MobileCasePlatformPageGroup,
     PlatformPage,
@@ -315,29 +314,6 @@ def test_platform_page_get_case():
         PlatformPage(name=PLATFORM_PAGE_NAME, instance=retest_page).get_case()
         == simplified_case
     )
-
-
-def test_home_platform_page():
-    """Test HomePlatformPage sets name based on GET parameters"""
-    home_platform_page: HomePlatformPage = HomePlatformPage(name=PLATFORM_PAGE_NAME)
-
-    mock_request: MockRequest = MockRequest()
-
-    home_platform_page.populate_from_request(request=mock_request)
-
-    assert home_platform_page.get_name() == "Your simplified cases"
-
-    mock_request: MockRequest = MockRequest({"view": "View all cases"})
-
-    home_platform_page.populate_from_request(request=mock_request)
-
-    assert home_platform_page.get_name() == "All simplified cases"
-
-    mock_request: MockRequest = MockRequest({"view": "View your cases"})
-
-    home_platform_page.populate_from_request(request=mock_request)
-
-    assert home_platform_page.get_name() == "Your simplified cases"
 
 
 def test_export_platform_page():
@@ -903,7 +879,7 @@ def test_case_sitemap(rf):
 @pytest.mark.parametrize(
     "url, expected_page_name",
     [
-        ("/", "Your simplified cases"),
+        ("/", "Dashboard"),
         ("/simplified/1/edit-case-metadata/", "Case metadata"),
         ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
         ("/audits/pages/1/edit-audit-page-checks/", "Pagename page test"),

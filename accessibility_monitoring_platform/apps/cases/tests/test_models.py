@@ -111,9 +111,9 @@ def test_detailed_case_statuses():
     assert DetailedCaseStatus.choices == [
         ("000-unassigned-case", "Unassigned case"),
         ("010-initial-psb-info-requested", "Requested information"),
-        ("020-initial-psb-info-chasing", "Chasing - no response / missed deadline"),
+        ("020-initial-psb-info-chasing", "Chasing initial response"),
         ("030-initial-psb-info-req-ack", "Acknowledge our request"),
-        ("040-initial-psb-info-received", "Received Details/Access"),
+        ("040-initial-psb-info-received", "Received details and access"),
         ("050-test-in-progress", "Test in progress"),
         ("060-report-in-progress", "Report in progress"),
         ("070-unassigned-qa-case", "Report ready to QA"),
@@ -142,9 +142,9 @@ def test_mobile_case_statuses():
     assert MobileCaseStatus.choices == [
         ("000-unassigned-case", "Unassigned case"),
         ("010-initial-psb-info-requested", "Requested information"),
-        ("020-initial-psb-info-chasing", "Chasing - no response / missed deadline"),
+        ("020-initial-psb-info-chasing", "Chasing initial response"),
         ("030-initial-psb-info-req-ack", "Acknowledge our request"),
-        ("040-initial-psb-info-received", "Received Details/Access"),
+        ("040-initial-psb-info-received", "Received details and access"),
         ("050-test-in-progress", "Test in progress"),
         ("060-report-in-progress", "Report in progress"),
         ("070-unassigned-qa-case", "Report ready to QA"),

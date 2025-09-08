@@ -1,0 +1,15 @@
+<nav aria-label="Table of contents" class="amp-margin-bottom-30">
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Audit cases</b></p>
+    {% for key, status in cases_by_status.items %}
+        {% if key == "170-case-closed-waiting-to-be-sent" %}
+            <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10 amp-margin-top-30"><b>Post case</b></p>
+        {% endif %}
+        <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
+            {% if status.cases %}
+                <a href="#cases-status-{{key}}" class="govuk-link govuk-link--no-visited-state">
+            {% endif %}
+            {{ status.label }} - {{ status.cases|length }}
+            {% if status.cases %}</a>{% endif %}
+        </p>
+    {% endfor %}
+</nav>
