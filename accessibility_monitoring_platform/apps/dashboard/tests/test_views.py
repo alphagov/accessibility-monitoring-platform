@@ -203,30 +203,6 @@ def test_dashboard_shows_warning_of_recent_changes_to_platform(admin_client):
     )
 
 
-def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin_user):
-    """Check dashboard shows correct number of your active cases"""
-
-    # Creates unassigned case
-    SimplifiedCase.objects.create()
-    SimplifiedCase.objects.create()
-
-    # Case assigned to you
-    SimplifiedCase.objects.create(auditor=admin_user)
-
-    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
-    assert SimplifiedCase.objects.all().count() == 3
-    assert response.status_code == 200
-    expected_number_of_your_active_cases: str = """
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Your active cases</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">1</p>
-    """
-    assertContains(
-        response,
-        expected_number_of_your_active_cases,
-        html=True,
-    )
-
-
 def test_dashboard_shows_correct_links_to_tasks(admin_client, admin_user):
     """Check dashboard shows links to tasks"""
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
@@ -257,7 +233,7 @@ def test_dashboard_shows_correct_links_to_tasks(admin_client, admin_user):
                     (<a href="/notifications/task-list/?type=overdue" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
                 </p>
             </div>
-            <div class="amp-margin-bottom-25">
+            <div>
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case notifications</b></p>
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
                     0

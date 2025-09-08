@@ -3,10 +3,11 @@ Utility functions used in dashboard
 """
 
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 
-from ..simplified.models import SimplifiedCase
-from ..detailed.models import DetailedCase
 from ..cases.models import CASE_STATUSES, TestType
+from ..detailed.models import DetailedCase
+from ..simplified.models import SimplifiedCase
 
 STATUS_PARAMETRES: list[tuple[str, str, str]] = [  # final dict key, status, and sort
     (
@@ -108,22 +109,24 @@ def group_cases_by_status(
     return cases_by_status
 
 
-def group_detailed_cases_by_status(detailed_cases: DetailedCase) -> dict[str, dict]:
+def group_detailed_cases_by_status(
+    detailed_cases: QuerySet[DetailedCase],
+) -> dict[str, dict[str, list[DetailedCase] | str]]:
     """Group detailed cases by values, include label & ID information and sort by ID"""
-    cases_by_status = {}
+    detailed_cases_by_status = {}
     for status in CASE_STATUSES:
         if TestType.DETAILED in status.test_types:
-            cases_by_status[status.value] = {}
-            cases_by_status[status.value]["label"] = status.label
-            cases_by_status[status.value]["cases"] = []
+            detailed_cases_by_status[status.value] = {}
+            detailed_cases_by_status[status.value]["label"] = status.label
+            detailed_cases_by_status[status.value]["cases"] = []
 
-    for case in detailed_cases:
-        cases_by_status[case.status]["cases"].append(case)
+    for detailed_case in detailed_cases:
+        detailed_cases_by_status[detailed_case.status]["cases"].append(detailed_case)
 
-    for status in cases_by_status.values():
+    for status in detailed_cases_by_status.values():
         status["cases"] = sorted(status["cases"], key=lambda c: c.id)
 
-    return cases_by_status
+    return detailed_cases_by_status
 
 
 def get_all_cases_in_qa(all_cases: list[SimplifiedCase]) -> list[SimplifiedCase]:

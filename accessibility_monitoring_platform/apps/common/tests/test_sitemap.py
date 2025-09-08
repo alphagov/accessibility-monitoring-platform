@@ -879,7 +879,7 @@ def test_case_sitemap(rf):
 @pytest.mark.parametrize(
     "url, expected_page_name",
     [
-        ("/", "Your simplified cases"),
+        ("/", "Dashboard"),
         ("/simplified/1/edit-case-metadata/", "Case metadata"),
         ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
         ("/audits/pages/1/edit-audit-page-checks/", "Pagename page test"),
