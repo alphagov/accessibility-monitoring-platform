@@ -1577,6 +1577,10 @@ SITE_MAP: list[PlatformPageGroup] = [
                     ),
                 ],
             ),
+            PlatformPage(
+                name="More information about monitoring",
+                url_name="common:more-information",
+            ),
             PlatformPage(name="Bulk URL search", url_name="common:bulk-url-search"),
         ],
     ),
@@ -1797,7 +1801,7 @@ SITE_MAP: list[PlatformPageGroup] = [
         ],
     ),
     PlatformPageGroup(
-        name="Non-Case other",
+        name="",
         pages=[
             PlatformPage(name="Search cases", url_name="cases:case-list"),
             PlatformPage(
@@ -1820,10 +1824,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                 instance_class=Task,
             ),
             PlatformPage(name="Privacy notice", url_name="common:privacy-notice"),
-            PlatformPage(
-                name="More information about monitoring",
-                url_name="common:more-information",
-            ),
         ],
     ),
     PlatformPageGroup(

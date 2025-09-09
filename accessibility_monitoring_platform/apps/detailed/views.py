@@ -606,7 +606,7 @@ class DetailedCaseHistoryDetailView(DetailView):
 
     model: type[DetailedCase] = DetailedCase
     context_object_name: str = "case"
-    template_name: str = "detailed/case_history.html"
+    template_name: str = "cases/case_history.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add current case to context"""

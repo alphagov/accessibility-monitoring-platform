@@ -1,0 +1,13 @@
+<div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        {% include 'exports/breadcrumb_search.html' %}
+        {% include 'exports/breadcrumb_manager.html' %}
+        {% if export %}
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-detail' export.id %}">{{ export }}</a>
+            </li>
+        {% endif %}
+        {% include 'common/breadcrumb_page.html' %}
+    </ol>
+</div>

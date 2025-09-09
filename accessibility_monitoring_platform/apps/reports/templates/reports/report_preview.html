@@ -9,14 +9,7 @@
                 {% include 'cases/helpers/case_banner.html' %}
             </div>
         </div>
-        <div class="govuk-breadcrumbs">
-            <ol class="govuk-breadcrumbs__list">
-                {% include 'common/breadcrumb_home.html' %}
-                {% include 'simplified/helpers/breadcrumb_case.html' %}
-                <li class="govuk-breadcrumbs__list-item">Report QA</li>
-                <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
-            </ol>
-        </div>
+        {% include 'common/breadcrumbs.html' %}
         <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
             {% include 'simplified/helpers/compliant_website_notification.html' %}
             <div>

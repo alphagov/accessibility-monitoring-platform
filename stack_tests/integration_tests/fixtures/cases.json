@@ -5,6 +5,7 @@
     "fields": {
       "version": 4,
       "case_number": 1,
+      "case_identifier": "#S-1",
       "created_by": 2,
       "updated": "2022-09-02T14:36:27.869Z",
       "status": "050-test-in-progress",
