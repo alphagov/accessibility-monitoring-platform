@@ -82,7 +82,9 @@ class DashboardView(TemplateView):
         elif filter_param == "qa-filter":
             cases: QuerySet[SimplifiedCase | DetailedCase] = qa_cases
 
-        cases_by_status = {}
+        cases_by_status: dict[
+            str, list[SimplifiedCase] | dict[str, list[DetailedCase] | str]
+        ] = {}
         if cases and test_type == TestType.SIMPLIFIED:
             cases_by_status: dict[str, list[SimplifiedCase]] = group_cases_by_status(
                 simplified_cases=cases

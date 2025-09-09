@@ -503,14 +503,14 @@ class RetestResultUpdateForm(VersionForm):
     """Form for updating reviewing changes retest result page"""
 
     retest_website_compliance_state = AMPChoiceRadioField(
-        label="Retest compliance decision",
+        label="Retest website compliance decision",
         choices=DetailedCase.WebsiteCompliance.choices,
     )
     retest_website_compliance_information = AMPTextField(
         label="Retest website compliance decision information"
     )
     retest_statement_compliance_state = AMPChoiceRadioField(
-        label="Retest compliance decision",
+        label="Retest statement compliance decision",
         choices=DetailedCase.StatementCompliance.choices,
     )
     retest_statement_compliance_information = AMPTextField(
