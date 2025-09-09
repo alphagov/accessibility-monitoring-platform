@@ -119,7 +119,14 @@
                                             {{ form.instance.check_result.notes|markdown_to_html }}
                                             {% for retest_check_result in form.instance.all_retest_check_results %}
                                                 {% if retest_check_result != form.instance %}
-                                                    <label class="govuk-label"><b>{{ retest_check_result.retest }} notes</b></label>
+                                                    <label class="govuk-label">
+                                                        <b>
+                                                            {{ retest_check_result.retest }} notes
+                                                            {% if retest_check_result.retest.id_within_case > 0 %}
+                                                                ({{ retest_check_result.retest.date_of_retest|amp_date }})
+                                                            {% endif %}
+                                                        </b>
+                                                    </label>
                                                     {% if retest_check_result.retest_notes %}
                                                         {{ retest_check_result.retest_notes|markdown_to_html }}
                                                     {% else %}
