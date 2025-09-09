@@ -187,11 +187,12 @@ class DetailedCase(BaseCase):
     retest_result_complete_date = models.DateField(null=True, blank=True)
 
     # Closing the case - Closing the case
+    psb_progress_info = models.TextField(default="", blank=True)
     recommendation_decision_sent_date = models.DateField(null=True, blank=True)
     recommendation_decision_sent_to = models.CharField(
         max_length=200, default="", blank=True
     )
-    recommendation_notes = models.TextField(default="", blank=True)
+    recommendation_info = models.TextField(default="", blank=True)
     case_close_decision_state = models.CharField(
         max_length=30,
         choices=CaseCloseDecision.choices,

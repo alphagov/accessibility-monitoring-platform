@@ -98,8 +98,6 @@ NEW_12_WEEK_CUSTOM_REPORT_COMMENT: str = "New 12-week custom report comment"
 NEW_12_WEEK_CUSTOM_AUDITOR_NOTES: str = "New 12-week custom auditor notes"
 HISTORIC_RETEST_NOTES: str = "Historic retest notes"
 HISTORIC_CHECK_RESULT_NOTES: str = "Historic check result notes"
-INITIAL_START_DATE: date = date(2001, 1, 1)
-TWELVE_WEEK_RETEST: date = date(2001, 4, 1)
 
 
 def create_audit() -> Audit:
